@@ -1,0 +1,63 @@
+---
+title: "Basics"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{basics}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(pcs.sim.pkg)
+
+# create a data-generating process function to pass to create_dgp()
+dgp_fun <- function(n_obs, noise_level = 4) {
+  X <- matrix(rnorm(n_obs * 2), nrow=n_obs)
+  y <- cbind(1, X) %*% c(-8, 3, -1) + rnorm(n_obs, sd = noise_level)
+  return(list(X = X, y = y))
+}
+
+dgp <- create_dgp(dgp_fun, n_obs = 100)
+
+# create a method function to pass to create_method(); this this case, just get
+# the p-values of the two predictors in the OLS fit of the data
+method_fun <- function(data_list) {
+  X <- data_list$X
+  y <- data_list$y
+  fit <- lm(y ~ X)
+  return(list(
+    "X1 p-val" = summary(fit)$coefficients["X1", "Pr(>|t|)"],
+    "X2 p-val" = summary(fit)$coefficients["X2", "Pr(>|t|)"]
+  ))
+}
+
+method <- create_method(method_fun)
+
+# create the experiment and add the dgp and method
+experiment <- create_experiment(n_reps = 1000) %>%
+  add_dgp(dgp) %>%
+  add_method(method)
+
+future::plan(future::sequential)
+
+# run sequentually
+seq_start <- proc.time()
+o1 <- experiment$run()
+proc.time() - seq_start
+
+future::plan(future::multiprocess, workers=2)
+
+# run in parallel with 2 processes
+par_start <- proc.time()
+o2 <- experiment$run()
+proc.time() - par_start
+
+future::plan(future::sequential)
+```
