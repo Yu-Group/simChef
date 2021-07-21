@@ -6,21 +6,27 @@ DGP <- R6::R6Class(
   public = list(
     n_obs = NULL,
     dgp_fun = NULL,
-    initialize = function(dgp_fun, n_obs, ...) {
+    dgp_params = NULL,
+    initialize = function(dgp_fun, ...) {
       self$dgp_fun <- dgp_fun
-      self$n_obs <- n_obs
+      self$dgp_params <- list(...)
     },
-    generate = function(n_obs, ...) {
-      if (missing(n_obs)) {
-        # TODO: handle the vector-valued n_obs case
-        n_obs <- self$n_obs[1]
+    generate = function(...) {
+      data_list <- do.call(self$dgp_fun, self$dgp_params)
+      
+      # check if data_list is a list; if not, coerce to list
+      if (!inherits(data_list, "list")) {
+        data_list <- list(data_list)
       }
-      data_list <- self$dgp_fun(n_obs, ...)
-      if (is.null(names(data_list))) {
-        names(data_list) <- paste0("dataset", 1:length(data_list))
+      
+      # get number of observations
+      if (!is.null(nrow(data_list[[1]]))) {
+        self$n_obs <- nrow(data_list[[1]])
+      } else {
+        self$n_obs <- length(data_list[[1]])
       }
-      data_tib <- tibble::tibble(n_obs=n_obs, name=names(data_list), data_list)
-      return(data_tib)
+      
+      return(data_list)
     }
   )
 )

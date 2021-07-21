@@ -5,11 +5,15 @@ Evaluator <- R6::R6Class(
   classname = 'Evaluator',
   public = list(
     eval_fun = NULL,
+    eval_param = NULL,
     initialize = function(eval_fun, ...) {
       self$eval_fun <- eval_fun
+      self$eval_param <- list(...)
     },
-    evaluate = function(nested_results, ...) {
-      return(eval_fun(nested_results$result_list, ...))
+    evaluate = function(result_list, ...) {
+      eval_out <- do.call(self$eval_fun, 
+                          list(result_list = result_list, self$eval_param))
+      return(tibble::as_tibble(eval_out))
     }
   )
 )
