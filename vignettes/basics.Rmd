@@ -18,19 +18,17 @@ knitr::opts_chunk$set(
 library(pcs.sim.pkg)
 
 # create a data-generating process function to pass to create_dgp()
-dgp_fun <- function(n_obs, noise_level = 4) {
-  X <- matrix(rnorm(n_obs * 2), nrow=n_obs)
-  y <- cbind(1, X) %*% c(-8, 3, -1) + rnorm(n_obs, sd = noise_level)
+dgp_fun <- function(n, noise_level = 4) {
+  X <- matrix(rnorm(n * 2), nrow=n)
+  y <- cbind(1, X) %*% c(-8, 3, -1) + rnorm(n, sd = noise_level)
   return(list(X = X, y = y))
 }
 
-dgp <- create_dgp(dgp_fun, n_obs = 100)
+dgp <- create_dgp(dgp_fun, n = 200, noise_level = 1)
 
 # create a method function to pass to create_method(); this this case, just get
 # the p-values of the two predictors in the OLS fit of the data
-method_fun <- function(data_list) {
-  X <- data_list$X
-  y <- data_list$y
+method_fun <- function(X, y) {
   fit <- lm(y ~ X)
   return(list(
     "X1 p-val" = summary(fit)$coefficients["X1", "Pr(>|t|)"],
