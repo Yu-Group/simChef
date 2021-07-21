@@ -96,12 +96,15 @@ Experiment <- R6::R6Class(
       }
       return(results)
     },
-    evaluate = function() {
+    evaluate = function(results, ...) {
       evaluator_list <- self$evaluator_list
       if (length(evaluator_list) == 0) {
         private$.throw_empty_list_error("evaluator", "evaluate")
       }
-      return(tibble::tibble())
+      eval_results <- purrr::map(evaluator_list, function(evaluator) {
+        evaluator$evaluate(results)
+      })
+      return(eval_results)
     },
     add_dgp = function(dgp, name=NULL, ...) {
       private$.add_obj("dgp", dgp, name)
