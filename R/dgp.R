@@ -12,7 +12,11 @@ DGP <- R6::R6Class(
       self$dgp_params <- list(...)
     },
     generate = function(...) {
-      data_list <- do.call(self$dgp_fun, self$dgp_params)
+      if (identical(self$dgp_params, list())) {
+        data_list <- self$dgp_fun()
+      } else {
+        data_list <- do.call(self$dgp_fun, self$dgp_params)
+      }
       
       # check if data_list is a list; if not, coerce to list
       if (!inherits(data_list, "list")) {
