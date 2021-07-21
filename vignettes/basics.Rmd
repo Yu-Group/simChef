@@ -38,10 +38,29 @@ method_fun <- function(X, y) {
 
 method <- create_method(method_fun)
 
+eval_summary_fun <- function(results) {
+  eval_out <- results %>%
+    dplyr::group_by(dgp, method) %>%
+    dplyr::summarise_all(~mean(.x < 0.05))
+  return(eval_out)
+}
+
+eval_fun <- function(results) {
+  eval_out <- results %>%
+    dplyr::mutate_at(dplyr::vars(-dgp, -method), 
+                     ~ifelse(.x < 0.05, "reject", "fail to reject"))
+  return(eval_out)
+}
+
+summary_evaluator <- create_evaluator(eval_summary_fun)
+evaluator <- create_evaluator(eval_fun)
+
 # create the experiment and add the dgp and method
 experiment <- create_experiment(n_reps = 1000) %>%
   add_dgp(dgp) %>%
-  add_method(method)
+  add_method(method) %>%
+  add_evaluator(summary_evaluator) %>%
+  add_evaluator(evaluator)
 
 future::plan(future::sequential)
 
@@ -49,6 +68,8 @@ future::plan(future::sequential)
 seq_start <- proc.time()
 o1 <- experiment$run()
 proc.time() - seq_start
+
+eval_res <- experiment$evaluate(o1)
 
 future::plan(future::multiprocess, workers=2)
 
