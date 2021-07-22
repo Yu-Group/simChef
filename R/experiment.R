@@ -109,7 +109,7 @@ Experiment <- R6::R6Class(
     update_dgp = function(dgp, name, ...) {
       private$.update_obj("dgp", dgp, name)
     },
-    add_method = function(method, name, ...) {
+    add_method = function(method, name=NULL, ...) {
       private$.add_obj("method", method, name)
     },
     update_method = function(method, name, ...) {
