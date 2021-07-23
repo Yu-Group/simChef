@@ -287,6 +287,31 @@ Experiment <- R6::R6Class(
       
       return(eval_results)
     },
+    create_doc_template = function(save_dir = NULL, ...) {
+      if (is.null(save_dir)) {
+        if (is.null(self$name)) {
+          save_dir <- file.path("results", "experiment", "docs")
+        } else {
+          save_dir <- file.path("results", self$name, "docs")
+        }
+      }
+      
+      if (!dir.exists(save_dir)) {
+        dir.create(save_dir, recursive = TRUE)
+      }
+      
+      write.csv(NULL, file = file.path(save_dir, "objectives.md"), quote = F)
+      # TODO: add plotters or viz .md 
+      fields <- c("dgp", "method", "evaluator")
+      for (field in fields) {
+        for (obj_name in names(self[[paste0(field, "_list")]])) {
+          write.csv(NULL, file = file.path(save_dir, paste0(obj_name, ".md")),
+                    quote = F)
+        }
+      }
+      self$saved_results[[".docs"]] <- list(dir = file.path(save_dir, "docs"))
+      return(invisible(self))
+    },
     add_dgp = function(dgp, name=NULL, ...) {
       private$.add_obj("dgp", dgp, name)
     },
