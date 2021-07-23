@@ -12,10 +12,18 @@ DGP <- R6::R6Class(
       self$dgp_params <- list(...)
     },
     generate = function(...) {
-      if (identical(self$dgp_params, list())) {
+      dgp_params <- self$dgp_params
+      new_dgp_params <- list(...)
+      if (length(new_dgp_params) > 0) {
+        for (i in 1:length(new_dgp_params)) {
+          dgp_params[[names(new_dgp_params)[i]]] <- new_dgp_params[[i]]
+        }
+      }
+      
+      if (identical(dgp_params, list())) {
         data_list <- self$dgp_fun()
       } else {
-        data_list <- do.call(self$dgp_fun, self$dgp_params)
+        data_list <- do.call(self$dgp_fun, dgp_params)
       }
       
       # check if data_list is a list; if not, coerce to list
