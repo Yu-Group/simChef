@@ -96,6 +96,93 @@ Experiment <- R6::R6Class(
       }
       return(results)
     },
+    run_across = function(dgp, method, param_name, param_values,
+                          parallel_strategy = c("reps", "dgps", "methods",
+                                                "dgps+methods"),
+                          trial_run = FALSE, ...) {
+      parallel_strategy <- match.arg(parallel_strategy)
+      dgp_list <- self$dgp_list
+      method_list <- self$method_list
+      if (length(dgp_list) == 0) {
+        private$.throw_empty_list_error("dgp")
+      }
+      if (length(method_list) == 0) {
+        private$.throw_empty_list_error("method")
+      }
+      n_reps <- self$n_reps
+      if (trial_run) {
+        n_reps <- 1
+      }
+      # TODO: better error checking for dgp/method input or create new class
+      # TODO: check for match with param_name
+      if (missing(dgp) & missing(method)) {
+        stop("Must specify either dgp or method.")
+      } else if (!missing(dgp)) {
+        if (inherits(dgp, "DGP")) {
+          dgp_name <- sapply(dgp_list, 
+                             function(x) identical(x, dgp)) %>%
+            which() %>%
+            names()
+        } else if (dgp %in% names(self$dgp_list)) {
+          dgp_name <- dgp
+        } else {
+          stop("dgp must either be a DGP object or the name of a dgp in the current experiment.")
+        }
+      } else if (!missing(method)) {
+        if (inherits(method, "Method")) {
+          method_name <- sapply(method_list, 
+                                function(x) identical(x, method)) %>%
+            which() %>%
+            names()
+        } else if (method %in% names(self$method_list)) {
+          method_name <- method
+        } else {
+          stop("method must either be a Method object or the name of a method in the current experiment.")
+        }
+      }
+      
+      # TODO: add parallelization
+      # TODO: tweak to work for varying multiple parameters simultaneously
+      # Q: do we want to enable varying parameters across multiple dgps/methods?
+      if (!missing(dgp)) {
+        results <- future.apply::future_replicate(n_reps, {
+          purrr::map_dfr(param_values, function(param_value) {
+            input_param <- list(param = param_value) %>%
+              setNames(param_name)
+            datasets <- do.call(dgp_list[[dgp_name]]$generate, input_param)
+            purrr::map_dfr(method_list, function(method) {
+              method$run(datasets)
+            }, .id = "method")
+          }, .id = param_name) %>%
+            dplyr::mutate(dgp = dgp_name) %>%
+            dplyr::relocate(dgp, .before = method)
+        }, simplify = FALSE) %>%
+          dplyr::bind_rows(.id = "rep")
+      } else if (!missing(method)) {
+        results <- future.apply::future_replicate(n_reps, {
+          purrr::map_dfr(dgp_list, function(dgp) {
+            datasets <- dgp$generate()
+            purrr::map_dfr(param_values, function(param_value) {
+              input_param <- list(param = param_value) %>%
+                setNames(param_name)
+              do.call(method_list[[method_name]]$run,
+                      c(list(datasets), input_param))
+            }, .id = param_name) %>%
+              dplyr::mutate(method = method_name)
+              dplyr::relocate(method, .after = dgp)
+          }, .id = "dgp")
+        }, simplify = FALSE) %>%
+          dplyr::bind_rows(.id = "rep")
+      }
+      
+      if (is.null(names(param_values))) {
+        names(param_values) <- 1:length(param_values)
+        results[[param_name]] <- param_values[results[[param_name]]]
+        attr(results[[param_name]], "names") <- NULL 
+      }
+      
+      return(results)
+    },
     evaluate = function(results, ...) {
       evaluator_list <- self$evaluator_list
       if (length(evaluator_list) == 0) {
