@@ -56,6 +56,11 @@ Experiment <- R6::R6Class(
                              save_filename_null = "run_results.rds") {
       if (is.null(save_filename)) {
         save_filename <- save_filename_null
+        save_dir <- dirname(save_filename)
+        save_filename <- basename(save_filename)
+        if (identical(save_dir, ".")) {
+          save_dir <- NULL
+        }
       }
       if (is.null(save_dir)) {
         if (is.null(self$name)) {
@@ -365,7 +370,7 @@ run_experiment <- function(experiment, ...) {
 
 #' @export
 add_dgp <- function(experiment, dgp, name=NULL, ...) {
-  experiment$add_dgp(dgp, ...)
+  experiment$add_dgp(dgp, name, ...)
   return(experiment)
 }
 
