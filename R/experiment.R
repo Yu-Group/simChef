@@ -68,7 +68,6 @@ Experiment <- R6::R6Class(
         dir.create(save_dir, recursive = T)
       }
       saveRDS(results, file.path(save_dir, save_filename))
-      saveRDS(self, file.path(save_dir, "experiment.rds"))
       attr(results, "saved_to") <- file.path(save_dir, save_filename)
       return(results)
     }
@@ -126,6 +125,8 @@ Experiment <- R6::R6Class(
                                          save_filename = save_filename)
         self$saved_results[[".base"]] <- list(run_results = attr(results,
                                                                  "saved_to"))
+        saveRDS(self, file.path(dirname(attr(results, "saved_to")),
+                                "experiment.rds"))
       }
       
       return(results)
@@ -235,6 +236,8 @@ Experiment <- R6::R6Class(
         self$saved_results[[obj_name]][[param_name]] <- list(
           run_results = attr(results, "saved_to")
         )
+        saveRDS(self, file.path(dirname(attr(results, "saved_to")),
+                                "experiment.rds"))
       }
       
       return(results)
@@ -283,6 +286,8 @@ Experiment <- R6::R6Class(
           self$saved_results[[obj_name]][[param_name]][["eval_results"]] <- 
             attr(eval_results, "saved_to")
         }
+        saveRDS(self, file.path(dirname(attr(results, "saved_to")),
+                                "experiment.rds"))
       }
       
       return(eval_results)
