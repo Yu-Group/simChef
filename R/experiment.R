@@ -300,13 +300,17 @@ Experiment <- R6::R6Class(
         dir.create(save_dir, recursive = TRUE)
       }
       
-      write.csv(NULL, file = file.path(save_dir, "objectives.md"), quote = F)
+      if (!file.exists(file.path(save_dir, "objectives.md"))) {
+        write.csv(NULL, file = file.path(save_dir, "objectives.md"), quote = F)
+      }
       # TODO: add plotters or viz .md 
       fields <- c("dgp", "method", "evaluator")
       for (field in fields) {
         for (obj_name in names(self[[paste0(field, "_list")]])) {
-          write.csv(NULL, file = file.path(save_dir, paste0(obj_name, ".md")),
-                    quote = F)
+          fname <- file.path(save_dir, paste0(obj_name, ".md"))
+          if (!file.exists(fname)) {
+            write.csv(NULL, file = fname, quote = F)
+          }
         }
       }
       self$saved_results[[".docs"]] <- list(dir = file.path(save_dir, "docs"))
