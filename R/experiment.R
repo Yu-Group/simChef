@@ -51,23 +51,52 @@ Experiment <- R6::R6Class(
         name <- paste0(dgp_name, method_name)
       }
       return(name)
+    },
+    .save_results = function(results, save_dir = NULL, save_filename = NULL,
+                             save_filename_null = "run_results.rds") {
+      if (is.null(save_filename)) {
+        save_filename <- save_filename_null
+        save_dir <- dirname(save_filename)
+        save_filename <- basename(save_filename)
+        if (identical(save_dir, ".")) {
+          save_dir <- NULL
+        }
+      }
+      if (is.null(save_dir)) {
+        if (is.null(self$name)) {
+          save_dir <- file.path("results", "experiment")
+        } else {
+          save_dir <- file.path("results", self$name)
+        }
+      }
+      if (!dir.exists(save_dir)) {
+        dir.create(save_dir, recursive = T)
+      }
+      saveRDS(results, file.path(save_dir, save_filename))
+      attr(results, "saved_to") <- file.path(save_dir, save_filename)
+      return(results)
     }
   ),
   public = list(
     n_reps = NULL,
+    name = NULL,
     dgp_list = list(),
     method_list = list(),
     evaluator_list = list(),
-    initialize = function(n_reps, dgp_list=list(), method_list=list(),
+    saved_results = list(),
+    initialize = function(n_reps, name = NULL,
+                          dgp_list=list(), method_list=list(),
                           evaluator_list=list(), ...) {
       # TODO: check that n_reps has length 1 or is the same length as dgp_list
       self$n_reps <- n_reps
+      self$name <- name
       self$dgp_list <- dgp_list
       self$method_list <- method_list
       self$evaluator_list <- evaluator_list
     },
     run = function(parallel_strategy = c("reps", "dgps", "methods", "dgps+methods"),
-                   trial_run = FALSE, ...) {
+                   trial_run = FALSE, 
+                   save = FALSE, save_dir = NULL, save_filename = NULL, ...) {
       parallel_strategy <- match.arg(parallel_strategy)
       dgp_list <- self$dgp_list
       method_list <- self$method_list
@@ -94,9 +123,133 @@ Experiment <- R6::R6Class(
       } else {
         results <- tibble::tibble()
       }
+      
+      if (save) {
+        results <- private$.save_results(results = results, 
+                                         save_dir = save_dir, 
+                                         save_filename = save_filename)
+        self$saved_results[[".base"]] <- list(run_results = attr(results,
+                                                                 "saved_to"))
+        saveRDS(self, file.path(dirname(attr(results, "saved_to")),
+                                "experiment.rds"))
+      }
+      
       return(results)
     },
-    evaluate = function(results, ...) {
+    run_across = function(dgp, method, param_name, param_values,
+                          parallel_strategy = c("reps", "dgps", "methods",
+                                                "dgps+methods"),
+                          trial_run = FALSE,
+                          save = FALSE, save_dir = NULL, save_filename = NULL,
+                          ...) {
+      parallel_strategy <- match.arg(parallel_strategy)
+      dgp_list <- self$dgp_list
+      method_list <- self$method_list
+      if (length(dgp_list) == 0) {
+        private$.throw_empty_list_error("dgp")
+      }
+      if (length(method_list) == 0) {
+        private$.throw_empty_list_error("method")
+      }
+      n_reps <- self$n_reps
+      if (trial_run) {
+        n_reps <- 1
+      }
+      # TODO: better error checking for dgp/method input or create new class
+      # TODO: check for match with param_name
+      if (missing(dgp) & missing(method)) {
+        stop("Must specify either dgp or method.")
+      } else if (!missing(dgp)) {
+        if (inherits(dgp, "DGP")) {
+          obj_name <- sapply(dgp_list, function(x) identical(x, dgp)) %>%
+            which() %>%
+            names()
+        } else if (dgp %in% names(self$dgp_list)) {
+          obj_name <- dgp
+        } else {
+          stop("dgp must either be a DGP object or the name of a dgp in the current experiment.")
+        }
+      } else if (!missing(method)) {
+        if (inherits(method, "Method")) {
+          obj_name <- sapply(method_list, function(x) identical(x, method)) %>%
+            which() %>%
+            names()
+        } else if (method %in% names(self$method_list)) {
+          obj_name <- method
+        } else {
+          stop("method must either be a Method object or the name of a method in the current experiment.")
+        }
+      }
+      
+      # TODO: add parallelization
+      # TODO: tweak to work for varying multiple parameters simultaneously
+      # Q: do we want to enable varying parameters across multiple dgps/methods?
+      if (!missing(dgp)) {
+        results <- future.apply::future_replicate(n_reps, {
+          purrr::map_dfr(param_values, function(param_value) {
+            input_param <- list(param = param_value) %>%
+              setNames(param_name)
+            datasets <- do.call(dgp_list[[obj_name]]$generate, input_param)
+            purrr::map_dfr(method_list, function(method) {
+              method$run(datasets)
+            }, .id = "method")
+          }, .id = param_name) %>%
+            dplyr::mutate(dgp = obj_name) %>%
+            dplyr::relocate(dgp, .before = method)
+        }, simplify = FALSE) %>%
+          dplyr::bind_rows(.id = "rep")
+      } else if (!missing(method)) {
+        results <- future.apply::future_replicate(n_reps, {
+          purrr::map_dfr(dgp_list, function(dgp) {
+            datasets <- dgp$generate()
+            purrr::map_dfr(param_values, function(param_value) {
+              input_param <- list(param = param_value) %>%
+                setNames(param_name)
+              do.call(method_list[[obj_name]]$run,
+                      c(list(datasets), input_param))
+            }, .id = param_name) %>%
+              dplyr::mutate(method = obj_name)
+          }, .id = "dgp") %>%
+            dplyr::relocate(method, .after = dgp)
+        }, simplify = FALSE) %>%
+          dplyr::bind_rows(.id = "rep")
+      }
+      
+      if (is.null(names(param_values))) {
+        names(param_values) <- 1:length(param_values)
+        results[[param_name]] <- param_values[results[[param_name]]]
+        attr(results[[param_name]], "names") <- NULL 
+      }
+      
+      # add attributes to keep track of the simulation call
+      attr(results, "type") <- obj_name
+      attr(results, "param_name") <- param_name
+      attr(results, "param_values") <- param_values
+      
+      if (save) {
+        save_filename_null <- paste0("varying_", obj_name, "_", param_name, 
+                                     ".rds")
+        results <- private$.save_results(
+          results = results, 
+          save_dir = save_dir, 
+          save_filename = save_filename,
+          save_filename_null = save_filename_null
+        )
+        if (!(obj_name %in% names(self$saved_results))) {
+          self$saved_results[[obj_name]] <- list()
+        }
+        self$saved_results[[obj_name]][[param_name]] <- list(
+          run_results = attr(results, "saved_to")
+        )
+        saveRDS(self, file.path(dirname(attr(results, "saved_to")),
+                                "experiment.rds"))
+      }
+      
+      return(results)
+    },
+    evaluate = function(results, 
+                        save = FALSE, save_dir = NULL, save_filename = NULL, 
+                        ...) {
       evaluator_list <- self$evaluator_list
       if (length(evaluator_list) == 0) {
         private$.throw_empty_list_error("evaluator", "evaluate")
@@ -104,7 +257,74 @@ Experiment <- R6::R6Class(
       eval_results <- purrr::map(evaluator_list, function(evaluator) {
         evaluator$evaluate(results)
       })
+      
+      if (save) {
+        if (is.null(attr(results, "saved_to"))) {
+          save_filename_null <- "eval_results.rds"
+        } else {
+          save_filename_null <- str_remove(attr(results, "saved_to"),
+                                           ".rds$") %>%
+            paste0("_eval.rds")
+        }
+        eval_results <- private$.save_results(
+          results = eval_results, 
+          save_dir = save_dir, 
+          save_filename = save_filename,
+          save_filename_null = save_filename_null
+        )
+        
+        if (is.null(attr(results, "type"))) {
+          if (!(".base" %in% names(self$saved_results))) {
+            self$saved_results[[".base"]] <- list()
+          }
+          self$saved_results[[".base"]][["eval_results"]] <- attr(eval_results,
+                                                                  "saved_to")
+        } else {
+          obj_name <- attr(results, "type")
+          param_name <- attr(results, "param_name")
+          if (!(obj_name %in% names(self$saved_results))) {
+            self$saved_results[[obj_name]] <- list()
+          }
+          if (!(param_name %in% names(self$saved_results[[obj_name]]))) {
+            self$saved_results[[obj_name]][[param_name]] <- list()
+          }
+          self$saved_results[[obj_name]][[param_name]][["eval_results"]] <- 
+            attr(eval_results, "saved_to")
+        }
+        saveRDS(self, file.path(dirname(attr(results, "saved_to")),
+                                "experiment.rds"))
+      }
+      
       return(eval_results)
+    },
+    create_doc_template = function(save_dir = NULL, ...) {
+      if (is.null(save_dir)) {
+        if (is.null(self$name)) {
+          save_dir <- file.path("results", "experiment", "docs")
+        } else {
+          save_dir <- file.path("results", self$name, "docs")
+        }
+      }
+      
+      if (!dir.exists(save_dir)) {
+        dir.create(save_dir, recursive = TRUE)
+      }
+      
+      if (!file.exists(file.path(save_dir, "objectives.md"))) {
+        write.csv(NULL, file = file.path(save_dir, "objectives.md"), quote = F)
+      }
+      # TODO: add plotters or viz .md 
+      fields <- c("dgp", "method", "evaluator")
+      for (field in fields) {
+        for (obj_name in names(self[[paste0(field, "_list")]])) {
+          fname <- file.path(save_dir, paste0(obj_name, ".md"))
+          if (!file.exists(fname)) {
+            write.csv(NULL, file = fname, quote = F)
+          }
+        }
+      }
+      self$saved_results[[".docs"]] <- list(dir = file.path(save_dir, "docs"))
+      return(invisible(self))
     },
     add_dgp = function(dgp, name=NULL, ...) {
       private$.add_obj("dgp", dgp, name)
@@ -150,7 +370,7 @@ run_experiment <- function(experiment, ...) {
 
 #' @export
 add_dgp <- function(experiment, dgp, name=NULL, ...) {
-  experiment$add_dgp(dgp, ...)
+  experiment$add_dgp(dgp, name, ...)
   return(experiment)
 }
 
