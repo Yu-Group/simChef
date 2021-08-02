@@ -56,7 +56,7 @@ summary_evaluator <- create_evaluator(eval_summary_fun)
 evaluator <- create_evaluator(eval_fun)
 
 # create the experiment and add the dgp and method
-experiment <- create_experiment(n_reps = 1000) %>%
+experiment <- create_experiment(n_reps = 1000, name = "base") %>%
   add_dgp(dgp) %>%
   add_method(method) %>%
   add_evaluator(summary_evaluator) %>%
@@ -79,4 +79,48 @@ o2 <- experiment$run()
 proc.time() - par_start
 
 future::plan(future::sequential)
+```
+
+# Inheriting traits from an existing Experiment
+
+```{r inheritance}
+child <- create_experiment(n_reps = 100, parent = experiment, name = "child")
+
+names(experiment$get_children())
+child$get_parent()$name
+
+# no copy of dgps/method/evaluators is made when inheriting
+data.table::address(experiment$get_dgps()[["dgp1"]]) ==
+  data.table::address(child$get_dgps()[["dgp1"]]) # TRUE
+
+# the child stays up-to-date with updates to its parent
+dgp2 <- create_dgp(dgp_fun, n = 1000, noise_level = 2)
+experiment$add_dgp(dgp2)
+
+identical(experiment$get_dgps(), child$get_dgps()) # TRUE
+
+# the child can have additional dgps (or methods/evaluators) beyond what the parent has
+dgp3 <- create_dgp(dgp_fun, n = 500, noise_level = 3)
+child$add_dgp(dgp2)
+
+names(experiment$get_dgps())
+names(child$get_dgps())
+
+# the child experiment can override its parent's dgps without modifying the parent
+dgp4 <- create_dgp(dgp_fun, n = 10000, noise_level = 10)
+child$update_dgp(dgp4, "dgp1")
+
+identical(experiment$get_dgps()[["dgp1"]], child$get_dgps()[["dgp1"]]) # FALSE
+identical(dgp, experiment$get_dgps()[["dgp1"]]) # TRUE
+identical(dgp4, child$get_dgps()[["dgp1"]]) # TRUE
+
+# inheritance is nested...
+grandchild <- create_experiment(n_reps = 100, parent = child, name = "grandchild")
+names(grandchild$get_dgps())
+
+# ...and allows for parallel branches
+child2 <- create_experiment(n_reps = 100, parent = experiment, name = "child2")
+names(experiment$get_children())
+names(child2$get_dgps())
+identical(child2$get_dgps()[['dgp1']], dgp)
 ```

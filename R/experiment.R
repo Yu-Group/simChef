@@ -4,13 +4,19 @@
 Experiment <- R6::R6Class(
   classname = 'Experiment',
   private = list(
+    .parent = NULL,
+    .child_list = list(),
+    .dgp_list = list(),
+    .method_list = list(),
+    .evaluator_list = list(),
     .add_obj = function(field_name, obj, obj_name, ...) {
-      list_name <- paste0(field_name, "_list")
+      # TODO: check if obj is already in list by another name
+      obj_list <- private$.get_obj_list(field_name, ...)
       if (is.null(obj_name)) {
         # give a default name like "dgp1"
-        obj_name <- paste0(field_name, length(self[[list_name]]) + 1)
+        obj_name <- paste0(field_name, length(obj_list) + 1)
       }
-      if (!is.null(self[[list_name]][[obj_name]])) {
+      if (!is.null(obj_list[[obj_name]])) {
         stop(
           sprintf("The name '%s' already exists in the %s list. ",
                   obj_name, field_name),
@@ -18,12 +24,13 @@ Experiment <- R6::R6Class(
           call. = FALSE
         )
       } else {
-        self[[list_name]][[obj_name]] <- obj
+        list_name <- paste0(".", field_name, "_list")
+        private[[list_name]][[obj_name]] <- obj
       }
     },
     .update_obj = function(field_name, obj, obj_name, ...) {
-      list_name <- paste0(field_name, "_list")
-      if (!obj_name %in% names(self[[list_name]])) {
+      obj_list <- private$.get_obj_list(field_name, ...)
+      if (!obj_name %in% names(obj_list)) {
         stop(
           sprintf("The name '%s' isn't in the %s list. ",
                   obj_name, field_name),
@@ -31,8 +38,8 @@ Experiment <- R6::R6Class(
           call. = FALSE
         )
       }
-      self[[list_name]][[obj_name]] <- NULL
-      private$.add_obj(field_name, obj, obj_name)
+      list_name <- paste0(".", field_name, "_list")
+      private[[list_name]][[obj_name]] <- obj
     },
     .throw_empty_list_error = function(field_name, action_name="run") {
       stop(
@@ -41,6 +48,41 @@ Experiment <- R6::R6Class(
                 field_name, action_name),
         call. = FALSE
       )
+    },
+    .get_obj_list = function(field_name, getter_name=NULL) {
+      list_name <- paste0(".", field_name, "_list")
+      obj_list <- private[[list_name]]
+      if (!is.null(private$.parent)) {
+        if (is.null(getter_name)) {
+          getter_name <- paste0("get_", field_name, "s")
+        }
+        ancestor_list <- private$.parent[[getter_name]]()
+        # filter out ancestor objs that are present in this Experiment's list
+        filter <- !sapply(names(ancestor_list), `%in%`, names(obj_list))
+        obj_list <- c(ancestor_list[filter], obj_list)
+      }
+      return(obj_list)
+    },
+    .check_obj = function(obj, expected_class) {
+      if (!inherits(obj, expected_class)) {
+        err_msg <- sprintf("%s must be an instance of pcs.sim.pkg::%s",
+                           as.character(substitute(obj)), expected_class)
+        stop(err_msg, call.=FALSE)
+      }
+    },
+    .check_obj_list = function(obj_list, expected_class) {
+      lapply(obj_list, function(obj) {
+        if (!inherits(obj, expected_class)) {
+          stop(
+            sprintf("Expected all objects in %s_list ",
+                    tolower(expected_class)),
+            sprintf("to be instances of %s, ", expected_class),
+            sprintf("but found an object with the following class(es): %s",
+                    paste0(class(obj), collapse=", ")),
+            call. = FALSE
+          )
+        }
+      })
     },
     .make_evaluator_name = function(dgp_name = NULL, method_name = NULL) {
       if (!is.null(dgp_name) && !is.null(method_name)) {
@@ -80,26 +122,29 @@ Experiment <- R6::R6Class(
   public = list(
     n_reps = NULL,
     name = NULL,
-    dgp_list = list(),
-    method_list = list(),
-    evaluator_list = list(),
     saved_results = list(),
     initialize = function(n_reps, name = NULL,
                           dgp_list=list(), method_list=list(),
-                          evaluator_list=list(), ...) {
+                          evaluator_list=list(), parent=NULL, ...) {
       # TODO: check that n_reps has length 1 or is the same length as dgp_list
+      private$.check_obj_list(dgp_list, "DGP")
+      private$.check_obj_list(method_list, "Method")
+      private$.check_obj_list(evaluator_list, "Evaluator")
+      private$.dgp_list <- dgp_list
+      private$.method_list <- method_list
+      private$.evaluator_list <- evaluator_list
       self$n_reps <- n_reps
       self$name <- name
-      self$dgp_list <- dgp_list
-      self$method_list <- method_list
-      self$evaluator_list <- evaluator_list
+      if (!is.null(parent)) {
+        self$set_parent(parent)
+      }
     },
     run = function(parallel_strategy = c("reps", "dgps", "methods", "dgps+methods"),
-                   trial_run = FALSE, 
+                   trial_run = FALSE,
                    save = FALSE, save_dir = NULL, save_filename = NULL, ...) {
       parallel_strategy <- match.arg(parallel_strategy)
-      dgp_list <- self$dgp_list
-      method_list <- self$method_list
+      dgp_list <- private$.get_obj_list("dgp")
+      method_list <- private$.get_obj_list("method")
       if (length(dgp_list) == 0) {
         private$.throw_empty_list_error("dgp")
       }
@@ -123,17 +168,15 @@ Experiment <- R6::R6Class(
       } else {
         results <- tibble::tibble()
       }
-      
       if (save) {
-        results <- private$.save_results(results = results, 
-                                         save_dir = save_dir, 
+        results <- private$.save_results(results = results,
+                                         save_dir = save_dir,
                                          save_filename = save_filename)
         self$saved_results[[".base"]] <- list(run_results = attr(results,
                                                                  "saved_to"))
         saveRDS(self, file.path(dirname(attr(results, "saved_to")),
                                 "experiment.rds"))
       }
-      
       return(results)
     },
     run_across = function(dgp, method, param_name, param_values,
@@ -143,8 +186,8 @@ Experiment <- R6::R6Class(
                           save = FALSE, save_dir = NULL, save_filename = NULL,
                           ...) {
       parallel_strategy <- match.arg(parallel_strategy)
-      dgp_list <- self$dgp_list
-      method_list <- self$method_list
+      dgp_list <- private$.get_obj_list("dgp")
+      method_list <- private$.get_obj_list("dgp")
       if (length(dgp_list) == 0) {
         private$.throw_empty_list_error("dgp")
       }
@@ -164,7 +207,7 @@ Experiment <- R6::R6Class(
           obj_name <- sapply(dgp_list, function(x) identical(x, dgp)) %>%
             which() %>%
             names()
-        } else if (dgp %in% names(self$dgp_list)) {
+        } else if (dgp %in% names(dgp_list)) {
           obj_name <- dgp
         } else {
           stop("dgp must either be a DGP object or the name of a dgp in the current experiment.")
@@ -174,13 +217,13 @@ Experiment <- R6::R6Class(
           obj_name <- sapply(method_list, function(x) identical(x, method)) %>%
             which() %>%
             names()
-        } else if (method %in% names(self$method_list)) {
+        } else if (method %in% names(method_list)) {
           obj_name <- method
         } else {
           stop("method must either be a Method object or the name of a method in the current experiment.")
         }
       }
-      
+
       # TODO: add parallelization
       # TODO: tweak to work for varying multiple parameters simultaneously
       # Q: do we want to enable varying parameters across multiple dgps/methods?
@@ -214,24 +257,24 @@ Experiment <- R6::R6Class(
         }, simplify = FALSE) %>%
           dplyr::bind_rows(.id = "rep")
       }
-      
+
       if (is.null(names(param_values))) {
         names(param_values) <- 1:length(param_values)
         results[[param_name]] <- param_values[results[[param_name]]]
-        attr(results[[param_name]], "names") <- NULL 
+        attr(results[[param_name]], "names") <- NULL
       }
-      
+
       # add attributes to keep track of the simulation call
       attr(results, "type") <- obj_name
       attr(results, "param_name") <- param_name
       attr(results, "param_values") <- param_values
-      
+
       if (save) {
-        save_filename_null <- paste0("varying_", obj_name, "_", param_name, 
+        save_filename_null <- paste0("varying_", obj_name, "_", param_name,
                                      ".rds")
         results <- private$.save_results(
-          results = results, 
-          save_dir = save_dir, 
+          results = results,
+          save_dir = save_dir,
           save_filename = save_filename,
           save_filename_null = save_filename_null
         )
@@ -244,20 +287,20 @@ Experiment <- R6::R6Class(
         saveRDS(self, file.path(dirname(attr(results, "saved_to")),
                                 "experiment.rds"))
       }
-      
+
       return(results)
     },
-    evaluate = function(results, 
-                        save = FALSE, save_dir = NULL, save_filename = NULL, 
+    evaluate = function(results,
+                        save = FALSE, save_dir = NULL, save_filename = NULL,
                         ...) {
-      evaluator_list <- self$evaluator_list
+      evaluator_list <- private$.get_obj_list("evaluator")
       if (length(evaluator_list) == 0) {
         private$.throw_empty_list_error("evaluator", "evaluate")
       }
       eval_results <- purrr::map(evaluator_list, function(evaluator) {
         evaluator$evaluate(results)
       })
-      
+
       if (save) {
         if (is.null(attr(results, "saved_to"))) {
           save_filename_null <- "eval_results.rds"
@@ -267,12 +310,12 @@ Experiment <- R6::R6Class(
             paste0("_eval.rds")
         }
         eval_results <- private$.save_results(
-          results = eval_results, 
-          save_dir = save_dir, 
+          results = eval_results,
+          save_dir = save_dir,
           save_filename = save_filename,
           save_filename_null = save_filename_null
         )
-        
+
         if (is.null(attr(results, "type"))) {
           if (!(".base" %in% names(self$saved_results))) {
             self$saved_results[[".base"]] <- list()
@@ -288,13 +331,13 @@ Experiment <- R6::R6Class(
           if (!(param_name %in% names(self$saved_results[[obj_name]]))) {
             self$saved_results[[obj_name]][[param_name]] <- list()
           }
-          self$saved_results[[obj_name]][[param_name]][["eval_results"]] <- 
+          self$saved_results[[obj_name]][[param_name]][["eval_results"]] <-
             attr(eval_results, "saved_to")
         }
         saveRDS(self, file.path(dirname(attr(results, "saved_to")),
                                 "experiment.rds"))
       }
-      
+
       return(eval_results)
     },
     create_doc_template = function(save_dir = NULL, ...) {
@@ -305,15 +348,15 @@ Experiment <- R6::R6Class(
           save_dir <- file.path("results", self$name, "docs")
         }
       }
-      
+
       if (!dir.exists(save_dir)) {
         dir.create(save_dir, recursive = TRUE)
       }
-      
+
       if (!file.exists(file.path(save_dir, "objectives.md"))) {
         write.csv(NULL, file = file.path(save_dir, "objectives.md"), quote = F)
       }
-      # TODO: add plotters or viz .md 
+      # TODO: add plotters or viz .md
       fields <- c("dgp", "method", "evaluator")
       for (field in fields) {
         for (obj_name in names(self[[paste0(field, "_list")]])) {
@@ -326,25 +369,58 @@ Experiment <- R6::R6Class(
       self$saved_results[[".docs"]] <- list(dir = file.path(save_dir, "docs"))
       return(invisible(self))
     },
+    has_parent = function() {
+      return(!is.null(private$.parent))
+    },
+    get_parent = function() {
+      return(private$.parent)
+    },
+    set_parent = function(parent) {
+      if (!inherits(parent, "Experiment")) {
+        stop("parent must be an instance of pcs.sim.pkg::Experiment",
+             call.=FALSE)
+      }
+      private$.parent <- parent
+      parent$add_child(self, self$name)
+    },
+    add_child = function(child, name=NULL, ...) {
+      private$.check_obj(child, "Experiment")
+      private$.add_obj("child", child, name, getter_name="get_children")
+    },
+    get_children = function() {
+      return(private$.child_list)
+    },
     add_dgp = function(dgp, name=NULL, ...) {
+      private$.check_obj(dgp, "DGP")
       private$.add_obj("dgp", dgp, name)
     },
     update_dgp = function(dgp, name, ...) {
+      private$.check_obj(dgp, "DGP")
       private$.update_obj("dgp", dgp, name)
     },
+    get_dgps = function() {
+      return(private$.get_obj_list("dgp"))
+    },
     add_method = function(method, name=NULL, ...) {
+      private$.check_obj(method, "Method")
       private$.add_obj("method", method, name)
     },
     update_method = function(method, name, ...) {
+      private$.check_obj(method, "Method")
       private$.update_obj("method", method, name)
+    },
+    get_methods = function() {
+      return(private$.get_obj_list("method"))
     },
     add_evaluator = function(evaluator, dgp_name = NULL, method_name = NULL,
                              ...) {
+      private$.check_obj(evaluator, "Evaluator")
       name <- private$.make_evaluator_name(dgp_name, method_name)
       private$.add_obj("evaluator", evaluator, name)
     },
     update_evaluator = function(evaluator, name = NULL, dgp_name = NULL, method_name = NULL,
                                 ...) {
+      private$.check_obj(evaluator, "Evaluator")
       if (is.null(name)) {
         name <- private$.make_evaluator_name(dgp_name, method_name)
       }
@@ -354,6 +430,9 @@ Experiment <- R6::R6Class(
       } else {
         private$.update_obj("evaluator", evaluator, name)
       }
+    },
+    get_evaluators = function() {
+      return(private$.get_obj_list("evaluator"))
     }
   )
 )
