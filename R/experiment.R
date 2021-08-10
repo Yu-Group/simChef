@@ -273,7 +273,7 @@ Experiment <- R6::R6Class(
       return(eval_results)
     },
     plot = function(results = NULL, eval_results = NULL, save = FALSE, ...) {
-      plotter_list <- private$.get_obj_list("plotter")
+      plotter_list <- private$.get_obj_list("plotter", "get_plots")
       if (length(plotter_list) == 0) {
         private$.throw_empty_list_error("plotter", "plot results from")
       }
@@ -394,7 +394,7 @@ Experiment <- R6::R6Class(
     },
     add_plot = function(plotter, name=NULL, ...) {
       private$.check_obj(plotter, "Plotter")
-      private$.add_obj("plotter", plotter, name)
+      private$.add_obj("plotter", plotter, name, getter_name = "get_plots")
     },
     update_plot = function(plotter, name, ...) {
       private$.check_obj(plotter, "Plotter")
