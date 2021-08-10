@@ -303,7 +303,8 @@ Experiment <- R6::R6Class(
       for (field in fields) {
         obj_names <- purrr::map(descendants, 
                                 ~names(.x[[paste0("get_", field, "s")]]())) %>%
-          purrr::reduce(unique)
+          purrr::reduce(c) %>%
+          unique()
         for (obj_name in obj_names) {
           fname <- file.path(save_dir, "docs", paste0(obj_name, ".md"))
           if (!file.exists(fname)) {
