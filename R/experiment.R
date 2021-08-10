@@ -42,7 +42,7 @@ Experiment <- R6::R6Class(
       list_name <- paste0(".", field_name, "_list")
       private[[list_name]][[obj_name]] <- obj
     },
-    .throw_empty_list_error = function(field_name, action_name="run") {
+    .throw_empty_list_error = function(field_name, action_name = "run") {
       stop(
         sprintf("No %s has been added yet. ", field_name),
         sprintf("Use add_%s before trying to %s the experiment.",
@@ -95,39 +95,23 @@ Experiment <- R6::R6Class(
       }
       return(name)
     },
-    .save_results = function(results, save_dir = NULL, save_filename = NULL,
-                             save_filename_null = "run_results.rds") {
-      if (is.null(save_filename)) {
-        save_filename <- save_filename_null
-        save_dir <- dirname(save_filename)
-        save_filename <- basename(save_filename)
-        if (identical(save_dir, ".")) {
-          save_dir <- NULL
-        }
+    .save_results = function(results, save_filename) {
+      save_file <- file.path(self$save_dir, save_filename)
+      if (!dir.exists(dirname(save_file))) {
+        dir.create(dirname(save_file), recursive = TRUE)
       }
-      if (is.null(save_dir)) {
-        if (is.null(self$name)) {
-          save_dir <- file.path("results", "experiment")
-        } else {
-          save_dir <- file.path("results", self$name)
-        }
-      }
-      if (!dir.exists(save_dir)) {
-        dir.create(save_dir, recursive = T)
-      }
-      saveRDS(results, file.path(save_dir, save_filename))
-      attr(results, "saved_to") <- file.path(save_dir, save_filename)
-      return(results)
+      saveRDS(self, file.path(self$save_dir, "experiment.rds"))
+      saveRDS(results, save_file)
     }
   ),
   public = list(
     n_reps = NULL,
     name = NULL,
-    saved_results = list(),
-    initialize = function(n_reps, name = NULL,
-                          dgp_list=list(), method_list=list(),
-                          evaluator_list=list(), plotter_list=list(), 
-                          parent=NULL, ...) {
+    save_dir = NULL,
+    initialize = function(n_reps, name = "experiment",
+                          dgp_list = list(), method_list = list(),
+                          evaluator_list = list(), plotter_list = list(), 
+                          parent = NULL, save_dir = NULL, ...) {
       # TODO: check that n_reps has length 1 or is the same length as dgp_list
       private$.check_obj_list(dgp_list, "DGP")
       private$.check_obj_list(method_list, "Method")
@@ -142,10 +126,17 @@ Experiment <- R6::R6Class(
       if (!is.null(parent)) {
         self$set_parent(parent)
       }
+      if (is.null(save_dir)) {
+        if (is.null(parent)) {
+          save_dir <- file.path("results", name)
+        } else {
+          save_dir <- file.path(parent$save_dir, name)
+        }
+      }
+      self$save_dir <- save_dir
     },
     run = function(parallel_strategy = c("reps", "dgps", "methods", "dgps+methods"),
-                   trial_run = FALSE,
-                   save = FALSE, save_dir = NULL, save_filename = NULL, ...) {
+                   trial_run = FALSE, save = FALSE, ...) {
       parallel_strategy <- match.arg(parallel_strategy)
       dgp_list <- private$.get_obj_list("dgp")
       method_list <- private$.get_obj_list("method")
@@ -173,22 +164,14 @@ Experiment <- R6::R6Class(
         results <- tibble::tibble()
       }
       if (save) {
-        results <- private$.save_results(results = results,
-                                         save_dir = save_dir,
-                                         save_filename = save_filename)
-        self$saved_results[[".base"]] <- list(run_results = attr(results,
-                                                                 "saved_to"))
-        saveRDS(self, file.path(dirname(attr(results, "saved_to")),
-                                "experiment.rds"))
+        private$.save_results(results, save_filename = "run_results.rds")
       }
       return(results)
     },
     run_across = function(dgp, method, param_name, param_values,
                           parallel_strategy = c("reps", "dgps", "methods",
                                                 "dgps+methods"),
-                          trial_run = FALSE,
-                          save = FALSE, save_dir = NULL, save_filename = NULL,
-                          ...) {
+                          trial_run = FALSE, save = FALSE, ...) {
       parallel_strategy <- match.arg(parallel_strategy)
       dgp_list <- private$.get_obj_list("dgp")
       method_list <- private$.get_obj_list("dgp")
@@ -268,35 +251,13 @@ Experiment <- R6::R6Class(
         attr(results[[param_name]], "names") <- NULL
       }
 
-      # add attributes to keep track of the simulation call
-      attr(results, "type") <- obj_name
-      attr(results, "param_name") <- param_name
-      attr(results, "param_values") <- param_values
-
       if (save) {
-        save_filename_null <- paste0("varying_", obj_name, "_", param_name,
-                                     ".rds")
-        results <- private$.save_results(
-          results = results,
-          save_dir = save_dir,
-          save_filename = save_filename,
-          save_filename_null = save_filename_null
-        )
-        if (!(obj_name %in% names(self$saved_results))) {
-          self$saved_results[[obj_name]] <- list()
-        }
-        self$saved_results[[obj_name]][[param_name]] <- list(
-          run_results = attr(results, "saved_to")
-        )
-        saveRDS(self, file.path(dirname(attr(results, "saved_to")),
-                                "experiment.rds"))
+        private$.save_results(results, save_filename = "run_results.rds")
       }
 
       return(results)
     },
-    evaluate = function(results,
-                        save = FALSE, save_dir = NULL, save_filename = NULL,
-                        ...) {
+    evaluate = function(results, save = FALSE, ...) {
       evaluator_list <- private$.get_obj_list("evaluator")
       if (length(evaluator_list) == 0) {
         private$.throw_empty_list_error("evaluator", "evaluate")
@@ -306,47 +267,12 @@ Experiment <- R6::R6Class(
       })
 
       if (save) {
-        if (is.null(attr(results, "saved_to"))) {
-          save_filename_null <- "eval_results.rds"
-        } else {
-          save_filename_null <- str_remove(attr(results, "saved_to"),
-                                           ".rds$") %>%
-            paste0("_eval.rds")
-        }
-        eval_results <- private$.save_results(
-          results = eval_results,
-          save_dir = save_dir,
-          save_filename = save_filename,
-          save_filename_null = save_filename_null
-        )
-
-        if (is.null(attr(results, "type"))) {
-          if (!(".base" %in% names(self$saved_results))) {
-            self$saved_results[[".base"]] <- list()
-          }
-          self$saved_results[[".base"]][["eval_results"]] <- attr(eval_results,
-                                                                  "saved_to")
-        } else {
-          obj_name <- attr(results, "type")
-          param_name <- attr(results, "param_name")
-          if (!(obj_name %in% names(self$saved_results))) {
-            self$saved_results[[obj_name]] <- list()
-          }
-          if (!(param_name %in% names(self$saved_results[[obj_name]]))) {
-            self$saved_results[[obj_name]][[param_name]] <- list()
-          }
-          self$saved_results[[obj_name]][[param_name]][["eval_results"]] <-
-            attr(eval_results, "saved_to")
-        }
-        saveRDS(self, file.path(dirname(attr(results, "saved_to")),
-                                "experiment.rds"))
+        private$.save_results(eval_results, save_filename = "eval_results.rds")
       }
-
+      
       return(eval_results)
     },
-    plot = function(results = NULL, eval_results = NULL,
-                    save = FALSE, save_dir = NULL, save_filename = NULL,
-                    ...) {
+    plot = function(results = NULL, eval_results = NULL, save = FALSE, ...) {
       plotter_list <- private$.get_obj_list("plotter")
       if (length(plotter_list) == 0) {
         private$.throw_empty_list_error("plotter", "plot results from")
@@ -355,10 +281,14 @@ Experiment <- R6::R6Class(
         plotter$plot(results, eval_results)
       })
       
+      if (save) {
+        private$.save_results(plot_results, save_filename = "plot_results.rds")
+      }
+      
       return(plot_results)
     },
     create_doc_template = function(save_dir = NULL, ...) {
-      if (is.null(save_dir)) {
+      if (is.null(save_dir)) { 
         if (is.null(self$name)) {
           save_dir <- file.path("results", "experiment", "docs")
         } else {
