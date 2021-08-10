@@ -55,12 +55,28 @@ eval_fun <- function(results) {
 summary_evaluator <- create_evaluator(eval_summary_fun)
 evaluator <- create_evaluator(eval_fun)
 
+power_plot <- function(results, eval_results = NULL) {
+  require(ggplot2)
+  plt <- ggplot(results) +
+    aes(x = `X1 p-val`, color = as.factor(method)) +
+    geom_abline(slope = 1, intercept = 0, 
+                color = "darkgray", linetype = "solid", size = 1) +
+    stat_ecdf(size = 1) +
+    scale_x_continuous(limits = c(0, 1)) +
+    labs(x = "t", y = "P( p-value \u2264 t )", linetype = "", color = "Method")
+  
+  return(plt)
+}
+
+plotter <- create_plot(power_plot)
+
 # create the experiment and add the dgp and method
 experiment <- create_experiment(n_reps = 1000, name = "base") %>%
   add_dgp(dgp) %>%
   add_method(method) %>%
   add_evaluator(summary_evaluator) %>%
-  add_evaluator(evaluator)
+  add_evaluator(evaluator) %>%
+  add_plot(plotter)
 
 future::plan(future::sequential)
 
@@ -71,14 +87,16 @@ proc.time() - seq_start
 
 eval_res <- experiment$evaluate(o1)
 
-future::plan(future::multiprocess, workers=2)
+plot_res <- experiment$plot(o1, eval_res)
 
-# run in parallel with 2 processes
-par_start <- proc.time()
-o2 <- experiment$run()
-proc.time() - par_start
-
-future::plan(future::sequential)
+# future::plan(future::multiprocess, workers=2)
+# 
+# # run in parallel with 2 processes
+# par_start <- proc.time()
+# o2 <- experiment$run()
+# proc.time() - par_start
+# 
+# future::plan(future::sequential)
 ```
 
 # Inheriting traits from an existing Experiment
