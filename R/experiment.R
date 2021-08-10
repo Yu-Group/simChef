@@ -174,7 +174,7 @@ Experiment <- R6::R6Class(
                           trial_run = FALSE, save = FALSE, ...) {
       parallel_strategy <- match.arg(parallel_strategy)
       dgp_list <- private$.get_obj_list("dgp")
-      method_list <- private$.get_obj_list("dgp")
+      method_list <- private$.get_obj_list("method")
       if (length(dgp_list) == 0) {
         private$.throw_empty_list_error("dgp")
       }
@@ -287,33 +287,30 @@ Experiment <- R6::R6Class(
       
       return(plot_results)
     },
-    create_doc_template = function(save_dir = NULL, ...) {
-      if (is.null(save_dir)) { 
-        if (is.null(self$name)) {
-          save_dir <- file.path("results", "experiment", "docs")
-        } else {
-          save_dir <- file.path("results", self$name, "docs")
-        }
+    create_doc_template = function(...) {
+      save_dir <- self$save_dir
+      if (!dir.exists(file.path(save_dir, "docs"))) {
+        dir.create(file.path(save_dir, "docs"), recursive = TRUE)
       }
-
-      if (!dir.exists(save_dir)) {
-        dir.create(save_dir, recursive = TRUE)
+      
+      if (!file.exists(file.path(save_dir, "docs", "objectives.md"))) {
+        fname <- file.path(save_dir, "docs", "objectives.md")
+        write.csv(NULL, file = fname, quote = F)
       }
-
-      if (!file.exists(file.path(save_dir, "objectives.md"))) {
-        write.csv(NULL, file = file.path(save_dir, "objectives.md"), quote = F)
-      }
-      # TODO: add plotters or viz .md
-      fields <- c("dgp", "method", "evaluator")
+      
+      descendants <- self$get_descendants(include_self = TRUE)
+      fields <- c("dgp", "method", "evaluator", "plot")
       for (field in fields) {
-        for (obj_name in names(self[[paste0(field, "_list")]])) {
-          fname <- file.path(save_dir, paste0(obj_name, ".md"))
+        obj_names <- purrr::map(descendants, 
+                                ~names(.x[[paste0("get_", field, "s")]]())) %>%
+          purrr::reduce(unique)
+        for (obj_name in obj_names) {
+          fname <- file.path(save_dir, "docs", paste0(obj_name, ".md"))
           if (!file.exists(fname)) {
             write.csv(NULL, file = fname, quote = F)
           }
         }
       }
-      self$saved_results[[".docs"]] <- list(dir = file.path(save_dir, "docs"))
       return(invisible(self))
     },
     has_parent = function() {
@@ -404,7 +401,7 @@ Experiment <- R6::R6Class(
       private$.update_obj("plotter", plotter, name)
     },
     get_plots = function() {
-      return(private$.get_obj_list("plotter"))
+      return(private$.get_obj_list("plotter", "get_plots"))
     }
   )
 )
