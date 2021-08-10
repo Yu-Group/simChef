@@ -5,17 +5,17 @@ Evaluator <- R6::R6Class(
   classname = 'Evaluator',
   public = list(
     eval_fun = NULL,
-    eval_param = NULL,
+    eval_params = NULL,
     initialize = function(eval_fun, ...) {
       self$eval_fun <- eval_fun
-      self$eval_param <- list(...)
+      self$eval_params <- list(...)
     },
     evaluate = function(results, ...) {
-      if (identical(self$eval_param, list())) {
+      if (identical(self$eval_params, list())) {
         eval_out <- self$eval_fun(results = results)
       } else {
         eval_out <- do.call(self$eval_fun, 
-                            c(list(results = results), self$eval_param))
+                            c(list(results = results), self$eval_params))
       }
       return(tibble::as_tibble(eval_out))
     }
