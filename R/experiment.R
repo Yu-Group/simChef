@@ -9,6 +9,7 @@ Experiment <- R6::R6Class(
     .dgp_list = list(),
     .method_list = list(),
     .evaluator_list = list(),
+    .plotter_list = list(),
     .add_obj = function(field_name, obj, obj_name, ...) {
       # TODO: check if obj is already in list by another name
       obj_list <- private$.get_obj_list(field_name, ...)
@@ -125,14 +126,17 @@ Experiment <- R6::R6Class(
     saved_results = list(),
     initialize = function(n_reps, name = NULL,
                           dgp_list=list(), method_list=list(),
-                          evaluator_list=list(), parent=NULL, ...) {
+                          evaluator_list=list(), plotter_list=list(), 
+                          parent=NULL, ...) {
       # TODO: check that n_reps has length 1 or is the same length as dgp_list
       private$.check_obj_list(dgp_list, "DGP")
       private$.check_obj_list(method_list, "Method")
       private$.check_obj_list(evaluator_list, "Evaluator")
+      private$.check_obj_list(plotter_list, "Plotter")
       private$.dgp_list <- dgp_list
       private$.method_list <- method_list
       private$.evaluator_list <- evaluator_list
+      private$.plotter_list <- plotter_list
       self$n_reps <- n_reps
       self$name <- name
       if (!is.null(parent)) {
@@ -340,6 +344,19 @@ Experiment <- R6::R6Class(
 
       return(eval_results)
     },
+    plot = function(results = NULL, eval_results = NULL,
+                    save = FALSE, save_dir = NULL, save_filename = NULL,
+                    ...) {
+      plotter_list <- private$.get_obj_list("plotter")
+      if (length(plotter_list) == 0) {
+        private$.throw_empty_list_error("plotter", "plot results from")
+      }
+      plot_results <- purrr::map(plotter_list, function(plotter) {
+        plotter$plot(results, eval_results)
+      })
+      
+      return(plot_results)
+    },
     create_doc_template = function(save_dir = NULL, ...) {
       if (is.null(save_dir)) {
         if (is.null(self$name)) {
@@ -433,6 +450,17 @@ Experiment <- R6::R6Class(
     },
     get_evaluators = function() {
       return(private$.get_obj_list("evaluator"))
+    },
+    add_plot = function(plotter, name=NULL, ...) {
+      private$.check_obj(plotter, "Plotter")
+      private$.add_obj("plotter", plotter, name)
+    },
+    update_plot = function(plotter, name, ...) {
+      private$.check_obj(plotter, "Plotter")
+      private$.update_obj("plotter", plotter, name)
+    },
+    get_plots = function() {
+      return(private$.get_obj_list("plotter"))
     }
   )
 )
@@ -483,5 +511,17 @@ update_evaluator <- function(experiment, evaluator, name=NULL, dgp_name=NULL,
                              method_name=NULL, ...) {
   experiment$update_evaluator(evaluator, name=NULL, dgp_name=NULL,
                               method_name=NULL, ...)
+  return(experiment)
+}
+
+#' @export
+add_plot <- function(experiment, plotter, name=NULL, ...) {
+  experiment$add_plot(plotter, name, ...)
+  return(experiment)
+}
+
+#' @export
+update_plotter <- function(experiment, plotter, name, ...) {
+  experiment$update_plot(plotter, name, ...)
   return(experiment)
 }
