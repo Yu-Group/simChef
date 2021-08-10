@@ -390,6 +390,20 @@ Experiment <- R6::R6Class(
     get_children = function() {
       return(private$.child_list)
     },
+    get_descendants = function(include_self=FALSE) {
+      children <- self$get_children()
+      if (include_self) {
+        descendants <- list(self)
+        names(descendants) <- self$name
+        descendants <- c(descendants, children)
+      } else {
+        descendants <- children
+      }
+      for (child in children) {
+        descendants <- c(descendants, child$get_descendants())
+      }
+      return(descendants)
+    },
     add_dgp = function(dgp, name=NULL, ...) {
       private$.check_obj(dgp, "DGP")
       private$.add_obj("dgp", dgp, name)

@@ -123,4 +123,7 @@ child2 <- create_experiment(n_reps = 100, parent = experiment, name = "child2")
 names(experiment$get_children())
 names(child2$get_dgps())
 identical(child2$get_dgps()[['dgp1']], dgp)
+
+# easily get all descendants
+descendants <- experiment$get_descendants(include_self=TRUE)
 ```
