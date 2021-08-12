@@ -190,14 +190,10 @@ myKable <- function(X, digits = 3, sigfig = T, align = "c",
 }
 
 myDT <- function(X, digits = 3, sigfig = T,
-                 escape = F, caption = "", na_disp = "NA",
+                 escape = F, rownames = TRUE, caption = "", na_disp = "NA",
                  bold_function = NULL, bold_margin = NULL, 
                  bold_scheme = T, bold_color = NULL,
-                 options = list(
-                   columnDefs = list(list(className = 'dt-center', 
-                                          targets = 0:ncol(X)))
-                 ),
-                 return_df = FALSE, ...) {
+                 options = list(), return_df = FALSE, ...) {
   ####### Function Description ########
   # function to make custom DT::datatable with bolding options
   # 
@@ -206,6 +202,7 @@ myDT <- function(X, digits = 3, sigfig = T,
   # - digits = number of digits to display for numeric values
   # - sigfig = logical; whether or not to count digits via significant figures
   # - escape = T/F; whether or not to escape HTML entities in table
+  # - rownames = T/F; whether or not to show rownames
   # - caption = string; caption of table
   # - na_disp = what to display if NA entry is found in X
   # - bold_function = optional function string or vector of function strings to
@@ -239,6 +236,16 @@ myDT <- function(X, digits = 3, sigfig = T,
     dig_format <- "g"
   } else {
     dig_format <- "f"
+  }
+  
+  if (!("columnDefs" %in% names(options))) {  # make default center alignment
+    if (rownames) {
+      targets <- 1:ncol(X)
+    } else {
+      targets <- 0:(ncol(X) - 1)
+    }
+    options[["columnDefs"]] <- list(list(className = "dt-center",
+                                         targets = targets))
   }
   
   # error checking
@@ -346,7 +353,7 @@ myDT <- function(X, digits = 3, sigfig = T,
   
   # make datatable
   dt_out <- DT::datatable(dt_df, escape = escape, caption = caption,
-                          options = options, ...)
+                          rownames = rownames, options = options,  ...)
   
   if (return_df) {
     return(list(dt = dt_out, df = dt_df))
