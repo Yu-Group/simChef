@@ -293,6 +293,20 @@ Experiment <- R6::R6Class(
       }
       return(invisible(self))
     },
+    create_rmd = function(...) {
+      input_fname <- file.path("..", "rmd", "results.Rmd")
+      rmd_to_curr_dir <- file.path("..", "vignettes")
+      output_fname <- file.path(rmd_to_curr_dir,
+                                self$save_dir, paste0(self$name, ".html"))
+      params_list <- list(sim_name = self$name, 
+                          sim_path = file.path(rmd_to_curr_dir, self$save_dir))
+      rmarkdown::render(input = input_fname, 
+                        params = params_list,
+                        output_file = output_fname)
+      output_fname <- str_replace_all(output_fname, " ", "\\\\ ")
+      system(paste("open", output_fname))
+      return(invisible(self))
+    },
     has_parent = function() {
       return(!is.null(private$.parent))
     },
