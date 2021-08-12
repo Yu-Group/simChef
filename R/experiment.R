@@ -231,7 +231,8 @@ Experiment <- R6::R6Class(
         private$.throw_empty_list_error("evaluator", "evaluate")
       }
       eval_results <- purrr::map(evaluator_list, function(evaluator) {
-        evaluator$evaluate(results)
+        evaluator$evaluate(results = results, 
+                           vary_param = private$.vary_across$param_name)
       })
 
       if (save) {
@@ -246,7 +247,8 @@ Experiment <- R6::R6Class(
         private$.throw_empty_list_error("plotter", "plot results from")
       }
       plot_results <- purrr::map(plotter_list, function(plotter) {
-        plotter$plot(results, eval_results)
+        plotter$plot(results = results, eval_results = eval_results,
+                     vary_param = private$.vary_across$param_name)
       })
       
       if (save) {
