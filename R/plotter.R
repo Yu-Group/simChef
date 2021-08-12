@@ -6,9 +6,13 @@ Plotter <- R6::R6Class(
   public = list(
     plot_fun = NULL,
     plot_params = NULL,
-    initialize = function(plot_fun, ...) {
+    rmd_options = list(height = 6, width = 10),
+    initialize = function(plot_fun, rmd_options = list(), ...) {
       self$plot_fun <- plot_fun
       self$plot_params <- list(...)
+      for (opt in names(rmd_options)) {
+        self$rmd_options[[opt]] <- rmd_options[[opt]]
+      }
     },
     plot = function(results = NULL, eval_results = NULL, vary_param = NULL,
                     ...) {

@@ -6,9 +6,14 @@ Evaluator <- R6::R6Class(
   public = list(
     eval_fun = NULL,
     eval_params = NULL,
-    initialize = function(eval_fun, ...) {
+    rmd_options = list(digits = 2, sigfig = FALSE,
+                       options = list(scrollX = TRUE, scrollCollapse = TRUE)),
+    initialize = function(eval_fun, rmd_options = list(), ...) {
       self$eval_fun <- eval_fun
       self$eval_params <- list(...)
+      for (opt in names(rmd_options)) {
+        self$rmd_options[[opt]] <- rmd_options[[opt]]
+      }
     },
     evaluate = function(results, vary_param = NULL, ...) {
       args_list <- list(results = results, vary_param = vary_param)
