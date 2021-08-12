@@ -514,3 +514,17 @@ vary_across <- function(experiment, dgp = NULL, method = NULL,
                          param_name = param_name, param_values = param_values)
   return(experiment)
 }
+
+#' @export
+create_rmd <- function(experiment_name, experiment_dirname) {
+  input_fname <- file.path("..", "rmd", "results.Rmd")
+  output_fname <- file.path(experiment_dirname, 
+                            paste0(experiment_name, ".html"))
+  params_list <- list(sim_name = experiment_name, 
+                      sim_path = experiment_dirname)
+  rmarkdown::render(input = input_fname, 
+                    params = params_list,
+                    output_file = output_fname)
+  output_fname <- str_replace_all(output_fname, " ", "\\\\ ")
+  system(paste("open", output_fname))
+}
