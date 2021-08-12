@@ -1,0 +1,172 @@
+/* make left navigation bar smaller */
+.col-xs-3 {
+	width: 15%;
+}
+.col-xs-9 {
+	width: 85%;
+}
+
+/* make right margin bar smaller */
+.col-xs-2 {
+	width: 10%;
+}
+.col-xs-10 {
+	width: 90%; 
+}
+
+/* bold navigation bar text */
+.nav a {
+	font-weight: bold;
+	font-size: 13pt;
+}
+
+/* bold text of active tab */
+.pages .nav-tabs>li.active>a {
+	font-weight: bold !important;
+}
+
+/* color text of active tab white */
+.nav-tabs>li.active>a {
+	color: #fff !important;
+}
+
+/* color text of inactive tab gray */
+.nav-tabs>li>a {
+	color: #DADADA !important;
+}
+
+/* reduce vertical space between tabs */
+.pages ul.nav {
+	margin-top: 1em;
+	margin-bottom: 1em;
+}
+
+/* make horizontal navigation tab bar darker */
+.nav-tabs {
+	background: #009284;
+}
+
+/* change font family */
+/*body, h1, h2, h3, h4, h5, h6 {
+    font-family: "Fira Sans", sans-serif;
+}*/
+
+/* .h1, .h2, .h3, .h4, body, h1, h2, h3, h4, h5, h6 {
+    font-family: Roboto,Helvetica,Arial,sans-serif;
+    font-weight: 300;
+} */
+
+/*Show code output style*/
+.showopt {
+    background-color: #2c3e50;
+    color: #FFFFFF; 
+    /*width: 100px;*/
+    padding-right: 10px;
+    padding-left: 10px;
+    height: 20px;
+    text-align: center;
+    vertical-align: middle !important;
+    float: right;
+    font-family: sans-serif;
+    border-radius: 8px;
+}
+.showopt:hover {
+    background-color: #dfe4f2;
+    color: #004c93;
+}
+
+pre.plot {
+    background-color: white !important;
+}
+
+/*Change color of h1*/
+.pages h1 {
+    color: #2c3e50;
+}
+
+/*Add box around each step in recipe*/
+.padded-panel {
+    padding: 15px;
+    position: relative;
+}
+
+/*Style navigation tabs*/
+.recipe-nav-tabs {
+    border-bottom: 1px solid #ecf0f1;
+}
+.recipe-nav-tabs>li {
+    float: left;
+    margin-bottom: -1px;
+}
+.recipe-nav-tabs>li>a, .recipe-nav-tabs>li>a:hover, .recipe-nav-tabs>li>a:focus {
+    font-size: 20px;
+    box-shadow: 0 1px 6px -4px rgb(0 0 0 / 12%);
+}
+.recipe-nav-tabs>li>a {
+    margin-right: 2px;
+    line-height: 1.42857143;
+    border: 1px solid transparent;
+    border-radius: 4px 4px 0 0;
+}
+.recipe-nav-tabs>li.active>a, .recipe-nav-tabs>li.active>a:hover, .recipe-nav-tabs>li.active>a:focus {
+    color: #2c3e50 !important;
+    background-color: #ffffff;
+    border: 1px solid #ecf0f1;
+    border-bottom-color: transparent;
+    cursor: default;
+}
+.recipe-nav-tabs>li.active>a, .recipe-nav-tabs>li.active>a:hover, .recipe-nav-tabs>li.active>a:focus {
+    font-weight: 900;
+    border-top-color: #18bc9c;
+    border-top-width: 5px;
+    box-shadow: 0 0 0 0;
+}
+.recipe-nav-tabs>li>a, .recipe-nav-tabs>li>a:hover, .recipe-nav-tabs>li>a:focus {
+    font-size: 18px;
+    box-shadow: 0 1px 6px -4px rgb(0 0 0 / 12%);
+}
+.recipe-nav-tabs>li>a {
+    /*font-weight: normal;*/
+    color: #8CD4C7 !important;
+    /*color: #B6B4B4 !important;*/
+}
+
+
+/*Style metadata/table/plotting/code buttons*/
+#data-generation>.section>.panel>.nav-pills, 
+#methods-and-evaluation>.section>.panel>.nav-pills,
+#visualizations>.section>.panel>.nav-pills {
+    position: absolute;
+    top: -5px;
+    right: 15px;
+}
+#data-generation>.section>.panel>.nav-pills>li>a,
+#methods-and-evaluation>.section>.panel>.nav-pills>li>a,
+#visualizations>.section>.panel>.nav-pills>li>a,
+.level2>.nav-pills>li>a {
+    border-radius: 50%;
+    font-size: 14px;
+    font-weight: normal;
+    padding-bottom: 8px;
+    padding-left: 11px;
+    padding-right: 11px;
+    background-color: #95a5a6;
+}
+#data-generation>.section>.panel>.nav-pills>li.active>a,
+#methods-and-evaluation>.section>.panel>.nav-pills>li.active>a,
+#visualizations>.section>.panel>.nav-pills>li.active>a,
+.level2>.nav-pills>li.active>a,
+.level4>.nav-pills>li.active>a {
+    background-color: #637172;
+}
+
+.level4>.nav-pills>li>a {
+    color: white;
+    font-size: 14px;
+    font-weight: normal;
+    padding-bottom: 8px;
+    padding-left: 11px;
+    padding-right: 11px;
+    background-color: #95a5a6;
+}
+
