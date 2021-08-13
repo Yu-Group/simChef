@@ -293,13 +293,10 @@ Experiment <- R6::R6Class(
       }
       return(invisible(self))
     },
-    create_rmd = function(...) {
-      input_fname <- file.path("..", "rmd", "results.Rmd")
-      rmd_to_curr_dir <- file.path("..", "vignettes")
-      output_fname <- file.path(rmd_to_curr_dir,
-                                self$save_dir, paste0(self$name, ".html"))
-      params_list <- list(sim_name = self$name, 
-                          sim_path = file.path(rmd_to_curr_dir, self$save_dir))
+    create_rmd = function(save_dir = file.path(getwd(), self$save_dir)) {
+      input_fname <- system.file("rmd", "results.Rmd", package = packageName())
+      output_fname <- file.path(save_dir, paste0(self$name, ".html"))
+      params_list <- list(sim_name = self$name, sim_path = save_dir)
       rmarkdown::render(input = input_fname, 
                         params = params_list,
                         output_file = output_fname)
@@ -517,11 +514,14 @@ vary_across <- function(experiment, dgp = NULL, method = NULL,
 
 #' @export
 create_rmd <- function(experiment_name, experiment_dirname) {
-  input_fname <- file.path("..", "rmd", "results.Rmd")
+  if (!file.exists(file.path(experiment_dirname, "experiment.rds"))) {
+    stop(sprintf("No experiment found in %s", experiment_dirname))
+  }
+  experiment_dirname <- file.path(getwd(), experiment_dirname)
+  input_fname <- system.file("rmd", "results.Rmd", package = packageName())
   output_fname <- file.path(experiment_dirname, 
                             paste0(experiment_name, ".html"))
-  params_list <- list(sim_name = experiment_name, 
-                      sim_path = experiment_dirname)
+  params_list <- list(sim_name = experiment_name, sim_path = experiment_dirname)
   rmarkdown::render(input = input_fname, 
                     params = params_list,
                     output_file = output_fname)
