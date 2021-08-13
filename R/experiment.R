@@ -395,7 +395,8 @@ Experiment <- R6::R6Class(
         stop("Must specify either dgp or method.")
       } else if (!is.null(dgp)) {
         if (inherits(dgp, "DGP")) {
-          obj_name <- sapply(dgp_list, function(x) identical(x, dgp)) %>%
+          obj_name <- sapply(dgp_list, 
+                             function(x) check_equal(x, dgp)) %>%
             which() %>%
             names()
         } else if (dgp %in% names(dgp_list)) {
@@ -407,7 +408,8 @@ Experiment <- R6::R6Class(
         private$.vary_across$method <- NULL
       } else if (!is.null(method)) {
         if (inherits(method, "Method")) {
-          obj_name <- sapply(method_list, function(x) identical(x, method)) %>%
+          obj_name <- sapply(method_list, 
+                             function(x) check_equal(x, method)) %>%
             which() %>%
             names()
         } else if (method %in% names(method_list)) {
