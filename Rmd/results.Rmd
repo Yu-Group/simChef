@@ -2,7 +2,6 @@
 title: "`r params$sim_name`"
 author: ""
 date: "`r format(Sys.time(), '%B %d, %Y')`"
-# bibliography: bibliography.bib
 header-includes:
     - \usepackage{float}
     - \usepackage{amsmath}
@@ -10,8 +9,6 @@ header-includes:
 output:
   rmdformats::material:
     fig_caption: true
-    # code_folding: hide
-    # use_bookdown: true
 css: css/custom_rmd_theme.css
 params:
   sim_name:
@@ -20,10 +17,10 @@ params:
   sim_path:
     label: "Path to Experiment Folder:"
     value: "../vignettes/results/Test2"
-  external_files:
-    label: "Name of external files to source:"
-    # value: "../vignettes/functions/plotting_wrappers.R"
-    value: NULL
+  # external_files:
+  #   label: "Name of external files to source:"
+  #   # value: "../vignettes/functions/plotting_wrappers.R"
+  #   value: NULL
 ---
 
 <script src="js/customNavClass.js"></script>
@@ -37,7 +34,6 @@ knitr::opts_chunk$set(
   cache = FALSE,
   fig.align = "center",
   fig.pos = "H",
-  # fig.show = "hold",
   fig.height = 12,
   fig.width = 10
 )
@@ -47,12 +43,12 @@ library(tidyverse)
 
 source(file.path("utils", "rmd_utils.R"))
 source(file.path("utils", "table_wrappers.R"))
-if (!is.null(params$external_files)) {
-  source_files <- str_trim(str_split(params$external_files, ",")[[1]])
-  for (file in source_files) {
-    source(file, chdir = T)
-  }
-}
+# if (!is.null(params$external_files)) {
+#   source_files <- str_trim(str_split(params$external_files, ",")[[1]])
+#   for (file in source_files) {
+#     source(file, chdir = T)
+#   }
+# }
 
 options(knitr.kable.NA = 'NA', 
         dplyr.summarise.inform = FALSE)
