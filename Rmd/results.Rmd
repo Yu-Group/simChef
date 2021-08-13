@@ -26,7 +26,6 @@ params:
     # value: NULL
 ---
 
-<script src="js/hideOutput.js"></script>
 <script src="js/customNavClass.js"></script>
 
 ```{r setup, include=FALSE}
@@ -83,8 +82,8 @@ getDescendants <- function(dir_name) {
       if (identical(d, params$sim_path)) {
         exp_name <- "Base"
       } else {
-        exp_name <- str_replace(str_remove(d, paste0(params$sim_path, "/")),
-                                "/", " - ")
+        exp_name <- str_replace_all(str_remove(d, paste0(params$sim_path, "/")),
+                                    "/", " - ")
       }
       experiments[[exp_name]] <- readRDS(file.path(d, "experiment.rds"))
     }
@@ -93,13 +92,19 @@ getDescendants <- function(dir_name) {
 }
 
 experimentExists <- function(dir_name, recursive = FALSE) {
-  if (!recursive) {
-    exp_fname <- file.path(dir_name, "experiment.rds")
-    return(file.exists(exp_fname))
-  } else {
-    descendants <- getDescendants(dir_name)
-    return(length(descendants) > 0)
-  }
+  res <- map_lgl(dir_name,
+                 function(d) {
+                   for (d in dir_name) {
+                     if (!recursive) {
+                       exp_fname <- file.path(d, "experiment.rds")
+                       return(file.exists(exp_fname))
+                     } else {
+                       descendants <- getDescendants(d)
+                       return(length(descendants) > 0)
+                     }
+                   }
+                 })
+  return(any(res))
 }
 
 showRecipePart <- function(field_name = c("dgp", "method", 
@@ -113,9 +118,9 @@ showRecipePart <- function(field_name = c("dgp", "method",
   obj_names <- unique(purrr::reduce(sapply(objs, names), c))
   
   obj_header <- "<p style='font-weight: bold; font-size: 20px'> %s </p>"
-  invis_header <- "\n\n### %s {.tabset .tabset-pills .tabset-fade}\n\n"
-  showtype_header <- "\n\n#### %s {.tabset .tabset-pills .tabset-fade}\n\n"
-  exp_header <- "\n\n##### %s\n\n"
+  invis_header <- "\n\n### %s {.tabset .tabset-pills .tabset-fade .tabset-recipe}\n\n"
+  showtype_header <- "\n\n#### %s {.tabset .tabset-pills .tabset-fade .tabset-square}\n\n"
+  exp_header <- "\n\n##### %s \n\n"
   
   if (all(sapply(objs, length) == 0)) {
     return(cat("N/A"))
@@ -174,13 +179,36 @@ getResults <- function(filename) {
   return(results)
 }
 
-showResults <- function(dir_name, depth) {
+showResults <- function(dir_name, depth, base = FALSE, show_header = TRUE) {
+  
+  if (depth == 1) {
+    header_template <- "\n\n%s %s {.tabset .tabset-pills .tabset-fade}\n\n"
+  } else {
+    if (base) {
+      header_template <- "\n\n%s %s {.tabset .tabset-pills .tabset-fade .tabset-square}"
+    } else {
+      header_template <- "\n\n%s %s {.tabset .tabset-pills .tabset-fade .tabset-circle}"
+    }
+  }
+  
+  if (show_header) {
+    cat(sprintf(header_template, 
+                paste(rep("#", depth), collapse = ""),
+                basename(dir_name)))
+  }
+  
+  if (base) {
+    cat(paste0("\n\n", 
+               paste(rep("#", depth + 1), collapse = ""),
+               " Base - ", basename(dir_name), 
+               " {.tabset .tabset-pills .tabset-fade .tabset-circle}\n\n"))
+    depth <- depth + 1
+  }
   
   showtype_template <- paste0("\n\n", 
                               paste(rep("#", depth + 1), collapse = ""),
                               " %s\n\n")
   figname_template <- "<h3 style='font-weight: bold'> %s </h3>"
-  parvals_template <- "<h4 style='font-weight: bold'> %s </h4>"
   
   exp_fname <- file.path(dir_name, "experiment.rds")
   results_fname <- file.path(dir_name, "run_results.rds")
@@ -208,14 +236,6 @@ showResults <- function(dir_name, depth) {
     for (plot_name in names(plot_results)) {
       cat(sprintf(figname_template, plot_name))
       plt <- plot_results[[plot_name]]
-      # if (!is.null(results$plot_results[[plot_name]])) {
-      #   plt <- results$plot_results[[plot_name]]
-      # } else {
-      #   plt <- do.call(plotter$plotter_fun,
-      #                  c(list(results = results$results, 
-      #                         eval_results = results$eval_results),
-      #                    plotter$plotter_params))
-      # }
       subchunkify(plt, i = chunk_idx,
                   fig_height = exp$get_plots()[[plot_name]]$rmd_options$height,
                   fig_width = exp$get_plots()[[plot_name]]$rmd_options$width)
@@ -235,21 +255,22 @@ showResults <- function(dir_name, depth) {
 }
 
 showDescendantResults <- function(dir_name, depth = 1) {
-  header_template <- "\n\n%s %s {.tabset .tabset-pills .tabset-fade}\n\n"
   children <- list.dirs(dir_name, recursive = FALSE)
-  children_names <- list.dirs(dir_name, full.names = FALSE, recursive = FALSE)
   if (length(children) == 0) {
     return()
   }
   for (child_idx in 1:length(children)) {
     child <- children[child_idx]
-    if (!experimentExists(children[child_idx], recursive = TRUE)) {
+    if (!experimentExists(child, recursive = TRUE)) {
       next
     }
-    cat(sprintf(header_template, 
-                paste(rep("#", depth), collapse = ""),
-                children_names[child_idx]))
-    showResults(child, depth)
+    if (experimentExists(child, recursive = FALSE) & 
+        experimentExists(list.dirs(child, recursive = FALSE))) {
+      base <- TRUE
+    } else {
+      base <- FALSE
+    }
+    showResults(child, depth, base = base)
     showDescendantResults(child, depth + 1)
   }
 }
@@ -293,12 +314,12 @@ showRecipePart(field_name = "plot")
 
 
 
-```{r results = "asis"}
+```{r res, results = "asis"}
 
 if (experimentExists(params$sim_path)) {
-  cat("\n\n# Base Experiment {.tabset .tabset-pills .tabset-fade}\n\n")
-  cat("\n\n## Results {.tabset .tabset-pills .tabset-fade}\n\n")
-  showResults(params$sim_path, depth = 2)
+  cat(sprintf("\n\n# Base %s \n\n", params$sim_name))
+  cat("\n\n## {.tabset .tabset-pills .tabset-fade .tabset-circle}\n\n")
+  showResults(params$sim_path, depth = 2, base = FALSE, show_header = FALSE)
 }
 
 showDescendantResults(params$sim_path)

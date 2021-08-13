@@ -46,39 +46,6 @@
 	background: #009284;
 }
 
-/* change font family */
-/*body, h1, h2, h3, h4, h5, h6 {
-    font-family: "Fira Sans", sans-serif;
-}*/
-
-/* .h1, .h2, .h3, .h4, body, h1, h2, h3, h4, h5, h6 {
-    font-family: Roboto,Helvetica,Arial,sans-serif;
-    font-weight: 300;
-} */
-
-/*Show code output style*/
-.showopt {
-    background-color: #2c3e50;
-    color: #FFFFFF; 
-    /*width: 100px;*/
-    padding-right: 10px;
-    padding-left: 10px;
-    height: 20px;
-    text-align: center;
-    vertical-align: middle !important;
-    float: right;
-    font-family: sans-serif;
-    border-radius: 8px;
-}
-.showopt:hover {
-    background-color: #dfe4f2;
-    color: #004c93;
-}
-
-pre.plot {
-    background-color: white !important;
-}
-
 /*Change color of h1*/
 .pages h1 {
     color: #2c3e50;
@@ -131,19 +98,13 @@ pre.plot {
     /*color: #B6B4B4 !important;*/
 }
 
-
 /*Style metadata/table/plotting/code buttons*/
-#data-generation>.section>.panel>.nav-pills, 
-#methods-and-evaluation>.section>.panel>.nav-pills,
-#visualizations>.section>.panel>.nav-pills {
+.tabset-recipe>.panel>.nav-pills {
     position: absolute;
     top: -5px;
     right: 15px;
 }
-#data-generation>.section>.panel>.nav-pills>li>a,
-#methods-and-evaluation>.section>.panel>.nav-pills>li>a,
-#visualizations>.section>.panel>.nav-pills>li>a,
-.level2>.nav-pills>li>a {
+.tabset-recipe>.panel>.nav-pills>li>a {
     border-radius: 50%;
     font-size: 14px;
     font-weight: normal;
@@ -152,21 +113,33 @@ pre.plot {
     padding-right: 11px;
     background-color: #95a5a6;
 }
-#data-generation>.section>.panel>.nav-pills>li.active>a,
-#methods-and-evaluation>.section>.panel>.nav-pills>li.active>a,
-#visualizations>.section>.panel>.nav-pills>li.active>a,
-.level2>.nav-pills>li.active>a,
-.level4>.nav-pills>li.active>a {
+.tabset-recipe>.panel>.nav-pills>li.active>a {
     background-color: #637172;
 }
 
-.level4>.nav-pills>li>a {
+.tabset-square>.nav-pills>li>a {
+    font-size: 14px;
+    font-weight: 500;
+    padding-bottom: 8px;
+    padding-left: 11px;
+    padding-right: 11px;
+    background-color: #95a5a6;
     color: white;
+    border: 0.5px solid white;
+    border-left: 0px;
+    border-right: 0px;
+}
+.tabset-circle>.nav-pills>li>a {
+    border-radius: 50%;
     font-size: 14px;
     font-weight: normal;
     padding-bottom: 8px;
     padding-left: 11px;
     padding-right: 11px;
     background-color: #95a5a6;
+    color: white;
 }
-
+.tabset-square>.nav-pills>li.active>a,
+.tabset-circle>.nav-pills>li.active>a {
+    background-color: #637172;
+}
