@@ -387,6 +387,8 @@ Experiment <- R6::R6Class(
                            param_name, param_values) {
       if (is.null(dgp) & is.null(method)) {
         stop("Must specify either dgp or method.")
+      } else if ((is.null(dgp) + is.null(method)) != 1) {
+        stop("Must specify one of dgp or method, but not both")
       } else if (!is.null(dgp)) {
         dgp_list <- private$.get_obj_list("dgp")
         if (inherits(dgp, "DGP")) {
