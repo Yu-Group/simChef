@@ -455,6 +455,16 @@ run_experiment <- function(experiment, ...) {
 }
 
 #' @export
+evaluate_experiment <- function(experiment, ...) {
+  return(experiment$evaluate(...))
+}
+
+#' @export
+plot_experiment <- function(experiment, ...) {
+  return(experiment$plot(...))
+}
+
+#' @export
 add_dgp <- function(experiment, dgp, name=NULL, ...) {
   experiment$add_dgp(dgp, name, ...)
   return(experiment)
