@@ -128,7 +128,8 @@ showRecipePart <- function(field_name = c("dgp", "method",
     cat(sprintf(obj_header, obj_name))
     
     cat(sprintf(showtype_header, fa("readme", fill = "white")))
-    pasteMd(file.path(doc_dir, paste0(obj_name, ".md")))
+    pasteMd(file.path(doc_dir, paste0(field_name, "s"),
+                      paste0(obj_name, ".md")))
     
     cat(sprintf(showtype_header, fa("code", fill = "white")))
     keep_objs <- map(objs, obj_name)

@@ -285,8 +285,12 @@ Experiment <- R6::R6Class(
           purrr::reduce(c) %>%
           unique()
         for (obj_name in obj_names) {
-          fname <- file.path(save_dir, "docs", paste0(obj_name, ".md"))
+          fname <- file.path(save_dir, "docs", paste0(field, "s"),
+                             paste0(obj_name, ".md"))
           if (!file.exists(fname)) {
+            if (!dir.exists(dirname(fname))) {
+              dir.create(dirname(fname), recursive = TRUE)
+            }
             write.csv(NULL, file = fname, quote = F)
           }
         }
