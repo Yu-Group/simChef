@@ -4,6 +4,7 @@
 Experiment <- R6::R6Class(
   classname = 'Experiment',
   private = list(
+    .save_dir = NULL,
     .parent = NULL,
     .child_list = list(),
     .dgp_list = list(),
@@ -98,9 +99,9 @@ Experiment <- R6::R6Class(
     },
     .save_results = function(results, save_filename) {
       if (identical(private$.vary_across, list())) {
-        save_dir <- self$save_dir
+        save_dir <- private$.save_dir
       } else {
-        save_dir <- file.path(self$save_dir, 
+        save_dir <- file.path(private$.save_dir, 
                               paste0(private$.vary_across$dgp,
                                      private$.vary_across$method),
                               paste("Varying", private$.vary_across$param_name))
@@ -116,7 +117,6 @@ Experiment <- R6::R6Class(
   public = list(
     n_reps = NULL,
     name = NULL,
-    save_dir = NULL,
     initialize = function(n_reps, name = "experiment",
                           dgp_list = list(), method_list = list(),
                           evaluator_list = list(), plotter_list = list(), 
@@ -139,10 +139,10 @@ Experiment <- R6::R6Class(
         if (is.null(parent)) {
           save_dir <- file.path("results", name)
         } else {
-          save_dir <- file.path(parent$save_dir, name)
+          save_dir <- file.path(parent$get_save_dir(), name)
         }
       }
-      self$save_dir <- R.utils::getAbsolutePath(save_dir)
+      private$.save_dir <- R.utils::getAbsolutePath(save_dir)
     },
     run = function(parallel_strategy = c("reps", "dgps", "methods", "dgps+methods"),
                    trial_run = FALSE, save = FALSE, ...) {
@@ -258,7 +258,7 @@ Experiment <- R6::R6Class(
       return(plot_results)
     },
     create_doc_template = function(...) {
-      save_dir <- self$save_dir
+      save_dir <- private$.save_dir
       if (!dir.exists(file.path(save_dir, "docs"))) {
         dir.create(file.path(save_dir, "docs"), recursive = TRUE)
       }
@@ -296,8 +296,8 @@ Experiment <- R6::R6Class(
     create_rmd = function(...) {
       self$create_doc_template()
       input_fname <- system.file("rmd", "results.Rmd", package = packageName())
-      output_fname <- file.path(self$save_dir, paste0(self$name, ".html"))
-      params_list <- list(sim_name = self$name, sim_path = self$save_dir)
+      output_fname <- file.path(private$.save_dir, paste0(self$name, ".html"))
+      params_list <- list(sim_name = self$name, sim_path = private$.save_dir)
       rmarkdown::render(input = input_fname, 
                         params = params_list,
                         output_file = output_fname)
@@ -440,6 +440,9 @@ Experiment <- R6::R6Class(
     },
     reset_vary_across = function() {
       private$.vary_across <- list()
+    },
+    get_save_dir = function() {
+      return(private$.save_dir)
     }
   )
 )

@@ -122,9 +122,10 @@ eval_results <- experiment$evaluate(run_results, save = T)
 plot_results <- experiment$plot(run_results, eval_results, save = T)
 proc.time() - seq_start
 
+save_dir <- experiment$get_save_dir()
 vary_n <- create_experiment(n_reps = 1000, parent = experiment, 
                             name = "Linear Gaussian - Vary n",
-                            save_dir = experiment$save_dir) %>%
+                            save_dir = save_dir) %>%
   vary_across(dgp = "Linear Gaussian", 
               param_name = "n", param_values = c(100, 200, 300))
 run_results <- vary_n$run(save = T)
@@ -133,7 +134,7 @@ plot_results <- vary_n$plot(run_results, eval_results, save = T)
 
 vary_betas <- create_experiment(n_reps = 1000, parent = experiment,
                                 name = "Linear Gaussian - Vary betas",
-                                save_dir = experiment$save_dir) %>%
+                                save_dir = save_dir) %>%
   vary_across(dgp = "Linear Gaussian", 
               param_name = "betas", param_values = c(0.1, 1, 10))
 run_results <- vary_betas$run(save = T)
@@ -142,14 +143,12 @@ plot_results <- vary_betas$plot(run_results, eval_results, save = T)
 
 vary_pcs <- create_experiment(n_reps = 1000, parent = experiment,
                               name = "PCS Test - Vary test_covar_index",
-                              save_dir = experiment$save_dir) %>%
+                              save_dir = save_dir) %>%
   vary_across(method = "PCS Test", 
               param_name = "test_covar_index", param_values = c(1, 1))
 run_results <- vary_pcs$run(save = T)
 eval_results <- vary_pcs$evaluate(run_results, save = T)
 plot_results <- vary_pcs$plot(run_results, eval_results, save = T)
-
-experiment$create_doc_template()
 
 experiment$create_rmd()
 
