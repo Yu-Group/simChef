@@ -500,7 +500,7 @@ add_plot <- function(experiment, plotter, name=NULL, ...) {
 }
 
 #' @export
-update_plotter <- function(experiment, plotter, name, ...) {
+update_plot <- function(experiment, plotter, name, ...) {
   experiment$update_plot(plotter, name, ...)
   return(experiment)
 }
