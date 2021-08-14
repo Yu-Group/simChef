@@ -385,15 +385,10 @@ Experiment <- R6::R6Class(
     },
     vary_across = function(dgp = NULL, method = NULL,
                            param_name, param_values) {
-      
-      dgp_list <- private$.get_obj_list("dgp")
-      method_list <- private$.get_obj_list("method")
-      
-      # TODO: better error checking for dgp/method input or create new class
-      # TODO: check for match with param_name
       if (is.null(dgp) & is.null(method)) {
         stop("Must specify either dgp or method.")
       } else if (!is.null(dgp)) {
+        dgp_list <- private$.get_obj_list("dgp")
         if (inherits(dgp, "DGP")) {
           obj_name <- sapply(dgp_list, 
                              function(x) check_equal(x, dgp)) %>%
@@ -404,9 +399,16 @@ Experiment <- R6::R6Class(
         } else {
           stop("dgp must either be a DGP object or the name of a dgp in the current experiment.")
         }
+        dgp_args <- formalArgs(args(dgp_list[[obj_name]]$dgp_fun))
+        if (!(param_name %in% dgp_args)) {
+          stop(
+            sprintf("%s is not an argument in %s dgp", param_name, obj_name)
+          )
+        }
         private$.vary_across$dgp <- obj_name
         private$.vary_across$method <- NULL
       } else if (!is.null(method)) {
+        method_list <- private$.get_obj_list("method")
         if (inherits(method, "Method")) {
           obj_name <- sapply(method_list, 
                              function(x) check_equal(x, method)) %>%
@@ -416,6 +418,12 @@ Experiment <- R6::R6Class(
           obj_name <- method
         } else {
           stop("method must either be a Method object or the name of a method in the current experiment.")
+        }
+        method_args <- formalArgs(args(method_list[[obj_name]]$method_fun))
+        if (!(param_name %in% method_args)) {
+          stop(
+            sprintf("%s is not an argument in %s method", param_name, obj_name)
+          )
         }
         private$.vary_across$method <- obj_name
         private$.vary_across$dgp <- NULL
