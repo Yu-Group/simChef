@@ -142,7 +142,7 @@ Experiment <- R6::R6Class(
           save_dir <- file.path(parent$save_dir, name)
         }
       }
-      self$save_dir <- save_dir
+      self$save_dir <- R.utils::getAbsolutePath(save_dir)
     },
     run = function(parallel_strategy = c("reps", "dgps", "methods", "dgps+methods"),
                    trial_run = FALSE, save = FALSE, ...) {
@@ -268,7 +268,7 @@ Experiment <- R6::R6Class(
         write.csv(NULL, file = fname, quote = F)
       }
       
-      descendants <- map(list.dirs(self$save_dir),
+      descendants <- map(list.dirs(save_dir),
                          function(d) {
                            if (file.exists(file.path(d, "experiment.rds"))) {
                              return(readRDS(file.path(d, "experiment.rds")))
@@ -291,6 +291,18 @@ Experiment <- R6::R6Class(
           }
         }
       }
+      return(invisible(self))
+    },
+    create_rmd = function(...) {
+      self$create_doc_template()
+      input_fname <- system.file("rmd", "results.Rmd", package = packageName())
+      output_fname <- file.path(self$save_dir, paste0(self$name, ".html"))
+      params_list <- list(sim_name = self$name, sim_path = self$save_dir)
+      rmarkdown::render(input = input_fname, 
+                        params = params_list,
+                        output_file = output_fname)
+      output_fname <- str_replace_all(output_fname, " ", "\\\\ ")
+      system(paste("open", output_fname))
       return(invisible(self))
     },
     has_parent = function() {
@@ -511,7 +523,7 @@ add_plot <- function(experiment, plotter, name=NULL, ...) {
 }
 
 #' @export
-update_plotter <- function(experiment, plotter, name, ...) {
+update_plot <- function(experiment, plotter, name, ...) {
   experiment$update_plot(plotter, name, ...)
   return(experiment)
 }
@@ -538,4 +550,16 @@ update_vary_across <- function(experiment, dgp = NULL, method = NULL,
 remove_vary_across <- function(experiment) {
   experiment$remove_vary_across()
   return(experiment)
+}
+
+#' @export
+create_rmd <- function(experiment, experiment_dirname) {
+  if (missing(experiment) & missing(experiment_dirname)) {
+    stop("Must provide argument for one of experiment or experiment_dirname")
+  }
+  if (missing(experiment)) {
+    experiment <- readRDS(file.path(experiment_dirname, "experiment.rds"))
+  }
+  experiment$create_doc_template()
+  experiment$create_rmd()
 }
