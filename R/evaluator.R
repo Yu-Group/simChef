@@ -10,13 +10,12 @@ Evaluator <- R6::R6Class(
       self$eval_fun <- eval_fun
       self$eval_params <- list(...)
     },
-    evaluate = function(results, ...) {
-      if (identical(self$eval_params, list())) {
-        eval_out <- self$eval_fun(results = results)
-      } else {
-        eval_out <- do.call(self$eval_fun, 
-                            c(list(results = results), self$eval_params))
+    evaluate = function(results, vary_param = NULL, ...) {
+      args_list <- list(results = results, vary_param = vary_param)
+      if (!identical(self$eval_params, list())) {
+        args_list <- c(args_list, self$eval_params)
       }
+      eval_out <- R.utils::doCall(self$eval_fun, args = args_list)
       return(tibble::as_tibble(eval_out))
     }
   )

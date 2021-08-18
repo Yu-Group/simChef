@@ -10,16 +10,14 @@ Plotter <- R6::R6Class(
       self$plot_fun <- plot_fun
       self$plot_params <- list(...)
     },
-    plot = function(results = NULL, eval_results = NULL, ...) {
-      if (identical(self$plot_params, list())) {
-        plot_out <- self$plot_fun(results = results,
-                                  eval_results = eval_results)
-      } else {
-        plot_out <- do.call(self$plot_fun, 
-                            c(list(results = results,
-                                   eval_results = eval_results), 
-                              self$plot_params))
+    plot = function(results = NULL, eval_results = NULL, vary_param = NULL,
+                    ...) {
+      args_list <- list(results = results, eval_results = eval_results,
+                        vary_param = vary_param)
+      if (!identical(self$plot_params, list())) {
+        args_list <- c(args_list, self$plot_params)
       }
+      plot_out <- R.utils::doCall(self$plot_fun, args = args_list)
       return(plot_out)
     }
   )
