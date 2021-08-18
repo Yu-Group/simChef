@@ -1,63 +1,62 @@
-# functions to print out nice kable tables
+# functions to print out nice tables in Rmarkdown
 
 library(tidyverse)
 library(knitr)
 library(kableExtra)
 
-myKable <- function(X, digits = 3, sigfig = T, align = "c", 
-                    caption = "", format = "html", na_disp = "NA",
-                    bold_function = NULL, bold_margin = NULL, 
-                    bold_scheme = T, bold_color = NULL,
-                    full_width = NULL, position = "center",
-                    font_size = NULL, fixed_thead = F,
-                    scroll = F, scroll_width = NULL, scroll_height = NULL,
-                    return_df = FALSE, ...) {
-  ####### Function Description ########
-  # function to make custom kable table with bolding options
-  # 
-  # inputs:
-  # - X = data frame or data matrix to display in table
-  # - digits = number of digits to display for numeric values
-  # - sigfig = logical; whether or not to count digits via significant figures
-  # - align = string indicating alignment of columns in table
-  # - caption = string; caption of table
-  # - format = string; one of "html" or "latex" indicating output format
-  # - na_disp = what to display if NA entry is found in X
-  # - bold_function = optional function string or vector of function strings to
-  #     use for bolding entries, e.g. ". == max(.)" or ". >= 0.5"
-  # - bold_margin = used to evaluate bold_function across margins of X 
-  #   (0 = over entire matrix, 1 = over rows, 2 = over columns)
-  # - bold_scheme = scalar or vector of logicals, indicating whether or not to 
-  #   apply bold_function to row/column if bold_margin 0, 1, 2
-  # - bold_color = color of bolded text
-  # - full_width = T/F; whether or not table should have full width
-  # - position = character string determining how to position table on page; 
-  #     possible values inclue left, right, center, float_left, float_right
-  # - font_size = numeric input for table font size
-  # - fixed_head = T/F; whether or not table header should be fixed
-  # - scroll = logical; whether or not to add scroll box (only for html format)
-  # - scroll_width = string indicating width of box, e.g. "50px", "100%"
-  # - scroll_height = string indicating height of box, e.g. "100px"
-  # - return_df = T/F; whether or not to return data frame
-  # - ... = additional arguments to pass to kable()
-  # 
-  # output:
-  #   if return_df = F, returns kable object; 
-  #   if return_df = T, returns list of 2:
-  #     - kable = kable object
-  #     - df = data frame   
-  # 
-  # example usage:
-  # myKable(iris, align = "c", caption = "caption", format = "html")
-  # myKable(iris, caption = "caption", format = "html", scroll = T,
-  #         bold_function = ". == max(.)", bold_margin = 2,
-  #         bold_scheme = c(T, T, T, T, F), bold_color = "red")
-  # myKable(iris %>% select(-Species), sigfig = T, caption = "caption",
-  #         format = "latex", scroll = T, na_disp = "NA",
-  #         bold_function = ". == min(.)", bold_margin = 1,
-  #         bold_scheme = T, bold_color = "black")
-  #######
-  
+#' Make custom kable tables with bolding options
+#' 
+#' @param X data frame or data matrix to display in table
+#' @param digits number of digits to display for numeric values
+#' @param sigfig logical; whether or not to count digits via significant 
+#'   figures
+#' @param align string indicating alignment of columns in table, e.g., 'c'
+#' @param caption string; caption of table
+#' @param format string; one of "html" or "latex" indicating output format
+#' @param na_disp what to display if NA entry is found in X
+#' @param bold_function optional function string or vector of function strings 
+#'   to use for bolding entries, e.g. ". == max(.)" or ". >= 0.5"
+#' @param bold_margin used to evaluate bold_function across margins of X 
+#'   (0 = over entire matrix, 1 = over rows, 2 = over columns)
+#' @param bold_scheme scalar or vector of logicals, indicating whether or not
+#'   to apply bold_function to row/column if bold_margin 0, 1, 2
+#' @param bold_color color of bolded text
+#' @param full_width logical; whether or not table should have full width
+#' @param position character string determining how to position table on page; 
+#'   possible values inclue left, right, center, float_left, float_right
+#' @param font_size numeric input for table font size
+#' @param fixed_head logical; whether or not table header should be fixed
+#' @param scroll logical; whether to add scroll box (only for html format)
+#' @param scroll_width string indicating width of box, e.g. "50px", "100%"
+#' @param scroll_height string indicating height of box, e.g. "100px"
+#' @param return_df logical; whether or not to return data frame
+#' @param ... additional arguments to pass to kable()
+#' @return A kable object if return_df is FALSE; otherwise, a list of two: a
+#'   kable object and a data frame
+#' @examples
+#' ## Show iris data table
+#' prettyKable(iris, align = "c", caption = "Iris Data Table")
+#' 
+#' ## Bold max value of each numeric column of Iris data in red
+#' prettyKable(iris, caption = "Iris Data Table", scroll = TRUE,
+#'             bold_function = ". == max(.)", bold_margin = 2,
+#'             bold_scheme = c(T, T, T, T, F), bold_color = "red")
+#'             
+#' ## Bold min value of each row in Iris data
+#' prettyKable(iris %>% select(-Species), sigfig = T, 
+#'             caption = "Iris Data Table", format = "latex", 
+#'             scroll = T, na_disp = "NA",
+#'             bold_function = ". == min(.)", bold_margin = 1,
+#'             bold_scheme = T, bold_color = "black")
+#' @export
+prettyKable <- function(X, digits = 3, sigfig = T, align = "c", 
+                        caption = "", format = "html", na_disp = "NA",
+                        bold_function = NULL, bold_margin = NULL, 
+                        bold_scheme = T, bold_color = NULL,
+                        full_width = NULL, position = "center",
+                        font_size = NULL, fixed_thead = F,
+                        scroll = F, scroll_width = NULL, scroll_height = NULL,
+                        return_df = FALSE, ...) {
   if (sigfig) {
     dig_format <- "g"
   } else {
@@ -189,48 +188,46 @@ myKable <- function(X, digits = 3, sigfig = T, align = "c",
   }
 }
 
-myDT <- function(X, digits = 3, sigfig = T,
-                 escape = F, rownames = TRUE, caption = "", na_disp = "NA",
-                 bold_function = NULL, bold_margin = NULL, 
-                 bold_scheme = T, bold_color = NULL,
-                 options = list(), return_df = FALSE, ...) {
-  ####### Function Description ########
-  # function to make custom DT::datatable with bolding options
-  # 
-  # inputs:
-  # - X = data frame or data matrix to display in table
-  # - digits = number of digits to display for numeric values
-  # - sigfig = logical; whether or not to count digits via significant figures
-  # - escape = T/F; whether or not to escape HTML entities in table
-  # - rownames = T/F; whether or not to show rownames
-  # - caption = string; caption of table
-  # - na_disp = what to display if NA entry is found in X
-  # - bold_function = optional function string or vector of function strings to
-  #     use for bolding entries, e.g. ". == max(.)" or ". >= 0.5"
-  # - bold_margin = used to evaluate bold_function across margins of X 
-  #   (0 = over entire matrix, 1 = over rows, 2 = over columns)
-  # - bold_scheme = scalar or vector of logicals, indicating whether or not to 
-  #   apply bold_function to row/column if bold_margin 0, 1, 2
-  # - bold_color = color of bolded text
-  # - return_df = T/F; whether or not to return data frame
-  # - options = options argument in DT::datatable
-  # - ... = additional arguments to pass to DT::datatable()
-  # 
-  # output:
-  #   if return_df = F, returns DT::datatable object; 
-  #   if return_df = T, returns list of 2:
-  #     - dt = DT::datatable object
-  #     - df = data frame   
-  # 
-  # example usage:
-  # myDT(iris, caption = "caption")
-  # myDT(iris, caption = "caption",
-  #      bold_function = ". == max(.)", bold_margin = 2,
-  #      bold_scheme = c(T, T, T, T, F), bold_color = "red")
-  # myDT(iris %>% select(-Species), sigfig = T, caption = "caption",
-  #      na_disp = "NA", bold_function = ". == min(.)", bold_margin = 1,
-  #      bold_scheme = T, bold_color = "black")
-  #######
+#' Make custom DT::datatable with bolding options
+#' 
+#' @param X data frame or data matrix to display in table
+#' @param digits number of digits to display for numeric values
+#' @param sigfig logical; whether or not to count digits via significant figures
+#' @param escape logical; whether or not to escape HTML entities in table
+#' @param rownames logical; whether or not to show rownames
+#' @param caption string; caption of table
+#' @param na_disp what to display if NA entry is found in X
+#' @param bold_function optional function string or vector of function strings 
+#'   to use for bolding entries, e.g. ". == max(.)" or ". >= 0.5"
+#' @param bold_margin used to evaluate bold_function across margins of X 
+#'   (0 = over entire matrix, 1 = over rows, 2 = over columns)
+#' @param bold_scheme scalar or vector of logicals, indicating whether or not to
+#'   apply bold_function to row/column if bold_margin 0, 1, 2
+#' @param bold_color color of bolded text
+#' @param return_df logical; whether or not to return data frame
+#' @param options options argument in DT::datatable
+#' @param ... additional arguments to pass to DT::datatable()
+#' @return A DT::datatable if return_df is FALSE; otherwise, a list of two: a 
+#'   DT::datatable object and a data frame 
+#' @examples
+#' ## Show iris data table
+#' prettyDT(iris, caption = "Iris Data Table")
+#' 
+#' ## Bold max value of each numeric column of Iris data in red
+#' prettyDT(iris, caption = "Iris Data Table",
+#'          bold_function = ". == max(.)", bold_margin = 2,
+#'          bold_scheme = c(T, T, T, T, F), bold_color = "red")
+#'             
+#' ## Bold min value of each row in Iris data
+#' prettyDT(iris %>% select(-Species), sigfig = T, caption = "Iris Data Table",
+#'          na_disp = "NA", bold_function = ". == min(.)", bold_margin = 1,
+#'          bold_scheme = T, bold_color = "black")
+#' @export     
+prettyDT <- function(X, digits = 3, sigfig = T,
+                     escape = F, rownames = TRUE, caption = "", na_disp = "NA",
+                     bold_function = NULL, bold_margin = NULL, 
+                     bold_scheme = T, bold_color = NULL,
+                     options = list(), return_df = FALSE, ...) {
   
   if (sigfig) {
     dig_format <- "g"

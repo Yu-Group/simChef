@@ -71,6 +71,10 @@ doc_dir <- file.path(params$sim_path, "docs")
 
 ```{r helper-funs}
 
+#' Get all experiments under a given directory name
+#'
+#' @param dir_name name of directory
+#' @return list of named experiments
 getDescendants <- function(dir_name) {
   experiments <- list()
   for (d in list.dirs(dir_name)) {
@@ -87,6 +91,13 @@ getDescendants <- function(dir_name) {
   return(experiments)
 }
 
+#' Check if experiment exists
+#'
+#' @param dir_name name of directory or vector thereof
+#' @param recursive logical; if TRUE, checks if experiment exists under the
+#'   given directory(s); if FALSE, checks if any experiment exists under the
+#'   directory(s) and its descendants
+#' @return TRUE if experiment exists and FALSE otherwise
 experimentExists <- function(dir_name, recursive = FALSE) {
   res <- map_lgl(dir_name,
                  function(d) {
@@ -101,6 +112,11 @@ experimentExists <- function(dir_name, recursive = FALSE) {
   return(any(res))
 }
 
+#' Displays content for specified part of recipe
+#' 
+#' @param field_name part of recipe to show; must be one of "dgp", "method",
+#'   "evaluator", or "plot"
+#' @return content for recipe
 showRecipePart <- function(field_name = c("dgp", "method", 
                                           "evaluator", "plot")) {
   
@@ -165,6 +181,10 @@ showRecipePart <- function(field_name = c("dgp", "method",
   }
 }
 
+#' Reads in file if it exists and returns NULL if the file does not exist
+#'
+#' @param filename name of .rds file to try reading in
+#' @return output of filename.rds if the file exists and NULL otherwise
 getResults <- function(filename) {
   if (file.exists(filename)) {
     results <- readRDS(filename)
@@ -174,6 +194,14 @@ getResults <- function(filename) {
   return(results)
 }
 
+#' Displays output (both from evaluate() and plot()) from saved results under
+#' a specified directory
+#'
+#' @param dir_name name of directory
+#' @param depth integer; depth of directory from parent/base experiment's folder
+#' @param base logical; whether or not this is a base experiment
+#' @param show_header logical; whether or not to show section header
+#' @return content results from evaluate() and plot() from the experiment
 showResults <- function(dir_name, depth, base = FALSE, show_header = TRUE) {
   
   if (depth == 1) {
@@ -219,8 +247,8 @@ showResults <- function(dir_name, depth, base = FALSE, show_header = TRUE) {
     cat(sprintf(showtype_template, fa("table", fill = "white")))
     for (eval_name in names(eval_results)) {
       cat(sprintf(figname_template, eval_name))
-      do.call(myDT, c(list(eval_results[[eval_name]]), 
-                      exp$get_evaluators()[[eval_name]]$rmd_options)) %>%
+      do.call(prettyDT, c(list(eval_results[[eval_name]]), 
+                          exp$get_evaluators()[[eval_name]]$rmd_options)) %>%
         subchunkify(i = chunk_idx)
       chunk_idx <<- chunk_idx + 1
     }
@@ -249,6 +277,10 @@ showResults <- function(dir_name, depth, base = FALSE, show_header = TRUE) {
   }
 }
 
+#' Displays output of experiment for all of its (saved) descendants
+#'
+#' @param dir_name name of parent experiment directory
+#' @param depth placeholder for recursion; should not be messed with
 showDescendantResults <- function(dir_name, depth = 1) {
   children <- list.dirs(dir_name, recursive = FALSE)
   if (length(children) == 0) {
@@ -311,6 +343,7 @@ showRecipePart(field_name = "plot")
 
 ```{r res, results = "asis"}
 
+# show results
 if (experimentExists(params$sim_path)) {
   cat(sprintf("\n\n# Base %s \n\n", params$sim_name))
   cat("\n\n## {.tabset .tabset-pills .tabset-fade .tabset-circle}\n\n")
