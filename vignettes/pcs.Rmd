@@ -64,13 +64,14 @@ eval_results <- experiment$evaluate(run_results, save = T)
 plot_results <- experiment$plot(run_results, eval_results, save = T)
 
 vary_betas <- experiment %>%
-  add_vary_across(dgp = "Linear Gaussian",
-                  param_name = "betas", param_values = c(0.1, 1, 10))
+  update_vary_across(dgp = "Linear Gaussian",
+                     param_name = "betas", param_values = c(0.1, 1, 10))
 run_results <- experiment$run(save = T)
 eval_results <- experiment$evaluate(run_results, save = T)
 plot_results <- experiment$plot(run_results, eval_results, save = T)
 
 vary_pcs <- experiment %>%
+  remove_vary_across() %>%
   add_vary_across(method = "PCS Test",
                   param_name = "test_covar_index", param_values = c(1, 1))
 run_results <- experiment$run(save = T)
