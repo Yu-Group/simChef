@@ -455,6 +455,7 @@ Experiment <- R6::R6Class(
         stop("The vary_across parameter has not been added yet. Use add_vary_across instead.",
              call. = FALSE)
       }
+      self$remove_vary_across()
       self$add_vary_across(dgp = dgp, method = method, 
                            param_name = param_name, param_values = param_values)
     },
