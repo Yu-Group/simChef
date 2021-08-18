@@ -268,14 +268,14 @@ Experiment <- R6::R6Class(
         write.csv(NULL, file = fname, quote = F)
       }
       
-      descendants <- map(list.dirs(save_dir),
-                         function(d) {
-                           if (file.exists(file.path(d, "experiment.rds"))) {
-                             return(readRDS(file.path(d, "experiment.rds")))
-                           } else {
-                             return(NULL)
-                           }
-                         })
+      descendants <- purrr::map(list.dirs(save_dir),
+                                function(d) {
+                                  if (file.exists(file.path(d, "experiment.rds"))) {
+                                    return(readRDS(file.path(d, "experiment.rds")))
+                                  } else {
+                                    return(NULL)
+                                  }
+                                })
       descendants[sapply(descendants, is.null)] <- NULL
       
       fields <- c("dgp", "method", "evaluator", "plot")
