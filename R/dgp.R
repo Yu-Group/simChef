@@ -4,7 +4,6 @@
 DGP <- R6::R6Class(
   classname = 'DGP',
   public = list(
-    n_obs = NULL,
     dgp_fun = NULL,
     dgp_params = NULL,
     initialize = function(dgp_fun, ...) {
@@ -29,13 +28,6 @@ DGP <- R6::R6Class(
       # check if data_list is a list; if not, coerce to list
       if (!inherits(data_list, "list")) {
         data_list <- list(data_list)
-      }
-      
-      # get number of observations
-      if (!is.null(nrow(data_list[[1]]))) {
-        self$n_obs <- nrow(data_list[[1]])
-      } else {
-        self$n_obs <- length(data_list[[1]])
       }
       
       return(data_list)
