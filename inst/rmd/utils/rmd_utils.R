@@ -1,4 +1,4 @@
-#' Creates different R chunks to enable plotting multiple plots of different
+#' Splits up R chunks to enable plotting multiple plots of different
 #' sizes and captions within a single written R code chunk in Rmarkdown
 #'
 #' @param g plot
@@ -8,7 +8,8 @@
 #' @param caption figure caption; should be surrounded by two sets of quotes, 
 #' e.g., "'This is a valid caption.'"
 #' @param add_class vector of css classes to add to object
-#' @param other_args other arguments to pass to R code chunk header
+#' @param other_args other arguments to pass to R code chunk header; should be
+#' surrounded by two sets of quotes, e.g., "results='asis'"
 #'
 subchunkify <- function(g, i, fig_height = 12, fig_width = 10, caption = "''",
                         add_class = NULL, other_args = "") {

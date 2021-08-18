@@ -121,6 +121,7 @@ eval_results <- experiment$evaluate(run_results, save = T)
 plot_results <- experiment$plot(run_results, eval_results, save = T)
 proc.time() - seq_start
 
+save_dir <- experiment$get_save_dir()
 vary_n <- create_experiment(n_reps = 1000, parent = experiment, 
                             name = "Linear Gaussian - Vary n",
                             save_dir = experiment$save_dir) %>%

@@ -18,9 +18,13 @@ Evaluator <- R6::R6Class(
     evaluate = function(results, vary_param = NULL, ...) {
       args_list <- list(results = results, vary_param = vary_param)
       if (!identical(self$eval_params, list())) {
-        args_list <- c(args_list, self$eval_params)
+        always_args_list <- self$eval_params
+      } else {
+        always_args_list <- NULL
       }
-      eval_out <- R.utils::doCall(self$eval_fun, args = args_list)
+      eval_out <- R.utils::doCall(self$eval_fun, 
+                                  args = args_list,
+                                  alwaysArgs = always_args_list)
       return(tibble::as_tibble(eval_out))
     }
   )
