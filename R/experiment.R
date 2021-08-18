@@ -378,19 +378,21 @@ Experiment <- R6::R6Class(
     get_plots = function() {
       return(private$.get_obj_list("plotter", "get_plots"))
     },
-    vary_across = function(dgp = NULL, method = NULL,
-                           param_name, param_values) {
-      
-      dgp_list <- private$.get_obj_list("dgp")
-      method_list <- private$.get_obj_list("method")
-      
-      # TODO: better error checking for dgp/method input or create new class
-      # TODO: check for match with param_name
+    add_vary_across = function(dgp = NULL, method = NULL,
+                               param_name, param_values) {
+      if (!identical(private$.vary_across, list())) {
+        stop("The vary_across parameter has already been set. Use update_vary_across instead.",
+             call. = FALSE)
+      }
       if (is.null(dgp) & is.null(method)) {
         stop("Must specify either dgp or method.")
+      } else if ((is.null(dgp) + is.null(method)) != 1) {
+        stop("Must specify one of dgp or method, but not both")
       } else if (!is.null(dgp)) {
+        dgp_list <- private$.get_obj_list("dgp")
         if (inherits(dgp, "DGP")) {
-          obj_name <- sapply(dgp_list, function(x) identical(x, dgp)) %>%
+          obj_name <- sapply(dgp_list, 
+                             function(x) check_equal(x, dgp)) %>%
             which() %>%
             names()
         } else if (dgp %in% names(dgp_list)) {
@@ -398,11 +400,19 @@ Experiment <- R6::R6Class(
         } else {
           stop("dgp must either be a DGP object or the name of a dgp in the current experiment.")
         }
+        dgp_args <- formalArgs(args(dgp_list[[obj_name]]$dgp_fun))
+        if (!(param_name %in% dgp_args)) {
+          stop(
+            sprintf("%s is not an argument in %s dgp", param_name, obj_name)
+          )
+        }
         private$.vary_across$dgp <- obj_name
         private$.vary_across$method <- NULL
       } else if (!is.null(method)) {
+        method_list <- private$.get_obj_list("method")
         if (inherits(method, "Method")) {
-          obj_name <- sapply(method_list, function(x) identical(x, method)) %>%
+          obj_name <- sapply(method_list, 
+                             function(x) check_equal(x, method)) %>%
             which() %>%
             names()
         } else if (method %in% names(method_list)) {
@@ -410,19 +420,32 @@ Experiment <- R6::R6Class(
         } else {
           stop("method must either be a Method object or the name of a method in the current experiment.")
         }
+        method_args <- formalArgs(args(method_list[[obj_name]]$method_fun))
+        if (!(param_name %in% method_args)) {
+          stop(
+            sprintf("%s is not an argument in %s method", param_name, obj_name)
+          )
+        }
         private$.vary_across$method <- obj_name
         private$.vary_across$dgp <- NULL
       }
-      
-      # add error checking: param_name should match something from dgp
       private$.vary_across$param_name <- param_name
       private$.vary_across$param_values <- param_values
     },
+    update_vary_across = function(dgp = NULL, method = NULL,
+                                  param_name, param_values) {
+      if (identical(private$.vary_across, list())) {
+        stop("The vary_across parameter has not been added yet. Use add_vary_across instead.",
+             call. = FALSE)
+      }
+      self$add_vary_across(dgp = dgp, method = method, 
+                           param_name = param_name, param_values = param_values)
+    },
+    remove_vary_across = function() {
+      private$.vary_across <- list()
+    },
     get_vary_across = function() {
       return(private$.vary_across)
-    },
-    reset_vary_across = function() {
-      private$.vary_across <- list()
     },
     get_save_dir = function() {
       return(private$.save_dir)
@@ -499,10 +522,26 @@ update_plot <- function(experiment, plotter, name, ...) {
 }
 
 #' @export
-vary_across <- function(experiment, dgp = NULL, method = NULL,
-                        param_name, param_values) {
-  experiment$vary_across(dgp = dgp, method = method, 
-                         param_name = param_name, param_values = param_values)
+add_vary_across <- function(experiment, dgp = NULL, method = NULL,
+                            param_name, param_values) {
+  experiment$add_vary_across(dgp = dgp, method = method, 
+                             param_name = param_name, 
+                             param_values = param_values)
+  return(experiment)
+}
+
+#' @export
+update_vary_across <- function(experiment, dgp = NULL, method = NULL,
+                               param_name, param_values) {
+  experiment$update_vary_across(dgp = dgp, method = method, 
+                                param_name = param_name, 
+                                param_values = param_values)
+  return(experiment)
+}
+
+#' @export
+remove_vary_across <- function(experiment) {
+  experiment$remove_vary_across()
   return(experiment)
 }
 

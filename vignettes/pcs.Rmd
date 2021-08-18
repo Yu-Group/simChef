@@ -22,8 +22,6 @@ source("functions/method_wrappers.R", chdir = T)
 source("functions/eval_library.R", chdir = T)
 source("functions/plotting_wrappers.R", chdir = T)
 
-roxygen2::roxygenise("..")
-devtools::install("..")
 library(pcs.sim.pkg)
 
 ```
@@ -59,32 +57,33 @@ plot_results <- experiment$plot(run_results, eval_results, save = T)
 proc.time() - seq_start
 
 vary_n <- experiment %>%
-  vary_across(dgp = "Linear Gaussian",
-              param_name = "n", param_values = c(100, 200, 300))
+  add_vary_across(dgp = "Linear Gaussian",
+                  param_name = "n", param_values = c(100, 200, 300))
 run_results <- experiment$run(save = T)
 eval_results <- experiment$evaluate(run_results, save = T)
 plot_results <- experiment$plot(run_results, eval_results, save = T)
 
 vary_betas <- experiment %>%
-  vary_across(dgp = "Linear Gaussian",
-              param_name = "betas", param_values = c(0.1, 1, 10))
+  add_vary_across(dgp = "Linear Gaussian",
+                  param_name = "betas", param_values = c(0.1, 1, 10))
 run_results <- experiment$run(save = T)
 eval_results <- experiment$evaluate(run_results, save = T)
 plot_results <- experiment$plot(run_results, eval_results, save = T)
 
 vary_pcs <- experiment %>%
-  vary_across(method = "PCS Test",
-              param_name = "test_covar_index", param_values = c(1, 1))
+  add_vary_across(method = "PCS Test",
+                  param_name = "test_covar_index", param_values = c(1, 1))
 run_results <- experiment$run(save = T)
 eval_results <- experiment$evaluate(run_results, save = T)
 plot_results <- experiment$plot(run_results, eval_results, save = T)
 
-experiment$create_doc_template()
+# experiment$create_doc_template()
 
 # generate rmd report
 experiment$create_rmd()
 # or alternatively,
-# create_rmd("PCS Simulation", "results/PCS Simulation")
+# create_rmd(experiment)
+# create_rmd(experiment_dirname = "results/PCS Simulation")
 
 ```
 
@@ -125,27 +124,27 @@ proc.time() - seq_start
 save_dir <- experiment$get_save_dir()
 vary_n <- create_experiment(n_reps = 1000, parent = experiment, 
                             name = "Linear Gaussian - Vary n",
-                            save_dir = save_dir) %>%
-  vary_across(dgp = "Linear Gaussian", 
-              param_name = "n", param_values = c(100, 200, 300))
+                            save_dir = experiment$save_dir) %>%
+  add_vary_across(dgp = "Linear Gaussian", 
+                  param_name = "n", param_values = c(100, 200, 300))
 run_results <- vary_n$run(save = T)
 eval_results <- vary_n$evaluate(run_results, save = T)
 plot_results <- vary_n$plot(run_results, eval_results, save = T)
 
 vary_betas <- create_experiment(n_reps = 1000, parent = experiment,
                                 name = "Linear Gaussian - Vary betas",
-                                save_dir = save_dir) %>%
-  vary_across(dgp = "Linear Gaussian", 
-              param_name = "betas", param_values = c(0.1, 1, 10))
+                                save_dir = experiment$save_dir) %>%
+  add_vary_across(dgp = "Linear Gaussian", 
+                  param_name = "betas", param_values = c(0.1, 1, 10))
 run_results <- vary_betas$run(save = T)
 eval_results <- vary_betas$evaluate(run_results, save = T)
 plot_results <- vary_betas$plot(run_results, eval_results, save = T)
 
 vary_pcs <- create_experiment(n_reps = 1000, parent = experiment,
                               name = "PCS Test - Vary test_covar_index",
-                              save_dir = save_dir) %>%
-  vary_across(method = "PCS Test", 
-              param_name = "test_covar_index", param_values = c(1, 1))
+                              save_dir = experiment$save_dir) %>%
+  add_vary_across(method = "PCS Test", 
+                  param_name = "test_covar_index", param_values = c(1, 1))
 run_results <- vary_pcs$run(save = T)
 eval_results <- vary_pcs$evaluate(run_results, save = T)
 plot_results <- vary_pcs$plot(run_results, eval_results, save = T)
