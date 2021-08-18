@@ -87,6 +87,16 @@ Experiment <- R6::R6Class(
         }
       })
     },
+    .make_evaluator_name = function(dgp_name = NULL, method_name = NULL) {
+      if (!is.null(dgp_name) && !is.null(method_name)) {
+        name <- paste0(dgp_name, "_", method_name)
+      } else if (is.null(dgp_name) && is.null(method_name)) {
+        name <- NULL
+      } else {
+        name <- paste0(dgp_name, method_name)
+      }
+      return(name)
+    },
     .save_results = function(results, save_filename) {
       if (identical(private$.vary_across, list())) {
         save_dir <- private$.save_dir
@@ -356,13 +366,24 @@ Experiment <- R6::R6Class(
     get_methods = function() {
       return(private$.get_obj_list("method"))
     },
-    add_evaluator = function(evaluator, name=NULL, ...) {
+    add_evaluator = function(evaluator, dgp_name = NULL, method_name = NULL,
+                             ...) {
       private$.check_obj(evaluator, "Evaluator")
+      name <- private$.make_evaluator_name(dgp_name, method_name)
       private$.add_obj("evaluator", evaluator, name)
     },
-    update_evaluator = function(evaluator, name, ...) {
+    update_evaluator = function(evaluator, name = NULL, dgp_name = NULL, method_name = NULL,
+                                ...) {
       private$.check_obj(evaluator, "Evaluator")
-      private$.update_obj("evaluator", evaluator, name)
+      if (is.null(name)) {
+        name <- private$.make_evaluator_name(dgp_name, method_name)
+      }
+      if (is.null(name)) {
+        # this will throw an error, which is what we want
+        private$.update_obj("evaluator", evaluator)
+      } else {
+        private$.update_obj("evaluator", evaluator, name)
+      }
     },
     get_evaluators = function() {
       return(private$.get_obj_list("evaluator"))
@@ -498,14 +519,17 @@ update_method <- function(experiment, method, name, ...) {
 }
 
 #' @export
-add_evaluator <- function(experiment, evaluator, name=NULL, ...) {
-  experiment$add_evaluator(evaluator, name, ...)
+add_evaluator <- function(experiment, evaluator, dgp_name=NULL,
+                          method_name=NULL, ...) {
+  experiment$add_evaluator(evaluator, dgp_name, method_name, ...)
   return(experiment)
 }
 
 #' @export
-update_evaluator <- function(experiment, evaluator, name, ...) {
-  experiment$update_evaluator(evaluator, name, ...)
+update_evaluator <- function(experiment, evaluator, name=NULL, dgp_name=NULL,
+                             method_name=NULL, ...) {
+  experiment$update_evaluator(evaluator, name=NULL, dgp_name=NULL,
+                              method_name=NULL, ...)
   return(experiment)
 }
 
