@@ -19,9 +19,13 @@ Plotter <- R6::R6Class(
       args_list <- list(results = results, eval_results = eval_results,
                         vary_param = vary_param)
       if (!identical(self$plot_params, list())) {
-        args_list <- c(args_list, self$plot_params)
+        always_args_list <- self$plot_params
+      } else {
+        always_args_list <- NULL
       }
-      plot_out <- R.utils::doCall(self$plot_fun, args = args_list)
+      plot_out <- R.utils::doCall(self$plot_fun,
+                                  args = args_list, 
+                                  alwaysArgs = always_args_list)
       return(plot_out)
     }
   )
