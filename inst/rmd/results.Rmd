@@ -13,10 +13,10 @@ css: css/custom_rmd_theme.css
 params:
   sim_name:
     label: "Simulation Name:"
-    value: "Test2"
+    value: "Linear Regression Simulation"
   sim_path:
     label: "Path to Experiment Folder:"
-    value: "../vignettes/results/Test2"
+    value: "../../vignettes/results/Linear Regression Simulation"
   # external_files:
   #   label: "Name of external files to source:"
   #   # value: "../vignettes/functions/plotting_wrappers.R"
@@ -259,9 +259,15 @@ showResults <- function(dir_name, depth, base = FALSE, show_header = TRUE) {
     for (plot_name in names(plot_results)) {
       cat(sprintf(figname_template, plot_name))
       plt <- plot_results[[plot_name]]
+      if (inherits(plt, "plotly")) {
+        add_class <- c("panel", "panel-default", "padded-panel")
+      } else {
+        add_class <- NULL
+      }
       subchunkify(plt, i = chunk_idx,
                   fig_height = exp$get_plots()[[plot_name]]$rmd_options$height,
-                  fig_width = exp$get_plots()[[plot_name]]$rmd_options$width)
+                  fig_width = exp$get_plots()[[plot_name]]$rmd_options$width, 
+                  other_args = "out.width = '100%'", add_class = add_class)
       chunk_idx <<- chunk_idx + 1
     }
   }
@@ -353,4 +359,3 @@ if (experimentExists(params$sim_path)) {
 showDescendantResults(params$sim_path)
 
 ```
-
