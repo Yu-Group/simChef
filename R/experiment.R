@@ -112,6 +112,25 @@ Experiment <- R6::R6Class(
       }
       saveRDS(self, file.path(save_dir, "experiment.rds"))
       saveRDS(results, save_file)
+    },
+    .get_cached_results = function(save_filename) {
+      if (identical(private$.vary_across, list())) {
+        save_dir <- private$.save_dir
+      } else {
+        save_dir <- file.path(private$.save_dir, 
+                              paste0(private$.vary_across$dgp,
+                                     private$.vary_across$method),
+                              paste("Varying", private$.vary_across$param_name))
+      }
+      save_file <- file.path(save_dir, save_filename)
+      if (file.exists(save_file)) {
+        return(readRDS(save_file))
+      } else {
+        stop(
+          sprintf("Cached results do not exist at %s. Set use_cached = FALSE.",
+                  save_file), 
+          call. = FALSE)
+      }
     }
   ),
   public = list(
@@ -145,7 +164,10 @@ Experiment <- R6::R6Class(
       private$.save_dir <- R.utils::getAbsolutePath(save_dir)
     },
     run = function(parallel_strategy = c("reps", "dgps", "methods", "dgps+methods"),
-                   trial_run = FALSE, save = FALSE, ...) {
+                   trial_run = FALSE, use_cached = FALSE, save = FALSE, ...) {
+      if (use_cached) {
+        return(private$.get_cached_results(save_filename = "run_results.rds"))
+      }
       parallel_strategy <- match.arg(parallel_strategy)
       dgp_list <- private$.get_obj_list("dgp")
       method_list <- private$.get_obj_list("method")
@@ -168,7 +190,7 @@ Experiment <- R6::R6Class(
                 datasets <- dgp$generate()
                 return(method$run(datasets))
               }, simplify=FALSE)
-              dplyr::bind_rows(replicates)
+              dplyr::bind_rows(replicates, .id = "rep")
             }, .id = "method")
           }, .id = "dgp")
         } else {
@@ -225,7 +247,10 @@ Experiment <- R6::R6Class(
       }
       return(results)
     },
-    evaluate = function(results, save = FALSE, ...) {
+    evaluate = function(results, use_cached = FALSE, save = FALSE, ...) {
+      if (use_cached) {
+        return(private$.get_cached_results(save_filename = "eval_results.rds"))
+      }
       evaluator_list <- private$.get_obj_list("evaluator")
       if (length(evaluator_list) == 0) {
         private$.throw_empty_list_error("evaluator", "evaluate")
@@ -241,7 +266,11 @@ Experiment <- R6::R6Class(
       
       return(eval_results)
     },
-    plot = function(results = NULL, eval_results = NULL, save = FALSE, ...) {
+    plot = function(results = NULL, eval_results = NULL, 
+                    use_cached = FALSE, save = FALSE, ...) {
+      if (use_cached) {
+        return(private$.get_cached_results(save_filename = "plot_results.rds"))
+      }
       plotter_list <- private$.get_obj_list("plotter", "get_plots")
       if (length(plotter_list) == 0) {
         private$.throw_empty_list_error("plotter", "plot results from")
@@ -297,7 +326,7 @@ Experiment <- R6::R6Class(
       }
       return(invisible(self))
     },
-    create_rmd = function(...) {
+    create_rmd = function(open = TRUE, ...) {
       self$create_doc_template()
       input_fname <- system.file("rmd", "results.Rmd", package = packageName())
       output_fname <- file.path(private$.save_dir, paste0(self$name, ".html"))
@@ -306,7 +335,9 @@ Experiment <- R6::R6Class(
                         params = params_list,
                         output_file = output_fname)
       output_fname <- str_replace_all(output_fname, " ", "\\\\ ")
-      system(paste("open", output_fname))
+      if (open) {
+        system(paste("open", output_fname))
+      }
       return(invisible(self))
     },
     has_parent = function() {
@@ -422,7 +453,7 @@ Experiment <- R6::R6Class(
           stop("dgp must either be a DGP object or the name of a dgp in the current experiment.")
         }
         dgp_args <- formalArgs(args(dgp_list[[obj_name]]$dgp_fun))
-        if (!(param_name %in% dgp_args)) {
+        if (!(param_name %in% dgp_args) & (!("..." %in% dgp_args))) {
           stop(
             sprintf("%s is not an argument in %s dgp", param_name, obj_name)
           )
@@ -442,7 +473,7 @@ Experiment <- R6::R6Class(
           stop("method must either be a Method object or the name of a method in the current experiment.")
         }
         method_args <- formalArgs(args(method_list[[obj_name]]$method_fun))
-        if (!(param_name %in% method_args)) {
+        if (!(param_name %in% method_args) & (!("..." %in% method_args))) {
           stop(
             sprintf("%s is not an argument in %s method", param_name, obj_name)
           )
@@ -471,6 +502,9 @@ Experiment <- R6::R6Class(
     },
     get_save_dir = function() {
       return(private$.save_dir)
+    },
+    set_save_dir = function(save_dir) {
+      private$.save_dir <- save_dir
     }
   )
 )
@@ -571,7 +605,13 @@ remove_vary_across <- function(experiment) {
 }
 
 #' @export
-create_rmd <- function(experiment, experiment_dirname) {
+set_save_dir <- function(experiment, save_dir) {
+  experiment$set_save_dir(save_dir)
+  return(experiment)
+}
+
+#' @export
+create_rmd <- function(experiment, experiment_dirname, open = TRUE) {
   if (missing(experiment) & missing(experiment_dirname)) {
     stop("Must provide argument for one of experiment or experiment_dirname")
   }
@@ -579,5 +619,5 @@ create_rmd <- function(experiment, experiment_dirname) {
     experiment <- readRDS(file.path(experiment_dirname, "experiment.rds"))
   }
   experiment$create_doc_template()
-  experiment$create_rmd()
+  experiment$create_rmd(open = open)
 }
