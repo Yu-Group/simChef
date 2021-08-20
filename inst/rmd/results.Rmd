@@ -13,10 +13,10 @@ css: css/custom_rmd_theme.css
 params:
   sim_name:
     label: "Simulation Name:"
-    value: "Linear Regression Simulation"
+    value: "Local Feature Stability Sims"
   sim_path:
     label: "Path to Experiment Folder:"
-    value: "../../vignettes/results/Linear Regression Simulation"
+    value: "/Users/Tiffany/My Documents/Research/Yu/Local Feature Stability/local-feature-stability/results/Local Feature Stability Sims"
   # external_files:
   #   label: "Name of external files to source:"
   #   # value: "../vignettes/functions/plotting_wrappers.R"
@@ -260,7 +260,7 @@ showResults <- function(dir_name, depth, base = FALSE, show_header = TRUE) {
       cat(sprintf(figname_template, plot_name))
       plt <- plot_results[[plot_name]]
       if (inherits(plt, "plotly")) {
-        add_class <- c("panel", "panel-default", "padded-panel")
+        add_class <- c("panel panel-default padded-panel")
       } else {
         add_class <- NULL
       }
@@ -298,7 +298,8 @@ showDescendantResults <- function(dir_name, depth = 1) {
       next
     }
     if (experimentExists(child, recursive = FALSE) & 
-        experimentExists(list.dirs(child, recursive = TRUE)[-1])) {
+        (experimentExists(list.dirs(child, recursive = TRUE)[-1]) |
+         (depth == 1))) {
       base <- TRUE
     } else {
       base <- FALSE
