@@ -237,7 +237,11 @@ Experiment <- R6::R6Class(
         
         if (is.null(names(param_values))) {
           names(param_values) <- 1:length(param_values)
-          results[[param_name]] <- param_values[results[[param_name]]]
+          if (is.list(param_values)) {
+            attr(results[[param_name]], "param_values") <- param_values
+          } else {
+            results[[param_name]] <- param_values[results[[param_name]]]
+          }
           attr(results[[param_name]], "names") <- NULL
         }
       }
