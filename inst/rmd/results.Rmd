@@ -228,10 +228,15 @@ showResults <- function(dir_name, depth, base = FALSE, show_header = TRUE) {
     depth <- depth + 1
   }
   
-  showtype_template <- paste0("\n\n", 
-                              paste(rep("#", depth + 1), collapse = ""),
-                              " %s\n\n")
+  showtype_template <- paste0(
+    "\n\n", 
+    paste(rep("#", depth + 1), collapse = ""),
+    " %s {.tabset .tabset-pills .tabset-fade .tabset-square}\n\n"
+  )
   figname_template <- "<h3 style='font-weight: bold'> %s </h3>"
+  plt_template <- paste0("\n\n", 
+                         paste(rep("#", depth + 2), collapse = ""),
+                         " %s\n\n")
   
   exp_fname <- file.path(dir_name, "experiment.rds")
   results_fname <- file.path(dir_name, "run_results.rds")
@@ -258,17 +263,26 @@ showResults <- function(dir_name, depth, base = FALSE, show_header = TRUE) {
     cat(sprintf(showtype_template, fa("chart-bar", fill = "white")))
     for (plot_name in names(plot_results)) {
       cat(sprintf(figname_template, plot_name))
-      plt <- plot_results[[plot_name]]
-      if (inherits(plt, "plotly")) {
-        add_class <- c("panel panel-default padded-panel")
-      } else {
-        add_class <- NULL
+      plts <- plot_results[[plot_name]]
+      if (!inherits(plts, "list")) {
+        plts <- list(plt = plts)
       }
-      subchunkify(plt, i = chunk_idx,
-                  fig_height = exp$get_plots()[[plot_name]]$rmd_options$height,
-                  fig_width = exp$get_plots()[[plot_name]]$rmd_options$width, 
-                  other_args = "out.width = '100%'", add_class = add_class)
-      chunk_idx <<- chunk_idx + 1
+      for (plt_name in names(plts)) {
+        if (length(plts) != 1) {
+          cat(sprintf(plt_template, plt_name))
+        }
+        plt <- plts[[plt_name]]
+        if (inherits(plt, "plotly")) {
+          add_class <- c("panel panel-default padded-panel")
+        } else {
+          add_class <- NULL
+        }
+        subchunkify(plt, i = chunk_idx,
+                    fig_height = exp$get_plots()[[plot_name]]$rmd_options$height,
+                    fig_width = exp$get_plots()[[plot_name]]$rmd_options$width, 
+                    other_args = "out.width = '100%'", add_class = add_class)
+        chunk_idx <<- chunk_idx + 1
+      }
     }
   }
   
