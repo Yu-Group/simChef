@@ -14,19 +14,20 @@ Plotter <- R6::R6Class(
         self$rmd_options[[opt]] <- rmd_options[[opt]]
       }
     },
-    plot = function(results = NULL, eval_results = NULL, vary_param = NULL,
-                    ...) {
-      args_list <- list(results = results, eval_results = eval_results,
+    plot = function(method_results = NULL, eval_results = NULL,
+                    vary_param = NULL, ...) {
+      args_list <- list(method_results = method_results, 
+                        eval_results = eval_results,
                         vary_param = vary_param)
       if (!identical(self$plot_params, list())) {
         always_args_list <- self$plot_params
       } else {
         always_args_list <- NULL
       }
-      plot_out <- R.utils::doCall(self$plot_fun,
-                                  args = args_list, 
-                                  alwaysArgs = always_args_list)
-      return(plot_out)
+      plot_results <- R.utils::doCall(self$plot_fun,
+                                      args = args_list, 
+                                      alwaysArgs = always_args_list)
+      return(plot_results)
     }
   )
 )
