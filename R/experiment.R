@@ -167,15 +167,15 @@ Experiment <- R6::R6Class(
         save <- rep(save, 3)
       }
       
-      method_results <- self$fit(parallel_strategy = parallel_strategy,
+      fit_results <- self$fit(parallel_strategy = parallel_strategy,
                                  trial_run = trial_run, 
                                  use_cached = use_cached[1], save = save[1])
-      eval_results <- self$evaluate(method_results = method_results,
+      eval_results <- self$evaluate(fit_results = fit_results,
                                     use_cached = use_cached[2], save = save[2])
-      plot_results <- self$plot(method_results = method_results,
+      plot_results <- self$plot(fit_results = fit_results,
                                 eval_results = eval_results, 
                                 use_cached = use_cached[3], save = save[3])
-      return(list(method_results = method_results,
+      return(list(fit_results = fit_results,
                   eval_results = eval_results,
                   plot_results = plot_results))
     },
@@ -197,7 +197,7 @@ Experiment <- R6::R6Class(
                    ...) {
       if (use_cached) {
         return(private$.get_cached_results(
-          save_filename = "method_results.rds"
+          save_filename = "fit_results.rds"
         ))
       }
       parallel_strategy <- match.arg(parallel_strategy)
@@ -216,7 +216,7 @@ Experiment <- R6::R6Class(
       
       if (identical(private$.vary_across, list())) {
         if (parallel_strategy == "reps") {
-          method_results <- purrr::map_dfr(dgp_list, function(dgp) {
+          fit_results <- purrr::map_dfr(dgp_list, function(dgp) {
             purrr::map_dfr(method_list, function(method) {
               replicates <- future.apply::future_replicate(n_reps, {
                 datasets <- dgp$generate()
@@ -226,7 +226,7 @@ Experiment <- R6::R6Class(
             }, .id = "method")
           }, .id = "dgp")
         } else {
-          method_results <- tibble::tibble()
+          fit_results <- tibble::tibble()
         }
       } else {
         # TODO: add parallelization
@@ -236,7 +236,7 @@ Experiment <- R6::R6Class(
         param_values <- private$.vary_across$param_values
         if (!is.null(private$.vary_across$dgp)) {
           obj_name <- private$.vary_across$dgp
-          method_results <- future.apply::future_replicate(n_reps, {
+          fit_results <- future.apply::future_replicate(n_reps, {
             purrr::map_dfr(param_values, function(param_value) {
               input_param <- list(param = param_value) %>%
                 setNames(param_name)
@@ -251,7 +251,7 @@ Experiment <- R6::R6Class(
             dplyr::bind_rows(.id = "rep")
         } else if (!is.null(private$.vary_across$method)) {
           obj_name <- private$.vary_across$method
-          method_results <- future.apply::future_replicate(n_reps, {
+          fit_results <- future.apply::future_replicate(n_reps, {
             purrr::map_dfr(dgp_list, function(dgp) {
               datasets <- dgp$generate()
               purrr::map_dfr(param_values, function(param_value) {
@@ -270,23 +270,23 @@ Experiment <- R6::R6Class(
         if (is.null(names(param_values))) {
           names(param_values) <- 1:length(param_values)
           if (is.list(param_values)) {
-            attr(method_results[[param_name]], "param_values") <- param_values
+            attr(fit_results[[param_name]], "param_values") <- param_values
           } else {
-            method_results[[param_name]] <- param_values[
-              method_results[[param_name]]
+            fit_results[[param_name]] <- param_values[
+              fit_results[[param_name]]
             ]
           }
-          attr(method_results[[param_name]], "names") <- NULL
+          attr(fit_results[[param_name]], "names") <- NULL
         }
       }
       
       if (save) {
-        private$.save_results(method_results, 
-                              save_filename = "method_results.rds")
+        private$.save_results(fit_results, 
+                              save_filename = "fit_results.rds")
       }
-      return(method_results)
+      return(fit_results)
     },
-    evaluate = function(method_results, use_cached = FALSE, save = FALSE,
+    evaluate = function(fit_results, use_cached = FALSE, save = FALSE,
                         ...) {
       if (use_cached) {
         return(private$.get_cached_results(save_filename = "eval_results.rds"))
@@ -296,7 +296,7 @@ Experiment <- R6::R6Class(
         private$.throw_empty_list_error("evaluator", "evaluate")
       }
       eval_results <- purrr::map(evaluator_list, function(evaluator) {
-        evaluator$evaluate(method_results = method_results, 
+        evaluator$evaluate(fit_results = fit_results, 
                            vary_param = private$.vary_across$param_name)
       })
 
@@ -306,7 +306,7 @@ Experiment <- R6::R6Class(
       
       return(eval_results)
     },
-    plot = function(method_results = NULL, eval_results = NULL, 
+    plot = function(fit_results = NULL, eval_results = NULL, 
                     use_cached = FALSE, save = FALSE, ...) {
       if (use_cached) {
         return(private$.get_cached_results(save_filename = "plot_results.rds"))
@@ -316,7 +316,7 @@ Experiment <- R6::R6Class(
         private$.throw_empty_list_error("plotter", "plot results from")
       }
       plot_results <- purrr::map(plotter_list, function(plotter) {
-        plotter$plot(method_results = method_results, 
+        plotter$plot(fit_results = fit_results, 
                      eval_results = eval_results,
                      vary_param = private$.vary_across$param_name)
       })

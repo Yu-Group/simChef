@@ -248,12 +248,12 @@ showResults <- function(dir_name, depth, base = FALSE, show_header = TRUE,
                          " %s\n\n")
   
   exp_fname <- file.path(dir_name, "experiment.rds")
-  # method_fname <- file.path(dir_name, "method_results.rds")
+  # fit_fname <- file.path(dir_name, "fit_results.rds")
   eval_fname <- file.path(dir_name, "eval_results.rds")
   plot_fname <- file.path(dir_name, "plot_results.rds")
   
   exp <- getResults(exp_fname)
-  # method_results <- getResults(method_fname)
+  # fit_results <- getResults(fit_fname)
   eval_results <- getResults(eval_fname)
   plot_results <- getResults(plot_fname)
   

@@ -20,14 +20,14 @@ Method <- R6::R6Class(
       }
       
       if (identical(method_params, list())) {
-        method_results <- do.call(self$method_fun, data_list)
+        fit_results <- do.call(self$method_fun, data_list)
       } else {
-        method_results <- do.call(self$method_fun, c(data_list, method_params))
+        fit_results <- do.call(self$method_fun, c(data_list, method_params))
       }
-      if (is.null(names(method_results))) {
-        names(method_results) <- paste0("result", 1:length(method_results))
+      if (is.null(names(fit_results))) {
+        names(fit_results) <- paste0("result", 1:length(fit_results))
       }
-      return(tibble::as_tibble(method_results))
+      return(tibble::as_tibble(fit_results))
     }
   )
 )
