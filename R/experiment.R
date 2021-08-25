@@ -189,6 +189,19 @@ Experiment <- R6::R6Class(
                   eval_results = eval_results,
                   plot_results = plot_results))
     },
+    generate_data = function(n_reps = 1) {
+      # TODO: generate data that was used in run() or fit() (e.g., w/ same seed)
+      dgp_list <- private$.get_obj_list("dgp")
+      if (length(dgp_list) == 0) {
+        private$.throw_empty_list_error("dgp", "generate data from")
+      }
+      dgp_results <- purrr::map(dgp_list, function(dgp) {
+        replicates <- replicate(n_reps, {
+          return(dgp$generate())
+        }, simplify = FALSE)
+      })
+      return(dgp_results)
+    },
     fit = function(parallel_strategy = c("reps", "dgps", "methods"),
                    trial_run = FALSE, use_cached = FALSE, save = FALSE, 
                    ...) {
@@ -555,6 +568,11 @@ create_experiment <- function(n_reps, ...) {
 #' @export
 run_experiment <- function(experiment, ...) {
   return(experiment$run(...))
+}
+
+#' @export
+generate_data <- function(experiment, ...) {
+  return(experiment$generate_data(...))
 }
 
 #' @export
