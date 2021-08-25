@@ -27,7 +27,8 @@ Method <- R6::R6Class(
       if (is.null(names(method_results))) {
         names(method_results) <- paste0("result", 1:length(method_results))
       }
-      return(tibble::as_tibble(method_results))
+      
+      return(list_to_tibble_row(method_results))
     }
   )
 )
