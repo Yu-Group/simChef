@@ -1,0 +1,255 @@
+---
+title: "simChef Tutorial"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{basics}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+
+library(pcs.sim.pkg)
+```
+
+# Overview
+
+1. Creating the simulation experiment recipe
+  1. Create DGPs
+  2. Create methods
+  3. Create evaluators
+  4. Create plots
+  5. Assemble into a complete experimental simulation recipe
+2. Running the experiment
+3. Visualizing results with Rmd
+  1. Also should document recipe
+
+TODO: Discuss verbs
+
+Go through linear regression simulation example
+
+# Create data-generating process (DGP)
+
+- create a data-generating process function to pass to create_dgp()
+- can create multiple dgps
+- simulate a random Gaussian n x 2 data matrix X and linear response y
+- dgp parameters: beta coefficients; noise level (sigma); correlation between two features
+
+```{r} 
+dgp_fun <- function(n, beta1, beta2, noise_level, corr) {
+  Sigma <- matrix(c(1, corr, corr, 1), byrow = T, nrow = 2, ncol = 2)
+  X <- MASS::mvrnorm(n = n, mu = rep(0, 2), Sigma = Sigma)
+  y <- X %*% c(beta1, beta2) + rnorm(n, sd = noise_level)
+  return(list(X = X, y = y))
+}
+# create DGP
+dgp <- create_dgp(dgp_fun, 
+                  # additional parameters to pass to dgp_fun
+                  n = 200, beta1 = 1, beta2 = 1, noise_level = 1, corr = 0)
+```
+
+# Create method
+
+- create a method function to pass to create_method()
+- can create multiple methods
+- method1: get p-values for the two predictors in the OLS fit
+- TODO: method2 using EHW standard errors
+
+```{r}
+lm_method_fun <- function(X, y) {
+  fit <- lm(y ~ X)
+  return(list(
+    "X1 p-val" = summary(fit)$coefficients["X1", "Pr(>|t|)"],
+    "X2 p-val" = summary(fit)$coefficients["X2", "Pr(>|t|)"]
+  ))
+}
+# create Method
+lm_method <- create_method(lm_method_fun)
+```
+
+# Create evaluator
+
+- create an evaluator function to pass to create_evaluator()
+- evaluator function should often have the following arguments: results, vary_param
+- can create multiple evaluators
+- in this case, compute the proportion of p-values < 0.05
+
+```{r}
+reject_prob_fun <- function(results, vary_param = NULL, alpha = 0.05) {
+  group_vars <- c("dgp", "method", vary_param)
+  eval_out <- results %>%
+    dplyr::group_by(across({{group_vars}})) %>%
+    dplyr::summarise("X1 Reject Prob." = mean(`X1 p-val` < alpha),
+                     "X2 Reject Prob." = mean(`X2 p-val` < alpha))
+  return(eval_out)
+}
+# create Evaluator
+reject_prob_eval <- create_evaluator(reject_prob_fun)
+```
+
+# Create plot
+
+- create a plotting function to pass to create_plot()
+- in this case, plot the power for testing beta_1
+- plotting function should often have the following arguments: results, eval_results, vary_param
+
+```{r}
+power_plot_fun <- function(results, eval_results = NULL, vary_param = NULL) {
+  require(ggplot2)
+  plt <- ggplot(results) +
+    aes(x = `X1 p-val`, color = as.factor(method)) +
+    geom_abline(slope = 1, intercept = 0, 
+                color = "darkgray", linetype = "solid", size = 1) +
+    stat_ecdf(size = 1) +
+    scale_x_continuous(limits = c(0, 1)) +
+    labs(x = "t", y = "P( p-value \u2264 t )", linetype = "", color = "Method")
+  if (!is.null(vary_param)) {
+    plt <- plt + facet_wrap(~.data[[vary_param]])
+  }
+  return(plt)
+}
+# create plot
+power_plot <- create_plot(power_plot_fun)
+```
+
+```{r}
+reject_prob_plot_fun <- function(eval_results = NULL, vary_param, alpha = 0.05) {
+  require(ggplot2)
+  plt <- ggplot(eval_results$`Rejection Probability (alpha = 0.05)`) +
+    aes(x = .data[[vary_param]], y = `X1 Reject Prob.`, 
+        color = as.factor(method)) +
+    labs(x = vary_param, 
+         y = sprintf("Rejection Probability (alpha = %s)", alpha),
+         color = "Method") +
+    geom_line() +
+    geom_point(size = 2) +
+    scale_y_continuous(limits = c(0, 1))
+  return(plotly::ggplotly(plt))
+}
+# create plot
+reject_prob_plot <- create_plot(reject_prob_plot_fun)
+```
+
+# Create the experiment
+
+- Should add names to each object in the experiment
+
+```{r}
+# create the experiment and add the dgp, method, evaluator, and plot
+experiment <- create_experiment(n_reps = 1000, 
+                                name = "Linear Regression Simulation") %>%
+  add_dgp(dgp, "Linear Gaussian") %>%
+  add_method(lm_method, "OLS") %>%
+  add_evaluator(reject_prob_eval, "Rejection Probability (alpha = 0.05)") %>%
+  add_plot(power_plot, "Power")
+```
+
+# Run the experiment
+
+- TODO: can do in parallel
+
+```{r}
+# run sequentually
+future::plan(future::sequential)
+results <- experiment$run(save = T)
+```
+
+Can run in steps
+```{r}
+fit_results <- experiment$fit(save = T)
+eval_results <- experiment$evaluate(fit_results, save = T)
+plot_results <- experiment$plot(fit_results, eval_results, save = T)
+```
+
+TODO: Can run in parallel
+```{r}
+# future::plan(future::multiprocess, workers=2)
+# 
+# # run in parallel with 2 processes
+# par_start <- proc.time()
+# o2 <- experiment$run()
+# proc.time() - par_start
+# 
+# future::plan(future::sequential)
+```
+
+# Run experiment across varying parameters in the DGP
+
+- can also vary parameters in Method
+
+```{r}
+vary_experiment <- vary_experiment %>%
+  add_vary_across(dgp = "Linear Gaussian", param_name = "beta1",
+                  param_values = c(0.01, 0.1, 0.5, 1))
+run_results <- vary_experiment$run(save = T)
+eval_results <- vary_experiment$evaluate(run_results, save = T)
+plot_results <- vary_experiment$plot(run_results, eval_results, save = T)
+
+vary_experiment <- vary_experiment %>%
+  update_vary_across(dgp = "Linear Gaussian", param_name = "beta2",
+                     param_values = c(0.01, 0.1, 0.5, 1))
+run_results <- vary_experiment$run(save = T)
+eval_results <- vary_experiment$evaluate(run_results, save = T)
+plot_results <- vary_experiment$plot(run_results, eval_results, save = T)
+
+vary_experiment <- vary_experiment %>%
+  update_vary_across(dgp = "Linear Gaussian", param_name = "noise_level",
+                     param_values = c(1, 2, 4, 8))
+run_results <- vary_experiment$run(save = T)
+eval_results <- vary_experiment$evaluate(run_results, save = T)
+plot_results <- vary_experiment$plot(run_results, eval_results, save = T)
+
+vary_experiment <- vary_experiment %>%
+  update_vary_across(dgp = "Linear Gaussian", param_name = "corr",
+                     param_values = c(0, 0.2, 0.5, 0.9))
+run_results <- vary_experiment$run(save = T)
+eval_results <- vary_experiment$evaluate(run_results, save = T)
+plot_results <- vary_experiment$plot(run_results, eval_results, save = T)
+```
+
+# Generate Rmarkdown report
+
+- includes all results under the experiment's results folder
+- create_doc_template
+
+```{r rmd-report, results = "hide", message = FALSE, warning = FALSE}
+experiment$create_rmd()
+# or alternatively
+# create_rmd(experiment)
+# create_rmd(experiment_dirname = "results/Linear Regression Simulation")
+```
+
+# Other useful things to know
+
+## Create experiment from another experiment
+
+TODO: use clone_from instead
+```{r}
+vary_experiment <- create_experiment(n_reps = 1000,
+                                     name = "Linear Gaussian DGP", 
+                                     parent = experiment, 
+                                     save_dir = experiment$get_save_dir()) %>%
+  add_plot(reject_prob_plot, "Rejection Probability")
+```
+
+## Additional handling of the experiment
+
+- Can also generate data from experiment to do further EDA
+```{r}
+data_list <- experiment$generate_data(n_reps = 1)
+```
+- helpers to get dgp/method/evaluators/plots/vary_across
+- warning that if you rename the experiment variable, the original experiment also gets modified because of R6 class
+
+## Saving results
+
+Discuss file structure
+- saving results to particular folders with set_save_dir
+
+## Rmarkdown options
+
+Can use rmd_options in plots and evaluators
