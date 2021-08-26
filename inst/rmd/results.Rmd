@@ -17,6 +17,9 @@ params:
   sim_path:
     label: "Path to Experiment Folder:"
     value: "/Users/Tiffany/My Documents/Research/Yu/Local Feature Stability/local-feature-stability/results/Local Feature Stability Sims"
+  verbose:
+    label: "Verbose Level:"
+    value: 2
   # external_files:
   #   label: "Name of external files to source:"
   #   # value: "../vignettes/functions/plotting_wrappers.R"
@@ -201,8 +204,14 @@ getResults <- function(filename) {
 #' @param depth integer; depth of directory from parent/base experiment's folder
 #' @param base logical; whether or not this is a base experiment
 #' @param show_header logical; whether or not to show section header
+#' @param verbose integer; 0 = no messages; 1 = print out directory name only; 
+#'   2 = print out directory name and name of evaluators/plots
 #' @return content results from evaluate() and plot() from the experiment
-showResults <- function(dir_name, depth, base = FALSE, show_header = TRUE) {
+showResults <- function(dir_name, depth, base = FALSE, show_header = TRUE,
+                        verbose = 1) {
+  if (verbose >= 1) {
+    message(rep("*", depth), basename(dir_name))
+  }
   
   if (depth == 1) {
     header_template <- "\n\n%s %s {.tabset .tabset-pills .tabset-fade}\n\n"
@@ -239,18 +248,21 @@ showResults <- function(dir_name, depth, base = FALSE, show_header = TRUE) {
                          " %s\n\n")
   
   exp_fname <- file.path(dir_name, "experiment.rds")
-  results_fname <- file.path(dir_name, "run_results.rds")
+  # fit_fname <- file.path(dir_name, "fit_results.rds")
   eval_fname <- file.path(dir_name, "eval_results.rds")
   plot_fname <- file.path(dir_name, "plot_results.rds")
   
   exp <- getResults(exp_fname)
-  results <- getResults(results_fname)
+  # fit_results <- getResults(fit_fname)
   eval_results <- getResults(eval_fname)
   plot_results <- getResults(plot_fname)
   
   if (!is.null(eval_results)) {
     cat(sprintf(showtype_template, fa("table", fill = "white")))
     for (eval_name in names(eval_results)) {
+      if (verbose >= 2) {
+        message(rep(" ", depth + 1), eval_name)
+      }
       cat(sprintf(figname_template, eval_name))
       do.call(prettyDT, c(list(eval_results[[eval_name]]), 
                           exp$get_evaluators()[[eval_name]]$rmd_options)) %>%
@@ -262,10 +274,16 @@ showResults <- function(dir_name, depth, base = FALSE, show_header = TRUE) {
   if (!is.null(plot_results)) {
     cat(sprintf(showtype_template, fa("chart-bar", fill = "white")))
     for (plot_name in names(plot_results)) {
+      if (verbose >= 2) {
+        message(rep(" ", depth + 1), plot_name)
+      }
       cat(sprintf(figname_template, plot_name))
       plts <- plot_results[[plot_name]]
       if (!inherits(plts, "list")) {
         plts <- list(plt = plts)
+      }
+      if (is.null(names(plts))) {
+        names(plts) <- 1:length(plts)
       }
       for (plt_name in names(plts)) {
         if (length(plts) != 1) {
@@ -301,7 +319,8 @@ showResults <- function(dir_name, depth, base = FALSE, show_header = TRUE) {
 #'
 #' @param dir_name name of parent experiment directory
 #' @param depth placeholder for recursion; should not be messed with
-showDescendantResults <- function(dir_name, depth = 1) {
+#' @param ... other arguments to pass into showResults()
+showDescendantResults <- function(dir_name, depth = 1, ...) {
   children <- list.dirs(dir_name, recursive = FALSE)
   if (length(children) == 0) {
     return()
@@ -318,8 +337,8 @@ showDescendantResults <- function(dir_name, depth = 1) {
     } else {
       base <- FALSE
     }
-    showResults(child, depth, base = base)
-    showDescendantResults(child, depth + 1)
+    showResults(child, depth, base = base, ...)
+    showDescendantResults(child, depth + 1, ...)
   }
 }
 
@@ -371,6 +390,6 @@ if (experimentExists(params$sim_path)) {
   showResults(params$sim_path, depth = 2, base = FALSE, show_header = FALSE)
 }
 
-showDescendantResults(params$sim_path)
+showDescendantResults(params$sim_path, verbose = params$verbose)
 
 ```
