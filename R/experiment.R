@@ -144,13 +144,10 @@ Experiment <- R6::R6Class(
     }
   ),
   public = list(
-    #' @field n_reps The number of replicates of the \code{Experiment}.
-    n_reps = NULL,
     #' @field name The name of the \code{Experiment}.
     name = NULL,
     #' @description Create a new \code{Experiment}.
     #'
-    #' @param n_reps The number of replicates of the \code{Experiment}.
     #' @param name The name of the \code{Experiment}.
     #' @param dgp_list An optional list of \code{DGP} objects.
     #' @param method_list An optional list of \code{Method} objects.
@@ -163,11 +160,10 @@ Experiment <- R6::R6Class(
     #' @param ... Not used.
     #'
     #' @return A new \code{Experiment} object.
-    initialize = function(n_reps, name = "experiment",
+    initialize = function(name = "experiment",
                           dgp_list = list(), method_list = list(),
                           evaluator_list = list(), plotter_list = list(),
                           clone_from = NULL, save_dir = NULL, ...) {
-      # TODO: check that n_reps has length 1 or is the same length as dgp_list
       if (!is.null(clone_from)) {
         private$.check_obj(clone_from, "Experiment")
         clone <- clone_from$clone(deep = TRUE)
@@ -180,7 +176,6 @@ Experiment <- R6::R6Class(
       private$.add_obj_list(method_list, "Method")
       private$.add_obj_list(evaluator_list, "Evaluator")
       private$.add_obj_list(plotter_list, "Plotter")
-      self$n_reps <- n_reps
       self$name <- name
       if (is.null(save_dir)) {
         save_dir <- file.path("results", name)
@@ -189,6 +184,8 @@ Experiment <- R6::R6Class(
     },
     #' @description Run the entire simulation experiment pipeline.
     #'
+    #' @param n_reps The number of replicates of the \code{Experiment} for this
+    #'   run.
     #' @param parallel_strategy A vector with some combination of "reps",
     #'   "dgps", or "methods". Determines how computation will be distributed
     #'   across available resources.
@@ -199,9 +196,8 @@ Experiment <- R6::R6Class(
     #' @param ... Not used.
     #'
     #' @return A list of results from the simulation experiment.
-    run = function(parallel_strategy = c("reps", "dgps", "methods"),
-                   trial_run = FALSE, use_cached = FALSE, save = FALSE,
-                   ...) {
+    run = function(n_reps=1, parallel_strategy = c("reps", "dgps", "methods"),
+                   use_cached = FALSE, save = FALSE, ...) {
       if (!is.logical(use_cached)) {
         use_cached <- c("methods", "evaluators", "plots") %in% use_cached
       } else {
@@ -213,9 +209,8 @@ Experiment <- R6::R6Class(
         save <- rep(save, 3)
       }
 
-      fit_results <- self$fit(parallel_strategy = parallel_strategy,
-                                 trial_run = trial_run,
-                                 use_cached = use_cached[1], save = save[1])
+      fit_results <- self$fit(n_reps, parallel_strategy = parallel_strategy,
+                              use_cached = use_cached[1], save = save[1])
       eval_results <- self$evaluate(fit_results = fit_results,
                                     use_cached = use_cached[2], save = save[2])
       plot_results <- self$plot(fit_results = fit_results,
@@ -229,11 +224,12 @@ Experiment <- R6::R6Class(
     #'   \code{Experiment}.
     #'
     #' @param n_reps The number of datasets to generate per \code{DGP}.
+    #' @param ... Passed to the generate.
     #'
     #' @return A list of length equal to the number of \code{DGPs} in the
     #'   \code{Experiment}. Each element is a list of datasets of length
     #'   \code{n_reps}.
-    generate_data = function(n_reps = 1) {
+    generate_data = function(n_reps = 1, ...) {
       # TODO: generate data that was used in run() or fit() (e.g., w/ same seed)
       dgp_list <- private$.get_obj_list("dgp")
       if (length(dgp_list) == 0) {
@@ -241,7 +237,7 @@ Experiment <- R6::R6Class(
       }
       dgp_results <- purrr::map(dgp_list, function(dgp) {
         replicates <- replicate(n_reps, {
-          return(dgp$generate())
+          return(dgp$generate(...))
         }, simplify = FALSE)
       })
       return(dgp_results)
@@ -249,6 +245,7 @@ Experiment <- R6::R6Class(
     #' @description Return fit results from the \code{Methods} in the
     #'    \code{Experiment}.
     #'
+    #' @param n_reps The number of replicates to run.
     #' @param parallel_strategy A vector with some combination of "reps",
     #'   "dgps", or "methods". Determines how computation will be distributed
     #'   across available resources.
@@ -259,9 +256,8 @@ Experiment <- R6::R6Class(
     #' @param ... Not used.
     #'
     #' @return A list of results from the simulation experiment.
-    fit = function(parallel_strategy = c("reps", "dgps", "methods"),
-                   trial_run = FALSE, use_cached = FALSE, save = FALSE,
-                   ...) {
+    fit = function(n_reps=1, parallel_strategy = c("reps", "dgps", "methods"),
+                   use_cached = FALSE, save = FALSE, ...) {
       if (use_cached) {
         return(private$.get_cached_results(
           save_filename = "fit_results.rds"
@@ -275,10 +271,6 @@ Experiment <- R6::R6Class(
       }
       if (length(method_list) == 0) {
         private$.throw_empty_list_error("method", "fit methods in")
-      }
-      n_reps <- self$n_reps
-      if (trial_run) {
-        n_reps <- 1
       }
 
       if (identical(private$.vary_across, list())) {
@@ -608,18 +600,49 @@ create_experiment <- function(...) {
   Experiment$new(...)
 }
 
-#' Run an \code{Experiment}.
+#' Run the full \code{Experiment} pipeline.
 #'
 #' @name run_experiment
 #'
 #' @param experiment An \code{Experiment} object.
+#' @param n_reps The number of replicates of the \code{Experiment} for this run.
 #' @param ... Passed to \code{experiment$run()}.
 #'
 #' @return A list of the simulation experiment's method results.
 #'
 #' @export
-run_experiment <- function(experiment, ...) {
-  return(experiment$run(...))
+run_experiment <- function(experiment, n_reps=1, ...) {
+  return(experiment$run(n_reps=1, ...))
+}
+
+#' Evaluate an \code{Experiment}
+#'
+#' @name generate_data
+#'
+#' @param experiment An \code{Experiment} object.
+#' @param n_reps The number of datasets to generate per \code{DGP}.
+#' @param ... Passed to \code{experiment$generate()}.
+#'
+#' @return A list of the simulation experiment's evaluation results.
+#'
+#' @export
+generate_data <- function(experiment, n_reps=1, ...) {
+  return(experiment$generate_data(n_reps, ...))
+}
+
+#' Fit an \code{Experiment}
+#'
+#' @name fit_experiment
+#'
+#' @param experiment An \code{Experiment} object.
+#' @param n_reps The number of replicates of the \code{Experiment} for this run.
+#' @param ... Passed to \code{experiment$fit()}.
+#'
+#' @return A list of the simulation experiment's evaluation results.
+#'
+#' @export
+fit_experiment <- function(experiment, n_reps=1, ...) {
+  return(experiment$fit(n_reps, ...))
 }
 
 #' Evaluate an \code{Experiment}
@@ -631,16 +654,6 @@ run_experiment <- function(experiment, ...) {
 #'
 #' @return A list of the simulation experiment's evaluation results.
 #'
-#' @export
-generate_data <- function(experiment, ...) {
-  return(experiment$generate_data(...))
-}
-
-#' @export
-fit_experiment <- function(experiment, ...) {
-  return(experiment$fit(...))
-}
-
 #' @export
 evaluate_experiment <- function(experiment, ...) {
   return(experiment$evaluate(...))

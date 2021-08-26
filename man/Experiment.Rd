@@ -16,8 +16,6 @@ computing results in parallel. Those results can then be evaluated using
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
-\item{\code{n_reps}}{The number of replicates of the \code{Experiment}.}
-
 \item{\code{name}}{The name of the \code{Experiment}.}
 }
 \if{html}{\out{</div>}}
@@ -33,12 +31,6 @@ computing results in parallel. Those results can then be evaluated using
 \item \href{#method-plot}{\code{Experiment$plot()}}
 \item \href{#method-create_doc_template}{\code{Experiment$create_doc_template()}}
 \item \href{#method-create_rmd}{\code{Experiment$create_rmd()}}
-\item \href{#method-has_parent}{\code{Experiment$has_parent()}}
-\item \href{#method-get_parent}{\code{Experiment$get_parent()}}
-\item \href{#method-set_parent}{\code{Experiment$set_parent()}}
-\item \href{#method-add_child}{\code{Experiment$add_child()}}
-\item \href{#method-get_children}{\code{Experiment$get_children()}}
-\item \href{#method-get_descendants}{\code{Experiment$get_descendants()}}
 \item \href{#method-add_dgp}{\code{Experiment$add_dgp()}}
 \item \href{#method-update_dgp}{\code{Experiment$update_dgp()}}
 \item \href{#method-get_dgps}{\code{Experiment$get_dgps()}}
@@ -67,13 +59,12 @@ computing results in parallel. Those results can then be evaluated using
 Create a new \code{Experiment}.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Experiment$new(
-  n_reps,
   name = "experiment",
   dgp_list = list(),
   method_list = list(),
   evaluator_list = list(),
   plotter_list = list(),
-  parent = NULL,
+  clone_from = NULL,
   save_dir = NULL,
   ...
 )}\if{html}{\out{</div>}}
@@ -82,8 +73,6 @@ Create a new \code{Experiment}.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{n_reps}}{The number of replicates of the \code{Experiment}.}
-
 \item{\code{name}}{The name of the \code{Experiment}.}
 
 \item{\code{dgp_list}}{An optional list of \code{DGP} objects.}
@@ -94,7 +83,8 @@ Create a new \code{Experiment}.
 
 \item{\code{plotter_list}}{An option list of \code{Plotter} objects.}
 
-\item{\code{parent}}{An optional parent \code{Experiment} object to extend.}
+\item{\code{clone_from}}{An optional \code{Experiment} object to use as a base
+for this one.}
 
 \item{\code{save_dir}}{An optional directory in which to save the experiment's
 results.}
@@ -114,8 +104,8 @@ A new \code{Experiment} object.
 Run the entire simulation experiment pipeline.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Experiment$run(
+  n_reps = 1,
   parallel_strategy = c("reps", "dgps", "methods"),
-  trial_run = FALSE,
   use_cached = FALSE,
   save = FALSE,
   ...
@@ -125,11 +115,12 @@ Run the entire simulation experiment pipeline.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
+\item{\code{n_reps}}{The number of replicates of the \code{Experiment} for this
+run.}
+
 \item{\code{parallel_strategy}}{A vector with some combination of "reps",
 "dgps", or "methods". Determines how computation will be distributed
 across available resources.}
-
-\item{\code{trial_run}}{If \code{TRUE}, run 1 rep of the simulation experiment.}
 
 \item{\code{use_cached}}{If \code{TRUE}, find and return previously saved
 results.}
@@ -137,6 +128,8 @@ results.}
 \item{\code{save}}{If \code{TRUE}, save results to disk.}
 
 \item{\code{...}}{Not used.}
+
+\item{\code{trial_run}}{If \code{TRUE}, run 1 rep of the simulation experiment.}
 }
 \if{html}{\out{</div>}}
 }
@@ -151,13 +144,15 @@ A list of results from the simulation experiment.
 Generate data from each of the \code{DGPs} in the
 \code{Experiment}.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Experiment$generate_data(n_reps = 1)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Experiment$generate_data(n_reps = 1, ...)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{n_reps}}{The number of datasets to generate per \code{DGP}.}
+
+\item{\code{...}}{Passed to the generate.}
 }
 \if{html}{\out{</div>}}
 }
@@ -175,8 +170,8 @@ Return fit results from the \code{Methods} in the
 \code{Experiment}.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Experiment$fit(
+  n_reps = 1,
   parallel_strategy = c("reps", "dgps", "methods"),
-  trial_run = FALSE,
   use_cached = FALSE,
   save = FALSE,
   ...
@@ -186,11 +181,11 @@ Return fit results from the \code{Methods} in the
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
+\item{\code{n_reps}}{The number of replicates to run.}
+
 \item{\code{parallel_strategy}}{A vector with some combination of "reps",
 "dgps", or "methods". Determines how computation will be distributed
 across available resources.}
-
-\item{\code{trial_run}}{If \code{TRUE}, run 1 rep of the simulation experiment.}
 
 \item{\code{use_cached}}{If \code{TRUE}, find and return previously saved
 results.}
@@ -198,6 +193,8 @@ results.}
 \item{\code{save}}{If \code{TRUE}, save results to disk.}
 
 \item{\code{...}}{Not used.}
+
+\item{\code{trial_run}}{If \code{TRUE}, run 1 rep of the simulation experiment.}
 }
 \if{html}{\out{</div>}}
 }
@@ -286,60 +283,6 @@ A list of plots.
 \subsection{Method \code{create_rmd()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Experiment$create_rmd(open = TRUE, ...)}\if{html}{\out{</div>}}
-}
-
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-has_parent"></a>}}
-\if{latex}{\out{\hypertarget{method-has_parent}{}}}
-\subsection{Method \code{has_parent()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Experiment$has_parent()}\if{html}{\out{</div>}}
-}
-
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-get_parent"></a>}}
-\if{latex}{\out{\hypertarget{method-get_parent}{}}}
-\subsection{Method \code{get_parent()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Experiment$get_parent()}\if{html}{\out{</div>}}
-}
-
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-set_parent"></a>}}
-\if{latex}{\out{\hypertarget{method-set_parent}{}}}
-\subsection{Method \code{set_parent()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Experiment$set_parent(parent)}\if{html}{\out{</div>}}
-}
-
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-add_child"></a>}}
-\if{latex}{\out{\hypertarget{method-add_child}{}}}
-\subsection{Method \code{add_child()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Experiment$add_child(child, name = NULL, ...)}\if{html}{\out{</div>}}
-}
-
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-get_children"></a>}}
-\if{latex}{\out{\hypertarget{method-get_children}{}}}
-\subsection{Method \code{get_children()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Experiment$get_children()}\if{html}{\out{</div>}}
-}
-
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-get_descendants"></a>}}
-\if{latex}{\out{\hypertarget{method-get_descendants}{}}}
-\subsection{Method \code{get_descendants()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Experiment$get_descendants(include_self = FALSE)}\if{html}{\out{</div>}}
 }
 
 }

@@ -1,28 +1,20 @@
 test_that("Experiment initialization works properly", {
-  expect_error(Experiment$new())
 
-  exper <- Experiment$new(n_reps = 1)
-  expect_equal(exper$n_reps, 1)
+  exper <- Experiment$new()
   expect_equal(exper$name, "experiment")
-  save_dir <- file.path(getwd(), "results", "experiment")
-  expect_equal(exper$get_save_dir(), save_dir)
+  expect_equal(exper$get_save_dir(), file.path(getwd(), "results", "experiment"))
 
-  exper <- Experiment$new(
-    n_reps = 10, name = "exper_name", save_dir = "exper_dir"
-  )
-  expect_equal(exper$n_reps, 10)
+  exper <- Experiment$new(name = "exper_name", save_dir = "exper_dir")
   expect_equal(exper$name, "exper_name")
   expect_equal(exper$get_save_dir(), file.path(getwd(), "exper_dir"))
 
-  expect_error(create_experiment())
-
-  exper <- create_experiment(n_reps = 1)
-  expect_equal(exper$n_reps, 1)
+  exper <- create_experiment()
   expect_equal(exper$name, "experiment")
+  expect_equal(exper$get_save_dir(), file.path(getwd(), "results", "experiment"))
 
-  exper <- create_experiment(n_reps = 10, name = "exper_name")
-  expect_equal(exper$n_reps, 10)
+  exper <- create_experiment(name = "exper_name", save_dir = "exper_dir")
   expect_equal(exper$name, "exper_name")
+  expect_equal(exper$get_save_dir(), file.path(getwd(), "exper_dir"))
 
   dgp_fun1 <- function(x) x + 1
   dgp_fun2 <- function(x) x + 2
@@ -35,7 +27,6 @@ test_that("Experiment initialization works properly", {
   eval2 <- Evaluator$new(eval_fun2)
   eval3 <- Evaluator$new(eval_fun3)
   exper <- create_experiment(
-    n_reps = 1,
     dgp_list = list(dgp1, dgp2),
     evaluator_list = list("a" = eval1, eval2, eval3)
   )
@@ -54,6 +45,6 @@ test_that("Experiment initialization works properly", {
   expect_equal(evaluator_list[['evaluator1']], eval2)
   expect_equal(evaluator_list[['evaluator2']], eval3)
 
-  expect_error(create_experiment(n_reps = 1, dgp_list = c(1, 2, 3)))
+  expect_error(create_experiment(dgp_list = c(1, 2, 3)))
 
 })

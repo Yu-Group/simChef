@@ -2,7 +2,7 @@
 title: "Basics"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{basics}
+  %\VignetteIndexEntry{Basics}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -38,15 +38,15 @@ method_fun <- function(X, y) {
 
 method <- create_method(method_fun)
 
-eval_summary_fun <- function(results) {
-  eval_out <- results %>%
+eval_summary_fun <- function(fit_results) {
+  eval_out <- fit_results %>%
     dplyr::group_by(dgp, method) %>%
     dplyr::summarise_all(~mean(.x < 0.05))
   return(eval_out)
 }
 
-eval_fun <- function(results) {
-  eval_out <- results %>%
+eval_fun <- function(fit_results) {
+  eval_out <- fit_results %>%
     dplyr::mutate_at(dplyr::vars(-dgp, -method), 
                      ~ifelse(.x < 0.05, "reject", "fail to reject"))
   return(eval_out)
@@ -55,9 +55,9 @@ eval_fun <- function(results) {
 summary_evaluator <- create_evaluator(eval_summary_fun)
 evaluator <- create_evaluator(eval_fun)
 
-power_plot <- function(results, eval_results = NULL) {
+power_plot <- function(fit_results, eval_results = NULL) {
   require(ggplot2)
-  plt <- ggplot(results) +
+  plt <- ggplot(fit_results) +
     aes(x = `X1 p-val`, color = as.factor(method)) +
     geom_abline(slope = 1, intercept = 0, 
                 color = "darkgray", linetype = "solid", size = 1) +
@@ -71,7 +71,7 @@ power_plot <- function(results, eval_results = NULL) {
 plotter <- create_plot(power_plot)
 
 # create the experiment and add the dgp and method
-experiment <- create_experiment(n_reps = 1000, name = "base") %>%
+experiment <- create_experiment(name = "base") %>%
   add_dgp(dgp) %>%
   add_method(method) %>%
   add_evaluator(summary_evaluator) %>%
@@ -82,7 +82,7 @@ future::plan(future::sequential)
 
 # run sequentually
 seq_start <- proc.time()
-o1 <- experiment$run()
+o1 <- experiment$fit(n_reps = 100)
 proc.time() - seq_start
 
 eval_res <- experiment$evaluate(o1)
@@ -93,7 +93,7 @@ plot_res <- experiment$plot(o1, eval_res)
 # 
 # # run in parallel with 2 processes
 # par_start <- proc.time()
-# o2 <- experiment$run()
+# o2 <- experiment$run(n_reps = 100)
 # proc.time() - par_start
 # 
 # future::plan(future::sequential)
@@ -103,7 +103,7 @@ plot_res <- experiment$plot(o1, eval_res)
 
 ```{r inheritance}
 clone <- create_experiment(
-  n_reps = 100, clone_from = experiment, name = "cloned"
+  clone_from = experiment, name = "cloned"
 )
 
 # a copy of dgps/method/evaluators is made when inheriting
@@ -111,15 +111,15 @@ data.table::address(experiment$get_dgps()[["dgp1"]]) !=
   data.table::address(clone$get_dgps()[["dgp1"]]) # FALSE
 
 # the clone can have additional dgps (or methods/evaluators) beyond what the parent has
-dgp3 <- create_dgp(dgp_fun, n = 500, noise_level = 3)
+dgp2 <- create_dgp(dgp_fun, n = 500, noise_level = 3)
 clone$add_dgp(dgp2)
 
 names(experiment$get_dgps())
 names(clone$get_dgps())
 
 # the cloned experiment can override its parent's dgps without modifying the parent
-dgp4 <- create_dgp(dgp_fun, n = 10000, noise_level = 10)
-clone$update_dgp(dgp4, "dgp1")
+dgp3 <- create_dgp(dgp_fun, n = 10000, noise_level = 10)
+clone$update_dgp(dgp3, "dgp1")
 
 identical(experiment$get_dgps()[["dgp1"]], clone$get_dgps()[["dgp1"]]) # FALSE
 
