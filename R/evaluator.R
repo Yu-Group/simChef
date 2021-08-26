@@ -26,7 +26,7 @@ Evaluator <- R6::R6Class(
       eval_results <- R.utils::doCall(self$eval_fun, 
                                       args = args_list,
                                       alwaysArgs = always_args_list)
-      return(tibble::as_tibble(eval_results))
+      return(list_to_tibble(eval_results))
     }
   )
 )

@@ -27,7 +27,7 @@ Method <- R6::R6Class(
       if (is.null(names(fit_results))) {
         names(fit_results) <- paste0("result", 1:length(fit_results))
       }
-      return(tibble::as_tibble(fit_results))
+      return(list_to_tibble_row(fit_results))
     }
   )
 )
