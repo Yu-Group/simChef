@@ -12,18 +12,14 @@ output:
 css: css/custom_rmd_theme.css
 params:
   sim_name:
-    label: "Simulation Name:"
-    value: "Local Feature Stability Sims"
+    label: "Simulation Experiment Name:"
+    value: ""
   sim_path:
-    label: "Path to Experiment Folder:"
-    value: "/Users/Tiffany/My Documents/Research/Yu/Local Feature Stability/local-feature-stability/results/Local Feature Stability Sims"
+    label: "Path to Simulation Experiment Folder:"
+    value: ""
   verbose:
     label: "Verbose Level:"
     value: 2
-  # external_files:
-  #   label: "Name of external files to source:"
-  #   # value: "../vignettes/functions/plotting_wrappers.R"
-  #   value: NULL
 ---
 
 <script src="js/customNavClass.js"></script>
@@ -46,12 +42,6 @@ library(tidyverse)
 
 source(file.path("utils", "rmd_utils.R"))
 source(file.path("utils", "table_wrappers.R"))
-# if (!is.null(params$external_files)) {
-#   source_files <- str_trim(str_split(params$external_files, ",")[[1]])
-#   for (file in source_files) {
-#     source(file, chdir = T)
-#   }
-# }
 
 options(knitr.kable.NA = 'NA', 
         dplyr.summarise.inform = FALSE)
@@ -345,7 +335,7 @@ showDescendantResults <- function(dir_name, depth = 1, ...) {
 
 ```
 
-# Simulation Recipe {.tabset .tabset-fade}
+# Simulation Experiment Recipe {.tabset .tabset-fade}
 
 ## Objectives {.panel .panel-default .padded-panel}
 
