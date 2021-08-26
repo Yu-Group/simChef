@@ -152,6 +152,8 @@ computing results in parallel. Those results can then be evaluated using
 <ul>
 <li><p><a href='#method-new'><code>Experiment$new()</code></a></p></li>
 <li><p><a href='#method-run'><code>Experiment$run()</code></a></p></li>
+<li><p><a href='#method-generate_data'><code>Experiment$generate_data()</code></a></p></li>
+<li><p><a href='#method-fit'><code>Experiment$fit()</code></a></p></li>
 <li><p><a href='#method-evaluate'><code>Experiment$evaluate()</code></a></p></li>
 <li><p><a href='#method-plot'><code>Experiment$plot()</code></a></p></li>
 <li><p><a href='#method-create_doc_template'><code>Experiment$create_doc_template()</code></a></p></li>
@@ -223,9 +225,9 @@ results.</p></dd>
 <p>A new <code>Experiment</code> object.</p>
 <p><hr>
 <a id="method-run"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>run()</code></h3>
-<p>Run the experiment.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p>Run the entire simulation experiment pipeline.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
 <p><div class="r"></p><pre><span class='va'>Experiment</span><span class='op'>$</span><span class='fu'>run</span><span class='op'>(</span>
-  parallel_strategy <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"reps"</span>, <span class='st'>"dgps"</span>, <span class='st'>"methods"</span>, <span class='st'>"dgps+methods"</span><span class='op'>)</span>,
+  parallel_strategy <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"reps"</span>, <span class='st'>"dgps"</span>, <span class='st'>"methods"</span><span class='op'>)</span>,
   trial_run <span class='op'>=</span> <span class='cn'>FALSE</span>,
   use_cached <span class='op'>=</span> <span class='cn'>FALSE</span>,
   save <span class='op'>=</span> <span class='cn'>FALSE</span>,
@@ -234,15 +236,61 @@ results.</p></dd>
 
 <h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
 <p><div class="arguments"></p><dl>
-<dt><code>parallel_strategy</code></dt><dd><p>One of "reps", "dgps", "methods", or
-"dgp+methods". Determines how computation will be distributed across
-available resources.</p></dd>
+<dt><code>parallel_strategy</code></dt><dd><p>A vector with some combination of "reps",
+"dgps", or "methods". Determines how computation will be distributed
+across available resources.</p></dd>
 
-<dt><code>trial_run</code></dt><dd><p>If TRUE, run 1 rep of the simulation experiment.</p></dd>
+<dt><code>trial_run</code></dt><dd><p>If <code>TRUE</code>, run 1 rep of the simulation experiment.</p></dd>
 
-<dt><code>use_cached</code></dt><dd><p>If TRUE, find and return previously saved results.</p></dd>
+<dt><code>use_cached</code></dt><dd><p>If <code>TRUE</code>, find and return previously saved
+results.</p></dd>
 
-<dt><code>save</code></dt><dd><p>If TRUE, save results to disk.</p></dd>
+<dt><code>save</code></dt><dd><p>If <code>TRUE</code>, save results to disk.</p></dd>
+
+<dt><code>...</code></dt><dd><p>Not used.</p></dd>
+
+</dl><p></div></p>
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Returns</h4>
+<p>A list of results from the simulation experiment.</p>
+<p><hr>
+<a id="method-generate_data"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code><a href='evaluate_experiment.html'>generate_data()</a></code></h3>
+<p>Generate data from each of the <code>DGPs</code> in the
+<code>Experiment</code>.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p><div class="r"></p><pre><span class='va'>Experiment</span><span class='op'>$</span><span class='fu'>generate_data</span><span class='op'>(</span>n_reps <span class='op'>=</span> <span class='fl'>1</span><span class='op'>)</span></pre><p></div></p>
+
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
+<p><div class="arguments"></p><dl>
+<dt><code>n_reps</code></dt><dd><p>The number of datasets to generate per <code>DGP</code>.</p></dd>
+
+</dl><p></div></p>
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Returns</h4>
+<p>A list of length equal to the number of <code>DGPs</code> in the
+<code>Experiment</code>. Each element is a list of datasets of length
+<code>n_reps</code>.</p>
+<p><hr>
+<a id="method-fit"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>fit()</code></h3>
+<p>Return fit results from the <code>Methods</code> in the
+<code>Experiment</code>.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p><div class="r"></p><pre><span class='va'>Experiment</span><span class='op'>$</span><span class='fu'>fit</span><span class='op'>(</span>
+  parallel_strategy <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"reps"</span>, <span class='st'>"dgps"</span>, <span class='st'>"methods"</span><span class='op'>)</span>,
+  trial_run <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  use_cached <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  save <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  <span class='va'>...</span>
+<span class='op'>)</span></pre><p></div></p>
+
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
+<p><div class="arguments"></p><dl>
+<dt><code>parallel_strategy</code></dt><dd><p>A vector with some combination of "reps",
+"dgps", or "methods". Determines how computation will be distributed
+across available resources.</p></dd>
+
+<dt><code>trial_run</code></dt><dd><p>If <code>TRUE</code>, run 1 rep of the simulation experiment.</p></dd>
+
+<dt><code>use_cached</code></dt><dd><p>If <code>TRUE</code>, find and return previously saved
+results.</p></dd>
+
+<dt><code>save</code></dt><dd><p>If <code>TRUE</code>, save results to disk.</p></dd>
 
 <dt><code>...</code></dt><dd><p>Not used.</p></dd>
 
@@ -251,17 +299,18 @@ available resources.</p></dd>
 <p>A list of results from the simulation experiment.</p>
 <p><hr>
 <a id="method-evaluate"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>evaluate()</code></h3>
-<p>Evaluate the experiment.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
-<p><div class="r"></p><pre><span class='va'>Experiment</span><span class='op'>$</span><span class='fu'>evaluate</span><span class='op'>(</span><span class='va'>results</span>, use_cached <span class='op'>=</span> <span class='cn'>FALSE</span>, save <span class='op'>=</span> <span class='cn'>FALSE</span>, <span class='va'>...</span><span class='op'>)</span></pre><p></div></p>
+<p>Evaluate the <code>Experiment</code>.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p><div class="r"></p><pre><span class='va'>Experiment</span><span class='op'>$</span><span class='fu'>evaluate</span><span class='op'>(</span><span class='va'>fit_results</span>, use_cached <span class='op'>=</span> <span class='cn'>FALSE</span>, save <span class='op'>=</span> <span class='cn'>FALSE</span>, <span class='va'>...</span><span class='op'>)</span></pre><p></div></p>
 
 <h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
 <p><div class="arguments"></p><dl>
-<dt><code>results</code></dt><dd><p>A list of results, as returned by the run method.</p></dd>
+<dt><code>fit_results</code></dt><dd><p>A list of results, as returned by the <code>run</code>
+method.</p></dd>
 
-<dt><code>use_cached</code></dt><dd><p>If TRUE, find and return previously saved evaluation
-results.</p></dd>
+<dt><code>use_cached</code></dt><dd><p>If <code>TRUE</code>, find and return previously saved
+evaluation results.</p></dd>
 
-<dt><code>save</code></dt><dd><p>If TRUE, save evaluation results to disk.</p></dd>
+<dt><code>save</code></dt><dd><p>If <code>TRUE</code>, save evaluation results to disk.</p></dd>
 
 <dt><code>...</code></dt><dd><p>Not used.</p></dd>
 
@@ -270,9 +319,10 @@ results.</p></dd>
 <p>A list of evaluation results.</p>
 <p><hr>
 <a id="method-plot"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code><a href='https://rdrr.io/r/graphics/plot.default.html'>plot()</a></code></h3>
-<p>Plot the simulation experiment's method results or evaluation results.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p>Plot the simulation experiment's method results or
+evaluation results.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
 <p><div class="r"></p><pre><span class='va'>Experiment</span><span class='op'>$</span><span class='fu'>plot</span><span class='op'>(</span>
-  results <span class='op'>=</span> <span class='cn'>NULL</span>,
+  fit_results <span class='op'>=</span> <span class='cn'>NULL</span>,
   eval_results <span class='op'>=</span> <span class='cn'>NULL</span>,
   use_cached <span class='op'>=</span> <span class='cn'>FALSE</span>,
   save <span class='op'>=</span> <span class='cn'>FALSE</span>,
@@ -281,13 +331,16 @@ results.</p></dd>
 
 <h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
 <p><div class="arguments"></p><dl>
-<dt><code>results</code></dt><dd><p>A list of results, as returned by the run method.</p></dd>
+<dt><code>fit_results</code></dt><dd><p>A list of results, as returned by the <code>fit</code>
+method.</p></dd>
 
-<dt><code>eval_results</code></dt><dd><p>A list of results, as returned by the evaluate method.</p></dd>
+<dt><code>eval_results</code></dt><dd><p>A list of results, as returned by the <code>evaluate</code>
+method.</p></dd>
 
-<dt><code>use_cached</code></dt><dd><p>If TRUE, find and return previously saved results.</p></dd>
+<dt><code>use_cached</code></dt><dd><p>If <code>TRUE</code>, find and return previously saved
+results.</p></dd>
 
-<dt><code>save</code></dt><dd><p>If TRUE, save plots to disk.</p></dd>
+<dt><code>save</code></dt><dd><p>If <code>TRUE</code>, save plots to disk.</p></dd>
 
 <dt><code>...</code></dt><dd><p>Not used.</p></dd>
 
@@ -382,19 +435,13 @@ results.</p></dd>
 <a id="method-add_evaluator"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code><a href='add_funs.html'>add_evaluator()</a></code></h3>
 
 <h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
-<p><div class="r"></p><pre><span class='va'>Experiment</span><span class='op'>$</span><span class='fu'>add_evaluator</span><span class='op'>(</span><span class='va'>evaluator</span>, dgp_name <span class='op'>=</span> <span class='cn'>NULL</span>, method_name <span class='op'>=</span> <span class='cn'>NULL</span>, <span class='va'>...</span><span class='op'>)</span></pre><p></div></p>
+<p><div class="r"></p><pre><span class='va'>Experiment</span><span class='op'>$</span><span class='fu'>add_evaluator</span><span class='op'>(</span><span class='va'>evaluator</span>, name <span class='op'>=</span> <span class='cn'>NULL</span>, <span class='va'>...</span><span class='op'>)</span></pre><p></div></p>
 
 <p><hr>
 <a id="method-update_evaluator"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code><a href='update_funs.html'>update_evaluator()</a></code></h3>
 
 <h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
-<p><div class="r"></p><pre><span class='va'>Experiment</span><span class='op'>$</span><span class='fu'>update_evaluator</span><span class='op'>(</span>
-  <span class='va'>evaluator</span>,
-  name <span class='op'>=</span> <span class='cn'>NULL</span>,
-  dgp_name <span class='op'>=</span> <span class='cn'>NULL</span>,
-  method_name <span class='op'>=</span> <span class='cn'>NULL</span>,
-  <span class='va'>...</span>
-<span class='op'>)</span></pre><p></div></p>
+<p><div class="r"></p><pre><span class='va'>Experiment</span><span class='op'>$</span><span class='fu'>update_evaluator</span><span class='op'>(</span><span class='va'>evaluator</span>, <span class='va'>name</span>, <span class='va'>...</span><span class='op'>)</span></pre><p></div></p>
 
 <p><hr>
 <a id="method-get_evaluators"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>get_evaluators()</code></h3>

@@ -2,9 +2,10 @@
 % Please edit documentation in R/experiment.R
 \name{evaluate_experiment}
 \alias{evaluate_experiment}
+\alias{generate_data}
 \title{Evaluate an \code{Experiment}}
 \usage{
-evaluate_experiment(experiment, ...)
+generate_data(experiment, ...)
 }
 \arguments{
 \item{experiment}{An \code{Experiment} object.}

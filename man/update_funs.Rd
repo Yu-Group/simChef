@@ -13,14 +13,7 @@ update_dgp(experiment, dgp, name, ...)
 
 update_method(experiment, method, name, ...)
 
-update_evaluator(
-  experiment,
-  evaluator,
-  name = NULL,
-  dgp_name = NULL,
-  method_name = NULL,
-  ...
-)
+update_evaluator(experiment, evaluator, name, ...)
 
 update_plot(experiment, plotter, name, ...)
 
@@ -44,12 +37,6 @@ update_vary_across(
 \item{method}{A \code{Method} object.}
 
 \item{evaluator}{A \code{Evaluator} object.}
-
-\item{dgp_name}{The name of a \code{DGP} object in \code{experiment} with which to
-associate \code{evaluator}.}
-
-\item{method_name}{The name of a \code{Method} object in \code{experiment} with
-which to associate \code{evaluator}.}
 
 \item{plotter}{A \code{Plotter} object.}
 }

@@ -14,3 +14,38 @@ check_equal <- function(obj1, obj2) {
   }
   return(TRUE)
 }
+
+#' @export
+list_to_tibble_row <- function(ls) {
+  tib <- tryCatch({
+    tibble::as_tibble_row(ls)
+  }, error = function(e) {
+    out <- purrr::map(ls, ~list(.x)) %>%
+      tibble::as_tibble_row()
+    simplify_cols <- purrr::map_lgl(out, ~length(unlist(.x)) == 1) %>%
+      which() %>%
+      names()
+    out <- out %>%
+      mutate(across(simplify_cols, unlist))
+    return(out)
+  })
+  return(tib)
+}
+
+#' @export
+list_to_tibble <- function(ls) {
+  tib <- tryCatch({
+    tibble::as_tibble(ls)
+  }, error = function(e) {
+    out <- purrr::map(ls, ~list(.x)) %>%
+      tibble::as_tibble()
+    simplify_cols <- purrr::map_lgl(out, 
+                                    ~length(unlist(.x, recursive = F)) == 1) %>%
+      which() %>%
+      names()
+    out <- out %>%
+      dplyr::mutate(across(simplify_cols, ~unlist(.x, recursive = F)))
+    return(out)
+  })
+  return(tib)
+}

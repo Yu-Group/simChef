@@ -13,7 +13,7 @@ add_dgp(experiment, dgp, name = NULL, ...)
 
 add_method(experiment, method, name = NULL, ...)
 
-add_evaluator(experiment, evaluator, dgp_name = NULL, method_name = NULL, ...)
+add_evaluator(experiment, evaluator, name = NULL, ...)
 
 add_plot(experiment, plotter, name = NULL, ...)
 
@@ -38,13 +38,13 @@ add_vary_across(
 
 \item{evaluator}{A \code{Evaluator} object.}
 
+\item{plotter}{A \code{Plotter} object.}
+
 \item{dgp_name}{The name of a \code{DGP} object in \code{experiment} with which to
 associate \code{evaluator}.}
 
 \item{method_name}{The name of a \code{Method} object in \code{experiment} with
 which to associate \code{evaluator}.}
-
-\item{plotter}{A \code{Plotter} object.}
 }
 \value{
 The original \code{experiment} object passed to \code{add_*}.

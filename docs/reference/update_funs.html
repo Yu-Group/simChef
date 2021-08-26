@@ -135,14 +135,7 @@ Experiment." />
 
 <span class='fu'>update_method</span><span class='op'>(</span><span class='va'>experiment</span>, <span class='va'>method</span>, <span class='va'>name</span>, <span class='va'>...</span><span class='op'>)</span>
 
-<span class='fu'>update_evaluator</span><span class='op'>(</span>
-  <span class='va'>experiment</span>,
-  <span class='va'>evaluator</span>,
-  name <span class='op'>=</span> <span class='cn'>NULL</span>,
-  dgp_name <span class='op'>=</span> <span class='cn'>NULL</span>,
-  method_name <span class='op'>=</span> <span class='cn'>NULL</span>,
-  <span class='va'>...</span>
-<span class='op'>)</span>
+<span class='fu'>update_evaluator</span><span class='op'>(</span><span class='va'>experiment</span>, <span class='va'>evaluator</span>, <span class='va'>name</span>, <span class='va'>...</span><span class='op'>)</span>
 
 <span class='fu'>update_plot</span><span class='op'>(</span><span class='va'>experiment</span>, <span class='va'>plotter</span>, <span class='va'>name</span>, <span class='va'>...</span><span class='op'>)</span>
 
@@ -180,16 +173,6 @@ Experiment." />
     <tr>
       <th>evaluator</th>
       <td><p>A <code>Evaluator</code> object.</p></td>
-    </tr>
-    <tr>
-      <th>dgp_name</th>
-      <td><p>The name of a <code>DGP</code> object in <code>experiment</code> with which to
-associate <code>evaluator</code>.</p></td>
-    </tr>
-    <tr>
-      <th>method_name</th>
-      <td><p>The name of a <code>Method</code> object in <code>experiment</code> with
-which to associate <code>evaluator</code>.</p></td>
     </tr>
     <tr>
       <th>plotter</th>

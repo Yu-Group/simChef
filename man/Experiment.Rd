@@ -27,6 +27,8 @@ computing results in parallel. Those results can then be evaluated using
 \itemize{
 \item \href{#method-new}{\code{Experiment$new()}}
 \item \href{#method-run}{\code{Experiment$run()}}
+\item \href{#method-generate_data}{\code{Experiment$generate_data()}}
+\item \href{#method-fit}{\code{Experiment$fit()}}
 \item \href{#method-evaluate}{\code{Experiment$evaluate()}}
 \item \href{#method-plot}{\code{Experiment$plot()}}
 \item \href{#method-create_doc_template}{\code{Experiment$create_doc_template()}}
@@ -109,10 +111,10 @@ A new \code{Experiment} object.
 \if{html}{\out{<a id="method-run"></a>}}
 \if{latex}{\out{\hypertarget{method-run}{}}}
 \subsection{Method \code{run()}}{
-Run the experiment.
+Run the entire simulation experiment pipeline.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Experiment$run(
-  parallel_strategy = c("reps", "dgps", "methods", "dgps+methods"),
+  parallel_strategy = c("reps", "dgps", "methods"),
   trial_run = FALSE,
   use_cached = FALSE,
   save = FALSE,
@@ -123,15 +125,77 @@ Run the experiment.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{parallel_strategy}}{One of "reps", "dgps", "methods", or
-"dgp+methods". Determines how computation will be distributed across
-available resources.}
+\item{\code{parallel_strategy}}{A vector with some combination of "reps",
+"dgps", or "methods". Determines how computation will be distributed
+across available resources.}
 
-\item{\code{trial_run}}{If TRUE, run 1 rep of the simulation experiment.}
+\item{\code{trial_run}}{If \code{TRUE}, run 1 rep of the simulation experiment.}
 
-\item{\code{use_cached}}{If TRUE, find and return previously saved results.}
+\item{\code{use_cached}}{If \code{TRUE}, find and return previously saved
+results.}
 
-\item{\code{save}}{If TRUE, save results to disk.}
+\item{\code{save}}{If \code{TRUE}, save results to disk.}
+
+\item{\code{...}}{Not used.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A list of results from the simulation experiment.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-generate_data"></a>}}
+\if{latex}{\out{\hypertarget{method-generate_data}{}}}
+\subsection{Method \code{generate_data()}}{
+Generate data from each of the \code{DGPs} in the
+\code{Experiment}.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Experiment$generate_data(n_reps = 1)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{n_reps}}{The number of datasets to generate per \code{DGP}.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A list of length equal to the number of \code{DGPs} in the
+\code{Experiment}. Each element is a list of datasets of length
+\code{n_reps}.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-fit"></a>}}
+\if{latex}{\out{\hypertarget{method-fit}{}}}
+\subsection{Method \code{fit()}}{
+Return fit results from the \code{Methods} in the
+\code{Experiment}.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Experiment$fit(
+  parallel_strategy = c("reps", "dgps", "methods"),
+  trial_run = FALSE,
+  use_cached = FALSE,
+  save = FALSE,
+  ...
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{parallel_strategy}}{A vector with some combination of "reps",
+"dgps", or "methods". Determines how computation will be distributed
+across available resources.}
+
+\item{\code{trial_run}}{If \code{TRUE}, run 1 rep of the simulation experiment.}
+
+\item{\code{use_cached}}{If \code{TRUE}, find and return previously saved
+results.}
+
+\item{\code{save}}{If \code{TRUE}, save results to disk.}
 
 \item{\code{...}}{Not used.}
 }
@@ -145,20 +209,21 @@ A list of results from the simulation experiment.
 \if{html}{\out{<a id="method-evaluate"></a>}}
 \if{latex}{\out{\hypertarget{method-evaluate}{}}}
 \subsection{Method \code{evaluate()}}{
-Evaluate the experiment.
+Evaluate the \code{Experiment}.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Experiment$evaluate(results, use_cached = FALSE, save = FALSE, ...)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Experiment$evaluate(fit_results, use_cached = FALSE, save = FALSE, ...)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{results}}{A list of results, as returned by the run method.}
+\item{\code{fit_results}}{A list of results, as returned by the \code{run}
+method.}
 
-\item{\code{use_cached}}{If TRUE, find and return previously saved evaluation
-results.}
+\item{\code{use_cached}}{If \code{TRUE}, find and return previously saved
+evaluation results.}
 
-\item{\code{save}}{If TRUE, save evaluation results to disk.}
+\item{\code{save}}{If \code{TRUE}, save evaluation results to disk.}
 
 \item{\code{...}}{Not used.}
 }
@@ -172,10 +237,11 @@ A list of evaluation results.
 \if{html}{\out{<a id="method-plot"></a>}}
 \if{latex}{\out{\hypertarget{method-plot}{}}}
 \subsection{Method \code{plot()}}{
-Plot the simulation experiment's method results or evaluation results.
+Plot the simulation experiment's method results or
+evaluation results.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Experiment$plot(
-  results = NULL,
+  fit_results = NULL,
   eval_results = NULL,
   use_cached = FALSE,
   save = FALSE,
@@ -186,13 +252,16 @@ Plot the simulation experiment's method results or evaluation results.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{results}}{A list of results, as returned by the run method.}
+\item{\code{fit_results}}{A list of results, as returned by the \code{fit}
+method.}
 
-\item{\code{eval_results}}{A list of results, as returned by the evaluate method.}
+\item{\code{eval_results}}{A list of results, as returned by the \code{evaluate}
+method.}
 
-\item{\code{use_cached}}{If TRUE, find and return previously saved results.}
+\item{\code{use_cached}}{If \code{TRUE}, find and return previously saved
+results.}
 
-\item{\code{save}}{If TRUE, save plots to disk.}
+\item{\code{save}}{If \code{TRUE}, save plots to disk.}
 
 \item{\code{...}}{Not used.}
 }
@@ -333,7 +402,7 @@ A list of plots.
 \if{latex}{\out{\hypertarget{method-add_evaluator}{}}}
 \subsection{Method \code{add_evaluator()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Experiment$add_evaluator(evaluator, dgp_name = NULL, method_name = NULL, ...)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Experiment$add_evaluator(evaluator, name = NULL, ...)}\if{html}{\out{</div>}}
 }
 
 }
@@ -342,13 +411,7 @@ A list of plots.
 \if{latex}{\out{\hypertarget{method-update_evaluator}{}}}
 \subsection{Method \code{update_evaluator()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Experiment$update_evaluator(
-  evaluator,
-  name = NULL,
-  dgp_name = NULL,
-  method_name = NULL,
-  ...
-)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Experiment$update_evaluator(evaluator, name, ...)}\if{html}{\out{</div>}}
 }
 
 }
