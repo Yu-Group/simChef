@@ -69,7 +69,7 @@ Experiment <- R6::R6Class(
           getter_name <- paste0("get_", field_name, "s")
         }
         ancestor_list <- private$.parent[[getter_name]]()
-        # filter out ancestor objs that are present in this \code{Experiment}'s list
+        # filter out ancestor objs that are present in this Experiment's list
         filter <- !sapply(names(ancestor_list), `%in%`, names(obj_list))
         obj_list <- c(ancestor_list[filter], obj_list)
       }
@@ -82,19 +82,34 @@ Experiment <- R6::R6Class(
         stop(err_msg, call.=FALSE)
       }
     },
-    .check_obj_list = function(obj_list, expected_class) {
-      lapply(obj_list, function(obj) {
-        if (!inherits(obj, expected_class)) {
-          stop(
-            sprintf("Expected all objects in %s_list ",
-                    tolower(expected_class)),
-            sprintf("to be instances of %s, ", expected_class),
-            sprintf("but found an object with the following class(es): %s",
-                    paste0(class(obj), collapse=", ")),
-            call. = FALSE
+    .add_obj_list = function(obj_list, expected_class) {
+      if (length(obj_list) > 0) {
+        lapply(obj_list, function(obj) {
+          if (!inherits(obj, expected_class)) {
+            stop(
+              sprintf("Expected all objects in %s_list ",
+                      tolower(expected_class)),
+              sprintf("to be instances of %s, ", expected_class),
+              sprintf("but found an object with the following class(es): %s",
+                      paste0(class(obj), collapse=", ")),
+              call. = FALSE
+            )
+          }
+        })
+        obj_list_names <- names(obj_list)
+        if (is.null(obj_list_names)) {
+          obj_list_names <- paste0(tolower(expected_class), 1:length(obj_list))
+        } else {
+          empty_names <- sapply(obj_list_names, function(obj_name) {
+            nchar(obj_name) == 0
+          })
+          obj_list_names[empty_names] <- paste0(
+            tolower(expected_class), 1:sum(empty_names)
           )
         }
-      })
+        names(obj_list) <- obj_list_names
+        private[[paste0(".", tolower(expected_class), "_list")]] <- obj_list
+      }
     },
     .save_results = function(results, save_filename) {
       if (identical(private$.vary_across, list())) {
@@ -156,14 +171,10 @@ Experiment <- R6::R6Class(
                           evaluator_list = list(), plotter_list = list(),
                           parent = NULL, save_dir = NULL, ...) {
       # TODO: check that n_reps has length 1 or is the same length as dgp_list
-      private$.check_obj_list(dgp_list, "DGP")
-      private$.check_obj_list(method_list, "Method")
-      private$.check_obj_list(evaluator_list, "Evaluator")
-      private$.check_obj_list(plotter_list, "Plotter")
-      private$.dgp_list <- dgp_list
-      private$.method_list <- method_list
-      private$.evaluator_list <- evaluator_list
-      private$.plotter_list <- plotter_list
+      private$.add_obj_list(dgp_list, "DGP")
+      private$.add_obj_list(method_list, "Method")
+      private$.add_obj_list(evaluator_list, "Evaluator")
+      private$.add_obj_list(plotter_list, "Plotter")
       self$n_reps <- n_reps
       self$name <- name
       if (!is.null(parent)) {
