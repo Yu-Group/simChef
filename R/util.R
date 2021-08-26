@@ -11,7 +11,7 @@ check_equal <- function(obj1, obj2) {
       !identical(obj1[[paste0(class_name, "_params")]],
                  obj2[[paste0(class_name, "_params")]])) {
     return(FALSE)
-  } 
+  }
   return(TRUE)
 }
 

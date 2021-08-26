@@ -21,7 +21,7 @@ An evaluator of an Experiment's results.
 \if{latex}{\out{\hypertarget{method-new}{}}}
 \subsection{Method \code{new()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Evaluator$new(eval_fun, ...)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Evaluator$new(eval_fun, rmd_options = list(), ...)}\if{html}{\out{</div>}}
 }
 
 }
@@ -30,7 +30,7 @@ An evaluator of an Experiment's results.
 \if{latex}{\out{\hypertarget{method-evaluate}{}}}
 \subsection{Method \code{evaluate()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Evaluator$evaluate(nested_results, ...)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Evaluator$evaluate(fit_results, vary_param = NULL, ...)}\if{html}{\out{</div>}}
 }
 
 }

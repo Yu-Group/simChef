@@ -12,7 +12,7 @@ A method to evaluate.
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-new}{\code{Method$new()}}
-\item \href{#method-run}{\code{Method$run()}}
+\item \href{#method-fit}{\code{Method$fit()}}
 \item \href{#method-clone}{\code{Method$clone()}}
 }
 }
@@ -26,11 +26,11 @@ A method to evaluate.
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-run"></a>}}
-\if{latex}{\out{\hypertarget{method-run}{}}}
-\subsection{Method \code{run()}}{
+\if{html}{\out{<a id="method-fit"></a>}}
+\if{latex}{\out{\hypertarget{method-fit}{}}}
+\subsection{Method \code{fit()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Method$run(nested_data, ...)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Method$fit(data_list, ...)}\if{html}{\out{</div>}}
 }
 
 }
