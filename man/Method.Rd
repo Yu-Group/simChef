@@ -30,7 +30,7 @@ A method to evaluate.
 \if{latex}{\out{\hypertarget{method-run}{}}}
 \subsection{Method \code{run()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Method$run(nested_data, ...)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Method$run(data_list, ...)}\if{html}{\out{</div>}}
 }
 
 }

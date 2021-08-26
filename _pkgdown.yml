@@ -1,0 +1,15 @@
+reference:
+  - title: "Experiment"
+    contents:
+      - Experiment
+      - create_experiment
+      - run_experiment
+      - add_dgp
+      - update_dgp
+      - remove_vary_across
+      - set_save_dir
+      - create_rmd
+  - title: "DGP"
+  - title: "Method"
+  - title: "Evaluator"
+  - title: "Plotter"

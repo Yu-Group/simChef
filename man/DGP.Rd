@@ -30,7 +30,7 @@ A data-generating process
 \if{latex}{\out{\hypertarget{method-generate}{}}}
 \subsection{Method \code{generate()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DGP$generate(n_obs, ...)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{DGP$generate(...)}\if{html}{\out{</div>}}
 }
 
 }
