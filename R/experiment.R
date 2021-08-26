@@ -509,16 +509,16 @@ Experiment <- R6::R6Class(
 
       return(plot_results)
     },
-    #' Create documentation template
-    #' 
     #' @description Create documentation template (a series of .md files) to 
-    #'   fill out for the Rmarkdown results report. The documentation files can
+    #'   fill out for the R Markdown results report. The documentation files can
     #'   be found in the \code{Experiment}'s results directory under docs/
     #'
+    #' @param save_dir An optional directory in which to find the experiment's
+    #'   saved results.
     #' @param ... Not used.
+    #' 
     #' @return The original \code{Experiment} object
-    create_doc_template = function(...) {
-      save_dir <- private$.save_dir
+    create_doc_template = function(save_dir = self$get_save_dir(), ...) {
       if (!dir.exists(file.path(save_dir, "docs"))) {
         dir.create(file.path(save_dir, "docs"), recursive = TRUE)
       }
@@ -558,6 +558,13 @@ Experiment <- R6::R6Class(
       }
       return(invisible(self))
     },
+    #' @description Create an R Markdown file summarizing the results of an
+    #'   \code{Experiment}.
+    #'
+    #' @param open If \code{TRUE}, open the R Markdown file in a web browser.
+    #' @param ... Not used.
+    #'
+    #' @return The original \code{experiment} object
     create_rmd = function(open = TRUE, ...) {
       self$create_doc_template()
       input_fname <- system.file("rmd", "results.Rmd", package = packageName())
@@ -692,6 +699,12 @@ Experiment <- R6::R6Class(
     set_save_dir = function(save_dir) {
       private$.save_dir <- save_dir
     },
+    #' @description Print an \code{Experiment} in a nice layout, showing the 
+    #'   names of all DGPs, Methods, Evaluators, and Plotters in addition to the
+    #'   number of repetitions, the directory where results are saved, and the
+    #'   parameters that were varied (if any)
+    #'
+    #' @return The original \code{experiment} object
     print = function() {
       cat("Experiment Name:", self$name, "\n")
       cat("   # of Repetitions:", self$n_reps, "\n")
@@ -731,7 +744,7 @@ Experiment <- R6::R6Class(
 #'
 #' @name create_experiment
 #'
-#' @param ... Passed to experiment$new().
+#' @param ... Passed to \code{experiment$new()}.
 #'
 #' @return A new instance of \code{Experiment}.
 #'
@@ -801,10 +814,6 @@ plot_experiment <- function(experiment, ...) {
 #' @param method A \code{Method} object.
 #' @param evaluator A \code{Evaluator} object.
 #' @param plotter A \code{Plotter} object.
-#' @param dgp_name The name of a \code{DGP} object in \code{experiment} with which to
-#'   associate \code{evaluator}.
-#' @param method_name The name of a \code{Method} object in \code{experiment} with
-#'   which to associate \code{evaluator}.
 #' @param ... Not currently used.
 #'
 #' @return The original `experiment` object passed to \code{add_*}.
@@ -947,6 +956,37 @@ set_save_dir <- function(experiment, save_dir) {
   return(experiment)
 }
 
+#' Create documentation template (a series of .md files) to
+#'   fill out for the R Markdown results report. 
+#'
+#' @param experiment An \code{Experiment} object.
+#' @param experiment_dirname A directory where results from an \code{Experiment}
+#'   were previously saved. Used if \code{experiment} was not provided.
+#'
+#' @return The original \code{experiment} object passed to
+#'   \code{create_doc_template}.
+#'
+#' @name create_doc_template
+#'
+#' @export
+create_doc_template = function(experiment, experiment_dirname) {
+  if (missing(experiment) & missing(experiment_dirname)) {
+    stop("Must provide argument for one of experiment or experiment_dirname")
+  }
+  if (missing(experiment)) {
+    # create dummy experiment
+    experiment <- create_experiment(n_reps = 1)
+  } else {
+    if (!inherits(experiment, "Experiment")) {
+      err_msg <- sprintf("%s must be an instance of pcs.sim.pkg::%s",
+                         as.character(substitute(experiment)), "Experiment")
+      stop(err_msg, call.=FALSE)
+    }
+    experiment_dirname <- experiment$get_save_dir()
+  }
+  experiment$create_doc_template(save_dir = experiment_dirname)
+}
+
 #' Create an R Markdown file summarizing the results of an \code{Experiment}.
 #'
 #' @param experiment An \code{Experiment} object.
@@ -964,7 +1004,17 @@ create_rmd <- function(experiment, experiment_dirname, open = TRUE) {
     stop("Must provide argument for one of experiment or experiment_dirname")
   }
   if (missing(experiment)) {
+    if (!file.exists(file.path(experiment_dirname, "experiment.rds"))) {
+      stop(sprintf("Cannot find saved experiment.rds file in %s",
+                   experiment_dirname))
+    }
     experiment <- readRDS(file.path(experiment_dirname, "experiment.rds"))
+  } else {
+    if (!inherits(experiment, "Experiment")) {
+      err_msg <- sprintf("%s must be an instance of pcs.sim.pkg::%s",
+                         as.character(substitute(experiment)), "Experiment")
+      stop(err_msg, call.=FALSE)
+    }
   }
   experiment$create_doc_template()
   experiment$create_rmd(open = open)
