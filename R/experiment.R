@@ -100,7 +100,13 @@ Experiment <- R6::R6Class(
         private[[paste0(".", tolower(expected_class), "_list")]] <- obj_list
       }
     },
-    .save_results = function(results, save_filename) {
+    .save_results = function(results, results_type = c("fit", "eval", "plot"),
+                             verbose = 1) {
+      results_type <- match.arg(results_type)
+      if (verbose >= 1) {
+        message(sprintf("Saving %s results...", results_type))
+        start_time <- Sys.time()
+      }
       if (identical(private$.vary_across, list())) {
         save_dir <- private$.save_dir
       } else {
@@ -109,14 +115,21 @@ Experiment <- R6::R6Class(
                                      private$.vary_across$method),
                               paste("Varying", private$.vary_across$param_name))
       }
-      save_file <- file.path(save_dir, save_filename)
+      save_file <- file.path(save_dir, paste0(results_type, "_results.rds"))
       if (!dir.exists(dirname(save_file))) {
         dir.create(dirname(save_file), recursive = TRUE)
       }
       saveRDS(self, file.path(save_dir, "experiment.rds"))
       saveRDS(results, save_file)
+      if (verbose >= 1) {
+        message(sprintf("%s results saved | time taken: %f seconds",
+                        R.utils::capitalize(results_type),
+                        Sys.time() - start_time))
+        message("==============================")
+      }
     },
-    .get_cached_results = function(save_filename) {
+    .get_cached_results = function(results_type = c("fit", "eval", "plot")) {
+      results_type <- match.arg(results_type)
       if (identical(private$.vary_across, list())) {
         save_dir <- private$.save_dir
       } else {
@@ -125,7 +138,7 @@ Experiment <- R6::R6Class(
                                      private$.vary_across$method),
                               paste("Varying", private$.vary_across$param_name))
       }
-      save_file <- file.path(save_dir, save_filename)
+      save_file <- file.path(save_dir, paste0(results_type, "_results.rds"))
       if (file.exists(save_file)) {
         return(readRDS(save_file))
       } else {
@@ -175,6 +188,12 @@ Experiment <- R6::R6Class(
         method_list <- c(clone$get_methods(), method_list)
         evaluator_list <- c(clone$get_evaluators(), evaluator_list)
         plotter_list <- c(clone$get_plots(), plotter_list)
+        if (is.null(save_dir)) {
+          save_dir <- clone$get_save_dir()
+        }
+        if (missing(n_reps)) {
+          n_reps <- clone$n_reps
+        }
       }
       private$.add_obj_list(dgp_list, "DGP")
       private$.add_obj_list(method_list, "Method")
@@ -194,33 +213,51 @@ Experiment <- R6::R6Class(
     #'   across available resources.
     #' @param trial_run If \code{TRUE}, run 1 rep of the simulation experiment.
     #' @param use_cached If \code{TRUE}, find and return previously saved
-    #'   results.
-    #' @param save If \code{TRUE}, save results to disk.
+    #'   results. Can also be a vector with some combination of "methods",
+    #'   "evaluators", or "plots" to use their respective cached results.
+    #' @param save If \code{TRUE}, save results to disk. Can also be a vector 
+    #'   with some combination of "methods", "evaluators", or "plots" to save
+    #'   to disk.
+    #' @param verbose Level of verboseness. Default is 1, which prints out 
+    #'   messages after major checkpoints in the experiment. If 0, no messages 
+    #'   are printed.
     #' @param ... Not used.
     #'
     #' @return A list of results from the simulation experiment.
+    # TODO: description of fit_results, eval_results, plot_results
     run = function(parallel_strategy = c("reps", "dgps", "methods"),
                    trial_run = FALSE, use_cached = FALSE, save = FALSE,
-                   ...) {
+                   verbose = 1, ...) {
       if (!is.logical(use_cached)) {
         use_cached <- c("methods", "evaluators", "plots") %in% use_cached
       } else {
-        use_cached <- rep(use_cached, 3)
+        if (length(use_cached) > 1) {
+          warning("The input use_cached is a logical vector of length > 1. ",
+                  "Only the first element of use_cached is used.")
+        }
+        use_cached <- rep(use_cached[1], 3)
       }
       if (!is.logical(save)) {
         save <- c("methods", "evaluators", "plots") %in% save
       } else {
-        save <- rep(save, 3)
+        if (length(save) > 1) {
+          warning("The input save is a logical vector of length > 1. ",
+                  "Only the first element of save is used.")
+        }
+        save <- rep(save[1], 3)
       }
 
       fit_results <- self$fit(parallel_strategy = parallel_strategy,
-                                 trial_run = trial_run,
-                                 use_cached = use_cached[1], save = save[1])
+                              trial_run = trial_run,
+                              use_cached = use_cached[1], save = save[1],
+                              verbose = verbose)
       eval_results <- self$evaluate(fit_results = fit_results,
-                                    use_cached = use_cached[2], save = save[2])
+                                    use_cached = use_cached[2], save = save[2],
+                                    verbose = verbose)
       plot_results <- self$plot(fit_results = fit_results,
-                                eval_results = eval_results,
-                                use_cached = use_cached[3], save = save[3])
+                                eval_results = eval_results, 
+                                use_cached = use_cached[3], save = save[3],
+                                verbose = verbose)
       return(list(fit_results = fit_results,
                   eval_results = eval_results,
                   plot_results = plot_results))
@@ -256,16 +293,26 @@ Experiment <- R6::R6Class(
     #' @param use_cached If \code{TRUE}, find and return previously saved
     #'   results.
     #' @param save If \code{TRUE}, save results to disk.
+    #' @param verbose Level of verboseness. Default is 1, which prints out 
+    #'   messages after major checkpoints in the experiment. If 0, no messages 
+    #'   are printed.
     #' @param ... Not used.
     #'
     #' @return A list of results from the simulation experiment.
     fit = function(parallel_strategy = c("reps", "dgps", "methods"),
                    trial_run = FALSE, use_cached = FALSE, save = FALSE,
-                   ...) {
+                   verbose = 1, ...) {
       if (use_cached) {
-        return(private$.get_cached_results(
-          save_filename = "fit_results.rds"
-        ))
+        if (verbose >= 1) {
+          message("Using cached fit results.")
+          message("==============================")
+        }
+        return(private$.get_cached_results("fit"))
+      }
+      
+      if (verbose >= 1) {
+        message("Fitting experiment...")
+        start_time <- Sys.time()
       }
       parallel_strategy <- match.arg(parallel_strategy)
       dgp_list <- private$.get_obj_list("dgp")
@@ -346,27 +393,45 @@ Experiment <- R6::R6Class(
           attr(fit_results[[param_name]], "names") <- NULL
         }
       }
+      
+      if (verbose >= 1) {
+        message(sprintf("Fitting completed | time taken: %f seconds",
+                        Sys.time() - start_time))
+        if (!save) {
+          message("==============================")
+        }
+      }
 
       if (save) {
-        private$.save_results(fit_results,
-                              save_filename = "fit_results.rds")
+        private$.save_results(fit_results, "fit", verbose)
       }
       return(fit_results)
     },
     #' @description Evaluate the \code{Experiment}.
     #'
-    #' @param fit_results A list of results, as returned by the \code{run}
+    #' @param fit_results A list of results, as returned by the \code{fit}
     #'   method.
     #' @param use_cached If \code{TRUE}, find and return previously saved
     #'  evaluation results.
     #' @param save If \code{TRUE}, save evaluation results to disk.
+    #' @param verbose Level of verboseness. Default is 1, which prints out 
+    #'   messages after major checkpoints in the experiment. If 0, no messages 
+    #'   are printed.
     #' @param ... Not used.
     #'
     #' @return A list of evaluation results.
     evaluate = function(fit_results, use_cached = FALSE, save = FALSE,
-                        ...) {
+                        verbose = 1, ...) {
       if (use_cached) {
-        return(private$.get_cached_results(save_filename = "eval_results.rds"))
+        if (verbose >= 1) {
+          message("Using cached evaluation results.")
+          message("==============================")
+        }
+        return(private$.get_cached_results("eval"))
+      }
+      if (verbose >= 1) {
+        message("Evaluating experiment...")
+        start_time <- Sys.time()
       }
       evaluator_list <- private$.get_obj_list("evaluator")
       if (length(evaluator_list) == 0) {
@@ -377,8 +442,16 @@ Experiment <- R6::R6Class(
                            vary_param = private$.vary_across$param_name)
       })
 
+      if (verbose >= 1) {
+        message(sprintf("Evaluation completed | time taken: %f seconds",
+                        Sys.time() - start_time))
+        if (!save) {
+          message("==============================")
+        }
+      }
+      
       if (save) {
-        private$.save_results(eval_results, save_filename = "eval_results.rds")
+        private$.save_results(eval_results, "eval", verbose)
       }
 
       return(eval_results)
@@ -393,13 +466,24 @@ Experiment <- R6::R6Class(
     #' @param use_cached If \code{TRUE}, find and return previously saved
     #'   results.
     #' @param save If \code{TRUE}, save plots to disk.
+    #' @param verbose Level of verboseness. Default is 1, which prints out 
+    #'   messages after major checkpoints int the experiment. If 0, no messages 
+    #'   are printed.
     #' @param ... Not used.
     #'
     #' @return A list of plots.
     plot = function(fit_results = NULL, eval_results = NULL,
-                    use_cached = FALSE, save = FALSE, ...) {
+                    use_cached = FALSE, save = FALSE, verbose = 1, ...) {
       if (use_cached) {
-        return(private$.get_cached_results(save_filename = "plot_results.rds"))
+        if (verbose >= 1) {
+          message("Using cached plot results.")
+          message("==============================")
+        }
+        return(private$.get_cached_results("plot"))
+      }
+      if (verbose >= 1) {
+        message("Plotting experiment...")
+        start_time <- Sys.time()
       }
       plotter_list <- private$.get_obj_list("plotter", "get_plots")
       if (length(plotter_list) == 0) {
@@ -411,12 +495,28 @@ Experiment <- R6::R6Class(
                      vary_param = private$.vary_across$param_name)
       })
 
+      if (verbose >= 1) {
+        message(sprintf("Plotting completed | time taken: %f seconds",
+                        Sys.time() - start_time))
+        if (!save) {
+          message("==============================")
+        }
+      }
+      
       if (save) {
-        private$.save_results(plot_results, save_filename = "plot_results.rds")
+        private$.save_results(plot_results, "plot", verbose)
       }
 
       return(plot_results)
     },
+    #' Create documentation template
+    #' 
+    #' @description Create documentation template (a series of .md files) to 
+    #'   fill out for the Rmarkdown results report. The documentation files can
+    #'   be found in the \code{Experiment}'s results directory under docs/
+    #'
+    #' @param ... Not used.
+    #' @return The original \code{Experiment} object
     create_doc_template = function(...) {
       save_dir <- private$.save_dir
       if (!dir.exists(file.path(save_dir, "docs"))) {
@@ -591,6 +691,38 @@ Experiment <- R6::R6Class(
     },
     set_save_dir = function(save_dir) {
       private$.save_dir <- save_dir
+    },
+    print = function() {
+      cat("Experiment Name:", self$name, "\n")
+      cat("   # of Repetitions:", self$n_reps, "\n")
+      cat("   Saved results at:", private$.save_dir, "\n")
+      cat("   DGPs:",
+          paste(names(private$.get_obj_list("dgp")), 
+                sep = "", collapse = ", "), "\n")
+      cat("   Methods:",
+          paste(names(private$.get_obj_list("method")),
+                sep = "", collapse = ", "), "\n")
+      cat("   Evaluators:",
+          paste(names(private$.get_obj_list("evaluator")), 
+                sep = "", collapse = ", "), "\n")
+      cat("   Plots:",
+          paste(names(private$.get_obj_list("plotter", "get_plots")), 
+                sep = "", collapse = ", "), "\n")
+      cat("   Vary Across: ")
+      if (identical(private$.vary_across, list())) {
+        cat("None")
+      } else {
+        if ("dgp" %in% names(private$.vary_across)) {
+          cat("\n      DGP:", private$.vary_across$dgp, "\n")
+        } else {
+          cat("\n      Method:", private$.vary_across$method, "\n")
+        }
+        cat("      Parameter:", private$.vary_across$param_name, "\n")
+        cat("      Parameter values: ")
+        cat(str(private$.vary_across$param_values, 
+                indent.str = "        ", no.list = F))
+      }
+      return(invisible(self))
     }
   )
 )
