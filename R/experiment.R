@@ -14,8 +14,6 @@ Experiment <- R6::R6Class(
   classname = 'Experiment',
   private = list(
     .save_dir = NULL,
-    .parent = NULL,
-    .child_list = list(),
     .dgp_list = list(),
     .method_list = list(),
     .evaluator_list = list(),
@@ -64,15 +62,6 @@ Experiment <- R6::R6Class(
     .get_obj_list = function(field_name, getter_name=NULL) {
       list_name <- paste0(".", field_name, "_list")
       obj_list <- private[[list_name]]
-      if (!is.null(private$.parent)) {
-        if (is.null(getter_name)) {
-          getter_name <- paste0("get_", field_name, "s")
-        }
-        ancestor_list <- private$.parent[[getter_name]]()
-        # filter out ancestor objs that are present in this Experiment's list
-        filter <- !sapply(names(ancestor_list), `%in%`, names(obj_list))
-        obj_list <- c(ancestor_list[filter], obj_list)
-      }
       return(obj_list)
     },
     .check_obj = function(obj, expected_class) {
@@ -145,6 +134,13 @@ Experiment <- R6::R6Class(
                   save_file),
           call. = FALSE)
       }
+    },
+    deep_clone = function(name, value) {
+      if (is.list(value) && length(value) > 0 && inherits(value[[1]], "R6")) {
+        lapply(value, function(v) v$clone(deep = TRUE))
+      } else {
+        value
+      }
     }
   ),
   public = list(
@@ -160,7 +156,8 @@ Experiment <- R6::R6Class(
     #' @param method_list An optional list of \code{Method} objects.
     #' @param evaluator_list An optional list of \code{Evaluator} objects.
     #' @param plotter_list An option list of \code{Plotter} objects.
-    #' @param parent An optional parent \code{Experiment} object to extend.
+    #' @param clone_from An optional \code{Experiment} object to use as a base
+    #'   for this one.
     #' @param save_dir An optional directory in which to save the experiment's
     #'   results.
     #' @param ... Not used.
@@ -169,23 +166,24 @@ Experiment <- R6::R6Class(
     initialize = function(n_reps, name = "experiment",
                           dgp_list = list(), method_list = list(),
                           evaluator_list = list(), plotter_list = list(),
-                          parent = NULL, save_dir = NULL, ...) {
+                          clone_from = NULL, save_dir = NULL, ...) {
       # TODO: check that n_reps has length 1 or is the same length as dgp_list
+      if (!is.null(clone_from)) {
+        private$.check_obj(clone_from, "Experiment")
+        clone <- clone_from$clone(deep = TRUE)
+        dgp_list <- c(clone$get_dgps(), dgp_list)
+        method_list <- c(clone$get_methods(), method_list)
+        evaluator_list <- c(clone$get_evaluators(), evaluator_list)
+        plotter_list <- c(clone$get_plots(), plotter_list)
+      }
       private$.add_obj_list(dgp_list, "DGP")
       private$.add_obj_list(method_list, "Method")
       private$.add_obj_list(evaluator_list, "Evaluator")
       private$.add_obj_list(plotter_list, "Plotter")
       self$n_reps <- n_reps
       self$name <- name
-      if (!is.null(parent)) {
-        self$set_parent(parent)
-      }
       if (is.null(save_dir)) {
-        if (is.null(parent)) {
-          save_dir <- file.path("results", name)
-        } else {
-          save_dir <- file.path(parent$get_save_dir(), name)
-        }
+        save_dir <- file.path("results", name)
       }
       private$.save_dir <- R.utils::getAbsolutePath(save_dir)
     },
@@ -430,14 +428,15 @@ Experiment <- R6::R6Class(
         write.csv(NULL, file = fname, quote = F)
       }
 
-      descendants <- purrr::map(list.dirs(save_dir),
-                                function(d) {
-                                  if (file.exists(file.path(d, "experiment.rds"))) {
-                                    return(readRDS(file.path(d, "experiment.rds")))
-                                  } else {
-                                    return(NULL)
-                                  }
-                                })
+      descendants <- purrr::map(
+        list.dirs(save_dir), function(d) {
+          if (file.exists(file.path(d, "experiment.rds"))) {
+            return(readRDS(file.path(d, "experiment.rds")))
+          } else {
+            return(NULL)
+          }
+        }
+      )
       descendants[sapply(descendants, is.null)] <- NULL
 
       fields <- c("dgp", "method", "evaluator", "plot")
@@ -472,41 +471,6 @@ Experiment <- R6::R6Class(
         system(paste("open", output_fname))
       }
       return(invisible(self))
-    },
-    has_parent = function() {
-      return(!is.null(private$.parent))
-    },
-    get_parent = function() {
-      return(private$.parent)
-    },
-    set_parent = function(parent) {
-      if (!inherits(parent, "Experiment")) {
-        stop("parent must be an instance of pcs.sim.pkg::Experiment",
-             call.=FALSE)
-      }
-      private$.parent <- parent
-      parent$add_child(self, self$name)
-    },
-    add_child = function(child, name=NULL, ...) {
-      private$.check_obj(child, "Experiment")
-      private$.add_obj("child", child, name, getter_name="get_children")
-    },
-    get_children = function() {
-      return(private$.child_list)
-    },
-    get_descendants = function(include_self=FALSE) {
-      children <- self$get_children()
-      if (include_self) {
-        descendants <- list(self)
-        names(descendants) <- self$name
-        descendants <- c(descendants, children)
-      } else {
-        descendants <- children
-      }
-      for (child in children) {
-        descendants <- c(descendants, child$get_descendants())
-      }
-      return(descendants)
     },
     add_dgp = function(dgp, name=NULL, ...) {
       private$.check_obj(dgp, "DGP")
