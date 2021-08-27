@@ -139,8 +139,6 @@ computing results in parallel. Those results can then be evaluated using
     <h2 class="hasAnchor" id="public-fields"><a class="anchor" href="#public-fields"></a>Public fields</h2>
 
     <p><div class="r6-fields"></p><dl>
-<dt><code>n_reps</code></dt><dd><p>The number of replicates of the <code>Experiment</code>.</p></dd>
-
 <dt><code>name</code></dt><dd><p>The name of the <code>Experiment</code>.</p></dd>
 
 </dl><p></div></p>
@@ -158,12 +156,6 @@ computing results in parallel. Those results can then be evaluated using
 <li><p><a href='#method-plot'><code>Experiment$plot()</code></a></p></li>
 <li><p><a href='#method-create_doc_template'><code>Experiment$create_doc_template()</code></a></p></li>
 <li><p><a href='#method-create_rmd'><code>Experiment$create_rmd()</code></a></p></li>
-<li><p><a href='#method-has_parent'><code>Experiment$has_parent()</code></a></p></li>
-<li><p><a href='#method-get_parent'><code>Experiment$get_parent()</code></a></p></li>
-<li><p><a href='#method-set_parent'><code>Experiment$set_parent()</code></a></p></li>
-<li><p><a href='#method-add_child'><code>Experiment$add_child()</code></a></p></li>
-<li><p><a href='#method-get_children'><code>Experiment$get_children()</code></a></p></li>
-<li><p><a href='#method-get_descendants'><code>Experiment$get_descendants()</code></a></p></li>
 <li><p><a href='#method-add_dgp'><code>Experiment$add_dgp()</code></a></p></li>
 <li><p><a href='#method-update_dgp'><code>Experiment$update_dgp()</code></a></p></li>
 <li><p><a href='#method-get_dgps'><code>Experiment$get_dgps()</code></a></p></li>
@@ -188,21 +180,18 @@ computing results in parallel. Those results can then be evaluated using
 <a id="method-new"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>new()</code></h3>
 <p>Create a new <code>Experiment</code>.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
 <p><div class="r"></p><pre><span class='va'>Experiment</span><span class='op'>$</span><span class='fu'>new</span><span class='op'>(</span>
-  <span class='va'>n_reps</span>,
   name <span class='op'>=</span> <span class='st'>"experiment"</span>,
   dgp_list <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span><span class='op'>)</span>,
   method_list <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span><span class='op'>)</span>,
   evaluator_list <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span><span class='op'>)</span>,
   plotter_list <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span><span class='op'>)</span>,
-  parent <span class='op'>=</span> <span class='cn'>NULL</span>,
+  clone_from <span class='op'>=</span> <span class='cn'>NULL</span>,
   save_dir <span class='op'>=</span> <span class='cn'>NULL</span>,
   <span class='va'>...</span>
 <span class='op'>)</span></pre><p></div></p>
 
 <h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
 <p><div class="arguments"></p><dl>
-<dt><code>n_reps</code></dt><dd><p>The number of replicates of the <code>Experiment</code>.</p></dd>
-
 <dt><code>name</code></dt><dd><p>The name of the <code>Experiment</code>.</p></dd>
 
 <dt><code>dgp_list</code></dt><dd><p>An optional list of <code>DGP</code> objects.</p></dd>
@@ -213,7 +202,8 @@ computing results in parallel. Those results can then be evaluated using
 
 <dt><code>plotter_list</code></dt><dd><p>An option list of <code>Plotter</code> objects.</p></dd>
 
-<dt><code>parent</code></dt><dd><p>An optional parent <code>Experiment</code> object to extend.</p></dd>
+<dt><code>clone_from</code></dt><dd><p>An optional <code>Experiment</code> object to use as a base
+for this one.</p></dd>
 
 <dt><code>save_dir</code></dt><dd><p>An optional directory in which to save the experiment's
 results.</p></dd>
@@ -227,8 +217,8 @@ results.</p></dd>
 <a id="method-run"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>run()</code></h3>
 <p>Run the entire simulation experiment pipeline.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
 <p><div class="r"></p><pre><span class='va'>Experiment</span><span class='op'>$</span><span class='fu'>run</span><span class='op'>(</span>
+  n_reps <span class='op'>=</span> <span class='fl'>1</span>,
   parallel_strategy <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"reps"</span>, <span class='st'>"dgps"</span>, <span class='st'>"methods"</span><span class='op'>)</span>,
-  trial_run <span class='op'>=</span> <span class='cn'>FALSE</span>,
   use_cached <span class='op'>=</span> <span class='cn'>FALSE</span>,
   save <span class='op'>=</span> <span class='cn'>FALSE</span>,
   <span class='va'>...</span>
@@ -236,11 +226,12 @@ results.</p></dd>
 
 <h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
 <p><div class="arguments"></p><dl>
+<dt><code>n_reps</code></dt><dd><p>The number of replicates of the <code>Experiment</code> for this
+run.</p></dd>
+
 <dt><code>parallel_strategy</code></dt><dd><p>A vector with some combination of "reps",
 "dgps", or "methods". Determines how computation will be distributed
 across available resources.</p></dd>
-
-<dt><code>trial_run</code></dt><dd><p>If <code>TRUE</code>, run 1 rep of the simulation experiment.</p></dd>
 
 <dt><code>use_cached</code></dt><dd><p>If <code>TRUE</code>, find and return previously saved
 results.</p></dd>
@@ -249,18 +240,22 @@ results.</p></dd>
 
 <dt><code>...</code></dt><dd><p>Not used.</p></dd>
 
+<dt><code>trial_run</code></dt><dd><p>If <code>TRUE</code>, run 1 rep of the simulation experiment.</p></dd>
+
 </dl><p></div></p>
 <h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Returns</h4>
 <p>A list of results from the simulation experiment.</p>
 <p><hr>
-<a id="method-generate_data"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code><a href='evaluate_experiment.html'>generate_data()</a></code></h3>
+<a id="method-generate_data"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code><a href='generate_data.html'>generate_data()</a></code></h3>
 <p>Generate data from each of the <code>DGPs</code> in the
 <code>Experiment</code>.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
-<p><div class="r"></p><pre><span class='va'>Experiment</span><span class='op'>$</span><span class='fu'>generate_data</span><span class='op'>(</span>n_reps <span class='op'>=</span> <span class='fl'>1</span><span class='op'>)</span></pre><p></div></p>
+<p><div class="r"></p><pre><span class='va'>Experiment</span><span class='op'>$</span><span class='fu'>generate_data</span><span class='op'>(</span>n_reps <span class='op'>=</span> <span class='fl'>1</span>, <span class='va'>...</span><span class='op'>)</span></pre><p></div></p>
 
 <h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
 <p><div class="arguments"></p><dl>
 <dt><code>n_reps</code></dt><dd><p>The number of datasets to generate per <code>DGP</code>.</p></dd>
+
+<dt><code>...</code></dt><dd><p>Passed to the generate.</p></dd>
 
 </dl><p></div></p>
 <h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Returns</h4>
@@ -272,8 +267,8 @@ results.</p></dd>
 <p>Return fit results from the <code>Methods</code> in the
 <code>Experiment</code>.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
 <p><div class="r"></p><pre><span class='va'>Experiment</span><span class='op'>$</span><span class='fu'>fit</span><span class='op'>(</span>
+  n_reps <span class='op'>=</span> <span class='fl'>1</span>,
   parallel_strategy <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"reps"</span>, <span class='st'>"dgps"</span>, <span class='st'>"methods"</span><span class='op'>)</span>,
-  trial_run <span class='op'>=</span> <span class='cn'>FALSE</span>,
   use_cached <span class='op'>=</span> <span class='cn'>FALSE</span>,
   save <span class='op'>=</span> <span class='cn'>FALSE</span>,
   <span class='va'>...</span>
@@ -281,11 +276,11 @@ results.</p></dd>
 
 <h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
 <p><div class="arguments"></p><dl>
+<dt><code>n_reps</code></dt><dd><p>The number of replicates to run.</p></dd>
+
 <dt><code>parallel_strategy</code></dt><dd><p>A vector with some combination of "reps",
 "dgps", or "methods". Determines how computation will be distributed
 across available resources.</p></dd>
-
-<dt><code>trial_run</code></dt><dd><p>If <code>TRUE</code>, run 1 rep of the simulation experiment.</p></dd>
 
 <dt><code>use_cached</code></dt><dd><p>If <code>TRUE</code>, find and return previously saved
 results.</p></dd>
@@ -293,6 +288,8 @@ results.</p></dd>
 <dt><code>save</code></dt><dd><p>If <code>TRUE</code>, save results to disk.</p></dd>
 
 <dt><code>...</code></dt><dd><p>Not used.</p></dd>
+
+<dt><code>trial_run</code></dt><dd><p>If <code>TRUE</code>, run 1 rep of the simulation experiment.</p></dd>
 
 </dl><p></div></p>
 <h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Returns</h4>
@@ -358,42 +355,6 @@ results.</p></dd>
 
 <h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
 <p><div class="r"></p><pre><span class='va'>Experiment</span><span class='op'>$</span><span class='fu'>create_rmd</span><span class='op'>(</span>open <span class='op'>=</span> <span class='cn'>TRUE</span>, <span class='va'>...</span><span class='op'>)</span></pre><p></div></p>
-
-<p><hr>
-<a id="method-has_parent"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>has_parent()</code></h3>
-
-<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
-<p><div class="r"></p><pre><span class='va'>Experiment</span><span class='op'>$</span><span class='fu'>has_parent</span><span class='op'>(</span><span class='op'>)</span></pre><p></div></p>
-
-<p><hr>
-<a id="method-get_parent"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>get_parent()</code></h3>
-
-<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
-<p><div class="r"></p><pre><span class='va'>Experiment</span><span class='op'>$</span><span class='fu'>get_parent</span><span class='op'>(</span><span class='op'>)</span></pre><p></div></p>
-
-<p><hr>
-<a id="method-set_parent"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>set_parent()</code></h3>
-
-<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
-<p><div class="r"></p><pre><span class='va'>Experiment</span><span class='op'>$</span><span class='fu'>set_parent</span><span class='op'>(</span><span class='va'>parent</span><span class='op'>)</span></pre><p></div></p>
-
-<p><hr>
-<a id="method-add_child"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>add_child()</code></h3>
-
-<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
-<p><div class="r"></p><pre><span class='va'>Experiment</span><span class='op'>$</span><span class='fu'>add_child</span><span class='op'>(</span><span class='va'>child</span>, name <span class='op'>=</span> <span class='cn'>NULL</span>, <span class='va'>...</span><span class='op'>)</span></pre><p></div></p>
-
-<p><hr>
-<a id="method-get_children"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>get_children()</code></h3>
-
-<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
-<p><div class="r"></p><pre><span class='va'>Experiment</span><span class='op'>$</span><span class='fu'>get_children</span><span class='op'>(</span><span class='op'>)</span></pre><p></div></p>
-
-<p><hr>
-<a id="method-get_descendants"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>get_descendants()</code></h3>
-
-<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
-<p><div class="r"></p><pre><span class='va'>Experiment</span><span class='op'>$</span><span class='fu'>get_descendants</span><span class='op'>(</span>include_self <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span></pre><p></div></p>
 
 <p><hr>
 <a id="method-add_dgp"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code><a href='add_funs.html'>add_dgp()</a></code></h3>

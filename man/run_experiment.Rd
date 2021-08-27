@@ -2,12 +2,14 @@
 % Please edit documentation in R/experiment.R
 \name{run_experiment}
 \alias{run_experiment}
-\title{Run an \code{Experiment}.}
+\title{Run the full \code{Experiment} pipeline.}
 \usage{
-run_experiment(experiment, ...)
+run_experiment(experiment, n_reps = 1, ...)
 }
 \arguments{
 \item{experiment}{An \code{Experiment} object.}
+
+\item{n_reps}{The number of replicates of the \code{Experiment} for this run.}
 
 \item{...}{Passed to \code{experiment$run()}.}
 }
@@ -15,5 +17,5 @@ run_experiment(experiment, ...)
 A list of the simulation experiment's method results.
 }
 \description{
-Run an \code{Experiment}.
+Run the full \code{Experiment} pipeline.
 }
