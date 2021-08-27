@@ -187,9 +187,6 @@ Experiment <- R6::R6Class(
         if (is.null(save_dir)) {
           save_dir <- clone$get_save_dir()
         }
-        if (missing(n_reps)) {
-          n_reps <- clone$n_reps
-        }
       }
       private$.add_obj_list(dgp_list, "DGP")
       private$.add_obj_list(method_list, "Method")
@@ -262,7 +259,7 @@ Experiment <- R6::R6Class(
     #'   \code{Experiment}.
     #'
     #' @param n_reps The number of datasets to generate per \code{DGP}.
-    #' @param ... Passed to the generate.
+    #' @param ... Not used.
     #'
     #' @return A list of length equal to the number of \code{DGPs} in the
     #'   \code{Experiment}. Each element is a list of datasets of length
@@ -273,11 +270,31 @@ Experiment <- R6::R6Class(
       if (length(dgp_list) == 0) {
         private$.throw_empty_list_error("dgp", "generate data from")
       }
-      dgp_results <- purrr::map(dgp_list, function(dgp) {
-        replicates <- replicate(n_reps, {
-          return(dgp$generate(...))
-        }, simplify = FALSE)
-      })
+      if (is.null(private$.vary_across$dgp)) {
+        dgp_results <- purrr::map(dgp_list, function(dgp) {
+          replicates <- replicate(n_reps, {
+            return(dgp$generate())
+          }, simplify = FALSE)
+        })
+      } else {
+        param_name <- private$.vary_across$param_name
+        param_values <- private$.vary_across$param_values
+        obj_name <- private$.vary_across$dgp
+        dgp_results <- purrr::map(dgp_list[obj_name], function(dgp) {
+          purrr::map(param_values, function(param_value) {
+            input_param <- list(param = param_value) %>%
+              setNames(param_name)
+            replicates <- replicate(n_reps, {
+              return(do.call(dgp$generate, input_param))
+            }, simplify = FALSE)
+          })
+        })
+        if (is.null(names(param_values))) {
+          if (!is.list(param_values)) {
+            names(dgp_results[[1]]) <- paste0(param_name, param_values)
+          }
+        }
+      }
       return(dgp_results)
     },
     #' @description Return fit results from the \code{Methods} in the
@@ -696,13 +713,12 @@ Experiment <- R6::R6Class(
     },
     #' @description Print an \code{Experiment} in a nice layout, showing the 
     #'   names of all DGPs, Methods, Evaluators, and Plotters in addition to the
-    #'   number of repetitions, the directory where results are saved, and the
-    #'   parameters that were varied (if any)
+    #'   the directory where results are saved and the parameters that were
+    #'   varied (if any)
     #'
     #' @return The original \code{experiment} object
     print = function() {
       cat("Experiment Name:", self$name, "\n")
-      cat("   # of Repetitions:", self$n_reps, "\n")
       cat("   Saved results at:", private$.save_dir, "\n")
       cat("   DGPs:",
           paste(names(private$.get_obj_list("dgp")), 
@@ -760,7 +776,7 @@ create_experiment <- function(...) {
 #'
 #' @export
 run_experiment <- function(experiment, n_reps=1, ...) {
-  return(experiment$run(n_reps=1, ...))
+  return(experiment$run(n_reps, ...))
 }
 
 #' Evaluate an \code{Experiment}
@@ -991,7 +1007,7 @@ create_doc_template = function(experiment, experiment_dirname) {
   }
   if (missing(experiment)) {
     # create dummy experiment
-    experiment <- create_experiment(n_reps = 1)
+    experiment <- create_experiment()
   } else {
     if (!inherits(experiment, "Experiment")) {
       err_msg <- sprintf("%s must be an instance of pcs.sim.pkg::%s",
