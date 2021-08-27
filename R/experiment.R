@@ -128,8 +128,13 @@ Experiment <- R6::R6Class(
         message("==============================")
       }
     },
-    .get_cached_results = function(results_type = c("fit", "eval", "plot")) {
+    .get_cached_results = function(results_type = c("fit", "eval", "plot"),
+                                   verbose = 1) {
       results_type <- match.arg(results_type)
+      if (verbose >= 1) {
+        message(sprintf("Using cached %s results.", results_type))
+        message("==============================")
+      }
       if (identical(private$.vary_across, list())) {
         save_dir <- private$.save_dir
       } else {
@@ -318,11 +323,7 @@ Experiment <- R6::R6Class(
                    use_cached = FALSE, save = FALSE,
                    verbose = 1, ...) {
       if (use_cached) {
-        if (verbose >= 1) {
-          message("Using cached fit results.")
-          message("==============================")
-        }
-        return(private$.get_cached_results("fit"))
+        return(private$.get_cached_results("fit", verbose = verbose))
       }
       
       if (verbose >= 1) {
@@ -434,11 +435,7 @@ Experiment <- R6::R6Class(
     evaluate = function(fit_results, use_cached = FALSE, save = FALSE,
                         verbose = 1, ...) {
       if (use_cached) {
-        if (verbose >= 1) {
-          message("Using cached evaluation results.")
-          message("==============================")
-        }
-        return(private$.get_cached_results("eval"))
+        return(private$.get_cached_results("eval", verbose = verbose))
       }
       if (verbose >= 1) {
         message("Evaluating experiment...")
@@ -486,11 +483,7 @@ Experiment <- R6::R6Class(
     plot = function(fit_results = NULL, eval_results = NULL,
                     use_cached = FALSE, save = FALSE, verbose = 1, ...) {
       if (use_cached) {
-        if (verbose >= 1) {
-          message("Using cached plot results.")
-          message("==============================")
-        }
-        return(private$.get_cached_results("plot"))
+        return(private$.get_cached_results("plot", verbose = verbose))
       }
       if (verbose >= 1) {
         message("Plotting experiment...")
