@@ -377,7 +377,9 @@ showRecipePart(field_name = "plot")
 if (experimentExists(params$sim_path)) {
   cat(sprintf("\n\n# Base %s \n\n", params$sim_name))
   cat("\n\n## {.tabset .tabset-pills .tabset-fade .tabset-circle}\n\n")
-  showResults(params$sim_path, depth = 2, base = FALSE, show_header = FALSE)
+  message(sprintf("Creating R Markdown report for %s...", params$sim_name))
+  showResults(params$sim_path, depth = 2, base = FALSE, show_header = FALSE,
+              verbose = 0)
 }
 
 showDescendantResults(params$sim_path, verbose = params$verbose)

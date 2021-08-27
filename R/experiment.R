@@ -572,7 +572,8 @@ Experiment <- R6::R6Class(
       params_list <- list(sim_name = self$name, sim_path = private$.save_dir)
       rmarkdown::render(input = input_fname,
                         params = params_list,
-                        output_file = output_fname)
+                        output_file = output_fname,
+                        quiet = TRUE)
       output_fname <- str_replace_all(output_fname, " ", "\\\\ ")
       if (open) {
         system(paste("open", output_fname))
