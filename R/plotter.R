@@ -33,6 +33,6 @@ Plotter <- R6::R6Class(
 )
 
 #' @export
-create_plot <- function(plot_fun, ...) {
+create_plotter <- function(plot_fun, ...) {
   return(Plotter$new(plot_fun, ...))
 }

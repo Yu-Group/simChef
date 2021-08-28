@@ -33,7 +33,7 @@ test_that("Experiment initialization works properly", {
   dgp_list <- exper$get_dgps()
   method_list <- exper$get_methods()
   evaluator_list <- exper$get_evaluators()
-  plotter_list <- exper$get_plots()
+  plotter_list <- exper$get_plotters()
 
   expect_equal(method_list, list())
   expect_equal(plotter_list, list())

@@ -188,7 +188,7 @@ Experiment <- R6::R6Class(
         dgp_list <- c(clone$get_dgps(), dgp_list)
         method_list <- c(clone$get_methods(), method_list)
         evaluator_list <- c(clone$get_evaluators(), evaluator_list)
-        plotter_list <- c(clone$get_plots(), plotter_list)
+        plotter_list <- c(clone$get_plotters(), plotter_list)
         if (is.null(save_dir)) {
           save_dir <- clone$get_save_dir()
         }
@@ -489,7 +489,7 @@ Experiment <- R6::R6Class(
         message("Plotting experiment...")
         start_time <- Sys.time()
       }
-      plotter_list <- private$.get_obj_list("plotter", "get_plots")
+      plotter_list <- private$.get_obj_list("plotter")
       if (length(plotter_list) == 0) {
         private$.throw_empty_list_error("plotter", "plot results from")
       }
@@ -617,16 +617,16 @@ Experiment <- R6::R6Class(
     get_evaluators = function() {
       return(private$.get_obj_list("evaluator"))
     },
-    add_plot = function(plotter, name=NULL, ...) {
+    add_plotter = function(plotter, name=NULL, ...) {
       private$.check_obj(plotter, "Plotter")
-      private$.add_obj("plotter", plotter, name, getter_name = "get_plots")
+      private$.add_obj("plotter", plotter, name)
     },
-    update_plot = function(plotter, name, ...) {
+    update_plotter = function(plotter, name, ...) {
       private$.check_obj(plotter, "Plotter")
       private$.update_obj("plotter", plotter, name)
     },
-    get_plots = function() {
-      return(private$.get_obj_list("plotter", "get_plots"))
+    get_plotters = function() {
+      return(private$.get_obj_list("plotter"))
     },
     add_vary_across = function(dgp = NULL, method = NULL,
                                param_name, param_values) {
@@ -723,7 +723,7 @@ Experiment <- R6::R6Class(
           paste(names(private$.get_obj_list("evaluator")), 
                 sep = "", collapse = ", "), "\n")
       cat("   Plots:",
-          paste(names(private$.get_obj_list("plotter", "get_plots")), 
+          paste(names(private$.get_obj_list("plotter")), 
                 sep = "", collapse = ", "), "\n")
       cat("   Vary Across: ")
       if (identical(private$.vary_across, list())) {
@@ -875,8 +875,8 @@ add_evaluator <- function(experiment, evaluator, name = NULL, ...) {
 #' @rdname add_funs
 #'
 #' @export
-add_plot <- function(experiment, plotter, name=NULL, ...) {
-  experiment$add_plot(plotter, name, ...)
+add_plotter <- function(experiment, plotter, name=NULL, ...) {
+  experiment$add_plotter(plotter, name, ...)
   return(experiment)
 }
 
@@ -935,8 +935,8 @@ update_evaluator <- function(experiment, evaluator, name, ...) {
 #' @rdname update_funs
 #'
 #' @export
-update_plot <- function(experiment, plotter, name, ...) {
-  experiment$update_plot(plotter, name, ...)
+update_plotter <- function(experiment, plotter, name, ...) {
+  experiment$update_plotter(plotter, name, ...)
   return(experiment)
 }
 

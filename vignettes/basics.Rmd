@@ -68,7 +68,7 @@ power_plot <- function(fit_results, eval_results = NULL) {
   return(plt)
 }
 
-plotter <- create_plot(power_plot)
+plotter <- create_plotter(power_plot)
 
 # create the experiment and add the dgp and method
 experiment <- create_experiment(name = "base") %>%
@@ -76,7 +76,7 @@ experiment <- create_experiment(name = "base") %>%
   add_method(method) %>%
   add_evaluator(summary_evaluator) %>%
   add_evaluator(evaluator) %>%
-  add_plot(plotter)
+  add_plotter(plotter)
 
 future::plan(future::sequential)
 

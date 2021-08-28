@@ -30,14 +30,14 @@ The goal of `simChef` is to seamlessly and efficiently run simulation experiment
     a. Create DGP(s) (data-generating processes) via `create_dgp()`
     b. Create Method(s) via `create_method()`
     c. Create Evaluator(s) via `create_evaluator()`
-    d. Create Plotter(s) via `create_plot`
+    d. Create Plotter(s) via `create_plotter()`
 2. Assemble recipe parts into a complete simulation experiment recipe, e.g., via
 ```{r eval = FALSE}
 experiment <- create_experiment(name = "Experiment") %>%
   add_dgp(dgp, name = "DGP1") %>%
   add_method(method, name = "Method1") %>%
   add_evaluator(evaluator, name = "Evaluator1") %>%
-  add_plot(plotter, name = "Plotter1")
+  add_plotter(plotter, name = "Plotter1")
 ```
 3. Run the experiment
 ```{r eval = FALSE}
@@ -61,7 +61,7 @@ To begin, we first need to create the individual parts of the simulation experim
 3. **Evaluator**: the evaluation metrics used to **evaluate** the methods performance
 4. **Plotter**: the plotting functions used to **plot** outputs from the method fits or evaluation results
 
-To create a `DGP`, `Method`, `Evaluator`, or `Plotter`, we can respectively use the `create_dgp()`, `create_method()`, `create_evaluator()`, or `create_plot()` functions. Each `create_*` function follows the same syntax and takes in the inputs:
+To create a `DGP`, `Method`, `Evaluator`, or `Plotter`, we can respectively use the `create_dgp()`, `create_method()`, `create_evaluator()`, or `create_plotter()` functions. Each `create_*` function follows the same syntax and takes in the inputs:
 
 - `*_fun`: the first input is a function from which to simulate data, fit the method, evaluate the metrics, or create the plots (depending on `*`)
 - `...`: additional arguments get passed into the `*_fun` above
@@ -171,12 +171,12 @@ power_plot_fun <- function(fit_results, col = "X1") {
 We can create an object of class `Plotter` from this function via
 
 ```{r}
-power_plot <- create_plot(plot_fun = power_plot_fun)
+power_plot <- create_plotter(plot_fun = power_plot_fun)
 ```
 
 Like the custom `Evaluator` functions, custom `Plotter` functions such as `power_plot_fun()` can take in the argument `fit_results` if we want to construct a plot from the method fit outputs. If we want to construct a plot using the output of our `Evaluators` (e.g., the output from `reject_prob_fun()`), the `Plotter` function can also take the argument `eval_results` as input. 
 
-As with the other `create_*` functions, additional arguments that need to pass into the custom `Plotter` function can be passed into `create_plot()`.
+As with the other `create_*` functions, additional arguments that need to pass into the custom `Plotter` function can be passed into `create_plotter()`.
 
 # Assemble simulation experiment recipe
 
@@ -187,7 +187,7 @@ experiment <- create_experiment(name = "Linear Regression Experiment") %>%
   add_dgp(dgp, name = "Linear Gaussian DGP") %>%
   add_method(lm_method, name = "OLS") %>%
   add_evaluator(reject_prob_eval, name = "Rejection Prob. (alpha = 0.1)") %>%
-  add_plot(power_plot, name = "Power")
+  add_plotter(power_plot, name = "Power")
 ```
 
 Any number of DGPs, Methods, Evaluators, and Plotters can be added to the simulation experiment recipe, but each added element to the experiment should have an intelligible name as this will be used in creating the R Markdown results report.
@@ -324,7 +324,7 @@ power_plot_fun <- function(fit_results, vary_param = NULL, col = "X1") {
   }
   return(plt)
 }
-power_plot <- create_plot(plot_fun = power_plot_fun)
+power_plot <- create_plotter(plot_fun = power_plot_fun)
 
 ```
 
@@ -332,7 +332,7 @@ Now, we are ready to update our experiment and run the experiment via
 ```{r}
 vary_results <- experiment %>%
   update_evaluator(reject_prob_eval, name = "Rejection Prob. (alpha = 0.1)") %>%
-  update_plot(power_plot, name = "Power") %>%
+  update_plotter(power_plot, name = "Power") %>%
   run_experiment(n_reps = 100, save = TRUE)
 vary_results$eval_results
 vary_results$plot_results
@@ -357,7 +357,7 @@ reject_prob_plot_fun <- function(eval_results, vary_param = NULL,
     ggplot2::scale_y_continuous(limits = c(0, 1))
   return(plotly::ggplotly(plt))
 }
-reject_prob_plot <- create_plot(plot_fun = reject_prob_plot_fun, alpha = 0.1)
+reject_prob_plot <- create_plotter(plot_fun = reject_prob_plot_fun, alpha = 0.1)
 
 # run experiment across values of beta_2
 vary_beta2_results <- experiment %>%
@@ -428,10 +428,10 @@ The results can be found [here]().
 
 In addition to showing all results under the root results directory, `create_rmd()` will automatically generate documentation for every `DGP`, `Method`, `Evaluator`, and `Plot` found in any one of the `Experiments` under the root results directory. If one would like to generate the documentation template but not create the R Markdown report, see `create_doc_template()`.
 
-There are also several customizable options regarding the aesthetics of the R Markdown output. These can be modified using the `rmd_options` argument in `create_evaluator()` and `create_plot()`. For example, we can customize the height and width of the Power plot via
+There are also several customizable options regarding the aesthetics of the R Markdown output. These can be modified using the `rmd_options` argument in `create_evaluator()` and `create_plotter()`. For example, we can customize the height and width of the Power plot via
 ```{r}
-power_plot <- create_plot(plot_fun = power_plot_fun, 
-                          rmd_options = list(height = 10, width = 8))
+power_plot <- create_plotter(plot_fun = power_plot_fun, 
+                             rmd_options = list(height = 10, width = 8))
 ```
 
 and the number of digits in the evaluation table outputs via
@@ -494,7 +494,7 @@ Other helpful methods for handling the experiment include the `get_*` family of 
 experiment$get_dgps()
 experiment$get_methods()
 experiment$get_evaluators()
-experiment$get_plots()
+experiment$get_plotters()
 experiment$get_vary_across()
 experiment$get_save_dir()
 ```
