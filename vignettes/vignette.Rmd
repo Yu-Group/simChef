@@ -375,42 +375,11 @@ vary_beta2_results <- experiment %>%
 
 # run experiment across values of rho (correlation)
 vary_cor_results <- experiment %>%
-  remove_vary_across() %>%
-  add_vary_across(dgp = "Linear Gaussian DGP", param_name = "rho", 
-                  param_values = c(0, 0.2, 0.5, 0.9)) %>%
+  update_vary_across(dgp = "Linear Gaussian DGP", param_name = "rho", 
+                     param_values = c(0, 0.2, 0.5, 0.9)) %>%
   run_experiment(n_reps = 100, save = TRUE)
 ```
-
-
-## Creating an experiment from another experiment
-
-Notice in the above code block, we had to use `update_vary_across()` or `remove_vary_across()` + `add_vary_across()` instead of just `add_vary_across()`. This is because `experiment` already had a non-empty `vary_across` field. Another alternative to this and perhaps a more generally useful tool is to create a new experiment from another experiment through a deep clone. 
-
-```{r}
-new_experiment <- create_experiment(name = "I am a clone",
-                                    clone_from = experiment)
-```
-
-```{r results = "hide"}
-new_experiment
-#> Experiment Name: I am a clone 
-#>    Saved results at: ./results/Linear Regression Experiment 
-#>    DGPs: Linear Gaussian DGP 
-#>    Methods: OLS 
-#>    Evaluators: Rejection Prob. (alpha = 0.1) 
-#>    Plotters: Power 
-#>    Vary Across: None
-```
-
-When creating an `Experiment` from a clone, we are making a deep clone of the parent experiment's `DGPs`, `Methods`, `Evaluators`, and `Plotters`, but not the `vary_across` component. 
-
-
-```{r}
-# this works without an error
-new_experiment <- new_experiment %>%
-  add_vary_across(dgp = "Linear Gaussian DGP", param_name = "sigma",
-                  param_values = c(1, 2, 4, 8))
-```
+Note that while multiple DGPs, Methods, Evaluators, and Plotters can be added to the `Experiment`, only one `vary_across` component can be added to the `Experiment` at this time.
 
 ## Experiment as an R6 Class
 
@@ -432,6 +401,8 @@ vary_experiment <- experiment %>%
                   param_values = c(1, 2, 4, 8))
 all.equal(vary_experiment, experiment)
 #> [1] TRUE
+data.table::address(experiment) == data.table::address(vary_experiment)
+#> [1] TRUE
 experiment
 #> Experiment Name: Linear Regression Experiment 
 #>    Saved results at: ./results/Linear Regression Experiment 
@@ -444,6 +415,67 @@ experiment
 #>       Parameter: sigma 
 #>       Parameter values:  num [1:4] 1 2 4 8
 
+```
+
+## Creating an experiment from another experiment
+
+To modify `vary_experiment` without making changes to `experiment`, we need to create a new experiment by explicitly *cloning* from the old experiment.
+
+```{r}
+vary_experiment <- create_experiment(name = "I am a clone",
+                                     clone_from = experiment)
+data.table::address(experiment) == data.table::address(vary_experiment)
+```
+
+```{r results = "hide"}
+vary_experiment
+#> Experiment Name: I am a clone 
+#>    Saved results at: ./results/Linear Regression Experiment 
+#>    DGPs: Linear Gaussian DGP 
+#>    Methods: OLS 
+#>    Evaluators: Rejection Prob. (alpha = 0.1) 
+#>    Plotters: Power 
+#>    Vary Across: None
+```
+
+When creating an `Experiment` from a clone, we are making a deep clone of the parent experiment's `DGPs`, `Methods`, `Evaluators`, and `Plotters`, but not the `vary_across` component. We thus need to add a `vary_across` component to `vary_experiment` using `add_vary_across()`.
+
+```{r}
+# this works without an error
+vary_experiment <- vary_experiment %>%
+  add_vary_across(dgp = "Linear Gaussian DGP", param_name = "sigma",
+                  param_values = c(1, 2, 4, 8))
+```
+
+We can also add/update DGPs, Methods, Evaluators, and Plotters to the cloned experiment without modifying the parent `experiment`.
+
+```{r results = "hide"}
+# add DGP
+dgp_new <- create_dgp(dgp_fun = dgp_fun, 
+                      n = 500, beta = c(1, 0), rho = 0, sigma = 1)
+vary_experiment %>%
+  add_dgp(dgp_new, "Linear Gaussian DGP (large n)")
+#> Experiment Name: I am a clone 
+#>    Saved results at: /Users/Tiffany/My Documents/Research/Yu/PCS Theory/pcs-sim-pkg/vignettes/results/Linear Regression Experiment 
+#>    DGPs: Linear Gaussian DGP, Linear Gaussian DGP (large n) 
+#>    Methods: OLS 
+#>    Evaluators: Rejection Prob. (alpha = 0.1) 
+#>    Plotters: Power 
+#>    Vary Across: 
+#>       DGP: Linear Gaussian DGP 
+#>       Parameter: sigma 
+#>       Parameter values:  num [1:4] 1 2 4 8
+experiment
+#> Experiment Name: Linear Regression Experiment 
+#>    Saved results at: ./results/Linear Regression Experiment 
+#>    DGPs: Linear Gaussian DGP 
+#>    Methods: OLS 
+#>    Evaluators: Rejection Prob. (alpha = 0.1) 
+#>    Plotters: Power 
+#>    Vary Across: 
+#>       DGP: Linear Gaussian DGP 
+#>       Parameter: sigma 
+#>       Parameter values:  num [1:4] 1 2 4 8
 ```
 
 ## Additional R Markdown notes and options
@@ -462,7 +494,7 @@ create_rmd(experiment_dirname = experiment$get_save_dir(), open = FALSE)
 
 The results can be found [here](). 
 
-In addition to showing all results under the root results directory, `create_rmd()` will automatically generate documentation for every `DGP`, `Method`, `Evaluator`, and `Plot` found in any one of the `Experiments` under the root results directory. If one would like to generate the documentation template but not create the R Markdown report, see `create_doc_template()`.
+In addition to showing all results under the root results directory, `create_rmd()` will automatically generate a blank documentation template for every `DGP`, `Method`, `Evaluator`, and `Plot` found in any one of the `Experiments` under the root results directory. If one would like to generate the documentation template but not create the R Markdown report, see `create_doc_template()`.
 
 There are also several customizable options regarding the aesthetics of the R Markdown output. These can be modified using the `rmd_options` argument in `create_evaluator()` and `create_plotter()`. For example, we can customize the height and width of the Power plot via
 ```{r}
