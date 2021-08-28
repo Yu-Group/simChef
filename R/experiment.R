@@ -543,7 +543,7 @@ Experiment <- R6::R6Class(
       )
       descendants[sapply(descendants, is.null)] <- NULL
 
-      fields <- c("dgp", "method", "evaluator", "plot")
+      fields <- c("dgp", "method", "evaluator", "plotter")
       for (field in fields) {
         obj_names <- purrr::map(descendants,
                                 ~names(.x[[paste0("get_", field, "s")]]())) %>%

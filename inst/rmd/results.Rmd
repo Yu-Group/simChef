@@ -108,10 +108,10 @@ experimentExists <- function(dir_name, recursive = FALSE) {
 #' Displays content for specified part of recipe
 #' 
 #' @param field_name part of recipe to show; must be one of "dgp", "method",
-#'   "evaluator", or "plot"
+#'   "evaluator", or "plotter"
 #' @return content for recipe
 showRecipePart <- function(field_name = c("dgp", "method", 
-                                          "evaluator", "plot")) {
+                                          "evaluator", "plotter")) {
   
   field_name <- match.arg(field_name)
   func_name <- case_when(field_name == "evaluator" ~ "eval",
@@ -195,7 +195,7 @@ getResults <- function(filename) {
 #' @param base logical; whether or not this is a base experiment
 #' @param show_header logical; whether or not to show section header
 #' @param verbose integer; 0 = no messages; 1 = print out directory name only; 
-#'   2 = print out directory name and name of evaluators/plots
+#'   2 = print out directory name and name of evaluators/plotters
 #' @return content results from evaluate() and plot() from the experiment
 showResults <- function(dir_name, depth, base = FALSE, show_header = TRUE,
                         verbose = 1) {
@@ -366,7 +366,7 @@ showRecipePart(field_name = "evaluator")
 ## Visualizations
 
 ```{r plotters, results = "asis"}
-showRecipePart(field_name = "plot")
+showRecipePart(field_name = "plotter")
 ```
 
 
