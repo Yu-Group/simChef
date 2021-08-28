@@ -210,13 +210,11 @@ Experiment <- R6::R6Class(
     #' @param parallel_strategy A vector with some combination of "reps",
     #'   "dgps", or "methods". Determines how computation will be distributed
     #'   across available resources.
-    #' @param trial_run If \code{TRUE}, run 1 rep of the simulation experiment.
     #' @param use_cached If \code{TRUE}, find and return previously saved
-    #'   results. Can also be a vector with some combination of "methods",
-    #'   "evaluators", or "plots" to use their respective cached results.
+    #'   results. Can also be a vector with some combination of "fit",
+    #'   "eval", or "plot" to use their respective cached results.
     #' @param save If \code{TRUE}, save results to disk. Can also be a vector 
-    #'   with some combination of "methods", "evaluators", or "plots" to save
-    #'   to disk.
+    #'   with some combination of "fit", "eval", or "plot" to save to disk.
     #' @param verbose Level of verboseness. Default is 1, which prints out 
     #'   messages after major checkpoints in the experiment. If 0, no messages 
     #'   are printed.
@@ -225,10 +223,9 @@ Experiment <- R6::R6Class(
     #' @return A list of results from the simulation experiment.
     # TODO: description of fit_results, eval_results, plot_results
     run = function(n_reps = 1, parallel_strategy = c("reps", "dgps", "methods"),
-                   use_cached = FALSE, save = FALSE,
-                   verbose = 1, ...) {
+                   use_cached = FALSE, save = FALSE, verbose = 1, ...) {
       if (!is.logical(use_cached)) {
-        use_cached <- c("methods", "evaluators", "plots") %in% use_cached
+        use_cached <- c("fit", "eval", "plot") %in% use_cached
       } else {
         if (length(use_cached) > 1) {
           warning("The input use_cached is a logical vector of length > 1. ",
@@ -237,7 +234,7 @@ Experiment <- R6::R6Class(
         use_cached <- rep(use_cached[1], 3)
       }
       if (!is.logical(save)) {
-        save <- c("methods", "evaluators", "plots") %in% save
+        save <- c("fit", "eval", "plot") %in% save
       } else {
         if (length(save) > 1) {
           warning("The input save is a logical vector of length > 1. ",
@@ -320,8 +317,7 @@ Experiment <- R6::R6Class(
     #'
     #' @return A list of results from the simulation experiment.
     fit = function(n_reps = 1, parallel_strategy = c("reps", "dgps", "methods"),
-                   use_cached = FALSE, save = FALSE,
-                   verbose = 1, ...) {
+                   use_cached = FALSE, save = FALSE, verbose = 1, ...) {
       if (use_cached) {
         return(private$.get_cached_results("fit", verbose = verbose))
       }
