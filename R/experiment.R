@@ -722,7 +722,7 @@ Experiment <- R6::R6Class(
       cat("   Evaluators:",
           paste(names(private$.get_obj_list("evaluator")), 
                 sep = "", collapse = ", "), "\n")
-      cat("   Plots:",
+      cat("   Plotters:",
           paste(names(private$.get_obj_list("plotter")), 
                 sep = "", collapse = ", "), "\n")
       cat("   Vary Across: ")
