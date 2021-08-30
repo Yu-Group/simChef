@@ -124,7 +124,7 @@ Experiment <- R6::R6Class(
       if (verbose >= 1) {
         message(sprintf("%s results saved | time taken: %f seconds",
                         R.utils::capitalize(results_type),
-                        Sys.time() - start_time))
+                        difftime(Sys.time(), start_time, units = "secs")))
         message("==============================")
       }
     },
@@ -323,7 +323,7 @@ Experiment <- R6::R6Class(
       }
       
       if (verbose >= 1) {
-        message("Fitting experiment...")
+        message(sprintf("Fitting %s...", self$name))
         start_time <- Sys.time()
       }
       parallel_strategy <- match.arg(parallel_strategy)
@@ -402,9 +402,11 @@ Experiment <- R6::R6Class(
         }
       }
       
+      fit_results <- simplify_tibble(fit_results)
+      
       if (verbose >= 1) {
-        message(sprintf("Fitting completed | time taken: %f seconds",
-                        Sys.time() - start_time))
+        message(sprintf("Fitting completed | time taken: %f minutes",
+                        difftime(Sys.time(), start_time, units = "mins")))
         if (!save) {
           message("==============================")
         }
@@ -434,7 +436,7 @@ Experiment <- R6::R6Class(
         return(private$.get_cached_results("eval", verbose = verbose))
       }
       if (verbose >= 1) {
-        message("Evaluating experiment...")
+        message(sprintf("Evaluating %s...", self$name))
         start_time <- Sys.time()
       }
       evaluator_list <- private$.get_obj_list("evaluator")
@@ -447,8 +449,8 @@ Experiment <- R6::R6Class(
       })
 
       if (verbose >= 1) {
-        message(sprintf("Evaluation completed | time taken: %f seconds",
-                        Sys.time() - start_time))
+        message(sprintf("Evaluation completed | time taken: %f minutes",
+                        difftime(Sys.time(), start_time, units = "mins")))
         if (!save) {
           message("==============================")
         }
@@ -482,7 +484,7 @@ Experiment <- R6::R6Class(
         return(private$.get_cached_results("plot", verbose = verbose))
       }
       if (verbose >= 1) {
-        message("Plotting experiment...")
+        message(sprintf("Plotting %s...", self$name))
         start_time <- Sys.time()
       }
       plotter_list <- private$.get_obj_list("plotter")
@@ -496,8 +498,8 @@ Experiment <- R6::R6Class(
       })
 
       if (verbose >= 1) {
-        message(sprintf("Plotting completed | time taken: %f seconds",
-                        Sys.time() - start_time))
+        message(sprintf("Plotting completed | time taken: %f minutes",
+                        difftime(Sys.time(), start_time, units = "mins")))
         if (!save) {
           message("==============================")
         }
@@ -562,14 +564,17 @@ Experiment <- R6::R6Class(
     #'   \code{Experiment}.
     #'
     #' @param open If \code{TRUE}, open the R Markdown file in a web browser.
+    #' @param verbose Level of verboseness (0, 1, 2) when knitting R Markdown. 
+    #'   Default is 2.
     #' @param ... Not used.
     #'
     #' @return The original \code{experiment} object
-    create_rmd = function(open = TRUE, ...) {
+    create_rmd = function(open = TRUE, verbose = 2, ...) {
       self$create_doc_template()
       input_fname <- system.file("rmd", "results.Rmd", package = packageName())
       output_fname <- file.path(private$.save_dir, paste0(self$name, ".html"))
-      params_list <- list(sim_name = self$name, sim_path = private$.save_dir)
+      params_list <- list(sim_name = self$name, sim_path = private$.save_dir,
+                          verbose = verbose)
       rmarkdown::render(input = input_fname,
                         params = params_list,
                         output_file = output_fname,
@@ -1014,13 +1019,16 @@ create_doc_template = function(experiment, experiment_dirname) {
 #' @param experiment_dirname A directory where results from an \code{Experiment}
 #'   were previously saved. Used if \code{experiment} was not provided.
 #' @param open If \code{TRUE}, open the R Markdown file in a web browser.
+#' @param verbose Level of verboseness (0, 1, 2) when knitting R Markdown. 
+#'   Default is 2.
 #'
 #' @return The original \code{experiment} object passed to \code{create_rmd}.
 #'
 #' @name create_rmd
 #'
 #' @export
-create_rmd <- function(experiment, experiment_dirname, open = TRUE) {
+create_rmd <- function(experiment, experiment_dirname, 
+                       open = TRUE, verbose = 2) {
   if (missing(experiment) & missing(experiment_dirname)) {
     stop("Must provide argument for one of experiment or experiment_dirname")
   }
@@ -1038,5 +1046,5 @@ create_rmd <- function(experiment, experiment_dirname, open = TRUE) {
     }
   }
   experiment$create_doc_template()
-  experiment$create_rmd(open = open)
+  experiment$create_rmd(open = open, verbose = verbose)
 }
