@@ -239,7 +239,7 @@ results$plot_results
 
 By default, the results are not saved to disk. However, to generate the R Markdown report, we will need to save the results to disk and hence set `save = TRUE` above.
 
-The experiment can also be run in parallel. For a more detailed walkthrough on how to parallelize the experiment, please see the [NAME OF VIGNETTE]().
+The experiment can also be run in parallel. For a more detailed walkthrough on how to parallelize the experiment, please see the `vignette("parallel")`.
 
 # Document and visualize results
 
@@ -255,7 +255,7 @@ or alternatively,
 create_rmd(experiment, open = FALSE)
 ```
 
-The results can be found [here](). 
+The results can be found [here](linear_regression_base_output.html).
 
 Note that in the first run of `experiment$create_rmd()`, a documentation template (i.e., a series of blank .md files) is created for the user to fill out with descriptions of the simulation experiment and its recipe components. These blank .md files can be found in the experiment's root results directory under docs/. To find the experiment's root results directory, use `experiment$get_save_dir()`.
 
@@ -495,7 +495,7 @@ We can also create the R Markdown report summary by directly specifying the expe
 create_rmd(experiment_dirname = experiment$get_save_dir(), open = FALSE)
 ```
 
-The results can be found [here](). 
+The results can be found [here](linear_regression_output.html). 
 
 In addition to showing all results under the root results directory, `create_rmd()` will automatically generate a blank documentation template for every `DGP`, `Method`, `Evaluator`, and `Plot` found in any one of the `Experiments` under the root results directory. If one would like to generate the documentation template but not create the R Markdown report, see `create_doc_template()`.
 
