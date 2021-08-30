@@ -743,6 +743,17 @@ Experiment <- R6::R6Class(
     set_save_dir = function(save_dir) {
       private$.save_dir <- save_dir
     },
+    #' @description Save an \code{Experiment}.
+    #' 
+    #' @return The original \code{Experiment} object
+    save = function() {
+      save_dir <- self$get_save_dir()
+      if (!dir.exists(save_dir)) {
+        dir.create(save_dir, recursive = TRUE)
+      }
+      saveRDS(self, file.path(save_dir, "experiment.rds"))
+      return(invisible(self))
+    },
     #' @description Print an \code{Experiment} in a nice layout, showing the 
     #'   names of all DGPs, Methods, Evaluators, and Plotters in addition to the
     #'   the directory where results are saved and the parameters that were
@@ -1060,7 +1071,22 @@ remove_vary_across <- function(experiment, ...) {
 #' @export
 set_save_dir <- function(experiment, save_dir) {
   experiment$set_save_dir(save_dir)
-  return(experiment)
+  return(invisible(experiment))
+}
+
+#' Save an \code{Experiment}.
+#'
+#' @param experiment An \code{Experiment} object.
+#'
+#' @return The original \code{experiment} object passed to 
+#'   \code{save_experiment}.
+#'
+#' @name save_experiment
+#'
+#' @export
+save_experiment <- function(experiment) {
+  experiment$save()
+  return(invisible(experiment))
 }
 
 #' Create documentation template (a series of .md files) to
