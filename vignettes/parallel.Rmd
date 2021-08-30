@@ -1,0 +1,117 @@
+---
+title: "Parallel strategies in `simChef`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Parallel strategies in `simChef`}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(pcs.sim.pkg)
+library(future)
+```
+
+Given the large amount of computation that simulation experiments require,
+`simChef` uses the R package [`future`](https://future.futureverse.org/) to
+distribute computation across available resources. Users must decide upon two
+aspects of the distributed computation in order to effectively parallelize the
+simulations: _what_ resources to use and _how_ to use them.
+
+`simChef` is entirely agnostic to the answer to the _what_ question; any
+resource that `future` supports is also supported. For example, to run your
+simulation experiments on your local Linux, macOS, or Windows machine using all
+but one of the cores, you might run:
+
+```{r, plan-multisession, eval=FALSE}
+n_workers <- availableCores() - 1
+plan(multisession, workers = n_workers)
+```
+
+Once a `future` plan has been set, `simChef` will execute computation according
+to the plan specified. To answer the _how_ question, consider `n` computational
+"tasks" to be distributed across `p` parallel workers. Assuming each task takes
+approximately the same amount of time to complete regardless of the worker
+assigned to the task, then with `n=100` and `p=4` each worker should complete
+around 25 of the tasks. In the ideal setting, the total time to complete the 100
+tasks should be around 4 times lower than the time it takes one worker to
+complete them, on average.
+
+In more realistic scenarios, and especially in simulation experiments where
+heterogeneous methods are compared in various diverse problem settings, tasks
+are often much less uniform and different parallel strategies can have profound
+implications for the overall running time. Therefore, it's important to
+carefully decide how to package your tasks in order to take greatest advantage
+of the available parallelism.
+
+By default, `simChef` distributes computation across the available resources by
+splitting up the simulation's replicates evenly across available workers,
+answering the _how_ question. However, `simChef` gives the user more
+fine-grained control over how computation is split across available resources by
+setting the parallel strategy when calling `Experiment$fit()` or
+`Experiment$run()` via the `parallel_strategy` argument. The possible values and
+implications of `parallel_strategy` are listed in the table below:
+
++-----|-----+
+| `parallel_strategy` | Parallelism |
++-----|-----|-----+
+| `"reps"` | One task per simulation replicate |
++-----|-----|-----+
+| `"dgps"` | One task per `DGP` objects in `Experiment` |
++-----|-----|-----+
+|  `"methods"` | One task per `Method` objects in `Experiment` |
++-----|-----|-----+
+| `c("reps", "dgps")` | One task per combination of replicates and `DGP` objects  |
++-----|-----|-----+
+| `c("reps", "methods")` | One task per combination of replicates and `Method` objects  |
++-----|-----|-----+
+| `c("dgps", "methods")` | One task per combination of `DGP` and `Method` objects  |
++-----|-----|-----+
+| `c("reps", "dgps", "methods")` | One task per combination of replicates, `DGP` and `Method` objects |
++-----|-----+
+
+The best parallel strategy is entirely dependent on the details of your
+particular simulation experiment. In general, one should not have fewer tasks
+than workers and should avoid `n>>p` very small tasks as the overhead of
+distributing computation to workers may outweigh the benefits of parallelism.
+
+```{r, parallel-ex}
+n_workers <- availableCores() - 1
+plan(multisession, workers = n_workers)
+
+dgp_fun <- function(n, noise_level = 4) {
+  X <- matrix(rnorm(n * 2), nrow=n)
+  y <- cbind(1, X) %*% c(-8, 3, -1) + rnorm(n, sd = noise_level)
+  return(list(X = X, y = y))
+}
+
+dgp1 <- create_dgp(dgp_fun, n = 200, noise_level = 1)
+dgp2 <- create_dgp(dgp_fun, n = 400, noise_level = 2)
+
+method_fun <- function(X, y, sleep = 0.01) {
+  fit <- lm(y ~ X)
+  Sys.sleep(sleep)
+  return(list(
+    "p-val" = summary(fit)$coefficients["X2", "Pr(>|t|)"]
+  ))
+}
+
+method1 <- create_method(method_fun)
+method2 <- create_method(method_fun, sleep=0.1)
+
+experiment <- create_experiment(name = "base") %>%
+  add_dgp(dgp1) %>%
+  add_dgp(dgp2) %>%
+  add_method(method1) %>%
+  add_method(method2)
+
+system.time(experiment$fit(n_reps = 100, parallel_strategy = c("reps", "dgps")))
+
+```
