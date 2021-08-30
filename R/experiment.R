@@ -132,8 +132,7 @@ Experiment <- R6::R6Class(
                                    verbose = 1) {
       results_type <- match.arg(results_type)
       if (verbose >= 1) {
-        message(sprintf("Using cached %s results.", results_type))
-        message("==============================")
+        message(sprintf("Reading in cached %s results...", results_type))
       }
       if (identical(private$.vary_across, list())) {
         save_dir <- private$.save_dir
@@ -145,12 +144,15 @@ Experiment <- R6::R6Class(
       }
       save_file <- file.path(save_dir, paste0(results_type, "_results.rds"))
       if (file.exists(save_file)) {
+        if (verbose >= 1) {
+          message("==============================")
+        }
         return(readRDS(save_file))
       } else {
-        stop(
-          sprintf("Cached results do not exist at %s. Set use_cached = FALSE.",
-                  save_file),
-          call. = FALSE)
+        if (verbose >= 1) {
+          message(sprintf("Cannot find cached %s results.", results_type))
+        }
+        return(NULL)
       }
     },
     deep_clone = function(name, value) {
@@ -211,7 +213,8 @@ Experiment <- R6::R6Class(
     #'   "dgps", or "methods". Determines how computation will be distributed
     #'   across available resources.
     #' @param use_cached If \code{TRUE}, find and return previously saved
-    #'   results. Can also be a vector with some combination of "fit",
+    #'   results. If cached results cannot be found, run experiment anyways. 
+    #'   Can also be a vector with some combination of "fit",
     #'   "eval", or "plot" to use their respective cached results.
     #' @param save If \code{TRUE}, save results to disk. Can also be a vector 
     #'   with some combination of "fit", "eval", or "plot" to save to disk.
@@ -306,9 +309,8 @@ Experiment <- R6::R6Class(
     #' @param parallel_strategy A vector with some combination of "reps",
     #'   "dgps", or "methods". Determines how computation will be distributed
     #'   across available resources.
-    #' @param trial_run If \code{TRUE}, run 1 rep of the simulation experiment.
     #' @param use_cached If \code{TRUE}, find and return previously saved
-    #'   results.
+    #'   results. If cached results cannot be found, fit experiment anyways. 
     #' @param save If \code{TRUE}, save results to disk.
     #' @param verbose Level of verboseness. Default is 1, which prints out 
     #'   messages after major checkpoints in the experiment. If 0, no messages 
@@ -319,7 +321,10 @@ Experiment <- R6::R6Class(
     fit = function(n_reps = 1, parallel_strategy = c("reps", "dgps", "methods"),
                    use_cached = FALSE, save = FALSE, verbose = 1, ...) {
       if (use_cached) {
-        return(private$.get_cached_results("fit", verbose = verbose))
+        results <- private$.get_cached_results("fit", verbose = verbose)
+        if (!is.null(results)) {
+          return(results)
+        }
       }
       
       if (verbose >= 1) {
@@ -422,7 +427,8 @@ Experiment <- R6::R6Class(
     #' @param fit_results A list of results, as returned by the \code{fit}
     #'   method.
     #' @param use_cached If \code{TRUE}, find and return previously saved
-    #'  evaluation results.
+    #'  evaluation results. If cached results cannot be found, evaluate 
+    #'  experiment anyways. 
     #' @param save If \code{TRUE}, save evaluation results to disk.
     #' @param verbose Level of verboseness. Default is 1, which prints out 
     #'   messages after major checkpoints in the experiment. If 0, no messages 
@@ -433,7 +439,10 @@ Experiment <- R6::R6Class(
     evaluate = function(fit_results, use_cached = FALSE, save = FALSE,
                         verbose = 1, ...) {
       if (use_cached) {
-        return(private$.get_cached_results("eval", verbose = verbose))
+        results <- private$.get_cached_results("eval", verbose = verbose)
+        if (!is.null(results)) {
+          return(results)
+        }
       }
       if (verbose >= 1) {
         message(sprintf("Evaluating %s...", self$name))
@@ -470,7 +479,7 @@ Experiment <- R6::R6Class(
     #' @param eval_results A list of results, as returned by the \code{evaluate}
     #'   method.
     #' @param use_cached If \code{TRUE}, find and return previously saved
-    #'   results.
+    #'   results. If cached results cannot be found, plot experiment anyways. 
     #' @param save If \code{TRUE}, save plots to disk.
     #' @param verbose Level of verboseness. Default is 1, which prints out 
     #'   messages after major checkpoints int the experiment. If 0, no messages 
@@ -481,7 +490,10 @@ Experiment <- R6::R6Class(
     plot = function(fit_results = NULL, eval_results = NULL,
                     use_cached = FALSE, save = FALSE, verbose = 1, ...) {
       if (use_cached) {
-        return(private$.get_cached_results("plot", verbose = verbose))
+        results <- private$.get_cached_results("plot", verbose = verbose)
+        if (!is.null(results)) {
+          return(results)
+        }
       }
       if (verbose >= 1) {
         message(sprintf("Plotting %s...", self$name))

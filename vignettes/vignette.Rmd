@@ -540,7 +540,7 @@ plot_results <- plot_experiment(experiment, fit_results, eval_results)
 
 `Experiment$run()` is simply a wrapper around these three functions: `fit()`, `evaluate()`, and `plot()`.
 
-If the results have been saved to disk previously, and one would like to read in these saved results instead of re-running the experiment, the `use_cached` argument should be set to `TRUE`.
+If the results have been saved to disk previously, and one would like to read in these saved results instead of re-running the experiment, the `use_cached` argument should be set to `TRUE`. If `use_cached = TRUE` but the experiment's results have not yet been saved to disk, then the experiment will proceed to run per usual.
 
 Thus far, we have neither stored nor returned any data from the `DGPs` since these can be large objects that require high memory loads when `n_reps` is large. However, one can generate small samples of data from the `DGPs` in the experiment via
 
