@@ -51,6 +51,20 @@ Experiment <- R6::R6Class(
       list_name <- paste0(".", field_name, "_list")
       private[[list_name]][[obj_name]] <- obj
     },
+    .remove_obj = function(field_name, obj_name, ...) {
+      obj_list <- private$.get_obj_list(field_name, ...)
+      if (is.null(obj_list[[obj_name]])) {
+        stop(
+          sprintf("Cannot remove '%s'. ", obj_name),
+          sprintf("The name '%s' does not exist in the %s list. ",
+                  obj_name, field_name),
+          call. = FALSE
+        )
+      } else {
+        list_name <- paste0(".", field_name, "_list")
+        private[[list_name]][[obj_name]] <- NULL
+      }
+    },
     .throw_empty_list_error = function(field_name, action_name = "run") {
       stop(
         sprintf("No %s has been added yet. ", field_name),
@@ -605,6 +619,9 @@ Experiment <- R6::R6Class(
       private$.check_obj(dgp, "DGP")
       private$.update_obj("dgp", dgp, name)
     },
+    remove_dgp = function(name, ...) {
+      private$.remove_obj("dgp", name)
+    },
     get_dgps = function() {
       return(private$.get_obj_list("dgp"))
     },
@@ -615,6 +632,9 @@ Experiment <- R6::R6Class(
     update_method = function(method, name, ...) {
       private$.check_obj(method, "Method")
       private$.update_obj("method", method, name)
+    },
+    remove_method = function(name, ...) {
+      private$.remove_obj("method", name)
     },
     get_methods = function() {
       return(private$.get_obj_list("method"))
@@ -627,6 +647,9 @@ Experiment <- R6::R6Class(
       private$.check_obj(evaluator, "Evaluator")
       private$.update_obj("evaluator", evaluator, name)
     },
+    remove_evaluator = function(name, ...) {
+      private$.remove_obj("evaluator", name)
+    },
     get_evaluators = function() {
       return(private$.get_obj_list("evaluator"))
     },
@@ -637,6 +660,9 @@ Experiment <- R6::R6Class(
     update_plotter = function(plotter, name, ...) {
       private$.check_obj(plotter, "Plotter")
       private$.update_obj("plotter", plotter, name)
+    },
+    remove_plotter = function(name, ...) {
+      private$.remove_obj("plotter", name)
     },
     get_plotters = function() {
       return(private$.get_obj_list("plotter"))
@@ -964,16 +990,59 @@ update_vary_across <- function(experiment, dgp = NULL, method = NULL,
   return(experiment)
 }
 
-#' Remove variable parameters from an \code{Experiment}.
+#' Helper functions for removing components of an \code{Experiment}.
 #'
-#' @param experiment An \code{Experiment} object.
+#' @description Helper functions for removing \code{DGPs}, \code{Methods},
+#'   \code{Evaluators}, and \code{Plotters} already added to an
+#'   \code{Experiment}.
 #'
-#' @return The original \code{experiment} object passed to \code{remove_vary_across}.
+#' @inheritParams remove_funs
+#' @param name A name to identify the object to be removed
 #'
-#' @name remove_vary_across
+#' @return The original \code{experiment} object passed to \code{remove_*}.
+#'
+#' @name remove_funs
+#' @rdname remove_funs
+#'
+NULL
+
+#' @rdname remove_funs
 #'
 #' @export
-remove_vary_across <- function(experiment) {
+remove_dgp <- function(experiment, name, ...) {
+  experiment$remove_dgp(name, ...)
+  return(experiment)
+}
+
+#' @rdname remove_funs
+#'
+#' @export
+remove_method <- function(experiment, name, ...) {
+  experiment$remove_method(name, ...)
+  return(experiment)
+}
+
+
+#' @rdname remove_funs
+#'
+#' @export
+remove_evaluator <- function(experiment, name, ...) {
+  experiment$remove_evaluator(name, ...)
+  return(experiment)
+}
+
+#' @rdname remove_funs
+#'
+#' @export
+remove_plotter <- function(experiment, name, ...) {
+  experiment$remove_plotter(name, ...)
+  return(experiment)
+}
+
+#' @rdname remove_funs
+#'
+#' @export
+remove_vary_across <- function(experiment, ...) {
   experiment$remove_vary_across()
   return(experiment)
 }

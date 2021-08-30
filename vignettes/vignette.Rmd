@@ -180,7 +180,7 @@ As with the other `create_*` functions, additional arguments that need to pass i
 
 # Assemble simulation experiment recipe
 
-At this point, we have created a `DGP` (`dgp`), `Method` (`lm_method`), `Evaluator` (`reject_prob_eval`), and `Plotter` (`power_plot`). The next step is to create the simulation experiment recipe and add each component to the recipe via
+At this point, we have created a `DGP` (`dgp`), `Method` (`lm_method`), `Evaluator` (`reject_prob_eval`), and `Plotter` (`power_plot`). The next step is to create the simulation experiment recipe and `add` each component to the recipe via
 
 ```{r}
 experiment <- create_experiment(name = "Linear Regression Experiment") %>%
@@ -204,6 +204,9 @@ print(experiment)
 #>    Plotters: Power 
 #>    Vary Across: None
 ```
+
+Once a DGP, Method, Evaluator, or Plotter has been added to the simulation experiment recipe, the component can be updated using `update_dgp()`, `update_method()`, `update_evaluator()`, or `update_plotter()` and removed using `remove_dgp()`, `remove_method()`, `remove_evaluator()`, or `remove_plotter()`.
+
 
 # Run the experiment
 
