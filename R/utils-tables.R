@@ -1,10 +1,4 @@
-# functions to print out nice tables in Rmarkdown
-
-library(tidyverse)
-library(knitr)
-library(kableExtra)
-
-#' Make custom kable tables with bolding options
+#' Make pretty kable tables with custom bolding options
 #' 
 #' @param X data frame or data matrix to display in table
 #' @param digits number of digits to display for numeric values
@@ -107,8 +101,8 @@ prettyKable <- function(X, digits = 3, sigfig = T, align = "c",
   } else {
     
     if (bold_margin == 0) {
-      bold_function <- str_replace(bold_function, "\\(.\\)", 
-                                   "\\(X[, bold_scheme]\\)")
+      bold_function <- stringr::str_replace(bold_function, "\\(.\\)", 
+                                            "\\(X[, bold_scheme]\\)")
       kable_df <- X
     } else if (bold_margin == 1) {
       kable_df <- as.data.frame(t(X))
@@ -119,31 +113,32 @@ prettyKable <- function(X, digits = 3, sigfig = T, align = "c",
     for (f in unique(bold_function)) {
       # for integers
       kable_df <- kable_df %>%
-        mutate_at(
+        dplyr::mutate_at(
           colnames(.)[bold_scheme & int_cols & (bold_function == f)],
-          list(~case_when(
+          list(~dplyr::case_when(
             is.na(.) ~ na_disp,
             eval(parse(text = f)) ~ 
-              cell_spec(., color = bold_color, bold = T, format = format),
-            TRUE ~ 
-              cell_spec(., bold = F, format = format)
+              kableExtra::cell_spec(., color = bold_color, 
+                                    bold = T, format = format),
+            TRUE ~ kableExtra::cell_spec(., bold = F, format = format)
           ))
         )
       
       # for non-integers
       kable_df <- kable_df %>%
-        mutate_at(
+        dplyr::mutate_at(
           colnames(.)[bold_scheme & !int_cols & (bold_function == f)],
-          list(~case_when(
+          list(~dplyr::case_when(
             is.na(.) ~ na_disp,
             eval(parse(text = f)) ~ 
-              cell_spec(formatC(., digits = digits, format = dig_format, 
-                                flag = "#"),
-                        color = bold_color, bold = T, format = format),
+              kableExtra::cell_spec(formatC(., digits = digits, 
+                                            format = dig_format, flag = "#"),
+                                    color = bold_color, bold = T, 
+                                    format = format),
             TRUE ~ 
-              cell_spec(formatC(., digits = digits, format = dig_format,
-                                flag = "#"),
-                        bold = F, format = format)
+              kableExtra::cell_spec(formatC(., digits = digits, 
+                                            format = dig_format, flag = "#"),
+                                    bold = F, format = format)
           ))
         )
     }
@@ -155,30 +150,35 @@ prettyKable <- function(X, digits = 3, sigfig = T, align = "c",
   
   # format numeric columns
   kable_df <- kable_df %>%
-    mutate_if(~is.numeric(.) & !is.integer(.),
-              list(~ifelse(is.na(.), na_disp,
-                           cell_spec(formatC(., digits = digits,
-                                             format = dig_format, flag = "#"),
-                                     format = format))))
+    dplyr::mutate_if(
+      ~is.numeric(.) & !is.integer(.),
+      list(~ifelse(is.na(.), na_disp,
+                   kableExtra::cell_spec(formatC(., digits = digits,
+                                                 format = dig_format, 
+                                                 flag = "#"),
+                                         format = format)))
+    )
   kable_df <- kable_df %>%
-    mutate_if(is.integer,
-              list(~ifelse(is.na(.), na_disp, cell_spec(., format = format))))
+    dplyr::mutate_if(is.integer,
+                     list(~ifelse(is.na(.), na_disp, 
+                                  kableExtra::cell_spec(., format = format))))
   rownames(kable_df) <- rownames(X)
   colnames(kable_df) <- colnames(X)
   
   # make kable
-  kable_out <- kable(kable_df, align = align, booktabs = T, format = format,
-                     linesep = "", caption = caption, escape = F, ...) %>%
-    kable_styling(latex_options = c("HOLD_position", "striped"),
-                  bootstrap_options = c("striped", "hover"),
-                  full_width = full_width,
-                  position = position,
-                  font_size = font_size,
-                  fixed_thead = fixed_thead)
+  kable_out <- knitr::kable(kable_df, align = align, booktabs = T, 
+                            format = format, linesep = "", caption = caption,
+                            escape = F, ...) %>%
+    kableExtra::kable_styling(latex_options = c("HOLD_position", "striped"),
+                              bootstrap_options = c("striped", "hover"),
+                              full_width = full_width,
+                              position = position,
+                              font_size = font_size,
+                              fixed_thead = fixed_thead)
   
   if (scroll & (format == "html")) {
     kable_out <- kable_out %>% 
-      scroll_box(width = scroll_width, height = scroll_height)
+      kableExtra::scroll_box(width = scroll_width, height = scroll_height)
   }
 
   if (return_df) {
@@ -188,7 +188,7 @@ prettyKable <- function(X, digits = 3, sigfig = T, align = "c",
   }
 }
 
-#' Make custom DT::datatable with bolding options
+#' Make pretty DT::datatable with custom bolding options
 #' 
 #' @param X data frame or data matrix to display in table
 #' @param digits number of digits to display for numeric values
@@ -287,8 +287,8 @@ prettyDT <- function(X, digits = 3, sigfig = T,
   } else {
     
     if (bold_margin == 0) {
-      bold_function <- str_replace(bold_function, "\\(.\\)", 
-                                   "\\(X[, bold_scheme]\\)")
+      bold_function <- stringr::str_replace(bold_function, "\\(.\\)", 
+                                            "\\(X[, bold_scheme]\\)")
       dt_df <- X
     } else if (bold_margin == 1) {
       dt_df <- as.data.frame(t(X))
@@ -299,32 +299,32 @@ prettyDT <- function(X, digits = 3, sigfig = T,
     for (f in unique(bold_function)) {
       # for integers
       dt_df <- dt_df %>%
-        mutate_at(
-          # mutate_cols,
+        dplyr::mutate_at(
           colnames(.)[bold_scheme & int_cols & (bold_function == f)],
-          list(~case_when(
+          list(~dplyr::case_when(
             is.na(.) ~ na_disp,
             eval(parse(text = f)) ~ 
-              cell_spec(., color = bold_color, bold = T, format = "html"),
-            TRUE ~ 
-              cell_spec(., bold = F, format = "html")
+              kableExtra::cell_spec(., color = bold_color, 
+                                    bold = T, format = "html"),
+            TRUE ~ kableExtra::cell_spec(., bold = F, format = "html")
           ))
         )
       
       # for non-integers
       dt_df <- dt_df %>%
-        mutate_at(
+        dplyr::mutate_at(
           colnames(.)[bold_scheme & !int_cols & (bold_function == f)],
-          list(~case_when(
+          list(~dplyr::case_when(
             is.na(.) ~ na_disp,
             eval(parse(text = f)) ~ 
-              cell_spec(formatC(., digits = digits, format = dig_format,
-                                flag = "#"),
-                        color = bold_color, bold = T, format = "html"),
+              kableExtra::cell_spec(formatC(., digits = digits,
+                                            format = dig_format, flag = "#"),
+                                    color = bold_color, bold = T,
+                                    format = "html"),
             TRUE ~ 
-              cell_spec(formatC(., digits = digits, format = dig_format,
-                                flag = "#"),
-                        bold = F, format = "html")
+              kableExtra::cell_spec(formatC(., digits = digits, 
+                                            format = dig_format, flag = "#"),
+                                    bold = F, format = "html")
           ))
         )
     }
@@ -336,21 +336,25 @@ prettyDT <- function(X, digits = 3, sigfig = T,
   
   # format numeric columns
   dt_df <- dt_df %>%
-    mutate_if(~is.numeric(.) & !is.integer(.),
-              list(~ifelse(is.na(.), na_disp,
-                           cell_spec(formatC(., digits = digits,
-                                             format = dig_format, flag = "#"),
-                                     format = "html"))))
+    dplyr::mutate_if(
+      ~is.numeric(.) & !is.integer(.),
+      list(~ifelse(is.na(.), na_disp,
+                   kableExtra::cell_spec(formatC(., digits = digits,
+                                                 format = dig_format, 
+                                                 flag = "#"),
+                                         format = "html")))
+    )
   dt_df <- dt_df %>%
-    mutate_if(is.integer,
-              list(~ifelse(is.na(.), na_disp, cell_spec(., format = "html"))))
+    dplyr::mutate_if(is.integer,
+                     list(~ifelse(is.na(.), na_disp, 
+                                  kableExtra::cell_spec(., format = "html"))))
   dt_df[is.na(dt_df)] <- na_disp
   rownames(dt_df) <- rownames(X)
   colnames(dt_df) <- colnames(X)
   
   # make datatable
   dt_out <- DT::datatable(dt_df, escape = escape, caption = caption,
-                          rownames = rownames, options = options,  ...)
+                          rownames = rownames, options = options, ...)
   
   if (return_df) {
     return(list(dt = dt_out, df = dt_df))
