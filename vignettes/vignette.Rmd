@@ -1,6 +1,6 @@
 ---
 title: "simChef Vignette"
-# author: "James Duncan, Corrine Elliott, Tiffany Tang"
+author: "James Duncan, Corrine F. Elliott, Tiffany M. Tang"
 # output: rmarkdown::html_vignette
 output: 
   prettydoc::html_pretty:
@@ -510,6 +510,16 @@ and the number of digits in the evaluation table outputs via
 reject_prob_eval <- create_evaluator(eval_fun = reject_prob_fun, alpha = 0.1,
                                      rmd_options = list(digits = 3))
 ```
+
+Alternatively, `set_rmd_options()` can be used to update the R Markdown option for an existing object, rather than having to create the `Evaluator` or `Plotter` from scratch, e.g.,
+```{r}
+experiment <- experiment %>%
+  set_rmd_options(field_name = "plotter", name = "Power", show = TRUE,
+                  height = 10, width = 8)
+```
+
+To hide the output of an `Evaluator` or `Plotter` in the R Markdown report, set `show = FALSE` in `set_rmd_options()` or `create_*`.
+
 
 ## Saving results
 

@@ -8,6 +8,7 @@ Evaluator <- R6::R6Class(
     eval_params = NULL,
     rmd_options = list(digits = 2, sigfig = FALSE,
                        options = list(scrollX = TRUE, scrollCollapse = TRUE)),
+    show = TRUE,
     initialize = function(eval_fun, rmd_options = list(), ...) {
       self$eval_fun <- eval_fun
       self$eval_params <- list(...)
