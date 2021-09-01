@@ -1,15 +1,56 @@
 reference:
   - title: "Experiment"
+    desc: >
+      Functions for creating and running a simulation experiment.
     contents:
       - Experiment
       - create_experiment
       - run_experiment
+      - generate_data
+      - fit_experiment
+      - evaluate_experiment
+      - plot_experiment
       - add_dgp
       - update_dgp
+      - remove_dgp
       - remove_vary_across
       - set_save_dir
+      - save_experiment
+  - title: "R Markdown Report"
+    desc: >
+      Functions for summarizing and visualizing results from a simulation
+      experiment in a knitted R Markdown report.
+    contents:
+      - set_rmd_options
+      - create_doc_template
       - create_rmd
   - title: "DGP"
+    desc: >
+      Functions for creating a DGP (data-generating process).
+    contents:
+      - DGP
+      - create_dgp
   - title: "Method"
+    desc: >
+      Functions for creating a Method.
+    contents:
+      - Method
+      - create_method
   - title: "Evaluator"
+    desc: >
+      Functions for creating an Evaluator.
+    contents:
+      - Evaluator
+      - create_evaluator
   - title: "Plotter"
+    desc: >
+      Functions for creating a Plotter.
+    contents:
+      - Plotter
+      - create_plotter
+  - title: "Miscellaneous"
+    desc: >
+      Miscellaneous functions.
+    contents:
+      - prettyDT
+      - prettyKable

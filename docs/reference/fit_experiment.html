@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Fit an Experiment — fit_experiment • pcs.sim.pkg</title>
+<title>Fit an Experiment. — fit_experiment • pcs.sim.pkg</title>
 
 
 <!-- jquery -->
@@ -39,8 +39,9 @@
 
 
 
-<meta property="og:title" content="Fit an Experiment — fit_experiment" />
-<meta property="og:description" content="Fit an Experiment" />
+<meta property="og:title" content="Fit an Experiment. — fit_experiment" />
+<meta property="og:description" content="Fit Methods in the Experiment across all
+DGPs for n_reps repetitions and return results from fits." />
 
 
 
@@ -80,7 +81,7 @@
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -95,10 +96,7 @@
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="../articles/basics.html">Basics</a>
-    </li>
-    <li>
-      <a href="../articles/pcs.html">PCS Simulations</a>
+      <a href="../articles/vignette.html">simChef Vignette</a>
     </li>
   </ul>
 </li>
@@ -118,13 +116,14 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Fit an <code>Experiment</code></h1>
+    <h1>Fit an <code>Experiment</code>.</h1>
     
     <div class="hidden name"><code>fit_experiment.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Fit an <code>Experiment</code></p>
+    <p>Fit <code>Methods</code> in the <code>Experiment</code> across all
+<code>DGPs</code> for <code>n_reps</code> repetitions and return results from fits.</p>
     </div>
 
     <pre class="usage"><span class='fu'>fit_experiment</span><span class='op'>(</span><span class='va'>experiment</span>, n_reps <span class='op'>=</span> <span class='fl'>1</span>, <span class='va'>...</span><span class='op'>)</span></pre>
@@ -142,13 +141,16 @@
     </tr>
     <tr>
       <th>...</th>
-      <td><p>Passed to <code>experiment$fit()</code>.</p></td>
+      <td><p>Passed to <code>Experiment$fit()</code>.</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A list of the simulation experiment's evaluation results.</p>
+    <p>A tibble containing the results from fitting all <code>Methods</code>
+across all <code>DGPs</code> for <code>n_reps</code> repetitions. In addition to
+results columns, has columns named 'rep', 'dgp', 'method', and the
+<code>vary_across</code> parameter name if applicable.</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

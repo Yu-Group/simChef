@@ -2,18 +2,19 @@
 % Please edit documentation in R/experiment.R
 \name{plot_experiment}
 \alias{plot_experiment}
-\title{Plot an \code{Experiment}'s method or evaluation results.}
+\title{Plot results of an \code{Experiment}.}
 \usage{
 plot_experiment(experiment, ...)
 }
 \arguments{
 \item{experiment}{An \code{Experiment} object.}
 
-\item{...}{Passed to \code{experiment$plot()}.}
+\item{...}{Passed to \code{Experiment$plot()}.}
 }
 \value{
-A list of the simulation experiment's plots.
+A list of plots, one for each \code{Plotter}.
 }
 \description{
-Plot an \code{Experiment}'s method or evaluation results.
+Plot the performance of methods and/or its evaluation metrics
+using all \code{Plotters} in the \code{Experiment} and return plot results.
 }

@@ -4,19 +4,26 @@
 \alias{create_rmd}
 \title{Create an R Markdown file summarizing the results of an \code{Experiment}.}
 \usage{
-create_rmd(experiment, experiment_dirname, open = TRUE)
+create_rmd(experiment, experiment_dirname, open = TRUE, verbose = 2)
 }
 \arguments{
 \item{experiment}{An \code{Experiment} object.}
 
 \item{experiment_dirname}{A directory where results from an \code{Experiment}
-were previously saved. Used if \code{experiment} was not provided.}
+were previously saved. Used if \code{experiment} argument was not provided.}
 
-\item{open}{If \code{TRUE}, open the R Markdown file in a web browser.}
+\item{open}{If \code{TRUE}, open the R Markdown-generated html file in a
+web browser.}
+
+\item{verbose}{Level of verboseness (0, 1, 2) when knitting R Markdown.
+Default is 2.}
 }
 \value{
-The original \code{experiment} object passed to \code{create_rmd}.
+The original \code{Experiment} object passed to \code{create_rmd}.
 }
 \description{
-Create an R Markdown file summarizing the results of an \code{Experiment}.
+Knits an R Markdown file summarizing the results of an
+\code{Experiment}. Outputs an R Markdown-generated html file, saved in
+the \code{Experiment}'s root results directory (see
+\code{Experiment$get_save_dir()}).
 }

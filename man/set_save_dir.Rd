@@ -2,20 +2,21 @@
 % Please edit documentation in R/experiment.R
 \name{set_save_dir}
 \alias{set_save_dir}
-\title{Set base directory to use for saving results and plots from an
-\code{Experiment}.}
+\title{Set results directory for an \code{Experiment}.}
 \usage{
 set_save_dir(experiment, save_dir)
 }
 \arguments{
 \item{experiment}{An \code{Experiment} object.}
 
-\item{save_dir}{A directory to use for saving \verb{experiment's} results.}
+\item{save_dir}{The directory in which the \code{Experiment}'s results
+will be saved.}
 }
 \value{
-The original \code{experiment} object passed to \code{set_save_dir}.
+The original \code{Experiment} object with the updated saving
+directory.
 }
 \description{
-Set base directory to use for saving results and plots from an
-\code{Experiment}.
+Set the directory in which the \code{Experiment}'s results and
+plots are saved.
 }
