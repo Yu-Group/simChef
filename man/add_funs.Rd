@@ -5,8 +5,7 @@
 \alias{add_dgp}
 \alias{add_method}
 \alias{add_evaluator}
-\alias{add_plot}
-\alias{add_vary_across}
+\alias{add_plotter}
 \title{Helper functions for adding components to an \code{Experiment}.}
 \usage{
 add_dgp(experiment, dgp, name = NULL, ...)
@@ -15,15 +14,7 @@ add_method(experiment, method, name = NULL, ...)
 
 add_evaluator(experiment, evaluator, name = NULL, ...)
 
-add_plot(experiment, plotter, name = NULL, ...)
-
-add_vary_across(
-  experiment,
-  dgp = NULL,
-  method = NULL,
-  param_name,
-  param_values
-)
+add_plotter(experiment, plotter, name = NULL, ...)
 }
 \arguments{
 \item{experiment}{An \code{Experiment} object.}
@@ -32,22 +23,16 @@ add_vary_across(
 
 \item{name}{A name to identify the object to be added.}
 
-\item{...}{Not currently used.}
+\item{...}{Not used.}
 
 \item{method}{A \code{Method} object.}
 
-\item{evaluator}{A \code{Evaluator} object.}
+\item{evaluator}{An \code{Evaluator} object.}
 
 \item{plotter}{A \code{Plotter} object.}
-
-\item{dgp_name}{The name of a \code{DGP} object in \code{experiment} with which to
-associate \code{evaluator}.}
-
-\item{method_name}{The name of a \code{Method} object in \code{experiment} with
-which to associate \code{evaluator}.}
 }
 \value{
-The original \code{experiment} object passed to \code{add_*}.
+The original \code{Experiment} object passed to \code{add_*}.
 }
 \description{
 Helper functions for adding \code{DGPs}, \code{Methods},

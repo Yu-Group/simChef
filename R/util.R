@@ -1,4 +1,26 @@
+#' Check equality of \code{Experiment} components.
+#' 
+#' @description Check if any two \code{DGPs}, \code{Methods}, \code{Evaluators},
+#'   or \code{Plotters} are the same with respect to the function and inputted
+#'   arguments.
+#' 
+#' @param obj1 An object of class \code{DGP}, \code{Method}, \code{Evaluator},
+#'   or \code{Plotter}
+#' @param obj2 An object of class \code{DGP}, \code{Method}, \code{Evaluator},
+#'   or \code{Plotter}
+#'
+#' @return Logical. Returns \code{TRUE} if both objects have the same function
+#'   and arguments and \code{FALSE} otherwise.
+#' @keywords internal
 check_equal <- function(obj1, obj2) {
+  
+  if (!inherits(obj1, c("DGP", "Method", "Evaluator", "Plotter"))) {
+    stop("obj1 must be a 'DGP', 'Method', 'Evaluator', or 'Plotter' object.")
+  }
+  if (!inherits(obj2, c("DGP", "Method", "Evaluator", "Plotter"))) {
+    stop("obj2 must be a 'DGP', 'Method', 'Evaluator', or 'Plotter' object.")
+  }
+  
   if (!identical(class(obj1), class(obj2))) {
     return(FALSE)
   } else {
@@ -14,6 +36,16 @@ check_equal <- function(obj1, obj2) {
   return(TRUE)
 }
 
+#' Coerce list into a tibble row.
+#' 
+#' @description Coerce a list into a single row in a tibble. Default is to
+#'   coerce using [tibble::as_tibble_row()], but if this fails, then coerce list
+#'   into a tibble row, where each column in the tibble is of type list.
+#' 
+#' @param ls List to convert into a tibble row.
+#' 
+#' @return A tibble with one row.
+#' @keywords internal
 list_to_tibble_row <- function(ls) {
   tib <- tryCatch({
     tibble::as_tibble_row(ls)
@@ -25,6 +57,16 @@ list_to_tibble_row <- function(ls) {
   return(tib)
 }
 
+#' Coerce list into a tibble.
+#' 
+#' @description Coerce a list into a tibble. Default is to coerce using 
+#'   [tibble::as_tibble()], but if this fails, then coerce list into a tibble, 
+#'   where each non-scalar column in the tibble is of type list.
+#' 
+#' @param ls List to convert into a tibble.
+#' 
+#' @return A tibble.
+#' @keywords internal
 list_to_tibble <- function(ls) {
   tib <- tryCatch({
     tibble::as_tibble(ls)
@@ -42,6 +84,15 @@ list_to_tibble <- function(ls) {
   return(tib)
 }
 
+#' Simplify tibble.
+#' 
+#' @description Simplify or unlist list columns in tibble if each element in
+#'   the list is a scalar value.
+#' 
+#' @param tib Tibble to simplify.
+#' 
+#' @return A tibble that has been "simplified".
+#' @keywords internal
 simplify_tibble <- function(tib) {
   simplify_cols <- purrr::map_lgl(tib, 
                                   ~length(unlist(.x, recursive = F)) == 1) %>%

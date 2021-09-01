@@ -6,8 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Set base directory to use for saving results and plots from an
-Experiment. — set_save_dir • pcs.sim.pkg</title>
+<title>Set results directory for an Experiment. — set_save_dir • pcs.sim.pkg</title>
 
 
 <!-- jquery -->
@@ -40,10 +39,9 @@ Experiment. — set_save_dir • pcs.sim.pkg</title>
 
 
 
-<meta property="og:title" content="Set base directory to use for saving results and plots from an
-Experiment. — set_save_dir" />
-<meta property="og:description" content="Set base directory to use for saving results and plots from an
-Experiment." />
+<meta property="og:title" content="Set results directory for an Experiment. — set_save_dir" />
+<meta property="og:description" content="Set the directory in which the Experiment's results and
+plots are saved." />
 
 
 
@@ -83,7 +81,7 @@ Experiment." />
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -98,10 +96,7 @@ Experiment." />
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="../articles/basics.html">Basics</a>
-    </li>
-    <li>
-      <a href="../articles/pcs.html">PCS Simulations</a>
+      <a href="../articles/vignette.html">simChef Vignette</a>
     </li>
   </ul>
 </li>
@@ -121,15 +116,14 @@ Experiment." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Set base directory to use for saving results and plots from an
-<code>Experiment</code>.</h1>
+    <h1>Set results directory for an <code>Experiment</code>.</h1>
     
     <div class="hidden name"><code>set_save_dir.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Set base directory to use for saving results and plots from an
-<code>Experiment</code>.</p>
+    <p>Set the directory in which the <code>Experiment</code>'s results and
+plots are saved.</p>
     </div>
 
     <pre class="usage"><span class='fu'>set_save_dir</span><span class='op'>(</span><span class='va'>experiment</span>, <span class='va'>save_dir</span><span class='op'>)</span></pre>
@@ -143,13 +137,15 @@ Experiment." />
     </tr>
     <tr>
       <th>save_dir</th>
-      <td><p>A directory to use for saving <code>experiment's</code> results.</p></td>
+      <td><p>The directory in which the <code>Experiment</code>'s results
+will be saved.</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>The original <code>experiment</code> object passed to <code>set_save_dir</code>.</p>
+    <p>The original <code>Experiment</code> object with the updated saving
+directory.</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

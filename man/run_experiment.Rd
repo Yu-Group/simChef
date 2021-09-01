@@ -2,7 +2,7 @@
 % Please edit documentation in R/experiment.R
 \name{run_experiment}
 \alias{run_experiment}
-\title{Run the full \code{Experiment} pipeline.}
+\title{Run the full \code{Experiment} pipeline (fitting, evaluating, and plotting).}
 \usage{
 run_experiment(experiment, n_reps = 1, ...)
 }
@@ -11,11 +11,24 @@ run_experiment(experiment, n_reps = 1, ...)
 
 \item{n_reps}{The number of replicates of the \code{Experiment} for this run.}
 
-\item{...}{Passed to \code{experiment$run()}.}
+\item{...}{Passed to \code{Experiment$run()}.}
 }
 \value{
-A list of the simulation experiment's method results.
+A list of results from the simulation experiment.
+\describe{
+\item{fit_results}{A tibble containing results from the \code{fit}
+method. In addition to results columns, has columns named 'rep', 'dgp',
+'method', and the \code{vary_across} parameter name if applicable.}
+\item{eval_results}{A list of tibbles containing results from the
+\code{evaluate} method, which evaluates each \code{Evaluator} in
+the \code{Experiment}. Length of list is equivalent to the number of
+\code{Evaluators}.}
+\item{plot_results}{A list of tibbles containing results from the
+\code{plot} method, which plots each \code{Plotter} in
+the \code{Experiment}. Length of list is equivalent to the number of
+\code{Plotters}.}
+}
 }
 \description{
-Run the full \code{Experiment} pipeline.
+Run the full \code{Experiment} pipeline (fitting, evaluating, and plotting).
 }

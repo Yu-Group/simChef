@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Evaluate an Experiment — evaluate_experiment • pcs.sim.pkg</title>
+<title>Evaluate an Experiment. — evaluate_experiment • pcs.sim.pkg</title>
 
 
 <!-- jquery -->
@@ -39,8 +39,9 @@
 
 
 
-<meta property="og:title" content="Evaluate an Experiment — evaluate_experiment" />
-<meta property="og:description" content="Evaluate an Experiment" />
+<meta property="og:title" content="Evaluate an Experiment. — evaluate_experiment" />
+<meta property="og:description" content="Evaluate the performance of method(s) across all
+Evaluators in the Experiment and return results." />
 
 
 
@@ -80,7 +81,7 @@
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -95,10 +96,7 @@
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="../articles/basics.html">Basics</a>
-    </li>
-    <li>
-      <a href="../articles/pcs.html">PCS Simulations</a>
+      <a href="../articles/vignette.html">simChef Vignette</a>
     </li>
   </ul>
 </li>
@@ -118,13 +116,14 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Evaluate an <code>Experiment</code></h1>
+    <h1>Evaluate an <code>Experiment</code>.</h1>
     
     <div class="hidden name"><code>evaluate_experiment.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Evaluate an <code>Experiment</code></p>
+    <p>Evaluate the performance of method(s) across all
+<code>Evaluators</code> in the <code>Experiment</code> and return results.</p>
     </div>
 
     <pre class="usage"><span class='fu'>evaluate_experiment</span><span class='op'>(</span><span class='va'>experiment</span>, <span class='va'>...</span><span class='op'>)</span></pre>
@@ -138,13 +137,14 @@
     </tr>
     <tr>
       <th>...</th>
-      <td><p>Passed to <code>experiment$evaluate()</code>.</p></td>
+      <td><p>Passed to <code>Experiment$evaluate()</code>.</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A list of the simulation experiment's evaluation results.</p>
+    <p>A list of evaluation result tibbles, one for each
+<code>Evaluator</code>.</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

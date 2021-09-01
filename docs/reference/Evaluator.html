@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>An evaluator of an Experiment's results. — Evaluator • pcs.sim.pkg</title>
+<title>R6 class representing an evaluator. — Evaluator • pcs.sim.pkg</title>
 
 
 <!-- jquery -->
@@ -39,9 +39,9 @@
 
 
 
-<meta property="og:title" content="An evaluator of an Experiment's results. — Evaluator" />
-<meta property="og:description" content="An evaluator of an Experiment's results.
-An evaluator of an Experiment's results." />
+<meta property="og:title" content="R6 class representing an evaluator. — Evaluator" />
+<meta property="og:description" content="An evaluator (or evaluation function) to evaluate the
+performance of methods in the Experiment." />
 
 
 
@@ -81,7 +81,7 @@ An evaluator of an Experiment's results." />
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -96,10 +96,7 @@ An evaluator of an Experiment's results." />
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="../articles/basics.html">Basics</a>
-    </li>
-    <li>
-      <a href="../articles/pcs.html">PCS Simulations</a>
+      <a href="../articles/vignette.html">simChef Vignette</a>
     </li>
   </ul>
 </li>
@@ -119,18 +116,35 @@ An evaluator of an Experiment's results." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>An evaluator of an Experiment's results.</h1>
+    <h1><code>R6</code> class representing an evaluator.</h1>
     
     <div class="hidden name"><code>Evaluator.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>An evaluator of an Experiment's results.</p>
-<p>An evaluator of an Experiment's results.</p>
+    <p>An evaluator (or evaluation function) to <strong>evaluate</strong> the
+performance of methods in the <code>Experiment</code>.</p>
     </div>
 
 
 
+    <h2 class="hasAnchor" id="public-fields"><a class="anchor" href="#public-fields"></a>Public fields</h2>
+
+    <p><div class="r6-fields"></p><dl>
+<dt><code>eval_fun</code></dt><dd><p>The evaluation function.</p></dd>
+
+<dt><code>eval_params</code></dt><dd><p>(Named) list of parameters to input into the
+evaluation function.</p></dd>
+
+<dt><code>rmd_options</code></dt><dd><p>List of options to control the aesthetics of the
+displayed <code>Evaluator</code>'s results table in the knitted R Markdown
+report. See <code><a href='prettyDT.html'>prettyDT()</a></code> for possible options.</p></dd>
+
+<dt><code>show</code></dt><dd><p>If <code>TRUE</code> (default), show <code>Evaluator</code>'s results as
+a table in the R Markdown report; if <code>FALSE</code>, hide output in the
+R Markdown report.</p></dd>
+
+</dl><p></div></p>
     <h2 class="hasAnchor" id="methods"><a class="anchor" href="#methods"></a>Methods</h2>
 
     
@@ -143,16 +157,59 @@ An evaluator of an Experiment's results." />
 </ul>
 <p><hr>
 <a id="method-new"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>new()</code></h3>
-
-<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p>Create a new <code>Evaluator</code>.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
 <p><div class="r"></p><pre><span class='va'>Evaluator</span><span class='op'>$</span><span class='fu'>new</span><span class='op'>(</span><span class='va'>eval_fun</span>, rmd_options <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span><span class='op'>)</span>, <span class='va'>...</span><span class='op'>)</span></pre><p></div></p>
 
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
+<p><div class="arguments"></p><dl>
+<dt><code>eval_fun</code></dt><dd><p>The evaluation function.</p></dd>
+
+<dt><code>rmd_options</code></dt><dd><p>List of options to control the aesthetics of the
+displayed <code>Evaluator</code>'s results table in the knitted R Markdown
+report. See <code><a href='prettyDT.html'>prettyDT()</a></code> for possible options.</p></dd>
+
+<dt><code>...</code></dt><dd><p>Arguments to pass into <code>eval_fun()</code>.</p></dd>
+
+</dl><p></div></p>
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Details</h4>
+<p>When evaluating or running the <code>Experiment</code> (see
+<code>Experiment$evaluate() or <code>Experiment$run()</code></code>), the named
+arguments <code>fit_results</code> and <code>vary_param</code> are automatically
+passed into the <code>Evaluator</code> function <code>eval_fun()</code> and serve
+as placeholders for the <code>Experiment$fit()</code> results (i.e., the
+results from the method fits) and the name of the varying parameter,
+respectively. To evaluate the performance of a method(s) fit then,
+the <code>Evaluator</code> function <code>eval_fun()</code> should almost always
+take in the named argument <code>fit_results</code>. See
+<code>Experiment$fit()</code> or <code><a href='fit_experiment.html'>fit_experiment()</a></code> for details on the
+format of <code>fit_results</code>. If the <code>Evaluator</code>
+is used for <code>Experiments</code> with varying parameters,
+<code>vary_param</code> should be used as a stand in for the name of this
+varying parameter.</p>
+
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Returns</h4>
+<p>A new <code>Evaluator</code> object.</p>
 <p><hr>
 <a id="method-evaluate"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>evaluate()</code></h3>
-
-<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p>Evaluate the performance of method(s) in the
+<code>Experiment</code> using the <code>Evaluator</code> and its given parameters.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
 <p><div class="r"></p><pre><span class='va'>Evaluator</span><span class='op'>$</span><span class='fu'>evaluate</span><span class='op'>(</span><span class='va'>fit_results</span>, vary_param <span class='op'>=</span> <span class='cn'>NULL</span>, <span class='va'>...</span><span class='op'>)</span></pre><p></div></p>
 
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
+<p><div class="arguments"></p><dl>
+<dt><code>fit_results</code></dt><dd><p>A tibble, typically returned by the
+<code>Experiment$fit()</code> method.</p></dd>
+
+<dt><code>vary_param</code></dt><dd><p>Name of parameter/argument that was varied in the
+<code>Experiment</code>, i.e., <code>Experiment$get_vary_across()$param_name</code>.
+Use <code>NULL</code> (default) if no <code>vary_across</code> component in
+<code>Experiment</code> run.</p></dd>
+
+<dt><code>...</code></dt><dd><p>Not used.</p></dd>
+
+</dl><p></div></p>
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Returns</h4>
+<p>Result of <code>eval_fun()</code>, coerced into a tibble.</p>
 <p><hr>
 <a id="method-clone"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>clone()</code></h3>
 <p>The objects of this class are cloneable with this method.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>

@@ -1,16 +1,25 @@
-#' Splits up R chunks to enable plotting multiple plots of different
-#' sizes and captions within a single written R code chunk in Rmarkdown
+#' Subchunkify R chunks in R Markdown.
+#' 
+#' @description Helper function that splits up a single written R chunk (in R
+#'   Markdown) into multiple subchunks. This can be used to enable plotting
+#'   multiple plots of different sizes and captions from within a single written 
+#'   R code chunk in R Markdown.
 #'
-#' @param g plot
-#' @param i chunk id (should be unique for each plot)
-#' @param fig_height height of figure
-#' @param fig_width width of figure
-#' @param caption figure caption; should be surrounded by two sets of quotes, 
-#' e.g., "'This is a valid caption.'"
-#' @param add_class vector of css classes to add to object
-#' @param other_args other arguments to pass to R code chunk header; should be
-#' surrounded by two sets of quotes, e.g., "results='asis'"
-#'
+#' @param g Plot or object to display in R Markdown output.
+#' @param i Chunk id. Should be unique for each plot or subchunk.
+#' @param fig_height Height of plot or output of subchunk (in inches). See 
+#'   \code{fig.height} in the knitr chunk options.
+#' @param fig_width Width of plot or output of subchunk (in inches). See 
+#'   \code{fig.width} in the knitr chunk options.
+#' @param caption Figure or subchunk caption. Should be surrounded by two sets 
+#'   of quotes, e.g., "'This is a valid caption.'" See \code{fig.cap} in the
+#'   knitr chunk options.
+#' @param add_class Vector of css classes to add to object.
+#' @param other_args Other arguments to pass to knitr chunk header. Should be
+#'   surrounded by two sets of quotes, e.g., "results='asis'".
+#' 
+#' @references Adapted from \href{http://michaeljw.com/blog/post/subchunkify/}{Michael James Williams}.
+#' @keywords internal
 subchunkify <- function(g, i, fig_height = 12, fig_width = 10, caption = "''",
                         add_class = NULL, other_args = "") {
   
@@ -39,11 +48,14 @@ subchunkify <- function(g, i, fig_height = 12, fig_width = 10, caption = "''",
   }
 }
 
-#' Reads in markdown file to Rmd 
-#' (credit: https://stackoverflow.com/questions/56328581/how-to-read-markdown-code-from-a-file-from-an-r-markdown-document)
+#' Read Markdown file into R Markdown.
+#' 
+#' @description Read contents of Markdown file into R Markdown.
 #'
-#' @param filename path to markdown file to read into Rmd
+#' @param filename filepath of markdown file to read into R Markdown
 #'
+#' @references Adapted from \url{https://stackoverflow.com/questions/56328581/how-to-read-markdown-code-from-a-file-from-an-r-markdown-document}.
+#' @keywords internal
 pasteMd <- function(filename){
 
   breakFun <- function(x){

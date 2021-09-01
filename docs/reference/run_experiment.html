@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Run the full Experiment pipeline. — run_experiment • pcs.sim.pkg</title>
+<title>Run the full Experiment pipeline (fitting, evaluating, and plotting). — run_experiment • pcs.sim.pkg</title>
 
 
 <!-- jquery -->
@@ -39,8 +39,8 @@
 
 
 
-<meta property="og:title" content="Run the full Experiment pipeline. — run_experiment" />
-<meta property="og:description" content="Run the full Experiment pipeline." />
+<meta property="og:title" content="Run the full Experiment pipeline (fitting, evaluating, and plotting). — run_experiment" />
+<meta property="og:description" content="Run the full Experiment pipeline (fitting, evaluating, and plotting)." />
 
 
 
@@ -80,7 +80,7 @@
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -95,10 +95,7 @@
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="../articles/basics.html">Basics</a>
-    </li>
-    <li>
-      <a href="../articles/pcs.html">PCS Simulations</a>
+      <a href="../articles/vignette.html">simChef Vignette</a>
     </li>
   </ul>
 </li>
@@ -118,13 +115,13 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Run the full <code>Experiment</code> pipeline.</h1>
+    <h1>Run the full <code>Experiment</code> pipeline (fitting, evaluating, and plotting).</h1>
     
     <div class="hidden name"><code>run_experiment.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Run the full <code>Experiment</code> pipeline.</p>
+    <p>Run the full <code>Experiment</code> pipeline (fitting, evaluating, and plotting).</p>
     </div>
 
     <pre class="usage"><span class='fu'>run_experiment</span><span class='op'>(</span><span class='va'>experiment</span>, n_reps <span class='op'>=</span> <span class='fl'>1</span>, <span class='va'>...</span><span class='op'>)</span></pre>
@@ -142,13 +139,27 @@
     </tr>
     <tr>
       <th>...</th>
-      <td><p>Passed to <code>experiment$run()</code>.</p></td>
+      <td><p>Passed to <code>Experiment$run()</code>.</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A list of the simulation experiment's method results.</p>
+    <p>A list of results from the simulation experiment.</p><dl>
+<dt>fit_results</dt><dd><p>A tibble containing results from the <code>fit</code>
+method. In addition to results columns, has columns named 'rep', 'dgp',
+'method', and the <code>vary_across</code> parameter name if applicable.</p></dd>
+<dt>eval_results</dt><dd><p>A list of tibbles containing results from the
+<code>evaluate</code> method, which evaluates each <code>Evaluator</code> in
+the <code>Experiment</code>. Length of list is equivalent to the number of
+<code>Evaluators</code>.</p></dd>
+<dt>plot_results</dt><dd><p>A list of tibbles containing results from the
+<code>plot</code> method, which plots each <code>Plotter</code> in
+the <code>Experiment</code>. Length of list is equivalent to the number of
+<code>Plotters</code>.</p></dd>
+
+</dl>
+
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

@@ -2,7 +2,7 @@
 % Please edit documentation in R/experiment.R
 \name{fit_experiment}
 \alias{fit_experiment}
-\title{Fit an \code{Experiment}}
+\title{Fit an \code{Experiment}.}
 \usage{
 fit_experiment(experiment, n_reps = 1, ...)
 }
@@ -11,11 +11,15 @@ fit_experiment(experiment, n_reps = 1, ...)
 
 \item{n_reps}{The number of replicates of the \code{Experiment} for this run.}
 
-\item{...}{Passed to \code{experiment$fit()}.}
+\item{...}{Passed to \code{Experiment$fit()}.}
 }
 \value{
-A list of the simulation experiment's evaluation results.
+A tibble containing the results from fitting all \code{Methods}
+across all \code{DGPs} for \code{n_reps} repetitions. In addition to
+results columns, has columns named 'rep', 'dgp', 'method', and the
+\code{vary_across} parameter name if applicable.
 }
 \description{
-Fit an \code{Experiment}
+Fit \code{Methods} in the \code{Experiment} across all
+\code{DGPs} for \code{n_reps} repetitions and return results from fits.
 }

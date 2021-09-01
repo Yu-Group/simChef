@@ -1,32 +1,55 @@
-#' Make pretty kable tables with custom bolding options
+#' Create pretty kable tables with custom bolding options.
 #' 
-#' @param X data frame or data matrix to display in table
-#' @param digits number of digits to display for numeric values
-#' @param sigfig logical; whether or not to count digits via significant 
-#'   figures
-#' @param align string indicating alignment of columns in table, e.g., 'c'
-#' @param caption string; caption of table
-#' @param format string; one of "html" or "latex" indicating output format
-#' @param na_disp what to display if NA entry is found in X
-#' @param bold_function optional function string or vector of function strings 
-#'   to use for bolding entries, e.g. ". == max(.)" or ". >= 0.5"
-#' @param bold_margin used to evaluate bold_function across margins of X 
-#'   (0 = over entire matrix, 1 = over rows, 2 = over columns)
-#' @param bold_scheme scalar or vector of logicals, indicating whether or not
-#'   to apply bold_function to row/column if bold_margin 0, 1, 2
-#' @param bold_color color of bolded text
-#' @param full_width logical; whether or not table should have full width
-#' @param position character string determining how to position table on page; 
-#'   possible values inclue left, right, center, float_left, float_right
-#' @param font_size numeric input for table font size
-#' @param fixed_head logical; whether or not table header should be fixed
-#' @param scroll logical; whether to add scroll box (only for html format)
-#' @param scroll_width string indicating width of box, e.g. "50px", "100%"
-#' @param scroll_height string indicating height of box, e.g. "100px"
-#' @param return_df logical; whether or not to return data frame
-#' @param ... additional arguments to pass to kable()
-#' @return A kable object if return_df is FALSE; otherwise, a list of two: a
-#'   kable object and a data frame
+#' @description Make pretty kable tables and enable easy bolding of cells in 
+#'   kable (across rows, columns, or the entire table).
+#' 
+#' @param X Data frame or data matrix to display in table
+#' @param digits Number of digits to display for numeric values
+#' @param sigfig Logical. If \code{TRUE}, \code{digits} refers to the number of
+#'   significant figures. If \code{FALSE}, \code{digits} refers to the number of
+#'   decimal places.
+#' @param align A character vector indicating the column alignment, e.g., 'c'. 
+#'   For further details, see [knitr::kable()].
+#' @param caption The table caption.
+#' @param format One of "html" or "latex", indicating the output format.
+#' @param na_disp Character string to display if NA entry is found in table.
+#' @param bold_function Optional function string or vector of function strings 
+#'   to use for bolding entries, e.g. ". == max(.)" or ". >= 0.5".
+#' @param bold_margin Specifies the margins of X that will be used to evaluate
+#'   \code{bold_function} across, i.e., 0 = across entire matrix, 1 = across 
+#'   rows, and 2 = across columns. Required if \code{bold_function = TRUE}.
+#' @param bold_scheme Scalar or vector of logicals, indicating whether or not
+#'   to apply \code{bold_function} to row if \code{bold_margin} = 1 and to
+#'   column if \code{bold_margin} = 1, 2. Default is to apply bolding to all 
+#'   rows/columns.
+#' @param bold_color Color of bolded text.
+#' @param full_width Logical. Whether or not table should have full width. See
+#'   [kableExtra::kable_styling()] for details.
+#' @param position Character string determining how to position table on page; 
+#'   possible values inclue "left", "right", "center", "float_left", 
+#'   "float_right". See [kableExtra::kable_styling()] for details.
+#' @param font_size A numeric input for table font size. See 
+#'   [kableExtra::kable_styling()] for details.
+#' @param fixed_thead Logical. Whether or not table header should be fixed at
+#'   top. See [kableExtra::kable_styling()] for details.
+#' @param scroll Logical. If \code{TRUE}, add scroll box. Only used if 
+#'   \code{format = "html"}.
+#' @param scroll_width A character string indicating width of the scroll box, 
+#'   e.g., "50px", "100%". See [kableExtra::scroll_box()] for details.
+#' @param scroll_height A character string indicating height of the scroll box,
+#'   e.g. "100px". See [kableExtra::scroll_box()] for details.
+#' @param return_df Logical. If \code{TRUE}, return data frame that was used
+#'   as input into \code{knitr::kable()} in addition to the kable output. 
+#'   If \code{FALSE}, only return the kable output.
+#' @param ... Additional arguments to pass to [knitr::kable()].
+#' 
+#' @return If \code{return_df = FALSE}, returns a kable object. Otherwise,
+#'   returns a list of two:
+#' \describe{
+#' \item{kable}{A kable object.}
+#' \item{df}{A data frame that was used as input into \code{knitr::kable()}.}
+#' }
+#' 
 #' @examples
 #' ## Show iris data table
 #' prettyKable(iris, align = "c", caption = "Iris Data Table")
@@ -37,14 +60,14 @@
 #'             bold_scheme = c(T, T, T, T, F), bold_color = "red")
 #'             
 #' ## Bold min value of each row in Iris data
-#' prettyKable(iris %>% select(-Species), sigfig = T, 
+#' prettyKable(iris %>% dplyr::select(-Species), sigfig = T, 
 #'             caption = "Iris Data Table", format = "latex", 
 #'             scroll = T, na_disp = "NA",
 #'             bold_function = ". == min(.)", bold_margin = 1,
 #'             bold_scheme = T, bold_color = "black")
 #' @export
-prettyKable <- function(X, digits = 3, sigfig = T, align = "c", 
-                        caption = "", format = "html", na_disp = "NA",
+prettyKable <- function(X, digits = 3, sigfig = T, align = "c", caption = "",
+                        format = c("html", "latex"), na_disp = "NA",
                         bold_function = NULL, bold_margin = NULL, 
                         bold_scheme = T, bold_color = NULL,
                         full_width = NULL, position = "center",
@@ -56,6 +79,7 @@ prettyKable <- function(X, digits = 3, sigfig = T, align = "c",
   } else {
     dig_format <- "f"
   }
+  format <- match.arg(format)
   
   options(knitr.kable.NA = na_disp)
   
@@ -188,27 +212,42 @@ prettyKable <- function(X, digits = 3, sigfig = T, align = "c",
   }
 }
 
-#' Make pretty DT::datatable with custom bolding options
+#' Create pretty datatable with custom bolding options.
 #' 
-#' @param X data frame or data matrix to display in table
-#' @param digits number of digits to display for numeric values
-#' @param sigfig logical; whether or not to count digits via significant figures
-#' @param escape logical; whether or not to escape HTML entities in table
-#' @param rownames logical; whether or not to show rownames
-#' @param caption string; caption of table
-#' @param na_disp what to display if NA entry is found in X
-#' @param bold_function optional function string or vector of function strings 
-#'   to use for bolding entries, e.g. ". == max(.)" or ". >= 0.5"
-#' @param bold_margin used to evaluate bold_function across margins of X 
-#'   (0 = over entire matrix, 1 = over rows, 2 = over columns)
-#' @param bold_scheme scalar or vector of logicals, indicating whether or not to
-#'   apply bold_function to row/column if bold_margin 0, 1, 2
-#' @param bold_color color of bolded text
-#' @param return_df logical; whether or not to return data frame
-#' @param options options argument in DT::datatable
-#' @param ... additional arguments to pass to DT::datatable()
-#' @return A DT::datatable if return_df is FALSE; otherwise, a list of two: a 
-#'   DT::datatable object and a data frame 
+#' @param X Data frame or data matrix to display in table
+#' @param digits Number of digits to display for numeric values
+#' @param sigfig Logical. If \code{TRUE}, \code{digits} refers to the number of
+#'   significant figures. If \code{FALSE}, \code{digits} refers to the number of
+#'   decimal places.
+#' @param escape Logical. Whether or not to escape HTML entities in table. See
+#'   [DT::datatable()] for details.
+#' @param rownames Logical. Whether or not to show rownames in table. See
+#'   [DT::datatable()] for details.
+#' @param caption The table caption.
+#' @param na_disp Character string to display if NA entry is found in table.
+#' @param bold_function Optional function string or vector of function strings 
+#'   to use for bolding entries, e.g. ". == max(.)" or ". >= 0.5".
+#' @param bold_margin Specifies the margins of X that will be used to evaluate
+#'   \code{bold_function} across, i.e., 0 = across entire matrix, 1 = across 
+#'   rows, and 2 = across columns. Required if \code{bold_function = TRUE}.
+#' @param bold_scheme Scalar or vector of logicals, indicating whether or not
+#'   to apply \code{bold_function} to row if \code{bold_margin} = 1 and to
+#'   column if \code{bold_margin} = 1, 2. Default is to apply bolding to all 
+#'   rows/columns.
+#' @param bold_color Color of bolded text.
+#' @param options See \code{options} argument in [DT::datatable()].
+#' @param return_df Logical. If \code{TRUE}, return data frame that was used
+#'   as input into \code{DT::datatable()} in addition to the datatable output. 
+#'   If \code{FALSE}, only return the datatable output.
+#' @param ... Additional arguments to pass to [DT::datatable()].
+#' 
+#' @return If \code{return_df = FALSE}, returns a datatable object. Otherwise,
+#'   returns a list of two:
+#' \describe{
+#' \item{dt}{A datatable object.}
+#' \item{df}{A data frame that was used as input into \code{DT::datatable()}.}
+#' }
+#' 
 #' @examples
 #' ## Show iris data table
 #' prettyDT(iris, caption = "Iris Data Table")
@@ -219,7 +258,8 @@ prettyKable <- function(X, digits = 3, sigfig = T, align = "c",
 #'          bold_scheme = c(T, T, T, T, F), bold_color = "red")
 #'             
 #' ## Bold min value of each row in Iris data
-#' prettyDT(iris %>% select(-Species), sigfig = T, caption = "Iris Data Table",
+#' prettyDT(iris %>% dplyr::select(-Species), 
+#'          sigfig = T, caption = "Iris Data Table",
 #'          na_disp = "NA", bold_function = ". == min(.)", bold_margin = 1,
 #'          bold_scheme = T, bold_color = "black")
 #' @export     
