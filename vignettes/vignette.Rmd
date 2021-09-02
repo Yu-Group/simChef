@@ -24,7 +24,7 @@ library(pcs.sim.pkg)
 
 # Overview
 
-The goal of `simChef` is to seamlessly and efficiently run simulation experiments using a simple grammar. The results of these simulation experiments can also be conveniently viewed in an organized and interactive browser (or html file). The basic usage of `simChef` can be summarized as follows:
+The goal of `simChef` is to seamlessly and efficiently run simulation experiments using a simple grammar. The results of these simulation experiments can also be conveniently viewed in an organized and interactive browser (or html file) (e.g., [here](linear_regression_base_output.html)). The basic usage of `simChef` can be summarized as follows:
 
 1. Create individual parts of the simulation experiment recipe
     a. Create DGP(s) (data-generating processes) via `create_dgp()`
@@ -61,7 +61,7 @@ To begin, we first need to create the individual parts of the simulation experim
 3. **Evaluator**: the evaluation metrics used to **evaluate** the methods performance
 4. **Plotter**: the plotting functions used to **plot** outputs from the method fits or evaluation results
 
-To create a `DGP`, `Method`, `Evaluator`, or `Plotter`, we can respectively use the `create_dgp()`, `create_method()`, `create_evaluator()`, or `create_plotter()` functions. Each `create_*` function follows the same syntax and takes in the inputs:
+To create a `DGP()`, `Method()`, `Evaluator()`, or `Plotter()`, we can respectively use the `create_dgp()`, `create_method()`, `create_evaluator()`, or `create_plotter()` functions. Each `create_*` function follows the same syntax and takes in the inputs:
 
 - `*_fun`: the first input is a function from which to simulate data, fit the method, evaluate the metrics, or create the plots (depending on `*`)
 - `...`: additional arguments get passed into the `*_fun` above
@@ -85,7 +85,7 @@ dgp_fun <- function(n, beta, rho, sigma) {
 }
 ```
 
-We can create an object of class `DGP` from this function via
+We can create an object of class `DGP()` from this function via
 
 ```{r}
 dgp <- create_dgp(dgp_fun = dgp_fun, 
@@ -93,7 +93,7 @@ dgp <- create_dgp(dgp_fun = dgp_fun,
                   n = 200, beta = c(1, 0), rho = 0, sigma = 1)
 ```
 
-Note that the additional arguments in `create_dgp` must be named arguments that match those in `dgp_fun`. 
+Note that the additional arguments in `create_dgp()` must be named arguments that match those in `dgp_fun`. 
 
 ## Create method
 
@@ -108,7 +108,7 @@ lm_fun <- function(X, y, cols = c("X1", "X2")) {
 }
 ```
 
-We can create an object of class `Method` from this function via
+We can create an object of class `Method()` from this function via
 
 ```{r}
 lm_method <- create_method(method_fun = lm_fun)
@@ -136,7 +136,7 @@ reject_prob_fun <- function(fit_results, alpha = 0.05) {
 }
 ```
 
-We can create an object of class `Evaluator` from this function via
+We can create an object of class `Evaluator()` from this function via
 
 ```{r}
 reject_prob_eval <- create_evaluator(eval_fun = reject_prob_fun, alpha = 0.1)
@@ -168,7 +168,7 @@ power_plot_fun <- function(fit_results, col = "X1") {
 }
 ```
 
-We can create an object of class `Plotter` from this function via
+We can create an object of class `Plotter()` from this function via
 
 ```{r}
 power_plot <- create_plotter(plot_fun = power_plot_fun)
@@ -287,7 +287,7 @@ print(experiment)
 ```
 
 
-In `add_vary_across`, the `dgp` argument is the name of the DGP to vary or the DGP object itself. The `param_name` argument is the name of the argument/parameter in the `DGP` function that will be varied, and the `param_values` argument is a list or atomic vector of values that `param_name` will take and vary across while all other arguments are kept constant at their base value (see `dgp$dgp_params`). Here, we are varying the `sigma` parameter (i.e., the SD of the additive noise term) over values of 1, 2, 4, and 8 within the Linear Gaussian DGP. (Note: we can also vary across parameters in a `Method` by inputting the `method` argument instead of the `dgp` argument in `add_vary_across()`.)
+In `add_vary_across()`, the `dgp` argument is the name of the DGP to vary or the DGP object itself. The `param_name` argument is the name of the argument/parameter in the `DGP` function that will be varied, and the `param_values` argument is a list or atomic vector of values that `param_name` will take and vary across while all other arguments are kept constant at their base value (see `dgp$dgp_params`). Here, we are varying the `sigma` parameter (i.e., the SD of the additive noise term) over values of 1, 2, 4, and 8 within the Linear Gaussian DGP. (Note: we can also vary across parameters in a `Method` by inputting the `method` argument instead of the `dgp` argument in `add_vary_across()`.)
 
 However, when we run the experiment, the results are not quite what we expect. The results are summarized/aggregated across all values of `sigma`.
 
@@ -386,7 +386,7 @@ Note that while multiple DGPs, Methods, Evaluators, and Plotters can be added to
 
 ## Experiment as an R6 Class
 
-Since the `Experiment` class is an `R6`, we need to be careful about clones versus pointers. In the following, it may look like the `vary_experiment` object has a `vary_across` component while the `experiment` object does not have a `vary_across` component. However, when `experiment` is piped into `add_vary_across()`, this is in itself modifying `experiment`, and `vary_experiment` is simply pointing to this modified `experiment`.
+Since the `Experiment()` class is an `R6`, we need to be careful about clones versus pointers. In the following, it may look like the `vary_experiment` object has a `vary_across` component while the `experiment` object does not have a `vary_across` component. However, when `experiment` is piped into `add_vary_across()`, this is in itself modifying `experiment`, and `vary_experiment` is simply pointing to this modified `experiment`.
 
 ```{r results = "hide"}
 experiment <- experiment %>%
@@ -497,7 +497,7 @@ create_rmd(experiment_dirname = experiment$get_save_dir(), open = FALSE)
 
 The results can be found [here](linear_regression_output.html). 
 
-In addition to showing all results under the root results directory, `create_rmd()` will automatically generate a blank documentation template for every `DGP`, `Method`, `Evaluator`, and `Plot` found in any one of the `Experiments` under the root results directory. If one would like to generate the documentation template but not create the R Markdown report, see `create_doc_template()`.
+In addition to showing all results under the root results directory, `create_rmd()` will automatically generate a blank documentation template for every `DGP()`, `Method()`, `Evaluator()`, and `Plot()` found in any one of the `Experiments` under the root results directory. If one would like to generate the documentation template but not create the R Markdown report, see `create_doc_template()`.
 
 There are also several customizable options regarding the aesthetics of the R Markdown output. These can be modified using the `rmd_options` argument in `create_evaluator()` and `create_plotter()`. For example, we can customize the height and width of the Power plot via
 ```{r}
@@ -511,14 +511,14 @@ reject_prob_eval <- create_evaluator(eval_fun = reject_prob_fun, alpha = 0.1,
                                      rmd_options = list(digits = 3))
 ```
 
-Alternatively, `set_rmd_options()` can be used to update the R Markdown option for an existing object, rather than having to create the `Evaluator` or `Plotter` from scratch, e.g.,
+Alternatively, `set_rmd_options()` can be used to update the R Markdown option for an existing object, rather than having to create the `Evaluator()` or `Plotter()` from scratch, e.g.,
 ```{r}
 experiment <- experiment %>%
   set_rmd_options(field_name = "plotter", name = "Power", show = TRUE,
                   height = 10, width = 8)
 ```
 
-To hide the output of an `Evaluator` or `Plotter` in the R Markdown report, set `show = FALSE` in `set_rmd_options()` or `create_*`.
+To hide the output of an `Evaluator()` or `Plotter()` in the R Markdown report, set `show = FALSE` in `set_rmd_options()` or `create_*`.
 
 
 ## Saving results
@@ -528,6 +528,8 @@ Since the R Markdown report heavily relies on the results file structure to orga
 By default, the root results directory is ./results/\{EXPERIMENT_NAME\}. If the experiment was created by cloning another experiment, then the default results directory is the same as the parent experiment. To change the root results directory, one can specify the desired directory via the `save_dir` argument in `create_experiment()` or use the `set_save_dir()` helper function.
 
 All results from `experiment$run(..., save = TRUE)` without a `vary_across` component are then saved under the root results directory. If `experiment` has a `vary_across` component, then the results of `experiment$run(..., save = TRUE)` are saved under ./\{ROOT_RESULTS_DIR\}/\{DGP_OR_METHOD_NAME\}/Varying \{PARAM_NAME\}/.
+
+For a concrete example of the saving structure, please refer to [this GitHub directory](https://github.com/Yu-Group/pcs.sim.pkg/tree/main/vignettes/results/Linear\ Regression\ Experiment/), where we have stored all saved results from this vignette.
 
 ## Additional handling of the experiment
 
