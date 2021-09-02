@@ -17,13 +17,7 @@ add_evaluator(experiment, evaluator, name = NULL, ...)
 
 add_plot(experiment, plotter, name = NULL, ...)
 
-add_vary_across(
-  experiment,
-  dgp = NULL,
-  method = NULL,
-  param_name,
-  param_values
-)
+add_vary_across(experiment, ...)
 }
 \arguments{
 \item{experiment}{An \code{Experiment} object.}

@@ -21,7 +21,7 @@ A method to evaluate.
 \if{latex}{\out{\hypertarget{method-new}{}}}
 \subsection{Method \code{new()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Method$new(method_fun, ...)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Method$new(method_fun, name = NULL, ...)}\if{html}{\out{</div>}}
 }
 
 }

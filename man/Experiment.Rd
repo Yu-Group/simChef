@@ -85,12 +85,14 @@ Create a new \code{Experiment}.
 
 \item{\code{plotter_list}}{An option list of \code{Plotter} objects.}
 
-\item{\code{future.globals}}{Passed as the argument of the same name to
+\item{\code{future.globals}}{Character vector of names in the global environment
+to pass to parallel workers. Passed as the argument of the same name to
 code{future.apply::future_lapply} and related functions. See
 \link{future.apply}{future_apply}. To set for a specific run of the
 experiment, use the same argument in \code{Experiment$run}.}
 
-\item{\code{future.packages}}{Passed as the argument of the same name to
+\item{\code{future.packages}}{Character vector of packages required by parallel
+workers. Passed as the argument of the same name to
 code{future.apply::future_lapply} and related functions. See
 \link{future.apply}{future_apply}. To set for a specific run of the
 experiment, use the same argument in \code{Experiment$run}.}
@@ -133,12 +135,14 @@ run.}
 "dgps", or "methods". Determines how computation will be distributed
 across available resources.}
 
-\item{\code{future.globals}}{Passed as the argument of the same name to
+\item{\code{future.globals}}{Character vector of names in the global environment
+to pass to parallel workers. Passed as the argument of the same name to
 code{future.apply::future_lapply} and related functions. See
 \link{future.apply}{future_apply}. To set for all runs of the
 experiment, use the same argument during initialization.}
 
-\item{\code{future.packages}}{Passed as the argument of the same name to
+\item{\code{future.packages}}{Character vector of packages required by parallel
+workers. Passed as the argument of the same name to
 code{future.apply::future_lapply} and related functions. See
 \link{future.apply}{future_apply}. To set for all runs of the
 experiment, use the same argument during initialization.}
@@ -210,14 +214,15 @@ across available resources.}
 
 \item{\code{future.globals}}{Character vector of names in the global environment
 to pass to parallel workers. Passed as the argument of the same name to
-code{future.apply::future_lapply} and related functions. To set for all
-runs of the experiment, use the same argument during initialization.}
+code{future.apply::future_lapply} and related functions. See
+\link{future.apply}{future_apply}. To set for all runs of the
+experiment, use the same argument during initialization.}
 
 \item{\code{future.packages}}{Character vector of packages required by parallel
 workers. Passed as the argument of the same name to
-code{future.apply::future_lapply} and related functions.
-To set for all runs of the experiment, use the same argument during
-initialization.}
+code{future.apply::future_lapply} and related functions. See
+\link{future.apply}{future_apply}. To set for all runs of the
+experiment, use the same argument during initialization.}
 
 \item{\code{use_cached}}{If \code{TRUE}, find and return previously saved
 results.}
@@ -429,7 +434,7 @@ A list of plots.
 \if{latex}{\out{\hypertarget{method-add_vary_across}{}}}
 \subsection{Method \code{add_vary_across()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Experiment$add_vary_across(dgp = NULL, method = NULL, param_name, param_values)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Experiment$add_vary_across(dgp, method, ...)}\if{html}{\out{</div>}}
 }
 
 }

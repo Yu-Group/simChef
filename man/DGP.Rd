@@ -21,7 +21,7 @@ A data-generating process
 \if{latex}{\out{\hypertarget{method-new}{}}}
 \subsection{Method \code{new()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DGP$new(dgp_fun, ...)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{DGP$new(dgp_fun, name = NULL, ...)}\if{html}{\out{</div>}}
 }
 
 }

@@ -22,6 +22,8 @@ Experiment <- R6::R6Class(
       dgp = list(),
       method = list()
     ),
+    .future.globals = NULL,
+    .future.packages = NULL,
     .add_obj = function(field_name, obj, obj_name, ...) {
       # TODO: check if obj is already in list by another name
       obj_list <- private$.get_obj_list(field_name, ...)
@@ -160,12 +162,14 @@ Experiment <- R6::R6Class(
     #' @param method_list An optional list of \code{Method} objects.
     #' @param evaluator_list An optional list of \code{Evaluator} objects.
     #' @param plotter_list An option list of \code{Plotter} objects.
-    #' @param future.globals Passed as the argument of the same name to
+    #' @param future.globals Character vector of names in the global environment
+    #'   to pass to parallel workers. Passed as the argument of the same name to
     #'   code{future.apply::future_lapply} and related functions. See
     #'   \link{future.apply}{future_apply}. To set for a specific run of the
-    #'    experiment, use the same argument in \code{Experiment$run}.
-    #' @param future.packages Passed as the argument of the same name to
-    #' code{future.apply::future_lapply} and related functions. See
+    #'   experiment, use the same argument in \code{Experiment$run}.
+    #' @param future.packages Character vector of packages required by parallel
+    #'   workers. Passed as the argument of the same name to
+    #'   code{future.apply::future_lapply} and related functions. See
     #'   \link{future.apply}{future_apply}. To set for a specific run of the
     #'   experiment, use the same argument in \code{Experiment$run}.
     #' @Param clone_from An optional \code{Experiment} object to use as a base
@@ -192,6 +196,8 @@ Experiment <- R6::R6Class(
       private$.add_obj_list(method_list, "Method")
       private$.add_obj_list(evaluator_list, "Evaluator")
       private$.add_obj_list(plotter_list, "Plotter")
+      private$.future.globals <- future.globals
+      private$.future.packages <- future.packages
       self$name <- name
       if (is.null(save_dir)) {
         save_dir <- file.path("results", name)
@@ -205,11 +211,13 @@ Experiment <- R6::R6Class(
     #' @param parallel_strategy A vector with some combination of "reps",
     #'   "dgps", or "methods". Determines how computation will be distributed
     #'   across available resources.
-    #' @param future.globals Passed as the argument of the same name to
+    #' @param future.globals Character vector of names in the global environment
+    #'   to pass to parallel workers. Passed as the argument of the same name to
     #'   code{future.apply::future_lapply} and related functions. See
     #'   \link{future.apply}{future_apply}. To set for all runs of the
     #'   experiment, use the same argument during initialization.
-    #' @param future.packages Passed as the argument of the same name to
+    #' @param future.packages Character vector of packages required by parallel
+    #'   workers. Passed as the argument of the same name to
     #'   code{future.apply::future_lapply} and related functions. See
     #'   \link{future.apply}{future_apply}. To set for all runs of the
     #'   experiment, use the same argument during initialization.
@@ -277,13 +285,14 @@ Experiment <- R6::R6Class(
     #'   across available resources.
     #' @param future.globals Character vector of names in the global environment
     #'   to pass to parallel workers. Passed as the argument of the same name to
-    #'   code{future.apply::future_lapply} and related functions. To set for all
-    #'   runs of the experiment, use the same argument during initialization.
+    #'   code{future.apply::future_lapply} and related functions. See
+    #'   \link{future.apply}{future_apply}. To set for all runs of the
+    #'   experiment, use the same argument during initialization.
     #' @param future.packages Character vector of packages required by parallel
     #'   workers. Passed as the argument of the same name to
-    #'   code{future.apply::future_lapply} and related functions.
-    #'   To set for all runs of the experiment, use the same argument during
-    #'   initialization.
+    #'   code{future.apply::future_lapply} and related functions. See
+    #'   \link{future.apply}{future_apply}. To set for all runs of the
+    #'   experiment, use the same argument during initialization.
     #' @param use_cached If \code{TRUE}, find and return previously saved
     #'   results.
     #' @param save If \code{TRUE}, save results to disk.
@@ -326,9 +335,15 @@ Experiment <- R6::R6Class(
         private$.throw_empty_list_error("method", "fit methods in")
       }
 
+      if (is.null(future.packages)) {
+        future.packages <- private$.future.packages
+      }
+      if (is.null(future.globals)) {
+        future.globals <- private$.future.globals
+      }
       future.globals <- c(future.globals, "list_to_tibble_row")
 
-      if (identical(private$.vary_across_list, list())) {
+      if (TRUE) {
         fit_results <- switch(
           parallel_strategy,
           "reps" = {

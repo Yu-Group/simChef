@@ -21,7 +21,7 @@ An evaluator of an Experiment's results.
 \if{latex}{\out{\hypertarget{method-new}{}}}
 \subsection{Method \code{new()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Evaluator$new(eval_fun, rmd_options = list(), ...)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Evaluator$new(eval_fun, name = NULL, rmd_options = list(), ...)}\if{html}{\out{</div>}}
 }
 
 }
