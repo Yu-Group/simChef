@@ -17,9 +17,9 @@ Evaluator <- R6::R6Class(
         self$rmd_options[[opt]] <- rmd_options[[opt]]
       }
     },
-    evaluate = function(fit_results, vary_param = NULL, ...) {
+    evaluate = function(fit_results, vary_params = NULL, ...) {
       args_list <- list(fit_results = fit_results,
-                        vary_param = vary_param)
+                        vary_params = vary_params)
       if (!identical(self$eval_params, list())) {
         always_args_list <- self$eval_params
       } else {

@@ -17,10 +17,10 @@ Plotter <- R6::R6Class(
       }
     },
     plot = function(fit_results = NULL, eval_results = NULL,
-                    vary_param = NULL, ...) {
+                    vary_params = NULL, ...) {
       args_list <- list(fit_results = fit_results, 
                         eval_results = eval_results,
-                        vary_param = vary_param)
+                        vary_params = vary_params)
       if (!identical(self$plot_params, list())) {
         always_args_list <- self$plot_params
       } else {
