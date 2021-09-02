@@ -7,6 +7,7 @@ Plotter <- R6::R6Class(
     plot_fun = NULL,
     plot_params = NULL,
     rmd_options = list(height = 6, width = 10),
+    show = TRUE,
     initialize = function(plot_fun, rmd_options = list(), ...) {
       self$plot_fun <- plot_fun
       self$plot_params <- list(...)

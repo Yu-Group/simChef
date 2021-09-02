@@ -1,4 +1,3 @@
-#' @export
 check_equal <- function(obj1, obj2) {
   if (!identical(class(obj1), class(obj2))) {
     return(FALSE)
@@ -15,7 +14,6 @@ check_equal <- function(obj1, obj2) {
   return(TRUE)
 }
 
-#' @export
 list_to_tibble_row <- function(ls) {
   tib <- tryCatch({
     tibble::as_tibble_row(ls)
@@ -27,7 +25,6 @@ list_to_tibble_row <- function(ls) {
   return(tib)
 }
 
-#' @export
 list_to_tibble <- function(ls) {
   tib <- tryCatch({
     tibble::as_tibble(ls)
@@ -45,7 +42,6 @@ list_to_tibble <- function(ls) {
   return(tib)
 }
 
-#' @export
 simplify_tibble <- function(tib) {
   simplify_cols <- purrr::map_lgl(tib, 
                                   ~length(unlist(.x, recursive = F)) == 1) %>%

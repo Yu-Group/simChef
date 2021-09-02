@@ -605,7 +605,7 @@ Experiment <- R6::R6Class(
                         params = params_list,
                         output_file = output_fname,
                         quiet = TRUE)
-      output_fname <- str_replace_all(output_fname, " ", "\\\\ ")
+      output_fname <- stringr::str_replace_all(output_fname, " ", "\\\\ ")
       if (open) {
         system(paste("open", output_fname))
       }
@@ -736,6 +736,28 @@ Experiment <- R6::R6Class(
     },
     get_vary_across = function() {
       return(private$.vary_across)
+    },
+    set_rmd_options = function(field_name, name, show = NULL, ...) {
+      obj_list <- private$.get_obj_list(field_name)
+      if (!name %in% names(obj_list)) {
+        stop(
+          sprintf("The name '%s' isn't in the %s list. ",
+                  name, field_name),
+          sprintf("Use add_%s first.", field_name),
+          call. = FALSE
+        )
+      }
+      list_name <- paste0(".", field_name, "_list")
+      if (!is.null(show)) {
+        private[[list_name]][[name]]$show <- show
+      }
+      rmd_options <- list(...)
+      if (length(rmd_options) > 0) {
+        for (i in 1:length(rmd_options)) {
+          private[[list_name]][[name]]$rmd_options[[names(rmd_options)[i]]] <-
+            rmd_options[[i]]
+        }
+      }
     },
     get_save_dir = function() {
       return(private$.save_dir)
@@ -1055,6 +1077,28 @@ remove_plotter <- function(experiment, name, ...) {
 #' @export
 remove_vary_across <- function(experiment, ...) {
   experiment$remove_vary_across()
+  return(experiment)
+}
+
+#' Set R Markdown options for Evaluator and Plotter outputs in summary report
+#' 
+#' @param experiment An \code{Experiment} object
+#' @param name Name of Evaluator or Plotter to set R Markdown options
+#' @param field_name Either "evaluator" or "plotter"
+#' @param show if TRUE, show output; if FALSE, hide output in R Markdown report;
+#'   Default is NULL to not change the "show" field in Evaluator/Plotter
+#' @param ... named R Markdown options to set. If field_name = "plotter",
+#'   options are "height" and "width". If field_name = "evaluator", see options 
+#'   for prettyDT()
+#' 
+#' @return An \code{experiment} object passed to \code{set_rmd_options}.
+#' 
+#' @export
+set_rmd_options <- function(experiment, field_name = c("evaluator", "plotter"),
+                            name, show = NULL, ...) {
+  field_name <- match.arg(field_name)
+  experiment$set_rmd_options(field_name = field_name, name = name, show = show,
+                             ...)
   return(experiment)
 }
 
