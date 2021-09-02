@@ -111,6 +111,7 @@ showRecipePart <- function(field_name = c("dgp", "method",
   
   field_name <- match.arg(field_name)
   func_name <- dplyr::case_when(field_name == "evaluator" ~ "eval",
+                                field_name == "plotter" ~ "plot",
                                 TRUE ~ field_name)
   descendants <- getDescendants(dir_name = params$sim_path)
   objs <- purrr::map(descendants, ~.x[[paste0("get_", field_name, "s")]]())
@@ -140,7 +141,7 @@ showRecipePart <- function(field_name = c("dgp", "method",
     keep_objs <- purrr::map(objs, obj_name)
     keep_objs[sapply(keep_objs, is.null)] <- NULL
     if (all(purrr::map_lgl(keep_objs, 
-                           ~isTRUE(all.equal(.x, keep_objs[[1]]))))) {
+                           ~isTRUE(check_equal(.x, keep_objs[[1]]))))) {
       obj <- keep_objs[[1]]
       cat("<b>Function</b>")
       subchunkify(obj[[paste0(func_name, "_fun")]],
