@@ -4,9 +4,11 @@
 Method <- R6::R6Class(
   classname = 'Method',
   public = list(
+    name = NULL,
     method_fun = NULL,
     method_params = NULL,
-    initialize = function(method_fun, ...) {
+    initialize = function(method_fun, name = NULL, ...) {
+      self$name <- name
       self$method_fun <- method_fun
       self$method_params <- list(...)
     },
@@ -18,7 +20,7 @@ Method <- R6::R6Class(
           method_params[[names(new_method_params)[i]]] <- new_method_params[[i]]
         }
       }
-      
+
       if (identical(method_params, list())) {
         fit_results <- do.call(self$method_fun, data_list)
       } else {

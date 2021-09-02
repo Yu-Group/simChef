@@ -4,9 +4,11 @@
 DGP <- R6::R6Class(
   classname = 'DGP',
   public = list(
+    name = NULL,
     dgp_fun = NULL,
     dgp_params = NULL,
-    initialize = function(dgp_fun, ...) {
+    initialize = function(dgp_fun, name = NULL, ...) {
+      self$name <- name
       self$dgp_fun <- dgp_fun
       self$dgp_params <- list(...)
     },
@@ -36,6 +38,6 @@ DGP <- R6::R6Class(
 )
 
 #' @export
-create_dgp <- function(dgp_fun=NULL, ...) {
+create_dgp <- function(dgp_fun, ...) {
   return(DGP$new(dgp_fun, ...))
 }

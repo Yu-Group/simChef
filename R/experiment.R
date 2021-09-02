@@ -23,8 +23,12 @@ Experiment <- R6::R6Class(
       # TODO: check if obj is already in list by another name
       obj_list <- private$.get_obj_list(field_name, ...)
       if (is.null(obj_name)) {
-        # give a default name like "dgp1"
-        obj_name <- paste0(field_name, length(obj_list) + 1)
+        if (is.null(obj$name) || nchar(obj$name) == 0) {
+          # give a default name like "dgp1"
+          obj_name <- paste0(field_name, length(obj_list) + 1)
+        } else {
+          obj_name <- obj$name
+        }
       }
       if (!is.null(obj_list[[obj_name]])) {
         stop(

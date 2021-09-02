@@ -4,10 +4,12 @@
 Plotter <- R6::R6Class(
   classname = 'Plotter',
   public = list(
+    name = NULL,
     plot_fun = NULL,
     plot_params = NULL,
     rmd_options = list(height = 6, width = 10),
-    initialize = function(plot_fun, rmd_options = list(), ...) {
+    initialize = function(plot_fun, name = NULL, rmd_options = list(), ...) {
+      self$name <- NULL
       self$plot_fun <- plot_fun
       self$plot_params <- list(...)
       for (opt in names(rmd_options)) {
