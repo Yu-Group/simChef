@@ -153,7 +153,15 @@ Experiment <- R6::R6Class(
     #' @param method_list An optional list of \code{Method} objects.
     #' @param evaluator_list An optional list of \code{Evaluator} objects.
     #' @param plotter_list An option list of \code{Plotter} objects.
-    #' @param clone_from An optional \code{Experiment} object to use as a base
+    #' @param future.globals Passed as the argument of the same name to
+    #'   code{future.apply::future_lapply} and related functions. See
+    #'   \link{future.apply}{future_apply}. To set for a specific run of the
+    #'    experiment, use the same argument in \code{Experiment$run}.
+    #' @param future.packages Passed as the argument of the same name to
+    #' code{future.apply::future_lapply} and related functions. See
+    #'   \link{future.apply}{future_apply}. To set for a specific run of the
+    #'   experiment, use the same argument in \code{Experiment$run}.
+    #' @Param clone_from An optional \code{Experiment} object to use as a base
     #'   for this one.
     #' @param save_dir An optional directory in which to save the experiment's
     #'   results.
@@ -163,6 +171,7 @@ Experiment <- R6::R6Class(
     initialize = function(name = "experiment",
                           dgp_list = list(), method_list = list(),
                           evaluator_list = list(), plotter_list = list(),
+                          future.globals = NULL, future.packages = NULL,
                           clone_from = NULL, save_dir = NULL, ...) {
       if (!is.null(clone_from)) {
         private$.check_obj(clone_from, "Experiment")
@@ -189,7 +198,14 @@ Experiment <- R6::R6Class(
     #' @param parallel_strategy A vector with some combination of "reps",
     #'   "dgps", or "methods". Determines how computation will be distributed
     #'   across available resources.
-    #' @param trial_run If \code{TRUE}, run 1 rep of the simulation experiment.
+    #' @param future.globals Passed as the argument of the same name to
+    #'   code{future.apply::future_lapply} and related functions. See
+    #'   \link{future.apply}{future_apply}. To set for all runs of the
+    #'   experiment, use the same argument during initialization.
+    #' @param future.packages Passed as the argument of the same name to
+    #'   code{future.apply::future_lapply} and related functions. See
+    #'   \link{future.apply}{future_apply}. To set for all runs of the
+    #'   experiment, use the same argument during initialization.
     #' @param use_cached If \code{TRUE}, find and return previously saved
     #'   results.
     #' @param save If \code{TRUE}, save results to disk.
@@ -197,6 +213,7 @@ Experiment <- R6::R6Class(
     #'
     #' @return A list of results from the simulation experiment.
     run = function(n_reps=1, parallel_strategy = c("reps", "dgps", "methods"),
+                   future.globals = NULL, future.packages = NULL,
                    use_cached = FALSE, save = FALSE, ...) {
       if (!is.logical(use_cached)) {
         use_cached <- c("methods", "evaluators", "plots") %in% use_cached
@@ -210,6 +227,8 @@ Experiment <- R6::R6Class(
       }
 
       fit_results <- self$fit(n_reps, parallel_strategy = parallel_strategy,
+                              future.globals = future.globals,
+                              future.packages = future.packages,
                               use_cached = use_cached[1], save = save[1])
       eval_results <- self$evaluate(fit_results = fit_results,
                                     use_cached = use_cached[2], save = save[2])
@@ -249,7 +268,15 @@ Experiment <- R6::R6Class(
     #' @param parallel_strategy A vector with some combination of "reps",
     #'   "dgps", or "methods". Determines how computation will be distributed
     #'   across available resources.
-    #' @param trial_run If \code{TRUE}, run 1 rep of the simulation experiment.
+    #' @param future.globals Character vector of names in the global environment
+    #'   to pass to parallel workers. Passed as the argument of the same name to
+    #'   code{future.apply::future_lapply} and related functions. To set for all
+    #'   runs of the experiment, use the same argument during initialization.
+    #' @param future.packages Character vector of packages required by parallel
+    #'   workers. Passed as the argument of the same name to
+    #'   code{future.apply::future_lapply} and related functions.
+    #'   To set for all runs of the experiment, use the same argument during
+    #'   initialization.
     #' @param use_cached If \code{TRUE}, find and return previously saved
     #'   results.
     #' @param save If \code{TRUE}, save results to disk.
@@ -257,6 +284,7 @@ Experiment <- R6::R6Class(
     #'
     #' @return A list of results from the simulation experiment.
     fit = function(n_reps=1, parallel_strategy = "reps",
+                   future.globals = NULL, future.packages = NULL,
                    use_cached = FALSE, save = FALSE, ...) {
       if (use_cached) {
         return(private$.get_cached_results(
@@ -291,6 +319,8 @@ Experiment <- R6::R6Class(
         private$.throw_empty_list_error("method", "fit methods in")
       }
 
+      future.globals <- c(future.globals, "list_to_tibble_row")
+
       if (identical(private$.vary_across, list())) {
         fit_results <- switch(
           parallel_strategy,
@@ -302,7 +332,9 @@ Experiment <- R6::R6Class(
                   return(method$fit(datasets))
                 }, .id = "method")
               }, .id = "dgp")
-            }, simplify=FALSE, future.globals = c("list_to_tibble_row"))
+            }, simplify=FALSE,
+            future.globals = future.globals,
+            future.packages = future.packages)
             dplyr::bind_rows(results, .id = "rep")
           },
           "dgps" = {
@@ -314,7 +346,9 @@ Experiment <- R6::R6Class(
                 }, .id = "method")
               }, simplify=FALSE)
               dplyr::bind_rows(reps, .id = "rep")
-            }, future.seed = TRUE, future.globals = c("list_to_tibble_row"))
+            }, future.seed = TRUE,
+            future.globals = future.globals,
+            future.packages = future.packages)
             dplyr::bind_rows(results, .id = "dgp")
           },
           "methods" = {
@@ -327,7 +361,9 @@ Experiment <- R6::R6Class(
                   }, .id = "dgp")
                 }, simplify=FALSE)
                 dplyr::bind_rows(reps, .id = "rep")
-              }, future.seed = TRUE, future.globals = c("list_to_tibble_row"))
+              }, future.seed = TRUE,
+              future.globals = future.globals,
+              future.packages = future.packages)
             dplyr::bind_rows(results, .id = "method")
           },
           "reps+dgps" = {
@@ -339,7 +375,9 @@ Experiment <- R6::R6Class(
                 purrr::map_dfr(method_list, function(method) {
                   return(method$fit(datasets))
                 }, .id = "method")
-              }, future.seed = TRUE, future.globals = c("list_to_tibble_row")
+              }, future.seed = TRUE,
+              future.globals = future.globals,
+              future.packages = future.packages
             )
             names(results) <- dgp_names
             results <- dplyr::bind_rows(results, .id = "dgp")
@@ -358,7 +396,9 @@ Experiment <- R6::R6Class(
                   return(method_list[[method_name]]$fit(datasets))
                 }, .id = "dgp")
               },
-              future.seed = TRUE, future.globals = c("list_to_tibble_row")
+              future.seed = TRUE,
+              future.globals = future.globals,
+              future.packages = future.packages
             )
             names(results) <- method_names
             results <- dplyr::bind_rows(results, .id = "method")
@@ -383,7 +423,8 @@ Experiment <- R6::R6Class(
               },
               mapply_args$dgps, mapply_args$methods,
               future.seed = TRUE, SIMPLIFY = FALSE,
-              future.globals = c("list_to_tibble_row")
+              future.globals = future.globals,
+              future.packages = future.packages
             )
             for (i in 1:nrow(mapply_args)) {
               results[[i]]$dgp <- mapply_args[i, "dgps"]
@@ -407,7 +448,8 @@ Experiment <- R6::R6Class(
                 },
                 mapply_args$reps, mapply_args$dgps, mapply_args$methods,
                 future.seed = TRUE, SIMPLIFY = FALSE,
-                future.globals = c("list_to_tibble_row")
+                future.globals = future.globals,
+                future.packages = future.packages
               )
             )
             results$rep <- mapply_args$rep

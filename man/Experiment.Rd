@@ -64,6 +64,8 @@ Create a new \code{Experiment}.
   method_list = list(),
   evaluator_list = list(),
   plotter_list = list(),
+  future.globals = NULL,
+  future.packages = NULL,
   clone_from = NULL,
   save_dir = NULL,
   ...
@@ -83,8 +85,15 @@ Create a new \code{Experiment}.
 
 \item{\code{plotter_list}}{An option list of \code{Plotter} objects.}
 
-\item{\code{clone_from}}{An optional \code{Experiment} object to use as a base
-for this one.}
+\item{\code{future.globals}}{Passed as the argument of the same name to
+code{future.apply::future_lapply} and related functions. See
+\link{future.apply}{future_apply}. To set for a specific run of the
+experiment, use the same argument in \code{Experiment$run}.}
+
+\item{\code{future.packages}}{Passed as the argument of the same name to
+code{future.apply::future_lapply} and related functions. See
+\link{future.apply}{future_apply}. To set for a specific run of the
+experiment, use the same argument in \code{Experiment$run}.}
 
 \item{\code{save_dir}}{An optional directory in which to save the experiment's
 results.}
@@ -106,6 +115,8 @@ Run the entire simulation experiment pipeline.
 \if{html}{\out{<div class="r">}}\preformatted{Experiment$run(
   n_reps = 1,
   parallel_strategy = c("reps", "dgps", "methods"),
+  future.globals = NULL,
+  future.packages = NULL,
   use_cached = FALSE,
   save = FALSE,
   ...
@@ -122,14 +133,22 @@ run.}
 "dgps", or "methods". Determines how computation will be distributed
 across available resources.}
 
+\item{\code{future.globals}}{Passed as the argument of the same name to
+code{future.apply::future_lapply} and related functions. See
+\link{future.apply}{future_apply}. To set for all runs of the
+experiment, use the same argument during initialization.}
+
+\item{\code{future.packages}}{Passed as the argument of the same name to
+code{future.apply::future_lapply} and related functions. See
+\link{future.apply}{future_apply}. To set for all runs of the
+experiment, use the same argument during initialization.}
+
 \item{\code{use_cached}}{If \code{TRUE}, find and return previously saved
 results.}
 
 \item{\code{save}}{If \code{TRUE}, save results to disk.}
 
 \item{\code{...}}{Not used.}
-
-\item{\code{trial_run}}{If \code{TRUE}, run 1 rep of the simulation experiment.}
 }
 \if{html}{\out{</div>}}
 }
@@ -171,7 +190,9 @@ Return fit results from the \code{Methods} in the
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Experiment$fit(
   n_reps = 1,
-  parallel_strategy = c("reps", "dgps", "methods"),
+  parallel_strategy = "reps",
+  future.globals = NULL,
+  future.packages = NULL,
   use_cached = FALSE,
   save = FALSE,
   ...
@@ -187,14 +208,23 @@ Return fit results from the \code{Methods} in the
 "dgps", or "methods". Determines how computation will be distributed
 across available resources.}
 
+\item{\code{future.globals}}{Character vector of names in the global environment
+to pass to parallel workers. Passed as the argument of the same name to
+code{future.apply::future_lapply} and related functions. To set for all
+runs of the experiment, use the same argument during initialization.}
+
+\item{\code{future.packages}}{Character vector of packages required by parallel
+workers. Passed as the argument of the same name to
+code{future.apply::future_lapply} and related functions.
+To set for all runs of the experiment, use the same argument during
+initialization.}
+
 \item{\code{use_cached}}{If \code{TRUE}, find and return previously saved
 results.}
 
 \item{\code{save}}{If \code{TRUE}, save results to disk.}
 
 \item{\code{...}}{Not used.}
-
-\item{\code{trial_run}}{If \code{TRUE}, run 1 rep of the simulation experiment.}
 }
 \if{html}{\out{</div>}}
 }

@@ -95,16 +95,15 @@ dgp_fun <- function(n, noise_level = 4) {
 dgp1 <- create_dgp(dgp_fun, n = 200, noise_level = 1)
 dgp2 <- create_dgp(dgp_fun, n = 400, noise_level = 2)
 
-method_fun <- function(X, y, sleep = 0.01) {
-  fit <- lm(y ~ X)
+method_fun <- function(X, y, sleep = 0.001) {
+  fit_summary <- lm(y ~ X) %>%
+    broom::tidy()
   Sys.sleep(sleep)
-  return(list(
-    "p-val" = summary(fit)$coefficients["X2", "Pr(>|t|)"]
-  ))
+  return(fit_summary)
 }
 
 method1 <- create_method(method_fun)
-method2 <- create_method(method_fun, sleep=0.1)
+method2 <- create_method(method_fun, sleep=0.01)
 
 experiment <- create_experiment(name = "base") %>%
   add_dgp(dgp1) %>%
@@ -112,6 +111,9 @@ experiment <- create_experiment(name = "base") %>%
   add_method(method1) %>%
   add_method(method2)
 
-system.time(experiment$fit(n_reps = 100, parallel_strategy = c("reps", "dgps")))
+system.time(
+  experiment$fit(n_reps = 100, parallel_strategy = c("reps", "dgps"))
+)
+
 
 ```
