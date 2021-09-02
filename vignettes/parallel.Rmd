@@ -86,34 +86,66 @@ distributing computation to workers may outweigh the benefits of parallelism.
 n_workers <- availableCores() - 1
 plan(multisession, workers = n_workers)
 
-dgp_fun <- function(n, noise_level = 4) {
-  X <- matrix(rnorm(n * 2), nrow=n)
-  y <- cbind(1, X) %*% c(-8, 3, -1) + rnorm(n, sd = noise_level)
+dgp_fun1 <- function(n, rho, noise_level) {
+  cov_mat <- diag(nrow = 5)
+  cov_mat[cov_mat == 0] <- rho
+  X <- MASS::mvrnorm(n = n, mu = rep(0, 5), Sigma = cov_mat)
+  y <- cbind(1, X) %*% c(-8, 3, -1, 0, 0, 0) + rnorm(n, sd = noise_level)
   return(list(X = X, y = y))
 }
 
-dgp1 <- create_dgp(dgp_fun, n = 200, noise_level = 1)
-dgp2 <- create_dgp(dgp_fun, n = 400, noise_level = 2)
-
-method_fun <- function(X, y, sleep = 0.001) {
-  fit_summary <- lm(y ~ X) %>%
-    broom::tidy()
-  Sys.sleep(sleep)
-  return(fit_summary)
+dgp_fun2 <- function(n, p, rho, sparsity, noise_level) {
+  cov_mat <- diag(nrow = p)
+  cov_mat[cov_mat == 0] <- rho
+  X <- MASS::mvrnorm(n = n, mu = rep(0, p), Sigma = cov_mat)
+  coeff_prob <- c(sparsity, rep((1 - sparsity) / 4, times = 4))
+  coeff <- c(
+    -8, # intercept
+    sample(
+      c(0, -3, -1, 1, 3), size = p, replace = TRUE,
+      prob = coeff_prob
+    )
+  )
+  y <- cbind(1, X) %*% coeff + rnorm(n, sd = noise_level)
+  return(list(X = X, y = y))
 }
 
-method1 <- create_method(method_fun)
-method2 <- create_method(method_fun, sleep=0.01)
+dgp1 <- create_dgp(dgp_fun1, name = "dense_dgp")
+dgp2 <- create_dgp(dgp_fun2, name = "sparse_dgp")
+
+ols <- function(X, y) {
+  fit <- lm(y ~ X)
+  return(fit)
+}
+
+glmnet <- function(X, y, alpha) {
+  fit <- glmnet::glmnet(
+    x = X, y = y, family = "gaussian", alpha = alpha
+  )
+  return(fit)
+}
+
+method1 <- create_method(ols, name = "ols")
+method2 <- create_method(glmnet, name = "glmnet")
 
 experiment <- create_experiment(name = "base") %>%
   add_dgp(dgp1) %>%
   add_dgp(dgp2) %>%
   add_method(method1) %>%
-  add_method(method2)
+  add_method(method2) %>%
+  add_vary_across(
+    dgp = "dense_dgp",
+    rho = c(0, 0.2, 0.5, 0.9),
+    noise_level = c(1, 2, 4, 8)
+  ) %>%
+  add_vary_across(
+    method = "glmnet", alpha = c(0, 0.25, 0.5, 0.75, 1)
+  )
 
 system.time(
-  experiment$fit(n_reps = 100, parallel_strategy = c("reps", "dgps"))
+  experiment$fit(
+    n_reps = 100, parallel_strategy = c("reps", "dgps"),
+  )
 )
-
 
 ```
