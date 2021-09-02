@@ -20,18 +20,18 @@ DGP <- R6::R6Class(
           dgp_params[[names(new_dgp_params)[i]]] <- new_dgp_params[[i]]
         }
       }
-      
+
       if (identical(dgp_params, list())) {
         data_list <- self$dgp_fun()
       } else {
         data_list <- do.call(self$dgp_fun, dgp_params)
       }
-      
+
       # check if data_list is a list; if not, coerce to list
       if (!inherits(data_list, "list")) {
         data_list <- list(data_list)
       }
-      
+
       return(data_list)
     }
   )

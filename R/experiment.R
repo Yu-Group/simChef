@@ -109,14 +109,75 @@ Experiment <- R6::R6Class(
         private[[paste0(".", tolower(expected_class), "_list")]] <- obj_list
       }
     },
+    .check_vary_across = function(dgp, method, ...) {
+      dots_list <- list(...)
+      if (missing(dgp) && missing(method)) {
+        stop("Must specify either dgp or method.")
+      } else if ((!missing(dgp)) + (!missing(method)) != 1) {
+        stop("Must specify one of dgp or method, but not both")
+      } else if (!missing(dgp)) {
+        obj <- dgp
+        field_name <- "dgp"
+        class_name <- "DGP"
+      } else if (!missing(method)) {
+        obj <- method
+        field_name <- "method"
+        class_name <- "Method"
+      }
+      obj_list <- private$.get_obj_list(field_name)
+      if (inherits(obj, class_name)) {
+        obj_name <- sapply(obj_list,
+                           function(x) check_equal(x, obj)) %>%
+          which() %>%
+          names()
+      } else if (obj %in% names(obj_list)) {
+        obj_name <- obj
+      } else {
+        stop(
+          sprintf(
+            "%s must either be a %s object or the name of a %s in the current Experiment.",
+            field_name, class_name, class_name
+          ),
+          call. = FALSE
+        )
+      }
+      obj_fun_args <- formalArgs(obj_list[[obj_name]][[paste0(field_name, "_fun")]])
+      dots_list_valid_names <- names(dots_list) %in% obj_fun_args
+      if (!all(dots_list_valid_names) && (!("..." %in% obj_fun_args))) {
+        invalid_names <- names(dots_list)[!dots_list_valid_names]
+        invalid_names <- paste0(invalid_names, collapse=", ")
+        stop(
+          sprintf("%s: not valid argument(s) to %s's %s_fun",
+                  invalid_names, obj_name, field_name),
+          call. = FALSE
+        )
+      }
+
+      return(list(dots_list = dots_list,
+                  field_name = field_name,
+                  obj_name = obj_name))
+    },
+    .is_vary_across = function() {
+      identical(private$.vary_across_list, list(dgp = list(), method = list()))
+    },
+    .get_vary_params = function() {
+      param_names <- purrr::map(private$.vary_across_list,
+                                ~purrr::map(.x, names) %>%
+                                  purrr::reduce(c)) %>%
+        purrr::reduce(c)
+      return(param_names)
+    },
     .save_results = function(results, save_filename) {
-      if (identical(private$.vary_across_list, list())) {
+      if (!private$.is_vary_across()) {
         save_dir <- private$.save_dir
       } else {
-        save_dir <- file.path(private$.save_dir,
-                              paste0(private$.vary_across_list$dgp,
-                                     private$.vary_across_list$method),
-                              paste("Varying", private$.vary_across_list$param_name))
+        obj_names <- purrr::map(private$.vary_across_list, names) %>%
+          purrr::reduce(c) %>%
+          paste(collapse = "-")
+        param_names <- private$.get_vary_params() %>%
+          paste(collapse = "-")
+        save_dir <- file.path(private$.save_dir, obj_names,
+                              paste("Varying", param_names))
       }
       save_file <- file.path(save_dir, save_filename)
       if (!dir.exists(dirname(save_file))) {
@@ -129,10 +190,13 @@ Experiment <- R6::R6Class(
       if (identical(private$.vary_across_list, list())) {
         save_dir <- private$.save_dir
       } else {
-        save_dir <- file.path(private$.save_dir,
-                              paste0(private$.vary_across_list$dgp,
-                                     private$.vary_across_list$method),
-                              paste("Varying", private$.vary_across_list$param_name))
+        obj_names <- purrr::map(private$.vary_across_list, names) %>%
+          purrr::reduce(c) %>%
+          paste(collapse = "-")
+        param_names <- param_names <- private$.get_vary_params() %>%
+          paste(collapse = "-")
+        save_dir <- file.path(private$.save_dir, obj_names,
+                              paste("Varying", param_names))
       }
       save_file <- file.path(save_dir, save_filename)
       if (file.exists(save_file)) {
@@ -343,7 +407,7 @@ Experiment <- R6::R6Class(
       }
       future.globals <- c(future.globals, "list_to_tibble_row")
 
-      if (TRUE) {
+      if (!prviate$.is_vary_across()) {
         fit_results <- switch(
           parallel_strategy,
           "reps" = {
@@ -559,7 +623,7 @@ Experiment <- R6::R6Class(
       }
       eval_results <- purrr::map(evaluator_list, function(evaluator) {
         evaluator$evaluate(fit_results = fit_results,
-                           vary_param = private$.vary_across_list$param_name)
+                           vary_params = private$.get_vary_params())
       })
 
       if (save) {
@@ -593,7 +657,7 @@ Experiment <- R6::R6Class(
       plot_results <- purrr::map(plotter_list, function(plotter) {
         plotter$plot(fit_results = fit_results,
                      eval_results = eval_results,
-                     vary_param = private$.vary_across_list$param_name)
+                     vary_params = private$.get_vary_params())
       })
 
       if (save) {
@@ -702,46 +766,10 @@ Experiment <- R6::R6Class(
       return(private$.get_obj_list("plotter", "get_plots"))
     },
     add_vary_across = function(dgp, method, ...) {
-      dots_list <- list(...)
-      if (missing(dgp) && missing(method)) {
-        stop("Must specify either dgp or method.")
-      } else if ((!missing(dgp)) + (!missing(method)) != 1) {
-        stop("Must specify one of dgp or method, but not both")
-      } else if (!missing(dgp)) {
-        obj <- dgp
-        field_name <- "dgp"
-        class_name <- "DGP"
-      } else if (!missing(method)) {
-        obj <- method
-        field_name <- "method"
-        class_name <- "Method"
-      }
-      obj_list <- private$.get_obj_list(field_name)
-      if (inherits(obj, class_name)) {
-        obj_name <- sapply(obj_list,
-                           function(x) check_equal(x, obj)) %>%
-          which() %>%
-          names()
-      } else if (obj %in% names(obj_list)) {
-        obj_name <- obj
-      } else {
-        stop(
-          sprintf(
-            "%s must either be a %s object or the name of a %s in the current Experiment.",
-            field_name, class_name, class_name
-          )
-        )
-      }
-      obj_fun_args <- formalArgs(obj_list[[obj_name]][[paste0(field_name, "_fun")]])
-      dots_list_valid_names <- names(dots_list) %in% obj_fun_args
-      if (!all(dots_list_valid_names) && (!("..." %in% obj_fun_args))) {
-        invalid_names <- names(dots_list)[!dots_list_valid_names]
-        invalid_names <- paste0(invalid_names, collapse=", ")
-        stop(
-          sprintf("%s: not valid argument(s) to %s's %s_fun",
-                  invalid_names, obj_name, field_name)
-        )
-      }
+      temp <- private$.check_vary_across(dgp, method, ...)
+      dots_list <- temp$dots_list
+      field_name <- temp$field_name
+      obj_name <- temp$obj_name
       vary_across_sublist <- private$.vary_across_list[[field_name]][[obj_name]]
       if (is.null(vary_across_sublist)) {
         vary_across_sublist <- list()
@@ -764,18 +792,78 @@ Experiment <- R6::R6Class(
       private$.vary_across_list[[field_name]][[obj_name]] <- vary_across_sublist
       invisible(self)
     },
-    update_vary_across = function(dgp = NULL, method = NULL,
-                                  param_name, param_values) {
-      if (identical(private$.vary_across_list, list())) {
-        stop("The vary_across parameter has not been added yet. Use add_vary_across instead.",
-             call. = FALSE)
+    update_vary_across = function(dgp, method, ...) {
+      temp <- private$.check_vary_across(dgp, method, ...)
+      dots_list <- temp$dots_list
+      field_name <- temp$field_name
+      obj_name <- temp$obj_name
+      vary_across_sublist <- private$.vary_across_list[[field_name]][[obj_name]]
+      if (is.null(vary_across_sublist)) {
+        stop(
+          sprintf(
+            paste0(
+              "The vary_across parameter has not been set for %s's %s_fun. ",
+              "Use add_vary_across instead."
+            ),
+            obj_name, field_name
+          ), call. = FALSE
+        )
       }
-      self$remove_vary_across()
-      self$add_vary_across(dgp = dgp, method = method,
-                           param_name = param_name, param_values = param_values)
+      for (arg_name in names(dots_list)) {
+        if (is.null(vary_across_sublist[[arg_name]])) {
+          stop(
+            sprintf(
+              paste0(
+                "The vary_across parameter for argument '%s' has not ",
+                "been set for %s's %s_fun. Use add_vary_across instead."
+              ),
+              arg_name, obj_name, field_name
+            ), call. = FALSE
+          )
+        } else {
+          vary_across_sublist[[arg_name]] <- dots_list[[arg_name]]
+        }
+      }
+      private$.vary_across_list[[field_name]][[obj_name]] <- vary_across_sublist
+      invisible(self)
     },
-    remove_vary_across = function() {
-      private$.vary_across_list <- list()
+    remove_vary_across = function(dgp, method, param_names = NULL) {
+      temp <- private$.check_vary_across(dgp, method)
+      field_name <- temp$field_name
+      obj_name <- temp$obj_name
+      vary_across_sublist <- private$.vary_across_list[[field_name]][[obj_name]]
+      if (is.null(vary_across_sublist)) {
+        stop(
+          sprintf(
+            paste0(
+              "Cannot remove vary_across parameter for %s's %s_fun ",
+              "since the vary_across parameter has not been set."
+            ),
+            obj_name, field_name
+          ), call. = FALSE
+        )
+      }
+
+      for (arg_name in param_names) {
+        if (is.null(vary_across_sublist[[arg_name]])) {
+          stop(
+            sprintf(
+              paste0(
+                "Cannot remove vary_across parameter for argument '%s' ",
+                "in %s's %s_fun since the vary_across parameter has not been set."
+              ),
+              arg_name, obj_name, field_name
+            ), call. = FALSE
+          )
+        } else {
+          vary_across_sublist[[arg_name]] <- NULL
+        }
+      }
+      if ((length(vary_across_sublist) == 0) | is.null(param_names)) {
+        vary_across_sublist <- NULL
+      }
+      private$.vary_across_list[[field_name]][[obj_name]] <- vary_across_sublist
+      invisible(self)
     },
     get_vary_across = function() {
       return(private$.vary_across_list)
@@ -988,11 +1076,8 @@ update_plot <- function(experiment, plotter, name, ...) {
 #' @rdname update_funs
 #'
 #' @export
-update_vary_across <- function(experiment, dgp = NULL, method = NULL,
-                               param_name, param_values) {
-  experiment$update_vary_across(dgp = dgp, method = method,
-                                param_name = param_name,
-                                param_values = param_values)
+update_vary_across <- function(experiment, ...) {
+  experiment$update_vary_across(...)
   return(experiment)
 }
 
@@ -1005,8 +1090,8 @@ update_vary_across <- function(experiment, dgp = NULL, method = NULL,
 #' @name remove_vary_across
 #'
 #' @export
-remove_vary_across <- function(experiment) {
-  experiment$remove_vary_across()
+remove_vary_across <- function(experiment, ...) {
+  experiment$remove_vary_across(...)
   return(experiment)
 }
 

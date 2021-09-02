@@ -39,7 +39,7 @@ list_to_tibble <- function(ls) {
   }, error = function(e) {
     out <- purrr::map(ls, ~list(.x)) %>%
       tibble::as_tibble()
-    simplify_cols <- purrr::map_lgl(out, 
+    simplify_cols <- purrr::map_lgl(out,
                                     ~length(unlist(.x, recursive = F)) == 1) %>%
       which() %>%
       names()
