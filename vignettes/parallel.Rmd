@@ -82,11 +82,13 @@ particular simulation experiment. In general, one should not have fewer tasks
 than workers and should avoid `n>>p` very small tasks as the overhead of
 distributing computation to workers may outweigh the benefits of parallelism.
 
-```{r, parallel-ex}
+```{r parallel-ex, eval=FALSE}
 n_workers <- availableCores() - 1
-plan(multisession, workers = n_workers)
+plan(multicore, workers = n_workers)
 
-dgp_fun1 <- function(n, rho, noise_level) {
+library(dplyr)
+
+dgp_fun1 <- function(n=100, rho=0.5, noise_level=1) {
   cov_mat <- diag(nrow = 5)
   cov_mat[cov_mat == 0] <- rho
   X <- MASS::mvrnorm(n = n, mu = rep(0, 5), Sigma = cov_mat)
@@ -94,7 +96,8 @@ dgp_fun1 <- function(n, rho, noise_level) {
   return(list(X = X, y = y))
 }
 
-dgp_fun2 <- function(n, p, rho, sparsity, noise_level) {
+dgp_fun2 <- function(n=100, p=100, rho=0.5, sparsity=0.5, noise_level=1,
+                     nonzero_coeff = c(-3, -1, 1, 3)) {
   cov_mat <- diag(nrow = p)
   cov_mat[cov_mat == 0] <- rho
   X <- MASS::mvrnorm(n = n, mu = rep(0, p), Sigma = cov_mat)
@@ -102,7 +105,7 @@ dgp_fun2 <- function(n, p, rho, sparsity, noise_level) {
   coeff <- c(
     -8, # intercept
     sample(
-      c(0, -3, -1, 1, 3), size = p, replace = TRUE,
+      c(0, nonzero_coeff), size = p, replace = TRUE,
       prob = coeff_prob
     )
   )
@@ -114,38 +117,76 @@ dgp1 <- create_dgp(dgp_fun1, name = "dense_dgp")
 dgp2 <- create_dgp(dgp_fun2, name = "sparse_dgp")
 
 ols <- function(X, y) {
-  fit <- lm(y ~ X)
+  fit <- lm(y ~ X) %>% broom::tidy()
   return(fit)
 }
 
-glmnet <- function(X, y, alpha) {
+elnet <- function(X, y, alpha=1) {
   fit <- glmnet::glmnet(
     x = X, y = y, family = "gaussian", alpha = alpha
-  )
+  ) %>% broom::tidy()
   return(fit)
 }
 
 method1 <- create_method(ols, name = "ols")
-method2 <- create_method(glmnet, name = "glmnet")
+method2 <- create_method(elnet, name = "elnet")
 
-experiment <- create_experiment(name = "base") %>%
+experiment <- create_experiment(
+  name = "base", future.packages = "dplyr") %>%
   add_dgp(dgp1) %>%
   add_dgp(dgp2) %>%
   add_method(method1) %>%
   add_method(method2) %>%
   add_vary_across(
-    dgp = "dense_dgp",
-    rho = c(0, 0.2, 0.5, 0.9),
-    noise_level = c(1, 2, 4, 8)
+    dgp = "sparse_dgp",
+    p = c(100, 1000),
+    rho = c(0.2, 0.9),
+    sparsity = c(0.5, 0.9),
+    nonzero_coeff = list(c(-3, -1, 1, 3), c(-0.3, -0.1, 0.1, 0.3))
   ) %>%
   add_vary_across(
-    method = "glmnet", alpha = c(0, 0.25, 0.5, 0.75, 1)
+    method = "elnet", alpha = c(0, 0.5, 1)
   )
 
 system.time(
-  experiment$fit(
-    n_reps = 100, parallel_strategy = c("reps", "dgps"),
+  o <- experiment$fit(
+    n_reps = 2, parallel_strategy = c("reps")
   )
 )
 
+system.time(
+  o <- experiment$fit(
+    n_reps = 2, parallel_strategy = c("dgps")
+  )
+)
+
+system.time(
+  o <- experiment$fit(
+    n_reps = 2, parallel_strategy = c("methods")
+  )
+)
+
+system.time(
+  o <- experiment$fit(
+    n_reps = 2, parallel_strategy = c("reps", "dgps")
+  )
+)
+
+system.time(
+  o <- experiment$fit(
+    n_reps = 2, parallel_strategy = c("reps", "methods")
+  )
+)
+
+system.time(
+  o <- experiment$fit(
+    n_reps = 2, parallel_strategy = c("dgps", "methods"),
+  )
+)
+
+system.time(
+  o <- experiment$fit(
+    n_reps = 2, parallel_strategy = c("reps", "dgps", "methods")
+  )
+)
 ```
