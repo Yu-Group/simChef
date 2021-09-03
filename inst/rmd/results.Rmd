@@ -12,18 +12,14 @@ output:
 css: css/custom_rmd_theme.css
 params:
   sim_name:
-    label: "Simulation Name:"
-    value: "Local Feature Stability Sims"
+    label: "Simulation Experiment Name:"
+    value: ""
   sim_path:
-    label: "Path to Experiment Folder:"
-    value: "/Users/Tiffany/My Documents/Research/Yu/Local Feature Stability/local-feature-stability/results/Local Feature Stability Sims"
+    label: "Path to Simulation Experiment Folder:"
+    value: ""
   verbose:
     label: "Verbose Level:"
     value: 2
-  # external_files:
-  #   label: "Name of external files to source:"
-  #   # value: "../vignettes/functions/plotting_wrappers.R"
-  #   value: NULL
 ---
 
 <script src="js/customNavClass.js"></script>
@@ -40,18 +36,6 @@ knitr::opts_chunk$set(
   fig.height = 12,
   fig.width = 10
 )
-
-library(fontawesome)
-library(tidyverse)
-
-source(file.path("utils", "rmd_utils.R"))
-source(file.path("utils", "table_wrappers.R"))
-# if (!is.null(params$external_files)) {
-#   source_files <- str_trim(str_split(params$external_files, ",")[[1]])
-#   for (file in source_files) {
-#     source(file, chdir = T)
-#   }
-# }
 
 options(knitr.kable.NA = 'NA', 
         dplyr.summarise.inform = FALSE)
@@ -85,8 +69,10 @@ getDescendants <- function(dir_name) {
       if (identical(d, params$sim_path)) {
         exp_name <- "Base"
       } else {
-        exp_name <- str_replace_all(str_remove(d, paste0(params$sim_path, "/")),
-                                    "/", " - ")
+        exp_name <- stringr::str_replace_all(
+          stringr::str_remove(d, paste0(params$sim_path, "/")), 
+          "/", " - "
+        )
       }
       experiments[[exp_name]] <- readRDS(file.path(d, "experiment.rds"))
     }
@@ -102,30 +88,31 @@ getDescendants <- function(dir_name) {
 #'   directory(s) and its descendants
 #' @return TRUE if experiment exists and FALSE otherwise
 experimentExists <- function(dir_name, recursive = FALSE) {
-  res <- map_lgl(dir_name,
-                 function(d) {
-                   if (!recursive) {
-                     exp_fname <- file.path(d, "experiment.rds")
-                     return(file.exists(exp_fname))
-                   } else {
-                     descendants <- getDescendants(d)
-                     return(length(descendants) > 0)
-                   }
-                 })
+  res <- purrr::map_lgl(dir_name,
+                        function(d) {
+                          if (!recursive) {
+                            exp_fname <- file.path(d, "experiment.rds")
+                            return(file.exists(exp_fname))
+                          } else {
+                            descendants <- getDescendants(d)
+                            return(length(descendants) > 0)
+                          }
+                        })
   return(any(res))
 }
 
 #' Displays content for specified part of recipe
 #' 
 #' @param field_name part of recipe to show; must be one of "dgp", "method",
-#'   "evaluator", or "plot"
+#'   "evaluator", or "plotter"
 #' @return content for recipe
 showRecipePart <- function(field_name = c("dgp", "method", 
-                                          "evaluator", "plot")) {
+                                          "evaluator", "plotter")) {
   
   field_name <- match.arg(field_name)
-  func_name <- case_when(field_name == "evaluator" ~ "eval",
-                         TRUE ~ field_name)
+  func_name <- dplyr::case_when(field_name == "evaluator" ~ "eval",
+                                field_name == "plotter" ~ "plot",
+                                TRUE ~ field_name)
   descendants <- getDescendants(dir_name = params$sim_path)
   objs <- purrr::map(descendants, ~.x[[paste0("get_", field_name, "s")]]())
   obj_names <- unique(purrr::reduce(sapply(objs, names), c))
@@ -146,14 +133,15 @@ showRecipePart <- function(field_name = c("dgp", "method",
     cat("<div class='panel panel-default padded-panel'>")
     cat(sprintf(obj_header, obj_name))
     
-    cat(sprintf(showtype_header, fa("readme", fill = "white")))
+    cat(sprintf(showtype_header, fontawesome::fa("readme", fill = "white")))
     pasteMd(file.path(doc_dir, paste0(field_name, "s"),
                       paste0(obj_name, ".md")))
     
-    cat(sprintf(showtype_header, fa("code", fill = "white")))
-    keep_objs <- map(objs, obj_name)
+    cat(sprintf(showtype_header, fontawesome::fa("code", fill = "white")))
+    keep_objs <- purrr::map(objs, obj_name)
     keep_objs[sapply(keep_objs, is.null)] <- NULL
-    if (all(map_lgl(keep_objs, ~isTRUE(all.equal(.x, keep_objs[[1]]))))) {
+    if (all(purrr::map_lgl(keep_objs, 
+                           ~isTRUE(check_equal(.x, keep_objs[[1]]))))) {
       obj <- keep_objs[[1]]
       cat("<b>Function</b>")
       subchunkify(obj[[paste0(func_name, "_fun")]],
@@ -205,7 +193,7 @@ getResults <- function(filename) {
 #' @param base logical; whether or not this is a base experiment
 #' @param show_header logical; whether or not to show section header
 #' @param verbose integer; 0 = no messages; 1 = print out directory name only; 
-#'   2 = print out directory name and name of evaluators/plots
+#'   2 = print out directory name and name of evaluators/plotters
 #' @return content results from evaluate() and plot() from the experiment
 showResults <- function(dir_name, depth, base = FALSE, show_header = TRUE,
                         verbose = 1) {
@@ -258,55 +246,63 @@ showResults <- function(dir_name, depth, base = FALSE, show_header = TRUE,
   plot_results <- getResults(plot_fname)
   
   if (!is.null(eval_results)) {
-    cat(sprintf(showtype_template, fa("table", fill = "white")))
+    cat(sprintf(showtype_template, fontawesome::fa("table", fill = "white")))
     for (eval_name in names(eval_results)) {
       if (verbose >= 2) {
         message(rep(" ", depth + 1), eval_name)
       }
-      cat(sprintf(figname_template, eval_name))
-      do.call(prettyDT, c(list(eval_results[[eval_name]]), 
-                          exp$get_evaluators()[[eval_name]]$rmd_options)) %>%
-        subchunkify(i = chunk_idx)
-      chunk_idx <<- chunk_idx + 1
+      evaluator <- exp$get_evaluators()[[eval_name]]
+      if (evaluator$show) {
+        cat(sprintf(figname_template, eval_name))
+        do.call(prettyDT, 
+                c(list(eval_results[[eval_name]]), evaluator$rmd_options)) %>%
+          subchunkify(i = chunk_idx)
+        chunk_idx <<- chunk_idx + 1
+      }
     }
   }
   
   if (!is.null(plot_results)) {
-    cat(sprintf(showtype_template, fa("chart-bar", fill = "white")))
+    cat(sprintf(showtype_template, 
+                fontawesome::fa("chart-bar", fill = "white")))
     for (plot_name in names(plot_results)) {
       if (verbose >= 2) {
         message(rep(" ", depth + 1), plot_name)
       }
-      cat(sprintf(figname_template, plot_name))
-      plts <- plot_results[[plot_name]]
-      if (!inherits(plts, "list")) {
-        plts <- list(plt = plts)
-      }
-      if (is.null(names(plts))) {
-        names(plts) <- 1:length(plts)
-      }
-      for (plt_name in names(plts)) {
-        if (length(plts) != 1) {
-          cat(sprintf(plt_template, plt_name))
+      plotter <- exp$get_plotters()[[plot_name]]
+      if (plotter$show) {
+        cat(sprintf(figname_template, plot_name))
+        plts <- plot_results[[plot_name]]
+        if (!inherits(plts, "list")) {
+          plts <- list(plt = plts)
         }
-        plt <- plts[[plt_name]]
-        if (inherits(plt, "plotly")) {
-          add_class <- c("panel panel-default padded-panel")
-        } else {
-          add_class <- NULL
+        if (is.null(names(plts))) {
+          names(plts) <- 1:length(plts)
         }
-        subchunkify(plt, i = chunk_idx,
-                    fig_height = exp$get_plots()[[plot_name]]$rmd_options$height,
-                    fig_width = exp$get_plots()[[plot_name]]$rmd_options$width, 
-                    other_args = "out.width = '100%'", add_class = add_class)
-        chunk_idx <<- chunk_idx + 1
+        for (plt_name in names(plts)) {
+          if (length(plts) != 1) {
+            cat(sprintf(plt_template, plt_name))
+          }
+          plt <- plts[[plt_name]]
+          if (inherits(plt, "plotly")) {
+            add_class <- c("panel panel-default padded-panel")
+          } else {
+            add_class <- NULL
+          }
+          subchunkify(plt, i = chunk_idx,
+                      fig_height = plotter$rmd_options$height,
+                      fig_width = plotter$rmd_options$width, 
+                      other_args = "out.width = '100%'", 
+                      add_class = add_class)
+          chunk_idx <<- chunk_idx + 1
+        }
       }
     }
   }
   
   if (!is.null(exp)) {
     if (!identical(exp$get_vary_across(), list())) {
-      cat(sprintf(showtype_template, fa("code", fill = "white")))
+      cat(sprintf(showtype_template, fontawesome::fa("code", fill = "white")))
       cat("<b>Parameter Values</b>")
       subchunkify(exp$get_vary_across()$param_values,
                   chunk_idx, other_args = "max.height='200px'")
@@ -345,7 +341,7 @@ showDescendantResults <- function(dir_name, depth = 1, ...) {
 
 ```
 
-# Simulation Recipe {.tabset .tabset-fade}
+# Simulation Experiment Recipe {.tabset .tabset-fade}
 
 ## Objectives {.panel .panel-default .padded-panel}
 
@@ -376,7 +372,7 @@ showRecipePart(field_name = "evaluator")
 ## Visualizations
 
 ```{r plotters, results = "asis"}
-showRecipePart(field_name = "plot")
+showRecipePart(field_name = "plotter")
 ```
 
 
@@ -387,7 +383,9 @@ showRecipePart(field_name = "plot")
 if (experimentExists(params$sim_path)) {
   cat(sprintf("\n\n# Base %s \n\n", params$sim_name))
   cat("\n\n## {.tabset .tabset-pills .tabset-fade .tabset-circle}\n\n")
-  showResults(params$sim_path, depth = 2, base = FALSE, show_header = FALSE)
+  message(sprintf("Creating R Markdown report for %s...", params$sim_name))
+  showResults(params$sim_path, depth = 2, base = FALSE, show_header = FALSE,
+              verbose = 0)
 }
 
 showDescendantResults(params$sim_path, verbose = params$verbose)

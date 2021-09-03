@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Plot an Experiment's method or evaluation results. — plot_experiment • pcs.sim.pkg</title>
+<title>Plot results of an Experiment. — plot_experiment • pcs.sim.pkg</title>
 
 
 <!-- jquery -->
@@ -39,8 +39,9 @@
 
 
 
-<meta property="og:title" content="Plot an Experiment's method or evaluation results. — plot_experiment" />
-<meta property="og:description" content="Plot an Experiment's method or evaluation results." />
+<meta property="og:title" content="Plot results of an Experiment. — plot_experiment" />
+<meta property="og:description" content="Plot the performance of methods and/or its evaluation metrics
+using all Plotters in the Experiment and return plot results." />
 
 
 
@@ -80,7 +81,7 @@
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -95,10 +96,7 @@
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="../articles/basics.html">Basics</a>
-    </li>
-    <li>
-      <a href="../articles/pcs.html">PCS Simulations</a>
+      <a href="../articles/vignette.html">simChef Vignette</a>
     </li>
   </ul>
 </li>
@@ -118,13 +116,14 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Plot an <code>Experiment</code>'s method or evaluation results.</h1>
+    <h1>Plot results of an <code>Experiment</code>.</h1>
     
     <div class="hidden name"><code>plot_experiment.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Plot an <code>Experiment</code>'s method or evaluation results.</p>
+    <p>Plot the performance of methods and/or its evaluation metrics
+using all <code>Plotters</code> in the <code>Experiment</code> and return plot results.</p>
     </div>
 
     <pre class="usage"><span class='fu'>plot_experiment</span><span class='op'>(</span><span class='va'>experiment</span>, <span class='va'>...</span><span class='op'>)</span></pre>
@@ -138,13 +137,13 @@
     </tr>
     <tr>
       <th>...</th>
-      <td><p>Passed to <code>experiment$plot()</code>.</p></td>
+      <td><p>Passed to <code>Experiment$plot()</code>.</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A list of the simulation experiment's plots.</p>
+    <p>A list of plots, one for each <code>Plotter</code>.</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

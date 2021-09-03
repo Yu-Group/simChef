@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>A method to evaluate. — Method • pcs.sim.pkg</title>
+<title>R6 class representing a method. — Method • pcs.sim.pkg</title>
 
 
 <!-- jquery -->
@@ -39,9 +39,8 @@
 
 
 
-<meta property="og:title" content="A method to evaluate. — Method" />
-<meta property="og:description" content="A method to evaluate.
-A method to evaluate." />
+<meta property="og:title" content="R6 class representing a method. — Method" />
+<meta property="og:description" content="A method to be fit and assessed in the Experiment." />
 
 
 
@@ -81,7 +80,7 @@ A method to evaluate." />
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -96,10 +95,7 @@ A method to evaluate." />
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="../articles/basics.html">Basics</a>
-    </li>
-    <li>
-      <a href="../articles/pcs.html">PCS Simulations</a>
+      <a href="../articles/vignette.html">simChef Vignette</a>
     </li>
   </ul>
 </li>
@@ -119,18 +115,26 @@ A method to evaluate." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>A method to evaluate.</h1>
+    <h1><code>R6</code> class representing a method.</h1>
     
     <div class="hidden name"><code>Method.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>A method to evaluate.</p>
-<p>A method to evaluate.</p>
+    <p>A method to be <strong>fit</strong> and assessed in the <code>Experiment</code>.</p>
     </div>
 
 
 
+    <h2 class="hasAnchor" id="public-fields"><a class="anchor" href="#public-fields"></a>Public fields</h2>
+
+    <p><div class="r6-fields"></p><dl>
+<dt><code>method_fun</code></dt><dd><p>The method function.</p></dd>
+
+<dt><code>method_params</code></dt><dd><p>(Named) list of parameters to input into the
+method function.</p></dd>
+
+</dl><p></div></p>
     <h2 class="hasAnchor" id="methods"><a class="anchor" href="#methods"></a>Methods</h2>
 
     
@@ -143,16 +147,37 @@ A method to evaluate." />
 </ul>
 <p><hr>
 <a id="method-new"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>new()</code></h3>
-
-<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p>Create a new <code>Method</code>.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
 <p><div class="r"></p><pre><span class='va'>Method</span><span class='op'>$</span><span class='fu'>new</span><span class='op'>(</span><span class='va'>method_fun</span>, <span class='va'>...</span><span class='op'>)</span></pre><p></div></p>
 
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
+<p><div class="arguments"></p><dl>
+<dt><code>method_fun</code></dt><dd><p>The method function.</p></dd>
+
+<dt><code>...</code></dt><dd><p>Arguments to pass into <code>method_fun()</code>.</p></dd>
+
+</dl><p></div></p>
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Returns</h4>
+<p>A new <code>Method</code> object.</p>
 <p><hr>
 <a id="method-fit"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>fit()</code></h3>
-
-<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p>Fit a <code>Method</code> on data using the provided <code>Method</code>
+parameters.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
 <p><div class="r"></p><pre><span class='va'>Method</span><span class='op'>$</span><span class='fu'>fit</span><span class='op'>(</span><span class='va'>data_list</span>, <span class='va'>...</span><span class='op'>)</span></pre><p></div></p>
 
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
+<p><div class="arguments"></p><dl>
+<dt><code>data_list</code></dt><dd><p>List of data to pass into <code>method_fun()</code>. If named,
+should match arguments in <code>method_fun()</code>.</p></dd>
+
+<dt><code>...</code></dt><dd><p>Arguments to pass into <code>method_fun()</code> that will overwrite
+the initialized <code>Method</code> parameters. If no additional arguments
+are provided, the <code>Method</code> will be fit using <code>method_fun()</code>
+and the parameters that were set when <code>Method$new()</code> was called.</p></dd>
+
+</dl><p></div></p>
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Returns</h4>
+<p>Result of <code>method_fun()</code>, coerced into a single tibble row.</p>
 <p><hr>
 <a id="method-clone"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>clone()</code></h3>
 <p>The objects of this class are cloneable with this method.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>

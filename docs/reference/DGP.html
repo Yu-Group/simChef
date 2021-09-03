@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>A data-generating process — DGP • pcs.sim.pkg</title>
+<title>R6 class representing a data-generating process. — DGP • pcs.sim.pkg</title>
 
 
 <!-- jquery -->
@@ -39,9 +39,9 @@
 
 
 
-<meta property="og:title" content="A data-generating process — DGP" />
-<meta property="og:description" content="A data-generating process
-A data-generating process" />
+<meta property="og:title" content="R6 class representing a data-generating process. — DGP" />
+<meta property="og:description" content="A data-generating process which will be used in the
+Experiment to generate data." />
 
 
 
@@ -81,7 +81,7 @@ A data-generating process" />
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -96,10 +96,7 @@ A data-generating process" />
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="../articles/basics.html">Basics</a>
-    </li>
-    <li>
-      <a href="../articles/pcs.html">PCS Simulations</a>
+      <a href="../articles/vignette.html">simChef Vignette</a>
     </li>
   </ul>
 </li>
@@ -119,18 +116,27 @@ A data-generating process" />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>A data-generating process</h1>
+    <h1><code>R6</code> class representing a data-generating process.</h1>
     
     <div class="hidden name"><code>DGP.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>A data-generating process</p>
-<p>A data-generating process</p>
+    <p>A data-generating process which will be used in the
+<code>Experiment</code> to <strong>generate</strong> data.</p>
     </div>
 
 
 
+    <h2 class="hasAnchor" id="public-fields"><a class="anchor" href="#public-fields"></a>Public fields</h2>
+
+    <p><div class="r6-fields"></p><dl>
+<dt><code>dgp_fun</code></dt><dd><p>The data-generating process function.</p></dd>
+
+<dt><code>dgp_params</code></dt><dd><p>(Named) list of parameters to input into the
+data-generating process function.</p></dd>
+
+</dl><p></div></p>
     <h2 class="hasAnchor" id="methods"><a class="anchor" href="#methods"></a>Methods</h2>
 
     
@@ -143,16 +149,34 @@ A data-generating process" />
 </ul>
 <p><hr>
 <a id="method-new"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>new()</code></h3>
-
-<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p>Create a new <code>DGP</code> (data-generating process).</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
 <p><div class="r"></p><pre><span class='va'>DGP</span><span class='op'>$</span><span class='fu'>new</span><span class='op'>(</span><span class='va'>dgp_fun</span>, <span class='va'>...</span><span class='op'>)</span></pre><p></div></p>
 
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
+<p><div class="arguments"></p><dl>
+<dt><code>dgp_fun</code></dt><dd><p>The data-generating process function.</p></dd>
+
+<dt><code>...</code></dt><dd><p>Arguments to pass into <code>dgp_fun()</code>.</p></dd>
+
+</dl><p></div></p>
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Returns</h4>
+<p>A new <code>DGP</code> object.</p>
 <p><hr>
 <a id="method-generate"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>generate()</code></h3>
-
-<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p>Generate data from a <code>DGP</code> with the provided <code>DGP</code>
+parameters.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
 <p><div class="r"></p><pre><span class='va'>DGP</span><span class='op'>$</span><span class='fu'>generate</span><span class='op'>(</span><span class='va'>...</span><span class='op'>)</span></pre><p></div></p>
 
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
+<p><div class="arguments"></p><dl>
+<dt><code>...</code></dt><dd><p>Arguments to pass into <code>dgp_fun()</code> that will overwrite
+the initialized <code>DGP</code> parameters. If no additional arguments are
+provided, data will be generated using <code>dgp_fun()</code> with the
+parameters that were set when <code>DGP$new()</code> was called.</p></dd>
+
+</dl><p></div></p>
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Returns</h4>
+<p>Result of <code>dgp_fun()</code>.</p>
 <p><hr>
 <a id="method-clone"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>clone()</code></h3>
 <p>The objects of this class are cloneable with this method.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>

@@ -82,7 +82,7 @@ Experiment." />
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -97,10 +97,7 @@ Experiment." />
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="../articles/basics.html">Basics</a>
-    </li>
-    <li>
-      <a href="../articles/pcs.html">PCS Simulations</a>
+      <a href="../articles/vignette.html">simChef Vignette</a>
     </li>
   </ul>
 </li>
@@ -137,15 +134,7 @@ Experiment." />
 
 <span class='fu'>update_evaluator</span><span class='op'>(</span><span class='va'>experiment</span>, <span class='va'>evaluator</span>, <span class='va'>name</span>, <span class='va'>...</span><span class='op'>)</span>
 
-<span class='fu'>update_plot</span><span class='op'>(</span><span class='va'>experiment</span>, <span class='va'>plotter</span>, <span class='va'>name</span>, <span class='va'>...</span><span class='op'>)</span>
-
-<span class='fu'>update_vary_across</span><span class='op'>(</span>
-  <span class='va'>experiment</span>,
-  dgp <span class='op'>=</span> <span class='cn'>NULL</span>,
-  method <span class='op'>=</span> <span class='cn'>NULL</span>,
-  <span class='va'>param_name</span>,
-  <span class='va'>param_values</span>
-<span class='op'>)</span></pre>
+<span class='fu'>update_plotter</span><span class='op'>(</span><span class='va'>experiment</span>, <span class='va'>plotter</span>, <span class='va'>name</span>, <span class='va'>...</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -164,7 +153,7 @@ Experiment." />
     </tr>
     <tr>
       <th>...</th>
-      <td><p>Not currently used.</p></td>
+      <td><p>Not used.</p></td>
     </tr>
     <tr>
       <th>method</th>
@@ -172,7 +161,7 @@ Experiment." />
     </tr>
     <tr>
       <th>evaluator</th>
-      <td><p>A <code>Evaluator</code> object.</p></td>
+      <td><p>An <code>Evaluator</code> object.</p></td>
     </tr>
     <tr>
       <th>plotter</th>
@@ -182,7 +171,7 @@ Experiment." />
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>The original <code>experiment</code> object passed to <code>update_*</code>.</p>
+    <p>The original <code>Experiment</code> object passed to <code>update_*</code>.</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

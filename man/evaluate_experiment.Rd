@@ -2,18 +2,20 @@
 % Please edit documentation in R/experiment.R
 \name{evaluate_experiment}
 \alias{evaluate_experiment}
-\title{Evaluate an \code{Experiment}}
+\title{Evaluate an \code{Experiment}.}
 \usage{
 evaluate_experiment(experiment, ...)
 }
 \arguments{
 \item{experiment}{An \code{Experiment} object.}
 
-\item{...}{Passed to \code{experiment$evaluate()}.}
+\item{...}{Passed to \code{Experiment$evaluate()}.}
 }
 \value{
-A list of the simulation experiment's evaluation results.
+A list of evaluation result tibbles, one for each
+\code{Evaluator}.
 }
 \description{
-Evaluate an \code{Experiment}
+Evaluate the performance of method(s) across all
+\code{Evaluators} in the \code{Experiment} and return results.
 }
