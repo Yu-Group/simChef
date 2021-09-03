@@ -5,8 +5,7 @@
 \alias{update_dgp}
 \alias{update_method}
 \alias{update_evaluator}
-\alias{update_plot}
-\alias{update_vary_across}
+\alias{update_plotter}
 \title{Helper functions for updating components of an \code{Experiment}.}
 \usage{
 update_dgp(experiment, dgp, name, ...)
@@ -15,9 +14,7 @@ update_method(experiment, method, name, ...)
 
 update_evaluator(experiment, evaluator, name, ...)
 
-update_plot(experiment, plotter, name, ...)
-
-update_vary_across(experiment, ...)
+update_plotter(experiment, plotter, name, ...)
 }
 \arguments{
 \item{experiment}{An \code{Experiment} object.}
@@ -26,16 +23,16 @@ update_vary_across(experiment, ...)
 
 \item{name}{A name to identify the object to be updated.}
 
-\item{...}{Not currently used.}
+\item{...}{Not used.}
 
 \item{method}{A \code{Method} object.}
 
-\item{evaluator}{A \code{Evaluator} object.}
+\item{evaluator}{An \code{Evaluator} object.}
 
 \item{plotter}{A \code{Plotter} object.}
 }
 \value{
-The original \code{experiment} object passed to \code{update_*}.
+The original \code{Experiment} object passed to \code{update_*}.
 }
 \description{
 Helper functions for updating \code{DGPs}, \code{Methods},

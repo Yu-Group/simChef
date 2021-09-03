@@ -7,7 +7,7 @@
 create_experiment(...)
 }
 \arguments{
-\item{...}{Passed to experiment$new().}
+\item{...}{Passed to \code{Experiment$new()}.}
 }
 \value{
 A new instance of \code{Experiment}.

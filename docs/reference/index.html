@@ -79,7 +79,7 @@
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -94,10 +94,7 @@
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="../articles/basics.html">Basics</a>
-    </li>
-    <li>
-      <a href="../articles/pcs.html">PCS Simulations</a>
+      <a href="../articles/vignette.html">simChef Vignette</a>
     </li>
   </ul>
 </li>
@@ -132,7 +129,7 @@
       <tr>
         <th colspan="2">
           <h2 id="section-experiment" class="hasAnchor"><a href="#section-experiment" class="anchor"></a>Experiment</h2>
-          <p class="section-desc"></p>
+          <p class="section-desc"><p>Functions for creating and running a simulation experiment.</p></p>
         </th>
       </tr>
       
@@ -157,32 +154,93 @@
         <td>
           <p><code><a href="run_experiment.html">run_experiment()</a></code> </p>
         </td>
-        <td><p>Run the full <code>Experiment</code> pipeline.</p></td>
+        <td><p>Run the full <code>Experiment</code> pipeline (fitting, evaluating, and plotting).</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="add_funs.html">add_dgp()</a></code> <code><a href="add_funs.html">add_method()</a></code> <code><a href="add_funs.html">add_evaluator()</a></code> <code><a href="add_funs.html">add_plot()</a></code> <code><a href="add_funs.html">add_vary_across()</a></code> </p>
+          <p><code><a href="generate_data.html">generate_data()</a></code> </p>
+        </td>
+        <td><p>Generate data from each <code>DGP</code> in the <code>Experiment</code>.</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="fit_experiment.html">fit_experiment()</a></code> </p>
+        </td>
+        <td><p>Fit an <code>Experiment</code>.</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="evaluate_experiment.html">evaluate_experiment()</a></code> </p>
+        </td>
+        <td><p>Evaluate an <code>Experiment</code>.</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="plot_experiment.html">plot_experiment()</a></code> </p>
+        </td>
+        <td><p>Plot results of an <code>Experiment</code>.</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="add_funs.html">add_dgp()</a></code> <code><a href="add_funs.html">add_method()</a></code> <code><a href="add_funs.html">add_evaluator()</a></code> <code><a href="add_funs.html">add_plotter()</a></code> </p>
         </td>
         <td><p>Helper functions for adding components to an <code>Experiment</code>.</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="update_funs.html">update_dgp()</a></code> <code><a href="update_funs.html">update_method()</a></code> <code><a href="update_funs.html">update_evaluator()</a></code> <code><a href="update_funs.html">update_plot()</a></code> <code><a href="update_funs.html">update_vary_across()</a></code> </p>
+          <p><code><a href="update_funs.html">update_dgp()</a></code> <code><a href="update_funs.html">update_method()</a></code> <code><a href="update_funs.html">update_evaluator()</a></code> <code><a href="update_funs.html">update_plotter()</a></code> </p>
         </td>
         <td><p>Helper functions for updating components of an <code>Experiment</code>.</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="remove_vary_across.html">remove_vary_across()</a></code> </p>
+          <p><code><a href="remove_funs.html">remove_dgp()</a></code> <code><a href="remove_funs.html">remove_method()</a></code> <code><a href="remove_funs.html">remove_evaluator()</a></code> <code><a href="remove_funs.html">remove_plotter()</a></code> </p>
         </td>
-        <td><p>Remove variable parameters from an <code>Experiment</code>.</p></td>
+        <td><p>Helper functions for removing components of an <code>Experiment</code>.</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="vary_across.html">add_vary_across()</a></code> <code><a href="vary_across.html">update_vary_across()</a></code> <code><a href="vary_across.html">remove_vary_across()</a></code> </p>
+        </td>
+        <td><p>Varying across parameters in an <code>Experiment</code>.</p></td>
       </tr><tr>
         
         <td>
           <p><code><a href="set_save_dir.html">set_save_dir()</a></code> </p>
         </td>
-        <td><p>Set base directory to use for saving results and plots from an
-<code>Experiment</code>.</p></td>
+        <td><p>Set results directory for an <code>Experiment</code>.</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="save_experiment.html">save_experiment()</a></code> </p>
+        </td>
+        <td><p>Save an <code>Experiment</code>.</p></td>
+      </tr>
+    </tbody><tbody>
+      <tr>
+        <th colspan="2">
+          <h2 id="section-r-markdown-report" class="hasAnchor"><a href="#section-r-markdown-report" class="anchor"></a>R Markdown Report</h2>
+          <p class="section-desc"><p>Functions for summarizing and visualizing results from a simulation experiment in a knitted R Markdown report.</p></p>
+        </th>
+      </tr>
+      
+      
+    </tbody><tbody>
+      
+      
+      <tr>
+        
+        <td>
+          <p><code><a href="set_rmd_options.html">set_rmd_options()</a></code> </p>
+        </td>
+        <td><p>Set R Markdown options for <code>Evaluator</code> and <code>Plotter</code> outputs in
+summary report</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="create_doc_template.html">create_doc_template()</a></code> </p>
+        </td>
+        <td><p>Create documentation template for the R Markdown results report.</p></td>
       </tr><tr>
         
         <td>
@@ -194,38 +252,127 @@
       <tr>
         <th colspan="2">
           <h2 id="section-dgp" class="hasAnchor"><a href="#section-dgp" class="anchor"></a>DGP</h2>
-          <p class="section-desc"></p>
+          <p class="section-desc"><p>Functions for creating a DGP (data-generating process).</p></p>
         </th>
       </tr>
       
       
+    </tbody><tbody>
+      
+      
+      <tr>
+        
+        <td>
+          <p><code><a href="DGP.html">DGP</a></code> </p>
+        </td>
+        <td><p><code>R6</code> class representing a data-generating process.</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="create_dgp.html">create_dgp()</a></code> </p>
+        </td>
+        <td><p>Create a new <code>DGP</code> (data-generating process).</p></td>
+      </tr>
     </tbody><tbody>
       <tr>
         <th colspan="2">
           <h2 id="section-method" class="hasAnchor"><a href="#section-method" class="anchor"></a>Method</h2>
-          <p class="section-desc"></p>
+          <p class="section-desc"><p>Functions for creating a Method.</p></p>
         </th>
       </tr>
       
       
+    </tbody><tbody>
+      
+      
+      <tr>
+        
+        <td>
+          <p><code><a href="Method.html">Method</a></code> </p>
+        </td>
+        <td><p><code>R6</code> class representing a method.</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="create_method.html">create_method()</a></code> </p>
+        </td>
+        <td><p>Create a new <code>Method</code>.</p></td>
+      </tr>
     </tbody><tbody>
       <tr>
         <th colspan="2">
           <h2 id="section-evaluator" class="hasAnchor"><a href="#section-evaluator" class="anchor"></a>Evaluator</h2>
-          <p class="section-desc"></p>
+          <p class="section-desc"><p>Functions for creating an Evaluator.</p></p>
         </th>
       </tr>
       
       
     </tbody><tbody>
+      
+      
+      <tr>
+        
+        <td>
+          <p><code><a href="Evaluator.html">Evaluator</a></code> </p>
+        </td>
+        <td><p><code>R6</code> class representing an evaluator.</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="create_evaluator.html">create_evaluator()</a></code> </p>
+        </td>
+        <td><p>Create a new <code>Evaluator</code>.</p></td>
+      </tr>
+    </tbody><tbody>
       <tr>
         <th colspan="2">
           <h2 id="section-plotter" class="hasAnchor"><a href="#section-plotter" class="anchor"></a>Plotter</h2>
-          <p class="section-desc"></p>
+          <p class="section-desc"><p>Functions for creating a Plotter.</p></p>
         </th>
       </tr>
       
       
+    </tbody><tbody>
+      
+      
+      <tr>
+        
+        <td>
+          <p><code><a href="Plotter.html">Plotter</a></code> </p>
+        </td>
+        <td><p><code>R6</code> class representing a plotter.</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="create_plotter.html">create_plotter()</a></code> </p>
+        </td>
+        <td><p>Create a new <code>Plotter</code>.</p></td>
+      </tr>
+    </tbody><tbody>
+      <tr>
+        <th colspan="2">
+          <h2 id="section-miscellaneous" class="hasAnchor"><a href="#section-miscellaneous" class="anchor"></a>Miscellaneous</h2>
+          <p class="section-desc"><p>Miscellaneous functions.</p></p>
+        </th>
+      </tr>
+      
+      
+    </tbody><tbody>
+      
+      
+      <tr>
+        
+        <td>
+          <p><code><a href="prettyDT.html">prettyDT()</a></code> </p>
+        </td>
+        <td><p>Create pretty datatable with custom bolding options.</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="prettyKable.html">prettyKable()</a></code> </p>
+        </td>
+        <td><p>Create pretty kable tables with custom bolding options.</p></td>
+      </tr>
     </tbody>
     </table>
   </div>

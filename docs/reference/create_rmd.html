@@ -40,7 +40,10 @@
 
 
 <meta property="og:title" content="Create an R Markdown file summarizing the results of an Experiment. — create_rmd" />
-<meta property="og:description" content="Create an R Markdown file summarizing the results of an Experiment." />
+<meta property="og:description" content="Knits an R Markdown file summarizing the results of an
+Experiment. Outputs an R Markdown-generated html file, saved in
+the Experiment's root results directory (see
+Experiment$get_save_dir())." />
 
 
 
@@ -80,7 +83,7 @@
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -95,10 +98,7 @@
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="../articles/basics.html">Basics</a>
-    </li>
-    <li>
-      <a href="../articles/pcs.html">PCS Simulations</a>
+      <a href="../articles/vignette.html">simChef Vignette</a>
     </li>
   </ul>
 </li>
@@ -124,10 +124,13 @@
     </div>
 
     <div class="ref-description">
-    <p>Create an R Markdown file summarizing the results of an <code>Experiment</code>.</p>
+    <p>Knits an R Markdown file summarizing the results of an
+<code>Experiment</code>. Outputs an R Markdown-generated html file, saved in
+the <code>Experiment</code>'s root results directory (see
+<code>Experiment$get_save_dir()</code>).</p>
     </div>
 
-    <pre class="usage"><span class='fu'>create_rmd</span><span class='op'>(</span><span class='va'>experiment</span>, <span class='va'>experiment_dirname</span>, open <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>create_rmd</span><span class='op'>(</span><span class='va'>experiment</span>, <span class='va'>experiment_dirname</span>, open <span class='op'>=</span> <span class='cn'>TRUE</span>, verbose <span class='op'>=</span> <span class='fl'>2</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -139,17 +142,23 @@
     <tr>
       <th>experiment_dirname</th>
       <td><p>A directory where results from an <code>Experiment</code>
-were previously saved. Used if <code>experiment</code> was not provided.</p></td>
+were previously saved. Used if <code>experiment</code> argument was not provided.</p></td>
     </tr>
     <tr>
       <th>open</th>
-      <td><p>If <code>TRUE</code>, open the R Markdown file in a web browser.</p></td>
+      <td><p>If <code>TRUE</code>, open the R Markdown-generated html file in a
+web browser.</p></td>
+    </tr>
+    <tr>
+      <th>verbose</th>
+      <td><p>Level of verboseness (0, 1, 2) when knitting R Markdown.
+Default is 2.</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>The original <code>experiment</code> object passed to <code>create_rmd</code>.</p>
+    <p>The original <code>Experiment</code> object passed to <code>create_rmd</code>.</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

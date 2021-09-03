@@ -81,7 +81,7 @@ Evaluators, and Plotters." />
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -96,10 +96,7 @@ Evaluators, and Plotters." />
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="../articles/basics.html">Basics</a>
-    </li>
-    <li>
-      <a href="../articles/pcs.html">PCS Simulations</a>
+      <a href="../articles/vignette.html">simChef Vignette</a>
     </li>
   </ul>
 </li>
@@ -158,22 +155,29 @@ computing results in parallel. Those results can then be evaluated using
 <li><p><a href='#method-create_rmd'><code>Experiment$create_rmd()</code></a></p></li>
 <li><p><a href='#method-add_dgp'><code>Experiment$add_dgp()</code></a></p></li>
 <li><p><a href='#method-update_dgp'><code>Experiment$update_dgp()</code></a></p></li>
+<li><p><a href='#method-remove_dgp'><code>Experiment$remove_dgp()</code></a></p></li>
 <li><p><a href='#method-get_dgps'><code>Experiment$get_dgps()</code></a></p></li>
 <li><p><a href='#method-add_method'><code>Experiment$add_method()</code></a></p></li>
 <li><p><a href='#method-update_method'><code>Experiment$update_method()</code></a></p></li>
+<li><p><a href='#method-remove_method'><code>Experiment$remove_method()</code></a></p></li>
 <li><p><a href='#method-get_methods'><code>Experiment$get_methods()</code></a></p></li>
 <li><p><a href='#method-add_evaluator'><code>Experiment$add_evaluator()</code></a></p></li>
 <li><p><a href='#method-update_evaluator'><code>Experiment$update_evaluator()</code></a></p></li>
+<li><p><a href='#method-remove_evaluator'><code>Experiment$remove_evaluator()</code></a></p></li>
 <li><p><a href='#method-get_evaluators'><code>Experiment$get_evaluators()</code></a></p></li>
-<li><p><a href='#method-add_plot'><code>Experiment$add_plot()</code></a></p></li>
-<li><p><a href='#method-update_plot'><code>Experiment$update_plot()</code></a></p></li>
-<li><p><a href='#method-get_plots'><code>Experiment$get_plots()</code></a></p></li>
+<li><p><a href='#method-add_plotter'><code>Experiment$add_plotter()</code></a></p></li>
+<li><p><a href='#method-update_plotter'><code>Experiment$update_plotter()</code></a></p></li>
+<li><p><a href='#method-remove_plotter'><code>Experiment$remove_plotter()</code></a></p></li>
+<li><p><a href='#method-get_plotters'><code>Experiment$get_plotters()</code></a></p></li>
 <li><p><a href='#method-add_vary_across'><code>Experiment$add_vary_across()</code></a></p></li>
 <li><p><a href='#method-update_vary_across'><code>Experiment$update_vary_across()</code></a></p></li>
 <li><p><a href='#method-remove_vary_across'><code>Experiment$remove_vary_across()</code></a></p></li>
 <li><p><a href='#method-get_vary_across'><code>Experiment$get_vary_across()</code></a></p></li>
+<li><p><a href='#method-set_rmd_options'><code>Experiment$set_rmd_options()</code></a></p></li>
 <li><p><a href='#method-get_save_dir'><code>Experiment$get_save_dir()</code></a></p></li>
 <li><p><a href='#method-set_save_dir'><code>Experiment$set_save_dir()</code></a></p></li>
+<li><p><a href='#method-save'><code>Experiment$save()</code></a></p></li>
+<li><p><a href='#method-print'><code>Experiment$print()</code></a></p></li>
 <li><p><a href='#method-clone'><code>Experiment$clone()</code></a></p></li>
 </ul>
 <p><hr>
@@ -200,13 +204,14 @@ computing results in parallel. Those results can then be evaluated using
 
 <dt><code>evaluator_list</code></dt><dd><p>An optional list of <code>Evaluator</code> objects.</p></dd>
 
-<dt><code>plotter_list</code></dt><dd><p>An option list of <code>Plotter</code> objects.</p></dd>
+<dt><code>plotter_list</code></dt><dd><p>An optional list of <code>Plotter</code> objects.</p></dd>
 
 <dt><code>clone_from</code></dt><dd><p>An optional <code>Experiment</code> object to use as a base
 for this one.</p></dd>
 
 <dt><code>save_dir</code></dt><dd><p>An optional directory in which to save the experiment's
-results.</p></dd>
+results. If <code>NULL</code>, results are saved at
+./results/{Experiment$name}</p></dd>
 
 <dt><code>...</code></dt><dd><p>Not used.</p></dd>
 
@@ -215,12 +220,14 @@ results.</p></dd>
 <p>A new <code>Experiment</code> object.</p>
 <p><hr>
 <a id="method-run"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>run()</code></h3>
-<p>Run the entire simulation experiment pipeline.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p>Run the entire simulation experiment pipeline (fitting,
+evaluating, and plotting)</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
 <p><div class="r"></p><pre><span class='va'>Experiment</span><span class='op'>$</span><span class='fu'>run</span><span class='op'>(</span>
   n_reps <span class='op'>=</span> <span class='fl'>1</span>,
   parallel_strategy <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"reps"</span>, <span class='st'>"dgps"</span>, <span class='st'>"methods"</span><span class='op'>)</span>,
   use_cached <span class='op'>=</span> <span class='cn'>FALSE</span>,
   save <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  verbose <span class='op'>=</span> <span class='fl'>1</span>,
   <span class='va'>...</span>
 <span class='op'>)</span></pre><p></div></p>
 
@@ -234,17 +241,36 @@ run.</p></dd>
 across available resources.</p></dd>
 
 <dt><code>use_cached</code></dt><dd><p>If <code>TRUE</code>, find and return previously saved
-results.</p></dd>
+results. If cached results cannot be found, run experiment anyways.
+Can also be a vector with some combination of "fit",
+"eval", or "plot" to use their respective cached results.</p></dd>
 
-<dt><code>save</code></dt><dd><p>If <code>TRUE</code>, save results to disk.</p></dd>
+<dt><code>save</code></dt><dd><p>If <code>TRUE</code>, save results to disk. Can also be a vector
+with some combination of "fit", "eval", or "plot" to save to disk.</p></dd>
+
+<dt><code>verbose</code></dt><dd><p>Level of verboseness. Default is 1, which prints out
+messages after major checkpoints in the experiment. If 0, no messages
+are printed.</p></dd>
 
 <dt><code>...</code></dt><dd><p>Not used.</p></dd>
 
-<dt><code>trial_run</code></dt><dd><p>If <code>TRUE</code>, run 1 rep of the simulation experiment.</p></dd>
-
 </dl><p></div></p>
 <h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Returns</h4>
-<p>A list of results from the simulation experiment.</p>
+<p>A list of results from the simulation experiment</p><dl>
+<dt>fit_results</dt><dd><p>A tibble containing results from the <code>fit</code>
+method. In addition to results columns, has columns named 'rep', 'dgp',
+'method', and the <code>vary_across</code> parameter name if applicable.</p></dd>
+<dt>eval_results</dt><dd><p>A list of tibbles containing results from the
+<code>evaluate</code> method, which evaluates each <code>Evaluator</code> in
+the <code>Experiment</code>. Length of list is equivalent to the number of
+<code>Evaluators</code>.</p></dd>
+<dt>plot_results</dt><dd><p>A list of tibbles containing results from the
+<code>plot</code> method, which plots each <code>Plotter</code> in
+the <code>Experiment</code>. Length of list is equivalent to the number of
+<code>Plotters</code>.</p></dd>
+
+</dl>
+
 <p><hr>
 <a id="method-generate_data"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code><a href='generate_data.html'>generate_data()</a></code></h3>
 <p>Generate data from each of the <code>DGPs</code> in the
@@ -255,22 +281,23 @@ results.</p></dd>
 <p><div class="arguments"></p><dl>
 <dt><code>n_reps</code></dt><dd><p>The number of datasets to generate per <code>DGP</code>.</p></dd>
 
-<dt><code>...</code></dt><dd><p>Passed to the generate.</p></dd>
+<dt><code>...</code></dt><dd><p>Not used.</p></dd>
 
 </dl><p></div></p>
 <h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Returns</h4>
 <p>A list of length equal to the number of <code>DGPs</code> in the
-<code>Experiment</code>. Each element is a list of datasets of length
-<code>n_reps</code>.</p>
+<code>Experiment</code>. Each element in the list is a list of <code>n_reps</code>
+datasets generated by the given <code>DGP</code>.</p>
 <p><hr>
 <a id="method-fit"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>fit()</code></h3>
-<p>Return fit results from the <code>Methods</code> in the
-<code>Experiment</code>.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p>Fit all <code>Methods</code> in the <code>Experiment</code> and return
+results.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
 <p><div class="r"></p><pre><span class='va'>Experiment</span><span class='op'>$</span><span class='fu'>fit</span><span class='op'>(</span>
   n_reps <span class='op'>=</span> <span class='fl'>1</span>,
   parallel_strategy <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"reps"</span>, <span class='st'>"dgps"</span>, <span class='st'>"methods"</span><span class='op'>)</span>,
   use_cached <span class='op'>=</span> <span class='cn'>FALSE</span>,
   save <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  verbose <span class='op'>=</span> <span class='fl'>1</span>,
   <span class='va'>...</span>
 <span class='op'>)</span></pre><p></div></p>
 
@@ -283,161 +310,374 @@ results.</p></dd>
 across available resources.</p></dd>
 
 <dt><code>use_cached</code></dt><dd><p>If <code>TRUE</code>, find and return previously saved
-results.</p></dd>
+results. If cached results cannot be found, fit experiment anyways.</p></dd>
 
 <dt><code>save</code></dt><dd><p>If <code>TRUE</code>, save results to disk.</p></dd>
 
-<dt><code>...</code></dt><dd><p>Not used.</p></dd>
+<dt><code>verbose</code></dt><dd><p>Level of verboseness. Default is 1, which prints out
+messages after major checkpoints in the experiment. If 0, no messages
+are printed.</p></dd>
 
-<dt><code>trial_run</code></dt><dd><p>If <code>TRUE</code>, run 1 rep of the simulation experiment.</p></dd>
+<dt><code>...</code></dt><dd><p>Not used.</p></dd>
 
 </dl><p></div></p>
 <h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Returns</h4>
-<p>A list of results from the simulation experiment.</p>
+<p>A tibble containing the results from fitting all <code>Methods</code>
+across all <code>DGPs</code> for <code>n_reps</code> repetitions. In addition to
+results columns, has columns named 'rep', 'dgp', 'method', and the
+<code>vary_across</code> parameter name if applicable.</p>
 <p><hr>
 <a id="method-evaluate"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>evaluate()</code></h3>
-<p>Evaluate the <code>Experiment</code>.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
-<p><div class="r"></p><pre><span class='va'>Experiment</span><span class='op'>$</span><span class='fu'>evaluate</span><span class='op'>(</span><span class='va'>fit_results</span>, use_cached <span class='op'>=</span> <span class='cn'>FALSE</span>, save <span class='op'>=</span> <span class='cn'>FALSE</span>, <span class='va'>...</span><span class='op'>)</span></pre><p></div></p>
-
-<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
-<p><div class="arguments"></p><dl>
-<dt><code>fit_results</code></dt><dd><p>A list of results, as returned by the <code>run</code>
-method.</p></dd>
-
-<dt><code>use_cached</code></dt><dd><p>If <code>TRUE</code>, find and return previously saved
-evaluation results.</p></dd>
-
-<dt><code>save</code></dt><dd><p>If <code>TRUE</code>, save evaluation results to disk.</p></dd>
-
-<dt><code>...</code></dt><dd><p>Not used.</p></dd>
-
-</dl><p></div></p>
-<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Returns</h4>
-<p>A list of evaluation results.</p>
-<p><hr>
-<a id="method-plot"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code><a href='https://rdrr.io/r/graphics/plot.default.html'>plot()</a></code></h3>
-<p>Plot the simulation experiment's method results or
-evaluation results.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
-<p><div class="r"></p><pre><span class='va'>Experiment</span><span class='op'>$</span><span class='fu'>plot</span><span class='op'>(</span>
-  fit_results <span class='op'>=</span> <span class='cn'>NULL</span>,
-  eval_results <span class='op'>=</span> <span class='cn'>NULL</span>,
+<p>Evaluate the performance of method fits across all
+<code>Evaluators</code> in the <code>Experiment</code> and return evaluation
+results.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p><div class="r"></p><pre><span class='va'>Experiment</span><span class='op'>$</span><span class='fu'>evaluate</span><span class='op'>(</span>
+  <span class='va'>fit_results</span>,
   use_cached <span class='op'>=</span> <span class='cn'>FALSE</span>,
   save <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  verbose <span class='op'>=</span> <span class='fl'>1</span>,
   <span class='va'>...</span>
 <span class='op'>)</span></pre><p></div></p>
 
 <h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
 <p><div class="arguments"></p><dl>
-<dt><code>fit_results</code></dt><dd><p>A list of results, as returned by the <code>fit</code>
-method.</p></dd>
-
-<dt><code>eval_results</code></dt><dd><p>A list of results, as returned by the <code>evaluate</code>
-method.</p></dd>
+<dt><code>fit_results</code></dt><dd><p>A tibble, as returned by the <code>fit</code> method.</p></dd>
 
 <dt><code>use_cached</code></dt><dd><p>If <code>TRUE</code>, find and return previously saved
-results.</p></dd>
+evaluation results. If cached results cannot be found, evaluate
+experiment anyways.</p></dd>
 
-<dt><code>save</code></dt><dd><p>If <code>TRUE</code>, save plots to disk.</p></dd>
+<dt><code>save</code></dt><dd><p>If <code>TRUE</code>, save evaluation results to disk.</p></dd>
+
+<dt><code>verbose</code></dt><dd><p>Level of verboseness. Default is 1, which prints out
+messages after major checkpoints in the experiment. If 0, no messages
+are printed.</p></dd>
 
 <dt><code>...</code></dt><dd><p>Not used.</p></dd>
 
 </dl><p></div></p>
 <h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Returns</h4>
-<p>A list of plots.</p>
+<p>A list of evaluation result tibbles, one for each
+<code>Evaluator</code>.</p>
 <p><hr>
-<a id="method-create_doc_template"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>create_doc_template()</code></h3>
+<a id="method-plot"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code><a href='https://rdrr.io/r/graphics/plot.default.html'>plot()</a></code></h3>
+<p>Plot the performance of methods and/or its evaluation
+metrics using all <code>Plotters</code> in the <code>Experiment</code> and return
+plot results.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p><div class="r"></p><pre><span class='va'>Experiment</span><span class='op'>$</span><span class='fu'>plot</span><span class='op'>(</span>
+  fit_results <span class='op'>=</span> <span class='cn'>NULL</span>,
+  eval_results <span class='op'>=</span> <span class='cn'>NULL</span>,
+  use_cached <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  save <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  verbose <span class='op'>=</span> <span class='fl'>1</span>,
+  <span class='va'>...</span>
+<span class='op'>)</span></pre><p></div></p>
 
-<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
-<p><div class="r"></p><pre><span class='va'>Experiment</span><span class='op'>$</span><span class='fu'>create_doc_template</span><span class='op'>(</span><span class='va'>...</span><span class='op'>)</span></pre><p></div></p>
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
+<p><div class="arguments"></p><dl>
+<dt><code>fit_results</code></dt><dd><p>A tibble, as returned by the <code>fit</code> method.</p></dd>
 
+<dt><code>eval_results</code></dt><dd><p>A list of result tibbles, as returned by the
+<code>evaluate</code> method.</p></dd>
+
+<dt><code>use_cached</code></dt><dd><p>If <code>TRUE</code>, find and return previously saved
+results. If cached results cannot be found, plot experiment anyways.</p></dd>
+
+<dt><code>save</code></dt><dd><p>If <code>TRUE</code>, save plots to disk.</p></dd>
+
+<dt><code>verbose</code></dt><dd><p>Level of verboseness. Default is 1, which prints out
+messages after major checkpoints int the experiment. If 0, no messages
+are printed.</p></dd>
+
+<dt><code>...</code></dt><dd><p>Not used.</p></dd>
+
+</dl><p></div></p>
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Returns</h4>
+<p>A list of plots, one for each <code>Plotter</code>.</p>
+<p><hr>
+<a id="method-create_doc_template"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code><a href='create_doc_template.html'>create_doc_template()</a></code></h3>
+<p>Create documentation template (a series of .md files) to
+fill out for the R Markdown results report. The documentation files can
+be found in the <code>Experiment</code>'s results directory under docs/.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p><div class="r"></p><pre><span class='va'>Experiment</span><span class='op'>$</span><span class='fu'>create_doc_template</span><span class='op'>(</span>save_dir <span class='op'>=</span> <span class='va'>self</span><span class='op'>$</span><span class='fu'>get_save_dir</span><span class='op'>(</span><span class='op'>)</span>, <span class='va'>...</span><span class='op'>)</span></pre><p></div></p>
+
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
+<p><div class="arguments"></p><dl>
+<dt><code>save_dir</code></dt><dd><p>An optional directory in which to find the experiment's
+saved results.</p></dd>
+
+<dt><code>...</code></dt><dd><p>Not used.</p></dd>
+
+</dl><p></div></p>
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Returns</h4>
+<p>The original <code>Experiment</code> object.</p>
 <p><hr>
 <a id="method-create_rmd"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code><a href='create_rmd.html'>create_rmd()</a></code></h3>
+<p>Knits an R Markdown file summarizing the results of an
+<code>Experiment</code>. Outputs an R Markdown-generated html file, saved in
+the <code>Experiment</code>'s root results directory.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p><div class="r"></p><pre><span class='va'>Experiment</span><span class='op'>$</span><span class='fu'>create_rmd</span><span class='op'>(</span>open <span class='op'>=</span> <span class='cn'>TRUE</span>, verbose <span class='op'>=</span> <span class='fl'>2</span>, <span class='va'>...</span><span class='op'>)</span></pre><p></div></p>
 
-<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
-<p><div class="r"></p><pre><span class='va'>Experiment</span><span class='op'>$</span><span class='fu'>create_rmd</span><span class='op'>(</span>open <span class='op'>=</span> <span class='cn'>TRUE</span>, <span class='va'>...</span><span class='op'>)</span></pre><p></div></p>
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
+<p><div class="arguments"></p><dl>
+<dt><code>open</code></dt><dd><p>If <code>TRUE</code>, open the R Markdown-generated html file in a
+web browser.</p></dd>
 
+<dt><code>verbose</code></dt><dd><p>Level of verboseness (0, 1, 2) when knitting R Markdown.
+Default is 2.</p></dd>
+
+<dt><code>...</code></dt><dd><p>Not used.</p></dd>
+
+</dl><p></div></p>
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Returns</h4>
+<p>The original <code>Experiment</code> object.</p>
 <p><hr>
 <a id="method-add_dgp"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code><a href='add_funs.html'>add_dgp()</a></code></h3>
-
-<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p>Add a new <code>DGP</code> to the <code>Experiment</code>.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
 <p><div class="r"></p><pre><span class='va'>Experiment</span><span class='op'>$</span><span class='fu'>add_dgp</span><span class='op'>(</span><span class='va'>dgp</span>, name <span class='op'>=</span> <span class='cn'>NULL</span>, <span class='va'>...</span><span class='op'>)</span></pre><p></div></p>
 
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
+<p><div class="arguments"></p><dl>
+<dt><code>dgp</code></dt><dd><p>A <code>DGP</code> object.</p></dd>
+
+<dt><code>name</code></dt><dd><p>Name of <code>DGP</code>.</p></dd>
+
+<dt><code>...</code></dt><dd><p>Not used.</p></dd>
+
+</dl><p></div></p>
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Returns</h4>
+<p>The original <code>Experiment</code> object with the <code>DGP</code> added.</p>
 <p><hr>
 <a id="method-update_dgp"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code><a href='update_funs.html'>update_dgp()</a></code></h3>
-
-<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p>Update an existing <code>DGP</code> in the <code>Experiment</code>.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
 <p><div class="r"></p><pre><span class='va'>Experiment</span><span class='op'>$</span><span class='fu'>update_dgp</span><span class='op'>(</span><span class='va'>dgp</span>, <span class='va'>name</span>, <span class='va'>...</span><span class='op'>)</span></pre><p></div></p>
 
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
+<p><div class="arguments"></p><dl>
+<dt><code>dgp</code></dt><dd><p>A <code>DGP</code> object.</p></dd>
+
+<dt><code>name</code></dt><dd><p>Name of existing <code>DGP</code> to update.</p></dd>
+
+<dt><code>...</code></dt><dd><p>Not used.</p></dd>
+
+</dl><p></div></p>
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Returns</h4>
+<p>The original <code>Experiment</code> object with the updated <code>DGP</code>.</p>
+<p><hr>
+<a id="method-remove_dgp"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code><a href='remove_funs.html'>remove_dgp()</a></code></h3>
+<p>Remove a <code>DGP</code> from the <code>Experiment</code>.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p><div class="r"></p><pre><span class='va'>Experiment</span><span class='op'>$</span><span class='fu'>remove_dgp</span><span class='op'>(</span><span class='va'>name</span>, <span class='va'>...</span><span class='op'>)</span></pre><p></div></p>
+
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
+<p><div class="arguments"></p><dl>
+<dt><code>name</code></dt><dd><p>Name of <code>DGP</code> to remove.</p></dd>
+
+<dt><code>...</code></dt><dd><p>Not used.</p></dd>
+
+</dl><p></div></p>
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Returns</h4>
+<p>The original <code>Experiment</code> object with the <code>DGP</code> removed.</p>
 <p><hr>
 <a id="method-get_dgps"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>get_dgps()</code></h3>
-
-<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p>Get all <code>DGPs</code> in the <code>Experiment</code>.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
 <p><div class="r"></p><pre><span class='va'>Experiment</span><span class='op'>$</span><span class='fu'>get_dgps</span><span class='op'>(</span><span class='op'>)</span></pre><p></div></p>
 
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Returns</h4>
+<p>A list of <code>DGP</code> objects in the <code>Experiment</code>.</p>
 <p><hr>
 <a id="method-add_method"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code><a href='add_funs.html'>add_method()</a></code></h3>
-
-<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p>Add a new <code>Method</code> to the <code>Experiment</code>.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
 <p><div class="r"></p><pre><span class='va'>Experiment</span><span class='op'>$</span><span class='fu'>add_method</span><span class='op'>(</span><span class='va'>method</span>, name <span class='op'>=</span> <span class='cn'>NULL</span>, <span class='va'>...</span><span class='op'>)</span></pre><p></div></p>
 
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
+<p><div class="arguments"></p><dl>
+<dt><code>method</code></dt><dd><p>A <code>Method</code> object.</p></dd>
+
+<dt><code>name</code></dt><dd><p>Name of <code>Method</code>.</p></dd>
+
+<dt><code>...</code></dt><dd><p>Not used.</p></dd>
+
+</dl><p></div></p>
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Returns</h4>
+<p>The original <code>Experiment</code> object with the <code>Method</code> added.</p>
 <p><hr>
 <a id="method-update_method"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code><a href='update_funs.html'>update_method()</a></code></h3>
-
-<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p>Update an existing <code>Method</code> in the <code>Experiment</code>.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
 <p><div class="r"></p><pre><span class='va'>Experiment</span><span class='op'>$</span><span class='fu'>update_method</span><span class='op'>(</span><span class='va'>method</span>, <span class='va'>name</span>, <span class='va'>...</span><span class='op'>)</span></pre><p></div></p>
 
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
+<p><div class="arguments"></p><dl>
+<dt><code>method</code></dt><dd><p>A <code>Method</code> object.</p></dd>
+
+<dt><code>name</code></dt><dd><p>Name of existing <code>Method</code> to update.</p></dd>
+
+<dt><code>...</code></dt><dd><p>Not used.</p></dd>
+
+</dl><p></div></p>
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Returns</h4>
+<p>The original <code>Experiment</code> object with the updated <code>Method</code>.</p>
+<p><hr>
+<a id="method-remove_method"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code><a href='remove_funs.html'>remove_method()</a></code></h3>
+<p>Remove a <code>Method</code> from the <code>Experiment</code>.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p><div class="r"></p><pre><span class='va'>Experiment</span><span class='op'>$</span><span class='fu'>remove_method</span><span class='op'>(</span><span class='va'>name</span>, <span class='va'>...</span><span class='op'>)</span></pre><p></div></p>
+
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
+<p><div class="arguments"></p><dl>
+<dt><code>name</code></dt><dd><p>Name of <code>Method</code> to remove.</p></dd>
+
+<dt><code>...</code></dt><dd><p>Not used.</p></dd>
+
+</dl><p></div></p>
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Returns</h4>
+<p>The original <code>Experiment</code> object with the <code>Method</code> removed.</p>
 <p><hr>
 <a id="method-get_methods"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>get_methods()</code></h3>
-
-<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p>Get all <code>Methods</code> in the <code>Experiment</code>.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
 <p><div class="r"></p><pre><span class='va'>Experiment</span><span class='op'>$</span><span class='fu'>get_methods</span><span class='op'>(</span><span class='op'>)</span></pre><p></div></p>
 
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Returns</h4>
+<p>A list of <code>Method</code> objects in the <code>Experiment</code>.</p>
 <p><hr>
 <a id="method-add_evaluator"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code><a href='add_funs.html'>add_evaluator()</a></code></h3>
-
-<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p>Add a new <code>Evaluator</code> to the <code>Experiment</code>.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
 <p><div class="r"></p><pre><span class='va'>Experiment</span><span class='op'>$</span><span class='fu'>add_evaluator</span><span class='op'>(</span><span class='va'>evaluator</span>, name <span class='op'>=</span> <span class='cn'>NULL</span>, <span class='va'>...</span><span class='op'>)</span></pre><p></div></p>
 
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
+<p><div class="arguments"></p><dl>
+<dt><code>evaluator</code></dt><dd><p>An <code>Evaluator</code> object.</p></dd>
+
+<dt><code>name</code></dt><dd><p>Name of <code>Evaluator</code>.</p></dd>
+
+<dt><code>...</code></dt><dd><p>Not used.</p></dd>
+
+</dl><p></div></p>
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Returns</h4>
+<p>The original <code>Experiment</code> object with the <code>Evaluator</code> added.</p>
 <p><hr>
 <a id="method-update_evaluator"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code><a href='update_funs.html'>update_evaluator()</a></code></h3>
-
-<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p>Update an existing <code>Evaluator</code> in the <code>Experiment</code>.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
 <p><div class="r"></p><pre><span class='va'>Experiment</span><span class='op'>$</span><span class='fu'>update_evaluator</span><span class='op'>(</span><span class='va'>evaluator</span>, <span class='va'>name</span>, <span class='va'>...</span><span class='op'>)</span></pre><p></div></p>
 
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
+<p><div class="arguments"></p><dl>
+<dt><code>evaluator</code></dt><dd><p>An <code>Evaluator</code> object.</p></dd>
+
+<dt><code>name</code></dt><dd><p>Name of existing <code>Evaluator</code> to update.</p></dd>
+
+<dt><code>...</code></dt><dd><p>Not used.</p></dd>
+
+</dl><p></div></p>
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Returns</h4>
+<p>The original <code>Experiment</code> object with the updated <code>Evaluator</code>.</p>
+<p><hr>
+<a id="method-remove_evaluator"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code><a href='remove_funs.html'>remove_evaluator()</a></code></h3>
+<p>Remove an <code>Evaluator</code> from the <code>Experiment</code>.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p><div class="r"></p><pre><span class='va'>Experiment</span><span class='op'>$</span><span class='fu'>remove_evaluator</span><span class='op'>(</span><span class='va'>name</span>, <span class='va'>...</span><span class='op'>)</span></pre><p></div></p>
+
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
+<p><div class="arguments"></p><dl>
+<dt><code>name</code></dt><dd><p>Name of <code>Evaluator</code> to remove.</p></dd>
+
+<dt><code>...</code></dt><dd><p>Not used.</p></dd>
+
+</dl><p></div></p>
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Returns</h4>
+<p>The original <code>Experiment</code> object with the <code>Evaluator</code> removed.</p>
 <p><hr>
 <a id="method-get_evaluators"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>get_evaluators()</code></h3>
-
-<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p>Get all <code>Evaluators</code> in the <code>Experiment</code>.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
 <p><div class="r"></p><pre><span class='va'>Experiment</span><span class='op'>$</span><span class='fu'>get_evaluators</span><span class='op'>(</span><span class='op'>)</span></pre><p></div></p>
 
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Returns</h4>
+<p>A list of <code>Evaluator</code> objects in the <code>Experiment</code>.</p>
 <p><hr>
-<a id="method-add_plot"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code><a href='add_funs.html'>add_plot()</a></code></h3>
+<a id="method-add_plotter"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code><a href='add_funs.html'>add_plotter()</a></code></h3>
+<p>Add a new <code>Plotter</code> to the <code>Experiment</code>.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p><div class="r"></p><pre><span class='va'>Experiment</span><span class='op'>$</span><span class='fu'>add_plotter</span><span class='op'>(</span><span class='va'>plotter</span>, name <span class='op'>=</span> <span class='cn'>NULL</span>, <span class='va'>...</span><span class='op'>)</span></pre><p></div></p>
 
-<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
-<p><div class="r"></p><pre><span class='va'>Experiment</span><span class='op'>$</span><span class='fu'>add_plot</span><span class='op'>(</span><span class='va'>plotter</span>, name <span class='op'>=</span> <span class='cn'>NULL</span>, <span class='va'>...</span><span class='op'>)</span></pre><p></div></p>
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
+<p><div class="arguments"></p><dl>
+<dt><code>plotter</code></dt><dd><p>A <code>Plotter</code> object.</p></dd>
 
+<dt><code>name</code></dt><dd><p>Name of <code>Plotter</code>.</p></dd>
+
+<dt><code>...</code></dt><dd><p>Not used.</p></dd>
+
+</dl><p></div></p>
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Returns</h4>
+<p>The original <code>Experiment</code> object with the <code>Plotter</code> added.</p>
 <p><hr>
-<a id="method-update_plot"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code><a href='update_funs.html'>update_plot()</a></code></h3>
+<a id="method-update_plotter"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code><a href='update_funs.html'>update_plotter()</a></code></h3>
+<p>Update an existing <code>Plotter</code> in the <code>Experiment</code>.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p><div class="r"></p><pre><span class='va'>Experiment</span><span class='op'>$</span><span class='fu'>update_plotter</span><span class='op'>(</span><span class='va'>plotter</span>, <span class='va'>name</span>, <span class='va'>...</span><span class='op'>)</span></pre><p></div></p>
 
-<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
-<p><div class="r"></p><pre><span class='va'>Experiment</span><span class='op'>$</span><span class='fu'>update_plot</span><span class='op'>(</span><span class='va'>plotter</span>, <span class='va'>name</span>, <span class='va'>...</span><span class='op'>)</span></pre><p></div></p>
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
+<p><div class="arguments"></p><dl>
+<dt><code>plotter</code></dt><dd><p>A <code>Plotter</code> object.</p></dd>
 
+<dt><code>name</code></dt><dd><p>Name of existing <code>Plotter</code> to update.</p></dd>
+
+<dt><code>...</code></dt><dd><p>Not used.</p></dd>
+
+</dl><p></div></p>
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Returns</h4>
+<p>The original <code>Experiment</code> object with the updated <code>Plotter</code>.</p>
 <p><hr>
-<a id="method-get_plots"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>get_plots()</code></h3>
+<a id="method-remove_plotter"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code><a href='remove_funs.html'>remove_plotter()</a></code></h3>
+<p>Remove a <code>Plotter</code> from the <code>Experiment</code>.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p><div class="r"></p><pre><span class='va'>Experiment</span><span class='op'>$</span><span class='fu'>remove_plotter</span><span class='op'>(</span><span class='va'>name</span>, <span class='va'>...</span><span class='op'>)</span></pre><p></div></p>
 
-<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
-<p><div class="r"></p><pre><span class='va'>Experiment</span><span class='op'>$</span><span class='fu'>get_plots</span><span class='op'>(</span><span class='op'>)</span></pre><p></div></p>
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
+<p><div class="arguments"></p><dl>
+<dt><code>name</code></dt><dd><p>Name of <code>Plotter</code> to remove.</p></dd>
 
+<dt><code>...</code></dt><dd><p>Not used.</p></dd>
+
+</dl><p></div></p>
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Returns</h4>
+<p>The original <code>Experiment</code> object with the <code>Plotter</code> removed.</p>
 <p><hr>
-<a id="method-add_vary_across"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code><a href='add_funs.html'>add_vary_across()</a></code></h3>
+<a id="method-get_plotters"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>get_plotters()</code></h3>
+<p>Get all <code>Plotters</code> in the <code>Experiment</code>.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p><div class="r"></p><pre><span class='va'>Experiment</span><span class='op'>$</span><span class='fu'>get_plotters</span><span class='op'>(</span><span class='op'>)</span></pre><p></div></p>
 
-<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Returns</h4>
+<p>A list of <code>Plotter</code> objects in the <code>Experiment</code>.</p>
+<p><hr>
+<a id="method-add_vary_across"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code><a href='vary_across.html'>add_vary_across()</a></code></h3>
+<p>Add a <code>vary_across</code> component to the <code>Experiment</code>.
+When the <code>Experiment</code> is run, the <code>Experiment</code> is
+systematically varied across values of the specified parameter in the
+<code>DGP</code> or <code>Method</code> while all other parameters are held
+constant at their baseline value.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
 <p><div class="r"></p><pre><span class='va'>Experiment</span><span class='op'>$</span><span class='fu'>add_vary_across</span><span class='op'>(</span>dgp <span class='op'>=</span> <span class='cn'>NULL</span>, method <span class='op'>=</span> <span class='cn'>NULL</span>, <span class='va'>param_name</span>, <span class='va'>param_values</span><span class='op'>)</span></pre><p></div></p>
 
-<p><hr>
-<a id="method-update_vary_across"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code><a href='update_funs.html'>update_vary_across()</a></code></h3>
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
+<p><div class="arguments"></p><dl>
+<dt><code>dgp</code></dt><dd><p>Name of <code>DGP</code> to vary in the <code>Experiment</code>. Can also
+be a <code>DGP</code> object that matches one in the <code>Experiment</code>. Must
+provide either the <code>dgp</code> or <code>method</code> argument.</p></dd>
 
-<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<dt><code>method</code></dt><dd><p>Name of <code>Method</code> to vary in the <code>Experiment</code>. Can
+also be a <code>Method</code> object that matches one in the <code>Experiment</code>.
+Must provide either the <code>dgp</code> or <code>method</code> argument.</p></dd>
+
+<dt><code>param_name</code></dt><dd><p>Name of parameter to vary. Should match an argument in
+the <code>DGP</code> or <code>Method</code> function.</p></dd>
+
+<dt><code>param_values</code></dt><dd><p>Atomic vector or list of values for the
+<code>param_name</code> to take on and vary across in the <code>Experiment</code>
+run.</p></dd>
+
+</dl><p></div></p>
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Returns</h4>
+<p>The original <code>Experiment</code> object with the
+<code>vary_across</code> component added.</p>
+<p><hr>
+<a id="method-update_vary_across"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code><a href='vary_across.html'>update_vary_across()</a></code></h3>
+<p>Update the <code>vary_across</code> component in the
+<code>Experiment</code>. Used if a <code>vary_across</code> component already
+exists in the <code>Experiment</code>.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
 <p><div class="r"></p><pre><span class='va'>Experiment</span><span class='op'>$</span><span class='fu'>update_vary_across</span><span class='op'>(</span>
   dgp <span class='op'>=</span> <span class='cn'>NULL</span>,
   method <span class='op'>=</span> <span class='cn'>NULL</span>,
@@ -445,30 +685,118 @@ results.</p></dd>
   <span class='va'>param_values</span>
 <span class='op'>)</span></pre><p></div></p>
 
-<p><hr>
-<a id="method-remove_vary_across"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code><a href='remove_vary_across.html'>remove_vary_across()</a></code></h3>
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
+<p><div class="arguments"></p><dl>
+<dt><code>dgp</code></dt><dd><p>Name of <code>DGP</code> to vary in the <code>Experiment</code>. Can also
+be a <code>DGP</code> object that matches one in the <code>Experiment</code>. Must
+provide either the <code>dgp</code> or <code>method</code> argument.</p></dd>
 
-<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<dt><code>method</code></dt><dd><p>Name of <code>Method</code> to vary in the <code>Experiment</code>. Can
+also be a <code>Method</code> object that matches one in the <code>Experiment</code>.
+Must provide either the <code>dgp</code> or <code>method</code> argument.</p></dd>
+
+<dt><code>param_name</code></dt><dd><p>Name of parameter to vary. Should match an argument in
+the <code>DGP</code> or <code>Method</code> function.</p></dd>
+
+<dt><code>param_values</code></dt><dd><p>Atomic vector or list of values for the
+<code>param_name</code> to take on and vary across in the <code>Experiment</code>
+run.</p></dd>
+
+</dl><p></div></p>
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Returns</h4>
+<p>The original <code>Experiment</code> object with the updated
+<code>vary_across</code> component.</p>
+<p><hr>
+<a id="method-remove_vary_across"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code><a href='vary_across.html'>remove_vary_across()</a></code></h3>
+<p>Remove the <code>vary_across</code> component in the
+<code>Experiment</code>.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
 <p><div class="r"></p><pre><span class='va'>Experiment</span><span class='op'>$</span><span class='fu'>remove_vary_across</span><span class='op'>(</span><span class='op'>)</span></pre><p></div></p>
 
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Returns</h4>
+<p>The original <code>Experiment</code> object with the <code>vary_across</code>
+component removed.</p>
 <p><hr>
 <a id="method-get_vary_across"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>get_vary_across()</code></h3>
-
-<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p>Get the <code>vary_across</code> component from the
+<code>Experiment</code>.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
 <p><div class="r"></p><pre><span class='va'>Experiment</span><span class='op'>$</span><span class='fu'>get_vary_across</span><span class='op'>(</span><span class='op'>)</span></pre><p></div></p>
 
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Returns</h4>
+<p>A list with the following components</p><dl>
+<dt>dgp, method</dt><dd><p>Name of the <code>DGP</code>/<code>Method</code> that was varied.</p></dd>
+<dt>param_name</dt><dd><p>Name of parameter in the <code>DGP</code>/<code>Method</code> that
+was varied.</p></dd>
+<dt>param_values</dt><dd><p>Atomic vector or list of values for the
+<code>param_name</code> to take on and vary across in the <code>Experiment</code>
+run.</p></dd>
+
+</dl>
+
+<p><hr>
+<a id="method-set_rmd_options"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code><a href='set_rmd_options.html'>set_rmd_options()</a></code></h3>
+<p>Set R Markdown options for displaying <code>Evaluator</code> or
+<code>Plotter</code> outputs in the summary report.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p><div class="r"></p><pre><span class='va'>Experiment</span><span class='op'>$</span><span class='fu'>set_rmd_options</span><span class='op'>(</span><span class='va'>field_name</span>, <span class='va'>name</span>, show <span class='op'>=</span> <span class='cn'>NULL</span>, <span class='va'>...</span><span class='op'>)</span></pre><p></div></p>
+
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
+<p><div class="arguments"></p><dl>
+<dt><code>field_name</code></dt><dd><p>One of "evaluator" or "plotter".</p></dd>
+
+<dt><code>name</code></dt><dd><p>Name of <code>Evaluator</code> or <code>Plotter</code> to set R Markdown
+options.</p></dd>
+
+<dt><code>show</code></dt><dd><p>If <code>TRUE</code>, show output; if <code>FALSE</code>, hide output in
+R Markdown report. Default <code>NULL</code> does not change the "show" field
+in <code>Evaluator</code>/<code>Plotter</code>.</p></dd>
+
+<dt><code>...</code></dt><dd><p>Named R Markdown options to set. If <code>field_name = "plotter"</code>,
+options are "height" and "width". If <code>field_name = "evaluator"</code>,
+see options for <code><a href='prettyDT.html'>prettyDT()</a></code>.</p></dd>
+
+</dl><p></div></p>
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Returns</h4>
+<p>The original <code>Experiment</code> object with the <code>rmd_options</code>
+and/or <code>show</code> fields modified in the <code>Evaluator</code>/<code>Plotter</code>.</p>
 <p><hr>
 <a id="method-get_save_dir"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>get_save_dir()</code></h3>
-
-<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p>Get the directory in which the <code>Experiment</code>'s results
+are saved.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
 <p><div class="r"></p><pre><span class='va'>Experiment</span><span class='op'>$</span><span class='fu'>get_save_dir</span><span class='op'>(</span><span class='op'>)</span></pre><p></div></p>
 
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Returns</h4>
+<p>The directory in which the <code>Experiment</code>'s results are saved.</p>
 <p><hr>
 <a id="method-set_save_dir"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code><a href='set_save_dir.html'>set_save_dir()</a></code></h3>
-
-<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p>Set the directory in which the <code>Experiment</code>'s results
+are saved.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
 <p><div class="r"></p><pre><span class='va'>Experiment</span><span class='op'>$</span><span class='fu'>set_save_dir</span><span class='op'>(</span><span class='va'>save_dir</span><span class='op'>)</span></pre><p></div></p>
 
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
+<p><div class="arguments"></p><dl>
+<dt><code>save_dir</code></dt><dd><p>The directory in which the <code>Experiment</code>'s results
+will be saved.</p></dd>
+
+</dl><p></div></p>
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Returns</h4>
+<p>The original <code>Experiment</code> object with the updated saving
+directory.</p>
+<p><hr>
+<a id="method-save"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code><a href='https://rdrr.io/r/base/save.html'>save()</a></code></h3>
+<p>Save an <code>Experiment</code> object.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p><div class="r"></p><pre><span class='va'>Experiment</span><span class='op'>$</span><span class='fu'>save</span><span class='op'>(</span><span class='op'>)</span></pre><p></div></p>
+
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Returns</h4>
+<p>The original <code>Experiment</code> object.</p>
+<p><hr>
+<a id="method-print"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code><a href='https://rdrr.io/r/base/print.html'>print()</a></code></h3>
+<p>Print an <code>Experiment</code> in a nice format, showing the
+names of all <code>DGPs</code>, <code>Methods</code>, <code>Evaluators</code>, and
+<code>Plotters</code> in addition to the directory where results are saved
+and the <code>vary_across</code> component (if any).</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p><div class="r"></p><pre><span class='va'>Experiment</span><span class='op'>$</span><span class='fu'>print</span><span class='op'>(</span><span class='op'>)</span></pre><p></div></p>
+
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Returns</h4>
+<p>The original <code>Experiment</code> object.</p>
 <p><hr>
 <a id="method-clone"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>clone()</code></h3>
 <p>The objects of this class are cloneable with this method.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
