@@ -30,7 +30,7 @@ A plot of an Experiment's results and evaluation metrics
 \if{latex}{\out{\hypertarget{method-plot}{}}}
 \subsection{Method \code{plot()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Plotter$plot(fit_results = NULL, eval_results = NULL, vary_param = NULL, ...)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Plotter$plot(fit_results = NULL, eval_results = NULL, vary_params = NULL, ...)}\if{html}{\out{</div>}}
 }
 
 }

@@ -17,13 +17,7 @@ update_evaluator(experiment, evaluator, name, ...)
 
 update_plot(experiment, plotter, name, ...)
 
-update_vary_across(
-  experiment,
-  dgp = NULL,
-  method = NULL,
-  param_name,
-  param_values
-)
+update_vary_across(experiment, ...)
 }
 \arguments{
 \item{experiment}{An \code{Experiment} object.}

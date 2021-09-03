@@ -4,7 +4,7 @@
 \alias{remove_vary_across}
 \title{Remove variable parameters from an \code{Experiment}.}
 \usage{
-remove_vary_across(experiment)
+remove_vary_across(experiment, ...)
 }
 \arguments{
 \item{experiment}{An \code{Experiment} object.}

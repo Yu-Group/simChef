@@ -64,7 +64,7 @@ Create a new \code{Experiment}.
   method_list = list(),
   evaluator_list = list(),
   plotter_list = list(),
-  future.globals = NULL,
+  future.globals = TRUE,
   future.packages = NULL,
   clone_from = NULL,
   save_dir = NULL,
@@ -443,12 +443,7 @@ A list of plots.
 \if{latex}{\out{\hypertarget{method-update_vary_across}{}}}
 \subsection{Method \code{update_vary_across()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Experiment$update_vary_across(
-  dgp = NULL,
-  method = NULL,
-  param_name,
-  param_values
-)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Experiment$update_vary_across(dgp, method, ...)}\if{html}{\out{</div>}}
 }
 
 }
@@ -457,7 +452,7 @@ A list of plots.
 \if{latex}{\out{\hypertarget{method-remove_vary_across}{}}}
 \subsection{Method \code{remove_vary_across()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Experiment$remove_vary_across()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Experiment$remove_vary_across(dgp, method, param_names = NULL)}\if{html}{\out{</div>}}
 }
 
 }

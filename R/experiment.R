@@ -22,7 +22,7 @@ Experiment <- R6::R6Class(
       dgp = list(),
       method = list()
     ),
-    .future.globals = NULL,
+    .future.globals = TRUE,
     .future.packages = NULL,
     .add_obj = function(field_name, obj, obj_name, ...) {
       # TODO: check if obj is already in list by another name
@@ -167,6 +167,22 @@ Experiment <- R6::R6Class(
         purrr::reduce(c)
       return(param_names)
     },
+    .combine_vary_params = function(field_name = c("dgp", "method")) {
+      field_name <- match.arg(field_name)
+      obj_list <- private$.get_obj_list(field_name)
+      obj_names <- names(obj_list)
+      param_list <- purrr::map(obj_names, function(obj_name) {
+        obj_params <- private$.vary_across_list[[field_name]][[obj_name]]
+        if (is.null(obj_params)) {
+          obj_params <- list()
+        }
+        obj_params <- c(obj_name, obj_params)
+        names(obj_params)[1] <- paste0(field_name, "_name")
+        param_grid <- expand.grid(obj_params)
+        return(apply(param_grid, 1, as.list, simplify=FALSE))
+      }) %>% purrr::reduce(c)
+      return(param_list)
+    },
     .save_results = function(results, save_filename) {
       if (!private$.is_vary_across()) {
         save_dir <- private$.save_dir
@@ -246,7 +262,7 @@ Experiment <- R6::R6Class(
     initialize = function(name = "experiment",
                           dgp_list = list(), method_list = list(),
                           evaluator_list = list(), plotter_list = list(),
-                          future.globals = NULL, future.packages = NULL,
+                          future.globals = TRUE, future.packages = NULL,
                           clone_from = NULL, save_dir = NULL, ...) {
       if (!is.null(clone_from)) {
         private$.check_obj(clone_from, "Experiment")
@@ -405,196 +421,205 @@ Experiment <- R6::R6Class(
       if (is.null(future.globals)) {
         future.globals <- private$.future.globals
       }
-      future.globals <- c(future.globals, "list_to_tibble_row")
 
-      if (!prviate$.is_vary_across()) {
-        fit_results <- switch(
-          parallel_strategy,
-          "reps" = {
-            results <- future.apply::future_replicate(n_reps, {
-              purrr::map_dfr(dgp_list, function(dgp) {
-                datasets <- dgp$generate()
-                purrr::map_dfr(method_list, function(method) {
-                  return(method$fit(datasets))
-                }, .id = "method")
-              }, .id = "dgp")
-            }, simplify=FALSE,
-            future.globals = future.globals,
-            future.packages = future.packages)
-            dplyr::bind_rows(results, .id = "rep")
-          },
-          "dgps" = {
-            results <- future.apply::future_lapply(dgp_list, function(dgp) {
+      dgp_params_list <- private$.combine_vary_params("dgp")
+      method_params_list <- private$.combine_vary_params("method")
+
+      fit_results <- switch(
+        parallel_strategy,
+        "reps" = {
+          results <- future.apply::future_replicate(n_reps, {
+            purrr::map_dfr(dgp_params_list, function(dgp_params) {
+              dgp_name <- dgp_params$dgp_name
+              dgp_params$dgp_name <- NULL
+              data_list <- do.call(dgp_list[[dgp_name]]$generate, dgp_params)
+              purrr::map_dfr(method_params_list, function(method_params) {
+                method_name <- method_params$method_name
+                param_df <- list_to_tibble_row(
+                  c(dgp_name = dgp_name, dgp_params, method_params)
+                )
+                method_params$method_name <- NULL
+                method_params$data_list <- data_list
+                result <- do.call(method_list[[method_name]]$fit, method_params)
+                return(result %>% tibble::add_column(param_df, .before=1))
+              })
+            })
+          }, simplify=FALSE,
+          future.globals = future.globals,
+          future.packages = future.packages)
+          dplyr::bind_rows(results, .id = "rep")
+        },
+        "dgps" = {
+          results <- future.apply::future_lapply(
+            dgp_params_list, function(dgp_params) {
               reps <- replicate(n_reps, {
-                datasets <- dgp$generate()
-                purrr::map_dfr(method_list, function(method) {
-                  return(method$fit(datasets))
-                }, .id = "method")
+                dgp_name <- dgp_params$dgp_name
+                dgp_params$dgp_name <- NULL
+                data_list <- do.call(dgp_list[[dgp_name]]$generate, dgp_params)
+                purrr::map_dfr(method_params_list, function(method_params) {
+                  method_name <- method_params$method_name
+                  param_df <- list_to_tibble_row(
+                    c(dgp_name = dgp_name, dgp_params, method_params)
+                  )
+                  method_params$method_name <- NULL
+                  method_params$data_list <- data_list
+                  result <- do.call(method_list[[method_name]]$fit, method_params)
+                  return(result %>% tibble::add_column(param_df, .before=1))
+                })
               }, simplify=FALSE)
               dplyr::bind_rows(reps, .id = "rep")
             }, future.seed = TRUE,
             future.globals = future.globals,
             future.packages = future.packages)
-            dplyr::bind_rows(results, .id = "dgp")
-          },
-          "methods" = {
-            results <- future.apply::future_lapply(
-              method_list, function(method) {
-                reps <- replicate(n_reps, {
-                  purrr::map_dfr(dgp_list, function(dgp) {
-                    datasets <- dgp$generate()
-                    return(method$fit(datasets))
-                  }, .id = "dgp")
-                }, simplify=FALSE)
-                dplyr::bind_rows(reps, .id = "rep")
-              }, future.seed = TRUE,
-              future.globals = future.globals,
-              future.packages = future.packages)
-            dplyr::bind_rows(results, .id = "method")
-          },
-          "reps+dgps" = {
-            dgp_names <- rep(names(dgp_list), times = n_reps)
-            results <- future.apply::future_lapply(
-              dgp_names,
-              function(dgp_name) {
-                datasets <- dgp_list[[dgp_name]]$generate()
-                purrr::map_dfr(method_list, function(method) {
-                  return(method$fit(datasets))
-                }, .id = "method")
-              }, future.seed = TRUE,
-              future.globals = future.globals,
-              future.packages = future.packages
-            )
-            names(results) <- dgp_names
-            results <- dplyr::bind_rows(results, .id = "dgp")
-            results$rep <- rep(
-              1:n_reps, each = length(dgp_list)*length(method_list)
-            )
-            return(results)
-          },
-          "reps+methods" = {
-            method_names <- rep(names(method_list), times = n_reps)
-            results <- future.apply::future_lapply(
-              method_names,
-              function(method_name) {
-                purrr::map_dfr(dgp_list, function(dgp) {
-                  datasets <- dgp$generate()
-                  return(method_list[[method_name]]$fit(datasets))
-                }, .id = "dgp")
+          dplyr::bind_rows(results)
+        },
+        "methods" = {
+          results <- future.apply::future_lapply(
+            method_params_list, function(method_params) {
+              reps <- replicate(n_reps, {
+                purrr::map_dfr(dgp_params_list, function(dgp_params) {
+                  dgp_name <- dgp_params$dgp_name
+                  dgp_params$dgp_name <- NULL
+                  data_list <- do.call(dgp_list[[dgp_name]]$generate, dgp_params)
+                  method_name <- method_params$method_name
+                  param_df <- list_to_tibble_row(
+                    c(dgp_name = dgp_name, dgp_params, method_params)
+                  )
+                  method_params$method_name <- NULL
+                  method_params$data_list <- data_list
+                  result <- do.call(method_list[[method_name]]$fit, method_params)
+                  return(result %>% tibble::add_column(param_df, .before=1))
+                })
+              }, simplify=FALSE)
+              dplyr::bind_rows(reps, .id = "rep")
+            }, future.seed = TRUE,
+            future.globals = future.globals,
+            future.packages = future.packages)
+          dplyr::bind_rows(results)
+        },
+        "reps+dgps" = {
+          n_dgps <- length(dgp_params_list)
+          dgp_params_list <- rep(dgp_params_list, times = n_reps)
+          results <- future.apply::future_lapply(
+            dgp_params_list,
+            function(dgp_params) {
+              dgp_name <- dgp_params$dgp_name
+              dgp_params$dgp_name <- NULL
+              data_list <- do.call(dgp_list[[dgp_name]]$generate, dgp_params)
+              purrr::map_dfr(method_params_list, function(method_params) {
+                method_name <- method_params$method_name
+                param_df <- list_to_tibble_row(
+                  c(dgp_name = dgp_name, dgp_params, method_params)
+                )
+                method_params$method_name <- NULL
+                method_params$data_list <- data_list
+                result <- do.call(method_list[[method_name]]$fit, method_params)
+                return(result %>% tibble::add_column(param_df, .before=1))
+              })
+            }, future.seed = TRUE,
+            future.globals = future.globals,
+            future.packages = future.packages
+          )
+          results <- dplyr::bind_rows(results)
+          results$rep <- rep(1:n_reps, each = n_dgps*length(method_params_list))
+          return(results)
+        },
+        "reps+methods" = {
+          n_methods <- length(method_params_list)
+          method_params_list <- rep(method_params_list, times = n_reps)
+          results <- future.apply::future_lapply(
+            method_params_list,
+            function(method_params) {
+              purrr::map_dfr(dgp_params_list, function(dgp_params) {
+                dgp_name <- dgp_params$dgp_name
+                dgp_params$dgp_name <- NULL
+                data_list <- do.call(dgp_list[[dgp_name]]$generate, dgp_params)
+                method_name <- method_params$method_name
+                param_df <- list_to_tibble_row(
+                  c(dgp_name = dgp_name, dgp_params, method_params)
+                )
+                method_params$method_name <- NULL
+                method_params$data_list <- data_list
+                result <- do.call(method_list[[method_name]]$fit, method_params)
+                return(result %>% tibble::add_column(param_df, .before=1))
+              })
+            },
+            future.seed = TRUE,
+            future.globals = future.globals,
+            future.packages = future.packages
+          )
+          results <- dplyr::bind_rows(results)
+          results$rep <- rep(
+            1:n_reps, each = length(dgp_params_list)*n_methods
+          )
+          return(results)
+        },
+        "dgps+methods" = {
+          mapply_args <- purrr::cross2(
+            dgp_params_list, method_params_list
+          )
+          # shuffle the inputs to avoid bad load balancing
+          mapply_args <- mapply_args[sample(1:length(mapply_args))]
+          dgp_mapply_args <- lapply(mapply_args, `[[`, 1)
+          method_mapply_args <- lapply(mapply_args, `[[`, 2)
+          results <- future.apply::future_mapply(
+            function(dgp_params, method_params) {
+              reps <- replicate(n_reps, {
+                dgp_name <- dgp_params$dgp_name
+                dgp_params$dgp_name <- NULL
+                data_list <- do.call(dgp_list[[dgp_name]]$generate, dgp_params)
+                method_name <- method_params$method_name
+                param_df <- list_to_tibble_row(
+                  c(dgp_name = dgp_name, dgp_params, method_params)
+                )
+                method_params$method_name <- NULL
+                method_params$data_list <- data_list
+                result <- do.call(method_list[[method_name]]$fit, method_params)
+                return(result %>% tibble::add_column(param_df, .before=1))
+              }, simplify=FALSE)
+              dplyr::bind_rows(reps, .id = "rep")
+            },
+            dgp_mapply_args, method_mapply_args,
+            future.seed = TRUE, SIMPLIFY = FALSE,
+            future.globals = future.globals,
+            future.packages = future.packages
+          )
+          dplyr::bind_rows(results)
+        },
+        "reps+dgps+methods" = {
+          mapply_args <- purrr::cross3(
+            1:n_reps, dgp_params_list, method_params_list
+          )
+          # shuffle the inputs to avoid bad load balancing
+          mapply_args <- mapply_args[sample(1:length(mapply_args))]
+          reps <- sapply(mapply_args, `[[`, 1)
+          dgp_mapply_args <- lapply(mapply_args, `[[`, 2)
+          method_mapply_args <- lapply(mapply_args, `[[`, 3)
+          results <- dplyr::bind_rows(
+            future.apply::future_mapply(
+              function(dgp_params, method_params) {
+                dgp_name <- dgp_params$dgp_name
+                dgp_params$dgp_name <- NULL
+                data_list <- do.call(dgp_list[[dgp_name]]$generate, dgp_params)
+                method_name <- method_params$method_name
+                param_df <- list_to_tibble_row(
+                  c(dgp_name = dgp_name, dgp_params, method_params)
+                )
+                method_params$method_name <- NULL
+                method_params$data_list <- data_list
+                result <- do.call(method_list[[method_name]]$fit, method_params)
+                return(result %>% tibble::add_column(param_df, .before=1))
               },
-              future.seed = TRUE,
-              future.globals = future.globals,
-              future.packages = future.packages
-            )
-            names(results) <- method_names
-            results <- dplyr::bind_rows(results, .id = "method")
-            results$rep <- rep(
-              1:n_reps, each = length(dgp_list)*length(method_list)
-            )
-            return(results)
-          },
-          "dgps+methods" = {
-            mapply_args <- expand.grid(
-              dgps = names(dgp_list), methods = names(method_list)
-            )
-            # shuffle the inputs to avoid bad load balancing
-            mapply_args <- mapply_args[sample(1:nrow(mapply_args)), ]
-            results <- future.apply::future_mapply(
-              function(dgp_name, method_name) {
-                reps <- replicate(n_reps, {
-                  datasets <- dgp_list[[dgp_name]]$generate()
-                  method_list[[method_name]]$fit(datasets)
-                }, simplify=FALSE)
-                dplyr::bind_rows(reps, .id = "rep")
-              },
-              mapply_args$dgps, mapply_args$methods,
+              dgp_mapply_args, method_mapply_args,
               future.seed = TRUE, SIMPLIFY = FALSE,
               future.globals = future.globals,
               future.packages = future.packages
             )
-            for (i in 1:nrow(mapply_args)) {
-              results[[i]]$dgp <- mapply_args[i, "dgps"]
-              results[[i]]$method <- mapply_args[i, "methods"]
-            }
-            dplyr::bind_rows(results)
-          },
-          "reps+dgps+methods" = {
-            mapply_args <- expand.grid(
-              reps = 1:n_reps,
-              dgps = names(dgp_list),
-              methods = names(method_list)
-            )
-            # shuffle the inputs to avoid bad load balancing
-            mapply_args <- mapply_args[sample(1:nrow(mapply_args)), ]
-            results <- dplyr::bind_rows(
-              future.apply::future_mapply(
-                function(rep, dgp_name, method_name) {
-                  datasets <- dgp_list[[dgp_name]]$generate()
-                  method_list[[method_name]]$fit(datasets)
-                },
-                mapply_args$reps, mapply_args$dgps, mapply_args$methods,
-                future.seed = TRUE, SIMPLIFY = FALSE,
-                future.globals = future.globals,
-                future.packages = future.packages
-              )
-            )
-            results$rep <- mapply_args$rep
-            results$dgp <- mapply_args$dgps
-            results$method <- mapply_args$methods
-            return(results)
-          }
-        )
-      } else {
-        # TODO: add parallelization
-        # TODO: tweak to work for varying multiple parameters simultaneously
-        # Q: do we want to vary parameters across multiple dgps/methods?
-        param_name <- private$.vary_across_list$param_name
-        param_values <- private$.vary_across_list$param_values
-        if (!is.null(private$.vary_across_list$dgp)) {
-          obj_name <- private$.vary_across_list$dgp
-          fit_results <- future.apply::future_replicate(n_reps, {
-            purrr::map_dfr(param_values, function(param_value) {
-              input_param <- list(param = param_value) %>%
-                setNames(param_name)
-              datasets <- do.call(dgp_list[[obj_name]]$generate, input_param)
-              purrr::map_dfr(method_list, function(method) {
-                method$fit(datasets)
-              }, .id = "method")
-            }, .id = param_name) %>%
-              dplyr::mutate(dgp = obj_name) %>%
-              dplyr::relocate(dgp, .before = method)
-          }, simplify = FALSE) %>%
-            dplyr::bind_rows(.id = "rep")
-        } else if (!is.null(private$.vary_across_list$method)) {
-          obj_name <- private$.vary_across_list$method
-          fit_results <- future.apply::future_replicate(n_reps, {
-            purrr::map_dfr(dgp_list, function(dgp) {
-              datasets <- dgp$generate()
-              purrr::map_dfr(param_values, function(param_value) {
-                input_param <- list(param = param_value) %>%
-                  setNames(param_name)
-                do.call(method_list[[obj_name]]$fit,
-                        c(list(datasets), input_param))
-              }, .id = param_name) %>%
-                dplyr::mutate(method = obj_name)
-            }, .id = "dgp") %>%
-              dplyr::relocate(method, .after = dgp)
-          }, simplify = FALSE) %>%
-            dplyr::bind_rows(.id = "rep")
+          )
+          results$rep <- reps
+          return(results)
         }
-
-        if (is.null(names(param_values))) {
-          names(param_values) <- 1:length(param_values)
-          if (is.list(param_values)) {
-            attr(fit_results[[param_name]], "param_values") <- param_values
-          } else {
-            fit_results[[param_name]] <- param_values[
-              fit_results[[param_name]]
-            ]
-          }
-          attr(fit_results[[param_name]], "names") <- NULL
-        }
-      }
+      )
 
       if (save) {
         private$.save_results(fit_results,
