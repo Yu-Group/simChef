@@ -536,9 +536,9 @@ Experiment <- R6::R6Class(
               data_list <- do.call(dgp_list[[dgp_name]]$generate, dgp_params)
               purrr::map_dfr(method_params_list, function(method_params) {
                 method_name <- method_params$method_name
-                param_df <- list_to_tibble_row(
+                param_df <- simplify_tibble(list_to_tibble_row(
                   c(dgp_name = dgp_name, dgp_params, method_params)
-                )
+                ))
                 method_params$method_name <- NULL
                 method_params$data_list <- data_list
                 result <- do.call(method_list[[method_name]]$fit, method_params)
@@ -559,9 +559,9 @@ Experiment <- R6::R6Class(
                 data_list <- do.call(dgp_list[[dgp_name]]$generate, dgp_params)
                 purrr::map_dfr(method_params_list, function(method_params) {
                   method_name <- method_params$method_name
-                  param_df <- list_to_tibble_row(
+                  param_df <- simplify_tibble(list_to_tibble_row(
                     c(dgp_name = dgp_name, dgp_params, method_params)
-                  )
+                  ))
                   method_params$method_name <- NULL
                   method_params$data_list <- data_list
                   result <- do.call(method_list[[method_name]]$fit, method_params)
@@ -583,9 +583,9 @@ Experiment <- R6::R6Class(
                   dgp_params$dgp_name <- NULL
                   data_list <- do.call(dgp_list[[dgp_name]]$generate, dgp_params)
                   method_name <- method_params$method_name
-                  param_df <- list_to_tibble_row(
+                  param_df <- simplify_tibble(list_to_tibble_row(
                     c(dgp_name = dgp_name, dgp_params, method_params)
-                  )
+                  ))
                   method_params$method_name <- NULL
                   method_params$data_list <- data_list
                   result <- do.call(method_list[[method_name]]$fit, method_params)
@@ -609,9 +609,9 @@ Experiment <- R6::R6Class(
               data_list <- do.call(dgp_list[[dgp_name]]$generate, dgp_params)
               purrr::map_dfr(method_params_list, function(method_params) {
                 method_name <- method_params$method_name
-                param_df <- list_to_tibble_row(
+                param_df <- simplify_tibble(list_to_tibble_row(
                   c(dgp_name = dgp_name, dgp_params, method_params)
-                )
+                ))
                 method_params$method_name <- NULL
                 method_params$data_list <- data_list
                 result <- do.call(method_list[[method_name]]$fit, method_params)
@@ -636,9 +636,9 @@ Experiment <- R6::R6Class(
                 dgp_params$dgp_name <- NULL
                 data_list <- do.call(dgp_list[[dgp_name]]$generate, dgp_params)
                 method_name <- method_params$method_name
-                param_df <- list_to_tibble_row(
+                param_df <- simplify_tibble(list_to_tibble_row(
                   c(dgp_name = dgp_name, dgp_params, method_params)
-                )
+                ))
                 method_params$method_name <- NULL
                 method_params$data_list <- data_list
                 result <- do.call(method_list[[method_name]]$fit, method_params)
@@ -670,9 +670,9 @@ Experiment <- R6::R6Class(
                 dgp_params$dgp_name <- NULL
                 data_list <- do.call(dgp_list[[dgp_name]]$generate, dgp_params)
                 method_name <- method_params$method_name
-                param_df <- list_to_tibble_row(
+                param_df <- simplify_tibble(list_to_tibble_row(
                   c(dgp_name = dgp_name, dgp_params, method_params)
-                )
+                ))
                 method_params$method_name <- NULL
                 method_params$data_list <- data_list
                 result <- do.call(method_list[[method_name]]$fit, method_params)
@@ -703,9 +703,9 @@ Experiment <- R6::R6Class(
                 dgp_params$dgp_name <- NULL
                 data_list <- do.call(dgp_list[[dgp_name]]$generate, dgp_params)
                 method_name <- method_params$method_name
-                param_df <- list_to_tibble_row(
+                param_df <- simplify_tibble(list_to_tibble_row(
                   c(dgp_name = dgp_name, dgp_params, method_params)
-                )
+                ))
                 method_params$method_name <- NULL
                 method_params$data_list <- data_list
                 result <- do.call(method_list[[method_name]]$fit, method_params)

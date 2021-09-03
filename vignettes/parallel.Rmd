@@ -14,11 +14,6 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r setup}
-library(pcs.sim.pkg)
-library(future)
-```
-
 Given the large amount of computation that simulation experiments require,
 `simChef` uses the R package [`future`](https://future.futureverse.org/) to
 distribute computation across available resources. Users must decide upon two
@@ -59,34 +54,43 @@ setting the parallel strategy when calling `Experiment$fit()` or
 `Experiment$run()` via the `parallel_strategy` argument. The possible values and
 implications of `parallel_strategy` are listed in the table below:
 
-+-----|-----+
-| `parallel_strategy` | Parallelism |
-+-----|-----|-----+
-| `"reps"` | One task per simulation replicate |
-+-----|-----|-----+
-| `"dgps"` | One task per `DGP` objects in `Experiment` |
-+-----|-----|-----+
-|  `"methods"` | One task per `Method` objects in `Experiment` |
-+-----|-----|-----+
-| `c("reps", "dgps")` | One task per combination of replicates and `DGP` objects  |
-+-----|-----|-----+
-| `c("reps", "methods")` | One task per combination of replicates and `Method` objects  |
-+-----|-----|-----+
-| `c("dgps", "methods")` | One task per combination of `DGP` and `Method` objects  |
-+-----|-----|-----+
-| `c("reps", "dgps", "methods")` | One task per combination of replicates, `DGP` and `Method` objects |
-+-----|-----+
+| `parallel_strategy` | Parallelism | Data implications |
+|:-----:|:-----|:-----|
+| `"reps"` | One task per simulation replicate | Methods evaluated on common datasets |
+| `"dgps"` | One task per `DGP` in `Experiment` | Methods evaluated on common datasets |
+|  `"methods"` | One task per `Method` in `Experiment` | Methods evaluated on independent datasets |
+| `c("reps", "dgps")` | One task per combination of replicates and `DGP`  | Methods evaluated on common datasets |
+| `c("reps", "methods")` | One task per combination of replicates and `Method` | Methods evaluated on independent datasets |
+| `c("dgps", "methods")` | One task per combination of `DGP` and `Method` | Methods evaluated on independent datasets |
+| `c("reps", "dgps", "methods")` | One task per combination of replicates, `DGP` and `Method` | Methods evaluated on independent datasets |
 
 The best parallel strategy is entirely dependent on the details of your
 particular simulation experiment. In general, one should not have fewer tasks
 than workers and should avoid `n>>p` very small tasks as the overhead of
 distributing computation to workers may outweigh the benefits of parallelism.
 
-```{r parallel-ex, eval=FALSE}
+## An example of parallel execution
+
+Practically speaking, parallelization in `simChef` works without modification to
+your code other than using `future` to set a parallel backend and choosing your
+parallelization strategy when running or fitting your experiment. In the example
+below, we choose the `multicore` backend (not available on Windows) to create
+forked R processes using all but one of the available cores. We parallelize
+across combinations of replicates and data-generating processes by using
+`parallel_strategy = c("reps", "dgps")`. Since we vary across parameters of our
+second `DGP`, those parameter combinations are included in the parallelization
+across data-generating processing. As far as the parallelization is concerned,
+it's as if we added 17 total `DGP` objects to the experiment (1 for `dgp1` and
+16 for the combinations of parameters to `dgp2`), though in actuality we only
+added two.
+
+```{r parallel-ex}
+library(pcs.sim.pkg)
+library(future)
+library(dplyr)
+
 n_workers <- availableCores() - 1
 plan(multicore, workers = n_workers)
-
-library(dplyr)
 
 dgp_fun1 <- function(n=100, rho=0.5, noise_level=1) {
   cov_mat <- diag(nrow = 5)
@@ -148,45 +152,9 @@ experiment <- create_experiment(
     method = "elnet", alpha = c(0, 0.5, 1)
   )
 
-system.time(
-  o <- experiment$fit(
-    n_reps = 2, parallel_strategy = c("reps")
-  )
-)
-
-system.time(
-  o <- experiment$fit(
-    n_reps = 2, parallel_strategy = c("dgps")
-  )
-)
-
-system.time(
-  o <- experiment$fit(
-    n_reps = 2, parallel_strategy = c("methods")
-  )
-)
-
-system.time(
-  o <- experiment$fit(
+suppressWarnings(
+  experiment$fit(
     n_reps = 2, parallel_strategy = c("reps", "dgps")
-  )
-)
-
-system.time(
-  o <- experiment$fit(
-    n_reps = 2, parallel_strategy = c("reps", "methods")
-  )
-)
-
-system.time(
-  o <- experiment$fit(
-    n_reps = 2, parallel_strategy = c("dgps", "methods"),
-  )
-)
-
-system.time(
-  o <- experiment$fit(
-    n_reps = 2, parallel_strategy = c("reps", "dgps", "methods")
   )
 )
 ```
