@@ -16,15 +16,22 @@ LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.1
 Imports:
-  dplyr,
-  future.apply,
-  magrittr,
-  purrr,
-  R6,
-  tibble
-Suggests: 
-    rmarkdown,
+    dplyr,
+    DT,
+    fontawesome,
+    future.apply,
+    kableExtra,
     knitr,
+    magrittr,
+    purrr,
+    R.utils,
+    R6,
+    rmarkdown,
+    rmdformats,
+    stringr,
+    tibble,
+    tidyselect
+Suggests: 
     testthat (>= 3.0.0)
 VignetteBuilder: knitr
 Config/testthat/edition: 3

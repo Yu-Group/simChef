@@ -40,8 +40,8 @@
 
 
 <meta property="og:title" content="R6 class representing a simulation experiment. — Experiment" />
-<meta property="og:description" content="A simulation experiment with any number of DGPs, Methods,
-Evaluators, and Plotters." />
+<meta property="og:description" content="A simulation experiment with any number of DGPs,
+Methods, Evaluators, and Plotters." />
 
 
 
@@ -96,6 +96,9 @@ Evaluators, and Plotters." />
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
+      <a href="../articles/parallel.html">Parallel strategies in `simChef`</a>
+    </li>
+    <li>
       <a href="../articles/vignette.html">simChef Vignette</a>
     </li>
   </ul>
@@ -122,17 +125,17 @@ Evaluators, and Plotters." />
     </div>
 
     <div class="ref-description">
-    <p>A simulation experiment with any number of <code>DGPs</code>, <code>Methods</code>,
-<code>Evaluators</code>, and <code>Plotters</code>.</p>
+    <p>A simulation experiment with any number of <code>DGPs</code>,
+<code>Methods</code>, <code>Evaluators</code>, and <code>Plotters</code>.</p>
     </div>
 
 
 
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>When run, an <code>Experiment</code> seamlessly combines <code>DGPs</code> and <code>Methods</code>,
-computing results in parallel. Those results can then be evaluated using
-<code>Evaluators</code> and plotted using <code>Plotters</code>.</p>
+    <p>When run, an <code>Experiment</code> seamlessly combines <code>DGPs</code> and
+<code>Methods</code>, computing results in parallel. Those results can then be
+evaluated using <code>Evaluators</code> and plotted using <code>Plotters</code>.</p>
     <h2 class="hasAnchor" id="public-fields"><a class="anchor" href="#public-fields"></a>Public fields</h2>
 
     <p><div class="r6-fields"></p><dl>
@@ -189,6 +192,8 @@ computing results in parallel. Those results can then be evaluated using
   method_list <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span><span class='op'>)</span>,
   evaluator_list <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span><span class='op'>)</span>,
   plotter_list <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span><span class='op'>)</span>,
+  future.globals <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  future.packages <span class='op'>=</span> <span class='cn'>NULL</span>,
   clone_from <span class='op'>=</span> <span class='cn'>NULL</span>,
   save_dir <span class='op'>=</span> <span class='cn'>NULL</span>,
   <span class='va'>...</span>
@@ -206,6 +211,18 @@ computing results in parallel. Those results can then be evaluated using
 
 <dt><code>plotter_list</code></dt><dd><p>An optional list of <code>Plotter</code> objects.</p></dd>
 
+<dt><code>future.globals</code></dt><dd><p>Character vector of names in the global environment
+to pass to parallel workers. Passed as the argument of the same name to
+<code><a href='https://future.apply.futureverse.org/reference/future_lapply.html'>future.apply::future_lapply</a></code> and related functions. See
+future.applyfuture_apply. To set for a specific run of the
+experiment, use the same argument in <code>Experiment$run</code>.</p></dd>
+
+<dt><code>future.packages</code></dt><dd><p>Character vector of packages required by parallel
+workers. Passed as the argument of the same name to
+<code><a href='https://future.apply.futureverse.org/reference/future_lapply.html'>future.apply::future_lapply</a></code> and related functions. See
+future.applyfuture_apply. To set for a specific run of the
+experiment, use the same argument in <code>Experiment$run</code>.</p></dd>
+
 <dt><code>clone_from</code></dt><dd><p>An optional <code>Experiment</code> object to use as a base
 for this one.</p></dd>
 
@@ -221,10 +238,12 @@ results. If <code>NULL</code>, results are saved at
 <p><hr>
 <a id="method-run"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>run()</code></h3>
 <p>Run the entire simulation experiment pipeline (fitting,
-evaluating, and plotting)</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+evaluating, and plotting).</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
 <p><div class="r"></p><pre><span class='va'>Experiment</span><span class='op'>$</span><span class='fu'>run</span><span class='op'>(</span>
   n_reps <span class='op'>=</span> <span class='fl'>1</span>,
-  parallel_strategy <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"reps"</span>, <span class='st'>"dgps"</span>, <span class='st'>"methods"</span><span class='op'>)</span>,
+  parallel_strategy <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"reps"</span><span class='op'>)</span>,
+  future.globals <span class='op'>=</span> <span class='cn'>NULL</span>,
+  future.packages <span class='op'>=</span> <span class='cn'>NULL</span>,
   use_cached <span class='op'>=</span> <span class='cn'>FALSE</span>,
   save <span class='op'>=</span> <span class='cn'>FALSE</span>,
   verbose <span class='op'>=</span> <span class='fl'>1</span>,
@@ -238,7 +257,19 @@ run.</p></dd>
 
 <dt><code>parallel_strategy</code></dt><dd><p>A vector with some combination of "reps",
 "dgps", or "methods". Determines how computation will be distributed
-across available resources.</p></dd>
+across available resources. Default is "reps".</p></dd>
+
+<dt><code>future.globals</code></dt><dd><p>Character vector of names in the global environment
+to pass to parallel workers. Passed as the argument of the same name to
+<code><a href='https://future.apply.futureverse.org/reference/future_lapply.html'>future.apply::future_lapply</a></code> and related functions. See
+future.applyfuture_apply. To set for all runs of the
+experiment, use the same argument during initialization.</p></dd>
+
+<dt><code>future.packages</code></dt><dd><p>Character vector of packages required by parallel
+workers. Passed as the argument of the same name to
+<code><a href='https://future.apply.futureverse.org/reference/future_lapply.html'>future.apply::future_lapply</a></code> and related functions. See
+future.applyfuture_apply. To set for all runs of the
+experiment, use the same argument during initialization.</p></dd>
 
 <dt><code>use_cached</code></dt><dd><p>If <code>TRUE</code>, find and return previously saved
 results. If cached results cannot be found, run experiment anyways.
@@ -258,8 +289,9 @@ are printed.</p></dd>
 <h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Returns</h4>
 <p>A list of results from the simulation experiment</p><dl>
 <dt>fit_results</dt><dd><p>A tibble containing results from the <code>fit</code>
-method. In addition to results columns, has columns named 'rep', 'dgp',
-'method', and the <code>vary_across</code> parameter name if applicable.</p></dd>
+method. In addition to results columns, has columns named 'rep',
+'dgp_name', 'method_name', and the <code>vary_across</code> parameter names
+if applicable.</p></dd>
 <dt>eval_results</dt><dd><p>A list of tibbles containing results from the
 <code>evaluate</code> method, which evaluates each <code>Evaluator</code> in
 the <code>Experiment</code>. Length of list is equivalent to the number of
@@ -286,15 +318,24 @@ the <code>Experiment</code>. Length of list is equivalent to the number of
 </dl><p></div></p>
 <h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Returns</h4>
 <p>A list of length equal to the number of <code>DGPs</code> in the
-<code>Experiment</code>. Each element in the list is a list of <code>n_reps</code>
-datasets generated by the given <code>DGP</code>.</p>
+<code>Experiment</code>. If the <code>Experiment</code> does not have a
+<code>vary_across</code> component, then each element in the list is a list
+of <code>n_reps</code> datasets generated by the given <code>DGP</code>. If the
+<code>Experiment</code> does have a <code>vary_across</code> component, then each
+element in the outermost list is a list of lists. The second layer of
+lists corresponds to a specific parameter setting within the
+<code>vary_across</code> scheme, and the innermost layer of lists is of
+length <code>n_reps</code> with the dataset replicates, generated by the
+<code>DGP</code>.</p>
 <p><hr>
 <a id="method-fit"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>fit()</code></h3>
 <p>Fit all <code>Methods</code> in the <code>Experiment</code> and return
 results.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
 <p><div class="r"></p><pre><span class='va'>Experiment</span><span class='op'>$</span><span class='fu'>fit</span><span class='op'>(</span>
   n_reps <span class='op'>=</span> <span class='fl'>1</span>,
-  parallel_strategy <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"reps"</span>, <span class='st'>"dgps"</span>, <span class='st'>"methods"</span><span class='op'>)</span>,
+  parallel_strategy <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"reps"</span><span class='op'>)</span>,
+  future.globals <span class='op'>=</span> <span class='cn'>NULL</span>,
+  future.packages <span class='op'>=</span> <span class='cn'>NULL</span>,
   use_cached <span class='op'>=</span> <span class='cn'>FALSE</span>,
   save <span class='op'>=</span> <span class='cn'>FALSE</span>,
   verbose <span class='op'>=</span> <span class='fl'>1</span>,
@@ -307,7 +348,19 @@ results.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#argume
 
 <dt><code>parallel_strategy</code></dt><dd><p>A vector with some combination of "reps",
 "dgps", or "methods". Determines how computation will be distributed
-across available resources.</p></dd>
+across available resources. Default is "reps".</p></dd>
+
+<dt><code>future.globals</code></dt><dd><p>Character vector of names in the global environment
+to pass to parallel workers. Passed as the argument of the same name to
+<code><a href='https://future.apply.futureverse.org/reference/future_lapply.html'>future.apply::future_lapply</a></code> and related functions. See
+future.applyfuture_apply. To set for all runs of the
+experiment, use the same argument during initialization.</p></dd>
+
+<dt><code>future.packages</code></dt><dd><p>Character vector of packages required by parallel
+workers. Passed as the argument of the same name to
+<code><a href='https://future.apply.futureverse.org/reference/future_lapply.html'>future.apply::future_lapply</a></code> and related functions. See
+future.applyfuture_apply. To set for all runs of the
+experiment, use the same argument during initialization.</p></dd>
 
 <dt><code>use_cached</code></dt><dd><p>If <code>TRUE</code>, find and return previously saved
 results. If cached results cannot be found, fit experiment anyways.</p></dd>
@@ -324,8 +377,8 @@ are printed.</p></dd>
 <h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Returns</h4>
 <p>A tibble containing the results from fitting all <code>Methods</code>
 across all <code>DGPs</code> for <code>n_reps</code> repetitions. In addition to
-results columns, has columns named 'rep', 'dgp', 'method', and the
-<code>vary_across</code> parameter name if applicable.</p>
+results columns, has columns named 'rep', 'dgp_name', 'method_name',
+and the <code>vary_across</code> parameter names if applicable.</p>
 <p><hr>
 <a id="method-evaluate"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>evaluate()</code></h3>
 <p>Evaluate the performance of method fits across all
@@ -650,7 +703,7 @@ When the <code>Experiment</code> is run, the <code>Experiment</code> is
 systematically varied across values of the specified parameter in the
 <code>DGP</code> or <code>Method</code> while all other parameters are held
 constant at their baseline value.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
-<p><div class="r"></p><pre><span class='va'>Experiment</span><span class='op'>$</span><span class='fu'>add_vary_across</span><span class='op'>(</span>dgp <span class='op'>=</span> <span class='cn'>NULL</span>, method <span class='op'>=</span> <span class='cn'>NULL</span>, <span class='va'>param_name</span>, <span class='va'>param_values</span><span class='op'>)</span></pre><p></div></p>
+<p><div class="r"></p><pre><span class='va'>Experiment</span><span class='op'>$</span><span class='fu'>add_vary_across</span><span class='op'>(</span><span class='va'>dgp</span>, <span class='va'>method</span>, <span class='va'>...</span><span class='op'>)</span></pre><p></div></p>
 
 <h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
 <p><div class="arguments"></p><dl>
@@ -662,12 +715,9 @@ provide either the <code>dgp</code> or <code>method</code> argument.</p></dd>
 also be a <code>Method</code> object that matches one in the <code>Experiment</code>.
 Must provide either the <code>dgp</code> or <code>method</code> argument.</p></dd>
 
-<dt><code>param_name</code></dt><dd><p>Name of parameter to vary. Should match an argument in
-the <code>DGP</code> or <code>Method</code> function.</p></dd>
-
-<dt><code>param_values</code></dt><dd><p>Atomic vector or list of values for the
-<code>param_name</code> to take on and vary across in the <code>Experiment</code>
-run.</p></dd>
+<dt><code>...</code></dt><dd><p>Any number of named arguments where names match an argument in
+the user-specified <code>DGP</code> or <code>Method</code> function and values are
+vectors (for scalar parameters) or lists (for arbitrary parameters).</p></dd>
 
 </dl><p></div></p>
 <h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Returns</h4>
@@ -678,12 +728,7 @@ run.</p></dd>
 <p>Update the <code>vary_across</code> component in the
 <code>Experiment</code>. Used if a <code>vary_across</code> component already
 exists in the <code>Experiment</code>.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
-<p><div class="r"></p><pre><span class='va'>Experiment</span><span class='op'>$</span><span class='fu'>update_vary_across</span><span class='op'>(</span>
-  dgp <span class='op'>=</span> <span class='cn'>NULL</span>,
-  method <span class='op'>=</span> <span class='cn'>NULL</span>,
-  <span class='va'>param_name</span>,
-  <span class='va'>param_values</span>
-<span class='op'>)</span></pre><p></div></p>
+<p><div class="r"></p><pre><span class='va'>Experiment</span><span class='op'>$</span><span class='fu'>update_vary_across</span><span class='op'>(</span><span class='va'>dgp</span>, <span class='va'>method</span>, <span class='va'>...</span><span class='op'>)</span></pre><p></div></p>
 
 <h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
 <p><div class="arguments"></p><dl>
@@ -695,12 +740,9 @@ provide either the <code>dgp</code> or <code>method</code> argument.</p></dd>
 also be a <code>Method</code> object that matches one in the <code>Experiment</code>.
 Must provide either the <code>dgp</code> or <code>method</code> argument.</p></dd>
 
-<dt><code>param_name</code></dt><dd><p>Name of parameter to vary. Should match an argument in
-the <code>DGP</code> or <code>Method</code> function.</p></dd>
-
-<dt><code>param_values</code></dt><dd><p>Atomic vector or list of values for the
-<code>param_name</code> to take on and vary across in the <code>Experiment</code>
-run.</p></dd>
+<dt><code>...</code></dt><dd><p>Any number of named arguments where names match an argument in
+the user-specified <code>DGP</code> or <code>Method</code> function and values are
+vectors (for scalar parameters) or lists (for arbitrary parameters).</p></dd>
 
 </dl><p></div></p>
 <h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Returns</h4>
@@ -708,10 +750,25 @@ run.</p></dd>
 <code>vary_across</code> component.</p>
 <p><hr>
 <a id="method-remove_vary_across"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code><a href='vary_across.html'>remove_vary_across()</a></code></h3>
-<p>Remove the <code>vary_across</code> component in the
-<code>Experiment</code>.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
-<p><div class="r"></p><pre><span class='va'>Experiment</span><span class='op'>$</span><span class='fu'>remove_vary_across</span><span class='op'>(</span><span class='op'>)</span></pre><p></div></p>
+<p>Remove part or all of the <code>vary_across</code> component for a
+specific <code>DGP</code> or <code>Method</code> in the <code>Experiment</code>.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p><div class="r"></p><pre><span class='va'>Experiment</span><span class='op'>$</span><span class='fu'>remove_vary_across</span><span class='op'>(</span><span class='va'>dgp</span>, <span class='va'>method</span>, param_names <span class='op'>=</span> <span class='cn'>NULL</span><span class='op'>)</span></pre><p></div></p>
 
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
+<p><div class="arguments"></p><dl>
+<dt><code>dgp</code></dt><dd><p>Name of <code>DGP</code> to vary in the <code>Experiment</code>. Can also
+be a <code>DGP</code> object that matches one in the <code>Experiment</code>. Must
+provide either the <code>dgp</code> or <code>method</code> argument.</p></dd>
+
+<dt><code>method</code></dt><dd><p>Name of <code>Method</code> to vary in the <code>Experiment</code>. Can
+also be a <code>Method</code> object that matches one in the <code>Experiment</code>.
+Must provide either the <code>dgp</code> or <code>method</code> argument.</p></dd>
+
+<dt><code>param_names</code></dt><dd><p>A character vector of parameter names to remove. If
+not provided, the entire set of <code>vary_across</code> parameters will be
+removed for the specified <code>DGP</code>/<code>Method</code>.</p></dd>
+
+</dl><p></div></p>
 <h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Returns</h4>
 <p>The original <code>Experiment</code> object with the <code>vary_across</code>
 component removed.</p>
@@ -722,16 +779,11 @@ component removed.</p>
 <p><div class="r"></p><pre><span class='va'>Experiment</span><span class='op'>$</span><span class='fu'>get_vary_across</span><span class='op'>(</span><span class='op'>)</span></pre><p></div></p>
 
 <h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Returns</h4>
-<p>A list with the following components</p><dl>
-<dt>dgp, method</dt><dd><p>Name of the <code>DGP</code>/<code>Method</code> that was varied.</p></dd>
-<dt>param_name</dt><dd><p>Name of parameter in the <code>DGP</code>/<code>Method</code> that
-was varied.</p></dd>
-<dt>param_values</dt><dd><p>Atomic vector or list of values for the
-<code>param_name</code> to take on and vary across in the <code>Experiment</code>
-run.</p></dd>
-
-</dl>
-
+<p>A list with two components: "dgp" and "method". Both components
+are also lists that contain lists named for specific <code>DGP</code> or
+<code>Method</code> objects in the <code>Experiment</code>. This final layer of
+lists contains vectors or lists named for the arguments of the
+corresponding user-specified <code>DGP</code>/<code>Method</code> function.</p>
 <p><hr>
 <a id="method-set_rmd_options"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code><a href='set_rmd_options.html'>set_rmd_options()</a></code></h3>
 <p>Set R Markdown options for displaying <code>Evaluator</code> or

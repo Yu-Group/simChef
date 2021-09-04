@@ -4,10 +4,16 @@
 \alias{create_plotter}
 \title{Create a new \code{Plotter}.}
 \usage{
-create_plotter(plot_fun, ...)
+create_plotter(plot_fun, name = NULL, rmd_options = list(), ...)
 }
 \arguments{
 \item{plot_fun}{The plotting function.}
+
+\item{name}{(Optional) The name of the \code{Plotter}.}
+
+\item{rmd_options}{(Optional) List of options to control the aesthetics of
+the \code{Plotter}'s displayed plot in the knitted R Markdown report.
+Currently, possible options are "height" and "width" (in inches).}
 
 \item{...}{Arguments to pass into \code{plot_fun()}.}
 }

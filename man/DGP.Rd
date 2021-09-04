@@ -11,7 +11,7 @@ A data-generating process which will be used in the
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
-\item{\code{name}}{The name of the \code{Evaluator}.}
+\item{\code{name}}{The name of the \code{DGP}.}
 
 \item{\code{dgp_fun}}{The data-generating process function.}
 
@@ -41,6 +41,8 @@ Create a new \code{DGP} (data-generating process).
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{dgp_fun}}{The data-generating process function.}
+
+\item{\code{name}}{(Optional) The name of the \code{DGP}.}
 
 \item{\code{...}}{Arguments to pass into \code{dgp_fun()}.}
 }

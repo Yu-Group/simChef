@@ -4,10 +4,12 @@
 \alias{create_dgp}
 \title{Create a new \code{DGP} (data-generating process).}
 \usage{
-create_dgp(dgp_fun, ...)
+create_dgp(dgp_fun, name = NULL, ...)
 }
 \arguments{
 \item{dgp_fun}{The data-generating process function.}
+
+\item{name}{(Optional) The name of the \code{DGP}.}
 
 \item{...}{Arguments to pass into \code{dgp_fun()}.}
 }

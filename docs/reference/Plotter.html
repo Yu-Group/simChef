@@ -96,6 +96,9 @@ methods and/or its evaluation metrics from the Experiment run." />
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
+      <a href="../articles/parallel.html">Parallel strategies in `simChef`</a>
+    </li>
+    <li>
       <a href="../articles/vignette.html">simChef Vignette</a>
     </li>
   </ul>
@@ -131,6 +134,8 @@ methods and/or its evaluation metrics from the <code>Experiment</code> run.</p>
     <h2 class="hasAnchor" id="public-fields"><a class="anchor" href="#public-fields"></a>Public fields</h2>
 
     <p><div class="r6-fields"></p><dl>
+<dt><code>name</code></dt><dd><p>The name of the <code>Plotter</code>.</p></dd>
+
 <dt><code>plot_fun</code></dt><dd><p>The plotting function.</p></dd>
 
 <dt><code>plot_params</code></dt><dd><p>(Named) list of parameters to input into the
@@ -157,15 +162,18 @@ Markdown report; if <code>FALSE</code>, hide output in the R Markdown report.</p
 <p><hr>
 <a id="method-new"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>new()</code></h3>
 <p>Create a new <code>Plotter</code>.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
-<p><div class="r"></p><pre><span class='va'>Plotter</span><span class='op'>$</span><span class='fu'>new</span><span class='op'>(</span><span class='va'>plot_fun</span>, rmd_options <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span><span class='op'>)</span>, <span class='va'>...</span><span class='op'>)</span></pre><p></div></p>
+<p><div class="r"></p><pre><span class='va'>Plotter</span><span class='op'>$</span><span class='fu'>new</span><span class='op'>(</span><span class='va'>plot_fun</span>, name <span class='op'>=</span> <span class='cn'>NULL</span>, rmd_options <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span><span class='op'>)</span>, <span class='va'>...</span><span class='op'>)</span></pre><p></div></p>
 
 <h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
 <p><div class="arguments"></p><dl>
 <dt><code>plot_fun</code></dt><dd><p>The plotting function.</p></dd>
 
-<dt><code>rmd_options</code></dt><dd><p>List of options to control the aesthetics of the
-<code>Plotter</code>'s displayed plot in the knitted R Markdown report.
-Currently, possible options are "height" and "width" (in inches).</p></dd>
+<dt><code>name</code></dt><dd><p>(Optional) The name of the <code>Plotter</code>.</p></dd>
+
+<dt><code>rmd_options</code></dt><dd><p>(Optional) List of options to control the aesthetics
+of the <code>Plotter</code>'s displayed plot in the knitted R Markdown
+report. Currently, possible options are "height" and "width" (in
+inches).</p></dd>
 
 <dt><code>...</code></dt><dd><p>Arguments to pass into <code>plot_fun()</code>.</p></dd>
 
@@ -174,7 +182,7 @@ Currently, possible options are "height" and "width" (in inches).</p></dd>
 <p>When plotting or running the <code>Experiment</code> (see
 <code>Experiment$plot() or <code>Experiment$run()</code></code>), the named
 arguments <code>fit_results</code>, <code>eval_results</code>, and
-<code>vary_param</code> are automatically passed into the <code>Plotter</code>
+<code>vary_params</code> are automatically passed into the <code>Plotter</code>
 function <code>plot_fun()</code> and serve as placeholders for the
 <code>Experiment$fit()</code> results, the <code>Experiment$evaluate()</code>
 results, and the name of the varying parameter, respectively.
@@ -186,7 +194,7 @@ take in the named arguments <code>fit_results</code> and/or
 See <code>Experiment$evaluate()</code> or <code><a href='evaluate_experiment.html'>evaluate_experiment()</a></code> for
 details on the format of <code>eval_results</code>. If the <code>Plotter</code>
 is used for <code>Experiments</code> with varying parameters,
-<code>vary_param</code> should be used as a stand in for the name of this
+<code>vary_params</code> should be used as a stand in for the name of this
 varying parameter.</p>
 
 <h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Returns</h4>
@@ -196,7 +204,7 @@ varying parameter.</p>
 <p>Plot the performance of methods and/or their evaluation
 metrics from the <code>Experiment</code> using the <code>Plotter</code> and the
 provided parameters.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
-<p><div class="r"></p><pre><span class='va'>Plotter</span><span class='op'>$</span><span class='fu'>plot</span><span class='op'>(</span>fit_results <span class='op'>=</span> <span class='cn'>NULL</span>, eval_results <span class='op'>=</span> <span class='cn'>NULL</span>, vary_param <span class='op'>=</span> <span class='cn'>NULL</span>, <span class='va'>...</span><span class='op'>)</span></pre><p></div></p>
+<p><div class="r"></p><pre><span class='va'>Plotter</span><span class='op'>$</span><span class='fu'>plot</span><span class='op'>(</span>fit_results <span class='op'>=</span> <span class='cn'>NULL</span>, eval_results <span class='op'>=</span> <span class='cn'>NULL</span>, vary_params <span class='op'>=</span> <span class='cn'>NULL</span>, <span class='va'>...</span><span class='op'>)</span></pre><p></div></p>
 
 <h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
 <p><div class="arguments"></p><dl>
@@ -206,8 +214,8 @@ provided parameters.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' h
 <dt><code>eval_results</code></dt><dd><p>A list of tibbles, typically returned by the
 <code>Experiment$evaluate()</code> method.</p></dd>
 
-<dt><code>vary_param</code></dt><dd><p>Name of parameter/argument that was varied in the
-<code>Experiment</code>, i.e., <code>Experiment$get_vary_across()$param_name</code>.
+<dt><code>vary_params</code></dt><dd><p>Name of parameter/argument that was varied in the
+<code>Experiment</code> (see <code>Experiment$get_vary_across()</code>).
 Use <code>NULL</code> (default) if no <code>vary_across</code> component in
 <code>Experiment</code> run.</p></dd>
 

@@ -54,3 +54,4 @@ reference:
     contents:
       - prettyDT
       - prettyKable
+      - list_col_to_chr

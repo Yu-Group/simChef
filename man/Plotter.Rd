@@ -49,9 +49,12 @@ Create a new \code{Plotter}.
 \describe{
 \item{\code{plot_fun}}{The plotting function.}
 
-\item{\code{rmd_options}}{List of options to control the aesthetics of the
-\code{Plotter}'s displayed plot in the knitted R Markdown report.
-Currently, possible options are "height" and "width" (in inches).}
+\item{\code{name}}{(Optional) The name of the \code{Plotter}.}
+
+\item{\code{rmd_options}}{(Optional) List of options to control the aesthetics
+of the \code{Plotter}'s displayed plot in the knitted R Markdown
+report. Currently, possible options are "height" and "width" (in
+inches).}
 
 \item{\code{...}}{Arguments to pass into \code{plot_fun()}.}
 }
@@ -61,7 +64,7 @@ Currently, possible options are "height" and "width" (in inches).}
 When plotting or running the \code{Experiment} (see
 \code{Experiment$plot() or \code{Experiment$run()}}), the named
 arguments \code{fit_results}, \code{eval_results}, and
-\code{vary_param} are automatically passed into the \code{Plotter}
+\code{vary_params} are automatically passed into the \code{Plotter}
 function \code{plot_fun()} and serve as placeholders for the
 \code{Experiment$fit()} results, the \code{Experiment$evaluate()}
 results, and the name of the varying parameter, respectively.
@@ -73,7 +76,7 @@ take in the named arguments \code{fit_results} and/or
 See \code{Experiment$evaluate()} or \code{evaluate_experiment()} for
 details on the format of \code{eval_results}. If the \code{Plotter}
 is used for \code{Experiments} with varying parameters,
-\code{vary_param} should be used as a stand in for the name of this
+\code{vary_params} should be used as a stand in for the name of this
 varying parameter.
 }
 
@@ -101,12 +104,12 @@ provided parameters.
 \item{\code{eval_results}}{A list of tibbles, typically returned by the
 \code{Experiment$evaluate()} method.}
 
-\item{\code{...}}{Not used.}
-
-\item{\code{vary_param}}{Name of parameter/argument that was varied in the
-\code{Experiment}, i.e., \code{Experiment$get_vary_across()$param_name}.
+\item{\code{vary_params}}{Name of parameter/argument that was varied in the
+\code{Experiment} (see \code{Experiment$get_vary_across()}).
 Use \code{NULL} (default) if no \code{vary_across} component in
 \code{Experiment} run.}
+
+\item{\code{...}}{Not used.}
 }
 \if{html}{\out{</div>}}
 }

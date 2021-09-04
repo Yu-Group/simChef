@@ -16,8 +16,8 @@ fit_experiment(experiment, n_reps = 1, ...)
 \value{
 A tibble containing the results from fitting all \code{Methods}
 across all \code{DGPs} for \code{n_reps} repetitions. In addition to
-results columns, has columns named 'rep', 'dgp', 'method', and the
-\code{vary_across} parameter name if applicable.
+results columns, has columns named 'rep', 'dgp_name', 'method_name', and the
+\code{vary_across} parameter names if applicable.
 }
 \description{
 Fit \code{Methods} in the \code{Experiment} across all

@@ -10,7 +10,7 @@ A method to be \strong{fit} and assessed in the \code{Experiment}.
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
-\item{\code{name}}{The name of the \code{DGP}.}
+\item{\code{name}}{The name of the \code{Method}.}
 
 \item{\code{method_fun}}{The method function.}
 
@@ -40,6 +40,8 @@ Create a new \code{Method}.
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{method_fun}}{The method function.}
+
+\item{\code{name}}{(Optional) The name of the \code{Method}.}
 
 \item{\code{...}}{Arguments to pass into \code{method_fun()}.}
 }

@@ -96,6 +96,9 @@ performance of methods in the Experiment." />
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
+      <a href="../articles/parallel.html">Parallel strategies in `simChef`</a>
+    </li>
+    <li>
       <a href="../articles/vignette.html">simChef Vignette</a>
     </li>
   </ul>
@@ -131,6 +134,8 @@ performance of methods in the <code>Experiment</code>.</p>
     <h2 class="hasAnchor" id="public-fields"><a class="anchor" href="#public-fields"></a>Public fields</h2>
 
     <p><div class="r6-fields"></p><dl>
+<dt><code>name</code></dt><dd><p>The name of the <code>Evaluator</code>.</p></dd>
+
 <dt><code>eval_fun</code></dt><dd><p>The evaluation function.</p></dd>
 
 <dt><code>eval_params</code></dt><dd><p>(Named) list of parameters to input into the
@@ -158,15 +163,17 @@ R Markdown report.</p></dd>
 <p><hr>
 <a id="method-new"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>new()</code></h3>
 <p>Create a new <code>Evaluator</code>.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
-<p><div class="r"></p><pre><span class='va'>Evaluator</span><span class='op'>$</span><span class='fu'>new</span><span class='op'>(</span><span class='va'>eval_fun</span>, rmd_options <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span><span class='op'>)</span>, <span class='va'>...</span><span class='op'>)</span></pre><p></div></p>
+<p><div class="r"></p><pre><span class='va'>Evaluator</span><span class='op'>$</span><span class='fu'>new</span><span class='op'>(</span><span class='va'>eval_fun</span>, name <span class='op'>=</span> <span class='cn'>NULL</span>, rmd_options <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span><span class='op'>)</span>, <span class='va'>...</span><span class='op'>)</span></pre><p></div></p>
 
 <h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
 <p><div class="arguments"></p><dl>
 <dt><code>eval_fun</code></dt><dd><p>The evaluation function.</p></dd>
 
-<dt><code>rmd_options</code></dt><dd><p>List of options to control the aesthetics of the
-displayed <code>Evaluator</code>'s results table in the knitted R Markdown
-report. See <code><a href='prettyDT.html'>prettyDT()</a></code> for possible options.</p></dd>
+<dt><code>name</code></dt><dd><p>(Optional) The name of the <code>Evaluator</code>.</p></dd>
+
+<dt><code>rmd_options</code></dt><dd><p>(Optional) List of options to control the aesthetics
+of the displayed <code>Evaluator</code>'s results table in the knitted R
+Markdown report. See <code><a href='prettyDT.html'>prettyDT()</a></code> for possible options.</p></dd>
 
 <dt><code>...</code></dt><dd><p>Arguments to pass into <code>eval_fun()</code>.</p></dd>
 
@@ -174,7 +181,7 @@ report. See <code><a href='prettyDT.html'>prettyDT()</a></code> for possible opt
 <h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Details</h4>
 <p>When evaluating or running the <code>Experiment</code> (see
 <code>Experiment$evaluate() or <code>Experiment$run()</code></code>), the named
-arguments <code>fit_results</code> and <code>vary_param</code> are automatically
+arguments <code>fit_results</code> and <code>vary_params</code> are automatically
 passed into the <code>Evaluator</code> function <code>eval_fun()</code> and serve
 as placeholders for the <code>Experiment$fit()</code> results (i.e., the
 results from the method fits) and the name of the varying parameter,
@@ -184,7 +191,7 @@ take in the named argument <code>fit_results</code>. See
 <code>Experiment$fit()</code> or <code><a href='fit_experiment.html'>fit_experiment()</a></code> for details on the
 format of <code>fit_results</code>. If the <code>Evaluator</code>
 is used for <code>Experiments</code> with varying parameters,
-<code>vary_param</code> should be used as a stand in for the name of this
+<code>vary_params</code> should be used as a stand in for the name of this
 varying parameter.</p>
 
 <h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Returns</h4>
@@ -193,15 +200,15 @@ varying parameter.</p>
 <a id="method-evaluate"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>evaluate()</code></h3>
 <p>Evaluate the performance of method(s) in the
 <code>Experiment</code> using the <code>Evaluator</code> and its given parameters.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
-<p><div class="r"></p><pre><span class='va'>Evaluator</span><span class='op'>$</span><span class='fu'>evaluate</span><span class='op'>(</span><span class='va'>fit_results</span>, vary_param <span class='op'>=</span> <span class='cn'>NULL</span>, <span class='va'>...</span><span class='op'>)</span></pre><p></div></p>
+<p><div class="r"></p><pre><span class='va'>Evaluator</span><span class='op'>$</span><span class='fu'>evaluate</span><span class='op'>(</span><span class='va'>fit_results</span>, vary_params <span class='op'>=</span> <span class='cn'>NULL</span>, <span class='va'>...</span><span class='op'>)</span></pre><p></div></p>
 
 <h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
 <p><div class="arguments"></p><dl>
 <dt><code>fit_results</code></dt><dd><p>A tibble, typically returned by the
 <code>Experiment$fit()</code> method.</p></dd>
 
-<dt><code>vary_param</code></dt><dd><p>Name of parameter/argument that was varied in the
-<code>Experiment</code>, i.e., <code>Experiment$get_vary_across()$param_name</code>.
+<dt><code>vary_params</code></dt><dd><p>Name of parameters/arguments that were varied in the
+<code>Experiment</code> (see <code>Experiment$get_vary_across()</code>).
 Use <code>NULL</code> (default) if no <code>vary_across</code> component in
 <code>Experiment</code> run.</p></dd>
 
