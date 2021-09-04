@@ -8,6 +8,8 @@
 Method <- R6::R6Class(
   classname = 'Method',
   public = list(
+    #' @field name The name of the \code{Method}.
+    name = NULL,
     #' @field method_fun The method function.
     method_fun = NULL,
     #' @field method_params (Named) list of parameters to input into the 
@@ -16,10 +18,12 @@ Method <- R6::R6Class(
     #' @description Create a new \code{Method}.
     #'
     #' @param method_fun The method function.
+    #' @param name (Optional) The name of the \code{Method}.
     #' @param ... Arguments to pass into \code{method_fun()}.
     #'
     #' @return A new \code{Method} object.
-    initialize = function(method_fun, ...) {
+    initialize = function(method_fun, name = NULL, ...) {
+      self$name <- name
       self$method_fun <- method_fun
       self$method_params <- list(...)
     },
@@ -42,7 +46,7 @@ Method <- R6::R6Class(
           method_params[[names(new_method_params)[i]]] <- new_method_params[[i]]
         }
       }
-      
+
       if (identical(method_params, list())) {
         fit_results <- do.call(self$method_fun, data_list)
       } else {
@@ -61,11 +65,12 @@ Method <- R6::R6Class(
 #' @name create_method
 #' 
 #' @param method_fun The method function.
+#' @param name (Optional) The name of the \code{Method}.
 #' @param ... Arguments to pass into \code{method_fun()}.
 #'
 #' @return A new instance of \code{Method}.
 #'
 #' @export
-create_method <- function(method_fun, ...) {
-  return(Method$new(method_fun, ...))
+create_method <- function(method_fun, name = NULL, ...) {
+  return(Method$new(method_fun, name = name, ...))
 }

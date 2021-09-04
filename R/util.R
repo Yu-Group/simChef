@@ -1,3 +1,34 @@
+#' Convert a list column to a readable character column.
+#' 
+#' @description Convert a list-type column (typically in a tibble) to a 
+#'   character-type column. Often useful for plotting along this column.
+#' 
+#' @param list_col A list-type column to be converted to character.
+#' @param name Name of column. Used as a prefix in the returned character 
+#'   strings. Default is \code{NULL}, which adds no prefix.
+#' @param verbatim If \code{TRUE}, paste list contents together into a character
+#'   vector. If \code{FALSE} (default), map items in list to unique identifiers
+#'   (i.e., 1, 2, 3, ...).
+#'
+#' @return A character vector of the same length as \code{list_col}.
+#' @export
+list_col_to_chr <- function(list_col, name = NULL, verbatim = FALSE) {
+  if (verbatim) {
+    str_col <- sapply(list_col, 
+                      function(x) {
+                        paste0(name, paste(x, collapse = "_"))
+                      })
+  } else {
+    unique_items <- unique(list_col)
+    str_col <- sapply(list_col, 
+                      function(x) {
+                        which(sapply(unique_items, function(y) identical(x, y)))
+                      }) %>%
+      paste0(name, .)
+  }
+  return(str_col)
+}
+
 #' Check equality of \code{Experiment} components.
 #' 
 #' @description Check if any two \code{DGPs}, \code{Methods}, \code{Evaluators},
@@ -73,7 +104,7 @@ list_to_tibble <- function(ls) {
   }, error = function(e) {
     out <- purrr::map(ls, ~list(.x)) %>%
       tibble::as_tibble()
-    simplify_cols <- purrr::map_lgl(out, 
+    simplify_cols <- purrr::map_lgl(out,
                                     ~length(unlist(.x, recursive = F)) == 1) %>%
       which() %>%
       names()

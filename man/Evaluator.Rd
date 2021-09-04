@@ -11,6 +11,8 @@ performance of methods in the \code{Experiment}.
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
+\item{\code{name}}{The name of the \code{Evaluator}.}
+
 \item{\code{eval_fun}}{The evaluation function.}
 
 \item{\code{eval_params}}{(Named) list of parameters to input into the
@@ -40,7 +42,7 @@ R Markdown report.}
 \subsection{Method \code{new()}}{
 Create a new \code{Evaluator}.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Evaluator$new(eval_fun, rmd_options = list(), ...)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Evaluator$new(eval_fun, name = NULL, rmd_options = list(), ...)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -48,9 +50,11 @@ Create a new \code{Evaluator}.
 \describe{
 \item{\code{eval_fun}}{The evaluation function.}
 
-\item{\code{rmd_options}}{List of options to control the aesthetics of the
-displayed \code{Evaluator}'s results table in the knitted R Markdown
-report. See \code{\link[=prettyDT]{prettyDT()}} for possible options.}
+\item{\code{name}}{(Optional) The name of the \code{Evaluator}.}
+
+\item{\code{rmd_options}}{(Optional) List of options to control the aesthetics
+of the displayed \code{Evaluator}'s results table in the knitted R
+Markdown report. See \code{\link[=prettyDT]{prettyDT()}} for possible options.}
 
 \item{\code{...}}{Arguments to pass into \code{eval_fun()}.}
 }
@@ -59,7 +63,7 @@ report. See \code{\link[=prettyDT]{prettyDT()}} for possible options.}
 \subsection{Details}{
 When evaluating or running the \code{Experiment} (see
 \code{Experiment$evaluate() or \code{Experiment$run()}}), the named
-arguments \code{fit_results} and \code{vary_param} are automatically
+arguments \code{fit_results} and \code{vary_params} are automatically
 passed into the \code{Evaluator} function \code{eval_fun()} and serve
 as placeholders for the \code{Experiment$fit()} results (i.e., the
 results from the method fits) and the name of the varying parameter,
@@ -69,7 +73,7 @@ take in the named argument \code{fit_results}. See
 \code{Experiment$fit()} or \code{fit_experiment()} for details on the
 format of \code{fit_results}. If the \code{Evaluator}
 is used for \code{Experiments} with varying parameters,
-\code{vary_param} should be used as a stand in for the name of this
+\code{vary_params} should be used as a stand in for the name of this
 varying parameter.
 }
 
@@ -84,7 +88,7 @@ A new \code{Evaluator} object.
 Evaluate the performance of method(s) in the
 \code{Experiment} using the \code{Evaluator} and its given parameters.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Evaluator$evaluate(fit_results, vary_param = NULL, ...)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Evaluator$evaluate(fit_results, vary_params = NULL, ...)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -93,8 +97,8 @@ Evaluate the performance of method(s) in the
 \item{\code{fit_results}}{A tibble, typically returned by the
 \code{Experiment$fit()} method.}
 
-\item{\code{vary_param}}{Name of parameter/argument that was varied in the
-\code{Experiment}, i.e., \code{Experiment$get_vary_across()$param_name}.
+\item{\code{vary_params}}{Name of parameters/arguments that were varied in the
+\code{Experiment} (see \code{Experiment$get_vary_across()}).
 Use \code{NULL} (default) if no \code{vary_across} component in
 \code{Experiment} run.}
 

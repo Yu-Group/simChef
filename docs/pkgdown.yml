@@ -2,6 +2,7 @@ pandoc: '2.13'
 pkgdown: 1.6.1
 pkgdown_sha: ~
 articles:
+  parallel: parallel.html
   vignette: vignette.html
-last_built: 2021-09-01T07:24Z
+last_built: 2021-09-04T18:01Z
 

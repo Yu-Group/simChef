@@ -24,7 +24,7 @@ library(pcs.sim.pkg)
 
 # Overview
 
-The goal of `simChef` is to seamlessly and efficiently run simulation experiments using a simple grammar. The results of these simulation experiments can also be conveniently viewed in an organized and interactive browser (or html file) (e.g., [here](linear_regression_base_output.html)). The basic usage of `simChef` can be summarized as follows:
+The goal of `simChef` is to seamlessly and efficiently run simulation experiments using a simple grammar. The results of these simulation experiments can also be conveniently viewed in an organized and interactive browser (or html file) (e.g., [here](linear_regression_output.html)). The basic usage of `simChef` can be summarized as follows:
 
 1. Create individual parts of the simulation experiment recipe
     a. Create DGP(s) (data-generating processes) via `create_dgp()`
@@ -44,7 +44,7 @@ experiment <- create_experiment(name = "Experiment") %>%
 results <- experiment$run(n_reps = 100, save = T)  
 # or alternatively, `run_experiment(experiment, n_reps = 100, save = T)`
 ```
-4. Document simulation experiment recipe and visualize results via R Markdown
+4. Document simulation experiment recipe and visualize summary of results via R Markdown
 ```{r eval = FALSE}
 experiment$create_rmd()  
 # or alternatively, `create_rmd(experiment)`
@@ -61,10 +61,11 @@ To begin, we first need to create the individual parts of the simulation experim
 3. **Evaluator**: the evaluation metrics used to **evaluate** the methods performance
 4. **Plotter**: the plotting functions used to **plot** outputs from the method fits or evaluation results
 
-To create a `DGP()`, `Method()`, `Evaluator()`, or `Plotter()`, we can respectively use the `create_dgp()`, `create_method()`, `create_evaluator()`, or `create_plotter()` functions. Each `create_*` function follows the same syntax and takes in the inputs:
+To create a `DGP()`, `Method()`, `Evaluator()`, or `Plotter()`, we can respectively use the `create_dgp()`, `create_method()`, `create_evaluator()`, or `create_plotter()` functions. Each `create_*()` function follows the same syntax and takes in the inputs:
 
-- `*_fun`: the first input is a function from which to simulate data, fit the method, evaluate the metrics, or create the plots (depending on `*`)
-- `...`: additional arguments get passed into the `*_fun` above
+- `*_fun`: the first input is a function from which to simulate data, fit the method, evaluate the metrics, or create the plots (depending on `*`).
+- `name`: (optional) name of the component. Can be specified either here in `create_*()` or when creating the experiment as we will see later.
+- `...`: additional arguments get passed into the `*_fun` above.
 
 ## Create data-generating process (DGP)
 
@@ -88,7 +89,7 @@ dgp_fun <- function(n, beta, rho, sigma) {
 We can create an object of class `DGP()` from this function via
 
 ```{r}
-dgp <- create_dgp(dgp_fun = dgp_fun, 
+dgp <- create_dgp(dgp_fun = dgp_fun, name = "Linear Gaussian DGP",
                   # additional named parameters to pass to dgp_fun()
                   n = 200, beta = c(1, 0), rho = 0, sigma = 1)
 ```
@@ -125,7 +126,7 @@ To evaluate the performance of linear regression, one metric (or statistic) of i
 
 ```{r}
 reject_prob_fun <- function(fit_results, alpha = 0.05) {
-  group_vars <- c("dgp", "method")
+  group_vars <- c("dgp_name", "method_name")
   eval_out <- fit_results %>%
     dplyr::group_by(across({{group_vars}})) %>%
     dplyr::summarise(
@@ -144,8 +145,8 @@ reject_prob_eval <- create_evaluator(eval_fun = reject_prob_fun, alpha = 0.1)
 
 There are a few key points to keep in mind when writing a custom Evaluator function such as `reject_prob_fun()`.
 
-- First, the Evaluator function should almost always take in the named argument `fit_results`. `fit_results` is a placeholder for the tibble that will be outputted by `Experiment$fit()` and automatically passed in when the experiment is fitted. Note that this argument must be exactly named `fit_results` or else the Evaluator function will not receive the results from `Experiment$fit()`. We will see `Experiment$fit()` in action later, but for now, we can think of `fit_results` as a tibble containing the results of all (repetition, DGP, method) combinations fitted in the experiment. Naturally, `fit_results` will have columns named `rep`, `dgp`, `method`, and any other named arguments that were outputted from the method function (i.e., `lm_fun`).
-- Many evaluation metrics are most naturally computed across repetitions, so it is common to group the `fit_results` by `dgp` and `method` as seen in `reject_prob_fun()` above. In doing so, the rejection probability (across repetitions) will be computed for each (DGP, Method) combination separately. However, depending on the goal of the Evaluator function, grouping by `dgp` and `method` might not be necessary.
+- First, the Evaluator function should almost always take in the named argument `fit_results`. `fit_results` is a placeholder for the tibble that will be outputted by `Experiment$fit()` and automatically passed in when the experiment is fitted. Note that this argument must be exactly named `fit_results` or else the Evaluator function will not receive the results from `Experiment$fit()`. We will see `Experiment$fit()` in action later, but for now, we can think of `fit_results` as a tibble containing the results of all (repetition, DGP, method) combinations fitted in the experiment. Naturally, `fit_results` will have columns named `rep`, `dgp_name`, `method_name`, and any other named arguments that were outputted from the method function (i.e., `lm_fun`).
+- Many evaluation metrics are most naturally computed across repetitions, so it is common to group the `fit_results` by `dgp_name` and `method_name` as seen in `reject_prob_fun()` above. In doing so, the rejection probability (across repetitions) will be computed for each (DGP, Method) combination separately. However, depending on the goal of the Evaluator function, grouping by `dgp_name` and `method_name` might not be necessary.
 
 As before, additional arguments can be passed into `create_evaluator()`, and in this case, we have overwritten the default value of `alpha` with `alpha = 0.1`.
 
@@ -157,7 +158,7 @@ Lastly, we may want to plot the results from the `Method` fits (stored in `fit_r
 power_plot_fun <- function(fit_results, col = "X1") {
   plt <- ggplot2::ggplot(fit_results) +
     ggplot2::aes(x = .data[[paste(col, "p-value")]],
-                 color = as.factor(method)) +
+                 color = as.factor(method_name)) +
     ggplot2::geom_abline(slope = 1, intercept = 0, 
                          color = "darkgray", linetype = "solid", size = 1) +
     ggplot2::stat_ecdf(size = 1) +
@@ -239,7 +240,7 @@ results$plot_results
 
 By default, the results are not saved to disk. However, to generate the R Markdown report, we will need to save the results to disk and hence set `save = TRUE` above.
 
-The experiment can also be run in parallel. For a more detailed walkthrough on how to parallelize the experiment, please see the `vignette("parallel")`.
+The experiment can also be run in parallel. For a more detailed walkthrough on how to parallelize the experiment, please see `vignette("parallel")`.
 
 # Document and visualize results
 
@@ -268,8 +269,7 @@ In many situations, it is helpful to understand how a method's performance is af
 Using the simple grammar of `simChef`, we can investigate this question by adding a "vary across" component to the simulation experiment.
 ```{r}
 experiment <- experiment %>%
-  add_vary_across(dgp = "Linear Gaussian DGP", param_name = "sigma",
-                  param_values = c(1, 2, 4, 8))
+  add_vary_across(dgp = "Linear Gaussian DGP", sigma = c(1, 2, 4, 8))
 ```
 
 ```{r results = "hide"}
@@ -282,12 +282,11 @@ print(experiment)
 #>    Plotters: Power 
 #>    Vary Across: 
 #>       DGP: Linear Gaussian DGP 
-#>       Parameter: sigma 
-#>       Parameter values:  num [1:4] 1 2 4 8
+#>          sigma:  num [1:4] 1 2 4 8
 ```
 
 
-In `add_vary_across()`, the `dgp` argument is the name of the DGP to vary or the DGP object itself. The `param_name` argument is the name of the argument/parameter in the `DGP` function that will be varied, and the `param_values` argument is a list or atomic vector of values that `param_name` will take and vary across while all other arguments are kept constant at their base value (see `dgp$dgp_params`). Here, we are varying the `sigma` parameter (i.e., the SD of the additive noise term) over values of 1, 2, 4, and 8 within the Linear Gaussian DGP. (Note: we can also vary across parameters in a `Method` by inputting the `method` argument instead of the `dgp` argument in `add_vary_across()`.)
+In `add_vary_across()`, the `dgp` argument is the name of the DGP to vary or the DGP object itself. All subsequent arguments should be of the form `[param_name] = [param_values]`, where `param_name` is the name of the argument/parameter in the `DGP` function that will be varied, and `param_values` is a list or atomic vector of values that `param_name` will take and vary across while all other arguments are kept constant at their base value (see `dgp$dgp_params`). Here, we are varying the `sigma` parameter (i.e., the SD of the additive noise term) over values of 1, 2, 4, and 8 within the Linear Gaussian DGP. (Note: we can also vary across parameters in a `Method` by inputting the `method` argument instead of the `dgp` argument in `add_vary_across()`.)
 
 However, when we run the experiment, the results are not quite what we expect. The results are summarized/aggregated across all values of `sigma`.
 
@@ -297,11 +296,11 @@ vary_results$eval_results
 vary_results$plot_results
 ```
 
-To see how different values of `sigma` affect the experiment results, we need to modify our `Evaluator` and `Plotter` functions. Specifically, in `reject_prob_eval`, we want to group `fit_results` by `sigma` in addition to `dgp` and `method`. To do this, we need to add a `vary_param` argument to our custom `Evaluator` function. `vary_param` will be auto-filled by the `param_name` argument from `add_vary_across()` (in this case, `sigma`) when we run the experiment.
+To see how different values of `sigma` affect the experiment results, we need to modify our `Evaluator` and `Plotter` functions. Specifically, in `reject_prob_eval`, we want to group `fit_results` by `sigma` in addition to `dgp_name` and `method_name`. To do this, we need to add a `vary_params` argument to our custom `Evaluator` function. When we run the experiment, `vary_params` will be auto-filled by a vector of the parameter names that are varied (i.e., those that have been added via `add_vary_across()`). In this case, `vary_params` will be auto-filled by `c("sigma")`.
 
 ```{r}
-reject_prob_fun <- function(fit_results, vary_param = NULL, alpha = 0.05) {
-  group_vars <- c("dgp", "method", vary_param)
+reject_prob_fun <- function(fit_results, vary_params = NULL, alpha = 0.05) {
+  group_vars <- c("dgp_name", "method_name", vary_params)
   eval_out <- fit_results %>%
     dplyr::group_by(across({{group_vars}})) %>%
     dplyr::summarise(
@@ -313,27 +312,39 @@ reject_prob_fun <- function(fit_results, vary_param = NULL, alpha = 0.05) {
 reject_prob_eval <- create_evaluator(eval_fun = reject_prob_fun, alpha = 0.1)
 ```
 
-Similarly in `power_plot_fun`, we need to add a `vary_param` argument to plot the results across different values of `sigma`.
+Similarly in `power_plot_fun`, we need to add a `vary_params` argument to plot the results across different values of `sigma`.
 
 ```{r}
-power_plot_fun <- function(fit_results, vary_param = NULL, col = "X1") {
+power_plot_fun <- function(fit_results, vary_params = NULL, col = "X1") {
+  
+  if (!is.null(vary_params)) {
+    # deal with the case when we vary across a parameter that is vector-valued
+    if (is.list(fit_results[[vary_params]])) {
+      fit_results[[vary_params]] <- list_col_to_chr(fit_results[[vary_params]],
+                                                    name = vary_params,
+                                                    verbatim = TRUE)
+    }
+  }
+  
   plt <- ggplot2::ggplot(fit_results) +
     ggplot2::aes(x = .data[[paste(col, "p-value")]],
-                 color = as.factor(method)) +
+                 color = as.factor(method_name)) +
     ggplot2::geom_abline(slope = 1, intercept = 0, 
                          color = "darkgray", linetype = "solid", size = 1) +
     ggplot2::stat_ecdf(size = 1) +
     ggplot2::scale_x_continuous(limits = c(0, 1)) +
     ggplot2::labs(x = "t", y = "P( p-value \u2264 t )", 
                   linetype = "", color = "Method")
-  if (!is.null(vary_param)) {
-    plt <- plt + ggplot2::facet_wrap(~ .data[[vary_param]])
+  if (!is.null(vary_params)) {
+    plt <- plt + ggplot2::facet_wrap(~ .data[[vary_params]])
   }
   return(plt)
 }
 power_plot <- create_plotter(plot_fun = power_plot_fun)
 
 ```
+
+Here, we have also added a pre-processing step to deal with the potential case when we vary across a *list* of parameter values. This pre-processing step uses a helper function, `list_col_to_chr()`, to convert a list-type tibble column to a character-type tibble column that is amenable for plotting (unlike the list-type column).
 
 Now, we are ready to update our experiment and run the experiment via
 ```{r}
@@ -351,38 +362,56 @@ For fun, let's add another plot (in fact, an interactive plot using `plotly::ggp
 
 ```{r}
 # create rejection probability plot
-reject_prob_plot_fun <- function(eval_results, vary_param = NULL, 
+reject_prob_plot_fun <- function(eval_results, vary_params = NULL, 
                                  alpha = 0.05) {
-  plt <- ggplot2::ggplot(eval_results$`Rejection Prob. (alpha = 0.1)`) +
-    ggplot2::aes(x = .data[[vary_param]], y = `X1 Reject Prob.`, 
-                 color = as.factor(method)) +
-    ggplot2::labs(x = vary_param, 
+  eval_results <- eval_results$`Rejection Prob. (alpha = 0.1)`
+  if (is.list(eval_results[[vary_params]])) {
+    # deal with the case when we vary across a parameter that is vector-valued
+    eval_results[[vary_params]] <- list_col_to_chr(eval_results[[vary_params]],
+                                                   name = vary_params,
+                                                   verbatim = TRUE)
+  }
+  plt <- ggplot2::ggplot(eval_results) +
+    ggplot2::aes(x = .data[[vary_params]], y = `X1 Reject Prob.`, 
+                 color = as.factor(method_name), 
+                 fill = as.factor(method_name)) +
+    ggplot2::labs(x = vary_params, 
                   y = sprintf("Rejection Probability (alpha = %s)", alpha),
-                  color = "Method") +
-    ggplot2::geom_line() +
-    ggplot2::geom_point(size = 2) +
+                  color = "Method", fill = "Method") +
     ggplot2::scale_y_continuous(limits = c(0, 1))
+  if (is.numeric(eval_results[[vary_params]])) {
+    plt <- plt +
+      ggplot2::geom_line() +
+      ggplot2::geom_point(size = 2)
+  } else {
+    plt <- plt +
+      ggplot2::geom_bar(stat = "identity")
+  }
   return(plotly::ggplotly(plt))
 }
 reject_prob_plot <- create_plotter(plot_fun = reject_prob_plot_fun, alpha = 0.1)
 
+experiment <- experiment %>%
+  add_plotter(reject_prob_plot, name = "Rejection Prob. (alpha = 0.1) Plot")
+
 # run experiment across values of beta_2
 vary_beta2_results <- experiment %>%
-  update_vary_across(dgp = "Linear Gaussian DGP", param_name = "beta",
-                     param_values = list(c(1, 0),
-                                         c(1, 0.5),
-                                         c(1, 1),
-                                         c(1, 1.5),
-                                         c(1, 2))) %>%
+  remove_vary_across(dgp = "Linear Gaussian DGP") %>%
+  add_vary_across(dgp = "Linear Gaussian DGP",
+                  beta = list(c(1, 0),
+                              c(1, 0.5),
+                              c(1, 1),
+                              c(1, 1.5),
+                              c(1, 2))) %>%
   run_experiment(n_reps = 100, save = TRUE)
 
 # run experiment across values of rho (correlation)
 vary_cor_results <- experiment %>%
-  update_vary_across(dgp = "Linear Gaussian DGP", param_name = "rho", 
-                     param_values = c(0, 0.2, 0.5, 0.9)) %>%
+  remove_vary_across(dgp = "Linear Gaussian DGP") %>%
+  add_vary_across(dgp = "Linear Gaussian DGP", 
+                  rho = c(0, 0.2, 0.5, 0.9)) %>%
   run_experiment(n_reps = 100, save = TRUE)
 ```
-Note that while multiple DGPs, Methods, Evaluators, and Plotters can be added to the `Experiment`, only one `vary_across` component can be added to the `Experiment` at this time.
 
 ## Experiment as an R6 Class
 
@@ -390,18 +419,17 @@ Since the `Experiment()` class is an `R6`, we need to be careful about clones ve
 
 ```{r results = "hide"}
 experiment <- experiment %>%
-  remove_vary_across()
+  remove_vary_across(dgp = "Linear Gaussian DGP")
 experiment
 #> Experiment Name: Linear Regression Experiment 
 #>    Saved results at: ./results/Linear Regression Experiment 
 #>    DGPs: Linear Gaussian DGP 
 #>    Methods: OLS 
 #>    Evaluators: Rejection Prob. (alpha = 0.1) 
-#>    Plotters: Power 
+#>    Plotters: Power, Rejection Prob. (alpha = 0.1) Plot
 #>    Vary Across: None
 vary_experiment <- experiment %>%
-  add_vary_across(dgp = "Linear Gaussian DGP", param_name = "sigma",
-                  param_values = c(1, 2, 4, 8))
+  add_vary_across(dgp = "Linear Gaussian DGP", sigma = c(1, 2, 4, 8))
 all.equal(vary_experiment, experiment)
 #> [1] TRUE
 data.table::address(experiment) == data.table::address(vary_experiment)
@@ -412,12 +440,10 @@ experiment
 #>    DGPs: Linear Gaussian DGP 
 #>    Methods: OLS 
 #>    Evaluators: Rejection Prob. (alpha = 0.1) 
-#>    Plotters: Power 
+#>    Plotters: Power, Rejection Prob. (alpha = 0.1) Plot
 #>    Vary Across: 
 #>       DGP: Linear Gaussian DGP 
-#>       Parameter: sigma 
-#>       Parameter values:  num [1:4] 1 2 4 8
-
+#>          sigma:  num [1:4] 1 2 4 8
 ```
 
 ## Creating an experiment from another experiment
@@ -437,7 +463,7 @@ vary_experiment
 #>    DGPs: Linear Gaussian DGP 
 #>    Methods: OLS 
 #>    Evaluators: Rejection Prob. (alpha = 0.1) 
-#>    Plotters: Power 
+#>    Plotters: Power, Rejection Prob. (alpha = 0.1) Plot
 #>    Vary Across: None
 ```
 
@@ -446,39 +472,37 @@ When creating an `Experiment` from a clone, we are making a deep clone of the pa
 ```{r}
 # this works without an error
 vary_experiment <- vary_experiment %>%
-  add_vary_across(dgp = "Linear Gaussian DGP", param_name = "sigma",
-                  param_values = c(1, 2, 4, 8))
+  add_vary_across(dgp = "Linear Gaussian DGP", sigma = c(1, 2, 4, 8))
 ```
 
 We can also add/update DGPs, Methods, Evaluators, and Plotters to the cloned experiment without modifying the parent `experiment`.
 
 ```{r results = "hide"}
 # add DGP
-dgp_new <- create_dgp(dgp_fun = dgp_fun, 
+dgp_new <- create_dgp(dgp_fun = dgp_fun, name = "Linear Gaussian DGP (large n)",
                       n = 500, beta = c(1, 0), rho = 0, sigma = 1)
-vary_experiment %>%
+vary_experiment <- vary_experiment %>%
   add_dgp(dgp_new, "Linear Gaussian DGP (large n)")
+vary_experiment
 #> Experiment Name: I am a clone 
-#>    Saved results at: /Users/Tiffany/My Documents/Research/Yu/PCS Theory/pcs-sim-pkg/vignettes/results/Linear Regression Experiment 
+#>    Saved results at: ./results/Linear Regression Experiment 
 #>    DGPs: Linear Gaussian DGP, Linear Gaussian DGP (large n) 
 #>    Methods: OLS 
 #>    Evaluators: Rejection Prob. (alpha = 0.1) 
-#>    Plotters: Power 
+#>    Plotters: Power, Rejection Prob. (alpha = 0.1) Plot
 #>    Vary Across: 
 #>       DGP: Linear Gaussian DGP 
-#>       Parameter: sigma 
-#>       Parameter values:  num [1:4] 1 2 4 8
+#>          sigma:  num [1:4] 1 2 4 8
 experiment
 #> Experiment Name: Linear Regression Experiment 
 #>    Saved results at: ./results/Linear Regression Experiment 
 #>    DGPs: Linear Gaussian DGP 
 #>    Methods: OLS 
 #>    Evaluators: Rejection Prob. (alpha = 0.1) 
-#>    Plotters: Power 
+#>    Plotters: Power, Rejection Prob. (alpha = 0.1) Plot 
 #>    Vary Across: 
 #>       DGP: Linear Gaussian DGP 
-#>       Parameter: sigma 
-#>       Parameter values:  num [1:4] 1 2 4 8
+#>          sigma:  num [1:4] 1 2 4 8
 ```
 
 ## Additional R Markdown notes and options
@@ -503,15 +527,19 @@ There are also several customizable options regarding the aesthetics of the R Ma
 ```{r}
 power_plot <- create_plotter(plot_fun = power_plot_fun, 
                              rmd_options = list(height = 10, width = 8))
+experiment <- experiment %>%
+  update_plotter(power_plot, "Power")
 ```
 
 and the number of digits in the evaluation table outputs via
 ```{r}
 reject_prob_eval <- create_evaluator(eval_fun = reject_prob_fun, alpha = 0.1,
                                      rmd_options = list(digits = 3))
+experiment <- experiment %>%
+  update_evaluator(reject_prob_eval, "Rejection Prob. (alpha = 0.1)")
 ```
 
-Alternatively, `set_rmd_options()` can be used to update the R Markdown option for an existing object, rather than having to create the `Evaluator()` or `Plotter()` from scratch, e.g.,
+Alternatively, `set_rmd_options()` can be used to update the R Markdown option for an existing object, rather than having to recreate the `Evaluator()` or `Plotter()` from scratch, e.g.,
 ```{r}
 experiment <- experiment %>%
   set_rmd_options(field_name = "plotter", name = "Power", show = TRUE,
@@ -529,7 +557,7 @@ By default, the root results directory is ./results/\{EXPERIMENT_NAME\}. If the 
 
 All results from `experiment$run(..., save = TRUE)` without a `vary_across` component are then saved under the root results directory. If `experiment` has a `vary_across` component, then the results of `experiment$run(..., save = TRUE)` are saved under ./\{ROOT_RESULTS_DIR\}/\{DGP_OR_METHOD_NAME\}/Varying \{PARAM_NAME\}/.
 
-For a concrete example of the saving structure, please refer to [this GitHub directory](https://github.com/Yu-Group/pcs.sim.pkg/tree/main/vignettes/results/Linear\ Regression\ Experiment/), where we have stored all saved results from this vignette.
+For a concrete example of the saving structure, please refer to [this GitHub directory](https://github.com/Yu-Group/pcs.sim.pkg/tree/main/vignettes/results/Linear Regression Experiment/), where we have stored all saved results from this vignette.
 
 ## Additional handling of the experiment
 

@@ -10,6 +10,8 @@ A method to be \strong{fit} and assessed in the \code{Experiment}.
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
+\item{\code{name}}{The name of the \code{Method}.}
+
 \item{\code{method_fun}}{The method function.}
 
 \item{\code{method_params}}{(Named) list of parameters to input into the
@@ -31,13 +33,15 @@ method function.}
 \subsection{Method \code{new()}}{
 Create a new \code{Method}.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Method$new(method_fun, ...)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Method$new(method_fun, name = NULL, ...)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{method_fun}}{The method function.}
+
+\item{\code{name}}{(Optional) The name of the \code{Method}.}
 
 \item{\code{...}}{Arguments to pass into \code{method_fun()}.}
 }

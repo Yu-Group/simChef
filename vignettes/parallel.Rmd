@@ -1,0 +1,160 @@
+---
+title: "Parallel strategies in `simChef`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Parallel strategies in `simChef`}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+Given the large amount of computation that simulation experiments require,
+`simChef` uses the R package [`future`](https://future.futureverse.org/) to
+distribute computation across available resources. Users must decide upon two
+aspects of the distributed computation in order to effectively parallelize the
+simulations: _what_ resources to use and _how_ to use them.
+
+`simChef` is entirely agnostic to the answer to the _what_ question; any
+resource that `future` supports is also supported. For example, to run your
+simulation experiments on your local Linux, macOS, or Windows machine using all
+but one of the cores, you might run:
+
+```{r, plan-multisession, eval=FALSE}
+n_workers <- availableCores() - 1
+plan(multisession, workers = n_workers)
+```
+
+Once a `future` plan has been set, `simChef` will execute computation according
+to the plan specified. To answer the _how_ question, consider `n` computational
+"tasks" to be distributed across `p` parallel workers. Assuming each task takes
+approximately the same amount of time to complete regardless of the worker
+assigned to the task, then with `n=100` and `p=4` each worker should complete
+around 25 of the tasks. In the ideal setting, the total time to complete the 100
+tasks should be around 4 times lower than the time it takes one worker to
+complete them, on average.
+
+In more realistic scenarios, and especially in simulation experiments where
+heterogeneous methods are compared in various diverse problem settings, tasks
+are often much less uniform and different parallel strategies can have profound
+implications for the overall running time. Therefore, it's important to
+carefully decide how to package your tasks in order to take greatest advantage
+of the available parallelism.
+
+By default, `simChef` distributes computation across the available resources by
+splitting up the simulation's replicates evenly across available workers,
+answering the _how_ question. However, `simChef` gives the user more
+fine-grained control over how computation is split across available resources by
+setting the parallel strategy when calling `Experiment$fit()` or
+`Experiment$run()` via the `parallel_strategy` argument. The possible values and
+implications of `parallel_strategy` are listed in the table below:
+
+| `parallel_strategy` | Parallelism | Data implications |
+|:-----:|:-----|:-----|
+| `"reps"` | One task per simulation replicate | Methods evaluated on common datasets |
+| `"dgps"` | One task per `DGP` in `Experiment` | Methods evaluated on common datasets |
+|  `"methods"` | One task per `Method` in `Experiment` | Methods evaluated on independent datasets |
+| `c("reps", "dgps")` | One task per combination of replicates and `DGP`  | Methods evaluated on common datasets |
+| `c("reps", "methods")` | One task per combination of replicates and `Method` | Methods evaluated on independent datasets |
+| `c("dgps", "methods")` | One task per combination of `DGP` and `Method` | Methods evaluated on independent datasets |
+| `c("reps", "dgps", "methods")` | One task per combination of replicates, `DGP` and `Method` | Methods evaluated on independent datasets |
+
+The best parallel strategy is entirely dependent on the details of your
+particular simulation experiment. In general, one should not have fewer tasks
+than workers and should avoid `n>>p` very small tasks as the overhead of
+distributing computation to workers may outweigh the benefits of parallelism.
+
+## An example of parallel execution
+
+Practically speaking, parallelization in `simChef` works without modification to
+your code other than using `future` to set a parallel backend and choosing your
+parallelization strategy when running or fitting your experiment. In the example
+below, we choose the `multicore` backend (not available on Windows) to create
+forked R processes using all but one of the available cores. We parallelize
+across combinations of replicates and data-generating processes by using
+`parallel_strategy = c("reps", "dgps")`. Since we vary across parameters of our
+second `DGP`, those parameter combinations are included in the parallelization
+across data-generating processing. As far as the parallelization is concerned,
+it's as if we added 17 total `DGP` objects to the experiment (1 for `dgp1` and
+16 for the combinations of parameters to `dgp2`), though in actuality we only
+added two.
+
+```{r parallel-ex}
+library(pcs.sim.pkg)
+library(future)
+library(dplyr)
+
+n_workers <- availableCores() - 1
+plan(multicore, workers = n_workers)
+
+dgp_fun1 <- function(n=100, rho=0.5, noise_level=1) {
+  cov_mat <- diag(nrow = 5)
+  cov_mat[cov_mat == 0] <- rho
+  X <- MASS::mvrnorm(n = n, mu = rep(0, 5), Sigma = cov_mat)
+  y <- cbind(1, X) %*% c(-8, 3, -1, 0, 0, 0) + rnorm(n, sd = noise_level)
+  return(list(X = X, y = y))
+}
+
+dgp_fun2 <- function(n=100, p=100, rho=0.5, sparsity=0.5, noise_level=1,
+                     nonzero_coeff = c(-3, -1, 1, 3)) {
+  cov_mat <- diag(nrow = p)
+  cov_mat[cov_mat == 0] <- rho
+  X <- MASS::mvrnorm(n = n, mu = rep(0, p), Sigma = cov_mat)
+  coeff_prob <- c(sparsity, rep((1 - sparsity) / 4, times = 4))
+  coeff <- c(
+    -8, # intercept
+    sample(
+      c(0, nonzero_coeff), size = p, replace = TRUE,
+      prob = coeff_prob
+    )
+  )
+  y <- cbind(1, X) %*% coeff + rnorm(n, sd = noise_level)
+  return(list(X = X, y = y))
+}
+
+dgp1 <- create_dgp(dgp_fun1, name = "dense_dgp")
+dgp2 <- create_dgp(dgp_fun2, name = "sparse_dgp")
+
+ols <- function(X, y) {
+  fit <- lm(y ~ X) %>% broom::tidy()
+  return(fit)
+}
+
+elnet <- function(X, y, alpha=1) {
+  fit <- glmnet::glmnet(
+    x = X, y = y, family = "gaussian", alpha = alpha
+  ) %>% broom::tidy()
+  return(fit)
+}
+
+method1 <- create_method(ols, name = "ols")
+method2 <- create_method(elnet, name = "elnet")
+
+experiment <- create_experiment(
+  name = "base", future.packages = "dplyr") %>%
+  add_dgp(dgp1) %>%
+  add_dgp(dgp2) %>%
+  add_method(method1) %>%
+  add_method(method2) %>%
+  add_vary_across(
+    dgp = "sparse_dgp",
+    p = c(100, 1000),
+    rho = c(0.2, 0.9),
+    sparsity = c(0.5, 0.9),
+    nonzero_coeff = list(c(-3, -1, 1, 3), c(-0.3, -0.1, 0.1, 0.3))
+  ) %>%
+  add_vary_across(
+    method = "elnet", alpha = c(0, 0.5, 1)
+  )
+
+suppressWarnings(
+  experiment$fit(
+    n_reps = 2, parallel_strategy = c("reps", "dgps")
+  )
+)
+```

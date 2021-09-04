@@ -4,10 +4,12 @@
 \alias{create_method}
 \title{Create a new \code{Method}.}
 \usage{
-create_method(method_fun, ...)
+create_method(method_fun, name = NULL, ...)
 }
 \arguments{
 \item{method_fun}{The method function.}
+
+\item{name}{(Optional) The name of the \code{Method}.}
 
 \item{...}{Arguments to pass into \code{method_fun()}.}
 }

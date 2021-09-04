@@ -9,6 +9,8 @@
 Plotter <- R6::R6Class(
   classname = 'Plotter',
   public = list(
+    #' @field name The name of the \code{Plotter}.
+    name = NULL,
     #' @field plot_fun The plotting function.
     plot_fun = NULL,
     #' @field plot_params (Named) list of parameters to input into the 
@@ -24,15 +26,17 @@ Plotter <- R6::R6Class(
     #' @description Create a new \code{Plotter}.
     #'
     #' @param plot_fun The plotting function.
-    #' @param rmd_options List of options to control the aesthetics of the
-    #'   \code{Plotter}'s displayed plot in the knitted R Markdown report. 
-    #'   Currently, possible options are "height" and "width" (in inches).
+    #' @param name (Optional) The name of the \code{Plotter}.
+    #' @param rmd_options (Optional) List of options to control the aesthetics 
+    #'   of the \code{Plotter}'s displayed plot in the knitted R Markdown 
+    #'   report. Currently, possible options are "height" and "width" (in 
+    #'   inches).
     #' @param ... Arguments to pass into \code{plot_fun()}.
     #'
     #' @details When plotting or running the \code{Experiment} (see 
     #'   \code{Experiment$plot() or \code{Experiment$run()}}), the named
     #'   arguments \code{fit_results}, \code{eval_results}, and 
-    #'   \code{vary_param} are automatically passed into the \code{Plotter}
+    #'   \code{vary_params} are automatically passed into the \code{Plotter}
     #'   function \code{plot_fun()} and serve as placeholders for the 
     #'   \code{Experiment$fit()} results, the \code{Experiment$evaluate()} 
     #'   results, and the name of the varying parameter, respectively. 
@@ -44,11 +48,12 @@ Plotter <- R6::R6Class(
     #'   See \code{Experiment$evaluate()} or \code{evaluate_experiment()} for
     #'   details on the format of \code{eval_results}. If the \code{Plotter}
     #'   is used for \code{Experiments} with varying parameters, 
-    #'   \code{vary_param} should be used as a stand in for the name of this
+    #'   \code{vary_params} should be used as a stand in for the name of this
     #'   varying parameter.
     #'
     #' @return A new \code{Plotter} object.
-    initialize = function(plot_fun, rmd_options = list(), ...) {
+    initialize = function(plot_fun, name = NULL, rmd_options = list(), ...) {
+      self$name <- NULL
       self$plot_fun <- plot_fun
       self$plot_params <- list(...)
       for (opt in names(rmd_options)) {
@@ -63,25 +68,25 @@ Plotter <- R6::R6Class(
     #'   \code{Experiment$fit()} method.
     #' @param eval_results A list of tibbles, typically returned by the
     #'   \code{Experiment$evaluate()} method.
-    #' @param vary_param Name of parameter/argument that was varied in the 
-    #'   \code{Experiment}, i.e., \code{Experiment$get_vary_across()$param_name}.
+    #' @param vary_params Name of parameter/argument that was varied in the 
+    #'   \code{Experiment} (see \code{Experiment$get_vary_across()}).
     #'   Use \code{NULL} (default) if no \code{vary_across} component in 
     #'   \code{Experiment} run.
     #' @param ... Not used.
     #' 
     #' @return Result of \code{plot_fun()}, which should be a plot.
     plot = function(fit_results = NULL, eval_results = NULL,
-                    vary_param = NULL, ...) {
-      args_list <- list(fit_results = fit_results, 
+                    vary_params = NULL, ...) {
+      args_list <- list(fit_results = fit_results,
                         eval_results = eval_results,
-                        vary_param = vary_param)
+                        vary_params = vary_params)
       if (!identical(self$plot_params, list())) {
         always_args_list <- self$plot_params
       } else {
         always_args_list <- NULL
       }
       plot_results <- R.utils::doCall(self$plot_fun,
-                                      args = args_list, 
+                                      args = args_list,
                                       alwaysArgs = always_args_list)
       return(plot_results)
     }
@@ -93,11 +98,15 @@ Plotter <- R6::R6Class(
 #' @name create_plotter
 #' 
 #' @param plot_fun The plotting function.
+#' @param name (Optional) The name of the \code{Plotter}.
+#' @param rmd_options (Optional) List of options to control the aesthetics of 
+#'   the \code{Plotter}'s displayed plot in the knitted R Markdown report. 
+#'   Currently, possible options are "height" and "width" (in inches).
 #' @param ... Arguments to pass into \code{plot_fun()}.
 #'
 #' @return A new instance of \code{Plotter}.
 #'
 #' @export
-create_plotter <- function(plot_fun, ...) {
-  return(Plotter$new(plot_fun, ...))
+create_plotter <- function(plot_fun, name = NULL, rmd_options = list(), ...) {
+  return(Plotter$new(plot_fun, name = name, rmd_options = rmd_options, ...))
 }

@@ -7,44 +7,30 @@
 \alias{remove_vary_across}
 \title{Varying across parameters in an \code{Experiment}.}
 \usage{
-add_vary_across(
-  experiment,
-  dgp = NULL,
-  method = NULL,
-  param_name,
-  param_values,
-  ...
-)
+add_vary_across(experiment, ...)
 
-update_vary_across(
-  experiment,
-  dgp = NULL,
-  method = NULL,
-  param_name,
-  param_values,
-  ...
-)
+update_vary_across(experiment, ...)
 
 remove_vary_across(experiment, ...)
 }
 \arguments{
 \item{experiment}{An \code{Experiment} object.}
 
-\item{dgp}{Name of \code{DGP} to vary in the \code{Experiment}. Can also
-be a \code{DGP} object that matches one in the \code{Experiment}. Must
-provide either the \code{dgp} or \code{method} argument.}
+\item{...}{Any number of named arguments where names match an argument in the
+user-specified \code{DGP} or \code{Method} function and values are vectors
+(for scalar parameters) or lists (for arbitrary parameters).}
+
+\item{dgp}{Name of \code{DGP} to vary in the \code{Experiment}. Can also be a
+\code{DGP} object that matches one in the \code{Experiment}. Must provide
+either the \code{dgp} or \code{method} argument.}
 
 \item{method}{Name of \code{Method} to vary in the \code{Experiment}. Can
 also be a \code{Method} object that matches one in the \code{Experiment}.
 Must provide either the \code{dgp} or \code{method} argument.}
 
-\item{param_name}{Name of parameter to vary. Should match an argument in
-the \code{DGP} or \code{Method} function.}
-
-\item{param_values}{Atomic vector or list of values for the
-\code{param_name} to take on and vary across in the \code{Experiment} run.}
-
-\item{...}{Not used.}
+\item{param_names}{A character vector of parameter names to remove. If
+not provided, the entire set of \code{vary_across} parameters will be
+removed for the specified \code{DGP}/\code{Method}.}
 }
 \value{
 The original \code{Experiment} object passed to

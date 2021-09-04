@@ -8,47 +8,11 @@
 A data-generating process which will be used in the
 \code{Experiment} to \strong{generate} data.
 }
-\examples{
-
-## ------------------------------------------------
-## Method `DGP$generate`
-## ------------------------------------------------
-
-# function that loads in the iris data set and splits it into a training and test set
-iris_dgp_fun <- function(train_prop = 0.5) {
-  data(iris)
-  X <- iris \%>\% dplyr::select(-Species)
-  y <- iris \%>\% dplyr::pull(Species)
-  train_ids <- sample(1:nrow(X), train_prop * nrow(X), replace = F)
-  Xtrain <- X[train_ids, ]
-  Xtest <- X[-train_ids, ]
-  ytrain <- y[train_ids]
-  ytest <- y[-train_ids]
-  return(list(Xtrain = Xtrain, ytrain = ytrain, Xtest = Xtest, ytest = ytest))
-}
-
-# create DGP from iris_dgp_fun (with the default parameter train_prop = 0.5)
-iris_dgp <- create_dgp(iris_dgp_fun)
-
-# generate data from DGP
-iris_dgp_out <- iris_dgp$generate()
-str(iris_dgp_out)
-
-# create DGP from iris_dgp_fun (with the 60\%-40\% training-test split)
-iris_dgp2 <- create_dgp(iris_dgp_fun, train_prop = 0.6)
-iris_dgp2$dgp_params
-
-# generate data from DGP (with the 60\%-40\% training-test split)
-iris_dgp2_out <- iris_dgp2$generate()
-str(iris_dgp2_out)
-
-# generate data from DGP, overwriting the initialized function arguments
-iris_dgp3_out <- iris_dgp2$generate(train_prop = 0.75)
-str(iris_dgp3_out)
-}
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
+\item{\code{name}}{The name of the \code{DGP}.}
+
 \item{\code{dgp_fun}}{The data-generating process function.}
 
 \item{\code{dgp_params}}{(Named) list of parameters to input into the
@@ -70,13 +34,15 @@ data-generating process function.}
 \subsection{Method \code{new()}}{
 Create a new \code{DGP} (data-generating process).
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DGP$new(dgp_fun, ...)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{DGP$new(dgp_fun, name = NULL, ...)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{dgp_fun}}{The data-generating process function.}
+
+\item{\code{name}}{(Optional) The name of the \code{DGP}.}
 
 \item{\code{...}}{Arguments to pass into \code{dgp_fun()}.}
 }
@@ -109,44 +75,6 @@ parameters that were set when \code{DGP$new()} was called.}
 \subsection{Returns}{
 Result of \code{dgp_fun()}.
 }
-\subsection{Examples}{
-\if{html}{\out{<div class="r example copy">}}
-\preformatted{# function that loads in the iris data set and splits it into a training and test set
-iris_dgp_fun <- function(train_prop = 0.5) {
-  data(iris)
-  X <- iris \%>\% dplyr::select(-Species)
-  y <- iris \%>\% dplyr::pull(Species)
-  train_ids <- sample(1:nrow(X), train_prop * nrow(X), replace = F)
-  Xtrain <- X[train_ids, ]
-  Xtest <- X[-train_ids, ]
-  ytrain <- y[train_ids]
-  ytest <- y[-train_ids]
-  return(list(Xtrain = Xtrain, ytrain = ytrain, Xtest = Xtest, ytest = ytest))
-}
-
-# create DGP from iris_dgp_fun (with the default parameter train_prop = 0.5)
-iris_dgp <- create_dgp(iris_dgp_fun)
-
-# generate data from DGP
-iris_dgp_out <- iris_dgp$generate()
-str(iris_dgp_out)
-
-# create DGP from iris_dgp_fun (with the 60\%-40\% training-test split)
-iris_dgp2 <- create_dgp(iris_dgp_fun, train_prop = 0.6)
-iris_dgp2$dgp_params
-
-# generate data from DGP (with the 60\%-40\% training-test split)
-iris_dgp2_out <- iris_dgp2$generate()
-str(iris_dgp2_out)
-
-# generate data from DGP, overwriting the initialized function arguments
-iris_dgp3_out <- iris_dgp2$generate(train_prop = 0.75)
-str(iris_dgp3_out)
-}
-\if{html}{\out{</div>}}
-
-}
-
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-clone"></a>}}

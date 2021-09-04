@@ -301,10 +301,11 @@ showResults <- function(dir_name, depth, base = FALSE, show_header = TRUE,
   }
   
   if (!is.null(exp)) {
-    if (!identical(exp$get_vary_across(), list())) {
+    if ((length(exp$get_vary_across()$dgp) != 0) | 
+        (length(exp$get_vary_across()$method) != 0)) {
       cat(sprintf(showtype_template, fontawesome::fa("code", fill = "white")))
       cat("<b>Parameter Values</b>")
-      subchunkify(exp$get_vary_across()$param_values,
+      subchunkify(exp$get_vary_across(),
                   chunk_idx, other_args = "max.height='200px'")
       chunk_idx <<- chunk_idx + 1
     }
