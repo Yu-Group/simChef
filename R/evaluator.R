@@ -28,14 +28,15 @@ Evaluator <- R6::R6Class(
     #' @description Create a new \code{Evaluator}.
     #'
     #' @param eval_fun The evaluation function.
-    #' @param rmd_options List of options to control the aesthetics of the
-    #'   displayed \code{Evaluator}'s results table in the knitted R Markdown
-    #'   report. See [prettyDT()] for possible options.
+    #' @param name (Optional) The name of the \code{Evaluator}.
+    #' @param rmd_options (Optional) List of options to control the aesthetics 
+    #'   of the displayed \code{Evaluator}'s results table in the knitted R
+    #'   Markdown report. See [prettyDT()] for possible options.
     #' @param ... Arguments to pass into \code{eval_fun()}.
     #'
     #' @details When evaluating or running the \code{Experiment} (see
     #'   \code{Experiment$evaluate() or \code{Experiment$run()}}), the named
-    #'   arguments \code{fit_results} and \code{vary_param} are automatically
+    #'   arguments \code{fit_results} and \code{vary_params} are automatically
     #'   passed into the \code{Evaluator} function \code{eval_fun()} and serve
     #'   as placeholders for the \code{Experiment$fit()} results (i.e., the
     #'   results from the method fits) and the name of the varying parameter,
@@ -45,7 +46,7 @@ Evaluator <- R6::R6Class(
     #'   \code{Experiment$fit()} or \code{fit_experiment()} for details on the
     #'   format of \code{fit_results}. If the \code{Evaluator}
     #'   is used for \code{Experiments} with varying parameters,
-    #'   \code{vary_param} should be used as a stand in for the name of this
+    #'   \code{vary_params} should be used as a stand in for the name of this
     #'   varying parameter.
     #'
     #' @return A new \code{Evaluator} object.
@@ -62,14 +63,14 @@ Evaluator <- R6::R6Class(
     #'
     #' @param fit_results A tibble, typically returned by the
     #'   \code{Experiment$fit()} method.
-    #' @param vary_param Name of parameter/argument that was varied in the
-    #'   \code{Experiment}, i.e., \code{Experiment$get_vary_across()$param_name}.
+    #' @param vary_params Name of parameters/arguments that were varied in the
+    #'   \code{Experiment} (see \code{Experiment$get_vary_across()}).
     #'   Use \code{NULL} (default) if no \code{vary_across} component in
     #'   \code{Experiment} run.
     #' @param ... Not used.
     #'
     #' @return Result of \code{eval_fun()}, coerced into a tibble.
-    evaluate = function(fit_results, vary_param = NULL, ...) {
+    evaluate = function(fit_results, vary_params = NULL, ...) {
       args_list <- list(fit_results = fit_results,
                         vary_params = vary_params)
       if (!identical(self$eval_params, list())) {
@@ -90,11 +91,15 @@ Evaluator <- R6::R6Class(
 #' @name create_evaluator
 #'
 #' @param eval_fun The evaluation function.
+#' @param name (Optional) The name of the \code{Evaluator}.
+#' @param rmd_options (Optional) List of options to control the aesthetics of 
+#'   the displayed \code{Evaluator}'s results table in the knitted R Markdown
+#'   report. See [prettyDT()] for possible options.
 #' @param ... Arguments to pass into \code{eval_fun()}.
 #'
 #' @return A new instance of \code{Evaluator}.
 #'
 #' @export
-create_evaluator <- function(eval_fun, ...) {
-  return(Evaluator$new(eval_fun, ...))
+create_evaluator <- function(eval_fun, name = NULL, rmd_options = list(), ...) {
+  return(Evaluator$new(eval_fun, name = name, rmd_options = rmd_options, ...))
 }

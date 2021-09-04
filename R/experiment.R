@@ -2,12 +2,12 @@
 #'
 #' @docType class
 #'
-#' @description A simulation experiment with any number of \code{DGPs}, \code{Methods},
-#'   \code{Evaluators}, and \code{Plotters}.
+#' @description A simulation experiment with any number of \code{DGPs}, 
+#'   \code{Methods}, \code{Evaluators}, and \code{Plotters}.
 #'
-#' @details When run, an \code{Experiment} seamlessly combines \code{DGPs} and \code{Methods},
-#'   computing results in parallel. Those results can then be evaluated using
-#'   \code{Evaluators} and plotted using \code{Plotters}.
+#' @details When run, an \code{Experiment} seamlessly combines \code{DGPs} and 
+#'   \code{Methods}, computing results in parallel. Those results can then be 
+#'   evaluated using \code{Evaluators} and plotted using \code{Plotters}.
 #'
 #' @export
 Experiment <- R6::R6Class(
@@ -171,13 +171,24 @@ Experiment <- R6::R6Class(
                   field_name = field_name,
                   obj_name = obj_name))
     },
-    .is_vary_across = function() {
-      identical(private$.vary_across_list, list(dgp = list(), method = list()))
+    .has_vary_across = function() {
+      if ((length(private$.vary_across_list$dgp) == 0) &&
+          (length(private$.vary_across_list$method) == 0)) {
+        return(FALSE)
+      } else {
+        return(TRUE)
+      }
     },
     .get_vary_params = function() {
       param_names <- purrr::map(private$.vary_across_list,
-                                ~purrr::map(.x, names) %>%
-                                  purrr::reduce(c)) %>%
+                                function(x) {
+                                  if (identical(x, list())) {
+                                    return(NULL)
+                                  } else {
+                                    return(purrr::map(x, names) %>%
+                                             purrr::reduce(c))
+                                  }
+                                }) %>%
         purrr::reduce(c)
       return(param_names)
     },
@@ -192,8 +203,8 @@ Experiment <- R6::R6Class(
         }
         obj_params <- c(obj_name, obj_params)
         names(obj_params)[1] <- paste0(field_name, "_name")
-        param_grid <- expand.grid(obj_params)
-        return(apply(param_grid, 1, as.list, simplify=FALSE))
+        param_grid <- purrr::cross(obj_params)
+        return(param_grid)
       }) %>% purrr::reduce(c)
       return(param_list)
     },
@@ -204,7 +215,7 @@ Experiment <- R6::R6Class(
         message(sprintf("Saving %s results...", results_type))
         start_time <- Sys.time()
       }
-      if (!private$.is_vary_across()) {
+      if (!private$.has_vary_across()) {
         save_dir <- private$.save_dir
       } else {
         obj_names <- purrr::map(private$.vary_across_list, names) %>%
@@ -234,7 +245,7 @@ Experiment <- R6::R6Class(
       if (verbose >= 1) {
         message(sprintf("Reading in cached %s results...", results_type))
       }
-      if (!private$.is_vary_across()) {
+      if (!private$.has_vary_across()) {
         save_dir <- private$.save_dir
       } else {
         obj_names <- purrr::map(private$.vary_across_list, names) %>%
@@ -275,18 +286,18 @@ Experiment <- R6::R6Class(
     #' @param dgp_list An optional list of \code{DGP} objects.
     #' @param method_list An optional list of \code{Method} objects.
     #' @param evaluator_list An optional list of \code{Evaluator} objects.
-    #' @param plotter_list An option list of \code{Plotter} objects.
+    #' @param plotter_list An optional list of \code{Plotter} objects.
     #' @param future.globals Character vector of names in the global environment
     #'   to pass to parallel workers. Passed as the argument of the same name to
-    #'   code{future.apply::future_lapply} and related functions. See
+    #'   \code{future.apply::future_lapply} and related functions. See
     #'   \link{future.apply}{future_apply}. To set for a specific run of the
     #'   experiment, use the same argument in \code{Experiment$run}.
     #' @param future.packages Character vector of packages required by parallel
     #'   workers. Passed as the argument of the same name to
-    #'   code{future.apply::future_lapply} and related functions. See
+    #'   \code{future.apply::future_lapply} and related functions. See
     #'   \link{future.apply}{future_apply}. To set for a specific run of the
     #'   experiment, use the same argument in \code{Experiment$run}.
-    #' @Param clone_from An optional \code{Experiment} object to use as a base
+    #' @param clone_from An optional \code{Experiment} object to use as a base
     #'   for this one.
     #' @param save_dir An optional directory in which to save the experiment's
     #'   results. If \code{NULL}, results are saved at
@@ -323,21 +334,21 @@ Experiment <- R6::R6Class(
       private$.save_dir <- R.utils::getAbsolutePath(save_dir)
     },
     #' @description Run the entire simulation experiment pipeline (fitting,
-    #'   evaluating, and plotting)
+    #'   evaluating, and plotting).
     #'
     #' @param n_reps The number of replicates of the \code{Experiment} for this
     #'   run.
     #' @param parallel_strategy A vector with some combination of "reps",
     #'   "dgps", or "methods". Determines how computation will be distributed
-    #'   across available resources.
+    #'   across available resources. Default is "reps".
     #' @param future.globals Character vector of names in the global environment
     #'   to pass to parallel workers. Passed as the argument of the same name to
-    #'   code{future.apply::future_lapply} and related functions. See
+    #'   \code{future.apply::future_lapply} and related functions. See
     #'   \link{future.apply}{future_apply}. To set for all runs of the
     #'   experiment, use the same argument during initialization.
     #' @param future.packages Character vector of packages required by parallel
     #'   workers. Passed as the argument of the same name to
-    #'   code{future.apply::future_lapply} and related functions. See
+    #'   \code{future.apply::future_lapply} and related functions. See
     #'   \link{future.apply}{future_apply}. To set for all runs of the
     #'   experiment, use the same argument during initialization.
     #' @param use_cached If \code{TRUE}, find and return previously saved
@@ -354,8 +365,9 @@ Experiment <- R6::R6Class(
     #' @return A list of results from the simulation experiment
     #' \describe{
     #' \item{fit_results}{A tibble containing results from the \code{fit}
-    #'   method. In addition to results columns, has columns named 'rep', 'dgp',
-    #'   'method', and the \code{vary_across} parameter name if applicable.}
+    #'   method. In addition to results columns, has columns named 'rep', 
+    #'   'dgp_name', 'method_name', and the \code{vary_across} parameter names 
+    #'   if applicable.}
     #' \item{eval_results}{A list of tibbles containing results from the
     #'   \code{evaluate} method, which evaluates each \code{Evaluator} in
     #'   the \code{Experiment}. Length of list is equivalent to the number of
@@ -365,7 +377,7 @@ Experiment <- R6::R6Class(
     #'   the \code{Experiment}. Length of list is equivalent to the number of
     #'   \code{Plotters}.}
     #' }
-    run = function(n_reps = 1, parallel_strategy = c("reps", "dgps", "methods"),
+    run = function(n_reps = 1, parallel_strategy = c("reps"),
                    future.globals = NULL, future.packages = NULL,
                    use_cached = FALSE, save = FALSE, verbose = 1, ...) {
       if (!is.logical(use_cached)) {
@@ -410,38 +422,46 @@ Experiment <- R6::R6Class(
     #' @param ... Not used.
     #'
     #' @return A list of length equal to the number of \code{DGPs} in the
-    #'   \code{Experiment}. Each element in the list is a list of \code{n_reps}
-    #'   datasets generated by the given \code{DGP}.
+    #'   \code{Experiment}. If the \code{Experiment} does not have a 
+    #'   \code{vary_across} component, then each element in the list is a list
+    #'   of \code{n_reps} datasets generated by the given \code{DGP}. If the 
+    #'   \code{Experiment} does have a \code{vary_across} component, then each
+    #'   element in the outermost list is a list of lists. The second layer of 
+    #'   lists corresponds to a specific parameter setting within the 
+    #'   \code{vary_across} scheme, and the innermost layer of lists is of 
+    #'   length \code{n_reps} with the dataset replicates, generated by the 
+    #'   \code{DGP}.
     generate_data = function(n_reps = 1, ...) {
       # TODO: generate data that was used in run() or fit() (e.g., w/ same seed)
       dgp_list <- private$.get_obj_list("dgp")
       if (length(dgp_list) == 0) {
         private$.throw_empty_list_error("dgp", "generate data from")
       }
-      if (is.null(private$.vary_across$dgp)) {
+      
+      if (!private$.has_vary_across()) {
         dgp_results <- purrr::map(dgp_list, function(dgp) {
           replicates <- replicate(n_reps, {
             return(dgp$generate())
           }, simplify = FALSE)
         })
       } else {
-        param_name <- private$.vary_across$param_name
-        param_values <- private$.vary_across$param_values
-        obj_name <- private$.vary_across$dgp
-        dgp_results <- purrr::map(dgp_list[obj_name], function(dgp) {
-          purrr::map(param_values, function(param_value) {
-            input_param <- list(param = param_value) %>%
-              setNames(param_name)
+        dgp_params_list <- private$.combine_vary_params("dgp")
+        dgp_names <- purrr::map_chr(dgp_params_list, "dgp_name") %>%
+          unique() %>%
+          setNames(., .)
+        dgp_results <- purrr::map(dgp_names, function(dgp_name) {
+          keep_dgps <- purrr::map_chr(dgp_params_list, "dgp_name") == dgp_name
+          keep_dgp_params_list <- dgp_params_list[keep_dgps]
+          purrr::map(keep_dgp_params_list, function(dgp_params) {
+            dgp_params$dgp_name <- NULL
             replicates <- replicate(n_reps, {
-              return(do.call(dgp$generate, input_param))
+              sim_data <- do.call(dgp_list[[dgp_name]]$generate, dgp_params)
+              return(sim_data)
             }, simplify = FALSE)
+            attr(replicates, "params") <- dgp_params
+            replicates
           })
         })
-        if (is.null(names(param_values))) {
-          if (!is.list(param_values)) {
-            names(dgp_results[[1]]) <- paste0(param_name, param_values)
-          }
-        }
       }
       return(dgp_results)
     },
@@ -451,15 +471,15 @@ Experiment <- R6::R6Class(
     #' @param n_reps The number of replicates to run.
     #' @param parallel_strategy A vector with some combination of "reps",
     #'   "dgps", or "methods". Determines how computation will be distributed
-    #'   across available resources.
+    #'   across available resources. Default is "reps".
     #' @param future.globals Character vector of names in the global environment
     #'   to pass to parallel workers. Passed as the argument of the same name to
-    #'   code{future.apply::future_lapply} and related functions. See
+    #'   \code{future.apply::future_lapply} and related functions. See
     #'   \link{future.apply}{future_apply}. To set for all runs of the
     #'   experiment, use the same argument during initialization.
     #' @param future.packages Character vector of packages required by parallel
     #'   workers. Passed as the argument of the same name to
-    #'   code{future.apply::future_lapply} and related functions. See
+    #'   \code{future.apply::future_lapply} and related functions. See
     #'   \link{future.apply}{future_apply}. To set for all runs of the
     #'   experiment, use the same argument during initialization.
     #' @param use_cached If \code{TRUE}, find and return previously saved
@@ -472,9 +492,9 @@ Experiment <- R6::R6Class(
     #'
     #' @return A tibble containing the results from fitting all \code{Methods}
     #'   across all \code{DGPs} for \code{n_reps} repetitions. In addition to
-    #'   results columns, has columns named 'rep', 'dgp', 'method', and the
-    #'   \code{vary_across} parameter name if applicable.
-    fit = function(n_reps = 1, parallel_strategy = c("reps", "dgps", "methods"),
+    #'   results columns, has columns named 'rep', 'dgp_name', 'method_name', 
+    #'   and the \code{vary_across} parameter names if applicable.
+    fit = function(n_reps = 1, parallel_strategy = c("reps"),
                    future.globals = NULL, future.packages = NULL,
                    use_cached = FALSE, save = FALSE, verbose = 1, ...) {
       if (use_cached) {
@@ -623,7 +643,7 @@ Experiment <- R6::R6Class(
           )
           results <- dplyr::bind_rows(results)
           results$rep <- rep(1:n_reps, each = n_dgps*length(method_params_list))
-          return(results)
+          results
         },
         "reps+methods" = {
           n_methods <- length(method_params_list)
@@ -653,7 +673,7 @@ Experiment <- R6::R6Class(
           results$rep <- rep(
             1:n_reps, each = length(dgp_params_list)*n_methods
           )
-          return(results)
+          results
         },
         "dgps+methods" = {
           mapply_args <- purrr::cross2(
@@ -718,12 +738,16 @@ Experiment <- R6::R6Class(
             )
           )
           results$rep <- reps
-          return(results)
+          results
         }
       )
 
-      fit_results <- simplify_tibble(fit_results)
-
+      fit_results <- simplify_tibble(fit_results) %>%
+        dplyr::select(rep, dgp_name, method_name,
+                      private$.get_vary_params(),
+                      tidyselect::everything()) %>%
+        dplyr::arrange(rep, dgp_name, method_name)
+      
       if (verbose >= 1) {
         message(sprintf("Fitting completed | time taken: %f minutes",
                         difftime(Sys.time(), start_time, units = "mins")))
@@ -1326,18 +1350,31 @@ Experiment <- R6::R6Class(
           paste(names(private$.get_obj_list("plotter")),
                 sep = "", collapse = ", "), "\n")
       cat("   Vary Across: ")
-      if (identical(private$.vary_across, list())) {
+      if (!private$.has_vary_across()) {
         cat("None")
       } else {
-        if ("dgp" %in% names(private$.vary_across)) {
-          cat("\n      DGP:", private$.vary_across$dgp, "\n")
-        } else {
-          cat("\n      Method:", private$.vary_across$method, "\n")
+        vary_across_list <- private$.vary_across_list
+        dgp_show <- FALSE
+        for (dgp in names(vary_across_list$dgp)) {
+          dgp_show <- TRUE
+          cat("\n      DGP:", dgp, "\n")
+          for (param_name in names(vary_across_list$dgp[[dgp]])) {
+            cat(paste0("         ", param_name, ": "))
+            cat(str(vary_across_list$dgp[[dgp]][[param_name]],
+                    indent.str = "           ", no.list = F))
+          }
         }
-        cat("      Parameter:", private$.vary_across$param_name, "\n")
-        cat("      Parameter values: ")
-        cat(str(private$.vary_across$param_values,
-                indent.str = "        ", no.list = F))
+        for (method in names(vary_across_list$method)) {
+          if (!dgp_show) {
+            cat("\n")
+          }
+          cat("      Method:", method, "\n")
+          for (param_name in names(vary_across_list$method[[method]])) {
+            cat(paste0("         ", param_name, ": "))
+            cat(str(vary_across_list$method[[method]][[param_name]],
+                indent.str = "           ", no.list = F))
+          }
+        }
       }
       invisible(self)
     }
@@ -1368,8 +1405,8 @@ create_experiment <- function(...) {
 #' @return A list of results from the simulation experiment.
 #' \describe{
 #' \item{fit_results}{A tibble containing results from the \code{fit}
-#'   method. In addition to results columns, has columns named 'rep', 'dgp',
-#'   'method', and the \code{vary_across} parameter name if applicable.}
+#'   method. In addition to results columns, has columns named 'rep', 'dgp_name',
+#'   'method_name', and the \code{vary_across} parameter names if applicable.}
 #' \item{eval_results}{A list of tibbles containing results from the
 #'   \code{evaluate} method, which evaluates each \code{Evaluator} in
 #'   the \code{Experiment}. Length of list is equivalent to the number of
@@ -1393,9 +1430,15 @@ run_experiment <- function(experiment, n_reps=1, ...) {
 #' @param ... Passed to \code{experiment$generate_data()}.
 #'
 #' @return A list of length equal to the number of \code{DGPs} in the
-#'   \code{Experiment}. Each element in the list is a list of \code{n_reps}
-#'   datasets generated by the given \code{DGP}.
-#'
+#'   \code{Experiment}. If the \code{Experiment} does not have a 
+#'   \code{vary_across} component, then each element in the list is a list
+#'   of \code{n_reps} datasets generated by the given \code{DGP}. If the 
+#'   \code{Experiment} does have a \code{vary_across} component, then each
+#'   element in the outermost list is a list of lists. The second layer of 
+#'   lists corresponds to a specific parameter setting within the 
+#'   \code{vary_across} scheme, and the innermost layer of lists is of 
+#'   length \code{n_reps} with the dataset replicates, generated by the 
+#'   \code{DGP}.
 #' @export
 generate_data <- function(experiment, n_reps=1, ...) {
   return(experiment$generate_data(n_reps, ...))
@@ -1413,8 +1456,8 @@ generate_data <- function(experiment, n_reps=1, ...) {
 #'
 #' @return A tibble containing the results from fitting all \code{Methods}
 #'   across all \code{DGPs} for \code{n_reps} repetitions. In addition to
-#'   results columns, has columns named 'rep', 'dgp', 'method', and the
-#'   \code{vary_across} parameter name if applicable.
+#'   results columns, has columns named 'rep', 'dgp_name', 'method_name', and the
+#'   \code{vary_across} parameter names if applicable.
 #'
 #' @export
 fit_experiment <- function(experiment, n_reps=1, ...) {

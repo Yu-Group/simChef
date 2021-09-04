@@ -8,7 +8,7 @@
 Method <- R6::R6Class(
   classname = 'Method',
   public = list(
-    #' @field name The name of the \code{DGP}.
+    #' @field name The name of the \code{Method}.
     name = NULL,
     #' @field method_fun The method function.
     method_fun = NULL,
@@ -18,6 +18,7 @@ Method <- R6::R6Class(
     #' @description Create a new \code{Method}.
     #'
     #' @param method_fun The method function.
+    #' @param name (Optional) The name of the \code{Method}.
     #' @param ... Arguments to pass into \code{method_fun()}.
     #'
     #' @return A new \code{Method} object.
@@ -64,11 +65,12 @@ Method <- R6::R6Class(
 #' @name create_method
 #' 
 #' @param method_fun The method function.
+#' @param name (Optional) The name of the \code{Method}.
 #' @param ... Arguments to pass into \code{method_fun()}.
 #'
 #' @return A new instance of \code{Method}.
 #'
 #' @export
-create_method <- function(method_fun, ...) {
-  return(Method$new(method_fun, ...))
+create_method <- function(method_fun, name = NULL, ...) {
+  return(Method$new(method_fun, name = name, ...))
 }

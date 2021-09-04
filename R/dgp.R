@@ -9,7 +9,7 @@
 DGP <- R6::R6Class(
   classname = 'DGP',
   public = list(
-    #' @field name The name of the \code{Evaluator}.
+    #' @field name The name of the \code{DGP}.
     name = NULL,
     #' @field dgp_fun The data-generating process function.
     dgp_fun = NULL,
@@ -19,6 +19,7 @@ DGP <- R6::R6Class(
     #' @description Create a new \code{DGP} (data-generating process).
     #'
     #' @param dgp_fun The data-generating process function.
+    #' @param name (Optional) The name of the \code{DGP}.
     #' @param ... Arguments to pass into \code{dgp_fun()}.
     #'
     #' @return A new \code{DGP} object.
@@ -66,11 +67,12 @@ DGP <- R6::R6Class(
 #' @name create_dgp
 #'
 #' @param dgp_fun The data-generating process function.
+#' @param name (Optional) The name of the \code{DGP}.
 #' @param ... Arguments to pass into \code{dgp_fun()}.
 #'
 #' @return A new instance of \code{DGP}.
 #'
 #' @export
-create_dgp <- function(dgp_fun, ...) {
-  return(DGP$new(dgp_fun, ...))
+create_dgp <- function(dgp_fun, name = NULL, ...) {
+  return(DGP$new(dgp_fun, name = name, ...))
 }
