@@ -3,16 +3,25 @@
 `simChef` helps you to cook up the code necessary to create a fully-realized,
 high-quality, reproducible, and transparently documented simulation experiment.
 
+### Installation
+
+`simChef` is under active development. To install the package directly from
+GitHub, please use:
+
+```r
+devtools::install_github("Yu-Group/simChef")
+```
+
 ## Background
 
-In their 2019 paper "Veridical Data Science", Yu and Kumbier propose the
+In their 2020 paper "Veridical Data Science", Yu and Kumbier propose the
 predictability, computability, and stability (PCS) framework, a workflow and
 documentation for "responsible, reliable, reproducible, and transparent results
 across the data science life cycle". Under the umbrella of the PCS framework, we
 began the process of deriving a set of guidelines tailored specifically for
-simulation experiments along with examples of high-quality simulation
-experiments from the literature and examples designed specifically to examine
-the statistical properties of methods within the PCS framework.
+simulation experiments, inspired by both high-quality simulation experiments
+from the literature and our own experiments to examine the statistical
+properties of methods within the PCS framework.
 
 In creating our own experiments, we soon found that no existing R package could
 fully satisfy our developing requirements. `simChef` is our attempt to provide
@@ -21,11 +30,11 @@ simulation guidelines, an intuitive recipe for veridical simulation experiments.
 We believe these tools will be useful for anyone intending to create their own
 simulation experiments in R.
 
-Let's use the components of a high-quality meal as analogies a high-quality
+Let's use the components of a high-quality meal as analogies for a high-quality
 simulation experiment:
 
 - **Nutritious and delicious ingredients** -- All good meals start with good
-  ingredients and the same is true of simulation experiments. If realistic
+  ingredients, and the same is true of simulation experiments. If realistic
   simulation data (synthetic or derived from real-world data) is not available,
   then there is no hope of producing high-quality simulations. `simChef` lowers
   the difficulty of creating realistic simulation scenarios and makes
@@ -43,14 +52,14 @@ simulation experiment:
   for you, but it will get you there with less effort and higher-quality
   presentation while helping you follow best-practice guidelines with minimal
   effort on your part. No sharpening required!
-- **A high-quality mean is possible in almost any environment** -- While the
+- **A high-quality meal is possible in almost any environment** -- While the
   scale of a delicious meal may be limited by environment, high-quality meals
   are not only found in the world's Michelin-starred restaurants but also in
   home kitchens and street food carts around the world. An effective simulation
   framework should also be agnostic to environment, and `simChef` runs equally
   well on your laptop as on a high-performance computing cluster.
 - **Appetizing and approachable presentation** -- Ultimately, a chef prepares
-  food for a specific audience and presentation is almost equal in importance to
+  food for a specific audience, and presentation is almost equal in importance to
   the underlying substance of the meal. However, a chef doesn't have to build
   the plate on which they serve their food. `simChef` provides tools to turn
   your simulation experiment results into effective displays of quantitative
@@ -88,9 +97,9 @@ For more details, run `vignette("simChef")`.
 ### API Definitions
 
 - **Simulation**: A collection of experiments.
-- **Simulation Experiment**: A collection of related data-generating processes, methods, method
-  evaluators, and result plotters. An experiment is designed to answer a
-  well-defined question.
+- **Simulation Experiment**: A collection of related data-generating processes,
+  methods, method evaluators, and result visualizers. An experiment is designed
+  to answer a well-defined question.
 - **Data-generating process (DGP)**: A DGP generates data (duh!). This could be
   entirely synthetic data, or it could be derived from some real-world dataset
   with a perturbation of some sort (e.g., added noise of various types,
@@ -99,14 +108,14 @@ For more details, run `vignette("simChef")`.
   questions we are trying to answer via the simulation experiments. They take in
   data and return a result of some sort (e.g., statistical estimates,
   predictions, confidence/perturbation intervals,
-  significance/interpretability/importance metrics, etc.)
-- **Experiment Evaluator**: An experiment evaluator takes the results from many
-  independent replicates of the experimental pipeline, i.e. generate some data
-  and compute results using all compatible methods for that data, repeating for
-  every DGP in the experiment.
-- **Visualizer**: A visualizer communicates results from an evaluator in some
-  user-friendly way. For example, a visualizer might create tables, plots, or
-  even an R Markdown snippet to display within a larger document.
+  significance/interpretability/importance metrics, etc.).
+- **Evaluator**: An evaluator evaluates the experiment by computing the
+  specified metrics across many independent replicates of the experimental
+  pipeline , i.e. generate some data and compute results using all compatible
+  methods for that data, repeating for every DGP in the experiment.
+- **Visualizer**: A visualizer communicates results from a method or evaluator
+  in some user-friendly way. For example, a visualizer might create tables,
+  plots, or even an R Markdown snippet to display within a larger document.
 
 ## Roadmap
 
@@ -140,6 +149,7 @@ For more details, run `vignette("simChef")`.
       function, incorporating best practice nudges derived from the PCS
       simulation guidelines.
 - [ ] Let user incorporate their own R Markdown report template.
+- [ ] Publish to CRAN.
 
 ## Related R packages
 
