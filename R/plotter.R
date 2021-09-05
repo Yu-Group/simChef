@@ -53,7 +53,7 @@ Plotter <- R6::R6Class(
     #'
     #' @return A new \code{Plotter} object.
     initialize = function(plot_fun, name = NULL, rmd_options = list(), ...) {
-      self$name <- NULL
+      self$name <- name
       self$plot_fun <- plot_fun
       self$plot_params <- list(...)
       for (opt in names(rmd_options)) {

@@ -746,7 +746,7 @@ Experiment <- R6::R6Class(
         dplyr::select(rep, dgp_name, method_name,
                       private$.get_vary_params(),
                       tidyselect::everything()) %>%
-        dplyr::arrange(rep, dgp_name, method_name)
+        dplyr::arrange(as.numeric(rep), dgp_name, method_name)
       
       if (verbose >= 1) {
         message(sprintf("Fitting completed | time taken: %f minutes",
@@ -1247,6 +1247,9 @@ Experiment <- R6::R6Class(
         vary_across_sublist <- NULL
       }
       private$.vary_across_list[[field_name]][[obj_name]] <- vary_across_sublist
+      if (length(private$.vary_across_list[[field_name]]) == 0) {
+        private$.vary_across_list[[field_name]] <- list()
+      }
       invisible(self)
     },
     #' @description Get the \code{vary_across} component from the
@@ -1314,7 +1317,7 @@ Experiment <- R6::R6Class(
     #' @return The original \code{Experiment} object with the updated saving
     #'   directory.
     set_save_dir = function(save_dir) {
-      private$.save_dir <- save_dir
+      private$.save_dir <- R.utils::getAbsolutePath(save_dir)
       invisible(self)
     },
     #' @description Save an \code{Experiment} object.
@@ -1336,7 +1339,8 @@ Experiment <- R6::R6Class(
     #' @return The original \code{Experiment} object.
     print = function() {
       cat("Experiment Name:", self$name, "\n")
-      cat("   Saved results at:", private$.save_dir, "\n")
+      cat("   Saved results at:", 
+          R.utils::getRelativePath(private$.save_dir), "\n")
       cat("   DGPs:",
           paste(names(private$.get_obj_list("dgp")),
                 sep = "", collapse = ", "), "\n")
@@ -1354,10 +1358,12 @@ Experiment <- R6::R6Class(
         cat("None")
       } else {
         vary_across_list <- private$.vary_across_list
-        dgp_show <- FALSE
+        if (!is.null(names(vary_across_list$dgp)) |
+            !is.null(names(vary_across_list$method))) {
+          cat("\n")
+        }
         for (dgp in names(vary_across_list$dgp)) {
-          dgp_show <- TRUE
-          cat("\n      DGP:", dgp, "\n")
+          cat("      DGP:", dgp, "\n")
           for (param_name in names(vary_across_list$dgp[[dgp]])) {
             cat(paste0("         ", param_name, ": "))
             cat(str(vary_across_list$dgp[[dgp]][[param_name]],
@@ -1365,9 +1371,6 @@ Experiment <- R6::R6Class(
           }
         }
         for (method in names(vary_across_list$method)) {
-          if (!dgp_show) {
-            cat("\n")
-          }
           cat("      Method:", method, "\n")
           for (param_name in names(vary_across_list$method[[method]])) {
             cat(paste0("         ", param_name, ": "))
