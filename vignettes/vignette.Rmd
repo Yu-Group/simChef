@@ -195,15 +195,8 @@ Any number of DGPs, Methods, Evaluators, and Plotters can be added to the simula
 
 We can easily see the individual parts of the simulation experiment recipe by printing the experiment.
 
-```{r results = "hide"}
+```{r}
 print(experiment)
-#> Experiment Name: Linear Regression Experiment 
-#>    Saved results at: ./results/Linear Regression Experiment 
-#>    DGPs: Linear Gaussian DGP 
-#>    Methods: OLS 
-#>    Evaluators: Rejection Prob. (alpha = 0.1) 
-#>    Plotters: Power 
-#>    Vary Across: None
 ```
 
 Once a DGP, Method, Evaluator, or Plotter has been added to the simulation experiment recipe, the component can be updated using `update_dgp()`, `update_method()`, `update_evaluator()`, or `update_plotter()` and removed using `remove_dgp()`, `remove_method()`, `remove_evaluator()`, or `remove_plotter()`.
@@ -272,17 +265,8 @@ experiment <- experiment %>%
   add_vary_across(dgp = "Linear Gaussian DGP", sigma = c(1, 2, 4, 8))
 ```
 
-```{r results = "hide"}
+```{r}
 print(experiment)
-#> Experiment Name: Linear Regression Experiment 
-#>    Saved results at: ./results/Linear Regression Experiment 
-#>    DGPs: Linear Gaussian DGP 
-#>    Methods: OLS 
-#>    Evaluators: Rejection Prob. (alpha = 0.1) 
-#>    Plotters: Power 
-#>    Vary Across: 
-#>       DGP: Linear Gaussian DGP 
-#>          sigma:  num [1:4] 1 2 4 8
 ```
 
 
@@ -417,33 +401,15 @@ vary_cor_results <- experiment %>%
 
 Since the `Experiment()` class is an `R6`, we need to be careful about clones versus pointers. In the following, it may look like the `vary_experiment` object has a `vary_across` component while the `experiment` object does not have a `vary_across` component. However, when `experiment` is piped into `add_vary_across()`, this is in itself modifying `experiment`, and `vary_experiment` is simply pointing to this modified `experiment`.
 
-```{r results = "hide"}
+```{r}
 experiment <- experiment %>%
   remove_vary_across(dgp = "Linear Gaussian DGP")
 experiment
-#> Experiment Name: Linear Regression Experiment 
-#>    Saved results at: ./results/Linear Regression Experiment 
-#>    DGPs: Linear Gaussian DGP 
-#>    Methods: OLS 
-#>    Evaluators: Rejection Prob. (alpha = 0.1) 
-#>    Plotters: Power, Rejection Prob. (alpha = 0.1) Plot
-#>    Vary Across: None
 vary_experiment <- experiment %>%
   add_vary_across(dgp = "Linear Gaussian DGP", sigma = c(1, 2, 4, 8))
 all.equal(vary_experiment, experiment)
-#> [1] TRUE
 data.table::address(experiment) == data.table::address(vary_experiment)
-#> [1] TRUE
 experiment
-#> Experiment Name: Linear Regression Experiment 
-#>    Saved results at: ./results/Linear Regression Experiment 
-#>    DGPs: Linear Gaussian DGP 
-#>    Methods: OLS 
-#>    Evaluators: Rejection Prob. (alpha = 0.1) 
-#>    Plotters: Power, Rejection Prob. (alpha = 0.1) Plot
-#>    Vary Across: 
-#>       DGP: Linear Gaussian DGP 
-#>          sigma:  num [1:4] 1 2 4 8
 ```
 
 ## Creating an experiment from another experiment
@@ -456,15 +422,8 @@ vary_experiment <- create_experiment(name = "I am a clone",
 data.table::address(experiment) == data.table::address(vary_experiment)
 ```
 
-```{r results = "hide"}
+```{r}
 vary_experiment
-#> Experiment Name: I am a clone 
-#>    Saved results at: ./results/Linear Regression Experiment 
-#>    DGPs: Linear Gaussian DGP 
-#>    Methods: OLS 
-#>    Evaluators: Rejection Prob. (alpha = 0.1) 
-#>    Plotters: Power, Rejection Prob. (alpha = 0.1) Plot
-#>    Vary Across: None
 ```
 
 When creating an `Experiment` from a clone, we are making a deep clone of the parent experiment's `DGPs`, `Methods`, `Evaluators`, and `Plotters`, but not the `vary_across` component. We thus need to add a `vary_across` component to `vary_experiment` using `add_vary_across()`.
@@ -477,32 +436,14 @@ vary_experiment <- vary_experiment %>%
 
 We can also add/update DGPs, Methods, Evaluators, and Plotters to the cloned experiment without modifying the parent `experiment`.
 
-```{r results = "hide"}
+```{r}
 # add DGP
 dgp_new <- create_dgp(dgp_fun = dgp_fun, name = "Linear Gaussian DGP (large n)",
                       n = 500, beta = c(1, 0), rho = 0, sigma = 1)
 vary_experiment <- vary_experiment %>%
   add_dgp(dgp_new, "Linear Gaussian DGP (large n)")
 vary_experiment
-#> Experiment Name: I am a clone 
-#>    Saved results at: ./results/Linear Regression Experiment 
-#>    DGPs: Linear Gaussian DGP, Linear Gaussian DGP (large n) 
-#>    Methods: OLS 
-#>    Evaluators: Rejection Prob. (alpha = 0.1) 
-#>    Plotters: Power, Rejection Prob. (alpha = 0.1) Plot
-#>    Vary Across: 
-#>       DGP: Linear Gaussian DGP 
-#>          sigma:  num [1:4] 1 2 4 8
 experiment
-#> Experiment Name: Linear Regression Experiment 
-#>    Saved results at: ./results/Linear Regression Experiment 
-#>    DGPs: Linear Gaussian DGP 
-#>    Methods: OLS 
-#>    Evaluators: Rejection Prob. (alpha = 0.1) 
-#>    Plotters: Power, Rejection Prob. (alpha = 0.1) Plot 
-#>    Vary Across: 
-#>       DGP: Linear Gaussian DGP 
-#>          sigma:  num [1:4] 1 2 4 8
 ```
 
 ## Additional R Markdown notes and options
