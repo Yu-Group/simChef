@@ -1,4 +1,4 @@
 library(testthat)
-library(pcs.sim.pkg)
+library(simChef)
 
-test_check("pcs.sim.pkg")
+test_check("simChef")

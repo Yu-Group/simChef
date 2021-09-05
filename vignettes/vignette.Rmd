@@ -19,7 +19,7 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 
-library(pcs.sim.pkg)
+library(simChef)
 ```
 
 # Overview
@@ -498,7 +498,7 @@ By default, the root results directory is ./results/\{EXPERIMENT_NAME\}. If the 
 
 All results from `experiment$run(..., save = TRUE)` without a `vary_across` component are then saved under the root results directory. If `experiment` has a `vary_across` component, then the results of `experiment$run(..., save = TRUE)` are saved under ./\{ROOT_RESULTS_DIR\}/\{DGP_OR_METHOD_NAME\}/Varying \{PARAM_NAME\}/.
 
-For a concrete example of the saving structure, please refer to [this GitHub directory](https://github.com/Yu-Group/pcs.sim.pkg/tree/main/vignettes/results/Linear Regression Experiment/), where we have stored all saved results from this vignette.
+For a concrete example of the saving structure, please refer to [this GitHub directory](https://github.com/Yu-Group/simChef/tree/main/vignettes/results/Linear Regression Experiment/), where we have stored all saved results from this vignette.
 
 ## Additional handling of the experiment
 

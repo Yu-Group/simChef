@@ -85,7 +85,7 @@ it's as if we added 17 total `DGP` objects to the experiment (1 for `dgp1` and
 added two.
 
 ```{r parallel-ex}
-library(pcs.sim.pkg)
+library(simChef)
 library(future)
 library(dplyr)
 

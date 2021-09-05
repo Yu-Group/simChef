@@ -89,7 +89,7 @@ Experiment <- R6::R6Class(
     },
     .check_obj = function(obj, expected_class) {
       if (!inherits(obj, expected_class)) {
-        err_msg <- sprintf("%s must be an instance of pcs.sim.pkg::%s",
+        err_msg <- sprintf("%s must be an instance of simChef::%s",
                            as.character(substitute(obj)), expected_class)
         stop(err_msg, call.=FALSE)
       }
@@ -1778,7 +1778,7 @@ create_doc_template = function(experiment, experiment_dirname) {
     experiment <- create_experiment()
   } else {
     if (!inherits(experiment, "Experiment")) {
-      err_msg <- sprintf("%s must be an instance of pcs.sim.pkg::%s",
+      err_msg <- sprintf("%s must be an instance of simChef::%s",
                          as.character(substitute(experiment)), "Experiment")
       stop(err_msg, call.=FALSE)
     }
@@ -1819,7 +1819,7 @@ create_rmd <- function(experiment, experiment_dirname,
     experiment <- readRDS(file.path(experiment_dirname, "experiment.rds"))
   } else {
     if (!inherits(experiment, "Experiment")) {
-      err_msg <- sprintf("%s must be an instance of pcs.sim.pkg::%s",
+      err_msg <- sprintf("%s must be an instance of simChef::%s",
                          as.character(substitute(experiment)), "Experiment")
       stop(err_msg, call.=FALSE)
     }
