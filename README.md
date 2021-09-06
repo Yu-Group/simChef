@@ -117,6 +117,21 @@ For more details, run `vignette("simChef")`.
   in some user-friendly way. For example, a visualizer might create tables,
   plots, or even an R Markdown snippet to display within a larger document.
 
+## Automated generation of results
+
+In addition to the intuitive and simple grammar, we have made visualizing the
+simulation experiment's results as easy as possible. With the following line of
+code, the simulation experiment's results are automatically populated into a 
+beautiful and clickable html file (generated via R Markdown). The hope is to 
+encourage proper documentation of the simulation experiment and to lighten the 
+load when it comes to interpreting the results of the simulation experiment.
+
+```r
+create_rmd(experiment)
+```
+
+![](figures/simchef.gif)
+
 ## Roadmap
 
 - [x] Implement an abstract API to allow for a grammar of simulation

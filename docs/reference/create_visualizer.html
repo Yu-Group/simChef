@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Helper functions for updating components of an Experiment. — update_funs • simChef</title>
+<title>Create a new Visualizer. — create_visualizer • simChef</title>
 
 
 <!-- jquery -->
@@ -39,10 +39,8 @@
 
 
 
-<meta property="og:title" content="Helper functions for updating components of an Experiment. — update_funs" />
-<meta property="og:description" content="Helper functions for updating DGPs, Methods,
-Evaluators, and Visualizers already added to an
-Experiment." />
+<meta property="og:title" content="Create a new Visualizer. — create_visualizer" />
+<meta property="og:description" content="Create a new Visualizer." />
 
 
 
@@ -120,61 +118,43 @@ Experiment." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Helper functions for updating components of an <code>Experiment</code>.</h1>
+    <h1>Create a new <code>Visualizer</code>.</h1>
     
-    <div class="hidden name"><code>update_funs.Rd</code></div>
+    <div class="hidden name"><code>create_visualizer.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Helper functions for updating <code>DGPs</code>, <code>Methods</code>,
-<code>Evaluators</code>, and <code>Visualizers</code> already added to an
-<code>Experiment</code>.</p>
+    <p>Create a new <code>Visualizer</code>.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>update_dgp</span><span class='op'>(</span><span class='va'>experiment</span>, <span class='va'>dgp</span>, <span class='va'>name</span>, <span class='va'>...</span><span class='op'>)</span>
-
-<span class='fu'>update_method</span><span class='op'>(</span><span class='va'>experiment</span>, <span class='va'>method</span>, <span class='va'>name</span>, <span class='va'>...</span><span class='op'>)</span>
-
-<span class='fu'>update_evaluator</span><span class='op'>(</span><span class='va'>experiment</span>, <span class='va'>evaluator</span>, <span class='va'>name</span>, <span class='va'>...</span><span class='op'>)</span>
-
-<span class='fu'>update_visualizer</span><span class='op'>(</span><span class='va'>experiment</span>, <span class='va'>visualizer</span>, <span class='va'>name</span>, <span class='va'>...</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>create_visualizer</span><span class='op'>(</span><span class='va'>visualizer_fun</span>, name <span class='op'>=</span> <span class='cn'>NULL</span>, rmd_options <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span><span class='op'>)</span>, <span class='va'>...</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>experiment</th>
-      <td><p>An <code>Experiment</code> object.</p></td>
-    </tr>
-    <tr>
-      <th>dgp</th>
-      <td><p>A <code>DGP</code> object.</p></td>
+      <th>visualizer_fun</th>
+      <td><p>The visualization function.</p></td>
     </tr>
     <tr>
       <th>name</th>
-      <td><p>A name to identify the object to be updated.</p></td>
+      <td><p>(Optional) The name of the <code>Visualizer</code>.</p></td>
+    </tr>
+    <tr>
+      <th>rmd_options</th>
+      <td><p>(Optional) List of options to control the aesthetics of
+the <code>Visualizer</code>'s visualization in the knitted R Markdown report.
+Currently, possible options are "height" and "width" (in inches).</p></td>
     </tr>
     <tr>
       <th>...</th>
-      <td><p>Not used.</p></td>
-    </tr>
-    <tr>
-      <th>method</th>
-      <td><p>A <code>Method</code> object.</p></td>
-    </tr>
-    <tr>
-      <th>evaluator</th>
-      <td><p>An <code>Evaluator</code> object.</p></td>
-    </tr>
-    <tr>
-      <th>visualizer</th>
-      <td><p>A <code>Visualizer</code> object.</p></td>
+      <td><p>Arguments to pass into <code>visualizer_fun()</code>.</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>The original <code>Experiment</code> object passed to <code>update_*</code>.</p>
+    <p>A new instance of <code>Visualizer</code>.</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

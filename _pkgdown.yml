@@ -9,7 +9,7 @@ reference:
       - generate_data
       - fit_experiment
       - evaluate_experiment
-      - plot_experiment
+      - visualize_experiment
       - add_dgp
       - update_dgp
       - remove_dgp
@@ -42,12 +42,12 @@ reference:
     contents:
       - Evaluator
       - create_evaluator
-  - title: "Plotter"
+  - title: "Visualizer"
     desc: >
-      Functions for creating a Plotter.
+      Functions for creating a Visualizer.
     contents:
-      - Plotter
-      - create_plotter
+      - Visualizer
+      - create_visualizer
   - title: "Miscellaneous"
     desc: >
       Miscellaneous functions.

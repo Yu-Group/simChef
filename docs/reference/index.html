@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Function reference • pcs.sim.pkg</title>
+<title>Function reference • simChef</title>
 
 
 <!-- jquery -->
@@ -70,7 +70,7 @@
         <span class="icon-bar"></span>
       </button>
       <span class="navbar-brand">
-        <a class="navbar-link" href="../index.html">pcs.sim.pkg</a>
+        <a class="navbar-link" href="../index.html">simChef</a>
         <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.0.9000</span>
       </span>
     </div>
@@ -84,6 +84,9 @@
   </a>
 </li>
 <li>
+  <a href="../articles/simChef.html">Get started</a>
+</li>
+<li>
   <a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
@@ -95,9 +98,6 @@
   <ul class="dropdown-menu" role="menu">
     <li>
       <a href="../articles/parallel.html">Parallel strategies in `simChef`</a>
-    </li>
-    <li>
-      <a href="../articles/vignette.html">simChef Vignette</a>
     </li>
   </ul>
 </li>
@@ -157,7 +157,7 @@
         <td>
           <p><code><a href="run_experiment.html">run_experiment()</a></code> </p>
         </td>
-        <td><p>Run the full <code>Experiment</code> pipeline (fitting, evaluating, and plotting).</p></td>
+        <td><p>Run the full <code>Experiment</code> pipeline (fitting, evaluating, and visualizing).</p></td>
       </tr><tr>
         
         <td>
@@ -179,25 +179,25 @@
       </tr><tr>
         
         <td>
-          <p><code><a href="plot_experiment.html">plot_experiment()</a></code> </p>
+          <p><code><a href="visualize_experiment.html">visualize_experiment()</a></code> </p>
         </td>
-        <td><p>Plot results of an <code>Experiment</code>.</p></td>
+        <td><p>Visualize results of an <code>Experiment</code>.</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="add_funs.html">add_dgp()</a></code> <code><a href="add_funs.html">add_method()</a></code> <code><a href="add_funs.html">add_evaluator()</a></code> <code><a href="add_funs.html">add_plotter()</a></code> </p>
+          <p><code><a href="add_funs.html">add_dgp()</a></code> <code><a href="add_funs.html">add_method()</a></code> <code><a href="add_funs.html">add_evaluator()</a></code> <code><a href="add_funs.html">add_visualizer()</a></code> </p>
         </td>
         <td><p>Helper functions for adding components to an <code>Experiment</code>.</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="update_funs.html">update_dgp()</a></code> <code><a href="update_funs.html">update_method()</a></code> <code><a href="update_funs.html">update_evaluator()</a></code> <code><a href="update_funs.html">update_plotter()</a></code> </p>
+          <p><code><a href="update_funs.html">update_dgp()</a></code> <code><a href="update_funs.html">update_method()</a></code> <code><a href="update_funs.html">update_evaluator()</a></code> <code><a href="update_funs.html">update_visualizer()</a></code> </p>
         </td>
         <td><p>Helper functions for updating components of an <code>Experiment</code>.</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="remove_funs.html">remove_dgp()</a></code> <code><a href="remove_funs.html">remove_method()</a></code> <code><a href="remove_funs.html">remove_evaluator()</a></code> <code><a href="remove_funs.html">remove_plotter()</a></code> </p>
+          <p><code><a href="remove_funs.html">remove_dgp()</a></code> <code><a href="remove_funs.html">remove_method()</a></code> <code><a href="remove_funs.html">remove_evaluator()</a></code> <code><a href="remove_funs.html">remove_visualizer()</a></code> </p>
         </td>
         <td><p>Helper functions for removing components of an <code>Experiment</code>.</p></td>
       </tr><tr>
@@ -236,7 +236,7 @@
         <td>
           <p><code><a href="set_rmd_options.html">set_rmd_options()</a></code> </p>
         </td>
-        <td><p>Set R Markdown options for <code>Evaluator</code> and <code>Plotter</code> outputs in
+        <td><p>Set R Markdown options for <code>Evaluator</code> and <code>Visualizer</code> outputs in
 summary report</p></td>
       </tr><tr>
         
@@ -329,8 +329,8 @@ summary report</p></td>
     </tbody><tbody>
       <tr>
         <th colspan="2">
-          <h2 id="section-plotter" class="hasAnchor"><a href="#section-plotter" class="anchor"></a>Plotter</h2>
-          <p class="section-desc"><p>Functions for creating a Plotter.</p></p>
+          <h2 id="section-visualizer" class="hasAnchor"><a href="#section-visualizer" class="anchor"></a>Visualizer</h2>
+          <p class="section-desc"><p>Functions for creating a Visualizer.</p></p>
         </th>
       </tr>
       
@@ -341,15 +341,15 @@ summary report</p></td>
       <tr>
         
         <td>
-          <p><code><a href="Plotter.html">Plotter</a></code> </p>
+          <p><code><a href="Visualizer.html">Visualizer</a></code> </p>
         </td>
-        <td><p><code>R6</code> class representing a plotter.</p></td>
+        <td><p><code>R6</code> class representing a visualizer.</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="create_plotter.html">create_plotter()</a></code> </p>
+          <p><code><a href="create_visualizer.html">create_visualizer()</a></code> </p>
         </td>
-        <td><p>Create a new <code>Plotter</code>.</p></td>
+        <td><p>Create a new <code>Visualizer</code>.</p></td>
       </tr>
     </tbody><tbody>
       <tr>
@@ -396,7 +396,7 @@ summary report</p></td>
 
       <footer>
       <div class="copyright">
-  <p>Developed by James Duncan.</p>
+  <p>Developed by James Duncan, Tiffany Tang.</p>
 </div>
 
 <div class="pkgdown">

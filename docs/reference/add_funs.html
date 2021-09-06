@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Helper functions for adding components to an Experiment. — add_funs • pcs.sim.pkg</title>
+<title>Helper functions for adding components to an Experiment. — add_funs • simChef</title>
 
 
 <!-- jquery -->
@@ -41,7 +41,7 @@
 
 <meta property="og:title" content="Helper functions for adding components to an Experiment. — add_funs" />
 <meta property="og:description" content="Helper functions for adding DGPs, Methods,
-Evaluators, and Plotters to an Experiment." />
+Evaluators, and Visualizers to an Experiment." />
 
 
 
@@ -72,7 +72,7 @@ Evaluators, and Plotters to an Experiment." />
         <span class="icon-bar"></span>
       </button>
       <span class="navbar-brand">
-        <a class="navbar-link" href="../index.html">pcs.sim.pkg</a>
+        <a class="navbar-link" href="../index.html">simChef</a>
         <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.0.9000</span>
       </span>
     </div>
@@ -86,6 +86,9 @@ Evaluators, and Plotters to an Experiment." />
   </a>
 </li>
 <li>
+  <a href="../articles/simChef.html">Get started</a>
+</li>
+<li>
   <a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
@@ -97,9 +100,6 @@ Evaluators, and Plotters to an Experiment." />
   <ul class="dropdown-menu" role="menu">
     <li>
       <a href="../articles/parallel.html">Parallel strategies in `simChef`</a>
-    </li>
-    <li>
-      <a href="../articles/vignette.html">simChef Vignette</a>
     </li>
   </ul>
 </li>
@@ -126,7 +126,7 @@ Evaluators, and Plotters to an Experiment." />
 
     <div class="ref-description">
     <p>Helper functions for adding <code>DGPs</code>, <code>Methods</code>,
-<code>Evaluators</code>, and <code>Plotters</code> to an <code>Experiment</code>.</p>
+<code>Evaluators</code>, and <code>Visualizers</code> to an <code>Experiment</code>.</p>
     </div>
 
     <pre class="usage"><span class='fu'>add_dgp</span><span class='op'>(</span><span class='va'>experiment</span>, <span class='va'>dgp</span>, name <span class='op'>=</span> <span class='cn'>NULL</span>, <span class='va'>...</span><span class='op'>)</span>
@@ -135,7 +135,7 @@ Evaluators, and Plotters to an Experiment." />
 
 <span class='fu'>add_evaluator</span><span class='op'>(</span><span class='va'>experiment</span>, <span class='va'>evaluator</span>, name <span class='op'>=</span> <span class='cn'>NULL</span>, <span class='va'>...</span><span class='op'>)</span>
 
-<span class='fu'>add_plotter</span><span class='op'>(</span><span class='va'>experiment</span>, <span class='va'>plotter</span>, name <span class='op'>=</span> <span class='cn'>NULL</span>, <span class='va'>...</span><span class='op'>)</span></pre>
+<span class='fu'>add_visualizer</span><span class='op'>(</span><span class='va'>experiment</span>, <span class='va'>visualizer</span>, name <span class='op'>=</span> <span class='cn'>NULL</span>, <span class='va'>...</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -165,8 +165,8 @@ Evaluators, and Plotters to an Experiment." />
       <td><p>An <code>Evaluator</code> object.</p></td>
     </tr>
     <tr>
-      <th>plotter</th>
-      <td><p>A <code>Plotter</code> object.</p></td>
+      <th>visualizer</th>
+      <td><p>A <code>Visualizer</code> object.</p></td>
     </tr>
     </table>
 
@@ -185,7 +185,7 @@ Evaluators, and Plotters to an Experiment." />
 
       <footer>
       <div class="copyright">
-  <p>Developed by James Duncan.</p>
+  <p>Developed by James Duncan, Tiffany Tang.</p>
 </div>
 
 <div class="pkgdown">

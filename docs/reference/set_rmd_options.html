@@ -6,8 +6,8 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Set R Markdown options for Evaluator and Plotter outputs in
-summary report — set_rmd_options • pcs.sim.pkg</title>
+<title>Set R Markdown options for Evaluator and Visualizer outputs in
+summary report — set_rmd_options • simChef</title>
 
 
 <!-- jquery -->
@@ -40,9 +40,9 @@ summary report — set_rmd_options • pcs.sim.pkg</title>
 
 
 
-<meta property="og:title" content="Set R Markdown options for Evaluator and Plotter outputs in
+<meta property="og:title" content="Set R Markdown options for Evaluator and Visualizer outputs in
 summary report — set_rmd_options" />
-<meta property="og:description" content="Set R Markdown options for Evaluator or Plotter
+<meta property="og:description" content="Set R Markdown options for Evaluator or Visualizer
 outputs in the summary report. Some options include the height/width of
 plots and number of digits to show in tables." />
 
@@ -75,7 +75,7 @@ plots and number of digits to show in tables." />
         <span class="icon-bar"></span>
       </button>
       <span class="navbar-brand">
-        <a class="navbar-link" href="../index.html">pcs.sim.pkg</a>
+        <a class="navbar-link" href="../index.html">simChef</a>
         <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.0.9000</span>
       </span>
     </div>
@@ -89,6 +89,9 @@ plots and number of digits to show in tables." />
   </a>
 </li>
 <li>
+  <a href="../articles/simChef.html">Get started</a>
+</li>
+<li>
   <a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
@@ -100,9 +103,6 @@ plots and number of digits to show in tables." />
   <ul class="dropdown-menu" role="menu">
     <li>
       <a href="../articles/parallel.html">Parallel strategies in `simChef`</a>
-    </li>
-    <li>
-      <a href="../articles/vignette.html">simChef Vignette</a>
     </li>
   </ul>
 </li>
@@ -122,21 +122,21 @@ plots and number of digits to show in tables." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Set R Markdown options for <code>Evaluator</code> and <code>Plotter</code> outputs in
+    <h1>Set R Markdown options for <code>Evaluator</code> and <code>Visualizer</code> outputs in
 summary report</h1>
     
     <div class="hidden name"><code>set_rmd_options.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Set R Markdown options for <code>Evaluator</code> or <code>Plotter</code>
+    <p>Set R Markdown options for <code>Evaluator</code> or <code>Visualizer</code>
 outputs in the summary report. Some options include the height/width of
 plots and number of digits to show in tables.</p>
     </div>
 
     <pre class="usage"><span class='fu'>set_rmd_options</span><span class='op'>(</span>
   <span class='va'>experiment</span>,
-  field_name <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"evaluator"</span>, <span class='st'>"plotter"</span><span class='op'>)</span>,
+  field_name <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"evaluator"</span>, <span class='st'>"visualizer"</span><span class='op'>)</span>,
   <span class='va'>name</span>,
   show <span class='op'>=</span> <span class='cn'>NULL</span>,
   <span class='va'>...</span>
@@ -151,22 +151,22 @@ plots and number of digits to show in tables.</p>
     </tr>
     <tr>
       <th>field_name</th>
-      <td><p>One of "evaluator" or "plotter".</p></td>
+      <td><p>One of "evaluator" or "visualizer".</p></td>
     </tr>
     <tr>
       <th>name</th>
-      <td><p>Name of <code>Evaluator</code> or <code>Plotter</code> to set R Markdown
+      <td><p>Name of <code>Evaluator</code> or <code>Visualizer</code> to set R Markdown
 options.</p></td>
     </tr>
     <tr>
       <th>show</th>
       <td><p>If <code>TRUE</code>, show output; if <code>FALSE</code>, hide output in
 R Markdown report. Default <code>NULL</code> does not change the "show" field
-in <code>Evaluator</code>/<code>Plotter</code>.</p></td>
+in <code>Evaluator</code>/<code>Visualizer</code>.</p></td>
     </tr>
     <tr>
       <th>...</th>
-      <td><p>Named R Markdown options to set. If <code>field_name = "plotter"</code>,
+      <td><p>Named R Markdown options to set. If <code>field_name = "visualizer"</code>,
 options are "height" and "width". If <code>field_name = "evaluator"</code>,
 see options for <code><a href='prettyDT.html'>prettyDT()</a></code>.</p></td>
     </tr>
@@ -175,7 +175,7 @@ see options for <code><a href='prettyDT.html'>prettyDT()</a></code>.</p></td>
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>The original <code>Experiment</code> object with the <code>rmd_options</code>
-and/or <code>show</code> fields modified in the <code>Evaluator</code>/<code>Plotter</code>.</p>
+and/or <code>show</code> fields modified in the <code>Evaluator</code>/<code>Visualizer</code>.</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
@@ -188,7 +188,7 @@ and/or <code>show</code> fields modified in the <code>Evaluator</code>/<code>Plo
 
       <footer>
       <div class="copyright">
-  <p>Developed by James Duncan.</p>
+  <p>Developed by James Duncan, Tiffany Tang.</p>
 </div>
 
 <div class="pkgdown">
