@@ -5,7 +5,7 @@
 \alias{update_dgp}
 \alias{update_method}
 \alias{update_evaluator}
-\alias{update_plotter}
+\alias{update_visualizer}
 \title{Helper functions for updating components of an \code{Experiment}.}
 \usage{
 update_dgp(experiment, dgp, name, ...)
@@ -14,7 +14,7 @@ update_method(experiment, method, name, ...)
 
 update_evaluator(experiment, evaluator, name, ...)
 
-update_plotter(experiment, plotter, name, ...)
+update_visualizer(experiment, visualizer, name, ...)
 }
 \arguments{
 \item{experiment}{An \code{Experiment} object.}
@@ -29,13 +29,13 @@ update_plotter(experiment, plotter, name, ...)
 
 \item{evaluator}{An \code{Evaluator} object.}
 
-\item{plotter}{A \code{Plotter} object.}
+\item{visualizer}{A \code{Visualizer} object.}
 }
 \value{
 The original \code{Experiment} object passed to \code{update_*}.
 }
 \description{
 Helper functions for updating \code{DGPs}, \code{Methods},
-\code{Evaluators}, and \code{Plotters} already added to an
+\code{Evaluators}, and \code{Visualizers} already added to an
 \code{Experiment}.
 }

@@ -8,10 +8,10 @@ check_equal(obj1, obj2)
 }
 \arguments{
 \item{obj1}{An object of class \code{DGP}, \code{Method}, \code{Evaluator},
-or \code{Plotter}}
+or \code{Visualizer}}
 
 \item{obj2}{An object of class \code{DGP}, \code{Method}, \code{Evaluator},
-or \code{Plotter}}
+or \code{Visualizer}}
 }
 \value{
 Logical. Returns \code{TRUE} if both objects have the same function
@@ -19,7 +19,7 @@ and arguments and \code{FALSE} otherwise.
 }
 \description{
 Check if any two \code{DGPs}, \code{Methods}, \code{Evaluators},
-or \code{Plotters} are the same with respect to the function and inputted
+or \code{Visualizers} are the same with respect to the function and inputted
 arguments.
 }
 \keyword{internal}

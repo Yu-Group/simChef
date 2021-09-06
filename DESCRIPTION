@@ -1,16 +1,16 @@
-Package: pcs.sim.pkg
+Package: simChef
 Title: Intensive Computational Experiments Made Easy
 Version: 0.0.0.9000
-Authors@R: 
-    person(given = "James",
-           family = "Duncan",
-           role = c("aut", "cre"),
+Authors@R: c(
+    person(given = "James", family = "Duncan", role = c("aut", "cre"),
            email = "jpduncan@berkeley.edu",
-           comment = c(ORCID = "0000-0003-3297-681X"))
-Description: Provides opinionated assistance with creating computational
-             experiments (a.k.a., \"simulations\").
-License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
-         license
+           comment = c(ORCID = "0000-0003-3297-681X")),
+    person(given = "Tiffany", family = "Tang", role = "aut",
+           email = "tiffany.tang@berkeley.edu"))
+Description: Helps cook up the code necessary to create a fully-realized,
+             high-quality, reproducible, and transparently documented simulation
+             experiment.
+License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
@@ -31,7 +31,14 @@ Imports:
     stringr,
     tibble,
     tidyselect
-Suggests: 
-    testthat (>= 3.0.0)
+Suggests:
+    testthat (>= 3.0.0),
+    prettydoc,
+    MASS,
+    ggplot2,
+    plotly,
+    data.table,
+    broom,
+    glmnet
 VignetteBuilder: knitr
 Config/testthat/edition: 3

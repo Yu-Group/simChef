@@ -2,12 +2,12 @@
 % Please edit documentation in R/experiment.R
 \name{set_rmd_options}
 \alias{set_rmd_options}
-\title{Set R Markdown options for \code{Evaluator} and \code{Plotter} outputs in
+\title{Set R Markdown options for \code{Evaluator} and \code{Visualizer} outputs in
 summary report}
 \usage{
 set_rmd_options(
   experiment,
-  field_name = c("evaluator", "plotter"),
+  field_name = c("evaluator", "visualizer"),
   name,
   show = NULL,
   ...
@@ -16,25 +16,25 @@ set_rmd_options(
 \arguments{
 \item{experiment}{An \code{Experiment} object}
 
-\item{field_name}{One of "evaluator" or "plotter".}
+\item{field_name}{One of "evaluator" or "visualizer".}
 
-\item{name}{Name of \code{Evaluator} or \code{Plotter} to set R Markdown
+\item{name}{Name of \code{Evaluator} or \code{Visualizer} to set R Markdown
 options.}
 
 \item{show}{If \code{TRUE}, show output; if \code{FALSE}, hide output in
 R Markdown report. Default \code{NULL} does not change the "show" field
-in \code{Evaluator}/\code{Plotter}.}
+in \code{Evaluator}/\code{Visualizer}.}
 
-\item{...}{Named R Markdown options to set. If \code{field_name = "plotter"},
+\item{...}{Named R Markdown options to set. If \code{field_name = "visualizer"},
 options are "height" and "width". If \code{field_name = "evaluator"},
 see options for \code{\link[=prettyDT]{prettyDT()}}.}
 }
 \value{
 The original \code{Experiment} object with the \code{rmd_options}
-and/or \code{show} fields modified in the \code{Evaluator}/\code{Plotter}.
+and/or \code{show} fields modified in the \code{Evaluator}/\code{Visualizer}.
 }
 \description{
-Set R Markdown options for \code{Evaluator} or \code{Plotter}
+Set R Markdown options for \code{Evaluator} or \code{Visualizer}
 outputs in the summary report. Some options include the height/width of
 plots and number of digits to show in tables.
 }

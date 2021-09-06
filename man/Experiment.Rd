@@ -6,12 +6,12 @@
 \title{\code{R6} class representing a simulation experiment.}
 \description{
 A simulation experiment with any number of \code{DGPs},
-\code{Methods}, \code{Evaluators}, and \code{Plotters}.
+\code{Methods}, \code{Evaluators}, and \code{Visualizers}.
 }
 \details{
 When run, an \code{Experiment} seamlessly combines \code{DGPs} and
 \code{Methods}, computing results in parallel. Those results can then be
-evaluated using \code{Evaluators} and plotted using \code{Plotters}.
+evaluated using \code{Evaluators} and visualized using \code{Visualizers}.
 }
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
@@ -28,7 +28,7 @@ evaluated using \code{Evaluators} and plotted using \code{Plotters}.
 \item \href{#method-generate_data}{\code{Experiment$generate_data()}}
 \item \href{#method-fit}{\code{Experiment$fit()}}
 \item \href{#method-evaluate}{\code{Experiment$evaluate()}}
-\item \href{#method-plot}{\code{Experiment$plot()}}
+\item \href{#method-visualize}{\code{Experiment$visualize()}}
 \item \href{#method-create_doc_template}{\code{Experiment$create_doc_template()}}
 \item \href{#method-create_rmd}{\code{Experiment$create_rmd()}}
 \item \href{#method-add_dgp}{\code{Experiment$add_dgp()}}
@@ -43,10 +43,10 @@ evaluated using \code{Evaluators} and plotted using \code{Plotters}.
 \item \href{#method-update_evaluator}{\code{Experiment$update_evaluator()}}
 \item \href{#method-remove_evaluator}{\code{Experiment$remove_evaluator()}}
 \item \href{#method-get_evaluators}{\code{Experiment$get_evaluators()}}
-\item \href{#method-add_plotter}{\code{Experiment$add_plotter()}}
-\item \href{#method-update_plotter}{\code{Experiment$update_plotter()}}
-\item \href{#method-remove_plotter}{\code{Experiment$remove_plotter()}}
-\item \href{#method-get_plotters}{\code{Experiment$get_plotters()}}
+\item \href{#method-add_visualizer}{\code{Experiment$add_visualizer()}}
+\item \href{#method-update_visualizer}{\code{Experiment$update_visualizer()}}
+\item \href{#method-remove_visualizer}{\code{Experiment$remove_visualizer()}}
+\item \href{#method-get_visualizers}{\code{Experiment$get_visualizers()}}
 \item \href{#method-add_vary_across}{\code{Experiment$add_vary_across()}}
 \item \href{#method-update_vary_across}{\code{Experiment$update_vary_across()}}
 \item \href{#method-remove_vary_across}{\code{Experiment$remove_vary_across()}}
@@ -70,7 +70,7 @@ Create a new \code{Experiment}.
   dgp_list = list(),
   method_list = list(),
   evaluator_list = list(),
-  plotter_list = list(),
+  visualizer_list = list(),
   future.globals = TRUE,
   future.packages = NULL,
   clone_from = NULL,
@@ -90,7 +90,7 @@ Create a new \code{Experiment}.
 
 \item{\code{evaluator_list}}{An optional list of \code{Evaluator} objects.}
 
-\item{\code{plotter_list}}{An optional list of \code{Plotter} objects.}
+\item{\code{visualizer_list}}{An optional list of \code{Visualizer} objects.}
 
 \item{\code{future.globals}}{Character vector of names in the global environment
 to pass to parallel workers. Passed as the argument of the same name to
@@ -124,7 +124,7 @@ A new \code{Experiment} object.
 \if{latex}{\out{\hypertarget{method-run}{}}}
 \subsection{Method \code{run()}}{
 Run the entire simulation experiment pipeline (fitting,
-evaluating, and plotting).
+evaluating, and visualizing).
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Experiment$run(
   n_reps = 1,
@@ -163,10 +163,10 @@ experiment, use the same argument during initialization.}
 \item{\code{use_cached}}{If \code{TRUE}, find and return previously saved
 results. If cached results cannot be found, run experiment anyways.
 Can also be a vector with some combination of "fit",
-"eval", or "plot" to use their respective cached results.}
+"eval", or "visualize" to use their respective cached results.}
 
 \item{\code{save}}{If \code{TRUE}, save results to disk. Can also be a vector
-with some combination of "fit", "eval", or "plot" to save to disk.}
+with some combination of "fit", "eval", or "visualize" to save to disk.}
 
 \item{\code{verbose}}{Level of verboseness. Default is 1, which prints out
 messages after major checkpoints in the experiment. If 0, no messages
@@ -187,10 +187,10 @@ if applicable.}
 \code{evaluate} method, which evaluates each \code{Evaluator} in
 the \code{Experiment}. Length of list is equivalent to the number of
 \code{Evaluators}.}
-\item{plot_results}{A list of tibbles containing results from the
-\code{plot} method, which plots each \code{Plotter} in
+\item{visualize_results}{A list of tibbles containing results from the
+\code{visualize} method, which visualizes each \code{Visualizer} in
 the \code{Experiment}. Length of list is equivalent to the number of
-\code{Plotters}.}
+\code{Visualizers}.}
 }
 }
 }
@@ -328,14 +328,14 @@ A list of evaluation result tibbles, one for each
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-plot"></a>}}
-\if{latex}{\out{\hypertarget{method-plot}{}}}
-\subsection{Method \code{plot()}}{
-Plot the performance of methods and/or its evaluation
-metrics using all \code{Plotters} in the \code{Experiment} and return
-plot results.
+\if{html}{\out{<a id="method-visualize"></a>}}
+\if{latex}{\out{\hypertarget{method-visualize}{}}}
+\subsection{Method \code{visualize()}}{
+Visualize the performance of methods and/or its evaluation
+metrics using all \code{Visualizers} in the \code{Experiment} and return
+visualization results.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Experiment$plot(
+\if{html}{\out{<div class="r">}}\preformatted{Experiment$visualize(
   fit_results = NULL,
   eval_results = NULL,
   use_cached = FALSE,
@@ -354,9 +354,9 @@ plot results.
 \code{evaluate} method.}
 
 \item{\code{use_cached}}{If \code{TRUE}, find and return previously saved
-results. If cached results cannot be found, plot experiment anyways.}
+results. If cached results cannot be found, visualize experiment anyways.}
 
-\item{\code{save}}{If \code{TRUE}, save plots to disk.}
+\item{\code{save}}{If \code{TRUE}, save visuals to disk.}
 
 \item{\code{verbose}}{Level of verboseness. Default is 1, which prints out
 messages after major checkpoints int the experiment. If 0, no messages
@@ -367,7 +367,7 @@ are printed.}
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-A list of plots, one for each \code{Plotter}.
+A list of visuals, one for each \code{Visualizer}.
 }
 }
 \if{html}{\out{<hr>}}
@@ -673,86 +673,86 @@ A list of \code{Evaluator} objects in the \code{Experiment}.
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-add_plotter"></a>}}
-\if{latex}{\out{\hypertarget{method-add_plotter}{}}}
-\subsection{Method \code{add_plotter()}}{
-Add a new \code{Plotter} to the \code{Experiment}.
+\if{html}{\out{<a id="method-add_visualizer"></a>}}
+\if{latex}{\out{\hypertarget{method-add_visualizer}{}}}
+\subsection{Method \code{add_visualizer()}}{
+Add a new \code{Visualizer} to the \code{Experiment}.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Experiment$add_plotter(plotter, name = NULL, ...)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Experiment$add_visualizer(visualizer, name = NULL, ...)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{plotter}}{A \code{Plotter} object.}
+\item{\code{visualizer}}{A \code{Visualizer} object.}
 
-\item{\code{name}}{Name of \code{Plotter}.}
+\item{\code{name}}{Name of \code{Visualizer}.}
 
 \item{\code{...}}{Not used.}
 }
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-The original \code{Experiment} object with the \code{Plotter} added.
+The original \code{Experiment} object with the \code{Visualizer} added.
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-update_plotter"></a>}}
-\if{latex}{\out{\hypertarget{method-update_plotter}{}}}
-\subsection{Method \code{update_plotter()}}{
-Update an existing \code{Plotter} in the \code{Experiment}.
+\if{html}{\out{<a id="method-update_visualizer"></a>}}
+\if{latex}{\out{\hypertarget{method-update_visualizer}{}}}
+\subsection{Method \code{update_visualizer()}}{
+Update an existing \code{Visualizer} in the \code{Experiment}.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Experiment$update_plotter(plotter, name, ...)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Experiment$update_visualizer(visualizer, name, ...)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{plotter}}{A \code{Plotter} object.}
+\item{\code{visualizer}}{A \code{Visualizer} object.}
 
-\item{\code{name}}{Name of existing \code{Plotter} to update.}
+\item{\code{name}}{Name of existing \code{Visualizer} to update.}
 
 \item{\code{...}}{Not used.}
 }
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-The original \code{Experiment} object with the updated \code{Plotter}.
+The original \code{Experiment} object with the updated \code{Visualizer}.
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-remove_plotter"></a>}}
-\if{latex}{\out{\hypertarget{method-remove_plotter}{}}}
-\subsection{Method \code{remove_plotter()}}{
-Remove a \code{Plotter} from the \code{Experiment}.
+\if{html}{\out{<a id="method-remove_visualizer"></a>}}
+\if{latex}{\out{\hypertarget{method-remove_visualizer}{}}}
+\subsection{Method \code{remove_visualizer()}}{
+Remove a \code{Visualizer} from the \code{Experiment}.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Experiment$remove_plotter(name, ...)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Experiment$remove_visualizer(name, ...)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{name}}{Name of \code{Plotter} to remove.}
+\item{\code{name}}{Name of \code{Visualizer} to remove.}
 
 \item{\code{...}}{Not used.}
 }
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-The original \code{Experiment} object with the \code{Plotter} removed.
+The original \code{Experiment} object with the \code{Visualizer} removed.
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-get_plotters"></a>}}
-\if{latex}{\out{\hypertarget{method-get_plotters}{}}}
-\subsection{Method \code{get_plotters()}}{
-Get all \code{Plotters} in the \code{Experiment}.
+\if{html}{\out{<a id="method-get_visualizers"></a>}}
+\if{latex}{\out{\hypertarget{method-get_visualizers}{}}}
+\subsection{Method \code{get_visualizers()}}{
+Get all \code{Visualizers} in the \code{Experiment}.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Experiment$get_plotters()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Experiment$get_visualizers()}\if{html}{\out{</div>}}
 }
 
 \subsection{Returns}{
-A list of \code{Plotter} objects in the \code{Experiment}.
+A list of \code{Visualizer} objects in the \code{Experiment}.
 }
 }
 \if{html}{\out{<hr>}}
@@ -878,7 +878,7 @@ corresponding user-specified \code{DGP}/\code{Method} function.
 \if{latex}{\out{\hypertarget{method-set_rmd_options}{}}}
 \subsection{Method \code{set_rmd_options()}}{
 Set R Markdown options for displaying \code{Evaluator} or
-\code{Plotter} outputs in the summary report.
+\code{Visualizer} outputs in the summary report.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Experiment$set_rmd_options(field_name, name, show = NULL, ...)}\if{html}{\out{</div>}}
 }
@@ -886,16 +886,16 @@ Set R Markdown options for displaying \code{Evaluator} or
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{field_name}}{One of "evaluator" or "plotter".}
+\item{\code{field_name}}{One of "evaluator" or "visualizer".}
 
-\item{\code{name}}{Name of \code{Evaluator} or \code{Plotter} to set R Markdown
+\item{\code{name}}{Name of \code{Evaluator} or \code{Visualizer} to set R Markdown
 options.}
 
 \item{\code{show}}{If \code{TRUE}, show output; if \code{FALSE}, hide output in
 R Markdown report. Default \code{NULL} does not change the "show" field
-in \code{Evaluator}/\code{Plotter}.}
+in \code{Evaluator}/\code{Visualizer}.}
 
-\item{\code{...}}{Named R Markdown options to set. If \code{field_name = "plotter"},
+\item{\code{...}}{Named R Markdown options to set. If \code{field_name = "visualizer"},
 options are "height" and "width". If \code{field_name = "evaluator"},
 see options for \code{\link[=prettyDT]{prettyDT()}}.}
 }
@@ -903,7 +903,7 @@ see options for \code{\link[=prettyDT]{prettyDT()}}.}
 }
 \subsection{Returns}{
 The original \code{Experiment} object with the \code{rmd_options}
-and/or \code{show} fields modified in the \code{Evaluator}/\code{Plotter}.
+and/or \code{show} fields modified in the \code{Evaluator}/\code{Visualizer}.
 }
 }
 \if{html}{\out{<hr>}}
@@ -962,7 +962,7 @@ The original \code{Experiment} object.
 \subsection{Method \code{print()}}{
 Print an \code{Experiment} in a nice format, showing the
 names of all \code{DGPs}, \code{Methods}, \code{Evaluators}, and
-\code{Plotters} in addition to the directory where results are saved
+\code{Visualizers} in addition to the directory where results are saved
 and the \code{vary_across} component (if any).
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Experiment$print()}\if{html}{\out{</div>}}

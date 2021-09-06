@@ -1,91 +1,3 @@
-# Printing Experiment works properly
-
-    Experiment Name: test-print 
-       Saved results at: results/test-print 
-       DGPs:  
-       Methods:  
-       Evaluators:  
-       Plotters:  
-       Vary Across: None
-
----
-
-    Experiment Name: test-print 
-       Saved results at: results/test-print 
-       DGPs: DGP1, DGP2 
-       Methods: Method1 
-       Evaluators: Evaluator1, Evaluator2, Evaluator3 
-       Plotters:  
-       Vary Across: None
-
----
-
-    Experiment Name: test-print 
-       Saved results at: results/test-print 
-       DGPs: DGP1, DGP2 
-       Methods: Method1 
-       Evaluators: Evaluator1, Evaluator2, Evaluator3 
-       Plotters: Plotter1 
-       Vary Across: None
-
----
-
-    Experiment Name: test-print 
-       Saved results at: results/test-print 
-       DGPs: DGP1, DGP2 
-       Methods: Method1 
-       Evaluators: Evaluator1, Evaluator2, Evaluator3 
-       Plotters: Plotter1 
-       Vary Across: 
-          DGP: DGP1 
-             x:  int [1:3] 1 2 3
-
----
-
-    Experiment Name: test-print 
-       Saved results at: results/test-print 
-       DGPs: DGP1, DGP2 
-       Methods: Method1 
-       Evaluators: Evaluator1, Evaluator2, Evaluator3 
-       Plotters: Plotter1 
-       Vary Across: 
-          Method: Method1 
-             x:  int [1:3] 1 2 3
-
----
-
-    Experiment Name: test-print 
-       Saved results at: results/test-print 
-       DGPs: DGP1, DGP2 
-       Methods: Method1 
-       Evaluators: Evaluator1, Evaluator2, Evaluator3 
-       Plotters: Plotter1 
-       Vary Across: 
-          DGP: DGP1 
-             x:  int [1:3] 1 2 3
-          DGP: DGP2 
-             x:  int [1:3] 2 3 4
-          Method: Method1 
-             x:  int [1:3] 1 2 3
-
----
-
-    Experiment Name: test-print 
-       Saved results at: results/test-print 
-       DGPs: DGP1, DGP2 
-       Methods: Method1 
-       Evaluators: Evaluator1, Evaluator2, Evaluator3 
-       Plotters: Plotter1 
-       Vary Across: 
-          DGP: DGP1 
-             x: List of 1
-               $ : int [1:3] 1 2 3
-          DGP: DGP2 
-             x: List of 1
-               $ : int [1:3] 2 3 4
-          Method: Method1 
-             x:  int [1:3] 1 2 3
-
 # Generate data from Experiment works properly
 
     $DGP1
@@ -592,4 +504,92 @@
     
     
     
+
+# Printing Experiment works properly
+
+    Experiment Name: test-print 
+       Saved results at: results/test-print 
+       DGPs:  
+       Methods:  
+       Evaluators:  
+       Visualizers:  
+       Vary Across: None
+
+---
+
+    Experiment Name: test-print 
+       Saved results at: results/test-print 
+       DGPs: DGP1, DGP2 
+       Methods: Method1 
+       Evaluators: Evaluator1, Evaluator2, Evaluator3 
+       Visualizers:  
+       Vary Across: None
+
+---
+
+    Experiment Name: test-print 
+       Saved results at: results/test-print 
+       DGPs: DGP1, DGP2 
+       Methods: Method1 
+       Evaluators: Evaluator1, Evaluator2, Evaluator3 
+       Visualizers: Visualizer1 
+       Vary Across: None
+
+---
+
+    Experiment Name: test-print 
+       Saved results at: results/test-print 
+       DGPs: DGP1, DGP2 
+       Methods: Method1 
+       Evaluators: Evaluator1, Evaluator2, Evaluator3 
+       Visualizers: Visualizer1 
+       Vary Across: 
+          DGP: DGP1 
+             x:  int [1:3] 1 2 3
+
+---
+
+    Experiment Name: test-print 
+       Saved results at: results/test-print 
+       DGPs: DGP1, DGP2 
+       Methods: Method1 
+       Evaluators: Evaluator1, Evaluator2, Evaluator3 
+       Visualizers: Visualizer1 
+       Vary Across: 
+          Method: Method1 
+             x:  int [1:3] 1 2 3
+
+---
+
+    Experiment Name: test-print 
+       Saved results at: results/test-print 
+       DGPs: DGP1, DGP2 
+       Methods: Method1 
+       Evaluators: Evaluator1, Evaluator2, Evaluator3 
+       Visualizers: Visualizer1 
+       Vary Across: 
+          DGP: DGP1 
+             x:  int [1:3] 1 2 3
+          DGP: DGP2 
+             x:  int [1:3] 2 3 4
+          Method: Method1 
+             x:  int [1:3] 1 2 3
+
+---
+
+    Experiment Name: test-print 
+       Saved results at: results/test-print 
+       DGPs: DGP1, DGP2 
+       Methods: Method1 
+       Evaluators: Evaluator1, Evaluator2, Evaluator3 
+       Visualizers: Visualizer1 
+       Vary Across: 
+          DGP: DGP1 
+             x: List of 1
+               $ : int [1:3] 1 2 3
+          DGP: DGP2 
+             x: List of 1
+               $ : int [1:3] 2 3 4
+          Method: Method1 
+             x:  int [1:3] 1 2 3
 
