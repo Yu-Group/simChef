@@ -33,10 +33,10 @@ test_that("Experiment initialization works properly", {
   dgp_list <- exper$get_dgps()
   method_list <- exper$get_methods()
   evaluator_list <- exper$get_evaluators()
-  plotter_list <- exper$get_plotters()
+  visualizer_list <- exper$get_visualizers()
 
   expect_equal(method_list, list())
-  expect_equal(plotter_list, list())
+  expect_equal(visualizer_list, list())
   expect_equal(length(dgp_list), 2)
   expect_equal(dgp_list[['dgp1']], dgp1)
   expect_equal(dgp_list[['dgp2']], dgp2)
@@ -146,8 +146,8 @@ test_that("Printing Experiment works properly", {
   eval1 <- Evaluator$new(eval_fun1)
   eval2 <- Evaluator$new(eval_fun2)
   eval3 <- Evaluator$new(eval_fun3)
-  plot_fun1 <- function(x) x / 3
-  plot1 <- Plotter$new(plot_fun1)
+  visualizer_fun1 <- function(x) x / 3
+  visualizer1 <- Visualizer$new(visualizer_fun1)
   
   experiment <- create_experiment(name = "test-print")
   expect_snapshot_output(print(experiment))
@@ -162,7 +162,7 @@ test_that("Printing Experiment works properly", {
   expect_snapshot_output(print(experiment))
   
   experiment %>%
-    add_plotter(plot1, "Plotter1")
+    add_visualizer(visualizer1, "Visualizer1")
   expect_snapshot_output(print(experiment))
   
   # check vary across prints properly

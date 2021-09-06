@@ -37,7 +37,7 @@ knitr::opts_chunk$set(
   fig.width = 10
 )
 
-options(knitr.kable.NA = 'NA', 
+options(knitr.kable.NA = 'NA',
         dplyr.summarise.inform = FALSE)
 
 # scrollable text output
@@ -70,7 +70,7 @@ getDescendants <- function(dir_name) {
         exp_name <- "Base"
       } else {
         exp_name <- stringr::str_replace_all(
-          stringr::str_remove(d, paste0(params$sim_path, "/")), 
+          stringr::str_remove(d, paste0(params$sim_path, "/")),
           "/", " - "
         )
       }
@@ -102,45 +102,44 @@ experimentExists <- function(dir_name, recursive = FALSE) {
 }
 
 #' Displays content for specified part of recipe
-#' 
+#'
 #' @param field_name part of recipe to show; must be one of "dgp", "method",
-#'   "evaluator", or "plotter"
+#'   "evaluator", or "visualizer"
 #' @return content for recipe
-showRecipePart <- function(field_name = c("dgp", "method", 
-                                          "evaluator", "plotter")) {
-  
+showRecipePart <- function(field_name = c("dgp", "method",
+                                          "evaluator", "visualizer")) {
+
   field_name <- match.arg(field_name)
   func_name <- dplyr::case_when(field_name == "evaluator" ~ "eval",
-                                field_name == "plotter" ~ "plot",
                                 TRUE ~ field_name)
   descendants <- getDescendants(dir_name = params$sim_path)
   objs <- purrr::map(descendants, ~.x[[paste0("get_", field_name, "s")]]())
   obj_names <- unique(purrr::reduce(sapply(objs, names), c))
-  
+
   obj_header <- "<p style='font-weight: bold; font-size: 20px'> %s </p>"
   invis_header <- "\n\n### %s {.tabset .tabset-pills .tabset-fade .tabset-recipe}\n\n"
   showtype_header <- "\n\n#### %s {.tabset .tabset-pills .tabset-fade .tabset-square}\n\n"
   exp_header <- "\n\n##### %s \n\n"
-  
+
   if (all(sapply(objs, length) == 0)) {
     return(cat("N/A"))
   }
-  
+
   for (idx in 1:length(obj_names)) {
     cat(sprintf(invis_header, ""))
     obj_name <- obj_names[idx]
-    
+
     cat("<div class='panel panel-default padded-panel'>")
     cat(sprintf(obj_header, obj_name))
-    
+
     cat(sprintf(showtype_header, fontawesome::fa("readme", fill = "white")))
     pasteMd(file.path(doc_dir, paste0(field_name, "s"),
                       paste0(obj_name, ".md")))
-    
+
     cat(sprintf(showtype_header, fontawesome::fa("code", fill = "white")))
     keep_objs <- purrr::map(objs, obj_name)
     keep_objs[sapply(keep_objs, is.null)] <- NULL
-    if (all(purrr::map_lgl(keep_objs, 
+    if (all(purrr::map_lgl(keep_objs,
                            ~isTRUE(check_equal(.x, keep_objs[[1]]))))) {
       obj <- keep_objs[[1]]
       cat("<b>Function</b>")
@@ -148,7 +147,7 @@ showRecipePart <- function(field_name = c("dgp", "method",
                   chunk_idx, other_args = "max.height='200px'")
       chunk_idx <<- chunk_idx + 1
       cat("<b>Input Parameters</b>")
-      subchunkify(obj[[paste0(func_name, "_params")]], 
+      subchunkify(obj[[paste0(func_name, "_params")]],
                   chunk_idx, other_args = "max.height='200px'")
       chunk_idx <<- chunk_idx + 1
     } else {
@@ -163,7 +162,7 @@ showRecipePart <- function(field_name = c("dgp", "method",
                     chunk_idx, other_args = "max.height='200px'")
         chunk_idx <<- chunk_idx + 1
         cat("<b>Input Parameters</b>")
-        subchunkify(obj[[paste0(func_name, "_params")]], 
+        subchunkify(obj[[paste0(func_name, "_params")]],
                     chunk_idx, other_args = "max.height='200px'")
         chunk_idx <<- chunk_idx + 1
       }
@@ -185,22 +184,22 @@ getResults <- function(filename) {
   return(results)
 }
 
-#' Displays output (both from evaluate() and plot()) from saved results under
+#' Displays output (both from evaluate() and visualize()) from saved results under
 #' a specified directory
 #'
 #' @param dir_name name of directory
 #' @param depth integer; depth of directory from parent/base experiment's folder
 #' @param base logical; whether or not this is a base experiment
 #' @param show_header logical; whether or not to show section header
-#' @param verbose integer; 0 = no messages; 1 = print out directory name only; 
-#'   2 = print out directory name and name of evaluators/plotters
-#' @return content results from evaluate() and plot() from the experiment
+#' @param verbose integer; 0 = no messages; 1 = print out directory name only;
+#'   2 = print out directory name and name of evaluators/visualizers
+#' @return content results from evaluate() and visualize() from the experiment
 showResults <- function(dir_name, depth, base = FALSE, show_header = TRUE,
                         verbose = 1) {
   if (verbose >= 1) {
     message(rep("*", depth), basename(dir_name))
   }
-  
+
   if (depth == 1) {
     header_template <- "\n\n%s %s {.tabset .tabset-pills .tabset-fade}\n\n"
   } else {
@@ -210,41 +209,41 @@ showResults <- function(dir_name, depth, base = FALSE, show_header = TRUE,
       header_template <- "\n\n%s %s {.tabset .tabset-pills .tabset-fade .tabset-circle}"
     }
   }
-  
+
   if (show_header) {
-    cat(sprintf(header_template, 
+    cat(sprintf(header_template,
                 paste(rep("#", depth), collapse = ""),
                 basename(dir_name)))
   }
-  
+
   if (base) {
-    cat(paste0("\n\n", 
+    cat(paste0("\n\n",
                paste(rep("#", depth + 1), collapse = ""),
-               " Base - ", basename(dir_name), 
+               " Base - ", basename(dir_name),
                " {.tabset .tabset-pills .tabset-fade .tabset-circle}\n\n"))
     depth <- depth + 1
   }
-  
+
   showtype_template <- paste0(
-    "\n\n", 
+    "\n\n",
     paste(rep("#", depth + 1), collapse = ""),
     " %s {.tabset .tabset-pills .tabset-fade .tabset-square}\n\n"
   )
   figname_template <- "<h3 style='font-weight: bold'> %s </h3>"
-  plt_template <- paste0("\n\n", 
+  plt_template <- paste0("\n\n",
                          paste(rep("#", depth + 2), collapse = ""),
                          " %s\n\n")
-  
+
   exp_fname <- file.path(dir_name, "experiment.rds")
   # fit_fname <- file.path(dir_name, "fit_results.rds")
   eval_fname <- file.path(dir_name, "eval_results.rds")
-  plot_fname <- file.path(dir_name, "plot_results.rds")
-  
+  visualize_fname <- file.path(dir_name, "visualize_results.rds")
+
   exp <- getResults(exp_fname)
   # fit_results <- getResults(fit_fname)
   eval_results <- getResults(eval_fname)
-  plot_results <- getResults(plot_fname)
-  
+  visualize_results <- getResults(visualize_fname)
+
   if (!is.null(eval_results)) {
     cat(sprintf(showtype_template, fontawesome::fa("table", fill = "white")))
     for (eval_name in names(eval_results)) {
@@ -254,25 +253,25 @@ showResults <- function(dir_name, depth, base = FALSE, show_header = TRUE,
       evaluator <- exp$get_evaluators()[[eval_name]]
       if (evaluator$show) {
         cat(sprintf(figname_template, eval_name))
-        do.call(prettyDT, 
+        do.call(prettyDT,
                 c(list(eval_results[[eval_name]]), evaluator$rmd_options)) %>%
           subchunkify(i = chunk_idx)
         chunk_idx <<- chunk_idx + 1
       }
     }
   }
-  
-  if (!is.null(plot_results)) {
-    cat(sprintf(showtype_template, 
+
+  if (!is.null(visualize_results)) {
+    cat(sprintf(showtype_template,
                 fontawesome::fa("chart-bar", fill = "white")))
-    for (plot_name in names(plot_results)) {
+    for (plot_name in names(visualize_results)) {
       if (verbose >= 2) {
         message(rep(" ", depth + 1), plot_name)
       }
-      plotter <- exp$get_plotters()[[plot_name]]
-      if (plotter$show) {
+      visualizer <- exp$get_visualizers()[[plot_name]]
+      if (visualizer$show) {
         cat(sprintf(figname_template, plot_name))
-        plts <- plot_results[[plot_name]]
+        plts <- visualize_results[[plot_name]]
         if (!inherits(plts, "list")) {
           plts <- list(plt = plts)
         }
@@ -290,18 +289,18 @@ showResults <- function(dir_name, depth, base = FALSE, show_header = TRUE,
             add_class <- NULL
           }
           subchunkify(plt, i = chunk_idx,
-                      fig_height = plotter$rmd_options$height,
-                      fig_width = plotter$rmd_options$width, 
-                      other_args = "out.width = '100%'", 
+                      fig_height = visualizer$rmd_options$height,
+                      fig_width = visualizer$rmd_options$width,
+                      other_args = "out.width = '100%'",
                       add_class = add_class)
           chunk_idx <<- chunk_idx + 1
         }
       }
     }
   }
-  
+
   if (!is.null(exp)) {
-    if ((length(exp$get_vary_across()$dgp) != 0) | 
+    if ((length(exp$get_vary_across()$dgp) != 0) |
         (length(exp$get_vary_across()$method) != 0)) {
       cat(sprintf(showtype_template, fontawesome::fa("code", fill = "white")))
       cat("<b>Parameter Values</b>")
@@ -327,7 +326,7 @@ showDescendantResults <- function(dir_name, depth = 1, ...) {
     if (!experimentExists(child, recursive = TRUE)) {
       next
     }
-    if (experimentExists(child, recursive = FALSE) & 
+    if (experimentExists(child, recursive = FALSE) &
         (experimentExists(list.dirs(child, recursive = TRUE)[-1]) |
          (depth == 1))) {
       base <- TRUE
@@ -372,8 +371,8 @@ showRecipePart(field_name = "evaluator")
 
 ## Visualizations
 
-```{r plotters, results = "asis"}
-showRecipePart(field_name = "plotter")
+```{r visualizers, results = "asis"}
+showRecipePart(field_name = "visualizer")
 ```
 
 

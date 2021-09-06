@@ -2,7 +2,7 @@
 % Please edit documentation in R/experiment.R
 \name{run_experiment}
 \alias{run_experiment}
-\title{Run the full \code{Experiment} pipeline (fitting, evaluating, and plotting).}
+\title{Run the full \code{Experiment} pipeline (fitting, evaluating, and visualizing).}
 \usage{
 run_experiment(experiment, n_reps = 1, ...)
 }
@@ -23,12 +23,12 @@ method. In addition to results columns, has columns named 'rep', 'dgp_name',
 \code{evaluate} method, which evaluates each \code{Evaluator} in
 the \code{Experiment}. Length of list is equivalent to the number of
 \code{Evaluators}.}
-\item{plot_results}{A list of tibbles containing results from the
-\code{plot} method, which plots each \code{Plotter} in
+\item{visualize_results}{A list of tibbles containing results from the
+\code{visualize} method, which visualizes each \code{Visualizer} in
 the \code{Experiment}. Length of list is equivalent to the number of
-\code{Plotters}.}
+\code{Visualizers}.}
 }
 }
 \description{
-Run the full \code{Experiment} pipeline (fitting, evaluating, and plotting).
+Run the full \code{Experiment} pipeline (fitting, evaluating, and visualizing).
 }

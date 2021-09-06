@@ -2,12 +2,12 @@
 #'
 #' @docType class
 #'
-#' @description A simulation experiment with any number of \code{DGPs}, 
-#'   \code{Methods}, \code{Evaluators}, and \code{Plotters}.
+#' @description A simulation experiment with any number of \code{DGPs},
+#'   \code{Methods}, \code{Evaluators}, and \code{Visualizers}.
 #'
-#' @details When run, an \code{Experiment} seamlessly combines \code{DGPs} and 
-#'   \code{Methods}, computing results in parallel. Those results can then be 
-#'   evaluated using \code{Evaluators} and plotted using \code{Plotters}.
+#' @details When run, an \code{Experiment} seamlessly combines \code{DGPs} and
+#'   \code{Methods}, computing results in parallel. Those results can then be
+#'   evaluated using \code{Evaluators} and visualized using \code{Visualizers}.
 #'
 #' @export
 Experiment <- R6::R6Class(
@@ -17,7 +17,7 @@ Experiment <- R6::R6Class(
     .dgp_list = list(),
     .method_list = list(),
     .evaluator_list = list(),
-    .plotter_list = list(),
+    .visualizer_list = list(),
     .vary_across_list = list(
       dgp = list(),
       method = list()
@@ -208,7 +208,7 @@ Experiment <- R6::R6Class(
       }) %>% purrr::reduce(c)
       return(param_list)
     },
-    .save_results = function(results, results_type = c("fit", "eval", "plot"),
+    .save_results = function(results, results_type = c("fit", "eval", "visualize"),
                              verbose = 1) {
       results_type <- match.arg(results_type)
       if (verbose >= 1) {
@@ -239,7 +239,7 @@ Experiment <- R6::R6Class(
         message("==============================")
       }
     },
-    .get_cached_results = function(results_type = c("fit", "eval", "plot"),
+    .get_cached_results = function(results_type = c("fit", "eval", "visualize"),
                                    verbose = 1) {
       results_type <- match.arg(results_type)
       if (verbose >= 1) {
@@ -286,7 +286,7 @@ Experiment <- R6::R6Class(
     #' @param dgp_list An optional list of \code{DGP} objects.
     #' @param method_list An optional list of \code{Method} objects.
     #' @param evaluator_list An optional list of \code{Evaluator} objects.
-    #' @param plotter_list An optional list of \code{Plotter} objects.
+    #' @param visualizer_list An optional list of \code{Visualizer} objects.
     #' @param future.globals Character vector of names in the global environment
     #'   to pass to parallel workers. Passed as the argument of the same name to
     #'   \code{future.apply::future_lapply} and related functions. See
@@ -307,7 +307,7 @@ Experiment <- R6::R6Class(
     #' @return A new \code{Experiment} object.
     initialize = function(name = "experiment",
                           dgp_list = list(), method_list = list(),
-                          evaluator_list = list(), plotter_list = list(),
+                          evaluator_list = list(), visualizer_list = list(),
                           future.globals = TRUE, future.packages = NULL,
                           clone_from = NULL, save_dir = NULL, ...) {
       if (!is.null(clone_from)) {
@@ -316,7 +316,7 @@ Experiment <- R6::R6Class(
         dgp_list <- c(clone$get_dgps(), dgp_list)
         method_list <- c(clone$get_methods(), method_list)
         evaluator_list <- c(clone$get_evaluators(), evaluator_list)
-        plotter_list <- c(clone$get_plotters(), plotter_list)
+        visualizer_list <- c(clone$get_visualizers(), visualizer_list)
         if (is.null(save_dir)) {
           save_dir <- clone$get_save_dir()
         }
@@ -324,7 +324,7 @@ Experiment <- R6::R6Class(
       private$.add_obj_list(dgp_list, "DGP")
       private$.add_obj_list(method_list, "Method")
       private$.add_obj_list(evaluator_list, "Evaluator")
-      private$.add_obj_list(plotter_list, "Plotter")
+      private$.add_obj_list(visualizer_list, "Visualizer")
       private$.future.globals <- future.globals
       private$.future.packages <- future.packages
       self$name <- name
@@ -334,7 +334,7 @@ Experiment <- R6::R6Class(
       private$.save_dir <- R.utils::getAbsolutePath(save_dir)
     },
     #' @description Run the entire simulation experiment pipeline (fitting,
-    #'   evaluating, and plotting).
+    #'   evaluating, and visualizing).
     #'
     #' @param n_reps The number of replicates of the \code{Experiment} for this
     #'   run.
@@ -354,9 +354,9 @@ Experiment <- R6::R6Class(
     #' @param use_cached If \code{TRUE}, find and return previously saved
     #'   results. If cached results cannot be found, run experiment anyways.
     #'   Can also be a vector with some combination of "fit",
-    #'   "eval", or "plot" to use their respective cached results.
+    #'   "eval", or "visualize" to use their respective cached results.
     #' @param save If \code{TRUE}, save results to disk. Can also be a vector
-    #'   with some combination of "fit", "eval", or "plot" to save to disk.
+    #'   with some combination of "fit", "eval", or "visualize" to save to disk.
     #' @param verbose Level of verboseness. Default is 1, which prints out
     #'   messages after major checkpoints in the experiment. If 0, no messages
     #'   are printed.
@@ -365,23 +365,23 @@ Experiment <- R6::R6Class(
     #' @return A list of results from the simulation experiment
     #' \describe{
     #' \item{fit_results}{A tibble containing results from the \code{fit}
-    #'   method. In addition to results columns, has columns named 'rep', 
-    #'   'dgp_name', 'method_name', and the \code{vary_across} parameter names 
+    #'   method. In addition to results columns, has columns named 'rep',
+    #'   'dgp_name', 'method_name', and the \code{vary_across} parameter names
     #'   if applicable.}
     #' \item{eval_results}{A list of tibbles containing results from the
     #'   \code{evaluate} method, which evaluates each \code{Evaluator} in
     #'   the \code{Experiment}. Length of list is equivalent to the number of
     #'   \code{Evaluators}.}
-    #' \item{plot_results}{A list of tibbles containing results from the
-    #'   \code{plot} method, which plots each \code{Plotter} in
+    #' \item{visualize_results}{A list of tibbles containing results from the
+    #'   \code{visualize} method, which visualizes each \code{Visualizer} in
     #'   the \code{Experiment}. Length of list is equivalent to the number of
-    #'   \code{Plotters}.}
+    #'   \code{Visualizers}.}
     #' }
     run = function(n_reps = 1, parallel_strategy = c("reps"),
                    future.globals = NULL, future.packages = NULL,
                    use_cached = FALSE, save = FALSE, verbose = 1, ...) {
       if (!is.logical(use_cached)) {
-        use_cached <- c("fit", "eval", "plot") %in% use_cached
+        use_cached <- c("fit", "eval", "visualize") %in% use_cached
       } else {
         if (length(use_cached) > 1) {
           warning("The input use_cached is a logical vector of length > 1. ",
@@ -390,7 +390,7 @@ Experiment <- R6::R6Class(
         use_cached <- rep(use_cached[1], 3)
       }
       if (!is.logical(save)) {
-        save <- c("fit", "eval", "plot") %in% save
+        save <- c("fit", "eval", "visualize") %in% save
       } else {
         if (length(save) > 1) {
           warning("The input save is a logical vector of length > 1. ",
@@ -407,13 +407,13 @@ Experiment <- R6::R6Class(
       eval_results <- self$evaluate(fit_results = fit_results,
                                     use_cached = use_cached[2], save = save[2],
                                     verbose = verbose)
-      plot_results <- self$plot(fit_results = fit_results,
+      visualize_results <- self$visualize(fit_results = fit_results,
                                 eval_results = eval_results,
                                 use_cached = use_cached[3], save = save[3],
                                 verbose = verbose)
       return(list(fit_results = fit_results,
                   eval_results = eval_results,
-                  plot_results = plot_results))
+                  visualize_results = visualize_results))
     },
     #' @description Generate data from each of the \code{DGPs} in the
     #'   \code{Experiment}.
@@ -422,14 +422,14 @@ Experiment <- R6::R6Class(
     #' @param ... Not used.
     #'
     #' @return A list of length equal to the number of \code{DGPs} in the
-    #'   \code{Experiment}. If the \code{Experiment} does not have a 
+    #'   \code{Experiment}. If the \code{Experiment} does not have a
     #'   \code{vary_across} component, then each element in the list is a list
-    #'   of \code{n_reps} datasets generated by the given \code{DGP}. If the 
+    #'   of \code{n_reps} datasets generated by the given \code{DGP}. If the
     #'   \code{Experiment} does have a \code{vary_across} component, then each
-    #'   element in the outermost list is a list of lists. The second layer of 
-    #'   lists corresponds to a specific parameter setting within the 
-    #'   \code{vary_across} scheme, and the innermost layer of lists is of 
-    #'   length \code{n_reps} with the dataset replicates, generated by the 
+    #'   element in the outermost list is a list of lists. The second layer of
+    #'   lists corresponds to a specific parameter setting within the
+    #'   \code{vary_across} scheme, and the innermost layer of lists is of
+    #'   length \code{n_reps} with the dataset replicates, generated by the
     #'   \code{DGP}.
     generate_data = function(n_reps = 1, ...) {
       # TODO: generate data that was used in run() or fit() (e.g., w/ same seed)
@@ -437,7 +437,7 @@ Experiment <- R6::R6Class(
       if (length(dgp_list) == 0) {
         private$.throw_empty_list_error("dgp", "generate data from")
       }
-      
+
       if (!private$.has_vary_across()) {
         dgp_results <- purrr::map(dgp_list, function(dgp) {
           replicates <- replicate(n_reps, {
@@ -492,7 +492,7 @@ Experiment <- R6::R6Class(
     #'
     #' @return A tibble containing the results from fitting all \code{Methods}
     #'   across all \code{DGPs} for \code{n_reps} repetitions. In addition to
-    #'   results columns, has columns named 'rep', 'dgp_name', 'method_name', 
+    #'   results columns, has columns named 'rep', 'dgp_name', 'method_name',
     #'   and the \code{vary_across} parameter names if applicable.
     fit = function(n_reps = 1, parallel_strategy = c("reps"),
                    future.globals = NULL, future.packages = NULL,
@@ -747,7 +747,7 @@ Experiment <- R6::R6Class(
                       private$.get_vary_params(),
                       tidyselect::everything()) %>%
         dplyr::arrange(as.numeric(rep), dgp_name, method_name)
-      
+
       if (verbose >= 1) {
         message(sprintf("Fitting completed | time taken: %f minutes",
                         difftime(Sys.time(), start_time, units = "mins")))
@@ -812,46 +812,46 @@ Experiment <- R6::R6Class(
 
       return(eval_results)
     },
-    #' @description Plot the performance of methods and/or its evaluation
-    #'   metrics using all \code{Plotters} in the \code{Experiment} and return
-    #'   plot results.
+    #' @description Visualize the performance of methods and/or its evaluation
+    #'   metrics using all \code{Visualizers} in the \code{Experiment} and return
+    #'   visualization results.
     #'
     #' @param fit_results A tibble, as returned by the \code{fit} method.
     #' @param eval_results A list of result tibbles, as returned by the
     #'   \code{evaluate} method.
     #' @param use_cached If \code{TRUE}, find and return previously saved
-    #'   results. If cached results cannot be found, plot experiment anyways.
-    #' @param save If \code{TRUE}, save plots to disk.
+    #'   results. If cached results cannot be found, visualize experiment anyways.
+    #' @param save If \code{TRUE}, save visuals to disk.
     #' @param verbose Level of verboseness. Default is 1, which prints out
     #'   messages after major checkpoints int the experiment. If 0, no messages
     #'   are printed.
     #' @param ... Not used.
     #'
-    #' @return A list of plots, one for each \code{Plotter}.
-    plot = function(fit_results = NULL, eval_results = NULL,
+    #' @return A list of visuals, one for each \code{Visualizer}.
+    visualize = function(fit_results = NULL, eval_results = NULL,
                     use_cached = FALSE, save = FALSE, verbose = 1, ...) {
       if (use_cached) {
-        results <- private$.get_cached_results("plot", verbose = verbose)
+        results <- private$.get_cached_results("visualize", verbose = verbose)
         if (!is.null(results)) {
           return(results)
         }
       }
       if (verbose >= 1) {
-        message(sprintf("Plotting %s...", self$name))
+        message(sprintf("Visualizing %s...", self$name))
         start_time <- Sys.time()
       }
-      plotter_list <- private$.get_obj_list("plotter")
-      if (length(plotter_list) == 0) {
-        private$.throw_empty_list_error("plotter", "plot results from")
+      visualizer_list <- private$.get_obj_list("visualizer")
+      if (length(visualizer_list) == 0) {
+        private$.throw_empty_list_error("visualizer", "visualization results from")
       }
-      plot_results <- purrr::map(plotter_list, function(plotter) {
-        plotter$plot(fit_results = fit_results,
+      visualize_results <- purrr::map(visualizer_list, function(visualizer) {
+        visualizer$visualize(fit_results = fit_results,
                      eval_results = eval_results,
                      vary_params = private$.get_vary_params())
       })
 
       if (verbose >= 1) {
-        message(sprintf("Plotting completed | time taken: %f minutes",
+        message(sprintf("Visualization completed | time taken: %f minutes",
                         difftime(Sys.time(), start_time, units = "mins")))
         if (!save) {
           message("==============================")
@@ -859,10 +859,10 @@ Experiment <- R6::R6Class(
       }
 
       if (save) {
-        private$.save_results(plot_results, "plot", verbose)
+        private$.save_results(visualize_results, "visualize", verbose)
       }
 
-      return(plot_results)
+      return(visualize_results)
     },
     #' @description Create documentation template (a series of .md files) to
     #'   fill out for the R Markdown results report. The documentation files can
@@ -894,7 +894,7 @@ Experiment <- R6::R6Class(
       )
       descendants[sapply(descendants, is.null)] <- NULL
 
-      fields <- c("dgp", "method", "evaluator", "plotter")
+      fields <- c("dgp", "method", "evaluator", "visualizer")
       for (field in fields) {
         obj_names <- purrr::map(descendants,
                                 ~names(.x[[paste0("get_", field, "s")]]())) %>%
@@ -1060,45 +1060,45 @@ Experiment <- R6::R6Class(
     get_evaluators = function() {
       return(private$.get_obj_list("evaluator"))
     },
-    #' @description Add a new \code{Plotter} to the \code{Experiment}.
+    #' @description Add a new \code{Visualizer} to the \code{Experiment}.
     #'
-    #' @param plotter A \code{Plotter} object.
-    #' @param name Name of \code{Plotter}.
+    #' @param visualizer A \code{Visualizer} object.
+    #' @param name Name of \code{Visualizer}.
     #' @param ... Not used.
     #'
-    #' @return The original \code{Experiment} object with the \code{Plotter} added.
-    add_plotter = function(plotter, name=NULL, ...) {
-      private$.check_obj(plotter, "Plotter")
-      private$.add_obj("plotter", plotter, name)
+    #' @return The original \code{Experiment} object with the \code{Visualizer} added.
+    add_visualizer = function(visualizer, name=NULL, ...) {
+      private$.check_obj(visualizer, "Visualizer")
+      private$.add_obj("visualizer", visualizer, name)
       invisible(self)
     },
-    #' @description Update an existing \code{Plotter} in the \code{Experiment}.
+    #' @description Update an existing \code{Visualizer} in the \code{Experiment}.
     #'
-    #' @param plotter A \code{Plotter} object.
-    #' @param name Name of existing \code{Plotter} to update.
+    #' @param visualizer A \code{Visualizer} object.
+    #' @param name Name of existing \code{Visualizer} to update.
     #' @param ... Not used.
     #'
-    #' @return The original \code{Experiment} object with the updated \code{Plotter}.
-    update_plotter = function(plotter, name, ...) {
-      private$.check_obj(plotter, "Plotter")
-      private$.update_obj("plotter", plotter, name)
+    #' @return The original \code{Experiment} object with the updated \code{Visualizer}.
+    update_visualizer = function(visualizer, name, ...) {
+      private$.check_obj(visualizer, "Visualizer")
+      private$.update_obj("visualizer", visualizer, name)
       invisible(self)
     },
-    #' @description Remove a \code{Plotter} from the \code{Experiment}.
+    #' @description Remove a \code{Visualizer} from the \code{Experiment}.
     #'
-    #' @param name Name of \code{Plotter} to remove.
+    #' @param name Name of \code{Visualizer} to remove.
     #' @param ... Not used.
     #'
-    #' @return The original \code{Experiment} object with the \code{Plotter} removed.
-    remove_plotter = function(name, ...) {
-      private$.remove_obj("plotter", name)
+    #' @return The original \code{Experiment} object with the \code{Visualizer} removed.
+    remove_visualizer = function(name, ...) {
+      private$.remove_obj("visualizer", name)
       invisible(self)
     },
-    #' @description Get all \code{Plotters} in the \code{Experiment}.
+    #' @description Get all \code{Visualizers} in the \code{Experiment}.
     #'
-    #' @return A list of \code{Plotter} objects in the \code{Experiment}.
-    get_plotters = function() {
-      return(private$.get_obj_list("plotter"))
+    #' @return A list of \code{Visualizer} objects in the \code{Experiment}.
+    get_visualizers = function() {
+      return(private$.get_obj_list("visualizer"))
     },
     #' @description Add a \code{vary_across} component to the \code{Experiment}.
     #'   When the \code{Experiment} is run, the \code{Experiment} is
@@ -1264,20 +1264,20 @@ Experiment <- R6::R6Class(
       return(private$.vary_across_list)
     },
     #' @description Set R Markdown options for displaying \code{Evaluator} or
-    #'   \code{Plotter} outputs in the summary report.
+    #'   \code{Visualizer} outputs in the summary report.
     #'
-    #' @param field_name One of "evaluator" or "plotter".
-    #' @param name Name of \code{Evaluator} or \code{Plotter} to set R Markdown
+    #' @param field_name One of "evaluator" or "visualizer".
+    #' @param name Name of \code{Evaluator} or \code{Visualizer} to set R Markdown
     #'   options.
     #' @param show If \code{TRUE}, show output; if \code{FALSE}, hide output in
     #'   R Markdown report. Default \code{NULL} does not change the "show" field
-    #'   in \code{Evaluator}/\code{Plotter}.
-    #' @param ... Named R Markdown options to set. If \code{field_name = "plotter"},
+    #'   in \code{Evaluator}/\code{Visualizer}.
+    #' @param ... Named R Markdown options to set. If \code{field_name = "visualizer"},
     #'   options are "height" and "width". If \code{field_name = "evaluator"},
     #'   see options for [prettyDT()].
     #'
     #' @return The original \code{Experiment} object with the \code{rmd_options}
-    #'   and/or \code{show} fields modified in the \code{Evaluator}/\code{Plotter}.
+    #'   and/or \code{show} fields modified in the \code{Evaluator}/\code{Visualizer}.
     set_rmd_options = function(field_name, name, show = NULL, ...) {
       obj_list <- private$.get_obj_list(field_name)
       if (!name %in% names(obj_list)) {
@@ -1333,13 +1333,13 @@ Experiment <- R6::R6Class(
     },
     #' @description Print an \code{Experiment} in a nice format, showing the
     #'   names of all \code{DGPs}, \code{Methods}, \code{Evaluators}, and
-    #'   \code{Plotters} in addition to the directory where results are saved
+    #'   \code{Visualizers} in addition to the directory where results are saved
     #'   and the \code{vary_across} component (if any).
     #'
     #' @return The original \code{Experiment} object.
     print = function() {
       cat("Experiment Name:", self$name, "\n")
-      cat("   Saved results at:", 
+      cat("   Saved results at:",
           R.utils::getRelativePath(private$.save_dir), "\n")
       cat("   DGPs:",
           paste(names(private$.get_obj_list("dgp")),
@@ -1350,8 +1350,8 @@ Experiment <- R6::R6Class(
       cat("   Evaluators:",
           paste(names(private$.get_obj_list("evaluator")),
                 sep = "", collapse = ", "), "\n")
-      cat("   Plotters:",
-          paste(names(private$.get_obj_list("plotter")),
+      cat("   Visualizers:",
+          paste(names(private$.get_obj_list("visualizer")),
                 sep = "", collapse = ", "), "\n")
       cat("   Vary Across: ")
       if (!private$.has_vary_across()) {
@@ -1397,7 +1397,7 @@ create_experiment <- function(...) {
   Experiment$new(...)
 }
 
-#' Run the full \code{Experiment} pipeline (fitting, evaluating, and plotting).
+#' Run the full \code{Experiment} pipeline (fitting, evaluating, and visualizing).
 #'
 #' @name run_experiment
 #'
@@ -1414,10 +1414,10 @@ create_experiment <- function(...) {
 #'   \code{evaluate} method, which evaluates each \code{Evaluator} in
 #'   the \code{Experiment}. Length of list is equivalent to the number of
 #'   \code{Evaluators}.}
-#' \item{plot_results}{A list of tibbles containing results from the
-#'   \code{plot} method, which plots each \code{Plotter} in
+#' \item{visualize_results}{A list of tibbles containing results from the
+#'   \code{visualize} method, which visualizes each \code{Visualizer} in
 #'   the \code{Experiment}. Length of list is equivalent to the number of
-#'   \code{Plotters}.}
+#'   \code{Visualizers}.}
 #' }
 #' @export
 run_experiment <- function(experiment, n_reps=1, ...) {
@@ -1433,14 +1433,14 @@ run_experiment <- function(experiment, n_reps=1, ...) {
 #' @param ... Passed to \code{experiment$generate_data()}.
 #'
 #' @return A list of length equal to the number of \code{DGPs} in the
-#'   \code{Experiment}. If the \code{Experiment} does not have a 
+#'   \code{Experiment}. If the \code{Experiment} does not have a
 #'   \code{vary_across} component, then each element in the list is a list
-#'   of \code{n_reps} datasets generated by the given \code{DGP}. If the 
+#'   of \code{n_reps} datasets generated by the given \code{DGP}. If the
 #'   \code{Experiment} does have a \code{vary_across} component, then each
-#'   element in the outermost list is a list of lists. The second layer of 
-#'   lists corresponds to a specific parameter setting within the 
-#'   \code{vary_across} scheme, and the innermost layer of lists is of 
-#'   length \code{n_reps} with the dataset replicates, generated by the 
+#'   element in the outermost list is a list of lists. The second layer of
+#'   lists corresponds to a specific parameter setting within the
+#'   \code{vary_across} scheme, and the innermost layer of lists is of
+#'   length \code{n_reps} with the dataset replicates, generated by the
 #'   \code{DGP}.
 #' @export
 generate_data <- function(experiment, n_reps=1, ...) {
@@ -1484,33 +1484,33 @@ evaluate_experiment <- function(experiment, ...) {
   return(experiment$evaluate(...))
 }
 
-#' Plot results of an \code{Experiment}.
+#' Visualize results of an \code{Experiment}.
 #'
-#' @name plot_experiment
-#' @description Plot the performance of methods and/or its evaluation metrics
-#'   using all \code{Plotters} in the \code{Experiment} and return plot results.
+#' @name visualize_experiment
+#' @description Visualize the performance of methods and/or its evaluation metrics
+#'   using all \code{Visualizers} in the \code{Experiment} and return visualization results.
 #'
 #' @param experiment An \code{Experiment} object.
-#' @param ... Passed to \code{Experiment$plot()}.
+#' @param ... Passed to \code{Experiment$visualize()}.
 #'
-#' @return A list of plots, one for each \code{Plotter}.
+#' @return A list of visualizations, one for each \code{Visualizer}.
 #'
 #' @export
-plot_experiment <- function(experiment, ...) {
-  return(experiment$plot(...))
+visualize_experiment <- function(experiment, ...) {
+  return(experiment$visualize(...))
 }
 
 #' Helper functions for adding components to an \code{Experiment}.
 #'
 #' @description Helper functions for adding \code{DGPs}, \code{Methods},
-#'   \code{Evaluators}, and \code{Plotters} to an \code{Experiment}.
+#'   \code{Evaluators}, and \code{Visualizers} to an \code{Experiment}.
 #'
 #' @param experiment An \code{Experiment} object.
 #' @param name A name to identify the object to be added.
 #' @param dgp A \code{DGP} object.
 #' @param method A \code{Method} object.
 #' @param evaluator An \code{Evaluator} object.
-#' @param plotter A \code{Plotter} object.
+#' @param visualizer A \code{Visualizer} object.
 #' @param ... Not used.
 #'
 #' @return The original \code{Experiment} object passed to \code{add_*}.
@@ -1544,14 +1544,14 @@ add_evaluator <- function(experiment, evaluator, name = NULL, ...) {
 #' @rdname add_funs
 #'
 #' @export
-add_plotter <- function(experiment, plotter, name=NULL, ...) {
-  experiment$add_plotter(plotter, name, ...)
+add_visualizer <- function(experiment, visualizer, name=NULL, ...) {
+  experiment$add_visualizer(visualizer, name, ...)
 }
 
 #' Helper functions for updating components of an \code{Experiment}.
 #'
 #' @description Helper functions for updating \code{DGPs}, \code{Methods},
-#'   \code{Evaluators}, and \code{Plotters} already added to an
+#'   \code{Evaluators}, and \code{Visualizers} already added to an
 #'   \code{Experiment}.
 #'
 #' @inheritParams add_funs
@@ -1589,14 +1589,14 @@ update_evaluator <- function(experiment, evaluator, name, ...) {
 #' @rdname update_funs
 #'
 #' @export
-update_plotter <- function(experiment, plotter, name, ...) {
-  experiment$update_plotter(plotter, name, ...)
+update_visualizer <- function(experiment, visualizer, name, ...) {
+  experiment$update_visualizer(visualizer, name, ...)
 }
 
 #' Helper functions for removing components of an \code{Experiment}.
 #'
 #' @description Helper functions for removing \code{DGPs}, \code{Methods},
-#'   \code{Evaluators}, and \code{Plotters} already added to an
+#'   \code{Evaluators}, and \code{Visualizers} already added to an
 #'   \code{Experiment}.
 #'
 #' @param name A name to identify the object to be removed.
@@ -1633,8 +1633,8 @@ remove_evaluator <- function(experiment, name, ...) {
 #' @rdname remove_funs
 #'
 #' @export
-remove_plotter <- function(experiment, name, ...) {
-  experiment$remove_plotter(name, ...)
+remove_visualizer <- function(experiment, name, ...) {
+  experiment$remove_visualizer(name, ...)
 }
 
 #' Varying across parameters in an \code{Experiment}.
@@ -1689,30 +1689,30 @@ remove_vary_across <- function(experiment, ...) {
   experiment$remove_vary_across(...)
 }
 
-#' Set R Markdown options for \code{Evaluator} and \code{Plotter} outputs in
+#' Set R Markdown options for \code{Evaluator} and \code{Visualizer} outputs in
 #'   summary report
 #'
 #' @name set_rmd_options
-#' @description Set R Markdown options for \code{Evaluator} or \code{Plotter}
+#' @description Set R Markdown options for \code{Evaluator} or \code{Visualizer}
 #'   outputs in the summary report. Some options include the height/width of
 #'   plots and number of digits to show in tables.
 #'
 #' @param experiment An \code{Experiment} object
-#' @param field_name One of "evaluator" or "plotter".
-#' @param name Name of \code{Evaluator} or \code{Plotter} to set R Markdown
+#' @param field_name One of "evaluator" or "visualizer".
+#' @param name Name of \code{Evaluator} or \code{Visualizer} to set R Markdown
 #'   options.
 #' @param show If \code{TRUE}, show output; if \code{FALSE}, hide output in
 #'   R Markdown report. Default \code{NULL} does not change the "show" field
-#'   in \code{Evaluator}/\code{Plotter}.
-#' @param ... Named R Markdown options to set. If \code{field_name = "plotter"},
+#'   in \code{Evaluator}/\code{Visualizer}.
+#' @param ... Named R Markdown options to set. If \code{field_name = "visualizer"},
 #'   options are "height" and "width". If \code{field_name = "evaluator"},
 #'   see options for [prettyDT()].
 #'
 #' @return The original \code{Experiment} object with the \code{rmd_options}
-#'   and/or \code{show} fields modified in the \code{Evaluator}/\code{Plotter}.
+#'   and/or \code{show} fields modified in the \code{Evaluator}/\code{Visualizer}.
 #'
 #' @export
-set_rmd_options <- function(experiment, field_name = c("evaluator", "plotter"),
+set_rmd_options <- function(experiment, field_name = c("evaluator", "visualizer"),
                             name, show = NULL, ...) {
   field_name <- match.arg(field_name)
   experiment$set_rmd_options(field_name = field_name, name = name, show = show,
@@ -1723,7 +1723,7 @@ set_rmd_options <- function(experiment, field_name = c("evaluator", "plotter"),
 #'
 #' @name set_save_dir
 #' @description Set the directory in which the \code{Experiment}'s results and
-#'   plots are saved.
+#'   visualizations are saved.
 #'
 #' @param experiment An \code{Experiment} object.
 #' @param save_dir The directory in which the \code{Experiment}'s results

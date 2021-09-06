@@ -48,10 +48,10 @@ test_that("check_equal works properly", {
                              rmd_options = list(digits = 3),
                              name = "Eval")
   eval2 <- create_evaluator(eval_fun = function(x) x * 2)
-  plot1 <- create_plotter(plot_fun = function(x) x)
-  plot1b <- create_plotter(plot_fun = function(x) x,
+  visualizer1 <- create_visualizer(visualizer_fun = function(x) x)
+  visualizer1b <- create_visualizer(visualizer_fun = function(x) x,
                            rmd_options = list(height = 8))
-  plot2 <- create_plotter(plot_fun = function(x) x / 2)
+  visualizer2 <- create_visualizer(visualizer_fun = function(x) x / 2)
   
   expect_true(check_equal(dgp1, dgp1))
   expect_true(check_equal(dgp1, dgp1_copy))
@@ -59,17 +59,17 @@ test_that("check_equal works properly", {
   expect_true(check_equal(method1, method1_copy))
   expect_true(check_equal(eval1, eval1))
   expect_true(check_equal(eval1, eval1b))
-  expect_true(check_equal(plot1, plot1))
-  expect_true(check_equal(plot1, plot1b))
+  expect_true(check_equal(visualizer1, visualizer1))
+  expect_true(check_equal(visualizer1, visualizer1b))
   
   expect_false(check_equal(dgp1, dgp1b))
   expect_false(check_equal(dgp1, dgp2))
   expect_false(check_equal(dgp1, method1))
   expect_false(check_equal(dgp1, eval1))
-  expect_false(check_equal(dgp1, plot1))
+  expect_false(check_equal(dgp1, visualizer1))
   expect_false(check_equal(method1, method2))
   expect_false(check_equal(eval1, eval2))
-  expect_false(check_equal(plot1, plot2))
+  expect_false(check_equal(visualizer1, visualizer2))
   
   expect_error(check_equal(dgp1, "dgp2"))
   expect_error(check_equal("dgp1", dgp2))

@@ -1,7 +1,5 @@
 ---
 title: "simChef Vignette"
-author: "James Duncan, Corrine F. Elliott, Tiffany M. Tang"
-# output: rmarkdown::html_vignette
 output: 
   prettydoc::html_pretty:
     theme: architect
@@ -30,14 +28,14 @@ The goal of `simChef` is to seamlessly and efficiently run simulation experiment
     a. Create DGP(s) (data-generating processes) via `create_dgp()`
     b. Create Method(s) via `create_method()`
     c. Create Evaluator(s) via `create_evaluator()`
-    d. Create Plotter(s) via `create_plotter()`
+    d. Create Visualizer(s) via `create_visualizer()`
 2. Assemble recipe parts into a complete simulation experiment recipe, e.g., via
 ```{r eval = FALSE}
 experiment <- create_experiment(name = "Experiment") %>%
   add_dgp(dgp, name = "DGP1") %>%
   add_method(method, name = "Method1") %>%
   add_evaluator(evaluator, name = "Evaluator1") %>%
-  add_plotter(plotter, name = "Plotter1")
+  add_visualizer(visualizer, name = "Visualizer1")
 ```
 3. Run the experiment
 ```{r eval = FALSE}
@@ -59,11 +57,11 @@ To begin, we first need to create the individual parts of the simulation experim
 1. **DGP** (data-generating process): the data-generating processes from which to **generate** data
 2. **Method**: the methods (or models) to **fit** in the experiment
 3. **Evaluator**: the evaluation metrics used to **evaluate** the methods performance
-4. **Plotter**: the plotting functions used to **plot** outputs from the method fits or evaluation results
+4. **Visualizer**: the visualization functions used to **visualize** outputs from the method fits or evaluation results
 
-To create a `DGP()`, `Method()`, `Evaluator()`, or `Plotter()`, we can respectively use the `create_dgp()`, `create_method()`, `create_evaluator()`, or `create_plotter()` functions. Each `create_*()` function follows the same syntax and takes in the inputs:
+To create a `DGP()`, `Method()`, `Evaluator()`, or `Visualizer()`, we can respectively use the `create_dgp()`, `create_method()`, `create_evaluator()`, or `create_visualizer()` functions. Each `create_*()` function follows the same syntax and takes in the inputs:
 
-- `*_fun`: the first input is a function from which to simulate data, fit the method, evaluate the metrics, or create the plots (depending on `*`).
+- `*_fun`: the first input is a function from which to simulate data, fit the method, evaluate the metrics, or create a visualization (depending on `*`).
 - `name`: (optional) name of the component. Can be specified either here in `create_*()` or when creating the experiment as we will see later.
 - `...`: additional arguments get passed into the `*_fun` above.
 
@@ -150,7 +148,7 @@ There are a few key points to keep in mind when writing a custom Evaluator funct
 
 As before, additional arguments can be passed into `create_evaluator()`, and in this case, we have overwritten the default value of `alpha` with `alpha = 0.1`.
 
-## Create plotter
+## Create visualizer
 
 Lastly, we may want to plot the results from the `Method` fits (stored in `fit_results`) and/or the outputs from our `Evaluators` (stored in `eval_results`). For example, we could plot the power of the hypothesis test.
 
@@ -169,29 +167,29 @@ power_plot_fun <- function(fit_results, col = "X1") {
 }
 ```
 
-We can create an object of class `Plotter()` from this function via
+We can create an object of class `Visualizer()` from this function via
 
 ```{r}
-power_plot <- create_plotter(plot_fun = power_plot_fun)
+power_plot <- create_visualizer(visualizer_fun = power_plot_fun)
 ```
 
-Like the custom `Evaluator` functions, custom `Plotter` functions such as `power_plot_fun()` can take in the argument `fit_results` if we want to construct a plot from the method fit outputs. If we want to construct a plot using the output of our `Evaluators` (e.g., the output from `reject_prob_fun()`), the `Plotter` function can also take the argument `eval_results` as input. Note again that the arguments must be exactly named `fit_results` and `eval_results` in order to work properly.
+Like the custom `Evaluator` functions, custom `Visualizer` functions such as `power_plot_fun()` can take in the argument `fit_results` if we want to construct a plot from the method fit outputs. If we want to construct a visualization using the output of our `Evaluators` (e.g., the output from `reject_prob_fun()`), the `Visualizer` function can also take the argument `eval_results` as input. Note again that the arguments must be exactly named `fit_results` and `eval_results` in order to work properly.
 
-As with the other `create_*` functions, additional arguments that need to pass into the custom `Plotter` function can be passed into `create_plotter()`.
+As with the other `create_*` functions, additional arguments that need to pass into the custom `Visualizer` function can be passed into `create_visualizer()`.
 
 # Assemble simulation experiment recipe
 
-At this point, we have created a `DGP` (`dgp`), `Method` (`lm_method`), `Evaluator` (`reject_prob_eval`), and `Plotter` (`power_plot`). The next step is to create the simulation experiment recipe and `add` each component to the recipe via
+At this point, we have created a `DGP` (`dgp`), `Method` (`lm_method`), `Evaluator` (`reject_prob_eval`), and `Visualizer` (`power_plot`). The next step is to create the simulation experiment recipe and `add` each component to the recipe via
 
 ```{r}
 experiment <- create_experiment(name = "Linear Regression Experiment") %>%
   add_dgp(dgp, name = "Linear Gaussian DGP") %>%
   add_method(lm_method, name = "OLS") %>%
   add_evaluator(reject_prob_eval, name = "Rejection Prob. (alpha = 0.1)") %>%
-  add_plotter(power_plot, name = "Power")
+  add_visualizer(power_plot, name = "Power")
 ```
 
-Any number of DGPs, Methods, Evaluators, and Plotters can be added to the simulation experiment recipe, but each added element to the experiment should have an intelligible name as this will be used in creating the R Markdown results report.
+Any number of DGPs, Methods, Evaluators, and Visualizers can be added to the simulation experiment recipe, but each added element to the experiment should have an intelligible name as this will be used in creating the R Markdown results report.
 
 We can easily see the individual parts of the simulation experiment recipe by printing the experiment.
 
@@ -199,7 +197,7 @@ We can easily see the individual parts of the simulation experiment recipe by pr
 print(experiment)
 ```
 
-Once a DGP, Method, Evaluator, or Plotter has been added to the simulation experiment recipe, the component can be updated using `update_dgp()`, `update_method()`, `update_evaluator()`, or `update_plotter()` and removed using `remove_dgp()`, `remove_method()`, `remove_evaluator()`, or `remove_plotter()`.
+Once a DGP, Method, Evaluator, or Visualizer has been added to the simulation experiment recipe, the component can be updated using `update_dgp()`, `update_method()`, `update_evaluator()`, or `update_visualizer()` and removed using `remove_dgp()`, `remove_method()`, `remove_evaluator()`, or `remove_visualizer()`.
 
 
 # Run the experiment
@@ -221,13 +219,13 @@ The output of `experiment$run()` is a list of length three:
 
 - `fit_results`: output of `Method` fits (see `experiment$fit()`)
 - `eval_results`: output of `Evaluators` (see `experiment$evaluate()`)
-- `plot_results`: output of `Plotters` (see `experiment$plot()`)
+- `plot_results`: output of `Visualizers` (see `experiment$visualize()`)
 
 ```{r}
 str(results, max.level = 2)
 results$fit_results
 results$eval_results
-results$plot_results
+results$visualize_results
 ```
 
 
@@ -277,10 +275,10 @@ However, when we run the experiment, the results are not quite what we expect. T
 ```{r}
 vary_results <- experiment$run(n_reps = 100, save = TRUE)
 vary_results$eval_results
-vary_results$plot_results
+vary_results$visualize_results
 ```
 
-To see how different values of `sigma` affect the experiment results, we need to modify our `Evaluator` and `Plotter` functions. Specifically, in `reject_prob_eval`, we want to group `fit_results` by `sigma` in addition to `dgp_name` and `method_name`. To do this, we need to add a `vary_params` argument to our custom `Evaluator` function. When we run the experiment, `vary_params` will be auto-filled by a vector of the parameter names that are varied (i.e., those that have been added via `add_vary_across()`). In this case, `vary_params` will be auto-filled by `c("sigma")`.
+To see how different values of `sigma` affect the experiment results, we need to modify our `Evaluator` and `Visualizer` functions. Specifically, in `reject_prob_eval`, we want to group `fit_results` by `sigma` in addition to `dgp_name` and `method_name`. To do this, we need to add a `vary_params` argument to our custom `Evaluator` function. When we run the experiment, `vary_params` will be auto-filled by a vector of the parameter names that are varied (i.e., those that have been added via `add_vary_across()`). In this case, `vary_params` will be auto-filled by `c("sigma")`.
 
 ```{r}
 reject_prob_fun <- function(fit_results, vary_params = NULL, alpha = 0.05) {
@@ -324,7 +322,7 @@ power_plot_fun <- function(fit_results, vary_params = NULL, col = "X1") {
   }
   return(plt)
 }
-power_plot <- create_plotter(plot_fun = power_plot_fun)
+power_plot <- create_visualizer(plot_fun = power_plot_fun)
 
 ```
 
@@ -334,15 +332,15 @@ Now, we are ready to update our experiment and run the experiment via
 ```{r}
 vary_results <- experiment %>%
   update_evaluator(reject_prob_eval, name = "Rejection Prob. (alpha = 0.1)") %>%
-  update_plotter(power_plot, name = "Power") %>%
+  update_visualizer(power_plot, name = "Power") %>%
   run_experiment(n_reps = 100, save = TRUE)
 vary_results$eval_results
-vary_results$plot_results
+vary_results$visualize_results
 ```
 
-Note here we need to use `update_*` instead of `add_*` since an `Evaluator` named "Rejection Prob. (alpha = 0.1)" and a `Plotter` named "Power" already exist in the  `Experiment`. Using `add_*` will throw an error.
+Note here we need to use `update_*` instead of `add_*` since an `Evaluator` named "Rejection Prob. (alpha = 0.1)" and a `Visualizer` named "Power" already exist in the  `Experiment`. Using `add_*` will throw an error.
 
-For fun, let's add another plot (in fact, an interactive plot using `plotly::ggplotly`) to our `Experiment` and run the `Experiment` across various values of the coefficient $\boldsymbol{\beta}_2$ and the correlation $\rho$ between features in $\mathbf{X}$. (Note: the plotter function below (`reject_prob_plot_fun`) takes in the `Evaluator` results, stored as `eval_results`, and plots the rejection probability for the $\boldsymbol{\beta}_1$ at $\alpha = 0.1$.)
+For fun, let's add another plot (in fact, an interactive plot using `plotly::ggplotly`) to our `Experiment` and run the `Experiment` across various values of the coefficient $\boldsymbol{\beta}_2$ and the correlation $\rho$ between features in $\mathbf{X}$. (Note: the visualizer function below (`reject_prob_plot_fun`) takes in the `Evaluator` results, stored as `eval_results`, and plots the rejection probability for the $\boldsymbol{\beta}_1$ at $\alpha = 0.1$.)
 
 ```{r}
 # create rejection probability plot
@@ -373,10 +371,10 @@ reject_prob_plot_fun <- function(eval_results, vary_params = NULL,
   }
   return(plotly::ggplotly(plt))
 }
-reject_prob_plot <- create_plotter(plot_fun = reject_prob_plot_fun, alpha = 0.1)
+reject_prob_plot <- create_visualizer(plot_fun = reject_prob_plot_fun, alpha = 0.1)
 
 experiment <- experiment %>%
-  add_plotter(reject_prob_plot, name = "Rejection Prob. (alpha = 0.1) Plot")
+  add_visualizer(reject_prob_plot, name = "Rejection Prob. (alpha = 0.1) Plot")
 
 # run experiment across values of beta_2
 vary_beta2_results <- experiment %>%
@@ -426,7 +424,7 @@ data.table::address(experiment) == data.table::address(vary_experiment)
 vary_experiment
 ```
 
-When creating an `Experiment` from a clone, we are making a deep clone of the parent experiment's `DGPs`, `Methods`, `Evaluators`, and `Plotters`, but not the `vary_across` component. We thus need to add a `vary_across` component to `vary_experiment` using `add_vary_across()`.
+When creating an `Experiment` from a clone, we are making a deep clone of the parent experiment's `DGPs`, `Methods`, `Evaluators`, and `Visualizers`, but not the `vary_across` component. We thus need to add a `vary_across` component to `vary_experiment` using `add_vary_across()`.
 
 ```{r}
 # this works without an error
@@ -434,7 +432,7 @@ vary_experiment <- vary_experiment %>%
   add_vary_across(dgp = "Linear Gaussian DGP", sigma = c(1, 2, 4, 8))
 ```
 
-We can also add/update DGPs, Methods, Evaluators, and Plotters to the cloned experiment without modifying the parent `experiment`.
+We can also add/update DGPs, Methods, Evaluators, and Visualizers to the cloned experiment without modifying the parent `experiment`.
 
 ```{r}
 # add DGP
@@ -464,12 +462,12 @@ The results can be found [here](linear_regression_output.html).
 
 In addition to showing all results under the root results directory, `create_rmd()` will automatically generate a blank documentation template for every `DGP()`, `Method()`, `Evaluator()`, and `Plot()` found in any one of the `Experiments` under the root results directory. If one would like to generate the documentation template but not create the R Markdown report, see `create_doc_template()`.
 
-There are also several customizable options regarding the aesthetics of the R Markdown output. These can be modified using the `rmd_options` argument in `create_evaluator()` and `create_plotter()`. For example, we can customize the height and width of the Power plot via
+There are also several customizable options regarding the aesthetics of the R Markdown output. These can be modified using the `rmd_options` argument in `create_evaluator()` and `create_visualizer()`. For example, we can customize the height and width of the Power plot via
 ```{r}
-power_plot <- create_plotter(plot_fun = power_plot_fun, 
+power_plot <- create_visualizer(plot_fun = power_plot_fun, 
                              rmd_options = list(height = 10, width = 8))
 experiment <- experiment %>%
-  update_plotter(power_plot, "Power")
+  update_visualizer(power_plot, "Power")
 ```
 
 and the number of digits in the evaluation table outputs via
@@ -480,14 +478,14 @@ experiment <- experiment %>%
   update_evaluator(reject_prob_eval, "Rejection Prob. (alpha = 0.1)")
 ```
 
-Alternatively, `set_rmd_options()` can be used to update the R Markdown option for an existing object, rather than having to recreate the `Evaluator()` or `Plotter()` from scratch, e.g.,
+Alternatively, `set_rmd_options()` can be used to update the R Markdown option for an existing object, rather than having to recreate the `Evaluator()` or `Visualizer()` from scratch, e.g.,
 ```{r}
 experiment <- experiment %>%
-  set_rmd_options(field_name = "plotter", name = "Power", show = TRUE,
+  set_rmd_options(field_name = "visualizer", name = "Power", show = TRUE,
                   height = 10, width = 8)
 ```
 
-To hide the output of an `Evaluator()` or `Plotter()` in the R Markdown report, set `show = FALSE` in `set_rmd_options()` or `create_*`.
+To hide the output of an `Evaluator()` or `Visualizer()` in the R Markdown report, set `show = FALSE` in `set_rmd_options()` or `create_*`.
 
 
 ## Saving results
@@ -506,12 +504,12 @@ For a concrete example of the saving structure, please refer to [this GitHub dir
 
 1. `experiment$fit()`: fit the Method(s) in the experiment on multiple repetitions of the DGP(s) and return the results from the fits
 2. `experiment$evaluate()`: evaluate the experiment through the Evaluator(s) and return the evaluation results
-3. `experiment$plot()`: plot visualizations of the fit/evaluation results from the experiment using the Plotter(s) and return the plot results
+3. `experiment$visualize()`: create visualizations of the fit/evaluation results from the experiment using the Visualizer(s) and return the visualization results
 
 ```{r}
 fit_results <- experiment$fit(n_reps = 100)
 eval_results <- experiment$evaluate(fit_results)
-plot_results <- experiment$plot(fit_results, eval_results)
+visualize_results <- experiment$visualize(fit_results, eval_results)
 ```
 
 or alternatively,
@@ -519,10 +517,10 @@ or alternatively,
 ```{r eval = FALSE}
 fit_results <- fit_experiment(experiment, n_reps = 100)
 eval_results <- evaluate_experiment(experiment, fit_results)
-plot_results <- plot_experiment(experiment, fit_results, eval_results)
+visualize_results <- visualize_experiment(experiment, fit_results, eval_results)
 ```
 
-`Experiment$run()` is simply a wrapper around these three functions: `fit()`, `evaluate()`, and `plot()`.
+`Experiment$run()` is simply a wrapper around these three functions: `fit()`, `evaluate()`, and `visualize()`.
 
 If the results have been saved to disk previously, and one would like to read in these saved results instead of re-running the experiment, the `use_cached` argument should be set to `TRUE`. If `use_cached = TRUE` but the experiment's results have not yet been saved to disk, then the experiment will proceed to run per usual.
 
@@ -546,7 +544,7 @@ Other helpful methods for handling the experiment include the `get_*` family of 
 experiment$get_dgps()
 experiment$get_methods()
 experiment$get_evaluators()
-experiment$get_plotters()
+experiment$get_visualizers()
 experiment$get_vary_across()
 ```
 

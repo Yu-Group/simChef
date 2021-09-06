@@ -18,5 +18,5 @@ directory.
 }
 \description{
 Set the directory in which the \code{Experiment}'s results and
-plots are saved.
+visualizations are saved.
 }

@@ -5,7 +5,7 @@
 \alias{add_dgp}
 \alias{add_method}
 \alias{add_evaluator}
-\alias{add_plotter}
+\alias{add_visualizer}
 \title{Helper functions for adding components to an \code{Experiment}.}
 \usage{
 add_dgp(experiment, dgp, name = NULL, ...)
@@ -14,7 +14,7 @@ add_method(experiment, method, name = NULL, ...)
 
 add_evaluator(experiment, evaluator, name = NULL, ...)
 
-add_plotter(experiment, plotter, name = NULL, ...)
+add_visualizer(experiment, visualizer, name = NULL, ...)
 }
 \arguments{
 \item{experiment}{An \code{Experiment} object.}
@@ -29,12 +29,12 @@ add_plotter(experiment, plotter, name = NULL, ...)
 
 \item{evaluator}{An \code{Evaluator} object.}
 
-\item{plotter}{A \code{Plotter} object.}
+\item{visualizer}{A \code{Visualizer} object.}
 }
 \value{
 The original \code{Experiment} object passed to \code{add_*}.
 }
 \description{
 Helper functions for adding \code{DGPs}, \code{Methods},
-\code{Evaluators}, and \code{Plotters} to an \code{Experiment}.
+\code{Evaluators}, and \code{Visualizers} to an \code{Experiment}.
 }

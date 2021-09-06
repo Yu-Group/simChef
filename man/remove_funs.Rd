@@ -5,7 +5,7 @@
 \alias{remove_dgp}
 \alias{remove_method}
 \alias{remove_evaluator}
-\alias{remove_plotter}
+\alias{remove_visualizer}
 \title{Helper functions for removing components of an \code{Experiment}.}
 \usage{
 remove_dgp(experiment, name, ...)
@@ -14,7 +14,7 @@ remove_method(experiment, name, ...)
 
 remove_evaluator(experiment, name, ...)
 
-remove_plotter(experiment, name, ...)
+remove_visualizer(experiment, name, ...)
 }
 \arguments{
 \item{name}{A name to identify the object to be removed.}
@@ -26,6 +26,6 @@ The original \code{Experiment} object passed to \code{remove_*}.
 }
 \description{
 Helper functions for removing \code{DGPs}, \code{Methods},
-\code{Evaluators}, and \code{Plotters} already added to an
+\code{Evaluators}, and \code{Visualizers} already added to an
 \code{Experiment}.
 }
