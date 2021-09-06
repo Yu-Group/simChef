@@ -32,6 +32,13 @@ Imports:
     tibble,
     tidyselect
 Suggests:
-    testthat (>= 3.0.0)
+    testthat (>= 3.0.0),
+    prettydoc,
+    MASS,
+    ggplot2,
+    plotly,
+    data.table,
+    broom,
+    glmnet
 VignetteBuilder: knitr
 Config/testthat/edition: 3
