@@ -153,5 +153,37 @@ For more details, run `vignette("simChef")`.
 
 ## Related R packages
 
-There are a number of existing tools in R to run reproducible simulation
-experiments. [TODO: examples and the functionality they provide]
+Below, we examine the main functionality of a number of existing tools for
+running reproducible simulation experiments that are currently available on
+[CRAN](https://cran.r-project.org/) and have been updated within the last couple
+of years.
+
+- [`batchtools`](https://mllg.github.io/batchtools/index.html) implements
+  abstractions for "problems" (similar to our DGP concept), "algorithms" (Method
+  in `simChef`), and "experiments". In addition to shared-memory computation via
+  the `parallel` and `snow` packages, it also provides a number of utilities for
+  working with high performance computing batch systems such as Slurm and
+  Torque, which `simChef` supports via the `future.batchtools` package.
+- [`SimDesign`](https://cran.r-project.org/web/packages/SimDesign/index.html)
+  provides helper functions to define experimental conditions and then pass
+  those experimental conditions to a user-defined data generation function,
+  analysis function, and summary function. The package also provides a number of
+  these functions for the user to choose from. Each experimental condition can
+  be run over many replicates, computing results in parallel via the `parallel`
+  package.
+- [`simhelpers`](https://meghapsimatrix.github.io/simhelpers/index.html) defines
+  functions to calculate Monte Carlo standard errors of simulation performance
+  metrics, generate skeleton simulation code, and evaluate in parallel across
+  simulation parameters via the `future` package.
+- The [`simTool`](http://marselscheer.github.io/simTool/index.html) package has
+  two main functions: `expand_tibble()` and `eval_tibble()`. The former wraps
+  the base R function `expand.grid()` to create a cartesian product of
+  simulation functions and parameters, while the latter evaluates those
+  functions in parallel via the `parallel` package.
+- The [`parSim`](https://github.com/SachaEpskamp/parSim) package implements a
+  single function of the same name which allows for parallelization of arbitrary
+  R expressions across replicates and simulation conditions. `parSim` uses the
+  `snow` package to setup parallel backends.
+- [`rsimsum`](https://ellessenne.github.io/rsimsum/index.html) is an R
+  implementation of the Stata command `simsum` and provides helper functions for
+  summarizing and visualizing the results of a simulation study.
