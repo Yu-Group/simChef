@@ -130,7 +130,7 @@ load when it comes to interpreting the results of the simulation experiment.
 create_rmd(experiment)
 ```
 
-![](figures/simchef.gif)
+![](man/figures/simchef.gif)
 
 ## Roadmap
 
