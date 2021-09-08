@@ -116,7 +116,6 @@ prettyKable <- function(X, digits = 3, sigfig = T, align = "c", caption = "",
   }
   
   X <- as.data.frame(X, row.names = rownames(X))
-  int_cols <- sapply(X, is.integer)
   
   # bold entries according to bold_function if specified
   if (is.null(bold_function)) {
@@ -128,10 +127,13 @@ prettyKable <- function(X, digits = 3, sigfig = T, align = "c", caption = "",
       bold_function <- stringr::str_replace(bold_function, "\\(.\\)", 
                                             "\\(X[, bold_scheme]\\)")
       kable_df <- X
+      int_cols <- sapply(X, is.integer)
     } else if (bold_margin == 1) {
       kable_df <- as.data.frame(t(X))
+      int_cols <- apply(X, 1, is.integer)
     } else if (bold_margin == 2) {
       kable_df <- X
+      int_cols <- sapply(X, is.integer)
     }
     
     for (f in unique(bold_function)) {
@@ -318,7 +320,6 @@ prettyDT <- function(X, digits = 3, sigfig = T,
   }
   
   X <- as.data.frame(X, row.names = rownames(X))
-  int_cols <- sapply(X, is.integer)
   
   # bold entries according to bold_function if specified
   if (is.null(bold_function)) {
@@ -330,10 +331,13 @@ prettyDT <- function(X, digits = 3, sigfig = T,
       bold_function <- stringr::str_replace(bold_function, "\\(.\\)", 
                                             "\\(X[, bold_scheme]\\)")
       dt_df <- X
+      int_cols <- sapply(X, is.integer)
     } else if (bold_margin == 1) {
       dt_df <- as.data.frame(t(X))
+      int_cols <- apply(X, 1, is.integer)
     } else if (bold_margin == 2) {
       dt_df <- X
+      int_cols <- sapply(X, is.integer)
     }
     
     for (f in unique(bold_function)) {
