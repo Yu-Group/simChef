@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Run the full Experiment pipeline (fitting, evaluating, and plotting). — run_experiment • pcs.sim.pkg</title>
+<title>Run the full Experiment pipeline (fitting, evaluating, and visualizing). — run_experiment • simChef</title>
 
 
 <!-- jquery -->
@@ -39,8 +39,8 @@
 
 
 
-<meta property="og:title" content="Run the full Experiment pipeline (fitting, evaluating, and plotting). — run_experiment" />
-<meta property="og:description" content="Run the full Experiment pipeline (fitting, evaluating, and plotting)." />
+<meta property="og:title" content="Run the full Experiment pipeline (fitting, evaluating, and visualizing). — run_experiment" />
+<meta property="og:description" content="Run the full Experiment pipeline (fitting, evaluating, and visualizing)." />
 
 
 
@@ -71,7 +71,7 @@
         <span class="icon-bar"></span>
       </button>
       <span class="navbar-brand">
-        <a class="navbar-link" href="../index.html">pcs.sim.pkg</a>
+        <a class="navbar-link" href="../index.html">simChef</a>
         <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.0.9000</span>
       </span>
     </div>
@@ -85,6 +85,9 @@
   </a>
 </li>
 <li>
+  <a href="../articles/simChef.html">Get started</a>
+</li>
+<li>
   <a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
@@ -96,9 +99,6 @@
   <ul class="dropdown-menu" role="menu">
     <li>
       <a href="../articles/parallel.html">Parallel strategies in `simChef`</a>
-    </li>
-    <li>
-      <a href="../articles/vignette.html">simChef Vignette</a>
     </li>
   </ul>
 </li>
@@ -118,13 +118,13 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Run the full <code>Experiment</code> pipeline (fitting, evaluating, and plotting).</h1>
+    <h1>Run the full <code>Experiment</code> pipeline (fitting, evaluating, and visualizing).</h1>
     
     <div class="hidden name"><code>run_experiment.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Run the full <code>Experiment</code> pipeline (fitting, evaluating, and plotting).</p>
+    <p>Run the full <code>Experiment</code> pipeline (fitting, evaluating, and visualizing).</p>
     </div>
 
     <pre class="usage"><span class='fu'>run_experiment</span><span class='op'>(</span><span class='va'>experiment</span>, n_reps <span class='op'>=</span> <span class='fl'>1</span>, <span class='va'>...</span><span class='op'>)</span></pre>
@@ -156,10 +156,10 @@ method. In addition to results columns, has columns named 'rep', 'dgp_name',
 <code>evaluate</code> method, which evaluates each <code>Evaluator</code> in
 the <code>Experiment</code>. Length of list is equivalent to the number of
 <code>Evaluators</code>.</p></dd>
-<dt>plot_results</dt><dd><p>A list of tibbles containing results from the
-<code>plot</code> method, which plots each <code>Plotter</code> in
+<dt>visualize_results</dt><dd><p>A list of tibbles containing results from the
+<code>visualize</code> method, which visualizes each <code>Visualizer</code> in
 the <code>Experiment</code>. Length of list is equivalent to the number of
-<code>Plotters</code>.</p></dd>
+<code>Visualizers</code>.</p></dd>
 
 </dl>
 
@@ -175,7 +175,7 @@ the <code>Experiment</code>. Length of list is equivalent to the number of
 
       <footer>
       <div class="copyright">
-  <p>Developed by James Duncan.</p>
+  <p>Developed by James Duncan, Tiffany Tang.</p>
 </div>
 
 <div class="pkgdown">

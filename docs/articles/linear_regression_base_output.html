@@ -6,7 +6,7 @@
     <meta name="generator" content="pandoc" />
 
     
-        <meta name="date" content="2021-09-04" />
+        <meta name="date" content="2021-09-06" />
     
     <title>Linear Regression Experiment</title>
     <!-- Material Design fonts -->
@@ -134,7 +134,7 @@
 	  	  <div id="header">
 	    <h1 class="title">Linear Regression Experiment</h1>
 	    	    	    	    <h4 class="author"></h4>
-	    	    	    	    <h4 class="date">September 04, 2021</h4>
+	    	    	    	    <h4 class="date">September 06, 2021</h4>
 	    	  </div>
 	  	</div>
       </div>
@@ -199,7 +199,7 @@ Linear Gaussian DGP
 #&gt;   y &lt;- X %*% beta + rnorm(n, sd = sigma)
 #&gt;   return(list(X = X, y = y))
 #&gt; }
-#&gt; &lt;bytecode: 0x7ff3e26b0b48&gt;</code></pre>
+#&gt; &lt;bytecode: 0x7feaed71c6c8&gt;</code></pre>
 <p><b>Input Parameters</b></p>
 <pre style="max-height: 200px;"><code>#&gt; $n
 #&gt; [1] 200
@@ -246,7 +246,7 @@ OLS
 #&gt;     setNames(paste(names(.), &quot;p-value&quot;))
 #&gt;   return(pvals)
 #&gt; }
-#&gt; &lt;bytecode: 0x7ff3dfd84fd0&gt;</code></pre>
+#&gt; &lt;bytecode: 0x7feada83aac8&gt;</code></pre>
 <p><b>Input Parameters</b></p>
 <pre style="max-height: 200px;"><code>#&gt; list()</code></pre>
 </div>
@@ -330,8 +330,8 @@ Power
 <h3 style="font-weight: bold">
 Rejection Prob. (alpha = 0.1)
 </h3>
-<div id="htmlwidget-7f23c895a4e398305524" style="width:100%;height:auto;" class="datatables html-widget"></div>
-<script type="application/json" data-for="htmlwidget-7f23c895a4e398305524">{"x":{"filter":"none","vertical":false,"caption":"<caption><\/caption>","data":[["1"],["Linear Gaussian DGP"],["OLS"],["<span style=\"     \" >1.00<\/span>"],["<span style=\"     \" >0.12<\/span>"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>dgp_name<\/th>\n      <th>method_name<\/th>\n      <th>X1 Reject Prob.<\/th>\n      <th>X2 Reject Prob.<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"scrollX":true,"scrollCollapse":true,"columnDefs":[{"className":"dt-center","targets":[1,2,3,4]},{"orderable":false,"targets":0}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-49ebe497a5e0db644834" style="width:100%;height:auto;" class="datatables html-widget"></div>
+<script type="application/json" data-for="htmlwidget-49ebe497a5e0db644834">{"x":{"filter":"none","vertical":false,"caption":"<caption><\/caption>","data":[["1"],["Linear Gaussian DGP"],["OLS"],["<span style=\"     \" >1.00<\/span>"],["<span style=\"     \" >0.12<\/span>"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>dgp_name<\/th>\n      <th>method_name<\/th>\n      <th>X1 Reject Prob.<\/th>\n      <th>X2 Reject Prob.<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"scrollX":true,"scrollCollapse":true,"columnDefs":[{"className":"dt-center","targets":[1,2,3,4]},{"orderable":false,"targets":0}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
 </div>
 <div id="section-14" class="section level3 tabset tabset-pills tabset-fade tabset-square">
 <h3 class="tabset tabset-pills tabset-fade tabset-square"><svg aria-hidden="true" role="img" viewBox="0 0 512 512" style="height:1em;width:1em;vertical-align:-0.125em;margin-left:auto;margin-right:auto;font-size:inherit;fill:white;overflow:visible;position:relative;"><path d="M332.8 320h38.4c6.4 0 12.8-6.4 12.8-12.8V172.8c0-6.4-6.4-12.8-12.8-12.8h-38.4c-6.4 0-12.8 6.4-12.8 12.8v134.4c0 6.4 6.4 12.8 12.8 12.8zm96 0h38.4c6.4 0 12.8-6.4 12.8-12.8V76.8c0-6.4-6.4-12.8-12.8-12.8h-38.4c-6.4 0-12.8 6.4-12.8 12.8v230.4c0 6.4 6.4 12.8 12.8 12.8zm-288 0h38.4c6.4 0 12.8-6.4 12.8-12.8v-70.4c0-6.4-6.4-12.8-12.8-12.8h-38.4c-6.4 0-12.8 6.4-12.8 12.8v70.4c0 6.4 6.4 12.8 12.8 12.8zm96 0h38.4c6.4 0 12.8-6.4 12.8-12.8V108.8c0-6.4-6.4-12.8-12.8-12.8h-38.4c-6.4 0-12.8 6.4-12.8 12.8v198.4c0 6.4 6.4 12.8 12.8 12.8zM496 384H64V80c0-8.84-7.16-16-16-16H16C7.16 64 0 71.16 0 80v336c0 17.67 14.33 32 32 32h464c8.84 0 16-7.16 16-16v-32c0-8.84-7.16-16-16-16z"></path></svg></h3>

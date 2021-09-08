@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>R6 class representing a simulation experiment. — Experiment • pcs.sim.pkg</title>
+<title>R6 class representing a simulation experiment. — Experiment • simChef</title>
 
 
 <!-- jquery -->
@@ -41,7 +41,7 @@
 
 <meta property="og:title" content="R6 class representing a simulation experiment. — Experiment" />
 <meta property="og:description" content="A simulation experiment with any number of DGPs,
-Methods, Evaluators, and Plotters." />
+Methods, Evaluators, and Visualizers." />
 
 
 
@@ -72,7 +72,7 @@ Methods, Evaluators, and Plotters." />
         <span class="icon-bar"></span>
       </button>
       <span class="navbar-brand">
-        <a class="navbar-link" href="../index.html">pcs.sim.pkg</a>
+        <a class="navbar-link" href="../index.html">simChef</a>
         <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.0.9000</span>
       </span>
     </div>
@@ -86,6 +86,9 @@ Methods, Evaluators, and Plotters." />
   </a>
 </li>
 <li>
+  <a href="../articles/simChef.html">Get started</a>
+</li>
+<li>
   <a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
@@ -97,9 +100,6 @@ Methods, Evaluators, and Plotters." />
   <ul class="dropdown-menu" role="menu">
     <li>
       <a href="../articles/parallel.html">Parallel strategies in `simChef`</a>
-    </li>
-    <li>
-      <a href="../articles/vignette.html">simChef Vignette</a>
     </li>
   </ul>
 </li>
@@ -126,7 +126,7 @@ Methods, Evaluators, and Plotters." />
 
     <div class="ref-description">
     <p>A simulation experiment with any number of <code>DGPs</code>,
-<code>Methods</code>, <code>Evaluators</code>, and <code>Plotters</code>.</p>
+<code>Methods</code>, <code>Evaluators</code>, and <code>Visualizers</code>.</p>
     </div>
 
 
@@ -135,7 +135,7 @@ Methods, Evaluators, and Plotters." />
 
     <p>When run, an <code>Experiment</code> seamlessly combines <code>DGPs</code> and
 <code>Methods</code>, computing results in parallel. Those results can then be
-evaluated using <code>Evaluators</code> and plotted using <code>Plotters</code>.</p>
+evaluated using <code>Evaluators</code> and visualized using <code>Visualizers</code>.</p>
     <h2 class="hasAnchor" id="public-fields"><a class="anchor" href="#public-fields"></a>Public fields</h2>
 
     <p><div class="r6-fields"></p><dl>
@@ -153,7 +153,7 @@ evaluated using <code>Evaluators</code> and plotted using <code>Plotters</code>.
 <li><p><a href='#method-generate_data'><code>Experiment$generate_data()</code></a></p></li>
 <li><p><a href='#method-fit'><code>Experiment$fit()</code></a></p></li>
 <li><p><a href='#method-evaluate'><code>Experiment$evaluate()</code></a></p></li>
-<li><p><a href='#method-plot'><code>Experiment$plot()</code></a></p></li>
+<li><p><a href='#method-visualize'><code>Experiment$visualize()</code></a></p></li>
 <li><p><a href='#method-create_doc_template'><code>Experiment$create_doc_template()</code></a></p></li>
 <li><p><a href='#method-create_rmd'><code>Experiment$create_rmd()</code></a></p></li>
 <li><p><a href='#method-add_dgp'><code>Experiment$add_dgp()</code></a></p></li>
@@ -168,10 +168,10 @@ evaluated using <code>Evaluators</code> and plotted using <code>Plotters</code>.
 <li><p><a href='#method-update_evaluator'><code>Experiment$update_evaluator()</code></a></p></li>
 <li><p><a href='#method-remove_evaluator'><code>Experiment$remove_evaluator()</code></a></p></li>
 <li><p><a href='#method-get_evaluators'><code>Experiment$get_evaluators()</code></a></p></li>
-<li><p><a href='#method-add_plotter'><code>Experiment$add_plotter()</code></a></p></li>
-<li><p><a href='#method-update_plotter'><code>Experiment$update_plotter()</code></a></p></li>
-<li><p><a href='#method-remove_plotter'><code>Experiment$remove_plotter()</code></a></p></li>
-<li><p><a href='#method-get_plotters'><code>Experiment$get_plotters()</code></a></p></li>
+<li><p><a href='#method-add_visualizer'><code>Experiment$add_visualizer()</code></a></p></li>
+<li><p><a href='#method-update_visualizer'><code>Experiment$update_visualizer()</code></a></p></li>
+<li><p><a href='#method-remove_visualizer'><code>Experiment$remove_visualizer()</code></a></p></li>
+<li><p><a href='#method-get_visualizers'><code>Experiment$get_visualizers()</code></a></p></li>
 <li><p><a href='#method-add_vary_across'><code>Experiment$add_vary_across()</code></a></p></li>
 <li><p><a href='#method-update_vary_across'><code>Experiment$update_vary_across()</code></a></p></li>
 <li><p><a href='#method-remove_vary_across'><code>Experiment$remove_vary_across()</code></a></p></li>
@@ -191,7 +191,7 @@ evaluated using <code>Evaluators</code> and plotted using <code>Plotters</code>.
   dgp_list <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span><span class='op'>)</span>,
   method_list <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span><span class='op'>)</span>,
   evaluator_list <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span><span class='op'>)</span>,
-  plotter_list <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span><span class='op'>)</span>,
+  visualizer_list <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span><span class='op'>)</span>,
   future.globals <span class='op'>=</span> <span class='cn'>TRUE</span>,
   future.packages <span class='op'>=</span> <span class='cn'>NULL</span>,
   clone_from <span class='op'>=</span> <span class='cn'>NULL</span>,
@@ -209,7 +209,7 @@ evaluated using <code>Evaluators</code> and plotted using <code>Plotters</code>.
 
 <dt><code>evaluator_list</code></dt><dd><p>An optional list of <code>Evaluator</code> objects.</p></dd>
 
-<dt><code>plotter_list</code></dt><dd><p>An optional list of <code>Plotter</code> objects.</p></dd>
+<dt><code>visualizer_list</code></dt><dd><p>An optional list of <code>Visualizer</code> objects.</p></dd>
 
 <dt><code>future.globals</code></dt><dd><p>Character vector of names in the global environment
 to pass to parallel workers. Passed as the argument of the same name to
@@ -238,7 +238,7 @@ results. If <code>NULL</code>, results are saved at
 <p><hr>
 <a id="method-run"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>run()</code></h3>
 <p>Run the entire simulation experiment pipeline (fitting,
-evaluating, and plotting).</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+evaluating, and visualizing).</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
 <p><div class="r"></p><pre><span class='va'>Experiment</span><span class='op'>$</span><span class='fu'>run</span><span class='op'>(</span>
   n_reps <span class='op'>=</span> <span class='fl'>1</span>,
   parallel_strategy <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"reps"</span><span class='op'>)</span>,
@@ -274,10 +274,10 @@ experiment, use the same argument during initialization.</p></dd>
 <dt><code>use_cached</code></dt><dd><p>If <code>TRUE</code>, find and return previously saved
 results. If cached results cannot be found, run experiment anyways.
 Can also be a vector with some combination of "fit",
-"eval", or "plot" to use their respective cached results.</p></dd>
+"eval", or "visualize" to use their respective cached results.</p></dd>
 
 <dt><code>save</code></dt><dd><p>If <code>TRUE</code>, save results to disk. Can also be a vector
-with some combination of "fit", "eval", or "plot" to save to disk.</p></dd>
+with some combination of "fit", "eval", or "visualize" to save to disk.</p></dd>
 
 <dt><code>verbose</code></dt><dd><p>Level of verboseness. Default is 1, which prints out
 messages after major checkpoints in the experiment. If 0, no messages
@@ -296,10 +296,10 @@ if applicable.</p></dd>
 <code>evaluate</code> method, which evaluates each <code>Evaluator</code> in
 the <code>Experiment</code>. Length of list is equivalent to the number of
 <code>Evaluators</code>.</p></dd>
-<dt>plot_results</dt><dd><p>A list of tibbles containing results from the
-<code>plot</code> method, which plots each <code>Plotter</code> in
+<dt>visualize_results</dt><dd><p>A list of tibbles containing results from the
+<code>visualize</code> method, which visualizes each <code>Visualizer</code> in
 the <code>Experiment</code>. Length of list is equivalent to the number of
-<code>Plotters</code>.</p></dd>
+<code>Visualizers</code>.</p></dd>
 
 </dl>
 
@@ -413,11 +413,11 @@ are printed.</p></dd>
 <p>A list of evaluation result tibbles, one for each
 <code>Evaluator</code>.</p>
 <p><hr>
-<a id="method-plot"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code><a href='https://rdrr.io/r/graphics/plot.default.html'>plot()</a></code></h3>
-<p>Plot the performance of methods and/or its evaluation
-metrics using all <code>Plotters</code> in the <code>Experiment</code> and return
-plot results.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
-<p><div class="r"></p><pre><span class='va'>Experiment</span><span class='op'>$</span><span class='fu'>plot</span><span class='op'>(</span>
+<a id="method-visualize"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>visualize()</code></h3>
+<p>Visualize the performance of methods and/or its evaluation
+metrics using all <code>Visualizers</code> in the <code>Experiment</code> and return
+visualization results.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p><div class="r"></p><pre><span class='va'>Experiment</span><span class='op'>$</span><span class='fu'>visualize</span><span class='op'>(</span>
   fit_results <span class='op'>=</span> <span class='cn'>NULL</span>,
   eval_results <span class='op'>=</span> <span class='cn'>NULL</span>,
   use_cached <span class='op'>=</span> <span class='cn'>FALSE</span>,
@@ -434,9 +434,9 @@ plot results.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#a
 <code>evaluate</code> method.</p></dd>
 
 <dt><code>use_cached</code></dt><dd><p>If <code>TRUE</code>, find and return previously saved
-results. If cached results cannot be found, plot experiment anyways.</p></dd>
+results. If cached results cannot be found, visualize experiment anyways.</p></dd>
 
-<dt><code>save</code></dt><dd><p>If <code>TRUE</code>, save plots to disk.</p></dd>
+<dt><code>save</code></dt><dd><p>If <code>TRUE</code>, save visuals to disk.</p></dd>
 
 <dt><code>verbose</code></dt><dd><p>Level of verboseness. Default is 1, which prints out
 messages after major checkpoints int the experiment. If 0, no messages
@@ -446,7 +446,7 @@ are printed.</p></dd>
 
 </dl><p></div></p>
 <h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Returns</h4>
-<p>A list of plots, one for each <code>Plotter</code>.</p>
+<p>A list of visuals, one for each <code>Visualizer</code>.</p>
 <p><hr>
 <a id="method-create_doc_template"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code><a href='create_doc_template.html'>create_doc_template()</a></code></h3>
 <p>Create documentation template (a series of .md files) to
@@ -644,58 +644,58 @@ Default is 2.</p></dd>
 <h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Returns</h4>
 <p>A list of <code>Evaluator</code> objects in the <code>Experiment</code>.</p>
 <p><hr>
-<a id="method-add_plotter"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code><a href='add_funs.html'>add_plotter()</a></code></h3>
-<p>Add a new <code>Plotter</code> to the <code>Experiment</code>.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
-<p><div class="r"></p><pre><span class='va'>Experiment</span><span class='op'>$</span><span class='fu'>add_plotter</span><span class='op'>(</span><span class='va'>plotter</span>, name <span class='op'>=</span> <span class='cn'>NULL</span>, <span class='va'>...</span><span class='op'>)</span></pre><p></div></p>
+<a id="method-add_visualizer"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code><a href='add_funs.html'>add_visualizer()</a></code></h3>
+<p>Add a new <code>Visualizer</code> to the <code>Experiment</code>.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p><div class="r"></p><pre><span class='va'>Experiment</span><span class='op'>$</span><span class='fu'>add_visualizer</span><span class='op'>(</span><span class='va'>visualizer</span>, name <span class='op'>=</span> <span class='cn'>NULL</span>, <span class='va'>...</span><span class='op'>)</span></pre><p></div></p>
 
 <h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
 <p><div class="arguments"></p><dl>
-<dt><code>plotter</code></dt><dd><p>A <code>Plotter</code> object.</p></dd>
+<dt><code>visualizer</code></dt><dd><p>A <code>Visualizer</code> object.</p></dd>
 
-<dt><code>name</code></dt><dd><p>Name of <code>Plotter</code>.</p></dd>
+<dt><code>name</code></dt><dd><p>Name of <code>Visualizer</code>.</p></dd>
 
 <dt><code>...</code></dt><dd><p>Not used.</p></dd>
 
 </dl><p></div></p>
 <h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Returns</h4>
-<p>The original <code>Experiment</code> object with the <code>Plotter</code> added.</p>
+<p>The original <code>Experiment</code> object with the <code>Visualizer</code> added.</p>
 <p><hr>
-<a id="method-update_plotter"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code><a href='update_funs.html'>update_plotter()</a></code></h3>
-<p>Update an existing <code>Plotter</code> in the <code>Experiment</code>.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
-<p><div class="r"></p><pre><span class='va'>Experiment</span><span class='op'>$</span><span class='fu'>update_plotter</span><span class='op'>(</span><span class='va'>plotter</span>, <span class='va'>name</span>, <span class='va'>...</span><span class='op'>)</span></pre><p></div></p>
+<a id="method-update_visualizer"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code><a href='update_funs.html'>update_visualizer()</a></code></h3>
+<p>Update an existing <code>Visualizer</code> in the <code>Experiment</code>.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p><div class="r"></p><pre><span class='va'>Experiment</span><span class='op'>$</span><span class='fu'>update_visualizer</span><span class='op'>(</span><span class='va'>visualizer</span>, <span class='va'>name</span>, <span class='va'>...</span><span class='op'>)</span></pre><p></div></p>
 
 <h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
 <p><div class="arguments"></p><dl>
-<dt><code>plotter</code></dt><dd><p>A <code>Plotter</code> object.</p></dd>
+<dt><code>visualizer</code></dt><dd><p>A <code>Visualizer</code> object.</p></dd>
 
-<dt><code>name</code></dt><dd><p>Name of existing <code>Plotter</code> to update.</p></dd>
+<dt><code>name</code></dt><dd><p>Name of existing <code>Visualizer</code> to update.</p></dd>
 
 <dt><code>...</code></dt><dd><p>Not used.</p></dd>
 
 </dl><p></div></p>
 <h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Returns</h4>
-<p>The original <code>Experiment</code> object with the updated <code>Plotter</code>.</p>
+<p>The original <code>Experiment</code> object with the updated <code>Visualizer</code>.</p>
 <p><hr>
-<a id="method-remove_plotter"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code><a href='remove_funs.html'>remove_plotter()</a></code></h3>
-<p>Remove a <code>Plotter</code> from the <code>Experiment</code>.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
-<p><div class="r"></p><pre><span class='va'>Experiment</span><span class='op'>$</span><span class='fu'>remove_plotter</span><span class='op'>(</span><span class='va'>name</span>, <span class='va'>...</span><span class='op'>)</span></pre><p></div></p>
+<a id="method-remove_visualizer"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code><a href='remove_funs.html'>remove_visualizer()</a></code></h3>
+<p>Remove a <code>Visualizer</code> from the <code>Experiment</code>.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p><div class="r"></p><pre><span class='va'>Experiment</span><span class='op'>$</span><span class='fu'>remove_visualizer</span><span class='op'>(</span><span class='va'>name</span>, <span class='va'>...</span><span class='op'>)</span></pre><p></div></p>
 
 <h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
 <p><div class="arguments"></p><dl>
-<dt><code>name</code></dt><dd><p>Name of <code>Plotter</code> to remove.</p></dd>
+<dt><code>name</code></dt><dd><p>Name of <code>Visualizer</code> to remove.</p></dd>
 
 <dt><code>...</code></dt><dd><p>Not used.</p></dd>
 
 </dl><p></div></p>
 <h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Returns</h4>
-<p>The original <code>Experiment</code> object with the <code>Plotter</code> removed.</p>
+<p>The original <code>Experiment</code> object with the <code>Visualizer</code> removed.</p>
 <p><hr>
-<a id="method-get_plotters"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>get_plotters()</code></h3>
-<p>Get all <code>Plotters</code> in the <code>Experiment</code>.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
-<p><div class="r"></p><pre><span class='va'>Experiment</span><span class='op'>$</span><span class='fu'>get_plotters</span><span class='op'>(</span><span class='op'>)</span></pre><p></div></p>
+<a id="method-get_visualizers"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>get_visualizers()</code></h3>
+<p>Get all <code>Visualizers</code> in the <code>Experiment</code>.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p><div class="r"></p><pre><span class='va'>Experiment</span><span class='op'>$</span><span class='fu'>get_visualizers</span><span class='op'>(</span><span class='op'>)</span></pre><p></div></p>
 
 <h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Returns</h4>
-<p>A list of <code>Plotter</code> objects in the <code>Experiment</code>.</p>
+<p>A list of <code>Visualizer</code> objects in the <code>Experiment</code>.</p>
 <p><hr>
 <a id="method-add_vary_across"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code><a href='vary_across.html'>add_vary_across()</a></code></h3>
 <p>Add a <code>vary_across</code> component to the <code>Experiment</code>.
@@ -787,28 +787,28 @@ corresponding user-specified <code>DGP</code>/<code>Method</code> function.</p>
 <p><hr>
 <a id="method-set_rmd_options"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code><a href='set_rmd_options.html'>set_rmd_options()</a></code></h3>
 <p>Set R Markdown options for displaying <code>Evaluator</code> or
-<code>Plotter</code> outputs in the summary report.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<code>Visualizer</code> outputs in the summary report.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
 <p><div class="r"></p><pre><span class='va'>Experiment</span><span class='op'>$</span><span class='fu'>set_rmd_options</span><span class='op'>(</span><span class='va'>field_name</span>, <span class='va'>name</span>, show <span class='op'>=</span> <span class='cn'>NULL</span>, <span class='va'>...</span><span class='op'>)</span></pre><p></div></p>
 
 <h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
 <p><div class="arguments"></p><dl>
-<dt><code>field_name</code></dt><dd><p>One of "evaluator" or "plotter".</p></dd>
+<dt><code>field_name</code></dt><dd><p>One of "evaluator" or "visualizer".</p></dd>
 
-<dt><code>name</code></dt><dd><p>Name of <code>Evaluator</code> or <code>Plotter</code> to set R Markdown
+<dt><code>name</code></dt><dd><p>Name of <code>Evaluator</code> or <code>Visualizer</code> to set R Markdown
 options.</p></dd>
 
 <dt><code>show</code></dt><dd><p>If <code>TRUE</code>, show output; if <code>FALSE</code>, hide output in
 R Markdown report. Default <code>NULL</code> does not change the "show" field
-in <code>Evaluator</code>/<code>Plotter</code>.</p></dd>
+in <code>Evaluator</code>/<code>Visualizer</code>.</p></dd>
 
-<dt><code>...</code></dt><dd><p>Named R Markdown options to set. If <code>field_name = "plotter"</code>,
+<dt><code>...</code></dt><dd><p>Named R Markdown options to set. If <code>field_name = "visualizer"</code>,
 options are "height" and "width". If <code>field_name = "evaluator"</code>,
 see options for <code><a href='prettyDT.html'>prettyDT()</a></code>.</p></dd>
 
 </dl><p></div></p>
 <h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Returns</h4>
 <p>The original <code>Experiment</code> object with the <code>rmd_options</code>
-and/or <code>show</code> fields modified in the <code>Evaluator</code>/<code>Plotter</code>.</p>
+and/or <code>show</code> fields modified in the <code>Evaluator</code>/<code>Visualizer</code>.</p>
 <p><hr>
 <a id="method-get_save_dir"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>get_save_dir()</code></h3>
 <p>Get the directory in which the <code>Experiment</code>'s results
@@ -843,7 +843,7 @@ directory.</p>
 <a id="method-print"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code><a href='https://rdrr.io/r/base/print.html'>print()</a></code></h3>
 <p>Print an <code>Experiment</code> in a nice format, showing the
 names of all <code>DGPs</code>, <code>Methods</code>, <code>Evaluators</code>, and
-<code>Plotters</code> in addition to the directory where results are saved
+<code>Visualizers</code> in addition to the directory where results are saved
 and the <code>vary_across</code> component (if any).</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
 <p><div class="r"></p><pre><span class='va'>Experiment</span><span class='op'>$</span><span class='fu'>print</span><span class='op'>(</span><span class='op'>)</span></pre><p></div></p>
 
@@ -873,7 +873,7 @@ and the <code>vary_across</code> component (if any).</p><h4 class='hasAnchor' id
 
       <footer>
       <div class="copyright">
-  <p>Developed by James Duncan.</p>
+  <p>Developed by James Duncan, Tiffany Tang.</p>
 </div>
 
 <div class="pkgdown">

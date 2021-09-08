@@ -61,9 +61,11 @@ check_equal <- function(obj1, obj2) {
   }
   # check if function and function parameters are equal
   if (!identical(obj1[[paste0(class_name, "_fun")]],
-                 obj2[[paste0(class_name, "_fun")]]) |
+                 obj2[[paste0(class_name, "_fun")]],
+                 ignore.environment = TRUE) |
       !identical(obj1[[paste0(class_name, "_params")]],
-                 obj2[[paste0(class_name, "_params")]])) {
+                 obj2[[paste0(class_name, "_params")]],
+                 ignore.environment = TRUE)) {
     return(FALSE)
   }
   return(TRUE)

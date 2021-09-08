@@ -5,15 +5,16 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Intensive Computational Experiments Made Easy • pcs.sim.pkg</title>
+<title>Intensive Computational Experiments Made Easy • simChef</title>
 <!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script><!-- Bootstrap --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha256-bZLfwXAP04zRMK2BjiO8iu9pf4FbLqX6zitd+tIvLhE=" crossorigin="anonymous">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script><!-- bootstrap-toc --><link rel="stylesheet" href="bootstrap-toc.css">
 <script src="bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="pkgdown.css" rel="stylesheet">
 <script src="pkgdown.js"></script><meta property="og:title" content="Intensive Computational Experiments Made Easy">
-<meta property="og:description" content='Provides opinionated assistance with creating computational
-             experiments (a.k.a., \"simulations\").'>
+<meta property="og:description" content="Helps cook up the code necessary to create a fully-realized,
+             high-quality, reproducible, and transparently documented simulation
+             experiment.">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
@@ -31,7 +32,7 @@
         <span class="icon-bar"></span>
       </button>
       <span class="navbar-brand">
-        <a class="navbar-link" href="index.html">pcs.sim.pkg</a>
+        <a class="navbar-link" href="index.html">simChef</a>
         <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.0.9000</span>
       </span>
     </div>
@@ -45,6 +46,9 @@
   </a>
 </li>
 <li>
+  <a href="articles/simChef.html">Get started</a>
+</li>
+<li>
   <a href="reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
@@ -56,9 +60,6 @@
   <ul class="dropdown-menu" role="menu">
 <li>
       <a href="articles/parallel.html">Parallel strategies in `simChef`</a>
-    </li>
-    <li>
-      <a href="articles/vignette.html">simChef Vignette</a>
     </li>
   </ul>
 </li>
@@ -75,22 +76,170 @@
 
       </header><div class="row">
   <div class="contents col-md-9">
-Provides opinionated assistance with creating computational
-             experiments (a.k.a., \"simulations\").
+
+<div id="welcome-to-simchef" class="section level2">
+<h2 class="hasAnchor">
+<a href="#welcome-to-simchef" class="anchor"></a>Welcome to <code>simChef</code>!</h2>
+<p><code>simChef</code> helps you to cook up the code necessary to create a fully-realized, high-quality, reproducible, and transparently documented simulation experiment.</p>
+<div id="installation" class="section level3">
+<h3 class="hasAnchor">
+<a href="#installation" class="anchor"></a>Installation</h3>
+<p><code>simChef</code> is under active development. To install the package directly from GitHub, please use:</p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org//reference/remote-reexports.html">install_github</a></span><span class="op">(</span><span class="st">"Yu-Group/simChef"</span><span class="op">)</span></code></pre></div>
+</div>
+</div>
+<div id="background" class="section level2">
+<h2 class="hasAnchor">
+<a href="#background" class="anchor"></a>Background</h2>
+<p>In their 2020 paper “Veridical Data Science”, Yu and Kumbier propose the predictability, computability, and stability (PCS) framework, a workflow and documentation for “responsible, reliable, reproducible, and transparent results across the data science life cycle”. Under the umbrella of the PCS framework, we began the process of deriving a set of guidelines tailored specifically for simulation experiments, inspired by both high-quality simulation experiments from the literature and our own experiments to examine the statistical properties of methods within the PCS framework.</p>
+<p>In creating our own experiments, we soon found that no existing R package could fully satisfy our developing requirements. <code>simChef</code> is our attempt to provide both a testbed and a computational home for the ongoing development of the PCS simulation guidelines, an intuitive recipe for veridical simulation experiments. We believe these tools will be useful for anyone intending to create their own simulation experiments in R.</p>
+<p>Let’s use the components of a high-quality meal as analogies for a high-quality simulation experiment:</p>
+<ul>
+<li>
+<strong>Nutritious and delicious ingredients</strong> – All good meals start with good ingredients, and the same is true of simulation experiments. If realistic simulation data (synthetic or derived from real-world data) is not available, then there is no hope of producing high-quality simulations. <code>simChef</code> lowers the difficulty of creating realistic simulation scenarios and makes incorporating real data a breeze.</li>
+<li>
+<strong>Skill and experience of the chef</strong> – Just as every chef’s cooking is informed by the handful of cuisines in which they specialize, simulation experiments are motivated by scientific questions from a particular domain. <code>simChef</code> takes care of the details of running your experiments across the potentially large number of data and model perturbations you care about so that you can focus on your scientific question.</li>
+<li>
+<strong>High-quality tools in the kitchen</strong> – Our package should be like an excellent chef’s knife or other kitchen essential. If a chef’s knife doesn’t cut straight or isn’t sharpened, then kitchen speed and safety suffers, as does the final presentation. <code>simChef</code> won’t cook a good simulation experiment for you, but it will get you there with less effort and higher-quality presentation while helping you follow best-practice guidelines with minimal effort on your part. No sharpening required!</li>
+<li>
+<strong>A high-quality meal is possible in almost any environment</strong> – While the scale of a delicious meal may be limited by environment, high-quality meals are not only found in the world’s Michelin-starred restaurants but also in home kitchens and street food carts around the world. An effective simulation framework should also be agnostic to environment, and <code>simChef</code> runs equally well on your laptop as on a high-performance computing cluster.</li>
+<li>
+<strong>Appetizing and approachable presentation</strong> – Ultimately, a chef prepares food for a specific audience, and presentation is almost equal in importance to the underlying substance of the meal. However, a chef doesn’t have to build the plate on which they serve their food. <code>simChef</code> provides tools to turn your simulation experiment results into effective displays of quantitative information which are populated within preset and customizable R Markdown templates.</li>
+</ul>
+</div>
+<div id="a-grammar-of-simulation-experiments" class="section level2">
+<h2 class="hasAnchor">
+<a href="#a-grammar-of-simulation-experiments" class="anchor"></a>A grammar of simulation experiments</h2>
+<p>When we designed the API for <code>simChef</code>, we placed a strong emphasis on creating a meaningful API that would enable an intuitive grammar of simulation experiments. For example, the following creates an experiment, adds data-generating processes and a method, adds parameters of the data-generating process and method to vary across, and finally runs the experiment.</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">experiment</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/create_experiment.html">create_experiment</a></span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="reference/add_funs.html">add_dgp</a></span><span class="op">(</span><span class="va">dgp1</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="reference/add_funs.html">add_dgp</a></span><span class="op">(</span><span class="va">dgp2</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="reference/add_funs.html">add_method</a></span><span class="op">(</span><span class="va">method1</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="reference/vary_across.html">add_vary_across</a></span><span class="op">(</span>
+    dgp <span class="op">=</span> <span class="va">dgp1</span>,
+    n <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">100</span>, <span class="fl">1000</span>, <span class="fl">10000</span><span class="op">)</span>
+  <span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="reference/vary_across.html">add_vary_across</a></span><span class="op">(</span>
+    method <span class="op">=</span> <span class="va">method1</span>,
+    lambda <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">0.5</span>, <span class="fl">1.0</span><span class="op">)</span>
+  <span class="op">)</span>
+
+<span class="va">results</span> <span class="op">&lt;-</span> <span class="va">experiment</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="reference/run_experiment.html">run_experiment</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
+<p>For more details, run <code><a href="articles/simChef.html">vignette("simChef")</a></code>.</p>
+<div id="api-definitions" class="section level3">
+<h3 class="hasAnchor">
+<a href="#api-definitions" class="anchor"></a>API Definitions</h3>
+<ul>
+<li>
+<strong>Simulation</strong>: A collection of experiments.</li>
+<li>
+<strong>Simulation Experiment</strong>: A collection of related data-generating processes, methods, method evaluators, and result visualizers. An experiment is designed to answer a well-defined question.</li>
+<li>
+<strong>Data-generating process (DGP)</strong>: A DGP generates data (duh!). This could be entirely synthetic data, or it could be derived from some real-world dataset with a perturbation of some sort (e.g., added noise of various types, {re,sub}sampling, transformations, etc.).</li>
+<li>
+<strong>Method</strong>: Methods are often (but not always!) the target of the scientific questions we are trying to answer via the simulation experiments. They take in data and return a result of some sort (e.g., statistical estimates, predictions, confidence/perturbation intervals, significance/interpretability/importance metrics, etc.).</li>
+<li>
+<strong>Evaluator</strong>: An evaluator evaluates the experiment by computing the specified metrics across many independent replicates of the experimental pipeline , i.e. generate some data and compute results using all compatible methods for that data, repeating for every DGP in the experiment.</li>
+<li>
+<strong>Visualizer</strong>: A visualizer communicates results from a method or evaluator in some user-friendly way. For example, a visualizer might create tables, plots, or even an R Markdown snippet to display within a larger document.</li>
+</ul>
+</div>
+</div>
+<div id="automated-generation-of-results" class="section level2">
+<h2 class="hasAnchor">
+<a href="#automated-generation-of-results" class="anchor"></a>Automated generation of results</h2>
+<p>In addition to the intuitive and simple grammar, we have made visualizing the simulation experiment’s results as easy as possible. With the following line of code, the simulation experiment’s results are automatically populated into a beautiful and clickable html file (generated via R Markdown). The hope is to encourage proper documentation of the simulation experiment and to lighten the load when it comes to interpreting the results of the simulation experiment.</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="reference/create_rmd.html">create_rmd</a></span><span class="op">(</span><span class="va">experiment</span><span class="op">)</span></code></pre></div>
+<p><img src="reference/figures/simchef.gif"></p>
+</div>
+<div id="roadmap" class="section level2">
+<h2 class="hasAnchor">
+<a href="#roadmap" class="anchor"></a>Roadmap</h2>
+<ul class="task-list">
+<li>
+<input type="checkbox" disabled checked>
+Implement an abstract API to allow for a grammar of simulation experiments.</li>
+<li>
+<input type="checkbox" disabled checked>
+Run simulation experiments in parallel and agnostic to computational backend via the R package <code>future</code>.</li>
+<li>
+<input type="checkbox" disabled checked>
+Output an R Markdown report summarizing the results of an Experiment.</li>
+<li>
+<input type="checkbox" disabled checked>
+Allow for varying simulation experiments across arbitrary parameters of DGPs and Methods.</li>
+<li>
+<input type="checkbox" disabled checked>
+Give user the ability to choose which tasks are distributed to parallel workers, i.e. simulation replicates, DGPs, Methods, or combinations of the three.</li>
+<li>
+<input type="checkbox" disabled>
+Cache results to avoid re-running already computed components of an Experiment.</li>
+<li>
+<input type="checkbox" disabled>
+Gracefully handle errors from user-defined functions and returns error information for user to inspect upon completion.</li>
+<li>
+<input type="checkbox" disabled>
+Checkpoint simulations to avoid losing progress in the case of unexpected problems, e.g. node failure.</li>
+<li>
+<input type="checkbox" disabled>
+Include a set of off-the-shelf DGPs and Methods to allow users to quickly run their methods in a number of realistic scenarios compared against a number of high-quality methodologies for those scenarios.</li>
+<li>
+<input type="checkbox" disabled>
+Include a set of off-the-shelf Visualizers that create plots, tables, and other snippets that can be included in the output R Markdown report.</li>
+<li>
+<input type="checkbox" disabled>
+Provide settings to effectively organize Visualizers in the final R Markdown report.</li>
+<li>
+<input type="checkbox" disabled>
+Enable nested parallelization, e.g. one may paralellize across DGPs using multiple nodes on a cluster and parallelize across simulation replicates using the CPU cores within each node.</li>
+<li>
+<input type="checkbox" disabled>
+Initialize a new simulation experiment interactively via a helper function, incorporating best practice nudges derived from the PCS simulation guidelines.</li>
+<li>
+<input type="checkbox" disabled>
+Let user incorporate their own R Markdown report template.</li>
+<li>
+<input type="checkbox" disabled>
+Publish to CRAN.</li>
+</ul>
+</div>
+<div id="related-r-packages" class="section level2">
+<h2 class="hasAnchor">
+<a href="#related-r-packages" class="anchor"></a>Related R packages</h2>
+<p>Below, we examine the main functionality of a number of existing tools for running reproducible simulation experiments that are currently available on <a href="https://cran.r-project.org/">CRAN</a> and have been updated within the last couple of years.</p>
+<ul>
+<li>
+<a href="https://mllg.github.io/batchtools/index.html"><code>batchtools</code></a> implements abstractions for “problems” (similar to our DGP concept), “algorithms” (Method in <code>simChef</code>), and “experiments”. In addition to shared-memory computation via the <code>parallel</code> and <code>snow</code> packages, it also provides a number of utilities for working with high performance computing batch systems such as Slurm and Torque, which <code>simChef</code> supports via the <code>future.batchtools</code> package.</li>
+<li>
+<a href="https://cran.r-project.org/web/packages/SimDesign/index.html"><code>SimDesign</code></a> provides helper functions to define experimental conditions and then pass those experimental conditions to a user-defined data generation function, analysis function, and summary function. The package also provides a number of these functions for the user to choose from. Each experimental condition can be run over many replicates, computing results in parallel via the <code>parallel</code> package.</li>
+<li>
+<a href="https://meghapsimatrix.github.io/simhelpers/index.html"><code>simhelpers</code></a> defines functions to calculate Monte Carlo standard errors of simulation performance metrics, generate skeleton simulation code, and evaluate in parallel across simulation parameters via the <code>future</code> package.</li>
+<li>The <a href="http://marselscheer.github.io/simTool/index.html"><code>simTool</code></a> package has two main functions: <code>expand_tibble()</code> and <code>eval_tibble()</code>. The former wraps the base R function <code><a href="https://rdrr.io/r/base/expand.grid.html">expand.grid()</a></code> to create a cartesian product of simulation functions and parameters, while the latter evaluates those functions in parallel via the <code>parallel</code> package.</li>
+<li>The <a href="https://github.com/SachaEpskamp/parSim"><code>parSim</code></a> package implements a single function of the same name which allows for parallelization of arbitrary R expressions across replicates and simulation conditions. <code>parSim</code> uses the <code>snow</code> package to setup parallel backends.</li>
+<li>
+<a href="https://ellessenne.github.io/rsimsum/index.html"><code>rsimsum</code></a> is an R implementation of the Stata command <code>simsum</code> and provides helper functions for summarizing and visualizing the results of a simulation study.</li>
+</ul>
+</div>
+
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <div class="license">
 <h2>License</h2>
 <ul class="list-unstyled">
-<li>`use_mit_license()`, `use_gpl3_license()` or friends to pick a
-         license</li>
+<li><a href="LICENSE.html">Full license</a></li>
+<li><small>GPL (&gt;= 3)</small></li>
 </ul>
 </div>
 <div class="developers">
 <h2>Developers</h2>
 <ul class="list-unstyled">
 <li>James Duncan <br><small class="roles"> Author, maintainer </small> <a href="https://orcid.org/0000-0003-3297-681X" target="orcid.widget" aria-label="ORCID"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a> </li>
+<li>Tiffany Tang <br><small class="roles"> Author </small>  </li>
 </ul>
 </div>
 
@@ -99,7 +248,7 @@ Provides opinionated assistance with creating computational
 
 
       <footer><div class="copyright">
-  <p>Developed by James Duncan.</p>
+  <p>Developed by James Duncan, Tiffany Tang.</p>
 </div>
 
 <div class="pkgdown">

@@ -57,7 +57,7 @@ To begin, we first need to create the individual parts of the simulation experim
 1. **DGP** (data-generating process): the data-generating processes from which to **generate** data
 2. **Method**: the methods (or models) to **fit** in the experiment
 3. **Evaluator**: the evaluation metrics used to **evaluate** the methods performance
-4. **Visualizer**: the visualization functions used to **visualize** outputs from the method fits or evaluation results
+4. **Visualizer**: the visualization functions used to **visualize** outputs from the method fits or evaluation results (can be tables, plots, or even R Markdown snippets to display)
 
 To create a `DGP()`, `Method()`, `Evaluator()`, or `Visualizer()`, we can respectively use the `create_dgp()`, `create_method()`, `create_evaluator()`, or `create_visualizer()` functions. Each `create_*()` function follows the same syntax and takes in the inputs:
 
@@ -173,7 +173,7 @@ We can create an object of class `Visualizer()` from this function via
 power_plot <- create_visualizer(visualizer_fun = power_plot_fun)
 ```
 
-Like the custom `Evaluator` functions, custom `Visualizer` functions such as `power_plot_fun()` can take in the argument `fit_results` if we want to construct a plot from the method fit outputs. If we want to construct a visualization using the output of our `Evaluators` (e.g., the output from `reject_prob_fun()`), the `Visualizer` function can also take the argument `eval_results` as input. Note again that the arguments must be exactly named `fit_results` and `eval_results` in order to work properly.
+Like the custom `Evaluator` functions, custom `Visualizer` functions such as `power_plot_fun()` can take in the argument `fit_results` if we want to construct a plot from the method fit outputs. If we want to construct a visualization using the output of our `Evaluators` (e.g., the output from `reject_prob_fun()`), the `Visualizer` function can also take the argument `eval_results` as input. Note again that the arguments must be exactly named `fit_results` and `eval_results` in order to work properly. Beyond creating plots, `Visualizers` can return tables and more generally, any R Markdown snippet containing results.
 
 As with the other `create_*` functions, additional arguments that need to pass into the custom `Visualizer` function can be passed into `create_visualizer()`.
 
@@ -219,7 +219,7 @@ The output of `experiment$run()` is a list of length three:
 
 - `fit_results`: output of `Method` fits (see `experiment$fit()`)
 - `eval_results`: output of `Evaluators` (see `experiment$evaluate()`)
-- `plot_results`: output of `Visualizers` (see `experiment$visualize()`)
+- `visualize_results`: output of `Visualizers` (see `experiment$visualize()`)
 
 ```{r}
 str(results, max.level = 2)
@@ -322,7 +322,7 @@ power_plot_fun <- function(fit_results, vary_params = NULL, col = "X1") {
   }
   return(plt)
 }
-power_plot <- create_visualizer(plot_fun = power_plot_fun)
+power_plot <- create_visualizer(visualizer_fun = power_plot_fun)
 
 ```
 
@@ -371,7 +371,7 @@ reject_prob_plot_fun <- function(eval_results, vary_params = NULL,
   }
   return(plotly::ggplotly(plt))
 }
-reject_prob_plot <- create_visualizer(plot_fun = reject_prob_plot_fun, alpha = 0.1)
+reject_prob_plot <- create_visualizer(visualizer_fun = reject_prob_plot_fun, alpha = 0.1)
 
 experiment <- experiment %>%
   add_visualizer(reject_prob_plot, name = "Rejection Prob. (alpha = 0.1) Plot")
@@ -446,7 +446,7 @@ experiment
 
 ## Additional R Markdown notes and options
 
-When generating the R Markdown report summary for an `Experiment`, the R Markdown will compile results (evaluation and plot results) from all saved `Experiments` under the root results directory `experiment$get_save_dir()`. Since the results from the many `vary_across` runs above are all saved under the original `experiment`'s results directory, then the following will include all of these results in a single document.
+When generating the R Markdown report summary for an `Experiment`, the R Markdown will compile results (both evaluation and visualization results) from all saved `Experiments` under the root results directory `experiment$get_save_dir()`. Since the results from the many `vary_across` runs above are all saved under the original `experiment`'s results directory, then the following will include all of these results in a single document.
 
 ```{r}
 experiment$create_rmd(open = FALSE)
@@ -464,8 +464,8 @@ In addition to showing all results under the root results directory, `create_rmd
 
 There are also several customizable options regarding the aesthetics of the R Markdown output. These can be modified using the `rmd_options` argument in `create_evaluator()` and `create_visualizer()`. For example, we can customize the height and width of the Power plot via
 ```{r}
-power_plot <- create_visualizer(plot_fun = power_plot_fun, 
-                             rmd_options = list(height = 10, width = 8))
+power_plot <- create_visualizer(visualizer_fun = power_plot_fun, 
+                                rmd_options = list(height = 10, width = 8))
 experiment <- experiment %>%
   update_visualizer(power_plot, "Power")
 ```
