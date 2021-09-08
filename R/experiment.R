@@ -1667,9 +1667,53 @@ remove_visualizer <- function(experiment, name = NULL, ...) {
   experiment$remove_visualizer(name, ...)
 }
 
+#' Helper functions for getting components in an \code{Experiment}.
+#'
+#' @description Helper functions for getting or retrieving \code{DGPs}, 
+#'   \code{Methods}, \code{Evaluators}, and \code{Visualizers} from an 
+#'   \code{Experiment}.
+#'
+#' @param experiment An \code{Experiment} object.
+#' @param ... Not used.
+#'
+#' @return The original \code{Experiment} object passed to \code{get_*}.
+#'
+#' @name get_funs
+#' @rdname get_funs
+#'
+NULL
+
+#' @rdname get_funs
+#'
+#' @export
+get_dgps <- function(experiment, ...) {
+  experiment$get_dgps()
+}
+
+#' @rdname get_funs
+#'
+#' @export
+get_methods <- function(experiment, ...) {
+  experiment$get_methods()
+}
+
+#' @rdname get_funs
+#'
+#' @export
+get_evaluators <- function(experiment, ...) {
+  experiment$get_evaluators()
+}
+
+#' @rdname get_funs
+#'
+#' @export
+get_visualizers <- function(experiment, ...) {
+  experiment$get_visualizers()
+}
+
 #' Varying across parameters in an \code{Experiment}.
 #'
-#' @description Helper functions for adding, updating, or removing a
+#' @description Helper functions for adding, updating, removing, or getting a
 #'   \code{vary_across} component in an \code{Experiment}. When a
 #'   \code{vary_across} component is added and the \code{Experiment} is run, the
 #'   \code{Experiment} is systematically varied across values of the specified
@@ -1705,22 +1749,30 @@ NULL
 #' @rdname vary_across
 #'
 #' @export
-add_vary_across <- function(experiment, ...) {
-  experiment$add_vary_across(...)
+add_vary_across <- function(experiment, dgp, method, ...) {
+  experiment$add_vary_across(dgp = dgp, method = method, ...)
 }
 
 #' @rdname vary_across
 #'
 #' @export
-update_vary_across <- function(experiment, ...) {
-  experiment$update_vary_across(...)
+update_vary_across <- function(experiment, dgp, method, ...) {
+  experiment$update_vary_across(dgp = dgp, method = method, ...)
 }
 
 #' @rdname vary_across
 #'
 #' @export
-remove_vary_across <- function(experiment, ...) {
-  experiment$remove_vary_across(...)
+remove_vary_across <- function(experiment, dgp, method, param_names = NULL) {
+  experiment$remove_vary_across(dgp = dgp, method = method, 
+                                param_names = param_names)
+}
+
+#' @rdname vary_across
+#'
+#' @export
+get_vary_across <- function(experiment) {
+  experiment$get_vary_across()
 }
 
 #' Set R Markdown options for \code{Evaluator} and \code{Visualizer} outputs in
@@ -1769,6 +1821,22 @@ set_rmd_options <- function(experiment, field_name = c("evaluator", "visualizer"
 #' @export
 set_save_dir <- function(experiment, save_dir) {
   experiment$set_save_dir(save_dir)
+}
+
+#' Get results directory for an \code{Experiment}.
+#'
+#' @name get_save_dir
+#' @description Get the directory in which the \code{Experiment}'s results and
+#'   visualizations are saved.
+#'
+#' @param experiment An \code{Experiment} object.
+#'
+#' @return The relative path to where the \code{Experiment}'s results and
+#'   visualizations are saved.
+#'
+#' @export
+get_save_dir <- function(experiment) {
+  experiment$get_save_dir()
 }
 
 #' Save an \code{Experiment}.

@@ -18,6 +18,12 @@ knitr::opts_chunk$set(
 )
 
 library(simChef)
+
+# remove old cached results to start fresh
+for (fname in list.files(file.path("results", "Linear Regression Experiment"), 
+                         pattern = ".rds", recursive = T, full.names = T)) {
+  file.remove(fname)
+}
 ```
 
 # Overview
@@ -541,15 +547,15 @@ This might be helpful for exploratory data analysis or further diagnosis of the 
 
 Other helpful methods for handling the experiment include the `get_*` family of methods, i.e., 
 ```{r}
-experiment$get_dgps()
-experiment$get_methods()
-experiment$get_evaluators()
-experiment$get_visualizers()
-experiment$get_vary_across()
+get_dgps(experiment)         # or `experiment$get_dgps`
+get_methods(experiment)      # or `experiment$get_methods`
+get_evaluators(experiment)   # or `experiment$get_evaluators`
+get_visualizers(experiment)  # or `experiment$get_visualizers`
+get_vary_across(experiment)  # or `experiment$get_vary_across`
 ```
 
 ```{r results = "hide"}
-experiment$get_save_dir()
+get_save_dir(experiment)     # or `experiment$get_save_dir`
 #> [1] "./results/Linear Regression Experiment"
 ```
 

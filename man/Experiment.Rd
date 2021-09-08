@@ -477,13 +477,14 @@ The original \code{Experiment} object with the updated \code{DGP}.
 \subsection{Method \code{remove_dgp()}}{
 Remove a \code{DGP} from the \code{Experiment}.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Experiment$remove_dgp(name, ...)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Experiment$remove_dgp(name = NULL, ...)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{name}}{Name of \code{DGP} to remove.}
+\item{\code{name}}{Name of \code{DGP} to remove. If \code{NULL} (default),
+remove all \code{DGPs} from the experiment.}
 
 \item{\code{...}}{Not used.}
 }
@@ -560,13 +561,14 @@ The original \code{Experiment} object with the updated \code{Method}.
 \subsection{Method \code{remove_method()}}{
 Remove a \code{Method} from the \code{Experiment}.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Experiment$remove_method(name, ...)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Experiment$remove_method(name = NULL, ...)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{name}}{Name of \code{Method} to remove.}
+\item{\code{name}}{Name of \code{Method} to remove. If \code{NULL} (default),
+remove all \code{Methods} from the experiment.}
 
 \item{\code{...}}{Not used.}
 }
@@ -643,13 +645,14 @@ The original \code{Experiment} object with the updated \code{Evaluator}.
 \subsection{Method \code{remove_evaluator()}}{
 Remove an \code{Evaluator} from the \code{Experiment}.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Experiment$remove_evaluator(name, ...)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Experiment$remove_evaluator(name = NULL, ...)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{name}}{Name of \code{Evaluator} to remove.}
+\item{\code{name}}{Name of \code{Evaluator} to remove. If \code{NULL} (default),
+remove all \code{Evaluators} from the experiment.}
 
 \item{\code{...}}{Not used.}
 }
@@ -726,13 +729,14 @@ The original \code{Experiment} object with the updated \code{Visualizer}.
 \subsection{Method \code{remove_visualizer()}}{
 Remove a \code{Visualizer} from the \code{Experiment}.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Experiment$remove_visualizer(name, ...)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Experiment$remove_visualizer(name = NULL, ...)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{name}}{Name of \code{Visualizer} to remove.}
+\item{\code{name}}{Name of \code{Visualizer} to remove. If \code{NULL}
+(default), remove all \code{Visualizers} from the experiment.}
 
 \item{\code{...}}{Not used.}
 }
@@ -837,16 +841,23 @@ specific \code{DGP} or \code{Method} in the \code{Experiment}.
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{dgp}}{Name of \code{DGP} to vary in the \code{Experiment}. Can also
-be a \code{DGP} object that matches one in the \code{Experiment}. Must
-provide either the \code{dgp} or \code{method} argument.}
+be a \code{DGP} object that matches one in the \code{Experiment}. If
+neither \code{dgp} nor \code{method} are provided, then all
+\code{vary_across} parameters are removed from the experiment.
+Otherwise, must provide either the \code{dgp} or \code{method}
+argument, but not both.}
 
 \item{\code{method}}{Name of \code{Method} to vary in the \code{Experiment}. Can
-also be a \code{Method} object that matches one in the \code{Experiment}.
-Must provide either the \code{dgp} or \code{method} argument.}
+also be a \code{Method} object that matches one in the
+\code{Experiment}. If neither \code{dgp} nor \code{method} are
+provided, then all \code{vary_across} parameters are removed from the
+experiment. Otherwise, must provide either the \code{dgp} or
+\code{method} argument, but not both.}
 
 \item{\code{param_names}}{A character vector of parameter names to remove. If
 not provided, the entire set of \code{vary_across} parameters will be
-removed for the specified \code{DGP}/\code{Method}.}
+removed for the specified \code{DGP}/\code{Method}. Ignored if both
+\code{dgp} and \code{method} are not provided.}
 }
 \if{html}{\out{</div>}}
 }
