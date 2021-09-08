@@ -32,6 +32,9 @@ Evaluator <- R6::R6Class(
     #' @param rmd_options (Optional) List of options to control the aesthetics 
     #'   of the displayed \code{Evaluator}'s results table in the knitted R
     #'   Markdown report. See [prettyDT()] for possible options.
+    #' @param show If \code{TRUE} (default), show \code{Evaluator}'s results as
+    #'   a table in the R Markdown report; if \code{FALSE}, hide output in the
+    #'   R Markdown report.
     #' @param ... Arguments to pass into \code{eval_fun()}.
     #'
     #' @details When evaluating or running the \code{Experiment} (see
@@ -50,13 +53,15 @@ Evaluator <- R6::R6Class(
     #'   varying parameter.
     #'
     #' @return A new \code{Evaluator} object.
-    initialize = function(eval_fun, name = NULL, rmd_options = list(), ...) {
+    initialize = function(eval_fun, name = NULL, 
+                          rmd_options = list(), show = TRUE, ...) {
       self$name <- name
       self$eval_fun <- eval_fun
       self$eval_params <- list(...)
       for (opt in names(rmd_options)) {
         self$rmd_options[[opt]] <- rmd_options[[opt]]
       }
+      self$show <- show
     },
     #' @description Evaluate the performance of method(s) in the
     #'   \code{Experiment} using the \code{Evaluator} and its given parameters.
@@ -82,6 +87,27 @@ Evaluator <- R6::R6Class(
                                       args = args_list,
                                       alwaysArgs = always_args_list)
       return(list_to_tibble(eval_results))
+    },
+    #' @description Print an \code{Evaluator} in a nice format, showing the 
+    #'   \code{Evaluator}'s name, function, parameters, and R Markdown options.
+    #'
+    #' @return The original \code{Evaluator} object.
+    print = function() {
+      if (is.null(self$name)) {
+        cat("Evaluator Name: NULL \n")
+      } else {
+        cat("Evaluator Name:", self$name, "\n")
+      }
+      cat("   Function: ")
+      cat(str(self$eval_fun, give.attr = F))
+      cat("   Parameters: ")
+      cat(str(self$eval_params,
+              indent.str = "     ", no.list = F))
+      cat("   R Markdown Options: ")
+      cat(str(self$rmd_options,
+              indent.str = "     ", no.list = F))
+      cat("   Show in R Markdown:", self$show)
+      invisible(self)
     }
   )
 )
@@ -95,11 +121,16 @@ Evaluator <- R6::R6Class(
 #' @param rmd_options (Optional) List of options to control the aesthetics of 
 #'   the displayed \code{Evaluator}'s results table in the knitted R Markdown
 #'   report. See [prettyDT()] for possible options.
+#' @param show If \code{TRUE} (default), show \code{Evaluator}'s results as
+#'   a table in the R Markdown report; if \code{FALSE}, hide output in the
+#'   R Markdown report.
 #' @param ... Arguments to pass into \code{eval_fun()}.
 #'
 #' @return A new instance of \code{Evaluator}.
 #'
 #' @export
-create_evaluator <- function(eval_fun, name = NULL, rmd_options = list(), ...) {
-  return(Evaluator$new(eval_fun, name = name, rmd_options = rmd_options, ...))
+create_evaluator <- function(eval_fun, name = NULL, 
+                             rmd_options = list(), show = TRUE, ...) {
+  return(Evaluator$new(eval_fun, name = name, 
+                       rmd_options = rmd_options, show = show, ...))
 }

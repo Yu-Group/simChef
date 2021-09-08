@@ -269,20 +269,20 @@
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">results</span> <span class="op">&lt;-</span> <span class="va">experiment</span><span class="op">$</span><span class="fu">run</span><span class="op">(</span>n_reps <span class="op">=</span> <span class="fl">100</span>, save <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
 <span class="co">#&gt; Fitting Linear Regression Experiment...</span>
-<span class="co">#&gt; Fitting completed | time taken: 0.022975 minutes</span>
+<span class="co">#&gt; Fitting completed | time taken: 0.022826 minutes</span>
 <span class="co">#&gt; Saving fit results...</span>
-<span class="co">#&gt; Fit results saved | time taken: 0.012939 seconds</span>
+<span class="co">#&gt; Fit results saved | time taken: 0.012695 seconds</span>
 <span class="co">#&gt; ==============================</span>
 <span class="co">#&gt; Evaluating Linear Regression Experiment...</span>
 <span class="co">#&gt; `summarise()` has grouped output by 'dgp_name'. You can override using the `.groups` argument.</span>
-<span class="co">#&gt; Evaluation completed | time taken: 0.000189 minutes</span>
+<span class="co">#&gt; Evaluation completed | time taken: 0.000199 minutes</span>
 <span class="co">#&gt; Saving eval results...</span>
-<span class="co">#&gt; Eval results saved | time taken: 0.011111 seconds</span>
+<span class="co">#&gt; Eval results saved | time taken: 0.013306 seconds</span>
 <span class="co">#&gt; ==============================</span>
 <span class="co">#&gt; Visualizing Linear Regression Experiment...</span>
-<span class="co">#&gt; Visualization completed | time taken: 0.001905 minutes</span>
+<span class="co">#&gt; Visualization completed | time taken: 0.002524 minutes</span>
 <span class="co">#&gt; Saving visualize results...</span>
-<span class="co">#&gt; Visualize results saved | time taken: 0.046686 seconds</span>
+<span class="co">#&gt; Visualize results saved | time taken: 0.048156 seconds</span>
 <span class="co">#&gt; ==============================</span></code></pre></div>
 <p>or alternatively,</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
@@ -310,23 +310,23 @@
 <span class="co">#&gt; # A tibble: 100 × 5</span>
 <span class="co">#&gt;    rep   dgp_name            method_name `X1 p-value` `X2 p-value`</span>
 <span class="co">#&gt;    &lt;chr&gt; &lt;chr&gt;               &lt;chr&gt;              &lt;dbl&gt;        &lt;dbl&gt;</span>
-<span class="co">#&gt;  1 1     Linear Gaussian DGP OLS             1.77e-29       0.658 </span>
-<span class="co">#&gt;  2 2     Linear Gaussian DGP OLS             5.68e-31       0.0944</span>
-<span class="co">#&gt;  3 3     Linear Gaussian DGP OLS             4.86e-33       0.209 </span>
-<span class="co">#&gt;  4 4     Linear Gaussian DGP OLS             8.79e-38       0.0791</span>
-<span class="co">#&gt;  5 5     Linear Gaussian DGP OLS             6.43e-31       0.711 </span>
-<span class="co">#&gt;  6 6     Linear Gaussian DGP OLS             5.84e-42       0.145 </span>
-<span class="co">#&gt;  7 7     Linear Gaussian DGP OLS             8.67e-34       0.236 </span>
-<span class="co">#&gt;  8 8     Linear Gaussian DGP OLS             4.43e-36       0.196 </span>
-<span class="co">#&gt;  9 9     Linear Gaussian DGP OLS             1.16e-30       0.494 </span>
-<span class="co">#&gt; 10 10    Linear Gaussian DGP OLS             3.66e-27       0.954 </span>
+<span class="co">#&gt;  1 1     Linear Gaussian DGP OLS             2.23e-28        0.255</span>
+<span class="co">#&gt;  2 2     Linear Gaussian DGP OLS             2.62e-34        0.888</span>
+<span class="co">#&gt;  3 3     Linear Gaussian DGP OLS             1.83e-28        0.590</span>
+<span class="co">#&gt;  4 4     Linear Gaussian DGP OLS             1.48e-40        0.833</span>
+<span class="co">#&gt;  5 5     Linear Gaussian DGP OLS             4.41e-39        0.575</span>
+<span class="co">#&gt;  6 6     Linear Gaussian DGP OLS             1.18e-40        0.781</span>
+<span class="co">#&gt;  7 7     Linear Gaussian DGP OLS             6.50e-26        0.513</span>
+<span class="co">#&gt;  8 8     Linear Gaussian DGP OLS             1.93e-32        0.172</span>
+<span class="co">#&gt;  9 9     Linear Gaussian DGP OLS             1.54e-31        0.718</span>
+<span class="co">#&gt; 10 10    Linear Gaussian DGP OLS             1.02e-33        0.341</span>
 <span class="co">#&gt; # … with 90 more rows</span>
 <span class="va">results</span><span class="op">$</span><span class="va">eval_results</span>
 <span class="co">#&gt; $`Rejection Prob. (alpha = 0.1)`</span>
 <span class="co">#&gt; # A tibble: 1 × 4</span>
 <span class="co">#&gt;   dgp_name            method_name `X1 Reject Prob.` `X2 Reject Prob.`</span>
 <span class="co">#&gt;   &lt;chr&gt;               &lt;chr&gt;                   &lt;dbl&gt;             &lt;dbl&gt;</span>
-<span class="co">#&gt; 1 Linear Gaussian DGP OLS                         1              0.12</span>
+<span class="co">#&gt; 1 Linear Gaussian DGP OLS                         1              0.09</span>
 <span class="va">results</span><span class="op">$</span><span class="va">visualize_results</span>
 <span class="co">#&gt; $Power</span></code></pre></div>
 <p><img src="simChef_files/figure-html/unnamed-chunk-17-1.png" width="700"></p>
@@ -340,18 +340,6 @@
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">experiment</span><span class="op">$</span><span class="fu">create_rmd</span><span class="op">(</span>open <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
 <span class="co">#&gt; Creating R Markdown report for Linear Regression Experiment...</span>
-<span class="co">#&gt; *Linear Gaussian DGP</span>
-<span class="co">#&gt; **Varying beta</span>
-<span class="co">#&gt;    Rejection Prob. (alpha = 0.1)</span>
-<span class="co">#&gt;    Power</span>
-<span class="co">#&gt;    Rejection Prob. (alpha = 0.1) Plot</span>
-<span class="co">#&gt; **Varying rho</span>
-<span class="co">#&gt;    Rejection Prob. (alpha = 0.1)</span>
-<span class="co">#&gt;    Power</span>
-<span class="co">#&gt;    Rejection Prob. (alpha = 0.1) Plot</span>
-<span class="co">#&gt; **Varying sigma</span>
-<span class="co">#&gt;    Rejection Prob. (alpha = 0.1)</span>
-<span class="co">#&gt;    Power</span>
 <span class="co">#&gt; Warning: MathJax doesn't work with self_contained when not using the rmarkdown "default" template.</span></code></pre></div>
 <p>or alternatively,</p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
@@ -386,26 +374,26 @@
 <div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">vary_results</span> <span class="op">&lt;-</span> <span class="va">experiment</span><span class="op">$</span><span class="fu">run</span><span class="op">(</span>n_reps <span class="op">=</span> <span class="fl">100</span>, save <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
 <span class="co">#&gt; Fitting Linear Regression Experiment...</span>
-<span class="co">#&gt; Fitting completed | time taken: 0.049969 minutes</span>
+<span class="co">#&gt; Fitting completed | time taken: 0.049475 minutes</span>
 <span class="co">#&gt; Saving fit results...</span>
-<span class="co">#&gt; Fit results saved | time taken: 0.020363 seconds</span>
+<span class="co">#&gt; Fit results saved | time taken: 0.018829 seconds</span>
 <span class="co">#&gt; ==============================</span>
 <span class="co">#&gt; Evaluating Linear Regression Experiment...</span>
-<span class="co">#&gt; Evaluation completed | time taken: 0.000202 minutes</span>
+<span class="co">#&gt; Evaluation completed | time taken: 0.000196 minutes</span>
 <span class="co">#&gt; Saving eval results...</span>
-<span class="co">#&gt; Eval results saved | time taken: 0.018466 seconds</span>
+<span class="co">#&gt; Eval results saved | time taken: 0.017253 seconds</span>
 <span class="co">#&gt; ==============================</span>
 <span class="co">#&gt; Visualizing Linear Regression Experiment...</span>
-<span class="co">#&gt; Visualization completed | time taken: 0.000167 minutes</span>
+<span class="co">#&gt; Visualization completed | time taken: 0.000276 minutes</span>
 <span class="co">#&gt; Saving visualize results...</span>
-<span class="co">#&gt; Visualize results saved | time taken: 0.057513 seconds</span>
+<span class="co">#&gt; Visualize results saved | time taken: 0.060760 seconds</span>
 <span class="co">#&gt; ==============================</span>
 <span class="va">vary_results</span><span class="op">$</span><span class="va">eval_results</span>
 <span class="co">#&gt; $`Rejection Prob. (alpha = 0.1)`</span>
 <span class="co">#&gt; # A tibble: 1 × 4</span>
 <span class="co">#&gt;   dgp_name            method_name `X1 Reject Prob.` `X2 Reject Prob.`</span>
 <span class="co">#&gt;   &lt;chr&gt;               &lt;chr&gt;                   &lt;dbl&gt;             &lt;dbl&gt;</span>
-<span class="co">#&gt; 1 Linear Gaussian DGP OLS                     0.885             0.118</span>
+<span class="co">#&gt; 1 Linear Gaussian DGP OLS                     0.862            0.0875</span>
 <span class="va">vary_results</span><span class="op">$</span><span class="va">visualize_results</span>
 <span class="co">#&gt; $Power</span></code></pre></div>
 <p><img src="simChef_files/figure-html/unnamed-chunk-22-1.png" width="700"></p>
@@ -458,19 +446,19 @@
   <span class="fu"><a href="../reference/update_funs.html">update_visualizer</a></span><span class="op">(</span><span class="va">power_plot</span>, name <span class="op">=</span> <span class="st">"Power"</span><span class="op">)</span> <span class="op">%&gt;%</span>
   <span class="fu"><a href="../reference/run_experiment.html">run_experiment</a></span><span class="op">(</span>n_reps <span class="op">=</span> <span class="fl">100</span>, save <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
 <span class="co">#&gt; Fitting Linear Regression Experiment...</span>
-<span class="co">#&gt; Fitting completed | time taken: 0.048669 minutes</span>
+<span class="co">#&gt; Fitting completed | time taken: 0.046541 minutes</span>
 <span class="co">#&gt; Saving fit results...</span>
-<span class="co">#&gt; Fit results saved | time taken: 0.018947 seconds</span>
+<span class="co">#&gt; Fit results saved | time taken: 0.021977 seconds</span>
 <span class="co">#&gt; ==============================</span>
 <span class="co">#&gt; Evaluating Linear Regression Experiment...</span>
-<span class="co">#&gt; Evaluation completed | time taken: 0.000141 minutes</span>
+<span class="co">#&gt; Evaluation completed | time taken: 0.000155 minutes</span>
 <span class="co">#&gt; Saving eval results...</span>
-<span class="co">#&gt; Eval results saved | time taken: 0.018898 seconds</span>
+<span class="co">#&gt; Eval results saved | time taken: 0.019293 seconds</span>
 <span class="co">#&gt; ==============================</span>
 <span class="co">#&gt; Visualizing Linear Regression Experiment...</span>
-<span class="co">#&gt; Visualization completed | time taken: 0.000296 minutes</span>
+<span class="co">#&gt; Visualization completed | time taken: 0.000286 minutes</span>
 <span class="co">#&gt; Saving visualize results...</span>
-<span class="co">#&gt; Visualize results saved | time taken: 0.066606 seconds</span>
+<span class="co">#&gt; Visualize results saved | time taken: 0.063175 seconds</span>
 <span class="co">#&gt; ==============================</span>
 <span class="va">vary_results</span><span class="op">$</span><span class="va">eval_results</span>
 <span class="co">#&gt; $`Rejection Prob. (alpha = 0.1)`</span>
@@ -478,9 +466,9 @@
 <span class="co">#&gt;   dgp_name            method_name sigma `X1 Reject Prob.` `X2 Reject Prob.`</span>
 <span class="co">#&gt;   &lt;chr&gt;               &lt;chr&gt;       &lt;dbl&gt;             &lt;dbl&gt;             &lt;dbl&gt;</span>
 <span class="co">#&gt; 1 Linear Gaussian DGP OLS             1              1                 0.1 </span>
-<span class="co">#&gt; 2 Linear Gaussian DGP OLS             2              1                 0.11</span>
-<span class="co">#&gt; 3 Linear Gaussian DGP OLS             4              0.97              0.13</span>
-<span class="co">#&gt; 4 Linear Gaussian DGP OLS             8              0.58              0.13</span>
+<span class="co">#&gt; 2 Linear Gaussian DGP OLS             2              1                 0.09</span>
+<span class="co">#&gt; 3 Linear Gaussian DGP OLS             4              0.97              0.07</span>
+<span class="co">#&gt; 4 Linear Gaussian DGP OLS             8              0.49              0.09</span>
 <span class="va">vary_results</span><span class="op">$</span><span class="va">visualize_results</span>
 <span class="co">#&gt; $Power</span></code></pre></div>
 <p><img src="simChef_files/figure-html/unnamed-chunk-25-1.png" width="700"></p>
@@ -531,19 +519,19 @@
                               <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
   <span class="fu"><a href="../reference/run_experiment.html">run_experiment</a></span><span class="op">(</span>n_reps <span class="op">=</span> <span class="fl">100</span>, save <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
 <span class="co">#&gt; Fitting Linear Regression Experiment...</span>
-<span class="co">#&gt; Fitting completed | time taken: 0.099527 minutes</span>
+<span class="co">#&gt; Fitting completed | time taken: 0.104127 minutes</span>
 <span class="co">#&gt; Saving fit results...</span>
-<span class="co">#&gt; Fit results saved | time taken: 0.028116 seconds</span>
+<span class="co">#&gt; Fit results saved | time taken: 0.024989 seconds</span>
 <span class="co">#&gt; ==============================</span>
 <span class="co">#&gt; Evaluating Linear Regression Experiment...</span>
-<span class="co">#&gt; Evaluation completed | time taken: 0.000268 minutes</span>
+<span class="co">#&gt; Evaluation completed | time taken: 0.000197 minutes</span>
 <span class="co">#&gt; Saving eval results...</span>
-<span class="co">#&gt; Eval results saved | time taken: 0.029083 seconds</span>
+<span class="co">#&gt; Eval results saved | time taken: 0.020909 seconds</span>
 <span class="co">#&gt; ==============================</span>
 <span class="co">#&gt; Visualizing Linear Regression Experiment...</span>
-<span class="co">#&gt; Visualization completed | time taken: 0.001769 minutes</span>
+<span class="co">#&gt; Visualization completed | time taken: 0.003637 minutes</span>
 <span class="co">#&gt; Saving visualize results...</span>
-<span class="co">#&gt; Visualize results saved | time taken: 0.105723 seconds</span>
+<span class="co">#&gt; Visualize results saved | time taken: 0.098985 seconds</span>
 <span class="co">#&gt; ==============================</span>
 
 <span class="co"># run experiment across values of rho (correlation)</span>
@@ -553,19 +541,19 @@
                   rho <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0.2</span>, <span class="fl">0.5</span>, <span class="fl">0.9</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
   <span class="fu"><a href="../reference/run_experiment.html">run_experiment</a></span><span class="op">(</span>n_reps <span class="op">=</span> <span class="fl">100</span>, save <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
 <span class="co">#&gt; Fitting Linear Regression Experiment...</span>
-<span class="co">#&gt; Fitting completed | time taken: 0.044429 minutes</span>
+<span class="co">#&gt; Fitting completed | time taken: 0.045656 minutes</span>
 <span class="co">#&gt; Saving fit results...</span>
-<span class="co">#&gt; Fit results saved | time taken: 0.024026 seconds</span>
+<span class="co">#&gt; Fit results saved | time taken: 0.025335 seconds</span>
 <span class="co">#&gt; ==============================</span>
 <span class="co">#&gt; Evaluating Linear Regression Experiment...</span>
-<span class="co">#&gt; Evaluation completed | time taken: 0.000124 minutes</span>
+<span class="co">#&gt; Evaluation completed | time taken: 0.000117 minutes</span>
 <span class="co">#&gt; Saving eval results...</span>
-<span class="co">#&gt; Eval results saved | time taken: 0.023113 seconds</span>
+<span class="co">#&gt; Eval results saved | time taken: 0.024631 seconds</span>
 <span class="co">#&gt; ==============================</span>
 <span class="co">#&gt; Visualizing Linear Regression Experiment...</span>
-<span class="co">#&gt; Visualization completed | time taken: 0.001451 minutes</span>
+<span class="co">#&gt; Visualization completed | time taken: 0.001339 minutes</span>
 <span class="co">#&gt; Saving visualize results...</span>
-<span class="co">#&gt; Visualize results saved | time taken: 0.121058 seconds</span>
+<span class="co">#&gt; Visualize results saved | time taken: 0.093379 seconds</span>
 <span class="co">#&gt; ==============================</span></code></pre></div>
 </div>
 <div id="experiment-as-an-r6-class" class="section level2">
@@ -718,15 +706,15 @@
 <div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">fit_results</span> <span class="op">&lt;-</span> <span class="va">experiment</span><span class="op">$</span><span class="fu">fit</span><span class="op">(</span>n_reps <span class="op">=</span> <span class="fl">100</span><span class="op">)</span>
 <span class="co">#&gt; Fitting Linear Regression Experiment...</span>
-<span class="co">#&gt; Fitting completed | time taken: 0.051680 minutes</span>
+<span class="co">#&gt; Fitting completed | time taken: 0.047433 minutes</span>
 <span class="co">#&gt; ==============================</span>
 <span class="va">eval_results</span> <span class="op">&lt;-</span> <span class="va">experiment</span><span class="op">$</span><span class="fu">evaluate</span><span class="op">(</span><span class="va">fit_results</span><span class="op">)</span>
 <span class="co">#&gt; Evaluating Linear Regression Experiment...</span>
-<span class="co">#&gt; Evaluation completed | time taken: 0.000202 minutes</span>
+<span class="co">#&gt; Evaluation completed | time taken: 0.000260 minutes</span>
 <span class="co">#&gt; ==============================</span>
 <span class="va">visualize_results</span> <span class="op">&lt;-</span> <span class="va">experiment</span><span class="op">$</span><span class="fu">visualize</span><span class="op">(</span><span class="va">fit_results</span>, <span class="va">eval_results</span><span class="op">)</span>
 <span class="co">#&gt; Visualizing Linear Regression Experiment...</span>
-<span class="co">#&gt; Visualization completed | time taken: 0.001756 minutes</span>
+<span class="co">#&gt; Visualization completed | time taken: 0.001504 minutes</span>
 <span class="co">#&gt; ==============================</span></code></pre></div>
 <p>or alternatively,</p>
 <div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
@@ -743,38 +731,38 @@
 <span class="co">#&gt;  $ Linear Gaussian DGP:List of 4</span>
 <span class="co">#&gt;   ..$ :List of 1</span>
 <span class="co">#&gt;   .. ..$ :List of 2</span>
-<span class="co">#&gt;   .. .. ..$ X: num [1:200, 1:2] 1.159 1.417 -0.35 -0.209 -0.901 ...</span>
+<span class="co">#&gt;   .. .. ..$ X: num [1:200, 1:2] -0.0635 0.8563 0.1965 -1.6988 -0.5208 ...</span>
 <span class="co">#&gt;   .. .. .. ..- attr(*, "dimnames")=List of 2</span>
 <span class="co">#&gt;   .. .. .. .. ..$ : NULL</span>
 <span class="co">#&gt;   .. .. .. .. ..$ : NULL</span>
-<span class="co">#&gt;   .. .. ..$ y: num [1:200, 1] 1.0767 1.4421 0.0249 0.1113 -0.865 ...</span>
+<span class="co">#&gt;   .. .. ..$ y: num [1:200, 1] -2.015 0.61 -2.137 -1.753 -0.101 ...</span>
 <span class="co">#&gt;   .. ..- attr(*, "params")=List of 1</span>
 <span class="co">#&gt;   .. .. ..$ sigma: num 1</span>
 <span class="co">#&gt;   ..$ :List of 1</span>
 <span class="co">#&gt;   .. ..$ :List of 2</span>
-<span class="co">#&gt;   .. .. ..$ X: num [1:200, 1:2] 0.216 -0.451 -1.029 -0.103 0.807 ...</span>
+<span class="co">#&gt;   .. .. ..$ X: num [1:200, 1:2] 0.683 -1.351 0.383 0.303 0.607 ...</span>
 <span class="co">#&gt;   .. .. .. ..- attr(*, "dimnames")=List of 2</span>
 <span class="co">#&gt;   .. .. .. .. ..$ : NULL</span>
 <span class="co">#&gt;   .. .. .. .. ..$ : NULL</span>
-<span class="co">#&gt;   .. .. ..$ y: num [1:200, 1] -0.684 -2.589 -3.434 -0.466 -0.838 ...</span>
+<span class="co">#&gt;   .. .. ..$ y: num [1:200, 1] 1.616 -3.489 0.798 0.704 0.63 ...</span>
 <span class="co">#&gt;   .. ..- attr(*, "params")=List of 1</span>
 <span class="co">#&gt;   .. .. ..$ sigma: num 2</span>
 <span class="co">#&gt;   ..$ :List of 1</span>
 <span class="co">#&gt;   .. ..$ :List of 2</span>
-<span class="co">#&gt;   .. .. ..$ X: num [1:200, 1:2] -0.538 0.966 1.771 0.159 1.132 ...</span>
+<span class="co">#&gt;   .. .. ..$ X: num [1:200, 1:2] 1.473 -0.534 -0.122 0.203 -0.657 ...</span>
 <span class="co">#&gt;   .. .. .. ..- attr(*, "dimnames")=List of 2</span>
 <span class="co">#&gt;   .. .. .. .. ..$ : NULL</span>
 <span class="co">#&gt;   .. .. .. .. ..$ : NULL</span>
-<span class="co">#&gt;   .. .. ..$ y: num [1:200, 1] -0.2215 0.0518 -2.2804 -5.2013 -0.8058 ...</span>
+<span class="co">#&gt;   .. .. ..$ y: num [1:200, 1] 0.00723 -6.18368 2.22616 -4.23312 -2.67897 ...</span>
 <span class="co">#&gt;   .. ..- attr(*, "params")=List of 1</span>
 <span class="co">#&gt;   .. .. ..$ sigma: num 4</span>
 <span class="co">#&gt;   ..$ :List of 1</span>
 <span class="co">#&gt;   .. ..$ :List of 2</span>
-<span class="co">#&gt;   .. .. ..$ X: num [1:200, 1:2] 0.17 -1.196 1.331 0.721 0.294 ...</span>
+<span class="co">#&gt;   .. .. ..$ X: num [1:200, 1:2] 0.4436 0.3534 -1.0827 0.0858 -1.4242 ...</span>
 <span class="co">#&gt;   .. .. .. ..- attr(*, "dimnames")=List of 2</span>
 <span class="co">#&gt;   .. .. .. .. ..$ : NULL</span>
 <span class="co">#&gt;   .. .. .. .. ..$ : NULL</span>
-<span class="co">#&gt;   .. .. ..$ y: num [1:200, 1] -4.77 -5.97 8.92 5.99 1.88 ...</span>
+<span class="co">#&gt;   .. .. ..$ y: num [1:200, 1] -3.937 -2.268 0.441 8.239 -1.228 ...</span>
 <span class="co">#&gt;   .. ..- attr(*, "params")=List of 1</span>
 <span class="co">#&gt;   .. .. ..$ sigma: num 8</span></code></pre></div>
 <p>or alternatively,</p>
@@ -783,63 +771,52 @@
 <p>This might be helpful for exploratory data analysis or further diagnosis of the experiment results.</p>
 <p>Other helpful methods for handling the experiment include the <code>get_*</code> family of methods, i.e.,</p>
 <div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">experiment</span><span class="op">$</span><span class="fu">get_dgps</span><span class="op">(</span><span class="op">)</span>
+<code class="sourceCode R"><span class="fu"><a href="../reference/get_funs.html">get_dgps</a></span><span class="op">(</span><span class="va">experiment</span><span class="op">)</span>         <span class="co"># or `experiment$get_dgps`</span>
 <span class="co">#&gt; $`Linear Gaussian DGP`</span>
-<span class="co">#&gt; &lt;DGP&gt;</span>
-<span class="co">#&gt;   Public:</span>
-<span class="co">#&gt;     clone: function (deep = FALSE) </span>
-<span class="co">#&gt;     dgp_fun: function (n, beta, rho, sigma) </span>
-<span class="co">#&gt;     dgp_params: list</span>
-<span class="co">#&gt;     generate: function (...) </span>
-<span class="co">#&gt;     initialize: function (dgp_fun, name = NULL, ...) </span>
-<span class="co">#&gt;     name: Linear Gaussian DGP</span>
-<span class="va">experiment</span><span class="op">$</span><span class="fu">get_methods</span><span class="op">(</span><span class="op">)</span>
+<span class="co">#&gt; DGP Name: Linear Gaussian DGP </span>
+<span class="co">#&gt;    Function: function (n, beta, rho, sigma)  </span>
+<span class="co">#&gt;    Parameters: List of 4</span>
+<span class="co">#&gt;      $ n    : num 200</span>
+<span class="co">#&gt;      $ beta : num [1:2] 1 0</span>
+<span class="co">#&gt;      $ rho  : num 0</span>
+<span class="co">#&gt;      $ sigma: num 1</span>
+<span class="fu"><a href="../reference/get_funs.html">get_methods</a></span><span class="op">(</span><span class="va">experiment</span><span class="op">)</span>      <span class="co"># or `experiment$get_methods`</span>
 <span class="co">#&gt; $OLS</span>
-<span class="co">#&gt; &lt;Method&gt;</span>
-<span class="co">#&gt;   Public:</span>
-<span class="co">#&gt;     clone: function (deep = FALSE) </span>
-<span class="co">#&gt;     fit: function (data_list, ...) </span>
-<span class="co">#&gt;     initialize: function (method_fun, name = NULL, ...) </span>
-<span class="co">#&gt;     method_fun: function (X, y, cols = c("X1", "X2")) </span>
-<span class="co">#&gt;     method_params: list</span>
-<span class="co">#&gt;     name: NULL</span>
-<span class="va">experiment</span><span class="op">$</span><span class="fu">get_evaluators</span><span class="op">(</span><span class="op">)</span>
+<span class="co">#&gt; Method Name: NULL </span>
+<span class="co">#&gt;    Function: function (X, y, cols = c("X1", "X2"))  </span>
+<span class="co">#&gt;    Parameters:  list()</span>
+<span class="fu"><a href="../reference/get_funs.html">get_evaluators</a></span><span class="op">(</span><span class="va">experiment</span><span class="op">)</span>   <span class="co"># or `experiment$get_evaluators`</span>
 <span class="co">#&gt; $`Rejection Prob. (alpha = 0.1)`</span>
-<span class="co">#&gt; &lt;Evaluator&gt;</span>
-<span class="co">#&gt;   Public:</span>
-<span class="co">#&gt;     clone: function (deep = FALSE) </span>
-<span class="co">#&gt;     eval_fun: function (fit_results, vary_params = NULL, alpha = 0.05) </span>
-<span class="co">#&gt;     eval_params: list</span>
-<span class="co">#&gt;     evaluate: function (fit_results, vary_params = NULL, ...) </span>
-<span class="co">#&gt;     initialize: function (eval_fun, name = NULL, rmd_options = list(), ...) </span>
-<span class="co">#&gt;     name: NULL</span>
-<span class="co">#&gt;     rmd_options: list</span>
-<span class="co">#&gt;     show: TRUE</span>
-<span class="va">experiment</span><span class="op">$</span><span class="fu">get_visualizers</span><span class="op">(</span><span class="op">)</span>
+<span class="co">#&gt; Evaluator Name: NULL </span>
+<span class="co">#&gt;    Function: function (fit_results, vary_params = NULL, alpha = 0.05)  </span>
+<span class="co">#&gt;    Parameters: List of 1</span>
+<span class="co">#&gt;      $ alpha: num 0.1</span>
+<span class="co">#&gt;    R Markdown Options: List of 3</span>
+<span class="co">#&gt;      $ digits : num 3</span>
+<span class="co">#&gt;      $ sigfig : logi FALSE</span>
+<span class="co">#&gt;      $ options:List of 2</span>
+<span class="co">#&gt;       ..$ scrollX       : logi TRUE</span>
+<span class="co">#&gt;       ..$ scrollCollapse: logi TRUE</span>
+<span class="co">#&gt;    Show in R Markdown: TRUE</span>
+<span class="fu"><a href="../reference/get_funs.html">get_visualizers</a></span><span class="op">(</span><span class="va">experiment</span><span class="op">)</span>  <span class="co"># or `experiment$get_visualizers`</span>
 <span class="co">#&gt; $Power</span>
-<span class="co">#&gt; &lt;Visualizer&gt;</span>
-<span class="co">#&gt;   Public:</span>
-<span class="co">#&gt;     clone: function (deep = FALSE) </span>
-<span class="co">#&gt;     initialize: function (visualizer_fun, name = NULL, rmd_options = list(), </span>
-<span class="co">#&gt;     name: NULL</span>
-<span class="co">#&gt;     rmd_options: list</span>
-<span class="co">#&gt;     show: TRUE</span>
-<span class="co">#&gt;     visualize: function (fit_results = NULL, eval_results = NULL, vary_params = NULL, </span>
-<span class="co">#&gt;     visualizer_fun: function (fit_results, vary_params = NULL, col = "X1") </span>
-<span class="co">#&gt;     visualizer_params: list</span>
-<span class="co">#&gt; </span>
+<span class="co">#&gt; Visualizer Name: NULL </span>
+<span class="co">#&gt;    Function: function (fit_results, vary_params = NULL, col = "X1")  </span>
+<span class="co">#&gt;    Parameters:  list()</span>
+<span class="co">#&gt;    R Markdown Options: List of 2</span>
+<span class="co">#&gt;      $ height: num 10</span>
+<span class="co">#&gt;      $ width : num 8</span>
+<span class="co">#&gt;    Show in R Markdown: TRUE</span>
 <span class="co">#&gt; $`Rejection Prob. (alpha = 0.1) Plot`</span>
-<span class="co">#&gt; &lt;Visualizer&gt;</span>
-<span class="co">#&gt;   Public:</span>
-<span class="co">#&gt;     clone: function (deep = FALSE) </span>
-<span class="co">#&gt;     initialize: function (visualizer_fun, name = NULL, rmd_options = list(), </span>
-<span class="co">#&gt;     name: NULL</span>
-<span class="co">#&gt;     rmd_options: list</span>
-<span class="co">#&gt;     show: TRUE</span>
-<span class="co">#&gt;     visualize: function (fit_results = NULL, eval_results = NULL, vary_params = NULL, </span>
-<span class="co">#&gt;     visualizer_fun: function (eval_results, vary_params = NULL, alpha = 0.05) </span>
-<span class="co">#&gt;     visualizer_params: list</span>
-<span class="va">experiment</span><span class="op">$</span><span class="fu">get_vary_across</span><span class="op">(</span><span class="op">)</span>
+<span class="co">#&gt; Visualizer Name: NULL </span>
+<span class="co">#&gt;    Function: function (eval_results, vary_params = NULL, alpha = 0.05)  </span>
+<span class="co">#&gt;    Parameters: List of 1</span>
+<span class="co">#&gt;      $ alpha: num 0.1</span>
+<span class="co">#&gt;    R Markdown Options: List of 2</span>
+<span class="co">#&gt;      $ height: num 6</span>
+<span class="co">#&gt;      $ width : num 10</span>
+<span class="co">#&gt;    Show in R Markdown: TRUE</span>
+<span class="fu"><a href="../reference/vary_across.html">get_vary_across</a></span><span class="op">(</span><span class="va">experiment</span><span class="op">)</span>  <span class="co"># or `experiment$get_vary_across`</span>
 <span class="co">#&gt; $dgp</span>
 <span class="co">#&gt; $dgp$`Linear Gaussian DGP`</span>
 <span class="co">#&gt; $dgp$`Linear Gaussian DGP`$sigma</span>
@@ -850,7 +827,7 @@
 <span class="co">#&gt; $method</span>
 <span class="co">#&gt; list()</span></code></pre></div>
 <div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">experiment</span><span class="op">$</span><span class="fu">get_save_dir</span><span class="op">(</span><span class="op">)</span>
+<code class="sourceCode R"><span class="fu"><a href="../reference/get_save_dir.html">get_save_dir</a></span><span class="op">(</span><span class="va">experiment</span><span class="op">)</span>     <span class="co"># or `experiment$get_save_dir`</span>
 <span class="co">#&gt; [1] "./results/Linear Regression Experiment"</span></code></pre></div>
 </div>
 </div>

@@ -31,6 +31,8 @@ Visualizer <- R6::R6Class(
     #'   of the \code{Visualizer}'s visualization in the knitted R Markdown
     #'   report. Currently, possible options are "height" and "width" (in
     #'   inches).
+    #' @param show If \code{TRUE} (default), show the resulting visualization in the R
+    #'   Markdown report; if \code{FALSE}, hide output in the R Markdown report.
     #' @param ... Arguments to pass into \code{visualizer_fun()}.
     #'
     #' @details When visualizing or running the \code{Experiment} (see
@@ -52,13 +54,15 @@ Visualizer <- R6::R6Class(
     #'   varying parameter.
     #'
     #' @return A new \code{Visualizer} object.
-    initialize = function(visualizer_fun, name = NULL, rmd_options = list(), ...) {
+    initialize = function(visualizer_fun, name = NULL, 
+                          rmd_options = list(), show = TRUE, ...) {
       self$name <- name
       self$visualizer_fun <- visualizer_fun
       self$visualizer_params <- list(...)
       for (opt in names(rmd_options)) {
         self$rmd_options[[opt]] <- rmd_options[[opt]]
       }
+      self$show <- show
     },
     #' @description Visualize the performance of methods and/or their evaluation
     #'   metrics from the \code{Experiment} using the \code{Visualizer} and the
@@ -89,6 +93,27 @@ Visualizer <- R6::R6Class(
                                       args = args_list,
                                       alwaysArgs = always_args_list)
       return(visualize_results)
+    },
+    #' @description Print a \code{Visualizer} in a nice format, showing the 
+    #'   \code{Visualizer}'s name, function, parameters, and R Markdown options.
+    #'
+    #' @return The original \code{Visualizer} object.
+    print = function() {
+      if (is.null(self$name)) {
+        cat("Visualizer Name: NULL \n")
+      } else {
+        cat("Visualizer Name:", self$name, "\n")
+      }
+      cat("   Function: ")
+      cat(str(self$visualizer_fun, give.attr = F))
+      cat("   Parameters: ")
+      cat(str(self$visualizer_params,
+              indent.str = "     ", no.list = F))
+      cat("   R Markdown Options: ")
+      cat(str(self$rmd_options,
+              indent.str = "     ", no.list = F))
+      cat("   Show in R Markdown:", self$show)
+      invisible(self)
     }
   )
 )
@@ -102,11 +127,15 @@ Visualizer <- R6::R6Class(
 #' @param rmd_options (Optional) List of options to control the aesthetics of
 #'   the \code{Visualizer}'s visualization in the knitted R Markdown report.
 #'   Currently, possible options are "height" and "width" (in inches).
+#' @param show If \code{TRUE} (default), show the resulting visualization in the R
+#'   Markdown report; if \code{FALSE}, hide output in the R Markdown report.
 #' @param ... Arguments to pass into \code{visualizer_fun()}.
 #'
 #' @return A new instance of \code{Visualizer}.
 #'
 #' @export
-create_visualizer <- function(visualizer_fun, name = NULL, rmd_options = list(), ...) {
-  return(Visualizer$new(visualizer_fun, name = name, rmd_options = rmd_options, ...))
+create_visualizer <- function(visualizer_fun, name = NULL, 
+                              rmd_options = list(), show = TRUE, ...) {
+  return(Visualizer$new(visualizer_fun, name = name, 
+                        rmd_options = rmd_options, show = show, ...))
 }

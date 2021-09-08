@@ -13,6 +13,13 @@ test_that("Evaluator initialization works properly", {
                                                   caption = "caption"))
   evaluator1f <- Evaluator$new(eval_fun = eval_fun1, 
                                a = 5, b = 1:5, c = data.frame(d = 1:2))
+  evaluator1g <- Evaluator$new(eval_fun = eval_fun1, show = FALSE)
+  
+  # print statements
+  expect_snapshot_output(evaluator1)
+  expect_snapshot_output(evaluator1b)
+  expect_snapshot_output(evaluator1c)
+  expect_snapshot_output(evaluator1f)
   
   # basic initialization
   expect_equal(evaluator1$name, NULL)
@@ -48,6 +55,9 @@ test_that("Evaluator initialization works properly", {
                list(a = 5, b = 1:5, c = data.frame(d = 1:2)))
   expect_equal(evaluator1f$eval_fun, evaluator1$eval_fun)
   
+  # show rmd input
+  expect_equal(evaluator1g$show, FALSE)
+  
   # initialize with create_evaluator
   evaluator2 <- create_evaluator(eval_fun = eval_fun1)
   evaluator2b <- create_evaluator(eval_fun = eval_fun1, name = "Evaluator")
@@ -60,6 +70,7 @@ test_that("Evaluator initialization works properly", {
                                                      caption = "caption"))
   evaluator2f <- create_evaluator(eval_fun = eval_fun1, 
                                   a = 5, b = 1:5, c = data.frame(d = 1:2))
+  evaluator2g <- create_evaluator(eval_fun = eval_fun1, show = FALSE)
   
   expect_error(create_evaluator())
   expect_error(create_evaluator(name = "Evaluator"))
@@ -69,6 +80,7 @@ test_that("Evaluator initialization works properly", {
   expect_equal(evaluator1d, evaluator2d)
   expect_equal(evaluator1e, evaluator2e)
   expect_equal(evaluator1f, evaluator2f)
+  expect_equal(evaluator1g, evaluator2g)
 })
 
 test_that("Evaluator$evaluate() works properly", {

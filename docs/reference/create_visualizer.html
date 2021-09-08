@@ -127,7 +127,13 @@
     <p>Create a new <code>Visualizer</code>.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>create_visualizer</span><span class='op'>(</span><span class='va'>visualizer_fun</span>, name <span class='op'>=</span> <span class='cn'>NULL</span>, rmd_options <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span><span class='op'>)</span>, <span class='va'>...</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>create_visualizer</span><span class='op'>(</span>
+  <span class='va'>visualizer_fun</span>,
+  name <span class='op'>=</span> <span class='cn'>NULL</span>,
+  rmd_options <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span><span class='op'>)</span>,
+  show <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  <span class='va'>...</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -145,6 +151,11 @@
       <td><p>(Optional) List of options to control the aesthetics of
 the <code>Visualizer</code>'s visualization in the knitted R Markdown report.
 Currently, possible options are "height" and "width" (in inches).</p></td>
+    </tr>
+    <tr>
+      <th>show</th>
+      <td><p>If <code>TRUE</code> (default), show the resulting visualization in the R
+Markdown report; if <code>FALSE</code>, hide output in the R Markdown report.</p></td>
     </tr>
     <tr>
       <th>...</th>

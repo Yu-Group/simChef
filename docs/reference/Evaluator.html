@@ -158,12 +158,13 @@ R Markdown report.</p></dd>
 <ul>
 <li><p><a href='#method-new'><code>Evaluator$new()</code></a></p></li>
 <li><p><a href='#method-evaluate'><code>Evaluator$evaluate()</code></a></p></li>
+<li><p><a href='#method-print'><code>Evaluator$print()</code></a></p></li>
 <li><p><a href='#method-clone'><code>Evaluator$clone()</code></a></p></li>
 </ul>
 <p><hr>
 <a id="method-new"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>new()</code></h3>
 <p>Create a new <code>Evaluator</code>.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
-<p><div class="r"></p><pre><span class='va'>Evaluator</span><span class='op'>$</span><span class='fu'>new</span><span class='op'>(</span><span class='va'>eval_fun</span>, name <span class='op'>=</span> <span class='cn'>NULL</span>, rmd_options <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span><span class='op'>)</span>, <span class='va'>...</span><span class='op'>)</span></pre><p></div></p>
+<p><div class="r"></p><pre><span class='va'>Evaluator</span><span class='op'>$</span><span class='fu'>new</span><span class='op'>(</span><span class='va'>eval_fun</span>, name <span class='op'>=</span> <span class='cn'>NULL</span>, rmd_options <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span><span class='op'>)</span>, show <span class='op'>=</span> <span class='cn'>TRUE</span>, <span class='va'>...</span><span class='op'>)</span></pre><p></div></p>
 
 <h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
 <p><div class="arguments"></p><dl>
@@ -174,6 +175,10 @@ R Markdown report.</p></dd>
 <dt><code>rmd_options</code></dt><dd><p>(Optional) List of options to control the aesthetics
 of the displayed <code>Evaluator</code>'s results table in the knitted R
 Markdown report. See <code><a href='prettyDT.html'>prettyDT()</a></code> for possible options.</p></dd>
+
+<dt><code>show</code></dt><dd><p>If <code>TRUE</code> (default), show <code>Evaluator</code>'s results as
+a table in the R Markdown report; if <code>FALSE</code>, hide output in the
+R Markdown report.</p></dd>
 
 <dt><code>...</code></dt><dd><p>Arguments to pass into <code>eval_fun()</code>.</p></dd>
 
@@ -217,6 +222,14 @@ Use <code>NULL</code> (default) if no <code>vary_across</code> component in
 </dl><p></div></p>
 <h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Returns</h4>
 <p>Result of <code>eval_fun()</code>, coerced into a tibble.</p>
+<p><hr>
+<a id="method-print"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code><a href='https://rdrr.io/r/base/print.html'>print()</a></code></h3>
+<p>Print an <code>Evaluator</code> in a nice format, showing the
+<code>Evaluator</code>'s name, function, parameters, and R Markdown options.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p><div class="r"></p><pre><span class='va'>Evaluator</span><span class='op'>$</span><span class='fu'>print</span><span class='op'>(</span><span class='op'>)</span></pre><p></div></p>
+
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Returns</h4>
+<p>The original <code>Evaluator</code> object.</p>
 <p><hr>
 <a id="method-clone"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>clone()</code></h3>
 <p>The objects of this class are cloneable with this method.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>

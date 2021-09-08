@@ -7,6 +7,11 @@ test_that("Method initialization works properly", {
   method1c <- Method$new(method_fun = method_fun1, 
                          a = 5, b = 1:5, c = data.frame(d = 1:2))
   
+  # print statements
+  expect_snapshot_output(method1)
+  expect_snapshot_output(method1b)
+  expect_snapshot_output(method1c)
+  
   # basic initialization
   expect_equal(method1$name, NULL)
   expect_equal(method1$method_fun, method_fun1)

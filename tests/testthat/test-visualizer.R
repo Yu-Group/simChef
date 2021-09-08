@@ -5,13 +5,20 @@ test_that("Visualizer initialization works properly", {
   visualizer1 <- Visualizer$new(visualizer_fun = visualizer_fun1)
   visualizer1b <- Visualizer$new(visualizer_fun = visualizer_fun1, name = "Visualizer")
   visualizer1c <- Visualizer$new(visualizer_fun = visualizer_fun1,
-                           rmd_options = list(height = 8))
+                                 rmd_options = list(height = 8))
   visualizer1d <- Visualizer$new(visualizer_fun = visualizer_fun1,
-                           rmd_options = list(width = 8))
+                                 rmd_options = list(width = 8))
   visualizer1e <- Visualizer$new(visualizer_fun = visualizer_fun1,
-                           rmd_options = list(height = 8, width = 8))
+                                 rmd_options = list(height = 8, width = 8))
   visualizer1f <- Visualizer$new(visualizer_fun = visualizer_fun1, 
-                           a = 5, b = 1:5, c = data.frame(d = 1:2))
+                                 a = 5, b = 1:5, c = data.frame(d = 1:2))
+  visualizer1g <- Visualizer$new(visualizer_fun = visualizer_fun1, show = FALSE)
+  
+  # print statements
+  expect_snapshot_output(visualizer1)
+  expect_snapshot_output(visualizer1b)
+  expect_snapshot_output(visualizer1c)
+  expect_snapshot_output(visualizer1f)
   
   # basic initialization
   expect_equal(visualizer1$name, NULL)
@@ -37,17 +44,23 @@ test_that("Visualizer initialization works properly", {
                list(a = 5, b = 1:5, c = data.frame(d = 1:2)))
   expect_equal(visualizer1f$visualizer_fun, visualizer1$visualizer_fun)
   
+  # show rmd input
+  expect_equal(visualizer1g$show, FALSE)
+  
   # initialize with create_visualizer
   visualizer2 <- create_visualizer(visualizer_fun = visualizer_fun1)
-  visualizer2b <- create_visualizer(visualizer_fun = visualizer_fun1, name = "Visualizer")
+  visualizer2b <- create_visualizer(visualizer_fun = visualizer_fun1, 
+                                    name = "Visualizer")
   visualizer2c <- create_visualizer(visualizer_fun = visualizer_fun1,
-                              rmd_options = list(height = 8))
+                                    rmd_options = list(height = 8))
   visualizer2d <- create_visualizer(visualizer_fun = visualizer_fun1, 
-                              rmd_options = list(width = 8))
+                                    rmd_options = list(width = 8))
   visualizer2e <- create_visualizer(visualizer_fun = visualizer_fun1,
-                              rmd_options = list(height = 8, width = 8))
+                                    rmd_options = list(height = 8, width = 8))
   visualizer2f <- create_visualizer(visualizer_fun = visualizer_fun1, 
-                              a = 5, b = 1:5, c = data.frame(d = 1:2))
+                                    a = 5, b = 1:5, c = data.frame(d = 1:2))
+  visualizer2g <- create_visualizer(visualizer_fun = visualizer_fun1, show = F)
+  
   expect_error(create_visualizer())
   expect_error(create_visualizer(name = "Visualizer"))
   expect_equal(visualizer1, visualizer2)
@@ -56,6 +69,7 @@ test_that("Visualizer initialization works properly", {
   expect_equal(visualizer1d, visualizer2d)
   expect_equal(visualizer1e, visualizer2e)
   expect_equal(visualizer1f, visualizer2f)
+  expect_equal(visualizer1g, visualizer2g)
 })
 
 test_that("Visualizer$visualize() works properly", {
