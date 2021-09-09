@@ -13,7 +13,9 @@ reference:
       - add_dgp
       - update_dgp
       - remove_dgp
+      - get_dgps
       - remove_vary_across
+      - get_save_dir
       - set_save_dir
       - save_experiment
   - title: "R Markdown Report"

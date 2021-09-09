@@ -5,28 +5,29 @@
 \alias{add_vary_across}
 \alias{update_vary_across}
 \alias{remove_vary_across}
+\alias{get_vary_across}
 \title{Varying across parameters in an \code{Experiment}.}
 \usage{
-add_vary_across(experiment, ...)
+add_vary_across(experiment, dgp, method, ...)
 
-update_vary_across(experiment, ...)
+update_vary_across(experiment, dgp, method, ...)
 
-remove_vary_across(experiment, ...)
+remove_vary_across(experiment, dgp, method, param_names = NULL)
+
+get_vary_across(experiment)
 }
 \arguments{
 \item{experiment}{An \code{Experiment} object.}
 
+\item{dgp}{Name of \code{DGP} to vary in the \code{Experiment}. Can also be a
+\code{DGP} object that matches one in the \code{Experiment}.}
+
+\item{method}{Name of \code{Method} to vary in the \code{Experiment}. Can
+also be a \code{Method} object that matches one in the \code{Experiment}.}
+
 \item{...}{Any number of named arguments where names match an argument in the
 user-specified \code{DGP} or \code{Method} function and values are vectors
 (for scalar parameters) or lists (for arbitrary parameters).}
-
-\item{dgp}{Name of \code{DGP} to vary in the \code{Experiment}. Can also be a
-\code{DGP} object that matches one in the \code{Experiment}. Must provide
-either the \code{dgp} or \code{method} argument.}
-
-\item{method}{Name of \code{Method} to vary in the \code{Experiment}. Can
-also be a \code{Method} object that matches one in the \code{Experiment}.
-Must provide either the \code{dgp} or \code{method} argument.}
 
 \item{param_names}{A character vector of parameter names to remove. If
 not provided, the entire set of \code{vary_across} parameters will be
@@ -37,10 +38,17 @@ The original \code{Experiment} object passed to
 \code{*_vary_across()}.
 }
 \description{
-Helper functions for adding, updating, or removing a
+Helper functions for adding, updating, removing, or getting a
 \code{vary_across} component in an \code{Experiment}. When a
 \code{vary_across} component is added and the \code{Experiment} is run, the
 \code{Experiment} is systematically varied across values of the specified
 parameter in the \code{DGP} or \code{Method} while all other parameters are
 held constant at their baseline value.
+}
+\details{
+One of the \code{dgp} or \code{method} arguments (but not both) must
+be provided when using \code{add_vary_across()} and
+\code{update_vary_across}. For \code{remove_vary_across()}, if both the
+\code{dgp} and \code{method} arguments are not provided, then all
+\code{vary_across} parameters from the experiment are removed.
 }

@@ -8,16 +8,18 @@
 \alias{remove_visualizer}
 \title{Helper functions for removing components of an \code{Experiment}.}
 \usage{
-remove_dgp(experiment, name, ...)
+remove_dgp(experiment, name = NULL, ...)
 
-remove_method(experiment, name, ...)
+remove_method(experiment, name = NULL, ...)
 
-remove_evaluator(experiment, name, ...)
+remove_evaluator(experiment, name = NULL, ...)
 
-remove_visualizer(experiment, name, ...)
+remove_visualizer(experiment, name = NULL, ...)
 }
 \arguments{
-\item{name}{A name to identify the object to be removed.}
+\item{name}{A name to identify the object to be removed. If \code{NULL}
+(default), remove all objects of that class from the experiment. For
+example, \code{remove_dgp()} will remove all DGPs from the experiment.}
 
 \item{...}{Not used.}
 }

@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Helper functions for removing components of an Experiment. — remove_funs • simChef</title>
+<title>Get results directory for an Experiment. — get_save_dir • simChef</title>
 
 
 <!-- jquery -->
@@ -39,10 +39,9 @@
 
 
 
-<meta property="og:title" content="Helper functions for removing components of an Experiment. — remove_funs" />
-<meta property="og:description" content="Helper functions for removing DGPs, Methods,
-Evaluators, and Visualizers already added to an
-Experiment." />
+<meta property="og:title" content="Get results directory for an Experiment. — get_save_dir" />
+<meta property="og:description" content="Get the directory in which the Experiment's results and
+visualizations are saved." />
 
 
 
@@ -120,43 +119,31 @@ Experiment." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Helper functions for removing components of an <code>Experiment</code>.</h1>
+    <h1>Get results directory for an <code>Experiment</code>.</h1>
     
-    <div class="hidden name"><code>remove_funs.Rd</code></div>
+    <div class="hidden name"><code>get_save_dir.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Helper functions for removing <code>DGPs</code>, <code>Methods</code>,
-<code>Evaluators</code>, and <code>Visualizers</code> already added to an
-<code>Experiment</code>.</p>
+    <p>Get the directory in which the <code>Experiment</code>'s results and
+visualizations are saved.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>remove_dgp</span><span class='op'>(</span><span class='va'>experiment</span>, name <span class='op'>=</span> <span class='cn'>NULL</span>, <span class='va'>...</span><span class='op'>)</span>
-
-<span class='fu'>remove_method</span><span class='op'>(</span><span class='va'>experiment</span>, name <span class='op'>=</span> <span class='cn'>NULL</span>, <span class='va'>...</span><span class='op'>)</span>
-
-<span class='fu'>remove_evaluator</span><span class='op'>(</span><span class='va'>experiment</span>, name <span class='op'>=</span> <span class='cn'>NULL</span>, <span class='va'>...</span><span class='op'>)</span>
-
-<span class='fu'>remove_visualizer</span><span class='op'>(</span><span class='va'>experiment</span>, name <span class='op'>=</span> <span class='cn'>NULL</span>, <span class='va'>...</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>get_save_dir</span><span class='op'>(</span><span class='va'>experiment</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>name</th>
-      <td><p>A name to identify the object to be removed. If <code>NULL</code>
-(default), remove all objects of that class from the experiment. For
-example, <code>remove_dgp()</code> will remove all DGPs from the experiment.</p></td>
-    </tr>
-    <tr>
-      <th>...</th>
-      <td><p>Not used.</p></td>
+      <th>experiment</th>
+      <td><p>An <code>Experiment</code> object.</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>The original <code>Experiment</code> object passed to <code>remove_*</code>.</p>
+    <p>The relative path to where the <code>Experiment</code>'s results and
+visualizations are saved.</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
