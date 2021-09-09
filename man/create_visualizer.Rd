@@ -4,7 +4,13 @@
 \alias{create_visualizer}
 \title{Create a new \code{Visualizer}.}
 \usage{
-create_visualizer(visualizer_fun, name = NULL, rmd_options = list(), ...)
+create_visualizer(
+  visualizer_fun,
+  name = NULL,
+  rmd_options = list(),
+  show = TRUE,
+  ...
+)
 }
 \arguments{
 \item{visualizer_fun}{The visualization function.}
@@ -14,6 +20,9 @@ create_visualizer(visualizer_fun, name = NULL, rmd_options = list(), ...)
 \item{rmd_options}{(Optional) List of options to control the aesthetics of
 the \code{Visualizer}'s visualization in the knitted R Markdown report.
 Currently, possible options are "height" and "width" (in inches).}
+
+\item{show}{If \code{TRUE} (default), show the resulting visualization in the R
+Markdown report; if \code{FALSE}, hide output in the R Markdown report.}
 
 \item{...}{Arguments to pass into \code{visualizer_fun()}.}
 }

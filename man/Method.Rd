@@ -24,6 +24,7 @@ method function.}
 \itemize{
 \item \href{#method-new}{\code{Method$new()}}
 \item \href{#method-fit}{\code{Method$fit()}}
+\item \href{#method-print}{\code{Method$print()}}
 \item \href{#method-clone}{\code{Method$clone()}}
 }
 }
@@ -76,6 +77,20 @@ and the parameters that were set when \code{Method$new()} was called.}
 }
 \subsection{Returns}{
 Result of \code{method_fun()}, coerced into a single tibble row.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-print"></a>}}
+\if{latex}{\out{\hypertarget{method-print}{}}}
+\subsection{Method \code{print()}}{
+Print a \code{Method} in a nice format, showing the
+\code{Method}'s name, function, and parameters.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Method$print()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+The original \code{Method} object.
 }
 }
 \if{html}{\out{<hr>}}
