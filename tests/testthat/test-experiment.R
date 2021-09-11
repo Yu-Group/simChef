@@ -128,10 +128,10 @@ test_that("Modifying DGPs/Methods/Evaluators/Visualizers works properly", {
   
   # get_* methods
   expect_error(get_dgps())
-  expect_equal(experiment$get_dgps(), get_dgps(experiment))
-  expect_equal(experiment$get_methods(), get_methods(experiment))
-  expect_equal(experiment$get_evaluators(), get_evaluators(experiment))
-  expect_equal(experiment$get_visualizers(), get_visualizers(experiment))
+  expect_equal(experiment1$get_dgps(), get_dgps(experiment1))
+  expect_equal(experiment1$get_methods(), get_methods(experiment1))
+  expect_equal(experiment1$get_evaluators(), get_evaluators(experiment1))
+  expect_equal(experiment1$get_visualizers(), get_visualizers(experiment1))
   
   # make copy of experiments for later
   experiment1_copy <- create_experiment(name = experiment1$name,
