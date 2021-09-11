@@ -17,6 +17,8 @@ remove_evaluator(experiment, name = NULL, ...)
 remove_visualizer(experiment, name = NULL, ...)
 }
 \arguments{
+\item{experiment}{An \code{Experiment} object.}
+
 \item{name}{A name to identify the object to be removed. If \code{NULL}
 (default), remove all objects of that class from the experiment. For
 example, \code{remove_dgp()} will remove all DGPs from the experiment.}

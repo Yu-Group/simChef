@@ -257,13 +257,13 @@ prettyKable <- function(X, digits = 3, sigfig = T, align = "c", caption = "",
 #' ## Bold max value of each numeric column of Iris data in red
 #' prettyDT(iris, caption = "Iris Data Table",
 #'          bold_function = ". == max(.)", bold_margin = 2,
-#'          bold_scheme = c(T, T, T, T, F), bold_color = "red")
+#'          bold_scheme = c(TRUE, TRUE, TRUE, TRUE, FALSE), bold_color = "red")
 #'             
 #' ## Bold min value of each row in Iris data
 #' prettyDT(iris %>% dplyr::select(-Species), 
-#'          sigfig = T, caption = "Iris Data Table",
+#'          sigfig = TRUE, caption = "Iris Data Table",
 #'          na_disp = "NA", bold_function = ". == min(.)", bold_margin = 1,
-#'          bold_scheme = T, bold_color = "black")
+#'          bold_scheme = TRUE, bold_color = "black")
 #' @export     
 prettyDT <- function(X, digits = 3, sigfig = T,
                      escape = F, rownames = TRUE, caption = "", na_disp = "NA",

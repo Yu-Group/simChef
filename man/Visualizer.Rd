@@ -72,7 +72,7 @@ Markdown report; if \code{FALSE}, hide output in the R Markdown report.}
 }
 \subsection{Details}{
 When visualizing or running the \code{Experiment} (see
-\code{Experiment$visualize() or \code{Experiment$run()}}), the named
+\code{Experiment$visualize()} or \code{Experiment$run()}), the named
 arguments \code{fit_results}, \code{eval_results}, and
 \code{vary_params} are automatically passed into the \code{Visualizer}
 function \code{visualizer_fun()} and serve as placeholders for the

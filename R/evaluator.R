@@ -38,7 +38,7 @@ Evaluator <- R6::R6Class(
     #' @param ... Arguments to pass into \code{eval_fun()}.
     #'
     #' @details When evaluating or running the \code{Experiment} (see
-    #'   \code{Experiment$evaluate() or \code{Experiment$run()}}), the named
+    #'   \code{Experiment$evaluate()} or \code{Experiment$run()}), the named
     #'   arguments \code{fit_results} and \code{vary_params} are automatically
     #'   passed into the \code{Evaluator} function \code{eval_fun()} and serve
     #'   as placeholders for the \code{Experiment$fit()} results (i.e., the
