@@ -1336,7 +1336,8 @@ returns a list of two:</p><dl>
 <span class='co'>## Bold max value of each numeric column of Iris data in red</span>
 <span class='fu'>prettyKable</span><span class='op'>(</span><span class='va'>iris</span>, caption <span class='op'>=</span> <span class='st'>"Iris Data Table"</span>, scroll <span class='op'>=</span> <span class='cn'>TRUE</span>,
             bold_function <span class='op'>=</span> <span class='st'>". == max(.)"</span>, bold_margin <span class='op'>=</span> <span class='fl'>2</span>,
-            bold_scheme <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='cn'>T</span>, <span class='cn'>T</span>, <span class='cn'>T</span>, <span class='cn'>T</span>, <span class='cn'>F</span><span class='op'>)</span>, bold_color <span class='op'>=</span> <span class='st'>"red"</span><span class='op'>)</span>
+            bold_scheme <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='cn'>TRUE</span>, <span class='cn'>TRUE</span>, <span class='cn'>TRUE</span>, <span class='cn'>TRUE</span>, <span class='cn'>FALSE</span><span class='op'>)</span>, 
+            bold_color <span class='op'>=</span> <span class='st'>"red"</span><span class='op'>)</span>
 </div><div class='output co'>#&gt; &lt;div style="border: 1px solid #ddd; padding: 5px; "&gt;&lt;table class="table table-striped table-hover" style="margin-left: auto; margin-right: auto;"&gt;
 #&gt; &lt;caption&gt;Iris Data Table&lt;/caption&gt;
 #&gt;  &lt;thead&gt;
@@ -2402,11 +2403,11 @@ returns a list of two:</p><dl>
 #&gt; &lt;/tbody&gt;
 #&gt; &lt;/table&gt;&lt;/div&gt;</div><div class='input'>            
 <span class='co'>## Bold min value of each row in Iris data</span>
-<span class='fu'>prettyKable</span><span class='op'>(</span><span class='va'>iris</span> <span class='op'>%&gt;%</span> <span class='fu'>dplyr</span><span class='fu'>::</span><span class='fu'><a href='https://dplyr.tidyverse.org/reference/select.html'>select</a></span><span class='op'>(</span><span class='op'>-</span><span class='va'>Species</span><span class='op'>)</span>, sigfig <span class='op'>=</span> <span class='cn'>T</span>, 
+<span class='fu'>prettyKable</span><span class='op'>(</span><span class='va'>iris</span> <span class='op'>%&gt;%</span> <span class='fu'>dplyr</span><span class='fu'>::</span><span class='fu'><a href='https://dplyr.tidyverse.org/reference/select.html'>select</a></span><span class='op'>(</span><span class='op'>-</span><span class='va'>Species</span><span class='op'>)</span>, sigfig <span class='op'>=</span> <span class='cn'>TRUE</span>, 
             caption <span class='op'>=</span> <span class='st'>"Iris Data Table"</span>, format <span class='op'>=</span> <span class='st'>"latex"</span>, 
-            scroll <span class='op'>=</span> <span class='cn'>T</span>, na_disp <span class='op'>=</span> <span class='st'>"NA"</span>,
+            scroll <span class='op'>=</span> <span class='cn'>TRUE</span>, na_disp <span class='op'>=</span> <span class='st'>"NA"</span>,
             bold_function <span class='op'>=</span> <span class='st'>". == min(.)"</span>, bold_margin <span class='op'>=</span> <span class='fl'>1</span>,
-            bold_scheme <span class='op'>=</span> <span class='cn'>T</span>, bold_color <span class='op'>=</span> <span class='st'>"black"</span><span class='op'>)</span>
+            bold_scheme <span class='op'>=</span> <span class='cn'>TRUE</span>, bold_color <span class='op'>=</span> <span class='st'>"black"</span><span class='op'>)</span>
 </div><div class='output co'>#&gt; \begin{table}[H]
 #&gt; 
 #&gt; \caption{Iris Data Table}
