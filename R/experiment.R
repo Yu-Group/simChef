@@ -22,6 +22,8 @@ Experiment <- R6::R6Class(
       dgp = list(),
       method = list()
     ),
+    .fit_params = tibble::tibble(),
+    .cached_ids = tibble::tibble(),
     .future.globals = TRUE,
     .future.packages = NULL,
     .add_obj = function(field_name, obj, obj_name, ...) {
@@ -59,6 +61,24 @@ Experiment <- R6::R6Class(
       }
       list_name <- paste0(".", field_name, "_list")
       private[[list_name]][[obj_name]] <- obj
+      # update cache
+      if (nrow(private$.cached_ids) > 0) {
+        if (field_name %in% c("dgp", "method")) {
+          field_column <- paste0(".", field_name, "_name")
+          private$.cached_ids <- private$.cached_ids %>%
+            dplyr::filter(.data[[field_column]] != obj_name) %>%
+            dplyr::mutate(.evaluators = NA, .visualizers = NA)
+        } else if (field_name == "evaluator") {
+          private$.cached_ids <- private$.cached_ids %>%
+            dplyr::mutate(.evaluators = purrr::map(.evaluators,
+                                                   ~setdiff(.x, obj_name)),
+                          .visualizers = NA)
+        } else if (field_name == "visualizer") {
+          private$.cached_ids <- private$.cached_ids %>%
+            dplyr::mutate(.visualizers = purrr::map(.visualizers, 
+                                                    ~setdiff(.x, obj_name)))
+        }
+      }
     },
     .remove_obj = function(field_name, obj_name, ...) {
       obj_list <- private$.get_obj_list(field_name, ...)
@@ -74,6 +94,16 @@ Experiment <- R6::R6Class(
         )
       } else {
         private[[list_name]][[obj_name]] <- NULL
+        # update cache
+        if (nrow(private$.cached_ids) > 0) {
+          if (field_name %in% c("dgp", "method")) {
+            private$.cached_ids <- private$.cached_ids %>%
+              dplyr::mutate(.evaluators = NA, .visualizers = NA)
+          } else if (field_name == "evaluator") {
+            private$.cached_ids <- private$.cached_ids %>%
+              dplyr::mutate(.visualizers = NA)
+          }
+        }
       }
     },
     .throw_empty_list_error = function(field_name, action_name = "run") {
@@ -181,8 +211,9 @@ Experiment <- R6::R6Class(
         return(TRUE)
       }
     },
-    .get_vary_params = function() {
-      param_names <- purrr::map(private$.vary_across_list,
+    .get_vary_params = function(field_name = c("dgp", "method")) {
+      field_name <- match.arg(field_name, several.ok = TRUE)
+      param_names <- purrr::map(private$.vary_across_list[field_name],
                                 function(x) {
                                   if (identical(x, list())) {
                                     return(NULL)
@@ -209,6 +240,171 @@ Experiment <- R6::R6Class(
         return(param_grid)
       }) %>% purrr::reduce(c)
       return(param_list)
+    },
+    .update_fit_params = function() {
+      # update/set (dgp, method) fit parameter combinations
+      dgp_params_list <- private$.combine_vary_params("dgp")
+      method_params_list <- private$.combine_vary_params("method")
+      fit_params <- purrr::cross2(dgp_params_list, method_params_list) %>%
+        purrr::map_dfr(~tibble::tibble(.dgp_name = .x[[1]]$dgp_name,
+                                       .dgp = .x[1],
+                                       .method_name = .x[[2]]$method_name,
+                                       .method = .x[2]))
+      private$.fit_params <- fit_params
+    },
+    .get_fit_params = function(simplify = FALSE) {
+      # get (dgp, method) fit parameter combinations
+      fit_params <- private$.fit_params
+      if (simplify) {
+        for (param_name in private$.get_vary_params("dgp")) {
+          fit_params[[param_name]] <- purrr::map(fit_params$.dgp,
+                                                 ~.x[[param_name]])
+        }
+        for (param_name in private$.get_vary_params("method")) {
+          fit_params[[param_name]] <- purrr::map(fit_params$.method,
+                                                 ~.x[[param_name]])
+        }
+        fit_params <- fit_params %>%
+          dplyr::select(-.dgp, -.method) %>%
+          dplyr::rename(dgp_name = .dgp_name, method_name = .method_name)
+        return(simplify_tibble(fit_params, omit_cols = c(".dgp", ".method")))
+      }
+      return(fit_params)
+    },
+    .get_new_fit_params = function(n_reps = NULL) {
+      # get new uncached (dgp, method) fit parameter combinations
+      fit_params <- private$.get_fit_params()
+      if (nrow(private$.cached_ids) == 0) {
+        return(fit_params)
+      }
+      cached_params <- private$.cached_ids %>%
+        dplyr::filter(n_reps >= {{n_reps}}) %>%
+        dplyr::select(-n_reps, -.evaluators, -.visualizers)
+      cached_idxs <- dplyr::bind_rows(fit_params, cached_params) %>%
+        duplicated(fromLast = TRUE)
+      return(fit_params[!cached_idxs[1:nrow(fit_params)], ])
+    },
+    .get_new_dgp_params = function(method_params, new_fit_params) {
+      # get new dgp parameter combinations given method parameter set
+      dgp_params_list <- new_fit_params %>%
+        dplyr::filter(sapply(.method, identical, method_params)) %>%
+        dplyr::pull(.dgp)
+      return(dgp_params_list)
+    },
+    .get_new_method_params = function(dgp_params, new_fit_params) {
+      # get new method parameter combinations given dgp parameter set
+      method_params_list <- new_fit_params %>%
+        dplyr::filter(sapply(.dgp, identical, dgp_params)) %>%
+        dplyr::pull(.method)
+      return(method_params_list)
+    },
+    .get_new_obj_list = function(field_name = c("dgp", "method",
+                                                "evaluator", "visualizer"),
+                                 new_fit_params = NULL) {
+      # get new uncached objects for a certain class in the Experiment
+      field_name <- match.arg(field_name)
+      if (field_name %in% c("dgp", "method")) {
+        return(unique(new_fit_params[[paste0(".", field_name)]]))
+      } else if (field_name %in% c("evaluator", "visualizer")) {
+        obj_names <- setdiff(
+          names(private[[paste0(".", field_name, "_list")]]), 
+          private$.cached_ids[[paste0(".", field_name, "s")]][[1]]
+        )
+        return(private[[paste0(".", field_name, "_list")]][obj_names])
+      }
+    },
+    .is_fully_cached = function(results_type = c("fit", "eval", "visualize"),
+                                n_reps = NULL) {
+      # has the Experiment been completely cached
+      results_type <- match.arg(results_type)
+      if (nrow(private$.cached_ids) == 0) {
+        return(FALSE)
+      }
+      if (is.null(n_reps)) {
+        n_reps <- 0
+      }
+      fit_params <- private$.get_fit_params()
+      fit_cached <- dplyr::bind_rows(
+        fit_params, 
+        private$.cached_ids %>%
+          dplyr::filter(n_reps >= {{n_reps}}) %>%
+          dplyr::select(-n_reps, -`.evaluators`, -`.visualizers`)
+      ) %>%
+        duplicated(fromLast = TRUE) %>%
+        .[1:nrow(fit_params)] %>%
+        all()
+      if (identical(results_type, "fit")) {
+        return(fit_cached)
+      } else if (!fit_cached) {
+        stop("Changes have been made to the Experiment since last cache. ",
+             "Please run Experiment$fit(..., save = T) before trying to use ",
+             "cached fit results in Experiment$evaluate(..., use_cached = T) ",
+             "or in Experiment$visualize(..., use_cached = T).",
+             call. = FALSE)
+      }
+      
+      evaluator_names <- names(private$.get_obj_list("evaluator"))
+      eval_cached <- all(purrr::map_lgl(private$.cached_ids$.evaluators,
+                                        ~all(evaluator_names %in% .x)))
+      if (identical(results_type, "eval")) {
+        return(eval_cached)
+      } else if (!eval_cached) {
+        stop("Changes have been made to the Experiment since last cache. ",
+             "Please run Experiment$evaluate(..., save = T) before trying to ",
+             "use cached results in Experiment$visualize(..., use_cached = T).",
+             call. = FALSE)
+      }
+      
+      visualizer_names <- names(private$.get_obj_list("visualizer"))
+      visualizer_cached <- all(purrr::map_lgl(private$.cached_ids$.visualizers,
+                                              ~all(visualizer_names %in% .x)))
+      return(visualizer_cached)
+    },
+    .get_cached_results = function(results_type = c("fit", "eval", "visualize"),
+                                   verbose = 1) {
+      results_type <- match.arg(results_type)
+      if (verbose >= 1) {
+        message(sprintf("Reading in cached %s results...", results_type))
+      }
+      if (!private$.has_vary_across()) {
+        save_dir <- private$.save_dir
+      } else {
+        obj_names <- purrr::map(private$.vary_across_list, names) %>%
+          purrr::reduce(c) %>%
+          paste(collapse = "-")
+        param_names <- private$.get_vary_params() %>%
+          paste(collapse = "-")
+        save_dir <- file.path(private$.save_dir, obj_names,
+                              paste("Varying", param_names))
+      }
+      save_file <- file.path(save_dir, paste0(results_type, "_results.rds"))
+      if (file.exists(save_file)) {
+        return(readRDS(save_file))
+      } else {
+        if (verbose >= 1) {
+          message(sprintf("Cannot find cached %s results.", results_type))
+        }
+        return(NULL)
+      }
+    },
+    .update_cache = function(results_type = c("fit", "eval", "visualize"), 
+                             n_reps = NULL) {
+      results_type <- match.arg(results_type)
+      if (identical(results_type, "fit")) {
+        private$.cached_ids <- private$.get_fit_params() %>%
+          dplyr::mutate(.evaluators = NA, .visualizers = NA, n_reps = n_reps)
+      } else if (identical(results_type, "eval")) {
+        private$.cached_ids <- private$.cached_ids %>%
+          dplyr::mutate(
+            .evaluators = list(names(private$.get_obj_list("evaluator"))),
+            .visualizers = NA
+          )
+      } else if (identical(results_type, "visualize")) {
+        private$.cached_ids <- private$.cached_ids %>%
+          dplyr::mutate(
+            .visualizers = list(names(private$.get_obj_list("visualizer")))
+          )
+      }
     },
     .save_results = function(results, results_type = c("fit", "eval", "visualize"),
                              verbose = 1) {
@@ -239,36 +435,6 @@ Experiment <- R6::R6Class(
                         R.utils::capitalize(results_type),
                         difftime(Sys.time(), start_time, units = "secs")))
         message("==============================")
-      }
-    },
-    .get_cached_results = function(results_type = c("fit", "eval", "visualize"),
-                                   verbose = 1) {
-      results_type <- match.arg(results_type)
-      if (verbose >= 1) {
-        message(sprintf("Reading in cached %s results...", results_type))
-      }
-      if (!private$.has_vary_across()) {
-        save_dir <- private$.save_dir
-      } else {
-        obj_names <- purrr::map(private$.vary_across_list, names) %>%
-          purrr::reduce(c) %>%
-          paste(collapse = "-")
-        param_names <- param_names <- private$.get_vary_params() %>%
-          paste(collapse = "-")
-        save_dir <- file.path(private$.save_dir, obj_names,
-                              paste("Varying", param_names))
-      }
-      save_file <- file.path(save_dir, paste0(results_type, "_results.rds"))
-      if (file.exists(save_file)) {
-        if (verbose >= 1) {
-          message("==============================")
-        }
-        return(readRDS(save_file))
-      } else {
-        if (verbose >= 1) {
-          message(sprintf("Cannot find cached %s results.", results_type))
-        }
-        return(NULL)
       }
     },
     deep_clone = function(name, value) {
@@ -499,10 +665,33 @@ Experiment <- R6::R6Class(
     fit = function(n_reps = 1, parallel_strategy = c("reps"),
                    future.globals = NULL, future.packages = NULL,
                    use_cached = FALSE, save = FALSE, verbose = 1, ...) {
+
+      dgp_list <- private$.get_obj_list("dgp")
+      method_list <- private$.get_obj_list("method")
+      if (length(dgp_list) == 0) {
+        private$.throw_empty_list_error("dgp", "generate data from")
+      }
+      if (length(method_list) == 0) {
+        private$.throw_empty_list_error("method", "fit methods in")
+      }
+
       if (use_cached) {
-        results <- private$.get_cached_results("fit", verbose = verbose)
-        if (!is.null(results)) {
-          return(results)
+        private$.update_fit_params()
+        if (private$.is_fully_cached("fit", n_reps = n_reps)) {
+          results <- private$.get_cached_results("fit", verbose = verbose)
+          fit_params <- private$.get_fit_params(simplify = TRUE)
+          fit_results <- dplyr::inner_join(x = results, 
+                                           y = fit_params, 
+                                           by = colnames(fit_params)) %>%
+            dplyr::filter(as.numeric(rep) <= n_reps)
+          if (nrow(results) != nrow(fit_results)) {
+            private$.save_results(fit_results, "fit", verbose)
+            private$.update_cache("fit", n_reps = n_reps)
+          }
+          if (verbose >= 1) {
+            message("==============================")
+          }
+          return(fit_results)
         }
       }
 
@@ -529,14 +718,6 @@ Experiment <- R6::R6Class(
         strategy_string <- paste0(c(strategy_string, "methods"), collapse="+")
       }
       parallel_strategy <- strategy_string
-      dgp_list <- private$.get_obj_list("dgp")
-      method_list <- private$.get_obj_list("method")
-      if (length(dgp_list) == 0) {
-        private$.throw_empty_list_error("dgp", "generate data from")
-      }
-      if (length(method_list) == 0) {
-        private$.throw_empty_list_error("method", "fit methods in")
-      }
 
       if (is.null(future.packages)) {
         future.packages <- private$.future.packages
@@ -548,34 +729,30 @@ Experiment <- R6::R6Class(
       dgp_params_list <- private$.combine_vary_params("dgp")
       method_params_list <- private$.combine_vary_params("method")
 
-      fit_results <- switch(
-        parallel_strategy,
-        "reps" = {
-          results <- future.apply::future_replicate(n_reps, {
-            purrr::map_dfr(dgp_params_list, function(dgp_params) {
-              dgp_name <- dgp_params$dgp_name
-              dgp_params$dgp_name <- NULL
-              data_list <- do.call(dgp_list[[dgp_name]]$generate, dgp_params)
-              purrr::map_dfr(method_params_list, function(method_params) {
-                method_name <- method_params$method_name
-                param_df <- simplify_tibble(list_to_tibble_row(
-                  c(dgp_name = dgp_name, dgp_params, method_params)
-                ))
-                method_params$method_name <- NULL
-                method_params$data_list <- data_list
-                result <- do.call(method_list[[method_name]]$fit, method_params)
-                return(result %>% tibble::add_column(param_df, .before=1))
-              })
-            })
-          }, simplify=FALSE,
-          future.globals = future.globals,
-          future.packages = future.packages)
-          dplyr::bind_rows(results, .id = "rep")
-        },
-        "dgps" = {
-          results <- future.apply::future_lapply(
-            dgp_params_list, function(dgp_params) {
-              reps <- replicate(n_reps, {
+      check_cache <- FALSE
+      if (use_cached) {
+        new_fit_params <- private$.get_new_fit_params(n_reps)
+        n_params <- nrow(new_fit_params)
+        new_fit <- n_params == nrow(private$.get_fit_params())
+        if (!new_fit) {
+          dgp_params_list <- private$.get_new_obj_list(
+            "dgp", new_fit_params = new_fit_params
+          )
+          method_params_list <- private$.get_new_obj_list(
+            "method", new_fit_params = new_fit_params
+          )
+          if (length(dgp_params_list)*length(method_params_list) != n_params) {
+            check_cache <- TRUE
+          }
+        }
+      }
+
+      if (!check_cache) {
+        fit_results <- switch(
+          parallel_strategy,
+          "reps" = {
+            results <- future.apply::future_replicate(n_reps, {
+              purrr::map_dfr(dgp_params_list, function(dgp_params) {
                 dgp_name <- dgp_params$dgp_name
                 dgp_params$dgp_name <- NULL
                 data_list <- do.call(dgp_list[[dgp_name]]$generate, dgp_params)
@@ -589,17 +766,93 @@ Experiment <- R6::R6Class(
                   result <- do.call(method_list[[method_name]]$fit, method_params)
                   return(result %>% tibble::add_column(param_df, .before=1))
                 })
-              }, simplify=FALSE)
-              dplyr::bind_rows(reps, .id = "rep")
-            }, future.seed = TRUE,
+              })
+            }, simplify=FALSE,
             future.globals = future.globals,
             future.packages = future.packages)
-          dplyr::bind_rows(results)
-        },
-        "methods" = {
-          results <- future.apply::future_lapply(
-            method_params_list, function(method_params) {
-              reps <- replicate(n_reps, {
+            dplyr::bind_rows(results, .id = "rep")
+          },
+          "dgps" = {
+            results <- future.apply::future_lapply(
+              dgp_params_list, function(dgp_params) {
+                reps <- replicate(n_reps, {
+                  dgp_name <- dgp_params$dgp_name
+                  dgp_params$dgp_name <- NULL
+                  data_list <- do.call(dgp_list[[dgp_name]]$generate, dgp_params)
+                  purrr::map_dfr(method_params_list, function(method_params) {
+                    method_name <- method_params$method_name
+                    param_df <- simplify_tibble(list_to_tibble_row(
+                      c(dgp_name = dgp_name, dgp_params, method_params)
+                    ))
+                    method_params$method_name <- NULL
+                    method_params$data_list <- data_list
+                    result <- do.call(method_list[[method_name]]$fit, method_params)
+                    return(result %>% tibble::add_column(param_df, .before=1))
+                  })
+                }, simplify=FALSE)
+                dplyr::bind_rows(reps, .id = "rep")
+              }, future.seed = TRUE,
+              future.globals = future.globals,
+              future.packages = future.packages)
+            dplyr::bind_rows(results)
+          },
+          "methods" = {
+            results <- future.apply::future_lapply(
+              method_params_list, function(method_params) {
+                reps <- replicate(n_reps, {
+                  purrr::map_dfr(dgp_params_list, function(dgp_params) {
+                    dgp_name <- dgp_params$dgp_name
+                    dgp_params$dgp_name <- NULL
+                    data_list <- do.call(dgp_list[[dgp_name]]$generate, dgp_params)
+                    method_name <- method_params$method_name
+                    param_df <- simplify_tibble(list_to_tibble_row(
+                      c(dgp_name = dgp_name, dgp_params, method_params)
+                    ))
+                    method_params$method_name <- NULL
+                    method_params$data_list <- data_list
+                    result <- do.call(method_list[[method_name]]$fit, method_params)
+                    return(result %>% tibble::add_column(param_df, .before=1))
+                  })
+                }, simplify=FALSE)
+                dplyr::bind_rows(reps, .id = "rep")
+              }, future.seed = TRUE,
+              future.globals = future.globals,
+              future.packages = future.packages)
+            dplyr::bind_rows(results)
+          },
+          "reps+dgps" = {
+            n_dgps <- length(dgp_params_list)
+            dgp_params_list <- rep(dgp_params_list, times = n_reps)
+            results <- future.apply::future_lapply(
+              dgp_params_list,
+              function(dgp_params) {
+                dgp_name <- dgp_params$dgp_name
+                dgp_params$dgp_name <- NULL
+                data_list <- do.call(dgp_list[[dgp_name]]$generate, dgp_params)
+                purrr::map_dfr(method_params_list, function(method_params) {
+                  method_name <- method_params$method_name
+                  param_df <- simplify_tibble(list_to_tibble_row(
+                    c(dgp_name = dgp_name, dgp_params, method_params)
+                  ))
+                  method_params$method_name <- NULL
+                  method_params$data_list <- data_list
+                  result <- do.call(method_list[[method_name]]$fit, method_params)
+                  return(result %>% tibble::add_column(param_df, .before=1))
+                })
+              }, future.seed = TRUE,
+              future.globals = future.globals,
+              future.packages = future.packages
+            )
+            results <- dplyr::bind_rows(results)
+            results$rep <- rep(1:n_reps, each = n_dgps*length(method_params_list))
+            results
+          },
+          "reps+methods" = {
+            n_methods <- length(method_params_list)
+            method_params_list <- rep(method_params_list, times = n_reps)
+            results <- future.apply::future_lapply(
+              method_params_list,
+              function(method_params) {
                 purrr::map_dfr(dgp_params_list, function(dgp_params) {
                   dgp_name <- dgp_params$dgp_name
                   dgp_params$dgp_name <- NULL
@@ -613,136 +866,301 @@ Experiment <- R6::R6Class(
                   result <- do.call(method_list[[method_name]]$fit, method_params)
                   return(result %>% tibble::add_column(param_df, .before=1))
                 })
-              }, simplify=FALSE)
-              dplyr::bind_rows(reps, .id = "rep")
-            }, future.seed = TRUE,
-            future.globals = future.globals,
-            future.packages = future.packages)
-          dplyr::bind_rows(results)
-        },
-        "reps+dgps" = {
-          n_dgps <- length(dgp_params_list)
-          dgp_params_list <- rep(dgp_params_list, times = n_reps)
-          results <- future.apply::future_lapply(
-            dgp_params_list,
-            function(dgp_params) {
-              dgp_name <- dgp_params$dgp_name
-              dgp_params$dgp_name <- NULL
-              data_list <- do.call(dgp_list[[dgp_name]]$generate, dgp_params)
-              purrr::map_dfr(method_params_list, function(method_params) {
-                method_name <- method_params$method_name
-                param_df <- simplify_tibble(list_to_tibble_row(
-                  c(dgp_name = dgp_name, dgp_params, method_params)
-                ))
-                method_params$method_name <- NULL
-                method_params$data_list <- data_list
-                result <- do.call(method_list[[method_name]]$fit, method_params)
-                return(result %>% tibble::add_column(param_df, .before=1))
-              })
-            }, future.seed = TRUE,
-            future.globals = future.globals,
-            future.packages = future.packages
-          )
-          results <- dplyr::bind_rows(results)
-          results$rep <- rep(1:n_reps, each = n_dgps*length(method_params_list))
-          results
-        },
-        "reps+methods" = {
-          n_methods <- length(method_params_list)
-          method_params_list <- rep(method_params_list, times = n_reps)
-          results <- future.apply::future_lapply(
-            method_params_list,
-            function(method_params) {
-              purrr::map_dfr(dgp_params_list, function(dgp_params) {
-                dgp_name <- dgp_params$dgp_name
-                dgp_params$dgp_name <- NULL
-                data_list <- do.call(dgp_list[[dgp_name]]$generate, dgp_params)
-                method_name <- method_params$method_name
-                param_df <- simplify_tibble(list_to_tibble_row(
-                  c(dgp_name = dgp_name, dgp_params, method_params)
-                ))
-                method_params$method_name <- NULL
-                method_params$data_list <- data_list
-                result <- do.call(method_list[[method_name]]$fit, method_params)
-                return(result %>% tibble::add_column(param_df, .before=1))
-              })
-            },
-            future.seed = TRUE,
-            future.globals = future.globals,
-            future.packages = future.packages
-          )
-          results <- dplyr::bind_rows(results)
-          results$rep <- rep(
-            1:n_reps, each = length(dgp_params_list)*n_methods
-          )
-          results
-        },
-        "dgps+methods" = {
-          mapply_args <- purrr::cross2(
-            dgp_params_list, method_params_list
-          )
-          # shuffle the inputs to avoid bad load balancing
-          mapply_args <- mapply_args[sample(1:length(mapply_args))]
-          dgp_mapply_args <- lapply(mapply_args, `[[`, 1)
-          method_mapply_args <- lapply(mapply_args, `[[`, 2)
-          results <- future.apply::future_mapply(
-            function(dgp_params, method_params) {
-              reps <- replicate(n_reps, {
-                dgp_name <- dgp_params$dgp_name
-                dgp_params$dgp_name <- NULL
-                data_list <- do.call(dgp_list[[dgp_name]]$generate, dgp_params)
-                method_name <- method_params$method_name
-                param_df <- simplify_tibble(list_to_tibble_row(
-                  c(dgp_name = dgp_name, dgp_params, method_params)
-                ))
-                method_params$method_name <- NULL
-                method_params$data_list <- data_list
-                result <- do.call(method_list[[method_name]]$fit, method_params)
-                return(result %>% tibble::add_column(param_df, .before=1))
-              }, simplify=FALSE)
-              dplyr::bind_rows(reps, .id = "rep")
-            },
-            dgp_mapply_args, method_mapply_args,
-            future.seed = TRUE, SIMPLIFY = FALSE,
-            future.globals = future.globals,
-            future.packages = future.packages
-          )
-          dplyr::bind_rows(results)
-        },
-        "reps+dgps+methods" = {
-          mapply_args <- purrr::cross3(
-            1:n_reps, dgp_params_list, method_params_list
-          )
-          # shuffle the inputs to avoid bad load balancing
-          mapply_args <- mapply_args[sample(1:length(mapply_args))]
-          reps <- sapply(mapply_args, `[[`, 1)
-          dgp_mapply_args <- lapply(mapply_args, `[[`, 2)
-          method_mapply_args <- lapply(mapply_args, `[[`, 3)
-          results <- dplyr::bind_rows(
-            future.apply::future_mapply(
+              },
+              future.seed = TRUE,
+              future.globals = future.globals,
+              future.packages = future.packages
+            )
+            results <- dplyr::bind_rows(results)
+            results$rep <- rep(
+              1:n_reps, each = length(dgp_params_list)*n_methods
+            )
+            results
+          },
+          "dgps+methods" = {
+            mapply_args <- purrr::cross2(
+              dgp_params_list, method_params_list
+            )
+            # shuffle the inputs to avoid bad load balancing
+            mapply_args <- mapply_args[sample(1:length(mapply_args))]
+            dgp_mapply_args <- lapply(mapply_args, `[[`, 1)
+            method_mapply_args <- lapply(mapply_args, `[[`, 2)
+            results <- future.apply::future_mapply(
               function(dgp_params, method_params) {
-                dgp_name <- dgp_params$dgp_name
-                dgp_params$dgp_name <- NULL
-                data_list <- do.call(dgp_list[[dgp_name]]$generate, dgp_params)
-                method_name <- method_params$method_name
-                param_df <- simplify_tibble(list_to_tibble_row(
-                  c(dgp_name = dgp_name, dgp_params, method_params)
-                ))
-                method_params$method_name <- NULL
-                method_params$data_list <- data_list
-                result <- do.call(method_list[[method_name]]$fit, method_params)
-                return(result %>% tibble::add_column(param_df, .before=1))
+                reps <- replicate(n_reps, {
+                  dgp_name <- dgp_params$dgp_name
+                  dgp_params$dgp_name <- NULL
+                  data_list <- do.call(dgp_list[[dgp_name]]$generate, dgp_params)
+                  method_name <- method_params$method_name
+                  param_df <- simplify_tibble(list_to_tibble_row(
+                    c(dgp_name = dgp_name, dgp_params, method_params)
+                  ))
+                  method_params$method_name <- NULL
+                  method_params$data_list <- data_list
+                  result <- do.call(method_list[[method_name]]$fit, method_params)
+                  return(result %>% tibble::add_column(param_df, .before=1))
+                }, simplify=FALSE)
+                dplyr::bind_rows(reps, .id = "rep")
               },
               dgp_mapply_args, method_mapply_args,
               future.seed = TRUE, SIMPLIFY = FALSE,
               future.globals = future.globals,
               future.packages = future.packages
             )
-          )
-          results$rep <- reps
-          results
-        }
-      )
+            dplyr::bind_rows(results)
+          },
+          "reps+dgps+methods" = {
+            mapply_args <- purrr::cross3(
+              1:n_reps, dgp_params_list, method_params_list
+            )
+            # shuffle the inputs to avoid bad load balancing
+            mapply_args <- mapply_args[sample(1:length(mapply_args))]
+            reps <- sapply(mapply_args, `[[`, 1)
+            dgp_mapply_args <- lapply(mapply_args, `[[`, 2)
+            method_mapply_args <- lapply(mapply_args, `[[`, 3)
+            results <- dplyr::bind_rows(
+              future.apply::future_mapply(
+                function(dgp_params, method_params) {
+                  dgp_name <- dgp_params$dgp_name
+                  dgp_params$dgp_name <- NULL
+                  data_list <- do.call(dgp_list[[dgp_name]]$generate, dgp_params)
+                  method_name <- method_params$method_name
+                  param_df <- simplify_tibble(list_to_tibble_row(
+                    c(dgp_name = dgp_name, dgp_params, method_params)
+                  ))
+                  method_params$method_name <- NULL
+                  method_params$data_list <- data_list
+                  result <- do.call(method_list[[method_name]]$fit, method_params)
+                  return(result %>% tibble::add_column(param_df, .before=1))
+                },
+                dgp_mapply_args, method_mapply_args,
+                future.seed = TRUE, SIMPLIFY = FALSE,
+                future.globals = future.globals,
+                future.packages = future.packages
+              )
+            )
+            results$rep <- reps
+            results
+          }
+        )
+      } else {
+        fit_results <- switch(
+          parallel_strategy,
+          "reps" = {
+            results <- future.apply::future_replicate(n_reps, {
+              purrr::map_dfr(dgp_params_list, function(dgp_params) {
+                method_params_list <- private$.get_new_method_params(
+                  dgp_params, new_fit_params
+                )
+                dgp_name <- dgp_params$dgp_name
+                dgp_params$dgp_name <- NULL
+                data_list <- do.call(dgp_list[[dgp_name]]$generate, dgp_params)
+                purrr::map_dfr(method_params_list, function(method_params) {
+                  method_name <- method_params$method_name
+                  param_df <- simplify_tibble(list_to_tibble_row(
+                    c(dgp_name = dgp_name, dgp_params, method_params)
+                  ))
+                  method_params$method_name <- NULL
+                  method_params$data_list <- data_list
+                  result <- do.call(method_list[[method_name]]$fit, method_params)
+                  return(result %>% tibble::add_column(param_df, .before=1))
+                })
+              })
+            }, simplify=FALSE,
+            future.globals = future.globals,
+            future.packages = future.packages)
+            dplyr::bind_rows(results, .id = "rep")
+          },
+          "dgps" = {
+            results <- future.apply::future_lapply(
+              dgp_params_list, function(dgp_params) {
+                method_params_list <- private$.get_new_method_params(
+                  dgp_params, new_fit_params
+                )
+                reps <- replicate(n_reps, {
+                  dgp_name <- dgp_params$dgp_name
+                  dgp_params$dgp_name <- NULL
+                  data_list <- do.call(dgp_list[[dgp_name]]$generate, dgp_params)
+                  purrr::map_dfr(method_params_list, function(method_params) {
+                    method_name <- method_params$method_name
+                    param_df <- simplify_tibble(list_to_tibble_row(
+                      c(dgp_name = dgp_name, dgp_params, method_params)
+                    ))
+                    method_params$method_name <- NULL
+                    method_params$data_list <- data_list
+                    result <- do.call(method_list[[method_name]]$fit, method_params)
+                    return(result %>% tibble::add_column(param_df, .before=1))
+                  })
+                }, simplify=FALSE)
+                dplyr::bind_rows(reps, .id = "rep")
+              }, future.seed = TRUE,
+              future.globals = future.globals,
+              future.packages = future.packages)
+            dplyr::bind_rows(results)
+          },
+          "methods" = {
+            results <- future.apply::future_lapply(
+              method_params_list, function(method_params) {
+                dgp_params_list <- private$.get_new_dgp_params(
+                  method_params, new_fit_params
+                )
+                reps <- replicate(n_reps, {
+                  purrr::map_dfr(dgp_params_list, function(dgp_params) {
+                    dgp_name <- dgp_params$dgp_name
+                    dgp_params$dgp_name <- NULL
+                    data_list <- do.call(dgp_list[[dgp_name]]$generate, dgp_params)
+                    method_name <- method_params$method_name
+                    param_df <- simplify_tibble(list_to_tibble_row(
+                      c(dgp_name = dgp_name, dgp_params, method_params)
+                    ))
+                    method_params$method_name <- NULL
+                    method_params$data_list <- data_list
+                    result <- do.call(method_list[[method_name]]$fit, method_params)
+                    return(result %>% tibble::add_column(param_df, .before=1))
+                  })
+                }, simplify=FALSE)
+                dplyr::bind_rows(reps, .id = "rep")
+              }, future.seed = TRUE,
+              future.globals = future.globals,
+              future.packages = future.packages)
+            dplyr::bind_rows(results)
+          },
+          "reps+dgps" = {
+            n_dgps <- length(dgp_params_list)
+            dgp_params_list <- rep(dgp_params_list, times = n_reps)
+            results <- future.apply::future_lapply(
+              dgp_params_list,
+              function(dgp_params) {
+                method_params_list <- private$.get_new_method_params(
+                  dgp_params, new_fit_params
+                )
+                dgp_name <- dgp_params$dgp_name
+                dgp_params$dgp_name <- NULL
+                data_list <- do.call(dgp_list[[dgp_name]]$generate, dgp_params)
+                purrr::map_dfr(method_params_list, function(method_params) {
+                  method_name <- method_params$method_name
+                  param_df <- simplify_tibble(list_to_tibble_row(
+                    c(dgp_name = dgp_name, dgp_params, method_params)
+                  ))
+                  method_params$method_name <- NULL
+                  method_params$data_list <- data_list
+                  result <- do.call(method_list[[method_name]]$fit, method_params)
+                  return(result %>% tibble::add_column(param_df, .before=1))
+                })
+              }, future.seed = TRUE,
+              future.globals = future.globals,
+              future.packages = future.packages
+            )
+            results <- dplyr::bind_rows(results)
+            results$rep <- rep(1:n_reps, each = n_dgps*length(method_params_list))
+            results
+          },
+          "reps+methods" = {
+            n_methods <- length(method_params_list)
+            method_params_list <- rep(method_params_list, times = n_reps)
+            results <- future.apply::future_lapply(
+              method_params_list,
+              function(method_params) {
+                dgp_params_list <- private$.get_new_dgp_params(
+                  method_params, new_fit_params
+                )
+                purrr::map_dfr(dgp_params_list, function(dgp_params) {
+                  dgp_name <- dgp_params$dgp_name
+                  dgp_params$dgp_name <- NULL
+                  data_list <- do.call(dgp_list[[dgp_name]]$generate, dgp_params)
+                  method_name <- method_params$method_name
+                  param_df <- simplify_tibble(list_to_tibble_row(
+                    c(dgp_name = dgp_name, dgp_params, method_params)
+                  ))
+                  method_params$method_name <- NULL
+                  method_params$data_list <- data_list
+                  result <- do.call(method_list[[method_name]]$fit, method_params)
+                  return(result %>% tibble::add_column(param_df, .before=1))
+                })
+              },
+              future.seed = TRUE,
+              future.globals = future.globals,
+              future.packages = future.packages
+            )
+            results <- dplyr::bind_rows(results)
+            results$rep <- rep(
+              1:n_reps, each = length(dgp_params_list)*n_methods
+            )
+            results
+          },
+          "dgps+methods" = {
+            mapply_args <- purrr::map2(new_fit_params$.dgp,
+                                       new_fit_params$.method,
+                                       ~c(list(.x), list(.y)))
+            # shuffle the inputs to avoid bad load balancing
+            mapply_args <- mapply_args[sample(1:length(mapply_args))]
+            dgp_mapply_args <- lapply(mapply_args, `[[`, 1)
+            method_mapply_args <- lapply(mapply_args, `[[`, 2)
+            results <- future.apply::future_mapply(
+              function(dgp_params, method_params) {
+                reps <- replicate(n_reps, {
+                  dgp_name <- dgp_params$dgp_name
+                  dgp_params$dgp_name <- NULL
+                  data_list <- do.call(dgp_list[[dgp_name]]$generate, dgp_params)
+                  method_name <- method_params$method_name
+                  param_df <- simplify_tibble(list_to_tibble_row(
+                    c(dgp_name = dgp_name, dgp_params, method_params)
+                  ))
+                  method_params$method_name <- NULL
+                  method_params$data_list <- data_list
+                  result <- do.call(method_list[[method_name]]$fit, method_params)
+                  return(result %>% tibble::add_column(param_df, .before=1))
+                }, simplify=FALSE)
+                dplyr::bind_rows(reps, .id = "rep")
+              },
+              dgp_mapply_args, method_mapply_args,
+              future.seed = TRUE, SIMPLIFY = FALSE,
+              future.globals = future.globals,
+              future.packages = future.packages
+            )
+            dplyr::bind_rows(results)
+          },
+          "reps+dgps+methods" = {
+            mapply_args <- purrr::map2(new_fit_params$.dgp,
+                                       new_fit_params$.method,
+                                       ~c(list(.x), list(.y)))
+            mapply_args <- purrr::map(1:n_reps,
+                                      function(i) {
+                                        purrr::map(mapply_args, 
+                                                   ~c(list(i), .x))
+                                      }) %>%
+              purrr::reduce(c)
+            # shuffle the inputs to avoid bad load balancing
+            mapply_args <- mapply_args[sample(1:length(mapply_args))]
+            reps <- sapply(mapply_args, `[[`, 1)
+            dgp_mapply_args <- lapply(mapply_args, `[[`, 2)
+            method_mapply_args <- lapply(mapply_args, `[[`, 3)
+            results <- dplyr::bind_rows(
+              future.apply::future_mapply(
+                function(dgp_params, method_params) {
+                  dgp_name <- dgp_params$dgp_name
+                  dgp_params$dgp_name <- NULL
+                  data_list <- do.call(dgp_list[[dgp_name]]$generate, dgp_params)
+                  method_name <- method_params$method_name
+                  param_df <- simplify_tibble(list_to_tibble_row(
+                    c(dgp_name = dgp_name, dgp_params, method_params)
+                  ))
+                  method_params$method_name <- NULL
+                  method_params$data_list <- data_list
+                  result <- do.call(method_list[[method_name]]$fit, method_params)
+                  return(result %>% tibble::add_column(param_df, .before=1))
+                },
+                dgp_mapply_args, method_mapply_args,
+                future.seed = TRUE, SIMPLIFY = FALSE,
+                future.globals = future.globals,
+                future.packages = future.packages
+              )
+            )
+            results$rep <- reps
+            results
+          }
+        )
+      }
 
       fit_results <- simplify_tibble(fit_results) %>%
         dplyr::select(rep, dgp_name, method_name,
@@ -750,6 +1168,17 @@ Experiment <- R6::R6Class(
                       tidyselect::everything()) %>%
         dplyr::arrange(as.numeric(rep), dgp_name, method_name)
 
+      if (use_cached && !new_fit) {
+        fit_results_cached <- private$.get_cached_results("fit", 
+                                                          verbose = verbose)
+        message("Appending cached results to the new fit results...")
+        fit_params <- private$.get_fit_params(simplify = TRUE)
+        fit_results <- dplyr::bind_rows(fit_results, fit_results_cached) %>%
+          dplyr::inner_join(y = fit_params, by = colnames(fit_params)) %>%
+          dplyr::filter(as.numeric(rep) <= n_reps) %>%
+          dplyr::arrange(as.numeric(rep), dgp_name, method_name)
+      }
+      
       if (verbose >= 1) {
         message(sprintf("Fitting completed | time taken: %f minutes",
                         difftime(Sys.time(), start_time, units = "mins")))
@@ -760,6 +1189,7 @@ Experiment <- R6::R6Class(
 
       if (save) {
         private$.save_results(fit_results, "fit", verbose)
+        private$.update_cache("fit", n_reps = n_reps)
       }
       return(fit_results)
     },
@@ -781,25 +1211,44 @@ Experiment <- R6::R6Class(
     #'   \code{Evaluator}.
     evaluate = function(fit_results, use_cached = FALSE, save = FALSE,
                         verbose = 1, ...) {
+      evaluator_list <- private$.get_obj_list("evaluator")
+      evaluator_names <- names(evaluator_list)
+      if (length(evaluator_list) == 0) {
+        private$.throw_empty_list_error("evaluator", "evaluate")
+      }
+
       if (use_cached) {
-        results <- private$.get_cached_results("eval", verbose = verbose)
-        if (!is.null(results)) {
+        private$.update_fit_params()
+        if (private$.is_fully_cached("eval")) {
+          results <- private$.get_cached_results("eval", verbose = verbose)
+          if (!setequal(names(private$.get_obj_list("evaluator")),
+                        names(results))) {
+            results <- results[names(private$.get_obj_list("evaluator"))]
+            private$.save_results(results, "eval", verbose)
+            private$.update_cache("eval")
+          } else if (verbose >= 1) {
+            message("==============================")
+          }
           return(results)
+        } else {
+          evaluator_list <- private$.get_new_obj_list("evaluator")
         }
       }
+
       if (verbose >= 1) {
         message(sprintf("Evaluating %s...", self$name))
         start_time <- Sys.time()
-      }
-      evaluator_list <- private$.get_obj_list("evaluator")
-      if (length(evaluator_list) == 0) {
-        private$.throw_empty_list_error("evaluator", "evaluate")
       }
       eval_results <- purrr::map(evaluator_list, function(evaluator) {
         evaluator$evaluate(fit_results = fit_results,
                            vary_params = private$.get_vary_params())
       })
-
+      if (use_cached && !setequal(names(evaluator_list), evaluator_names)) {
+        eval_results_cached <- private$.get_cached_results("eval",
+                                                           verbose = verbose)
+        message("Appending cached results to the new evaluation results...")
+        eval_results <- c(eval_results, eval_results_cached)[evaluator_names]
+      }
       if (verbose >= 1) {
         message(sprintf("Evaluation completed | time taken: %f minutes",
                         difftime(Sys.time(), start_time, units = "mins")))
@@ -810,6 +1259,7 @@ Experiment <- R6::R6Class(
 
       if (save) {
         private$.save_results(eval_results, "eval", verbose)
+        private$.update_cache("eval")
       }
 
       return(eval_results)
@@ -830,28 +1280,48 @@ Experiment <- R6::R6Class(
     #' @param ... Not used.
     #'
     #' @return A list of visuals, one for each \code{Visualizer}.
-    visualize = function(fit_results = NULL, eval_results = NULL,
-                    use_cached = FALSE, save = FALSE, verbose = 1, ...) {
+    visualize = function(fit_results, eval_results = NULL,
+                         use_cached = FALSE, save = FALSE, verbose = 1, ...) {
+      visualizer_list <- private$.get_obj_list("visualizer")
+      visualizer_names <- names(visualizer_list)
+      if (length(visualizer_list) == 0) {
+        private$.throw_empty_list_error("visualizer", "visualization results from")
+      }
+
       if (use_cached) {
-        results <- private$.get_cached_results("visualize", verbose = verbose)
-        if (!is.null(results)) {
+        private$.update_fit_params()
+        if (private$.is_fully_cached("visualize")) {
+          results <- private$.get_cached_results("visualize", verbose = verbose)
+          if (!setequal(names(private$.get_obj_list("visualizer")),
+                        names(results))) {
+            results <- results[names(private$.get_obj_list("visualizer"))]
+            private$.save_results(results, "visualize", verbose)
+            private$.update_cache("visualize")
+          } else if (verbose >= 1) {
+            message("==============================")
+          }
           return(results)
+        } else {
+          visualizer_list <- private$.get_new_obj_list("visualizer")
         }
       }
+
       if (verbose >= 1) {
         message(sprintf("Visualizing %s...", self$name))
         start_time <- Sys.time()
       }
-      visualizer_list <- private$.get_obj_list("visualizer")
-      if (length(visualizer_list) == 0) {
-        private$.throw_empty_list_error("visualizer", "visualization results from")
-      }
       visualize_results <- purrr::map(visualizer_list, function(visualizer) {
         visualizer$visualize(fit_results = fit_results,
-                     eval_results = eval_results,
-                     vary_params = private$.get_vary_params())
+                             eval_results = eval_results,
+                             vary_params = private$.get_vary_params())
       })
-
+      if (use_cached && !setequal(names(visualizer_list), visualizer_names)) {
+        visualize_results_cached <- private$.get_cached_results("visualize",
+                                                                verbose = verbose)
+        message("Appending cached results to the new visualization results...")
+        visualize_results <- c(visualize_results, 
+                               visualize_results_cached)[visualizer_names]
+      }
       if (verbose >= 1) {
         message(sprintf("Visualization completed | time taken: %f minutes",
                         difftime(Sys.time(), start_time, units = "mins")))
@@ -862,6 +1332,7 @@ Experiment <- R6::R6Class(
 
       if (save) {
         private$.save_results(visualize_results, "visualize", verbose)
+        private$.update_cache("visualize")
       }
 
       return(visualize_results)
@@ -1149,6 +1620,7 @@ Experiment <- R6::R6Class(
         }
       }
       private$.vary_across_list[[field_name]][[obj_name]] <- vary_across_sublist
+      private$.cached_ids <- tibble::tibble()
       invisible(self)
     },
     #' @description Update the \code{vary_across} component in the
@@ -1278,6 +1750,7 @@ Experiment <- R6::R6Class(
       if (length(private$.vary_across_list[[field_name]]) == 0) {
         private$.vary_across_list[[field_name]] <- list()
       }
+      private$.cached_ids <- tibble::tibble()
       invisible(self)
     },
     #' @description Get the \code{vary_across} component from the

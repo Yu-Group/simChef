@@ -336,7 +336,7 @@ metrics using all \code{Visualizers} in the \code{Experiment} and return
 visualization results.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Experiment$visualize(
-  fit_results = NULL,
+  fit_results,
   eval_results = NULL,
   use_cached = FALSE,
   save = FALSE,
