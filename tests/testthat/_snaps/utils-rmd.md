@@ -30,5 +30,5 @@
 
 # pasteMd works properly
 
-    [1] "../md/Linear Gaussian DGP.md"
+    [1] "../md/test_doc.md"
 

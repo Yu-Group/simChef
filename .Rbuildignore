@@ -3,3 +3,4 @@
 ^pkgdown$
 ^LICENSE\.md$
 ^\.github$
+^vignettes/results$

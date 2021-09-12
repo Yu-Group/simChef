@@ -23,8 +23,8 @@ list_col_to_chr <- function(list_col, name = NULL, verbatim = FALSE) {
     str_col <- sapply(list_col,
                       function(x) {
                         which(sapply(unique_items, function(y) identical(x, y)))
-                      }) %>%
-      paste0(name, .)
+                      })
+    str_col <- paste0(name, str_col)
   }
   return(str_col)
 }
@@ -113,7 +113,8 @@ list_to_tibble <- function(ls) {
       which() %>%
       names()
     out <- out %>%
-      dplyr::mutate(across(simplify_cols, ~unlist(.x, recursive = F)))
+      dplyr::mutate(dplyr::across(tidyselect::all_of(simplify_cols),
+                                  ~unlist(.x, recursive = F)))
     return(out)
   })
   return(tib)
@@ -125,15 +126,26 @@ list_to_tibble <- function(ls) {
 #'   the list is a scalar value.
 #'
 #' @param tib Tibble to simplify.
+#' @param omit_cols Character vector of column names to omit when simplifying.
 #'
 #' @return A tibble that has been "simplified".
 #' @keywords internal
-simplify_tibble <- function(tib) {
-  simplify_cols <- purrr::map_lgl(tib,
-                                  ~length(unlist(.x, recursive = F)) == 1) %>%
+simplify_tibble <- function(tib, omit_cols = NULL) {
+  simplify_cols <- purrr::map_lgl(
+    tib,
+    function(col) {
+      all(purrr::map_lgl(1:length(col), 
+                         ~length(unlist(col[.x], recursive = FALSE)) <= 1))
+    }
+  ) %>%
     which() %>%
-    names()
+    names() %>%
+    setdiff(omit_cols)
   tib <- tib %>%
-    dplyr::mutate(across(simplify_cols, ~unlist(.x, recursive = F)))
+    dplyr::mutate(dplyr::across(tidyselect::all_of(simplify_cols), 
+                                function(col) {
+                                  col[sapply(col, is.null)] <- NA
+                                  unlist(col, recursive = FALSE)
+                                }))
   return(tib)
 }
