@@ -1,8 +1,8 @@
-pandoc: '2.13'
+pandoc: 2.3.1
 pkgdown: 1.6.1
 pkgdown_sha: ~
 articles:
   parallel: parallel.html
   simChef: simChef.html
-last_built: 2021-09-08T05:13Z
+last_built: 2021-09-13T06:01Z
 

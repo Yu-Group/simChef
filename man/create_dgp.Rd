@@ -9,7 +9,9 @@ create_dgp(dgp_fun, name = NULL, ...)
 \arguments{
 \item{dgp_fun}{The data-generating process function.}
 
-\item{name}{(Optional) The name of the \code{DGP}.}
+\item{name}{(Optional) The name of the \code{DGP}. The argument must be
+specified by position or typed out in whole; no partial matching is allowed
+for this argument.}
 
 \item{...}{Arguments to pass into \code{dgp_fun()}.}
 }

@@ -170,11 +170,15 @@ R Markdown report.</p></dd>
 <p><div class="arguments"></p><dl>
 <dt><code>eval_fun</code></dt><dd><p>The evaluation function.</p></dd>
 
-<dt><code>name</code></dt><dd><p>(Optional) The name of the <code>Evaluator</code>.</p></dd>
+<dt><code>name</code></dt><dd><p>(Optional) The name of the <code>Evaluator</code>. The argument
+must be specified by position or typed out in whole; no partial
+matching is allowed for this argument.</p></dd>
 
 <dt><code>rmd_options</code></dt><dd><p>(Optional) List of options to control the aesthetics
 of the displayed <code>Evaluator</code>'s results table in the knitted R
-Markdown report. See <code><a href='prettyDT.html'>prettyDT()</a></code> for possible options.</p></dd>
+Markdown report. See <code><a href='prettyDT.html'>prettyDT()</a></code> for possible options. The argument
+must be specified by position or typed out in whole; no partial
+matching is allowed for this argument.</p></dd>
 
 <dt><code>show</code></dt><dd><p>If <code>TRUE</code> (default), show <code>Evaluator</code>'s results as
 a table in the R Markdown report; if <code>FALSE</code>, hide output in the
@@ -185,7 +189,7 @@ R Markdown report.</p></dd>
 </dl><p></div></p>
 <h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Details</h4>
 <p>When evaluating or running the <code>Experiment</code> (see
-<code>Experiment$evaluate() or <code>Experiment$run()</code></code>), the named
+<code>Experiment$evaluate()</code> or <code>Experiment$run()</code>), the named
 arguments <code>fit_results</code> and <code>vary_params</code> are automatically
 passed into the <code>Evaluator</code> function <code>eval_fun()</code> and serve
 as placeholders for the <code>Experiment$fit()</code> results (i.e., the

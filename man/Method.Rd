@@ -42,7 +42,9 @@ Create a new \code{Method}.
 \describe{
 \item{\code{method_fun}}{The method function.}
 
-\item{\code{name}}{(Optional) The name of the \code{Method}.}
+\item{\code{name}}{(Optional) The name of the \code{Method}. The argument must
+be specified by position or typed out in whole; no partial matching is
+allowed for this argument.}
 
 \item{\code{...}}{Arguments to pass into \code{method_fun()}.}
 }

@@ -9,7 +9,9 @@ create_method(method_fun, name = NULL, ...)
 \arguments{
 \item{method_fun}{The method function.}
 
-\item{name}{(Optional) The name of the \code{Method}.}
+\item{name}{(Optional) The name of the \code{Method}. The argument must be
+specified by position or typed out in whole; no partial matching is allowed
+for this argument.}
 
 \item{...}{Arguments to pass into \code{method_fun()}.}
 }

@@ -56,11 +56,15 @@ Create a new \code{Visualizer}.
 \describe{
 \item{\code{visualizer_fun}}{The visualization function.}
 
-\item{\code{name}}{(Optional) The name of the \code{Visualizer}.}
+\item{\code{name}}{(Optional) The name of the \code{Visualizer}. The argument
+must be specified by position or typed out in whole; no partial
+matching is allowed for this argument.}
 
 \item{\code{rmd_options}}{(Optional) List of options to control the aesthetics
 of the \code{Visualizer}'s visualization in the knitted R Markdown
 report. Currently, possible options are "height" and "width" (in
+inches). The argument must be specified by position or typed out in
+whole; no partial matching is allowed for this argument.
 inches).}
 
 \item{\code{show}}{If \code{TRUE} (default), show the resulting visualization in the R

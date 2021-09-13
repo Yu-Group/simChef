@@ -51,11 +51,15 @@ Create a new \code{Evaluator}.
 \describe{
 \item{\code{eval_fun}}{The evaluation function.}
 
-\item{\code{name}}{(Optional) The name of the \code{Evaluator}.}
+\item{\code{name}}{(Optional) The name of the \code{Evaluator}. The argument
+must be specified by position or typed out in whole; no partial
+matching is allowed for this argument.}
 
 \item{\code{rmd_options}}{(Optional) List of options to control the aesthetics
 of the displayed \code{Evaluator}'s results table in the knitted R
-Markdown report. See \code{\link[=prettyDT]{prettyDT()}} for possible options.}
+Markdown report. See \code{\link[=prettyDT]{prettyDT()}} for possible options. The argument
+must be specified by position or typed out in whole; no partial
+matching is allowed for this argument.}
 
 \item{\code{show}}{If \code{TRUE} (default), show \code{Evaluator}'s results as
 a table in the R Markdown report; if \code{FALSE}, hide output in the
