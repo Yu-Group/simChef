@@ -2,13 +2,13 @@
 
     DGP Name: NULL 
        Function: function (x, ...)  
-       Parameters:  list()
+       Parameters:  Named list()
 
 ---
 
     DGP Name: DGP 
        Function: function (x, ...)  
-       Parameters:  list()
+       Parameters:  Named list()
 
 ---
 

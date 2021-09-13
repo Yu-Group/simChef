@@ -72,7 +72,7 @@
 
       
 
-      </header><script src="parallel_files/header-attrs-2.10/header-attrs.js"></script><div class="row">
+      </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Parallel strategies in <code>simChef</code>
@@ -166,14 +166,8 @@
 <span class="co">#&gt; The following objects are masked from 'package:base':</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt;     intersect, setdiff, setequal, union</span>
-
 <span class="va">n_workers</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://future.futureverse.org/reference/re-exports.html">availableCores</a></span><span class="op">(</span><span class="op">)</span> <span class="op">-</span> <span class="fl">1</span>
 <span class="fu"><a href="https://future.futureverse.org/reference/plan.html">plan</a></span><span class="op">(</span><span class="va">multicore</span>, workers <span class="op">=</span> <span class="va">n_workers</span><span class="op">)</span>
-<span class="co">#&gt; Warning in supportsMulticoreAndRStudio(...): [ONE-TIME WARNING] Forked</span>
-<span class="co">#&gt; processing ('multicore') is not supported when running R from RStudio</span>
-<span class="co">#&gt; because it is considered unstable. For more details, how to control forked</span>
-<span class="co">#&gt; processing or not, and how to silence this warning in future R sessions, see ?</span>
-<span class="co">#&gt; parallelly::supportsMulticore</span>
 
 <span class="va">dgp_fun1</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">n</span><span class="op">=</span><span class="fl">100</span>, <span class="va">rho</span><span class="op">=</span><span class="fl">0.5</span>, <span class="va">noise_level</span><span class="op">=</span><span class="fl">1</span><span class="op">)</span> <span class="op">{</span>
   <span class="va">cov_mat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/diag.html">diag</a></span><span class="op">(</span>nrow <span class="op">=</span> <span class="fl">5</span><span class="op">)</span>
@@ -241,7 +235,7 @@
   <span class="op">)</span>
 <span class="op">)</span>
 <span class="co">#&gt; Fitting base...</span>
-<span class="co">#&gt; Fitting completed | time taken: 0.848046 minutes</span>
+<span class="co">#&gt; Fitting completed | time taken: 0.282738 minutes</span>
 <span class="co">#&gt; ==============================</span>
 <span class="co">#&gt; # A tibble: 136 × 16</span>
 <span class="co">#&gt;      rep dgp_name   method_name     p   rho sparsity nonzero_coeff alpha term   </span>

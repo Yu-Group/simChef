@@ -2,7 +2,7 @@
 
     Visualizer Name: NULL 
        Function: function (x, ...)  
-       Parameters:  list()
+       Parameters:  Named list()
        R Markdown Options: List of 2
          $ height: num 6
          $ width : num 10
@@ -12,7 +12,7 @@
 
     Visualizer Name: Visualizer 
        Function: function (x, ...)  
-       Parameters:  list()
+       Parameters:  Named list()
        R Markdown Options: List of 2
          $ height: num 6
          $ width : num 10
@@ -22,7 +22,7 @@
 
     Visualizer Name: NULL 
        Function: function (x, ...)  
-       Parameters:  list()
+       Parameters:  Named list()
        R Markdown Options: List of 2
          $ height: num 8
          $ width : num 10

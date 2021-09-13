@@ -26,10 +26,14 @@ Visualizer <- R6::R6Class(
     #' @description Create a new \code{Visualizer}.
     #'
     #' @param visualizer_fun The visualization function.
-    #' @param name (Optional) The name of the \code{Visualizer}.
+    #' @param name (Optional) The name of the \code{Visualizer}. The argument
+    #'   must be specified by position or typed out in whole; no partial
+    #'   matching is allowed for this argument.
     #' @param rmd_options (Optional) List of options to control the aesthetics
     #'   of the \code{Visualizer}'s visualization in the knitted R Markdown
     #'   report. Currently, possible options are "height" and "width" (in
+    #'   inches). The argument must be specified by position or typed out in
+    #'   whole; no partial matching is allowed for this argument.
     #'   inches).
     #' @param show If \code{TRUE} (default), show the resulting visualization in the R
     #'   Markdown report; if \code{FALSE}, hide output in the R Markdown report.
@@ -54,15 +58,28 @@ Visualizer <- R6::R6Class(
     #'   varying parameter.
     #'
     #' @return A new \code{Visualizer} object.
-    initialize = function(visualizer_fun, name = NULL, 
-                          rmd_options = list(), show = TRUE, ...) {
-      self$name <- name
-      self$visualizer_fun <- visualizer_fun
-      self$visualizer_params <- list(...)
+    initialize = function(visualizer_fun, name = NULL, rmd_options = list(),
+                          show = TRUE, ...) {
+      dots_list <- list(...)
+      if (".args_list" %in% names(dots_list)) {
+        args_list <- dots_list[[".args_list"]]
+      } else {
+        args_list <- make_initialize_arg_list(visualizer_fun, name = name,
+                                              rmd_options = rmd_options,
+                                              show = show, ..., which = -2)
+      }
+      self$visualizer_fun <- args_list$visualizer_fun
+      self$name <- args_list$name
+      rmd_options <- args_list$rmd_options
       for (opt in names(rmd_options)) {
         self$rmd_options[[opt]] <- rmd_options[[opt]]
       }
-      self$show <- show
+      self$show <- args_list$show
+      args_list$visualizer_fun <- NULL
+      args_list$name <- NULL
+      args_list$rmd_options <- NULL
+      args_list$show <- NULL
+      self$visualizer_params <- args_list
     },
     #' @description Visualize the performance of methods and/or their evaluation
     #'   metrics from the \code{Experiment} using the \code{Visualizer} and the
@@ -123,10 +140,14 @@ Visualizer <- R6::R6Class(
 #' @name create_visualizer
 #'
 #' @param visualizer_fun The visualization function.
-#' @param name (Optional) The name of the \code{Visualizer}.
+#' @param name (Optional) The name of the \code{Visualizer}. The argument must
+#'   be specified by position or typed out in whole; no partial matching is
+#'   allowed for this argument.
 #' @param rmd_options (Optional) List of options to control the aesthetics of
 #'   the \code{Visualizer}'s visualization in the knitted R Markdown report.
-#'   Currently, possible options are "height" and "width" (in inches).
+#'   Currently, possible options are "height" and "width" (in inches). The
+#'   argument must be specified by position or typed out in whole; no partial
+#'   matching is allowed for this argument.
 #' @param show If \code{TRUE} (default), show the resulting visualization in the R
 #'   Markdown report; if \code{FALSE}, hide output in the R Markdown report.
 #' @param ... Arguments to pass into \code{visualizer_fun()}.
@@ -134,8 +155,10 @@ Visualizer <- R6::R6Class(
 #' @return A new instance of \code{Visualizer}.
 #'
 #' @export
-create_visualizer <- function(visualizer_fun, name = NULL, 
+create_visualizer <- function(visualizer_fun, name = NULL,
                               rmd_options = list(), show = TRUE, ...) {
-  return(Visualizer$new(visualizer_fun, name = name, 
-                        rmd_options = rmd_options, show = show, ...))
+  args_list <- make_initialize_arg_list(visualizer_fun, name = name,
+                                        rmd_options = rmd_options, show = show,
+                                        ...)
+  do.call(Visualizer$new, list(.args_list = args_list))
 }

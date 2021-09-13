@@ -2,7 +2,7 @@
 
     Evaluator Name: NULL 
        Function: function (x, ...)  
-       Parameters:  list()
+       Parameters:  Named list()
        R Markdown Options: List of 3
          $ digits : num 2
          $ sigfig : logi FALSE
@@ -15,7 +15,7 @@
 
     Evaluator Name: Evaluator 
        Function: function (x, ...)  
-       Parameters:  list()
+       Parameters:  Named list()
        R Markdown Options: List of 3
          $ digits : num 2
          $ sigfig : logi FALSE
@@ -28,7 +28,7 @@
 
     Evaluator Name: NULL 
        Function: function (x, ...)  
-       Parameters:  list()
+       Parameters:  Named list()
        R Markdown Options: List of 3
          $ digits : num 3
          $ sigfig : logi FALSE

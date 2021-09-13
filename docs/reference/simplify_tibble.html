@@ -129,7 +129,7 @@ the list is a scalar value." />
 the list is a scalar value.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>simplify_tibble</span><span class='op'>(</span><span class='va'>tib</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>simplify_tibble</span><span class='op'>(</span><span class='va'>tib</span>, omit_cols <span class='op'>=</span> <span class='cn'>NULL</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -137,6 +137,10 @@ the list is a scalar value.</p>
     <tr>
       <th>tib</th>
       <td><p>Tibble to simplify.</p></td>
+    </tr>
+    <tr>
+      <th>omit_cols</th>
+      <td><p>Character vector of column names to omit when simplifying.</p></td>
     </tr>
     </table>
 

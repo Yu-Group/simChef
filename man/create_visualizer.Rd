@@ -15,11 +15,15 @@ create_visualizer(
 \arguments{
 \item{visualizer_fun}{The visualization function.}
 
-\item{name}{(Optional) The name of the \code{Visualizer}.}
+\item{name}{(Optional) The name of the \code{Visualizer}. The argument must
+be specified by position or typed out in whole; no partial matching is
+allowed for this argument.}
 
 \item{rmd_options}{(Optional) List of options to control the aesthetics of
 the \code{Visualizer}'s visualization in the knitted R Markdown report.
-Currently, possible options are "height" and "width" (in inches).}
+Currently, possible options are "height" and "width" (in inches). The
+argument must be specified by position or typed out in whole; no partial
+matching is allowed for this argument.}
 
 \item{show}{If \code{TRUE} (default), show the resulting visualization in the R
 Markdown report; if \code{FALSE}, hide output in the R Markdown report.}

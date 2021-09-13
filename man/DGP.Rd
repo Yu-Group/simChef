@@ -43,7 +43,9 @@ Create a new \code{DGP} (data-generating process).
 \describe{
 \item{\code{dgp_fun}}{The data-generating process function.}
 
-\item{\code{name}}{(Optional) The name of the \code{DGP}.}
+\item{\code{name}}{(Optional) The name of the \code{DGP}. The argument must be
+specified by position or typed out in whole; no partial matching is
+allowed for this argument.}
 
 \item{\code{...}}{Arguments to pass into \code{dgp_fun()}.}
 }

@@ -19,14 +19,25 @@ DGP <- R6::R6Class(
     #' @description Create a new \code{DGP} (data-generating process).
     #'
     #' @param dgp_fun The data-generating process function.
-    #' @param name (Optional) The name of the \code{DGP}.
+    #' @param name (Optional) The name of the \code{DGP}. The argument must be
+    #'   specified by position or typed out in whole; no partial matching is
+    #'   allowed for this argument.
     #' @param ... Arguments to pass into \code{dgp_fun()}.
     #'
     #' @return A new \code{DGP} object.
     initialize = function(dgp_fun, name = NULL, ...) {
-      self$name <- name
-      self$dgp_fun <- dgp_fun
-      self$dgp_params <- list(...)
+      dots_list <- list(...)
+      if (".args_list" %in% names(dots_list)) {
+        args_list <- dots_list[[".args_list"]]
+      } else {
+        args_list <- make_initialize_arg_list(dgp_fun, name = name, ...,
+                                              which = -2)
+      }
+      self$dgp_fun <- args_list$dgp_fun
+      self$name <- args_list$name
+      args_list$dgp_fun <- NULL
+      args_list$name <- NULL
+      self$dgp_params <- args_list
     },
     #' @description Generate data from a \code{DGP} with the provided \code{DGP}
     #'   parameters.
@@ -84,12 +95,15 @@ DGP <- R6::R6Class(
 #' @name create_dgp
 #'
 #' @param dgp_fun The data-generating process function.
-#' @param name (Optional) The name of the \code{DGP}.
+#' @param name (Optional) The name of the \code{DGP}. The argument must be
+#'   specified by position or typed out in whole; no partial matching is allowed
+#'   for this argument.
 #' @param ... Arguments to pass into \code{dgp_fun()}.
 #'
 #' @return A new instance of \code{DGP}.
 #'
 #' @export
 create_dgp <- function(dgp_fun, name = NULL, ...) {
-  return(DGP$new(dgp_fun, name = name, ...))
+  args_list <- make_initialize_arg_list(dgp_fun, name = name, ...)
+  do.call(DGP$new, list(.args_list = args_list))
 }

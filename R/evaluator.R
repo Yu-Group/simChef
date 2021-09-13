@@ -28,10 +28,14 @@ Evaluator <- R6::R6Class(
     #' @description Create a new \code{Evaluator}.
     #'
     #' @param eval_fun The evaluation function.
-    #' @param name (Optional) The name of the \code{Evaluator}.
-    #' @param rmd_options (Optional) List of options to control the aesthetics 
+    #' @param name (Optional) The name of the \code{Evaluator}. The argument
+    #'   must be specified by position or typed out in whole; no partial
+    #'   matching is allowed for this argument.
+    #' @param rmd_options (Optional) List of options to control the aesthetics
     #'   of the displayed \code{Evaluator}'s results table in the knitted R
-    #'   Markdown report. See [prettyDT()] for possible options.
+    #'   Markdown report. See [prettyDT()] for possible options. The argument
+    #'   must be specified by position or typed out in whole; no partial
+    #'   matching is allowed for this argument.
     #' @param show If \code{TRUE} (default), show \code{Evaluator}'s results as
     #'   a table in the R Markdown report; if \code{FALSE}, hide output in the
     #'   R Markdown report.
@@ -53,15 +57,28 @@ Evaluator <- R6::R6Class(
     #'   varying parameter.
     #'
     #' @return A new \code{Evaluator} object.
-    initialize = function(eval_fun, name = NULL, 
-                          rmd_options = list(), show = TRUE, ...) {
-      self$name <- name
-      self$eval_fun <- eval_fun
-      self$eval_params <- list(...)
+    initialize = function(eval_fun, name = NULL, rmd_options = list(),
+                          show = TRUE, ...) {
+      dots_list <- list(...)
+      if (".args_list" %in% names(dots_list)) {
+        args_list <- dots_list[[".args_list"]]
+      } else {
+        args_list <- make_initialize_arg_list(eval_fun, name = name,
+                                              rmd_options = rmd_options,
+                                              show = show, ..., which = -2)
+      }
+      self$eval_fun <- args_list$eval_fun
+      self$name <- args_list$name
+      rmd_options <- args_list$rmd_options
       for (opt in names(rmd_options)) {
         self$rmd_options[[opt]] <- rmd_options[[opt]]
       }
-      self$show <- show
+      self$show <- args_list$show
+      args_list$name <- NULL
+      args_list$eval_fun <- NULL
+      args_list$show <- NULL
+      args_list$rmd_options <- NULL
+      self$eval_params <- args_list
     },
     #' @description Evaluate the performance of method(s) in the
     #'   \code{Experiment} using the \code{Evaluator} and its given parameters.
@@ -117,10 +134,14 @@ Evaluator <- R6::R6Class(
 #' @name create_evaluator
 #'
 #' @param eval_fun The evaluation function.
-#' @param name (Optional) The name of the \code{Evaluator}.
-#' @param rmd_options (Optional) List of options to control the aesthetics of 
+#' @param name (Optional) The name of the \code{Evaluator}. The argument must be
+#'   specified by position or typed out in whole; no partial matching is allowed
+#'   for this argument.
+#' @param rmd_options (Optional) List of options to control the aesthetics of
 #'   the displayed \code{Evaluator}'s results table in the knitted R Markdown
-#'   report. See [prettyDT()] for possible options.
+#'   report. See [prettyDT()] for possible options. The argument must be
+#'   specified by position or typed out in whole; no partial matching is allowed
+#'   for this argument.
 #' @param show If \code{TRUE} (default), show \code{Evaluator}'s results as
 #'   a table in the R Markdown report; if \code{FALSE}, hide output in the
 #'   R Markdown report.
@@ -129,8 +150,10 @@ Evaluator <- R6::R6Class(
 #' @return A new instance of \code{Evaluator}.
 #'
 #' @export
-create_evaluator <- function(eval_fun, name = NULL, 
-                             rmd_options = list(), show = TRUE, ...) {
-  return(Evaluator$new(eval_fun, name = name, 
-                       rmd_options = rmd_options, show = show, ...))
+create_evaluator <- function(eval_fun, name = NULL, rmd_options = list(),
+                             show = TRUE, ...) {
+  args_list <- make_initialize_arg_list(eval_fun, name = name,
+                                        rmd_options = rmd_options, show = show,
+                                        ...)
+  do.call(Evaluator$new, list(".args_list" = args_list))
 }

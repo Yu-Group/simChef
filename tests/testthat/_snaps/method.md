@@ -2,13 +2,13 @@
 
     Method Name: NULL 
        Function: function (x, ...)  
-       Parameters:  list()
+       Parameters:  Named list()
 
 ---
 
     Method Name: Method 
        Function: function (x, ...)  
-       Parameters:  list()
+       Parameters:  Named list()
 
 ---
 
