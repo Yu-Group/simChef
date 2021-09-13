@@ -155,7 +155,7 @@ simplify_tibble <- function(tib, omit_cols = NULL) {
 #'
 #' @param obj_fun a required function
 #' @param ... other objects needed to construct the args list
-#' @param which see argument of the same name in \link{sys.call()}
+#' @param which see argument of the same name in \code{\link{sys.call}}
 #'
 #' @return a named list of formal args in position order followed by dots args
 #' @keywords internal
