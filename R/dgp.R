@@ -34,8 +34,8 @@ DGP <- R6::R6Class(
                                               which = -2)
       }
       self$dgp_fun <- args_list$dgp_fun
-      args_list$dgp_fun <- NULL
       self$name <- args_list$name
+      args_list$dgp_fun <- NULL
       args_list$name <- NULL
       self$dgp_params <- args_list
     },
@@ -69,6 +69,23 @@ DGP <- R6::R6Class(
       }
 
       return(data_list)
+    },
+    #' @description Print a \code{DGP} in a nice format, showing the 
+    #'   \code{DGP}'s name, function, and parameters.
+    #'
+    #' @return The original \code{DGP} object.
+    print = function() {
+      if (is.null(self$name)) {
+        cat("DGP Name: NULL \n")
+      } else {
+        cat("DGP Name:", self$name, "\n")
+      }
+      cat("   Function: ")
+      cat(str(self$dgp_fun, give.attr = F))
+      cat("   Parameters: ")
+      cat(str(self$dgp_params,
+              indent.str = "     ", no.list = F))
+      invisible(self)
     }
   )
 )

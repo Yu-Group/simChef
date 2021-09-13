@@ -62,7 +62,10 @@ Experiment <- R6::R6Class(
     },
     .remove_obj = function(field_name, obj_name, ...) {
       obj_list <- private$.get_obj_list(field_name, ...)
-      if (is.null(obj_list[[obj_name]])) {
+      list_name <- paste0(".", field_name, "_list")
+      if (is.null(obj_name)) {
+        private[[list_name]] <- list()
+      } else if (is.null(obj_list[[obj_name]])) {
         stop(
           sprintf("Cannot remove '%s'. ", obj_name),
           sprintf("The name '%s' does not exist in the %s list. ",
@@ -70,7 +73,6 @@ Experiment <- R6::R6Class(
           call. = FALSE
         )
       } else {
-        list_name <- paste0(".", field_name, "_list")
         private[[list_name]][[obj_name]] <- NULL
       }
     },
@@ -966,11 +968,12 @@ Experiment <- R6::R6Class(
     },
     #' @description Remove a \code{DGP} from the \code{Experiment}.
     #'
-    #' @param name Name of \code{DGP} to remove.
+    #' @param name Name of \code{DGP} to remove. If \code{NULL} (default), 
+    #'   remove all \code{DGPs} from the experiment.
     #' @param ... Not used.
     #'
     #' @return The original \code{Experiment} object with the \code{DGP} removed.
-    remove_dgp = function(name, ...) {
+    remove_dgp = function(name = NULL, ...) {
       private$.remove_obj("dgp", name)
       invisible(self)
     },
@@ -1006,11 +1009,12 @@ Experiment <- R6::R6Class(
     },
     #' @description Remove a \code{Method} from the \code{Experiment}.
     #'
-    #' @param name Name of \code{Method} to remove.
+    #' @param name Name of \code{Method} to remove. If \code{NULL} (default),
+    #'   remove all \code{Methods} from the experiment.
     #' @param ... Not used.
     #'
     #' @return The original \code{Experiment} object with the \code{Method} removed.
-    remove_method = function(name, ...) {
+    remove_method = function(name = NULL, ...) {
       private$.remove_obj("method", name)
       invisible(self)
     },
@@ -1046,11 +1050,12 @@ Experiment <- R6::R6Class(
     },
     #' @description Remove an \code{Evaluator} from the \code{Experiment}.
     #'
-    #' @param name Name of \code{Evaluator} to remove.
+    #' @param name Name of \code{Evaluator} to remove. If \code{NULL} (default),
+    #'   remove all \code{Evaluators} from the experiment.
     #' @param ... Not used.
     #'
     #' @return The original \code{Experiment} object with the \code{Evaluator} removed.
-    remove_evaluator = function(name, ...) {
+    remove_evaluator = function(name = NULL, ...) {
       private$.remove_obj("evaluator", name)
       invisible(self)
     },
@@ -1086,11 +1091,12 @@ Experiment <- R6::R6Class(
     },
     #' @description Remove a \code{Visualizer} from the \code{Experiment}.
     #'
-    #' @param name Name of \code{Visualizer} to remove.
+    #' @param name Name of \code{Visualizer} to remove. If \code{NULL} 
+    #'   (default), remove all \code{Visualizers} from the experiment.
     #' @param ... Not used.
     #'
     #' @return The original \code{Experiment} object with the \code{Visualizer} removed.
-    remove_visualizer = function(name, ...) {
+    remove_visualizer = function(name = NULL, ...) {
       private$.remove_obj("visualizer", name)
       invisible(self)
     },
@@ -1200,18 +1206,40 @@ Experiment <- R6::R6Class(
     #'   specific \code{DGP} or \code{Method} in the \code{Experiment}.
     #'
     #' @param dgp Name of \code{DGP} to vary in the \code{Experiment}. Can also
-    #'   be a \code{DGP} object that matches one in the \code{Experiment}. Must
-    #'   provide either the \code{dgp} or \code{method} argument.
+    #'   be a \code{DGP} object that matches one in the \code{Experiment}. If
+    #'   neither \code{dgp} nor \code{method} are provided, then all 
+    #'   \code{vary_across} parameters are removed from the experiment.
+    #'   Otherwise, must provide either the \code{dgp} or \code{method} 
+    #'   argument, but not both.
     #' @param method Name of \code{Method} to vary in the \code{Experiment}. Can
-    #'   also be a \code{Method} object that matches one in the \code{Experiment}.
-    #'   Must provide either the \code{dgp} or \code{method} argument.
+    #'   also be a \code{Method} object that matches one in the
+    #'   \code{Experiment}. If neither \code{dgp} nor \code{method} are 
+    #'   provided, then all \code{vary_across} parameters are removed from the
+    #'   experiment. Otherwise, must provide either the \code{dgp} or
+    #'   \code{method} argument, but not both.
     #' @param param_names A character vector of parameter names to remove. If
     #'   not provided, the entire set of \code{vary_across} parameters will be
-    #'   removed for the specified \code{DGP}/\code{Method}.
+    #'   removed for the specified \code{DGP}/\code{Method}. Ignored if both
+    #'   \code{dgp} and \code{method} are not provided.
     #'
     #' @return The original \code{Experiment} object with the \code{vary_across}
     #'   component removed.
     remove_vary_across = function(dgp, method, param_names = NULL) {
+      if (missing(dgp) && missing(method)) {
+        if (!private$.has_vary_across()) {
+          stop(
+            paste("Cannot remove all vary_across parameters ", 
+                  "since the vary_across parameter has not been set."),
+            call. = FALSE
+          )
+        } else {
+          private$.vary_across_list <- list(
+            dgp = list(),
+            method = list()
+          )
+          return(invisible(self))
+        }
+      }
       temp <- private$.check_vary_across(dgp, method)
       field_name <- temp$field_name
       obj_name <- temp$obj_name
@@ -1599,7 +1627,10 @@ update_visualizer <- function(experiment, visualizer, name, ...) {
 #'   \code{Evaluators}, and \code{Visualizers} already added to an
 #'   \code{Experiment}.
 #'
-#' @param name A name to identify the object to be removed.
+#' @param experiment An \code{Experiment} object.
+#' @param name A name to identify the object to be removed. If \code{NULL} 
+#'   (default), remove all objects of that class from the experiment. For
+#'   example, \code{remove_dgp()} will remove all DGPs from the experiment.
 #' @param ... Not used.
 #'
 #' @return The original \code{Experiment} object passed to \code{remove_*}.
@@ -1612,34 +1643,78 @@ NULL
 #' @rdname remove_funs
 #'
 #' @export
-remove_dgp <- function(experiment, name, ...) {
+remove_dgp <- function(experiment, name = NULL, ...) {
   experiment$remove_dgp(name, ...)
 }
 
 #' @rdname remove_funs
 #'
 #' @export
-remove_method <- function(experiment, name, ...) {
+remove_method <- function(experiment, name = NULL, ...) {
   experiment$remove_method(name, ...)
 }
 
 #' @rdname remove_funs
 #'
 #' @export
-remove_evaluator <- function(experiment, name, ...) {
+remove_evaluator <- function(experiment, name = NULL, ...) {
   experiment$remove_evaluator(name, ...)
 }
 
 #' @rdname remove_funs
 #'
 #' @export
-remove_visualizer <- function(experiment, name, ...) {
+remove_visualizer <- function(experiment, name = NULL, ...) {
   experiment$remove_visualizer(name, ...)
+}
+
+#' Helper functions for getting components in an \code{Experiment}.
+#'
+#' @description Helper functions for getting or retrieving \code{DGPs}, 
+#'   \code{Methods}, \code{Evaluators}, and \code{Visualizers} from an 
+#'   \code{Experiment}.
+#'
+#' @param experiment An \code{Experiment} object.
+#' @param ... Not used.
+#'
+#' @return The original \code{Experiment} object passed to \code{get_*}.
+#'
+#' @name get_funs
+#' @rdname get_funs
+#'
+NULL
+
+#' @rdname get_funs
+#'
+#' @export
+get_dgps <- function(experiment, ...) {
+  experiment$get_dgps()
+}
+
+#' @rdname get_funs
+#'
+#' @export
+get_methods <- function(experiment, ...) {
+  experiment$get_methods()
+}
+
+#' @rdname get_funs
+#'
+#' @export
+get_evaluators <- function(experiment, ...) {
+  experiment$get_evaluators()
+}
+
+#' @rdname get_funs
+#'
+#' @export
+get_visualizers <- function(experiment, ...) {
+  experiment$get_visualizers()
 }
 
 #' Varying across parameters in an \code{Experiment}.
 #'
-#' @description Helper functions for adding, updating, or removing a
+#' @description Helper functions for adding, updating, removing, or getting a
 #'   \code{vary_across} component in an \code{Experiment}. When a
 #'   \code{vary_across} component is added and the \code{Experiment} is run, the
 #'   \code{Experiment} is systematically varied across values of the specified
@@ -1648,17 +1723,21 @@ remove_visualizer <- function(experiment, name, ...) {
 #'
 #' @param experiment An \code{Experiment} object.
 #' @param dgp Name of \code{DGP} to vary in the \code{Experiment}. Can also be a
-#'   \code{DGP} object that matches one in the \code{Experiment}. Must provide
-#'   either the \code{dgp} or \code{method} argument.
+#'   \code{DGP} object that matches one in the \code{Experiment}.
 #' @param method Name of \code{Method} to vary in the \code{Experiment}. Can
 #'   also be a \code{Method} object that matches one in the \code{Experiment}.
-#'   Must provide either the \code{dgp} or \code{method} argument.
 #' @param param_names A character vector of parameter names to remove. If
 #'   not provided, the entire set of \code{vary_across} parameters will be
 #'   removed for the specified \code{DGP}/\code{Method}.
 #' @param ... Any number of named arguments where names match an argument in the
 #'   user-specified \code{DGP} or \code{Method} function and values are vectors
 #'   (for scalar parameters) or lists (for arbitrary parameters).
+#'
+#' @details One of the \code{dgp} or \code{method} arguments (but not both) must
+#'   be provided when using \code{add_vary_across()} and
+#'   \code{update_vary_across}. For \code{remove_vary_across()}, if both the
+#'   \code{dgp} and \code{method} arguments are not provided, then all 
+#'   \code{vary_across} parameters from the experiment are removed.
 #'
 #' @return The original \code{Experiment} object passed to
 #'   \code{*_vary_across()}.
@@ -1671,22 +1750,30 @@ NULL
 #' @rdname vary_across
 #'
 #' @export
-add_vary_across <- function(experiment, ...) {
-  experiment$add_vary_across(...)
+add_vary_across <- function(experiment, dgp, method, ...) {
+  experiment$add_vary_across(dgp = dgp, method = method, ...)
 }
 
 #' @rdname vary_across
 #'
 #' @export
-update_vary_across <- function(experiment, ...) {
-  experiment$update_vary_across(...)
+update_vary_across <- function(experiment, dgp, method, ...) {
+  experiment$update_vary_across(dgp = dgp, method = method, ...)
 }
 
 #' @rdname vary_across
 #'
 #' @export
-remove_vary_across <- function(experiment, ...) {
-  experiment$remove_vary_across(...)
+remove_vary_across <- function(experiment, dgp, method, param_names = NULL) {
+  experiment$remove_vary_across(dgp = dgp, method = method, 
+                                param_names = param_names)
+}
+
+#' @rdname vary_across
+#'
+#' @export
+get_vary_across <- function(experiment) {
+  experiment$get_vary_across()
 }
 
 #' Set R Markdown options for \code{Evaluator} and \code{Visualizer} outputs in
@@ -1735,6 +1822,22 @@ set_rmd_options <- function(experiment, field_name = c("evaluator", "visualizer"
 #' @export
 set_save_dir <- function(experiment, save_dir) {
   experiment$set_save_dir(save_dir)
+}
+
+#' Get results directory for an \code{Experiment}.
+#'
+#' @name get_save_dir
+#' @description Get the directory in which the \code{Experiment}'s results and
+#'   visualizations are saved.
+#'
+#' @param experiment An \code{Experiment} object.
+#'
+#' @return The relative path to where the \code{Experiment}'s results and
+#'   visualizations are saved.
+#'
+#' @export
+get_save_dir <- function(experiment) {
+  experiment$get_save_dir()
 }
 
 #' Save an \code{Experiment}.

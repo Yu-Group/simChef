@@ -14,6 +14,11 @@ test_that("Method initialization works properly", {
   named_list <- list()
   names(named_list) <- character(0)
 
+  # print statements
+  expect_snapshot_output(method1)
+  expect_snapshot_output(method1b)
+  expect_snapshot_output(method1c)
+
   # basic initialization
   expect_equal(method1$name, NULL)
   expect_equal(method1$method_fun, method_fun1)

@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Create a new Visualizer. — create_visualizer • simChef</title>
+<title>Helper functions for getting components in an Experiment. — get_funs • simChef</title>
 
 
 <!-- jquery -->
@@ -39,8 +39,10 @@
 
 
 
-<meta property="og:title" content="Create a new Visualizer. — create_visualizer" />
-<meta property="og:description" content="Create a new Visualizer." />
+<meta property="og:title" content="Helper functions for getting components in an Experiment. — get_funs" />
+<meta property="og:description" content="Helper functions for getting or retrieving DGPs,
+Methods, Evaluators, and Visualizers from an
+Experiment." />
 
 
 
@@ -118,54 +120,41 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Create a new <code>Visualizer</code>.</h1>
+    <h1>Helper functions for getting components in an <code>Experiment</code>.</h1>
     
-    <div class="hidden name"><code>create_visualizer.Rd</code></div>
+    <div class="hidden name"><code>get_funs.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Create a new <code>Visualizer</code>.</p>
+    <p>Helper functions for getting or retrieving <code>DGPs</code>,
+<code>Methods</code>, <code>Evaluators</code>, and <code>Visualizers</code> from an
+<code>Experiment</code>.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>create_visualizer</span><span class='op'>(</span>
-  <span class='va'>visualizer_fun</span>,
-  name <span class='op'>=</span> <span class='cn'>NULL</span>,
-  rmd_options <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span><span class='op'>)</span>,
-  show <span class='op'>=</span> <span class='cn'>TRUE</span>,
-  <span class='va'>...</span>
-<span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>get_dgps</span><span class='op'>(</span><span class='va'>experiment</span>, <span class='va'>...</span><span class='op'>)</span>
+
+<span class='fu'>get_methods</span><span class='op'>(</span><span class='va'>experiment</span>, <span class='va'>...</span><span class='op'>)</span>
+
+<span class='fu'>get_evaluators</span><span class='op'>(</span><span class='va'>experiment</span>, <span class='va'>...</span><span class='op'>)</span>
+
+<span class='fu'>get_visualizers</span><span class='op'>(</span><span class='va'>experiment</span>, <span class='va'>...</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>visualizer_fun</th>
-      <td><p>The visualization function.</p></td>
-    </tr>
-    <tr>
-      <th>name</th>
-      <td><p>(Optional) The name of the <code>Visualizer</code>.</p></td>
-    </tr>
-    <tr>
-      <th>rmd_options</th>
-      <td><p>(Optional) List of options to control the aesthetics of
-the <code>Visualizer</code>'s visualization in the knitted R Markdown report.
-Currently, possible options are "height" and "width" (in inches).</p></td>
-    </tr>
-    <tr>
-      <th>show</th>
-      <td><p>If <code>TRUE</code> (default), show the resulting visualization in the R
-Markdown report; if <code>FALSE</code>, hide output in the R Markdown report.</p></td>
+      <th>experiment</th>
+      <td><p>An <code>Experiment</code> object.</p></td>
     </tr>
     <tr>
       <th>...</th>
-      <td><p>Arguments to pass into <code>visualizer_fun()</code>.</p></td>
+      <td><p>Not used.</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A new instance of <code>Visualizer</code>.</p>
+    <p>The original <code>Experiment</code> object passed to <code>get_*</code>.</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

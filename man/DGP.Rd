@@ -25,6 +25,7 @@ data-generating process function.}
 \itemize{
 \item \href{#method-new}{\code{DGP$new()}}
 \item \href{#method-generate}{\code{DGP$generate()}}
+\item \href{#method-print}{\code{DGP$print()}}
 \item \href{#method-clone}{\code{DGP$clone()}}
 }
 }
@@ -74,6 +75,20 @@ parameters that were set when \code{DGP$new()} was called.}
 }
 \subsection{Returns}{
 Result of \code{dgp_fun()}.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-print"></a>}}
+\if{latex}{\out{\hypertarget{method-print}{}}}
+\subsection{Method \code{print()}}{
+Print a \code{DGP} in a nice format, showing the
+\code{DGP}'s name, function, and parameters.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DGP$print()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+The original \code{DGP} object.
 }
 }
 \if{html}{\out{<hr>}}

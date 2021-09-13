@@ -4,10 +4,12 @@
 \alias{simplify_tibble}
 \title{Simplify tibble.}
 \usage{
-simplify_tibble(tib)
+simplify_tibble(tib, omit_cols = NULL)
 }
 \arguments{
 \item{tib}{Tibble to simplify.}
+
+\item{omit_cols}{Character vector of column names to omit when simplifying.}
 }
 \value{
 A tibble that has been "simplified".

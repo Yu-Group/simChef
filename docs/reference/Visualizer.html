@@ -157,12 +157,19 @@ Markdown report; if <code>FALSE</code>, hide output in the R Markdown report.</p
 <ul>
 <li><p><a href='#method-new'><code>Visualizer$new()</code></a></p></li>
 <li><p><a href='#method-visualize'><code>Visualizer$visualize()</code></a></p></li>
+<li><p><a href='#method-print'><code>Visualizer$print()</code></a></p></li>
 <li><p><a href='#method-clone'><code>Visualizer$clone()</code></a></p></li>
 </ul>
 <p><hr>
 <a id="method-new"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>new()</code></h3>
 <p>Create a new <code>Visualizer</code>.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
-<p><div class="r"></p><pre><span class='va'>Visualizer</span><span class='op'>$</span><span class='fu'>new</span><span class='op'>(</span><span class='va'>visualizer_fun</span>, name <span class='op'>=</span> <span class='cn'>NULL</span>, rmd_options <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span><span class='op'>)</span>, <span class='va'>...</span><span class='op'>)</span></pre><p></div></p>
+<p><div class="r"></p><pre><span class='va'>Visualizer</span><span class='op'>$</span><span class='fu'>new</span><span class='op'>(</span>
+  <span class='va'>visualizer_fun</span>,
+  name <span class='op'>=</span> <span class='cn'>NULL</span>,
+  rmd_options <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span><span class='op'>)</span>,
+  show <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  <span class='va'>...</span>
+<span class='op'>)</span></pre><p></div></p>
 
 <h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
 <p><div class="arguments"></p><dl>
@@ -174,6 +181,9 @@ Markdown report; if <code>FALSE</code>, hide output in the R Markdown report.</p
 of the <code>Visualizer</code>'s visualization in the knitted R Markdown
 report. Currently, possible options are "height" and "width" (in
 inches).</p></dd>
+
+<dt><code>show</code></dt><dd><p>If <code>TRUE</code> (default), show the resulting visualization in the R
+Markdown report; if <code>FALSE</code>, hide output in the R Markdown report.</p></dd>
 
 <dt><code>...</code></dt><dd><p>Arguments to pass into <code>visualizer_fun()</code>.</p></dd>
 
@@ -229,6 +239,14 @@ Use <code>NULL</code> (default) if no <code>vary_across</code> component in
 </dl><p></div></p>
 <h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Returns</h4>
 <p>Result of <code>visualizer_fun()</code>.</p>
+<p><hr>
+<a id="method-print"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code><a href='https://rdrr.io/r/base/print.html'>print()</a></code></h3>
+<p>Print a <code>Visualizer</code> in a nice format, showing the
+<code>Visualizer</code>'s name, function, parameters, and R Markdown options.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p><div class="r"></p><pre><span class='va'>Visualizer</span><span class='op'>$</span><span class='fu'>print</span><span class='op'>(</span><span class='op'>)</span></pre><p></div></p>
+
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Returns</h4>
+<p>The original <code>Visualizer</code> object.</p>
 <p><hr>
 <a id="method-clone"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>clone()</code></h3>
 <p>The objects of this class are cloneable with this method.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>

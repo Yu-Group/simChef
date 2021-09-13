@@ -16,6 +16,11 @@ test_that("DGP initialization works properly", {
   named_list <- list()
   names(named_list) <- character(0)
 
+  # print statements
+  expect_snapshot_output(dgp1)
+  expect_snapshot_output(dgp1b)
+  expect_snapshot_output(dgp1c)
+
   # basic initialization
   expect_equal(dgp1$name, NULL)
   expect_equal(dgp1$dgp_fun, dgp_fun1)
@@ -49,7 +54,7 @@ test_that("DGP initialization works properly", {
   dgp2 <- create_dgp(dgp_fun = dgp_fun1)
   dgp2b <- create_dgp(dgp_fun = dgp_fun1, name = "DGP")
   dgp2c <- create_dgp(dgp_fun = dgp_fun1,
-                            a = 5, b = 1:5, c = data.frame(d = 1:2))
+                      a = 5, b = 1:5, c = data.frame(d = 1:2))
   dgp2d <- create_dgp(dgp_fun1, n = 100)
   dgp2e <- create_dgp(n = 100, fun = fun, dgp_fun1)
   dgp2f <- create_dgp(n = 100, dgp_fun1, "DGP")

@@ -131,20 +131,22 @@ Experiment." />
 <code>Experiment</code>.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>remove_dgp</span><span class='op'>(</span><span class='va'>experiment</span>, <span class='va'>name</span>, <span class='va'>...</span><span class='op'>)</span>
+    <pre class="usage"><span class='fu'>remove_dgp</span><span class='op'>(</span><span class='va'>experiment</span>, name <span class='op'>=</span> <span class='cn'>NULL</span>, <span class='va'>...</span><span class='op'>)</span>
 
-<span class='fu'>remove_method</span><span class='op'>(</span><span class='va'>experiment</span>, <span class='va'>name</span>, <span class='va'>...</span><span class='op'>)</span>
+<span class='fu'>remove_method</span><span class='op'>(</span><span class='va'>experiment</span>, name <span class='op'>=</span> <span class='cn'>NULL</span>, <span class='va'>...</span><span class='op'>)</span>
 
-<span class='fu'>remove_evaluator</span><span class='op'>(</span><span class='va'>experiment</span>, <span class='va'>name</span>, <span class='va'>...</span><span class='op'>)</span>
+<span class='fu'>remove_evaluator</span><span class='op'>(</span><span class='va'>experiment</span>, name <span class='op'>=</span> <span class='cn'>NULL</span>, <span class='va'>...</span><span class='op'>)</span>
 
-<span class='fu'>remove_visualizer</span><span class='op'>(</span><span class='va'>experiment</span>, <span class='va'>name</span>, <span class='va'>...</span><span class='op'>)</span></pre>
+<span class='fu'>remove_visualizer</span><span class='op'>(</span><span class='va'>experiment</span>, name <span class='op'>=</span> <span class='cn'>NULL</span>, <span class='va'>...</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>name</th>
-      <td><p>A name to identify the object to be removed.</p></td>
+      <td><p>A name to identify the object to be removed. If <code>NULL</code>
+(default), remove all objects of that class from the experiment. For
+example, <code>remove_dgp()</code> will remove all DGPs from the experiment.</p></td>
     </tr>
     <tr>
       <th>...</th>

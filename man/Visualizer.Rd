@@ -32,6 +32,7 @@ Markdown report; if \code{FALSE}, hide output in the R Markdown report.}
 \itemize{
 \item \href{#method-new}{\code{Visualizer$new()}}
 \item \href{#method-visualize}{\code{Visualizer$visualize()}}
+\item \href{#method-print}{\code{Visualizer$print()}}
 \item \href{#method-clone}{\code{Visualizer$clone()}}
 }
 }
@@ -41,7 +42,13 @@ Markdown report; if \code{FALSE}, hide output in the R Markdown report.}
 \subsection{Method \code{new()}}{
 Create a new \code{Visualizer}.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Visualizer$new(visualizer_fun, name = NULL, rmd_options = list(), ...)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Visualizer$new(
+  visualizer_fun,
+  name = NULL,
+  rmd_options = list(),
+  show = TRUE,
+  ...
+)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -56,13 +63,16 @@ of the \code{Visualizer}'s visualization in the knitted R Markdown
 report. Currently, possible options are "height" and "width" (in
 inches).}
 
+\item{\code{show}}{If \code{TRUE} (default), show the resulting visualization in the R
+Markdown report; if \code{FALSE}, hide output in the R Markdown report.}
+
 \item{\code{...}}{Arguments to pass into \code{visualizer_fun()}.}
 }
 \if{html}{\out{</div>}}
 }
 \subsection{Details}{
 When visualizing or running the \code{Experiment} (see
-\code{Experiment$visualize() or \code{Experiment$run()}}), the named
+\code{Experiment$visualize()} or \code{Experiment$run()}), the named
 arguments \code{fit_results}, \code{eval_results}, and
 \code{vary_params} are automatically passed into the \code{Visualizer}
 function \code{visualizer_fun()} and serve as placeholders for the
@@ -120,6 +130,20 @@ Use \code{NULL} (default) if no \code{vary_across} component in
 }
 \subsection{Returns}{
 Result of \code{visualizer_fun()}.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-print"></a>}}
+\if{latex}{\out{\hypertarget{method-print}{}}}
+\subsection{Method \code{print()}}{
+Print a \code{Visualizer} in a nice format, showing the
+\code{Visualizer}'s name, function, parameters, and R Markdown options.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Visualizer$print()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+The original \code{Visualizer} object.
 }
 }
 \if{html}{\out{<hr>}}

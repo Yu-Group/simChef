@@ -40,7 +40,7 @@
 
 
 <meta property="og:title" content="Varying across parameters in an Experiment. — vary_across" />
-<meta property="og:description" content="Helper functions for adding, updating, or removing a
+<meta property="og:description" content="Helper functions for adding, updating, removing, or getting a
 vary_across component in an Experiment. When a
 vary_across component is added and the Experiment is run, the
 Experiment is systematically varied across values of the specified
@@ -129,7 +129,7 @@ held constant at their baseline value." />
     </div>
 
     <div class="ref-description">
-    <p>Helper functions for adding, updating, or removing a
+    <p>Helper functions for adding, updating, removing, or getting a
 <code>vary_across</code> component in an <code>Experiment</code>. When a
 <code>vary_across</code> component is added and the <code>Experiment</code> is run, the
 <code>Experiment</code> is systematically varied across values of the specified
@@ -137,11 +137,13 @@ parameter in the <code>DGP</code> or <code>Method</code> while all other paramet
 held constant at their baseline value.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>add_vary_across</span><span class='op'>(</span><span class='va'>experiment</span>, <span class='va'>...</span><span class='op'>)</span>
+    <pre class="usage"><span class='fu'>add_vary_across</span><span class='op'>(</span><span class='va'>experiment</span>, <span class='va'>dgp</span>, <span class='va'>method</span>, <span class='va'>...</span><span class='op'>)</span>
 
-<span class='fu'>update_vary_across</span><span class='op'>(</span><span class='va'>experiment</span>, <span class='va'>...</span><span class='op'>)</span>
+<span class='fu'>update_vary_across</span><span class='op'>(</span><span class='va'>experiment</span>, <span class='va'>dgp</span>, <span class='va'>method</span>, <span class='va'>...</span><span class='op'>)</span>
 
-<span class='fu'>remove_vary_across</span><span class='op'>(</span><span class='va'>experiment</span>, <span class='va'>...</span><span class='op'>)</span></pre>
+<span class='fu'>remove_vary_across</span><span class='op'>(</span><span class='va'>experiment</span>, <span class='va'>dgp</span>, <span class='va'>method</span>, param_names <span class='op'>=</span> <span class='cn'>NULL</span><span class='op'>)</span>
+
+<span class='fu'>get_vary_across</span><span class='op'>(</span><span class='va'>experiment</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -151,22 +153,20 @@ held constant at their baseline value.</p>
       <td><p>An <code>Experiment</code> object.</p></td>
     </tr>
     <tr>
-      <th>...</th>
-      <td><p>Any number of named arguments where names match an argument in the
-user-specified <code>DGP</code> or <code>Method</code> function and values are vectors
-(for scalar parameters) or lists (for arbitrary parameters).</p></td>
-    </tr>
-    <tr>
       <th>dgp</th>
       <td><p>Name of <code>DGP</code> to vary in the <code>Experiment</code>. Can also be a
-<code>DGP</code> object that matches one in the <code>Experiment</code>. Must provide
-either the <code>dgp</code> or <code>method</code> argument.</p></td>
+<code>DGP</code> object that matches one in the <code>Experiment</code>.</p></td>
     </tr>
     <tr>
       <th>method</th>
       <td><p>Name of <code>Method</code> to vary in the <code>Experiment</code>. Can
-also be a <code>Method</code> object that matches one in the <code>Experiment</code>.
-Must provide either the <code>dgp</code> or <code>method</code> argument.</p></td>
+also be a <code>Method</code> object that matches one in the <code>Experiment</code>.</p></td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td><p>Any number of named arguments where names match an argument in the
+user-specified <code>DGP</code> or <code>Method</code> function and values are vectors
+(for scalar parameters) or lists (for arbitrary parameters).</p></td>
     </tr>
     <tr>
       <th>param_names</th>
@@ -180,6 +180,13 @@ removed for the specified <code>DGP</code>/<code>Method</code>.</p></td>
 
     <p>The original <code>Experiment</code> object passed to
 <code>*_vary_across()</code>.</p>
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>One of the <code>dgp</code> or <code>method</code> arguments (but not both) must
+be provided when using <code>add_vary_across()</code> and
+<code>update_vary_across</code>. For <code>remove_vary_across()</code>, if both the
+<code>dgp</code> and <code>method</code> arguments are not provided, then all
+<code>vary_across</code> parameters from the experiment are removed.</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

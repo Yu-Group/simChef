@@ -39,6 +39,7 @@ Suggests:
     plotly,
     data.table,
     broom,
-    glmnet
+    glmnet,
+    future
 VignetteBuilder: knitr
 Config/testthat/edition: 3

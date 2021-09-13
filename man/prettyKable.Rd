@@ -106,12 +106,13 @@ prettyKable(iris, align = "c", caption = "Iris Data Table")
 ## Bold max value of each numeric column of Iris data in red
 prettyKable(iris, caption = "Iris Data Table", scroll = TRUE,
             bold_function = ". == max(.)", bold_margin = 2,
-            bold_scheme = c(T, T, T, T, F), bold_color = "red")
+            bold_scheme = c(TRUE, TRUE, TRUE, TRUE, FALSE), 
+            bold_color = "red")
             
 ## Bold min value of each row in Iris data
-prettyKable(iris \%>\% dplyr::select(-Species), sigfig = T, 
+prettyKable(iris \%>\% dplyr::select(-Species), sigfig = TRUE, 
             caption = "Iris Data Table", format = "latex", 
-            scroll = T, na_disp = "NA",
+            scroll = TRUE, na_disp = "NA",
             bold_function = ". == min(.)", bold_margin = 1,
-            bold_scheme = T, bold_color = "black")
+            bold_scheme = TRUE, bold_color = "black")
 }

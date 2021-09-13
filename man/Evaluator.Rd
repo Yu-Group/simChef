@@ -33,6 +33,7 @@ R Markdown report.}
 \itemize{
 \item \href{#method-new}{\code{Evaluator$new()}}
 \item \href{#method-evaluate}{\code{Evaluator$evaluate()}}
+\item \href{#method-print}{\code{Evaluator$print()}}
 \item \href{#method-clone}{\code{Evaluator$clone()}}
 }
 }
@@ -42,7 +43,7 @@ R Markdown report.}
 \subsection{Method \code{new()}}{
 Create a new \code{Evaluator}.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Evaluator$new(eval_fun, name = NULL, rmd_options = list(), ...)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Evaluator$new(eval_fun, name = NULL, rmd_options = list(), show = TRUE, ...)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -56,13 +57,17 @@ Create a new \code{Evaluator}.
 of the displayed \code{Evaluator}'s results table in the knitted R
 Markdown report. See \code{\link[=prettyDT]{prettyDT()}} for possible options.}
 
+\item{\code{show}}{If \code{TRUE} (default), show \code{Evaluator}'s results as
+a table in the R Markdown report; if \code{FALSE}, hide output in the
+R Markdown report.}
+
 \item{\code{...}}{Arguments to pass into \code{eval_fun()}.}
 }
 \if{html}{\out{</div>}}
 }
 \subsection{Details}{
 When evaluating or running the \code{Experiment} (see
-\code{Experiment$evaluate() or \code{Experiment$run()}}), the named
+\code{Experiment$evaluate()} or \code{Experiment$run()}), the named
 arguments \code{fit_results} and \code{vary_params} are automatically
 passed into the \code{Evaluator} function \code{eval_fun()} and serve
 as placeholders for the \code{Experiment$fit()} results (i.e., the
@@ -108,6 +113,20 @@ Use \code{NULL} (default) if no \code{vary_across} component in
 }
 \subsection{Returns}{
 Result of \code{eval_fun()}, coerced into a tibble.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-print"></a>}}
+\if{latex}{\out{\hypertarget{method-print}{}}}
+\subsection{Method \code{print()}}{
+Print an \code{Evaluator} in a nice format, showing the
+\code{Evaluator}'s name, function, parameters, and R Markdown options.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Evaluator$print()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+The original \code{Evaluator} object.
 }
 }
 \if{html}{\out{<hr>}}

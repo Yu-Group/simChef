@@ -126,6 +126,19 @@ test_that("Modifying DGPs/Methods/Evaluators/Visualizers works properly", {
   expect_error(experiment1 %>% update_evaluator("Evaluator2"))
   expect_error(experiment1 %>% update_evaluator(eval2, "Evaluator2"))
   
+  # get_* methods
+  expect_error(get_dgps())
+  expect_equal(experiment1$get_dgps(), get_dgps(experiment1))
+  expect_equal(experiment1$get_methods(), get_methods(experiment1))
+  expect_equal(experiment1$get_evaluators(), get_evaluators(experiment1))
+  expect_equal(experiment1$get_visualizers(), get_visualizers(experiment1))
+  
+  # make copy of experiments for later
+  experiment1_copy <- create_experiment(name = experiment1$name,
+                                        clone_from = experiment1)
+  experiment2_copy <- create_experiment(name = experiment2$name,
+                                        clone_from = experiment2)
+  
   # removing dgp
   experiment1 %>% remove_dgp("DGP1")
   experiment2$remove_dgp("DGP1")
@@ -146,6 +159,25 @@ test_that("Modifying DGPs/Methods/Evaluators/Visualizers works properly", {
   
   # error checking for remove_*
   expect_error(experiment1 %>% remove_dgp("Evaluator3"))
+  
+  # remove all
+  experiment1_copy %>% remove_dgp()
+  experiment2_copy$remove_dgp()
+  expect_equal(experiment1_copy$get_dgps(), list())
+  expect_equal(names(experiment1_copy$get_methods()), "Method1")
+  expect_equal(experiment1_copy, experiment2_copy)
+  experiment1_copy %>% remove_method()
+  experiment2_copy$remove_method()
+  expect_equal(experiment1_copy$get_methods(), list())
+  expect_equal(experiment1_copy, experiment2_copy)
+  experiment1_copy %>% remove_evaluator()
+  experiment2_copy$remove_evaluator()
+  expect_equal(experiment1_copy$get_evaluators(), list())
+  expect_equal(experiment1_copy, experiment2_copy)
+  experiment1_copy %>% remove_visualizer()
+  experiment2_copy$remove_visualizer()
+  expect_equal(experiment1_copy$get_visualizers(), list())
+  expect_equal(experiment1_copy, experiment2_copy)
 })
 
 test_that("Running experiment works properly", {
@@ -507,10 +539,21 @@ test_that("Add/update/remove vary across works properly", {
   experiment %>% remove_vary_across(method = "Method")
   expect_equal(experiment$get_vary_across(), no_vary_list)
   
+  # check get_vary_across
+  expect_equal(experiment$get_vary_across(), get_vary_across(experiment))
+  
   # adding/removing multiple vary across params in single DGP/Method
   experiment %>% add_vary_across(dgp = "DGP", x = 1:3, y = c("a", "b"))
   expect_true(all(c("x", "y") %in% names(experiment$get_vary_across()$dgp$DGP)))
   experiment %>% remove_vary_across(dgp = "DGP")
+  expect_equal(experiment$get_vary_across(), no_vary_list)
+  
+  # removing all vary across params in experiment
+  expect_error(experiment %>% remove_vary_across())
+  experiment %>%
+    add_vary_across(dgp = "DGP", x = 1:3, y = c("a", "b")) %>%
+    add_vary_across(metho = "Method", idx = 1:3)
+  experiment %>% remove_vary_across()
   expect_equal(experiment$get_vary_across(), no_vary_list)
 })
 
@@ -629,12 +672,14 @@ test_that("Saving methods in Experiment works properly", {
   experiment <- create_experiment(name = "test-saving")
   old_path <- R.utils::getAbsolutePath(file.path("results", "test-saving"))
   expect_equal(experiment$get_save_dir(), old_path)
+  expect_equal(experiment$get_save_dir(), get_save_dir(experiment))
   
   # check set_save_dir()
   experiment %>%
     set_save_dir(file.path("results", "test-saving-new"))
   new_path <- R.utils::getAbsolutePath(file.path("results", "test-saving-new"))
   expect_equal(experiment$get_save_dir(), new_path)
+  expect_equal(experiment$get_save_dir(), get_save_dir(experiment))
   
   # check save_experiment
   expect_error(save_experiment())

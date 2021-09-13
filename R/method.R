@@ -33,8 +33,8 @@ Method <- R6::R6Class(
                                               which = -2)
       }
       self$method_fun <- args_list$method_fun
-      args_list$method_fun <- NULL
       self$name <- args_list$name
+      args_list$method_fun <- NULL
       args_list$name <- NULL
       self$method_params <- args_list
     },
@@ -67,6 +67,23 @@ Method <- R6::R6Class(
         names(fit_results) <- paste0("result", 1:length(fit_results))
       }
       return(list_to_tibble_row(fit_results))
+    },
+    #' @description Print a \code{Method} in a nice format, showing the 
+    #'   \code{Method}'s name, function, and parameters.
+    #'
+    #' @return The original \code{Method} object.
+    print = function() {
+      if (is.null(self$name)) {
+        cat("Method Name: NULL \n")
+      } else {
+        cat("Method Name:", self$name, "\n")
+      }
+      cat("   Function: ")
+      cat(str(self$method_fun, give.attr = F))
+      cat("   Parameters: ")
+      cat(str(self$method_params,
+              indent.str = "     ", no.list = F))
+      invisible(self)
     }
   )
 )
