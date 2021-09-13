@@ -175,11 +175,15 @@ Markdown report; if <code>FALSE</code>, hide output in the R Markdown report.</p
 <p><div class="arguments"></p><dl>
 <dt><code>visualizer_fun</code></dt><dd><p>The visualization function.</p></dd>
 
-<dt><code>name</code></dt><dd><p>(Optional) The name of the <code>Visualizer</code>.</p></dd>
+<dt><code>name</code></dt><dd><p>(Optional) The name of the <code>Visualizer</code>. The argument
+must be specified by position or typed out in whole; no partial
+matching is allowed for this argument.</p></dd>
 
 <dt><code>rmd_options</code></dt><dd><p>(Optional) List of options to control the aesthetics
 of the <code>Visualizer</code>'s visualization in the knitted R Markdown
 report. Currently, possible options are "height" and "width" (in
+inches). The argument must be specified by position or typed out in
+whole; no partial matching is allowed for this argument.
 inches).</p></dd>
 
 <dt><code>show</code></dt><dd><p>If <code>TRUE</code> (default), show the resulting visualization in the R

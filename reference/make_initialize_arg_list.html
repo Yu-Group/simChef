@@ -6,7 +6,8 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Create a new Method. — create_method • simChef</title>
+<title>The point of this method is to undo partial argument matching on the formals
+of the method that calls make_initialize_arg_list(). — make_initialize_arg_list • simChef</title>
 
 
 <!-- jquery -->
@@ -39,8 +40,10 @@
 
 
 
-<meta property="og:title" content="Create a new Method. — create_method" />
-<meta property="og:description" content="Create a new Method." />
+<meta property="og:title" content="The point of this method is to undo partial argument matching on the formals
+of the method that calls make_initialize_arg_list(). — make_initialize_arg_list" />
+<meta property="og:description" content="The point of this method is to undo partial argument matching on the formals
+of the method that calls make_initialize_arg_list()." />
 
 
 
@@ -118,39 +121,39 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Create a new <code>Method</code>.</h1>
+    <h1>The point of this method is to undo partial argument matching on the formals
+of the method that calls make_initialize_arg_list().</h1>
     
-    <div class="hidden name"><code>create_method.Rd</code></div>
+    <div class="hidden name"><code>make_initialize_arg_list.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Create a new <code>Method</code>.</p>
+    <p>The point of this method is to undo partial argument matching on the formals
+of the method that calls make_initialize_arg_list().</p>
     </div>
 
-    <pre class="usage"><span class='fu'>create_method</span><span class='op'>(</span><span class='va'>method_fun</span>, name <span class='op'>=</span> <span class='cn'>NULL</span>, <span class='va'>...</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>make_initialize_arg_list</span><span class='op'>(</span><span class='va'>obj_fun</span>, <span class='va'>...</span>, which <span class='op'>=</span> <span class='op'>-</span><span class='fl'>1</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>method_fun</th>
-      <td><p>The method function.</p></td>
-    </tr>
-    <tr>
-      <th>name</th>
-      <td><p>(Optional) The name of the <code>Method</code>. The argument must be
-specified by position or typed out in whole; no partial matching is allowed
-for this argument.</p></td>
+      <th>obj_fun</th>
+      <td><p>a required function</p></td>
     </tr>
     <tr>
       <th>...</th>
-      <td><p>Arguments to pass into <code>method_fun()</code>.</p></td>
+      <td><p>other objects needed to construct the args list</p></td>
+    </tr>
+    <tr>
+      <th>which</th>
+      <td><p>see argument of the same name in sys.call()</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A new instance of <code>Method</code>.</p>
+    <p>a named list of formal args in position order followed by dots args</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
