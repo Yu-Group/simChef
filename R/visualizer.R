@@ -26,11 +26,14 @@ Visualizer <- R6::R6Class(
     #' @description Create a new \code{Visualizer}.
     #'
     #' @param visualizer_fun The visualization function.
-    #' @param name (Optional) The name of the \code{Visualizer}.
+    #' @param name (Optional) The name of the \code{Visualizer}. The argument
+    #'   must be specified by position or typed out in whole; no partial
+    #'   matching is allowed for this argument.
     #' @param rmd_options (Optional) List of options to control the aesthetics
     #'   of the \code{Visualizer}'s visualization in the knitted R Markdown
     #'   report. Currently, possible options are "height" and "width" (in
-    #'   inches).
+    #'   inches). The argument must be specified by position or typed out in
+    #'   whole; no partial matching is allowed for this argument.
     #' @param ... Arguments to pass into \code{visualizer_fun()}.
     #'
     #' @details When visualizing or running the \code{Experiment} (see
@@ -53,12 +56,24 @@ Visualizer <- R6::R6Class(
     #'
     #' @return A new \code{Visualizer} object.
     initialize = function(visualizer_fun, name = NULL, rmd_options = list(), ...) {
-      self$name <- name
-      self$visualizer_fun <- visualizer_fun
-      self$visualizer_params <- list(...)
+      dots_list <- list(...)
+      if (".args_list" %in% names(dots_list)) {
+        args_list <- dots_list[[".args_list"]]
+      } else {
+        args_list <- make_initialize_arg_list(visualizer_fun, name = name,
+                                              rmd_options = rmd_options, ...,
+                                              which = -2)
+      }
+      self$visualizer_fun <- args_list$visualizer_fun
+      args_list$visualizer_fun <- NULL
+      self$name <- args_list$name
+      args_list$name <- NULL
+      rmd_options <- args_list$rmd_options
       for (opt in names(rmd_options)) {
         self$rmd_options[[opt]] <- rmd_options[[opt]]
       }
+      args_list$rmd_options <- NULL
+      self$visualizer_params <- args_list
     },
     #' @description Visualize the performance of methods and/or their evaluation
     #'   metrics from the \code{Experiment} using the \code{Visualizer} and the
@@ -98,15 +113,22 @@ Visualizer <- R6::R6Class(
 #' @name create_visualizer
 #'
 #' @param visualizer_fun The visualization function.
-#' @param name (Optional) The name of the \code{Visualizer}.
+#' @param name (Optional) The name of the \code{Visualizer}. The argument must
+#'   be specified by position or typed out in whole; no partial matching is
+#'   allowed for this argument.
 #' @param rmd_options (Optional) List of options to control the aesthetics of
 #'   the \code{Visualizer}'s visualization in the knitted R Markdown report.
-#'   Currently, possible options are "height" and "width" (in inches).
+#'   Currently, possible options are "height" and "width" (in inches). The
+#'   argument must be specified by position or typed out in whole; no partial
+#'   matching is allowed for this argument.
 #' @param ... Arguments to pass into \code{visualizer_fun()}.
 #'
 #' @return A new instance of \code{Visualizer}.
 #'
 #' @export
-create_visualizer <- function(visualizer_fun, name = NULL, rmd_options = list(), ...) {
-  return(Visualizer$new(visualizer_fun, name = name, rmd_options = rmd_options, ...))
+create_visualizer <- function(visualizer_fun, name = NULL,
+                              rmd_options = list(), ...) {
+  args_list <- make_initialize_arg_list(visualizer_fun, name = name,
+                                        rmd_options = rmd_options, ...)
+  do.call(Visualizer$new, list(.args_list = args_list))
 }

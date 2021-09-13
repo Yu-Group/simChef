@@ -28,10 +28,14 @@ Evaluator <- R6::R6Class(
     #' @description Create a new \code{Evaluator}.
     #'
     #' @param eval_fun The evaluation function.
-    #' @param name (Optional) The name of the \code{Evaluator}.
-    #' @param rmd_options (Optional) List of options to control the aesthetics 
+    #' @param name (Optional) The name of the \code{Evaluator}. The argument
+    #'   must be specified by position or typed out in whole; no partial
+    #'   matching is allowed for this argument.
+    #' @param rmd_options (Optional) List of options to control the aesthetics
     #'   of the displayed \code{Evaluator}'s results table in the knitted R
-    #'   Markdown report. See [prettyDT()] for possible options.
+    #'   Markdown report. See [prettyDT()] for possible options. The argument
+    #'   must be specified by position or typed out in whole; no partial
+    #'   matching is allowed for this argument.
     #' @param ... Arguments to pass into \code{eval_fun()}.
     #'
     #' @details When evaluating or running the \code{Experiment} (see
@@ -51,12 +55,24 @@ Evaluator <- R6::R6Class(
     #'
     #' @return A new \code{Evaluator} object.
     initialize = function(eval_fun, name = NULL, rmd_options = list(), ...) {
-      self$name <- name
-      self$eval_fun <- eval_fun
-      self$eval_params <- list(...)
+      dots_list <- list(...)
+      if (".args_list" %in% names(dots_list)) {
+        args_list <- dots_list[[".args_list"]]
+      } else {
+        args_list <- make_initialize_arg_list(eval_fun, name = name,
+                                              rmd_options = rmd_options, ...,
+                                              which = -2)
+      }
+      self$eval_fun <- args_list$eval_fun
+      args_list$eval_fun <- NULL
+      self$name <- args_list$name
+      args_list$name <- NULL
+      rmd_options <- args_list$rmd_options
       for (opt in names(rmd_options)) {
         self$rmd_options[[opt]] <- rmd_options[[opt]]
       }
+      args_list$rmd_options <- NULL
+      self$eval_params <- args_list
     },
     #' @description Evaluate the performance of method(s) in the
     #'   \code{Experiment} using the \code{Evaluator} and its given parameters.
@@ -91,15 +107,21 @@ Evaluator <- R6::R6Class(
 #' @name create_evaluator
 #'
 #' @param eval_fun The evaluation function.
-#' @param name (Optional) The name of the \code{Evaluator}.
-#' @param rmd_options (Optional) List of options to control the aesthetics of 
+#' @param name (Optional) The name of the \code{Evaluator}. The argument must be
+#'   specified by position or typed out in whole; no partial matching is allowed
+#'   for this argument.
+#' @param rmd_options (Optional) List of options to control the aesthetics of
 #'   the displayed \code{Evaluator}'s results table in the knitted R Markdown
-#'   report. See [prettyDT()] for possible options.
+#'   report. See [prettyDT()] for possible options. The argument must be
+#'   specified by position or typed out in whole; no partial matching is allowed
+#'   for this argument.
 #' @param ... Arguments to pass into \code{eval_fun()}.
 #'
 #' @return A new instance of \code{Evaluator}.
 #'
 #' @export
 create_evaluator <- function(eval_fun, name = NULL, rmd_options = list(), ...) {
-  return(Evaluator$new(eval_fun, name = name, rmd_options = rmd_options, ...))
+  args_list <- make_initialize_arg_list(eval_fun, name = name,
+                                        rmd_options = rmd_options, ...)
+  do.call(Evaluator$new, list(".args_list" = args_list))
 }

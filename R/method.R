@@ -12,31 +12,42 @@ Method <- R6::R6Class(
     name = NULL,
     #' @field method_fun The method function.
     method_fun = NULL,
-    #' @field method_params (Named) list of parameters to input into the 
+    #' @field method_params (Named) list of parameters to input into the
     #'   method function.
     method_params = NULL,
     #' @description Create a new \code{Method}.
     #'
     #' @param method_fun The method function.
-    #' @param name (Optional) The name of the \code{Method}.
+    #' @param name (Optional) The name of the \code{Method}. The argument must
+    #'   be specified by position or typed out in whole; no partial matching is
+    #'   allowed for this argument.
     #' @param ... Arguments to pass into \code{method_fun()}.
     #'
     #' @return A new \code{Method} object.
     initialize = function(method_fun, name = NULL, ...) {
-      self$name <- name
-      self$method_fun <- method_fun
-      self$method_params <- list(...)
+      dots_list <- list(...)
+      if (".args_list" %in% names(dots_list)) {
+        args_list <- dots_list[[".args_list"]]
+      } else {
+        args_list <- make_initialize_arg_list(method_fun, name = name, ...,
+                                              which = -2)
+      }
+      self$method_fun <- args_list$method_fun
+      args_list$method_fun <- NULL
+      self$name <- args_list$name
+      args_list$name <- NULL
+      self$method_params <- args_list
     },
     #' @description Fit a \code{Method} on data using the provided \code{Method}
     #'   parameters.
-    #' 
+    #'
     #' @param data_list List of data to pass into \code{method_fun()}. If named,
     #'   should match arguments in \code{method_fun()}.
-    #' @param ... Arguments to pass into \code{method_fun()} that will overwrite 
-    #'   the initialized \code{Method} parameters. If no additional arguments 
-    #'   are provided, the \code{Method} will be fit using \code{method_fun()} 
+    #' @param ... Arguments to pass into \code{method_fun()} that will overwrite
+    #'   the initialized \code{Method} parameters. If no additional arguments
+    #'   are provided, the \code{Method} will be fit using \code{method_fun()}
     #'   and the parameters that were set when \code{Method$new()} was called.
-    #' 
+    #'
     #' @return Result of \code{method_fun()}, coerced into a single tibble row.
     fit = function(data_list, ...) {
       method_params <- self$method_params
@@ -63,14 +74,17 @@ Method <- R6::R6Class(
 #' Create a new \code{Method}.
 #'
 #' @name create_method
-#' 
+#'
 #' @param method_fun The method function.
-#' @param name (Optional) The name of the \code{Method}.
+#' @param name (Optional) The name of the \code{Method}. The argument must be
+#'   specified by position or typed out in whole; no partial matching is allowed
+#'   for this argument.
 #' @param ... Arguments to pass into \code{method_fun()}.
 #'
 #' @return A new instance of \code{Method}.
 #'
 #' @export
 create_method <- function(method_fun, name = NULL, ...) {
-  return(Method$new(method_fun, name = name, ...))
+  args_list <- make_initialize_arg_list(method_fun, name = name, ...)
+  do.call(Method$new, list(.args_list = args_list))
 }
