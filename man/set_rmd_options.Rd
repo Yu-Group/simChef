@@ -3,7 +3,7 @@
 \name{set_rmd_options}
 \alias{set_rmd_options}
 \title{Set R Markdown options for \code{Evaluator} and \code{Visualizer} outputs in
-summary report}
+summary report.}
 \usage{
 set_rmd_options(
   experiment,

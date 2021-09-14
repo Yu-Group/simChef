@@ -51,6 +51,7 @@ evaluated using \code{Evaluators} and visualized using \code{Visualizers}.
 \item \href{#method-update_vary_across}{\code{Experiment$update_vary_across()}}
 \item \href{#method-remove_vary_across}{\code{Experiment$remove_vary_across()}}
 \item \href{#method-get_vary_across}{\code{Experiment$get_vary_across()}}
+\item \href{#method-clear_cache}{\code{Experiment$clear_cache()}}
 \item \href{#method-set_rmd_options}{\code{Experiment$set_rmd_options()}}
 \item \href{#method-get_save_dir}{\code{Experiment$get_save_dir()}}
 \item \href{#method-set_save_dir}{\code{Experiment$set_save_dir()}}
@@ -882,6 +883,19 @@ are also lists that contain lists named for specific \code{DGP} or
 \code{Method} objects in the \code{Experiment}. This final layer of
 lists contains vectors or lists named for the arguments of the
 corresponding user-specified \code{DGP}/\code{Method} function.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-clear_cache"></a>}}
+\if{latex}{\out{\hypertarget{method-clear_cache}{}}}
+\subsection{Method \code{clear_cache()}}{
+Clear cached results from \code{Experiment} and start fresh.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Experiment$clear_cache()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+The original \code{Experiment} object with cache cleared.
 }
 }
 \if{html}{\out{<hr>}}
