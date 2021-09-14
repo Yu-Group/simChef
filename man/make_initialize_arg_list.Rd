@@ -12,7 +12,7 @@ make_initialize_arg_list(obj_fun, ..., which = -1)
 
 \item{...}{other objects needed to construct the args list}
 
-\item{which}{see argument of the same name in \link{sys.call()}}
+\item{which}{see argument of the same name in \code{\link{sys.call}}}
 }
 \value{
 a named list of formal args in position order followed by dots args
