@@ -252,9 +252,35 @@ Experiment <- R6::R6Class(
                                        .method = .x[2]))
       private$.fit_params <- fit_params
     },
-    .get_fit_params = function(simplify = FALSE) {
-      # get (dgp, method) fit parameter combinations
+    .get_fit_params = function(type = c("all", "cached", "new"),
+                               n_reps = NULL, simplify = FALSE) {
+      # get all/new/cached (dgp, method) fit parameter combinations
+      type <- match.arg(type)
       fit_params <- private$.fit_params
+      if (identical(type, "all")) {
+        out_params <- fit_params
+      } else {
+        nreps <- n_reps
+        if (nrow(private$.cached_ids) == 0) {
+          if (identical(type, "cached")) {
+            out_params <- private$.cached_ids
+          } else if (identical(type, "new")) {
+            out_params <- fit_params
+          }
+        } else {
+          cached_params <- private$.cached_ids %>%
+            dplyr::filter(n_reps >= {{nreps}}) %>%
+            dplyr::select(-n_reps, -.evaluators, -.visualizers)
+          cached_idxs <- dplyr::bind_rows(fit_params, cached_params) %>%
+            duplicated(fromLast = TRUE)
+          if (identical(type, "cached")) {
+            out_params <- fit_params[cached_idxs[1:nrow(fit_params)], ]
+          } else if (identical(type, "new")) {
+            out_params <- fit_params[!cached_idxs[1:nrow(fit_params)], ]
+          }
+        }
+      }
+      
       if (simplify) {
         for (param_name in private$.get_vary_params("dgp")) {
           fit_params[[param_name]] <- purrr::map(fit_params$.dgp,
@@ -264,25 +290,14 @@ Experiment <- R6::R6Class(
           fit_params[[param_name]] <- purrr::map(fit_params$.method,
                                                  ~.x[[param_name]])
         }
-        fit_params <- fit_params %>%
+        out_params <- dplyr::inner_join(out_params, fit_params,
+                                        by = colnames(out_params)) %>%
+          dplyr::rename(dgp_name = .dgp_name, method_name = .method_name) %>%
           dplyr::select(-.dgp, -.method) %>%
-          dplyr::rename(dgp_name = .dgp_name, method_name = .method_name)
-        return(simplify_tibble(fit_params, omit_cols = c(".dgp", ".method")))
+          simplify_tibble()
       }
-      return(fit_params)
-    },
-    .get_new_fit_params = function(n_reps = NULL) {
-      # get new uncached (dgp, method) fit parameter combinations
-      fit_params <- private$.get_fit_params()
-      if (nrow(private$.cached_ids) == 0) {
-        return(fit_params)
-      }
-      cached_params <- private$.cached_ids %>%
-        dplyr::filter(n_reps >= {{n_reps}}) %>%
-        dplyr::select(-n_reps, -.evaluators, -.visualizers)
-      cached_idxs <- dplyr::bind_rows(fit_params, cached_params) %>%
-        duplicated(fromLast = TRUE)
-      return(fit_params[!cached_idxs[1:nrow(fit_params)], ])
+      
+      return(out_params)
     },
     .get_new_dgp_params = function(method_params, new_fit_params) {
       # get new dgp parameter combinations given method parameter set
@@ -687,8 +702,7 @@ Experiment <- R6::R6Class(
           if (nrow(results) != nrow(fit_results)) {
             private$.save_results(fit_results, "fit", verbose)
             private$.update_cache("fit", n_reps = n_reps)
-          }
-          if (verbose >= 1) {
+          } else if (verbose >= 1) {
             message("==============================")
           }
           return(fit_results)
@@ -731,7 +745,7 @@ Experiment <- R6::R6Class(
 
       check_cache <- FALSE
       if (use_cached) {
-        new_fit_params <- private$.get_new_fit_params(n_reps)
+        new_fit_params <- private$.get_fit_params("new", n_reps)
         n_params <- nrow(new_fit_params)
         new_fit <- n_params == nrow(private$.get_fit_params())
         if (!new_fit) {
@@ -1051,8 +1065,14 @@ Experiment <- R6::R6Class(
               future.globals = future.globals,
               future.packages = future.packages
             )
-            results <- dplyr::bind_rows(results)
-            results$rep <- rep(1:n_reps, each = n_dgps*length(method_params_list))
+            # get correct rep number
+            results <- purrr::map(1:length(results),
+                                  function(i) {
+                                    results[[i]]$rep <- i
+                                    return(results[[i]])
+                                  })
+            results <- dplyr::bind_rows(results) %>%
+              dplyr::mutate(rep = (rep - 1) %/% n_dgps + 1)
             results
           },
           "reps+methods" = {
@@ -1082,10 +1102,14 @@ Experiment <- R6::R6Class(
               future.globals = future.globals,
               future.packages = future.packages
             )
-            results <- dplyr::bind_rows(results)
-            results$rep <- rep(
-              1:n_reps, each = length(dgp_params_list)*n_methods
-            )
+            # get correct rep number
+            results <- purrr::map(1:length(results),
+                                  function(i) {
+                                    results[[i]]$rep <- i
+                                    return(results[[i]])
+                                  })
+            results <- dplyr::bind_rows(results) %>%
+              dplyr::mutate(rep = (rep - 1) %/% n_methods + 1)
             results
           },
           "dgps+methods" = {
@@ -1161,20 +1185,30 @@ Experiment <- R6::R6Class(
           }
         )
       }
-
+      
+      for (col in setdiff(private$.get_vary_params(), colnames(fit_results))) {
+        fit_results[[col]] <- NA
+      }
       fit_results <- simplify_tibble(fit_results) %>%
+        dplyr::mutate(rep = as.character(rep)) %>%
         dplyr::select(rep, dgp_name, method_name,
                       private$.get_vary_params(),
                       tidyselect::everything()) %>%
         dplyr::arrange(as.numeric(rep), dgp_name, method_name)
 
       if (use_cached && !new_fit) {
+        fit_params_cached <- private$.get_fit_params("cached", n_reps, TRUE)
         fit_results_cached <- private$.get_cached_results("fit", 
-                                                          verbose = verbose)
-        message("Appending cached results to the new fit results...")
+                                                          verbose = verbose) %>%
+          dplyr::inner_join(y = fit_params_cached, 
+                            by = colnames(fit_params_cached))
+        if (verbose >= 1) {
+          message("Appending cached results to the new fit results...")
+        }
         fit_params <- private$.get_fit_params(simplify = TRUE)
+        fit_params_cols <- colnames(fit_params)
         fit_results <- dplyr::bind_rows(fit_results, fit_results_cached) %>%
-          dplyr::inner_join(y = fit_params, by = colnames(fit_params)) %>%
+          dplyr::inner_join(y = fit_params, by = fit_params_cols) %>%
           dplyr::filter(as.numeric(rep) <= n_reps) %>%
           dplyr::arrange(as.numeric(rep), dgp_name, method_name)
       }
@@ -1246,7 +1280,9 @@ Experiment <- R6::R6Class(
       if (use_cached && !setequal(names(evaluator_list), evaluator_names)) {
         eval_results_cached <- private$.get_cached_results("eval",
                                                            verbose = verbose)
-        message("Appending cached results to the new evaluation results...")
+        if (verbose >= 1) {
+          message("Appending cached results to the new evaluation results...")
+        }
         eval_results <- c(eval_results, eval_results_cached)[evaluator_names]
       }
       if (verbose >= 1) {
@@ -1318,7 +1354,9 @@ Experiment <- R6::R6Class(
       if (use_cached && !setequal(names(visualizer_list), visualizer_names)) {
         visualize_results_cached <- private$.get_cached_results("visualize",
                                                                 verbose = verbose)
-        message("Appending cached results to the new visualization results...")
+        if (verbose >= 1) {
+          message("Appending cached results to the new visualization results...")
+        }
         visualize_results <- c(visualize_results, 
                                visualize_results_cached)[visualizer_names]
       }
@@ -1763,6 +1801,13 @@ Experiment <- R6::R6Class(
     #'    corresponding user-specified \code{DGP}/\code{Method} function.
     get_vary_across = function() {
       return(private$.vary_across_list)
+    },
+    #' @description Clear cached results from \code{Experiment} and start fresh.
+    #'
+    #' @return The original \code{Experiment} object with cache cleared.
+    clear_cache = function() {
+      private$.cached_ids <- tibble::tibble()
+      return(invisible(self))
     },
     #' @description Set R Markdown options for displaying \code{Evaluator} or
     #'   \code{Visualizer} outputs in the summary report.
@@ -2249,8 +2294,23 @@ get_vary_across <- function(experiment) {
   experiment$get_vary_across()
 }
 
+#' Clear cached results from \code{Experiment}.
+#'
+#' @name clear_cache
+#' @description Clear (or delete) cached results from an \code{Experiment} to
+#'   start the experiment fresh/from scratch.
+#'   
+#' @param experiment An \code{Experiment} object.
+#'
+#' @return The original \code{Experiment} object with cache cleared.
+#' 
+#' @export
+clear_cache <- function(experiment) {
+  experiment$clear_cache()
+}
+
 #' Set R Markdown options for \code{Evaluator} and \code{Visualizer} outputs in
-#'   summary report
+#'   summary report.
 #'
 #' @name set_rmd_options
 #' @description Set R Markdown options for \code{Evaluator} or \code{Visualizer}
