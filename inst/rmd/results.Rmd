@@ -225,14 +225,16 @@ showResults <- function(dir_name, depth, base = FALSE, show_header = TRUE,
   }
 
   showtype_template <- paste0(
-    "\n\n",
-    paste(rep("#", depth + 1), collapse = ""),
-    " %s {.tabset .tabset-pills .tabset-fade .tabset-square}\n\n"
+    "\n\n", paste(rep("#", depth + 1), collapse = ""), " %s\n\n"
   )
   figname_template <- "<h3 style='font-weight: bold'> %s </h3>"
-  plt_template <- paste0("\n\n",
-                         paste(rep("#", depth + 2), collapse = ""),
-                         " %s\n\n")
+  invisible_header <- paste0(
+    "\n\n", paste(rep("#", depth + 2), collapse = ""),
+    " {.tabset .tabset-pills .tabset-fade .tabset-square}\n\n"
+  )
+  plt_template <- paste0(
+    "\n\n", paste(rep("#", depth + 3), collapse = ""), " %s\n\n"
+  )
 
   exp_fname <- file.path(dir_name, "experiment.rds")
   # fit_fname <- file.path(dir_name, "fit_results.rds")
@@ -270,6 +272,7 @@ showResults <- function(dir_name, depth, base = FALSE, show_header = TRUE,
       }
       visualizer <- exp$get_visualizers()[[plot_name]]
       if (visualizer$show) {
+        cat(invisible_header)
         cat(sprintf(figname_template, plot_name))
         plts <- visualize_results[[plot_name]]
         if (!inherits(plts, "list")) {
