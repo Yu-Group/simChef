@@ -921,21 +921,39 @@ Experiment <- R6::R6Class(
     #'
     #' @param open If \code{TRUE}, open the R Markdown-generated html file in a
     #'   web browser.
+    #' @param author Character string of author names to display in knitted R
+    #'   Markdown document.
     #' @param verbose Level of verboseness (0, 1, 2) when knitting R Markdown.
     #'   Default is 2.
-    #' @param ... Not used.
+    #' @param quiet Default is \code{TRUE}. See [rmarkdown::render()] for 
+    #'   details.
+    #' @param pretty Logical. Specifies whether or not to use pretty R Markdown
+    #'   results template or more barebones R Markdown results template. Default
+    #'   \code{TRUE} uses the pretty template. Set to \code{FALSE} to start from
+    #'   the barebones template, which can be helpful when using your own custom
+    #'   R Markdown theme.
+    #' @param ... Additional arguments to pass to [rmarkdown::render()]. Useful
+    #'   for applying a custom R Markdown output theme.
     #'
     #' @return The original \code{Experiment} object.
-    create_rmd = function(open = TRUE, verbose = 2, ...) {
+    create_rmd = function(open = TRUE, author = "", verbose = 2, quiet = TRUE,
+                          pretty = TRUE, ...) {
       self$create_doc_template()
-      input_fname <- system.file("rmd", "results.Rmd", package = packageName())
+      if (pretty) {
+        input_fname <- system.file("rmd", "results_pretty.Rmd", 
+                                   package = packageName())
+      } else {
+        input_fname <- system.file("rmd", "results.Rmd", 
+                                   package = packageName())
+      }
       output_fname <- file.path(private$.save_dir, paste0(self$name, ".html"))
       params_list <- list(sim_name = self$name, sim_path = private$.save_dir,
-                          verbose = verbose)
+                          author = author, verbose = verbose)
       rmarkdown::render(input = input_fname,
                         params = params_list,
                         output_file = output_fname,
-                        quiet = TRUE)
+                        quiet = quiet,
+                        ...)
       output_fname <- stringr::str_replace_all(output_fname, " ", "\\\\ ")
       if (open) {
         system(paste("open", output_fname))
@@ -1903,14 +1921,26 @@ create_doc_template = function(experiment, experiment_dirname) {
 #'   were previously saved. Used if \code{experiment} argument was not provided.
 #' @param open If \code{TRUE}, open the R Markdown-generated html file in a
 #'   web browser.
+#' @param author Character string of author names to display in knitted R
+#'   Markdown document.
 #' @param verbose Level of verboseness (0, 1, 2) when knitting R Markdown.
 #'   Default is 2.
+#' @param quiet Default is \code{TRUE}. See [rmarkdown::render()] for 
+#'   details.
+#' @param pretty Logical. Specifies whether or not to use pretty R Markdown
+#'   results template or more barebones R Markdown results template. Default
+#'   \code{TRUE} uses the pretty template. Set to \code{FALSE} to start from
+#'   the barebones template, which can be helpful when using your own custom
+#'   R Markdown theme.
+#' @param ... Additional arguments to pass to [rmarkdown::render()]. Useful
+#'   for applying a custom R Markdown output theme.
 #'
 #' @return The original \code{Experiment} object passed to \code{create_rmd}.
 #'
 #' @export
-create_rmd <- function(experiment, experiment_dirname,
-                       open = TRUE, verbose = 2) {
+create_rmd <- function(experiment, experiment_dirname, open = TRUE, 
+                       author = "", verbose = 2, quiet = TRUE, pretty = TRUE,
+                       ...) {
   if (missing(experiment) && missing(experiment_dirname)) {
     stop("Must provide argument for one of experiment or experiment_dirname")
   }
@@ -1928,5 +1958,6 @@ create_rmd <- function(experiment, experiment_dirname,
     }
   }
   experiment$create_doc_template()
-  experiment$create_rmd(open = open, verbose = verbose)
+  experiment$create_rmd(open = open, author = author, verbose = verbose,
+                        quiet = quiet, pretty = pretty, ...)
 }

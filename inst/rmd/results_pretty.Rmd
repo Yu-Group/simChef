@@ -9,7 +9,7 @@ header-includes:
 output:
   rmdformats::material:
     fig_caption: true
-css: css/general_rmd_theme_addons.css
+css: css/pretty_rmd_theme_addons.css
 params:
   author: 
     label: "Author:"
@@ -24,6 +24,8 @@ params:
     label: "Verbose Level:"
     value: 2
 ---
+
+<script src="js/customNavClass.js"></script>
 
 ```{r setup, include=FALSE}
 options(width = 10000)
@@ -118,7 +120,7 @@ showRecipePart <- function(field_name = c("dgp", "method",
   obj_names <- unique(purrr::reduce(sapply(objs, names), c))
 
   obj_header <- "<p style='font-weight: bold; font-size: 20px'> %s </p>"
-  invis_header <- "\n\n### %s {.tabset .tabset-pills .tabset-fade .tabset-circle}\n\n"
+  invis_header <- "\n\n### %s {.tabset .tabset-pills .tabset-fade .tabset-recipe}\n\n"
   showtype_header <- "\n\n#### %s {.tabset .tabset-pills .tabset-fade .tabset-square}\n\n"
   exp_header <- "\n\n##### %s \n\n"
 
@@ -133,11 +135,11 @@ showRecipePart <- function(field_name = c("dgp", "method",
     cat("<div class='panel panel-default padded-panel'>")
     cat(sprintf(obj_header, obj_name))
 
-    cat(sprintf(showtype_header, fontawesome::fa("readme")))
+    cat(sprintf(showtype_header, fontawesome::fa("readme", fill = "white")))
     pasteMd(file.path(doc_dir, paste0(field_name, "s"),
                       paste0(obj_name, ".md")))
 
-    cat(sprintf(showtype_header, fontawesome::fa("code")))
+    cat(sprintf(showtype_header, fontawesome::fa("code", fill = "white")))
     keep_objs <- purrr::map(objs, obj_name)
     keep_objs[sapply(keep_objs, is.null)] <- NULL
     if (all(purrr::map_lgl(keep_objs,
@@ -248,7 +250,7 @@ showResults <- function(dir_name, depth, base = FALSE, show_header = TRUE,
   visualize_results <- getResults(visualize_fname)
 
   if (!is.null(eval_results)) {
-    cat(sprintf(showtype_template, fontawesome::fa("table")))
+    cat(sprintf(showtype_template, fontawesome::fa("table", fill = "white")))
     for (eval_name in names(eval_results)) {
       if (verbose >= 2) {
         message(rep(" ", depth + 1), eval_name)
@@ -266,7 +268,7 @@ showResults <- function(dir_name, depth, base = FALSE, show_header = TRUE,
 
   if (!is.null(visualize_results)) {
     cat(sprintf(showtype_template,
-                fontawesome::fa("chart-bar")))
+                fontawesome::fa("chart-bar", fill = "white")))
     for (plot_name in names(visualize_results)) {
       if (verbose >= 2) {
         message(rep(" ", depth + 1), plot_name)
@@ -287,10 +289,16 @@ showResults <- function(dir_name, depth, base = FALSE, show_header = TRUE,
             cat(sprintf(plt_template, plt_name))
           }
           plt <- plts[[plt_name]]
+          if (inherits(plt, "plotly")) {
+            add_class <- c("panel panel-default padded-panel")
+          } else {
+            add_class <- NULL
+          }
           subchunkify(plt, i = chunk_idx,
                       fig_height = visualizer$rmd_options$height,
                       fig_width = visualizer$rmd_options$width,
-                      other_args = "out.width = '100%'")
+                      other_args = "out.width = '100%'",
+                      add_class = add_class)
           chunk_idx <<- chunk_idx + 1
         }
       }
@@ -300,7 +308,7 @@ showResults <- function(dir_name, depth, base = FALSE, show_header = TRUE,
   if (!is.null(exp)) {
     if ((length(exp$get_vary_across()$dgp) != 0) |
         (length(exp$get_vary_across()$method) != 0)) {
-      cat(sprintf(showtype_template, fontawesome::fa("code")))
+      cat(sprintf(showtype_template, fontawesome::fa("code", fill = "white")))
       cat("<b>Parameter Values</b>")
       subchunkify(exp$get_vary_across(),
                   chunk_idx, other_args = "max.height='200px'")
