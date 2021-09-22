@@ -411,7 +411,14 @@ Knits an R Markdown file summarizing the results of an
 \code{Experiment}. Outputs an R Markdown-generated html file, saved in
 the \code{Experiment}'s root results directory.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Experiment$create_rmd(open = TRUE, verbose = 2, ...)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Experiment$create_rmd(
+  open = TRUE,
+  author = "",
+  verbose = 2,
+  quiet = TRUE,
+  pretty = TRUE,
+  ...
+)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -420,10 +427,23 @@ the \code{Experiment}'s root results directory.
 \item{\code{open}}{If \code{TRUE}, open the R Markdown-generated html file in a
 web browser.}
 
+\item{\code{author}}{Character string of author names to display in knitted R
+Markdown document.}
+
 \item{\code{verbose}}{Level of verboseness (0, 1, 2) when knitting R Markdown.
 Default is 2.}
 
-\item{\code{...}}{Not used.}
+\item{\code{quiet}}{Default is \code{TRUE}. See \code{\link[rmarkdown:render]{rmarkdown::render()}} for
+details.}
+
+\item{\code{pretty}}{Logical. Specifies whether or not to use pretty R Markdown
+results template or more barebones R Markdown results template. Default
+\code{TRUE} uses the pretty template. Set to \code{FALSE} to start from
+the barebones template, which can be helpful when using your own custom
+R Markdown theme.}
+
+\item{\code{...}}{Additional arguments to pass to \code{\link[rmarkdown:render]{rmarkdown::render()}}. Useful
+for applying a custom R Markdown output theme.}
 }
 \if{html}{\out{</div>}}
 }
