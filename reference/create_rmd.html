@@ -133,7 +133,16 @@ the <code>Experiment</code>'s root results directory (see
 <code>Experiment$get_save_dir()</code>).</p>
     </div>
 
-    <pre class="usage"><span class='fu'>create_rmd</span><span class='op'>(</span><span class='va'>experiment</span>, <span class='va'>experiment_dirname</span>, open <span class='op'>=</span> <span class='cn'>TRUE</span>, verbose <span class='op'>=</span> <span class='fl'>2</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>create_rmd</span><span class='op'>(</span>
+  <span class='va'>experiment</span>,
+  <span class='va'>experiment_dirname</span>,
+  open <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  author <span class='op'>=</span> <span class='st'>""</span>,
+  verbose <span class='op'>=</span> <span class='fl'>2</span>,
+  quiet <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  pretty <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  <span class='va'>...</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -153,9 +162,32 @@ were previously saved. Used if <code>experiment</code> argument was not provided
 web browser.</p></td>
     </tr>
     <tr>
+      <th>author</th>
+      <td><p>Character string of author names to display in knitted R
+Markdown document.</p></td>
+    </tr>
+    <tr>
       <th>verbose</th>
       <td><p>Level of verboseness (0, 1, 2) when knitting R Markdown.
 Default is 2.</p></td>
+    </tr>
+    <tr>
+      <th>quiet</th>
+      <td><p>Default is <code>TRUE</code>. See <code><a href='https://pkgs.rstudio.com/rmarkdown/reference/render.html'>rmarkdown::render()</a></code> for
+details.</p></td>
+    </tr>
+    <tr>
+      <th>pretty</th>
+      <td><p>Logical. Specifies whether or not to use pretty R Markdown
+results template or more barebones R Markdown results template. Default
+<code>TRUE</code> uses the pretty template. Set to <code>FALSE</code> to start from
+the barebones template, which can be helpful when using your own custom
+R Markdown theme.</p></td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td><p>Additional arguments to pass to <code><a href='https://pkgs.rstudio.com/rmarkdown/reference/render.html'>rmarkdown::render()</a></code>. Useful
+for applying a custom R Markdown output theme.</p></td>
     </tr>
     </table>
 
