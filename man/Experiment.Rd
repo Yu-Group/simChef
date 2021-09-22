@@ -133,6 +133,7 @@ evaluating, and visualizing).
   parallel_strategy = c("reps"),
   future.globals = NULL,
   future.packages = NULL,
+  future.seed = TRUE,
   use_cached = FALSE,
   save = FALSE,
   verbose = 1,
@@ -161,6 +162,9 @@ workers. Passed as the argument of the same name to
 \code{future.apply::future_lapply} and related functions. See
 \link{future.apply}{future_apply}. To set for all runs of the
 experiment, use the same argument during initialization.}
+
+\item{\code{future.seed}}{See the argument of the same name in
+\link{future.apply}{future_apply}.}
 
 \item{\code{use_cached}}{Logical. If \code{TRUE}, find and return previously
 saved results. If cached results cannot be found, run experiment
@@ -239,6 +243,7 @@ results.
   parallel_strategy = c("reps"),
   future.globals = NULL,
   future.packages = NULL,
+  future.seed = TRUE,
   use_cached = FALSE,
   save = FALSE,
   verbose = 1,
@@ -266,6 +271,9 @@ workers. Passed as the argument of the same name to
 \code{future.apply::future_lapply} and related functions. See
 \link{future.apply}{future_apply}. To set for all runs of the
 experiment, use the same argument during initialization.}
+
+\item{\code{future.seed}}{See the argument of the same name in
+\link{future.apply}{future_apply}.}
 
 \item{\code{use_cached}}{If \code{TRUE}, find and return previously saved
 results. If cached results cannot be found, fit experiment anyways.}

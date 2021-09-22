@@ -600,6 +600,8 @@ Experiment <- R6::R6Class(
     #'   \code{future.apply::future_lapply} and related functions. See
     #'   \link{future.apply}{future_apply}. To set for all runs of the
     #'   experiment, use the same argument during initialization.
+    #' @param future.seed See the argument of the same name in
+    #'   \link{future.apply}{future_apply}.
     #' @param use_cached Logical. If \code{TRUE}, find and return previously
     #'   saved results. If cached results cannot be found, run experiment
     #'   anyways.
@@ -627,7 +629,8 @@ Experiment <- R6::R6Class(
     #' }
     run = function(n_reps = 1, parallel_strategy = c("reps"),
                    future.globals = NULL, future.packages = NULL,
-                   use_cached = FALSE, save = FALSE, verbose = 1, ...) {
+                   future.seed = TRUE, use_cached = FALSE, save = FALSE,
+                   verbose = 1, ...) {
       if (!is.logical(save)) {
         save <- c("fit", "eval", "visualize") %in% save
       } else {
@@ -654,6 +657,7 @@ Experiment <- R6::R6Class(
       fit_results <- self$fit(n_reps, parallel_strategy = parallel_strategy,
                               future.globals = future.globals,
                               future.packages = future.packages,
+                              future.seed = future.seed,
                               use_cached = use_cached, save = save[1],
                               verbose = verbose)
       eval_results <- self$evaluate(fit_results = fit_results,
@@ -734,6 +738,8 @@ Experiment <- R6::R6Class(
     #'   \code{future.apply::future_lapply} and related functions. See
     #'   \link{future.apply}{future_apply}. To set for all runs of the
     #'   experiment, use the same argument during initialization.
+    #' @param future.seed See the argument of the same name in
+    #'   \link{future.apply}{future_apply}.
     #' @param use_cached If \code{TRUE}, find and return previously saved
     #'   results. If cached results cannot be found, fit experiment anyways.
     #' @param save If \code{TRUE}, save results to disk.
@@ -748,7 +754,8 @@ Experiment <- R6::R6Class(
     #'   and the \code{vary_across} parameter names if applicable.
     fit = function(n_reps = 1, parallel_strategy = c("reps"),
                    future.globals = NULL, future.packages = NULL,
-                   use_cached = FALSE, save = FALSE, verbose = 1, ...) {
+                   future.seed = TRUE, use_cached = FALSE, save = FALSE, 
+                   verbose = 1, ...) {
 
       dgp_list <- private$.get_obj_list("dgp")
       method_list <- private$.get_obj_list("method")
@@ -758,7 +765,6 @@ Experiment <- R6::R6Class(
       if (length(method_list) == 0) {
         private$.throw_empty_list_error("method", "fit methods in")
       }
-
       if (use_cached) {
         private$.update_fit_params()
         if (private$.is_fully_cached("fit", n_reps = n_reps)) {
@@ -854,7 +860,8 @@ Experiment <- R6::R6Class(
               })
             }, simplify=FALSE,
             future.globals = future.globals,
-            future.packages = future.packages)
+            future.packages = future.packages,
+            future.seed = future.seed)
             dplyr::bind_rows(results, .id = "rep")
           },
           "dgps" = {
@@ -876,9 +883,10 @@ Experiment <- R6::R6Class(
                   })
                 }, simplify=FALSE)
                 dplyr::bind_rows(reps, .id = "rep")
-              }, future.seed = TRUE,
+              },
               future.globals = future.globals,
-              future.packages = future.packages)
+              future.packages = future.packages,
+              future.seed = future.seed)
             dplyr::bind_rows(results)
           },
           "methods" = {
@@ -900,9 +908,10 @@ Experiment <- R6::R6Class(
                   })
                 }, simplify=FALSE)
                 dplyr::bind_rows(reps, .id = "rep")
-              }, future.seed = TRUE,
+              },
               future.globals = future.globals,
-              future.packages = future.packages)
+              future.packages = future.packages,
+              future.seed = future.seed)
             dplyr::bind_rows(results)
           },
           "reps+dgps" = {
@@ -924,7 +933,8 @@ Experiment <- R6::R6Class(
                   result <- do.call(method_list[[method_name]]$fit, method_params)
                   return(result %>% tibble::add_column(param_df, .before=1))
                 })
-              }, future.seed = TRUE,
+              }, 
+              future.seed = future.seed,
               future.globals = future.globals,
               future.packages = future.packages
             )
@@ -952,7 +962,7 @@ Experiment <- R6::R6Class(
                   return(result %>% tibble::add_column(param_df, .before=1))
                 })
               },
-              future.seed = TRUE,
+              future.seed = future.seed,
               future.globals = future.globals,
               future.packages = future.packages
             )
@@ -988,7 +998,7 @@ Experiment <- R6::R6Class(
                 dplyr::bind_rows(reps, .id = "rep")
               },
               dgp_mapply_args, method_mapply_args,
-              future.seed = TRUE, SIMPLIFY = FALSE,
+              future.seed = future.seed, SIMPLIFY = FALSE,
               future.globals = future.globals,
               future.packages = future.packages
             )
@@ -1019,7 +1029,7 @@ Experiment <- R6::R6Class(
                   return(result %>% tibble::add_column(param_df, .before=1))
                 },
                 dgp_mapply_args, method_mapply_args,
-                future.seed = TRUE, SIMPLIFY = FALSE,
+                future.seed = future.seed, SIMPLIFY = FALSE,
                 future.globals = future.globals,
                 future.packages = future.packages
               )
@@ -1051,9 +1061,11 @@ Experiment <- R6::R6Class(
                   return(result %>% tibble::add_column(param_df, .before=1))
                 })
               })
-            }, simplify=FALSE,
+            }, 
+            simplify=FALSE,
             future.globals = future.globals,
-            future.packages = future.packages)
+            future.packages = future.packages,
+            future.seed = future.seed)
             dplyr::bind_rows(results, .id = "rep")
           },
           "dgps" = {
@@ -1078,7 +1090,8 @@ Experiment <- R6::R6Class(
                   })
                 }, simplify=FALSE)
                 dplyr::bind_rows(reps, .id = "rep")
-              }, future.seed = TRUE,
+              }, 
+              future.seed = future.seed,
               future.globals = future.globals,
               future.packages = future.packages)
             dplyr::bind_rows(results)
@@ -1105,7 +1118,8 @@ Experiment <- R6::R6Class(
                   })
                 }, simplify=FALSE)
                 dplyr::bind_rows(reps, .id = "rep")
-              }, future.seed = TRUE,
+              }, 
+              future.seed = future.seed,
               future.globals = future.globals,
               future.packages = future.packages)
             dplyr::bind_rows(results)
@@ -1132,7 +1146,8 @@ Experiment <- R6::R6Class(
                   result <- do.call(method_list[[method_name]]$fit, method_params)
                   return(result %>% tibble::add_column(param_df, .before=1))
                 })
-              }, future.seed = TRUE,
+              }, 
+              future.seed = future.seed,
               future.globals = future.globals,
               future.packages = future.packages
             )
@@ -1169,7 +1184,7 @@ Experiment <- R6::R6Class(
                   return(result %>% tibble::add_column(param_df, .before=1))
                 })
               },
-              future.seed = TRUE,
+              future.seed = future.seed,
               future.globals = future.globals,
               future.packages = future.packages
             )
@@ -1209,9 +1224,10 @@ Experiment <- R6::R6Class(
                 dplyr::bind_rows(reps, .id = "rep")
               },
               dgp_mapply_args, method_mapply_args,
-              future.seed = TRUE, SIMPLIFY = FALSE,
+              SIMPLIFY = FALSE,
               future.globals = future.globals,
-              future.packages = future.packages
+              future.packages = future.packages,
+              future.seed = future.seed
             )
             dplyr::bind_rows(results)
           },
@@ -1246,7 +1262,7 @@ Experiment <- R6::R6Class(
                   return(result %>% tibble::add_column(param_df, .before=1))
                 },
                 dgp_mapply_args, method_mapply_args,
-                future.seed = TRUE, SIMPLIFY = FALSE,
+                future.seed = future.seed, SIMPLIFY = FALSE,
                 future.globals = future.globals,
                 future.packages = future.packages
               )
