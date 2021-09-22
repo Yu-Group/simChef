@@ -676,11 +676,12 @@ test_that("Caching in Experiment runs properly", {
     add_visualizer(fit_plot, name = "Visualizer1")
   
   # basic cache usage
+  verbose <- 0
   results0 <- experiment$run(n_reps = 10, use_cached = TRUE, save = FALSE,
-                             verbose = 0)
-  results1 <- experiment$run(n_reps = 10, save = TRUE, verbose = 0)
+                             verbose = verbose)
+  results1 <- experiment$run(n_reps = 10, save = TRUE, verbose = verbose)
   expect_false(identical(results0$fit_results, results1$fit_results))
-  results2 <- experiment$run(n_reps = 10, use_cached = TRUE, verbose = 0)
+  results2 <- experiment$run(n_reps = 10, use_cached = TRUE, verbose = verbose)
   expect_equal(results1, results2)
   
   # caching when adding objects
@@ -688,36 +689,41 @@ test_that("Caching in Experiment runs properly", {
   # runs error - need save = TRUE
   # results3 <- experiment$run(n_reps = 10, use_cached = TRUE, save = FALSE)
   results3 <- experiment$run(n_reps = 10, use_cached = TRUE, save = TRUE,
-                             verbose = 0)
+                             verbose = verbose)
   expect_equal(nrow(results3$fit_results), 20)
   expect_equal(results2$fit_results, 
                results3$fit_results %>% dplyr::filter(dgp_name == "DGP1"))
   experiment %>% add_method(method2, "Method2")
   results4 <- experiment$run(n_reps = 10, use_cached = TRUE, save = TRUE, 
-                             verbose = 0)
+                             verbose = verbose)
   expect_equal(nrow(results4$fit_results), 40)
   experiment %>% add_evaluator(vary_params_eval, "Eval2")
   results5 <- experiment$run(n_reps = 10, use_cached = TRUE, save = TRUE,
-                             verbose = 0)
+                             verbose = verbose)
   expect_equal(results4$fit_results, results5$fit_results)
   expect_equal(results4$eval_results$Evaluator1,
                results5$eval_results$Evaluator1)
   experiment %>% add_visualizer(eval_plot, "Plot2")
   results6 <- experiment$run(n_reps = 10, use_cached = TRUE, save = TRUE,
-                             verbose = 0)
+                             verbose = verbose)
   expect_equal(results4$fit_results, results6$fit_results)
   expect_equal(results5$eval_results, results6$eval_results)
   expect_equal(results5$visualize_results$Visualizer1,
                results6$visualize_results$Visualizer1)
   results7 <- experiment$run(n_reps = 10, use_cached = TRUE, save = TRUE,
-                             verbose = 0)
+                             verbose = verbose)
   expect_equal(results6, results7)
   
-  # caching when updating objects
+  # caching when update objects does not change original object
   experiment %>% update_dgp(dgp2, "DGP2")
+  results8 <- experiment$run(n_reps = 10, use_cached = TRUE, save = TRUE,
+                             verbose = verbose)
+  
+  # caching when updating objects that actually change
+  experiment %>% update_dgp(dgp1, "DGP2")
   fit_cols <- colnames(results7$fit_results)
   results8 <- experiment$run(n_reps = 10, use_cached = TRUE, save = TRUE,
-                             verbose = 0)
+                             verbose = verbose)
   results8$fit_results <- results8$fit_results %>% dplyr::select({{fit_cols}})
   expect_equal(nrow(results7$fit_results), nrow(results8$fit_results))
   expect_false(identical(results7$fit_results, results8$fit_results))
@@ -725,20 +731,20 @@ test_that("Caching in Experiment runs properly", {
                results7$fit_results %>% dplyr::filter(dgp_name == "DGP1"))
   expect_false(identical(results8$eval_results, results7$eval_results))
   expect_false(identical(results8$visualize_results, results7$visualize_results))
-  experiment %>% update_method(method2, "Method2")
+  experiment %>% update_method(method1, "Method2")
   results9 <- experiment$run(n_reps = 10, use_cached = TRUE, save = TRUE,
-                             verbose = 0)
+                             verbose = verbose)
   expect_equal(nrow(results7$fit_results), nrow(results9$fit_results))
   expect_false(identical(results8$eval_results, results7$eval_results))
   expect_false(identical(results8$visualize_results, results7$visualize_results))
-  experiment %>% update_evaluator(vary_params_eval, "Eval2")
+  experiment %>% update_evaluator(fit_results_eval, "Eval2")
   results10 <- experiment$run(n_reps = 10, use_cached = TRUE, save = TRUE,
-                              verbose = 0)
+                              verbose = verbose)
   expect_equal(results10$fit_results, results9$fit_results)
   expect_equal(length(results10$eval_results), 2)
-  experiment %>% update_visualizer(eval_plot, "Plot2")
+  experiment %>% update_visualizer(fit_plot, "Plot2")
   results11 <- experiment$run(n_reps = 10, use_cached = TRUE, save = TRUE,
-                              verbose = 0)
+                              verbose = verbose)
   expect_equal(results11$fit_results, results10$fit_results)
   expect_equal(results11$eval_results, results10$eval_results)
   expect_equal(length(results11$visualize_results), 2)
@@ -746,27 +752,27 @@ test_that("Caching in Experiment runs properly", {
   # caching when removing objects
   experiment %>% remove_dgp("DGP2")
   results12 <- experiment$run(n_reps = 10, use_cached = TRUE, save = TRUE,
-                              verbose = 0)
+                              verbose = verbose)
   expect_equal(results12$fit_results,
                results11$fit_results %>% dplyr::filter(dgp_name == "DGP1"))
   expect_false(identical(results12$eval_results, results11$eval_results))
   expect_false(identical(results12$visualize_results, results11$visualize_results))
   experiment %>% remove_method("Method2")
   results13 <- experiment$run(n_reps = 10, use_cached = TRUE, save = TRUE,
-                              verbose = 0)
+                              verbose = verbose)
   expect_equal(results13$fit_results,
                results12$fit_results %>% dplyr::filter(method_name == "Method1"))
   expect_false(identical(results13$eval_results, results12$eval_results))
   expect_false(identical(results13$visualize_results, results12$visualize_results))
   experiment %>% remove_evaluator("Eval2")
   results14 <- experiment$run(n_reps = 10, use_cached = TRUE, save = TRUE,
-                              verbose = 0)
+                              verbose = verbose)
   expect_equal(results14$fit_results, results13$fit_results)
   expect_equal(names(results14$eval_results), "Evaluator1")
   expect_equal(results14$eval_results, results13$eval_results[1])
   experiment %>% remove_visualizer("Plot2")
   results15 <- experiment$run(n_reps = 10, use_cached = TRUE, save = TRUE,
-                              verbose = 0)
+                              verbose = verbose)
   expect_equal(results15$fit_results, results14$fit_results)
   expect_equal(results15$eval_results, results14$eval_results)
   expect_equal(names(results15$visualize_results), "Visualizer1")
@@ -775,40 +781,40 @@ test_that("Caching in Experiment runs properly", {
   # caching when vary across
   experiment %>% add_vary_across(dgp = "DGP1", x = c(0, 1))
   results1 <- experiment$run(n_reps = 10, use_cached = TRUE, save = TRUE,
-                             verbose = 0)
+                             verbose = verbose)
   expect_equal(nrow(results1$fit_results), 10 * 2)
   experiment %>% add_vary_across(method = "Method1", y = c(0, 1))
   results2 <- experiment$run(n_reps = 10, use_cached = TRUE, save = TRUE,
-                             verbose = 0)
+                             verbose = verbose)
   expect_equal(nrow(results2$fit_results), 10 * 2 * 2)
   experiment %>% remove_vary_across(method = "Method1")
   results3 <- experiment$run(n_reps = 10, use_cached = TRUE, save = TRUE,
-                             verbose = 0)
+                             verbose = verbose)
   expect_equal(nrow(results3$fit_results), 10 * 2)
-  expect_false(identical(results1$fit_results, results3$fit_results))
+  expect_true(identical(results1$fit_results, results3$fit_results))
   experiment %>% update_vary_across(dgp = "DGP1", x = c(0, 2))
   results4 <- experiment$run(n_reps = 10, use_cached = TRUE, save = TRUE,
-                             verbose = 0)
+                             verbose = verbose)
   expect_equal(results3$fit_results %>% dplyr::filter(x == 0),
                results4$fit_results %>% dplyr::filter(x == 0))
   experiment %>% update_vary_across(dgp = "DGP1", x = list(0, 2, 4))
   results5 <- experiment$run(n_reps = 10, use_cached = TRUE, save = TRUE,
-                             verbose = 0)
+                             verbose = verbose)
   expect_equal(results4$fit_results %>% dplyr::filter(x %in% c(0, 2)),
                results5$fit_results %>% dplyr::filter(x %in% c(0, 2)))
   experiment %>% add_vary_across(method = "Method1", y = list("a", "b"))
   results6 <- experiment$run(n_reps = 10, use_cached = TRUE, save = TRUE,
-                             verbose = 0)
+                             verbose = verbose)
   expect_equal(nrow(results6$fit_results), 10 * 3 * 2)
   
   # check caching when n changes
   results7 <- experiment$run(n_reps = 4, use_cached = TRUE, save = TRUE, 
-                             verbose = 0)
+                             verbose = verbose)
   expect_equal(nrow(results7$fit_results), 4 * 3 * 2)
   expect_equal(results7$fit_results, 
                results6$fit_results %>% dplyr::filter(as.numeric(rep) <= 4))
   results8 <- experiment$run(n_reps = 10, use_cached = TRUE, save = TRUE,
-                             verbose = 0)
+                             verbose = verbose)
   expect_equal(nrow(results8$fit_results), 10 * 3 * 2)
   # expect_equal(results8$fit_results %>% dplyr::filter(as.numeric(rep) <= 4),
   #              results7$fit_results)
@@ -828,7 +834,7 @@ test_that("Caching in Experiment runs properly", {
       update_dgp(dgp2, "DGP2") %>%
       update_vary_across(method = method1, y = c("a", letters[i+2]))
     results9 <- experiment$run(
-      n_reps = 10, use_cached = TRUE, save = TRUE, verbose = 0, 
+      n_reps = 10, use_cached = TRUE, save = TRUE, verbose = verbose, 
       parallel_strategy = parallel_strategy
     )
     expect_equal(nrow(results9$fit_results), 10 * 4 * 2)
@@ -836,11 +842,11 @@ test_that("Caching in Experiment runs properly", {
   
   # check clear cache
   results10 <- experiment$run(n_reps = 10, use_cached = TRUE, save = TRUE, 
-                              verbose = 0)
+                              verbose = verbose)
   expect_equal(results9, results10)
   experiment %>% clear_cache()
   results11 <- experiment$run(n_reps = 10, use_cached = TRUE, save = TRUE, 
-                              verbose = 0)
+                              verbose = verbose)
   expect_false(identical(results11$fit_results, results10$fit_results))
   
   # check running fit, evaluate, and visualize separately

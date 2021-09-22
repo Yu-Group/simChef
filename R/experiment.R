@@ -23,7 +23,9 @@ Experiment <- R6::R6Class(
       method = list()
     ),
     .fit_params = tibble::tibble(),
-    .cached_ids = tibble::tibble(),
+    .cached = list(fit = tibble::tibble(),
+                   evaluate = tibble::tibble(),
+                   visualize = tibble::tibble()),
     .future.globals = TRUE,
     .future.packages = NULL,
     .add_obj = function(field_name, obj, obj_name, ...) {
@@ -61,24 +63,6 @@ Experiment <- R6::R6Class(
       }
       list_name <- paste0(".", field_name, "_list")
       private[[list_name]][[obj_name]] <- obj
-      # update cache
-      if (nrow(private$.cached_ids) > 0) {
-        if (field_name %in% c("dgp", "method")) {
-          field_column <- paste0(".", field_name, "_name")
-          private$.cached_ids <- private$.cached_ids %>%
-            dplyr::filter(.data[[field_column]] != obj_name) %>%
-            dplyr::mutate(.evaluators = NA, .visualizers = NA)
-        } else if (field_name == "evaluator") {
-          private$.cached_ids <- private$.cached_ids %>%
-            dplyr::mutate(.evaluators = purrr::map(.evaluators,
-                                                   ~setdiff(.x, obj_name)),
-                          .visualizers = NA)
-        } else if (field_name == "visualizer") {
-          private$.cached_ids <- private$.cached_ids %>%
-            dplyr::mutate(.visualizers = purrr::map(.visualizers, 
-                                                    ~setdiff(.x, obj_name)))
-        }
-      }
     },
     .remove_obj = function(field_name, obj_name, ...) {
       obj_list <- private$.get_obj_list(field_name, ...)
@@ -94,16 +78,6 @@ Experiment <- R6::R6Class(
         )
       } else {
         private[[list_name]][[obj_name]] <- NULL
-        # update cache
-        if (nrow(private$.cached_ids) > 0) {
-          if (field_name %in% c("dgp", "method")) {
-            private$.cached_ids <- private$.cached_ids %>%
-              dplyr::mutate(.evaluators = NA, .visualizers = NA)
-          } else if (field_name == "evaluator") {
-            private$.cached_ids <- private$.cached_ids %>%
-              dplyr::mutate(.visualizers = NA)
-          }
-        }
       }
     },
     .throw_empty_list_error = function(field_name, action_name = "run") {
@@ -243,13 +217,23 @@ Experiment <- R6::R6Class(
     },
     .update_fit_params = function() {
       # update/set (dgp, method) fit parameter combinations
+      dgp_list <- private$.get_obj_list("dgp")
       dgp_params_list <- private$.combine_vary_params("dgp")
+      method_list <- private$.get_obj_list("method")
       method_params_list <- private$.combine_vary_params("method")
       fit_params <- purrr::cross2(dgp_params_list, method_params_list) %>%
-        purrr::map_dfr(~tibble::tibble(.dgp_name = .x[[1]]$dgp_name,
-                                       .dgp = .x[1],
-                                       .method_name = .x[[2]]$method_name,
-                                       .method = .x[2]))
+        purrr::map_dfr(
+          ~tibble::tibble(
+            .dgp_name = .x[[1]]$dgp_name,
+            .dgp_fun = list(dgp_list[[.dgp_name]]$dgp_fun),
+            .dgp_params = list(dgp_list[[.dgp_name]]$dgp_params),
+            .dgp = .x[1],
+            .method_name = .x[[2]]$method_name,
+            .method_fun = list(method_list[[.method_name]]$method_fun),
+            .method_params = list(method_list[[.method_name]]$method_params),
+            .method = .x[2]
+          )
+        )
       private$.fit_params <- fit_params
     },
     .get_fit_params = function(type = c("all", "cached", "new"),
@@ -261,17 +245,19 @@ Experiment <- R6::R6Class(
         out_params <- fit_params
       } else {
         nreps <- n_reps
-        if (nrow(private$.cached_ids) == 0) {
+        if (nrow(private$.cached$fit) == 0) {
           if (identical(type, "cached")) {
-            out_params <- private$.cached_ids
+            out_params <- private$.cached$fit
           } else if (identical(type, "new")) {
             out_params <- fit_params
           }
         } else {
-          cached_params <- private$.cached_ids %>%
-            dplyr::filter(n_reps >= {{nreps}}) %>%
-            dplyr::select(-n_reps, -.evaluators, -.visualizers)
-          cached_idxs <- dplyr::bind_rows(fit_params, cached_params) %>%
+          cached_idxs <- dplyr::bind_rows(
+            fit_params,
+            private$.cached$fit %>%
+              dplyr::filter(as.numeric(n_reps) >= {{nreps}}) %>%
+              dplyr::select(-n_reps)
+          ) %>%
             duplicated(fromLast = TRUE)
           if (identical(type, "cached")) {
             out_params <- fit_params[cached_idxs[1:nrow(fit_params)], ]
@@ -283,20 +269,19 @@ Experiment <- R6::R6Class(
       
       if (simplify) {
         for (param_name in private$.get_vary_params("dgp")) {
-          fit_params[[param_name]] <- purrr::map(fit_params$.dgp,
+          out_params[[param_name]] <- purrr::map(out_params$.dgp,
                                                  ~.x[[param_name]])
         }
         for (param_name in private$.get_vary_params("method")) {
-          fit_params[[param_name]] <- purrr::map(fit_params$.method,
+          out_params[[param_name]] <- purrr::map(out_params$.method,
                                                  ~.x[[param_name]])
         }
-        out_params <- dplyr::inner_join(out_params, fit_params,
-                                        by = colnames(out_params)) %>%
+        out_params <- out_params %>%
           dplyr::rename(dgp_name = .dgp_name, method_name = .method_name) %>%
-          dplyr::select(-.dgp, -.method) %>%
+          dplyr::select(-.dgp, -.dgp_fun, -.dgp_params,
+                        -.method, -.method_fun, -.method_params) %>%
           simplify_tibble()
       }
-      
       return(out_params)
     },
     .get_new_dgp_params = function(method_params, new_fit_params) {
@@ -320,19 +305,39 @@ Experiment <- R6::R6Class(
       field_name <- match.arg(field_name)
       if (field_name %in% c("dgp", "method")) {
         return(unique(new_fit_params[[paste0(".", field_name)]]))
-      } else if (field_name %in% c("evaluator", "visualizer")) {
-        obj_names <- setdiff(
-          names(private[[paste0(".", field_name, "_list")]]), 
-          private$.cached_ids[[paste0(".", field_name, "s")]][[1]]
+      } else if (identical(field_name, "evaluator")) {
+        evaluator_list <- private$.get_obj_list("evaluator")
+        evaluate_params <- tibble::tibble(
+          eval_name = names(evaluator_list),
+          eval_fun = purrr::map(evaluator_list, "eval_fun"),
+          eval_params = purrr::map(evaluator_list, "eval_params")
         )
-        return(private[[paste0(".", field_name, "_list")]][obj_names])
+        cached_idxs <- dplyr::bind_rows(evaluate_params, 
+                                        private$.cached$evaluate) %>%
+          duplicated(fromLast = TRUE)
+        return(evaluator_list[
+          evaluate_params$eval_name[!cached_idxs[1:nrow(evaluate_params)]]
+        ])
+      } else if (identical(field_name, "visualizer")) {
+        visualizer_list <- private$.get_obj_list("visualizer")
+        visualize_params <- tibble::tibble(
+          visualizer_name = names(visualizer_list),
+          visualizer_fun = purrr::map(visualizer_list, "visualizer_fun"),
+          visualizer_params = purrr::map(visualizer_list, "visualizer_params")
+        )
+        cached_idxs <- dplyr::bind_rows(visualize_params, 
+                                        private$.cached$visualize) %>%
+          duplicated(fromLast = TRUE)
+        return(visualizer_list[
+          visualize_params$visualizer_name[!cached_idxs[1:nrow(visualize_params)]]
+        ])
       }
     },
     .is_fully_cached = function(results_type = c("fit", "eval", "visualize"),
                                 n_reps = NULL) {
       # has the Experiment been completely cached
       results_type <- match.arg(results_type)
-      if (nrow(private$.cached_ids) == 0) {
+      if (nrow(private$.cached$fit) == 0) {
         return(FALSE)
       }
       if (is.null(n_reps)) {
@@ -341,9 +346,9 @@ Experiment <- R6::R6Class(
       fit_params <- private$.get_fit_params()
       fit_cached <- dplyr::bind_rows(
         fit_params, 
-        private$.cached_ids %>%
-          dplyr::filter(n_reps >= {{n_reps}}) %>%
-          dplyr::select(-n_reps, -`.evaluators`, -`.visualizers`)
+        private$.cached$fit %>%
+          dplyr::filter(as.numeric(n_reps) >= {{n_reps}}) %>%
+          dplyr::select(-n_reps)
       ) %>%
         duplicated(fromLast = TRUE) %>%
         .[1:nrow(fit_params)] %>%
@@ -358,9 +363,17 @@ Experiment <- R6::R6Class(
              call. = FALSE)
       }
       
-      evaluator_names <- names(private$.get_obj_list("evaluator"))
-      eval_cached <- all(purrr::map_lgl(private$.cached_ids$.evaluators,
-                                        ~all(evaluator_names %in% .x)))
+      evaluator_list <- private$.get_obj_list("evaluator")
+      evaluate_params <- tibble::tibble(
+        eval_name = names(evaluator_list),
+        eval_fun = purrr::map(evaluator_list, "eval_fun"),
+        eval_params = purrr::map(evaluator_list, "eval_params")
+      )
+      eval_cached <- dplyr::bind_rows(evaluate_params, 
+                                      private$.cached$evaluate) %>%
+        duplicated(fromLast = TRUE) %>%
+        .[1:nrow(evaluate_params)] %>%
+        all()
       if (identical(results_type, "eval")) {
         return(eval_cached)
       } else if (!eval_cached) {
@@ -370,12 +383,21 @@ Experiment <- R6::R6Class(
              call. = FALSE)
       }
       
-      visualizer_names <- names(private$.get_obj_list("visualizer"))
-      visualizer_cached <- all(purrr::map_lgl(private$.cached_ids$.visualizers,
-                                              ~all(visualizer_names %in% .x)))
-      return(visualizer_cached)
+      visualizer_list <- private$.get_obj_list("visualizer")
+      visualize_params <- tibble::tibble(
+        visualizer_name = names(visualizer_list),
+        visualizer_fun = purrr::map(visualizer_list, "visualizer_fun"),
+        visualizer_params = purrr::map(visualizer_list, "visualizer_params")
+      )
+      visualize_cached <- dplyr::bind_rows(visualize_params, 
+                                           private$.cached$visualize) %>%
+        duplicated(fromLast = TRUE) %>%
+        .[1:nrow(visualize_params)] %>%
+        all()
+      return(visualize_cached)
     },
-    .get_cached_results = function(results_type = c("fit", "eval", "visualize"),
+    .get_cached_results = function(results_type = c("experiment", "fit",
+                                                    "eval", "visualize"),
                                    verbose = 1) {
       results_type <- match.arg(results_type)
       if (verbose >= 1) {
@@ -392,7 +414,11 @@ Experiment <- R6::R6Class(
         save_dir <- file.path(private$.save_dir, obj_names,
                               paste("Varying", param_names))
       }
-      save_file <- file.path(save_dir, paste0(results_type, "_results.rds"))
+      if (results_type == "experiment") {
+        save_file <- file.path(save_dir, "experiment.rds")
+      } else {
+        save_file <- file.path(save_dir, paste0(results_type, "_results.rds"))
+      }
       if (file.exists(save_file)) {
         return(readRDS(save_file))
       } else {
@@ -402,23 +428,57 @@ Experiment <- R6::R6Class(
         return(NULL)
       }
     },
+    .clear_cached_results = function() {
+      if (!private$.has_vary_across()) {
+        save_dir <- private$.save_dir
+      } else {
+        obj_names <- purrr::map(private$.vary_across_list, names) %>%
+          purrr::reduce(c) %>%
+          paste(collapse = "-")
+        param_names <- private$.get_vary_params() %>%
+          paste(collapse = "-")
+        save_dir <- file.path(private$.save_dir, obj_names,
+                              paste("Varying", param_names))
+      }
+      file.remove(file.path(save_dir, "experiment.rds"),
+                  file.path(save_dir, "fit_results.rds"),
+                  file.path(save_dir, "eval_results.rds"),
+                  file.path(save_dir, "visualize_results.rds"))
+    },
     .update_cache = function(results_type = c("fit", "eval", "visualize"), 
                              n_reps = NULL) {
       results_type <- match.arg(results_type)
       if (identical(results_type, "fit")) {
-        private$.cached_ids <- private$.get_fit_params() %>%
-          dplyr::mutate(.evaluators = NA, .visualizers = NA, n_reps = n_reps)
+        new_fit_cache <- private$.get_fit_params() %>%
+          dplyr::mutate(n_reps = n_reps)
+        if (!isTRUE(dplyr::all_equal(private$.cached$fit, new_fit_cache,
+                                     ignore_row_order = TRUE, 
+                                     ignore_col_order = FALSE))) {
+          private$.cached$evaluate <- tibble::tibble()
+          private$.cached$visualize <- tibble::tibble()
+        }
+        private$.cached$fit <- new_fit_cache
       } else if (identical(results_type, "eval")) {
-        private$.cached_ids <- private$.cached_ids %>%
-          dplyr::mutate(
-            .evaluators = list(names(private$.get_obj_list("evaluator"))),
-            .visualizers = NA
-          )
+        evaluator_list <- private$.get_obj_list("evaluator")
+        new_evaluate_cache <- tibble::tibble(
+          eval_name = names(evaluator_list),
+          eval_fun = purrr::map(evaluator_list, "eval_fun"),
+          eval_params = purrr::map(evaluator_list, "eval_params")
+        )
+        if (!isTRUE(dplyr::all_equal(private$.cached$evaluate,
+                                     new_evaluate_cache,
+                                     ignore_row_order = TRUE, 
+                                     ignore_col_order = FALSE))) {
+          private$.cached$visualize <- tibble::tibble()
+        }
+        private$.cached$evaluate <- new_evaluate_cache
       } else if (identical(results_type, "visualize")) {
-        private$.cached_ids <- private$.cached_ids %>%
-          dplyr::mutate(
-            .visualizers = list(names(private$.get_obj_list("visualizer")))
-          )
+        visualizer_list <- private$.get_obj_list("visualizer")
+        private$.cached$visualize <- tibble::tibble(
+          visualizer_name = names(visualizer_list),
+          visualizer_fun = purrr::map(visualizer_list, "visualizer_fun"),
+          visualizer_params = purrr::map(visualizer_list, "visualizer_params")
+        )
       }
     },
     .save_results = function(results, results_type = c("fit", "eval", "visualize"),
@@ -443,6 +503,12 @@ Experiment <- R6::R6Class(
       if (!dir.exists(dirname(save_file))) {
         dir.create(dirname(save_file), recursive = TRUE)
       }
+      if (identical(results_type, "fit")) {
+        n_reps <- max(as.numeric(results$rep))
+      } else {
+        n_reps <- NULL
+      }
+      private$.update_cache(results_type = results_type, n_reps = n_reps)
       saveRDS(self, file.path(save_dir, "experiment.rds"))
       saveRDS(results, save_file)
       if (verbose >= 1) {
@@ -534,10 +600,9 @@ Experiment <- R6::R6Class(
     #'   \code{future.apply::future_lapply} and related functions. See
     #'   \link{future.apply}{future_apply}. To set for all runs of the
     #'   experiment, use the same argument during initialization.
-    #' @param use_cached If \code{TRUE}, find and return previously saved
-    #'   results. If cached results cannot be found, run experiment anyways.
-    #'   Can also be a vector with some combination of "fit",
-    #'   "eval", or "visualize" to use their respective cached results.
+    #' @param use_cached Logical. If \code{TRUE}, find and return previously
+    #'   saved results. If cached results cannot be found, run experiment
+    #'   anyways.
     #' @param save If \code{TRUE}, save results to disk. Can also be a vector
     #'   with some combination of "fit", "eval", or "visualize" to save to disk.
     #' @param verbose Level of verboseness. Default is 1, which prints out
@@ -563,15 +628,6 @@ Experiment <- R6::R6Class(
     run = function(n_reps = 1, parallel_strategy = c("reps"),
                    future.globals = NULL, future.packages = NULL,
                    use_cached = FALSE, save = FALSE, verbose = 1, ...) {
-      if (!is.logical(use_cached)) {
-        use_cached <- c("fit", "eval", "visualize") %in% use_cached
-      } else {
-        if (length(use_cached) > 1) {
-          warning("The input use_cached is a logical vector of length > 1. ",
-                  "Only the first element of use_cached is used.")
-        }
-        use_cached <- rep(use_cached[1], 3)
-      }
       if (!is.logical(save)) {
         save <- c("fit", "eval", "visualize") %in% save
       } else {
@@ -581,18 +637,31 @@ Experiment <- R6::R6Class(
         }
         save <- rep(save[1], 3)
       }
+      if (use_cached) {
+        # update current cache ids using previously saved results on disk
+        # useful for the case when new R session is started
+        cached_experiment <- private$.get_cached_results("experiment", 
+                                                         verbose = 0)
+        if (!is.null(cached_experiment)) {
+          private$.cached <- cached_experiment$get_cache()
+        } else {
+          private$.cached <- list(fit = tibble::tibble(),
+                                  evaluate = tibble::tibble(),
+                                  visualize = tibble::tibble())
+        }
+      }
 
       fit_results <- self$fit(n_reps, parallel_strategy = parallel_strategy,
                               future.globals = future.globals,
                               future.packages = future.packages,
-                              use_cached = use_cached[1], save = save[1],
+                              use_cached = use_cached, save = save[1],
                               verbose = verbose)
       eval_results <- self$evaluate(fit_results = fit_results,
-                                    use_cached = use_cached[2], save = save[2],
+                                    use_cached = use_cached, save = save[2],
                                     verbose = verbose)
       visualize_results <- self$visualize(fit_results = fit_results,
                                 eval_results = eval_results,
-                                use_cached = use_cached[3], save = save[3],
+                                use_cached = use_cached, save = save[3],
                                 verbose = verbose)
       return(list(fit_results = fit_results,
                   eval_results = eval_results,
@@ -701,7 +770,6 @@ Experiment <- R6::R6Class(
             dplyr::filter(as.numeric(rep) <= n_reps)
           if (nrow(results) != nrow(fit_results)) {
             private$.save_results(fit_results, "fit", verbose)
-            private$.update_cache("fit", n_reps = n_reps)
           } else if (verbose >= 1) {
             message("==============================")
           }
@@ -1223,7 +1291,6 @@ Experiment <- R6::R6Class(
 
       if (save) {
         private$.save_results(fit_results, "fit", verbose)
-        private$.update_cache("fit", n_reps = n_reps)
       }
       return(fit_results)
     },
@@ -1259,7 +1326,6 @@ Experiment <- R6::R6Class(
                         names(results))) {
             results <- results[names(private$.get_obj_list("evaluator"))]
             private$.save_results(results, "eval", verbose)
-            private$.update_cache("eval")
           } else if (verbose >= 1) {
             message("==============================")
           }
@@ -1295,7 +1361,6 @@ Experiment <- R6::R6Class(
 
       if (save) {
         private$.save_results(eval_results, "eval", verbose)
-        private$.update_cache("eval")
       }
 
       return(eval_results)
@@ -1332,7 +1397,6 @@ Experiment <- R6::R6Class(
                         names(results))) {
             results <- results[names(private$.get_obj_list("visualizer"))]
             private$.save_results(results, "visualize", verbose)
-            private$.update_cache("visualize")
           } else if (verbose >= 1) {
             message("==============================")
           }
@@ -1370,7 +1434,6 @@ Experiment <- R6::R6Class(
 
       if (save) {
         private$.save_results(visualize_results, "visualize", verbose)
-        private$.update_cache("visualize")
       }
 
       return(visualize_results)
@@ -1658,7 +1721,6 @@ Experiment <- R6::R6Class(
         }
       }
       private$.vary_across_list[[field_name]][[obj_name]] <- vary_across_sublist
-      private$.cached_ids <- tibble::tibble()
       invisible(self)
     },
     #' @description Update the \code{vary_across} component in the
@@ -1788,7 +1850,6 @@ Experiment <- R6::R6Class(
       if (length(private$.vary_across_list[[field_name]]) == 0) {
         private$.vary_across_list[[field_name]] <- list()
       }
-      private$.cached_ids <- tibble::tibble()
       invisible(self)
     },
     #' @description Get the \code{vary_across} component from the
@@ -1806,8 +1867,19 @@ Experiment <- R6::R6Class(
     #'
     #' @return The original \code{Experiment} object with cache cleared.
     clear_cache = function() {
-      private$.cached_ids <- tibble::tibble()
+      private$.clear_cached_results()
+      private$.cached <- list(fit = tibble::tibble(),
+                              evaluate = tibble::tibble(),
+                              visualize = tibble::tibble())
       return(invisible(self))
+    },
+    #' @description Retrieve cached results from previously saved
+    #'   \code{Experiment}.
+    #'
+    #' @return The DGP, Method, Evaluator, and Visualizer IDs in this
+    #'   \code{Experiment} that have been cached (i.e., saved to disk).
+    get_cache = function() {
+      return(private$.cached)
     },
     #' @description Set R Markdown options for displaying \code{Evaluator} or
     #'   \code{Visualizer} outputs in the summary report.

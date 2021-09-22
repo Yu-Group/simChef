@@ -52,6 +52,7 @@ evaluated using \code{Evaluators} and visualized using \code{Visualizers}.
 \item \href{#method-remove_vary_across}{\code{Experiment$remove_vary_across()}}
 \item \href{#method-get_vary_across}{\code{Experiment$get_vary_across()}}
 \item \href{#method-clear_cache}{\code{Experiment$clear_cache()}}
+\item \href{#method-get_cache}{\code{Experiment$get_cache()}}
 \item \href{#method-set_rmd_options}{\code{Experiment$set_rmd_options()}}
 \item \href{#method-get_save_dir}{\code{Experiment$get_save_dir()}}
 \item \href{#method-set_save_dir}{\code{Experiment$set_save_dir()}}
@@ -161,10 +162,9 @@ workers. Passed as the argument of the same name to
 \link{future.apply}{future_apply}. To set for all runs of the
 experiment, use the same argument during initialization.}
 
-\item{\code{use_cached}}{If \code{TRUE}, find and return previously saved
-results. If cached results cannot be found, run experiment anyways.
-Can also be a vector with some combination of "fit",
-"eval", or "visualize" to use their respective cached results.}
+\item{\code{use_cached}}{Logical. If \code{TRUE}, find and return previously
+saved results. If cached results cannot be found, run experiment
+anyways.}
 
 \item{\code{save}}{If \code{TRUE}, save results to disk. Can also be a vector
 with some combination of "fit", "eval", or "visualize" to save to disk.}
@@ -896,6 +896,21 @@ Clear cached results from \code{Experiment} and start fresh.
 
 \subsection{Returns}{
 The original \code{Experiment} object with cache cleared.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-get_cache"></a>}}
+\if{latex}{\out{\hypertarget{method-get_cache}{}}}
+\subsection{Method \code{get_cache()}}{
+Retrieve cached results from previously saved
+\code{Experiment}.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Experiment$get_cache()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+The DGP, Method, Evaluator, and Visualizer IDs in this
+\code{Experiment} that have been cached (i.e., saved to disk).
 }
 }
 \if{html}{\out{<hr>}}
