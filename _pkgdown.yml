@@ -15,7 +15,7 @@ reference:
       - remove_dgp
       - get_dgps
       - remove_vary_across
-      - remove_cache
+      - clear_cache
       - get_save_dir
       - set_save_dir
       - save_experiment

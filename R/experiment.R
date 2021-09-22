@@ -817,6 +817,7 @@ Experiment <- R6::R6Class(
         n_params <- nrow(new_fit_params)
         new_fit <- n_params == nrow(private$.get_fit_params())
         if (!new_fit) {
+          # get only the new dgps and methods that are not cached
           dgp_params_list <- private$.get_new_obj_list(
             "dgp", new_fit_params = new_fit_params
           )
@@ -824,6 +825,8 @@ Experiment <- R6::R6Class(
             "method", new_fit_params = new_fit_params
           )
           if (length(dgp_params_list)*length(method_params_list) != n_params) {
+            # case when not all combos of (dgp_params_list, method_params_list)
+            # need to be rerun so need to check cache ids when fitting
             check_cache <- TRUE
           }
         }
