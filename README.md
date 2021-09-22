@@ -166,7 +166,7 @@ create_rmd(experiment)
 - [ ] Initialize a new simulation experiment interactively via a helper
       function, incorporating best practice nudges derived from the PCS
       simulation guidelines.
-- [ ] Let user incorporate their own R Markdown report template.
+- [x] Let user incorporate their own R Markdown report template.
 - [ ] Publish to CRAN.
 
 ## Related R packages
