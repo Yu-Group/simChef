@@ -40,6 +40,10 @@ Suggests:
     data.table,
     broom,
     glmnet,
-    future
+    future,
+    PRROC,
+    RColorBrewer,
+    tidyr,
+    viridis
 VignetteBuilder: knitr
 Config/testthat/edition: 3

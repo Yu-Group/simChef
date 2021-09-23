@@ -611,6 +611,24 @@ test_that("Vary across in Experiment runs properly", {
          `Vary Params` = tibble::tibble(value = "x"))
   )
   
+  # test multi-type dgp vary across case
+  x <- list(1, 3:5)
+  experiment <- experiment %>%
+    update_vary_across(dgp = "DGP", x = x)
+  fit_results <- fit_experiment(experiment, save = FALSE, verbose = 0)
+  expect_equal(
+    fit_results, 
+    tibble::tibble(rep = "1", dgp_name = "DGP", method_name = "Method", 
+                   x = x, x_idx = purrr::map_dbl(x, ~.x[1]))
+  )
+  eval_results <- evaluate_experiment(experiment, fit_results = fit_results,
+                                      save = FALSE, verbose = 0)
+  expect_equal(
+    eval_results,
+    list(`Fit Results` = fit_results, 
+         `Vary Params` = tibble::tibble(value = "x"))
+  )
+  
   # test scalar method vary across case
   idx <- 1:3
   experiment <- experiment %>%
