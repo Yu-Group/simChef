@@ -843,21 +843,25 @@ Experiment <- R6::R6Class(
           parallel_strategy,
           "reps" = {
             results <- future.apply::future_replicate(n_reps, {
-              purrr::map_dfr(dgp_params_list, function(dgp_params) {
+              purrr::map(dgp_params_list, function(dgp_params) {
                 dgp_name <- dgp_params$dgp_name
                 dgp_params$dgp_name <- NULL
                 data_list <- do.call(dgp_list[[dgp_name]]$generate, dgp_params)
-                purrr::map_dfr(method_params_list, function(method_params) {
+                purrr::map(method_params_list, function(method_params) {
                   method_name <- method_params$method_name
                   param_df <- simplify_tibble(list_to_tibble_row(
                     c(dgp_name = dgp_name, dgp_params, method_params)
                   ))
                   method_params$method_name <- NULL
                   method_params$data_list <- data_list
-                  result <- do.call(method_list[[method_name]]$fit, method_params)
+                  result <- do.call(method_list[[method_name]]$fit,
+                                    method_params)
                   return(result %>% tibble::add_column(param_df, .before=1))
-                })
-              })
+                }) %>%
+                  data.table::rbindlist(fill = TRUE)
+              }) %>%
+                data.table::rbindlist(fill = TRUE) %>%
+                tibble::as_tibble()
             }, simplify=FALSE,
             future.globals = future.globals,
             future.packages = future.packages,
@@ -870,49 +874,57 @@ Experiment <- R6::R6Class(
                 reps <- replicate(n_reps, {
                   dgp_name <- dgp_params$dgp_name
                   dgp_params$dgp_name <- NULL
-                  data_list <- do.call(dgp_list[[dgp_name]]$generate, dgp_params)
-                  purrr::map_dfr(method_params_list, function(method_params) {
+                  data_list <- do.call(dgp_list[[dgp_name]]$generate, 
+                                       dgp_params)
+                  purrr::map(method_params_list, function(method_params) {
                     method_name <- method_params$method_name
                     param_df <- simplify_tibble(list_to_tibble_row(
                       c(dgp_name = dgp_name, dgp_params, method_params)
                     ))
                     method_params$method_name <- NULL
                     method_params$data_list <- data_list
-                    result <- do.call(method_list[[method_name]]$fit, method_params)
+                    result <- do.call(method_list[[method_name]]$fit,
+                                      method_params)
                     return(result %>% tibble::add_column(param_df, .before=1))
-                  })
+                  }) %>%
+                    data.table::rbindlist(fill = TRUE)
                 }, simplify=FALSE)
                 dplyr::bind_rows(reps, .id = "rep")
               },
               future.globals = future.globals,
               future.packages = future.packages,
               future.seed = future.seed)
-            dplyr::bind_rows(results)
+            data.table::rbindlist(results, fill = TRUE) %>%
+              tibble::as_tibble()
           },
           "methods" = {
             results <- future.apply::future_lapply(
               method_params_list, function(method_params) {
                 reps <- replicate(n_reps, {
-                  purrr::map_dfr(dgp_params_list, function(dgp_params) {
+                  purrr::map(dgp_params_list, function(dgp_params) {
                     dgp_name <- dgp_params$dgp_name
                     dgp_params$dgp_name <- NULL
-                    data_list <- do.call(dgp_list[[dgp_name]]$generate, dgp_params)
+                    data_list <- do.call(dgp_list[[dgp_name]]$generate,
+                                         dgp_params)
                     method_name <- method_params$method_name
                     param_df <- simplify_tibble(list_to_tibble_row(
                       c(dgp_name = dgp_name, dgp_params, method_params)
                     ))
                     method_params$method_name <- NULL
                     method_params$data_list <- data_list
-                    result <- do.call(method_list[[method_name]]$fit, method_params)
+                    result <- do.call(method_list[[method_name]]$fit,
+                                      method_params)
                     return(result %>% tibble::add_column(param_df, .before=1))
-                  })
+                  }) %>%
+                    data.table::rbindlist(fill = TRUE)
                 }, simplify=FALSE)
                 dplyr::bind_rows(reps, .id = "rep")
               },
               future.globals = future.globals,
               future.packages = future.packages,
               future.seed = future.seed)
-            dplyr::bind_rows(results)
+            data.table::rbindlist(results, fill = TRUE) %>%
+              tibble::as_tibble()
           },
           "reps+dgps" = {
             n_dgps <- length(dgp_params_list)
@@ -923,23 +935,27 @@ Experiment <- R6::R6Class(
                 dgp_name <- dgp_params$dgp_name
                 dgp_params$dgp_name <- NULL
                 data_list <- do.call(dgp_list[[dgp_name]]$generate, dgp_params)
-                purrr::map_dfr(method_params_list, function(method_params) {
+                purrr::map(method_params_list, function(method_params) {
                   method_name <- method_params$method_name
                   param_df <- simplify_tibble(list_to_tibble_row(
                     c(dgp_name = dgp_name, dgp_params, method_params)
                   ))
                   method_params$method_name <- NULL
                   method_params$data_list <- data_list
-                  result <- do.call(method_list[[method_name]]$fit, method_params)
+                  result <- do.call(method_list[[method_name]]$fit,
+                                    method_params)
                   return(result %>% tibble::add_column(param_df, .before=1))
-                })
+                }) %>%
+                  data.table::rbindlist(fill = TRUE)
               }, 
               future.seed = future.seed,
               future.globals = future.globals,
               future.packages = future.packages
             )
-            results <- dplyr::bind_rows(results)
-            results$rep <- rep(1:n_reps, each = n_dgps*length(method_params_list))
+            results <- data.table::rbindlist(results, fill = TRUE) %>%
+              tibble::as_tibble()
+            results$rep <- rep(1:n_reps, 
+                               each = n_dgps*length(method_params_list))
             results
           },
           "reps+methods" = {
@@ -948,25 +964,29 @@ Experiment <- R6::R6Class(
             results <- future.apply::future_lapply(
               method_params_list,
               function(method_params) {
-                purrr::map_dfr(dgp_params_list, function(dgp_params) {
+                purrr::map(dgp_params_list, function(dgp_params) {
                   dgp_name <- dgp_params$dgp_name
                   dgp_params$dgp_name <- NULL
-                  data_list <- do.call(dgp_list[[dgp_name]]$generate, dgp_params)
+                  data_list <- do.call(dgp_list[[dgp_name]]$generate, 
+                                       dgp_params)
                   method_name <- method_params$method_name
                   param_df <- simplify_tibble(list_to_tibble_row(
                     c(dgp_name = dgp_name, dgp_params, method_params)
                   ))
                   method_params$method_name <- NULL
                   method_params$data_list <- data_list
-                  result <- do.call(method_list[[method_name]]$fit, method_params)
+                  result <- do.call(method_list[[method_name]]$fit,
+                                    method_params)
                   return(result %>% tibble::add_column(param_df, .before=1))
-                })
+                }) %>%
+                  data.table::rbindlist(fill = TRUE)
               },
               future.seed = future.seed,
               future.globals = future.globals,
               future.packages = future.packages
             )
-            results <- dplyr::bind_rows(results)
+            results <- data.table::rbindlist(results, fill = TRUE) %>%
+              tibble::as_tibble()
             results$rep <- rep(
               1:n_reps, each = length(dgp_params_list)*n_methods
             )
@@ -985,14 +1005,16 @@ Experiment <- R6::R6Class(
                 reps <- replicate(n_reps, {
                   dgp_name <- dgp_params$dgp_name
                   dgp_params$dgp_name <- NULL
-                  data_list <- do.call(dgp_list[[dgp_name]]$generate, dgp_params)
+                  data_list <- do.call(dgp_list[[dgp_name]]$generate,
+                                       dgp_params)
                   method_name <- method_params$method_name
                   param_df <- simplify_tibble(list_to_tibble_row(
                     c(dgp_name = dgp_name, dgp_params, method_params)
                   ))
                   method_params$method_name <- NULL
                   method_params$data_list <- data_list
-                  result <- do.call(method_list[[method_name]]$fit, method_params)
+                  result <- do.call(method_list[[method_name]]$fit,
+                                    method_params)
                   return(result %>% tibble::add_column(param_df, .before=1))
                 }, simplify=FALSE)
                 dplyr::bind_rows(reps, .id = "rep")
@@ -1002,7 +1024,8 @@ Experiment <- R6::R6Class(
               future.globals = future.globals,
               future.packages = future.packages
             )
-            dplyr::bind_rows(results)
+            data.table::rbindlist(results, fill = TRUE) %>%
+              tibble::as_tibble()
           },
           "reps+dgps+methods" = {
             mapply_args <- purrr::cross3(
@@ -1013,27 +1036,29 @@ Experiment <- R6::R6Class(
             reps <- sapply(mapply_args, `[[`, 1)
             dgp_mapply_args <- lapply(mapply_args, `[[`, 2)
             method_mapply_args <- lapply(mapply_args, `[[`, 3)
-            results <- dplyr::bind_rows(
-              future.apply::future_mapply(
-                function(dgp_params, method_params) {
-                  dgp_name <- dgp_params$dgp_name
-                  dgp_params$dgp_name <- NULL
-                  data_list <- do.call(dgp_list[[dgp_name]]$generate, dgp_params)
-                  method_name <- method_params$method_name
-                  param_df <- simplify_tibble(list_to_tibble_row(
-                    c(dgp_name = dgp_name, dgp_params, method_params)
-                  ))
-                  method_params$method_name <- NULL
-                  method_params$data_list <- data_list
-                  result <- do.call(method_list[[method_name]]$fit, method_params)
-                  return(result %>% tibble::add_column(param_df, .before=1))
-                },
-                dgp_mapply_args, method_mapply_args,
-                future.seed = future.seed, SIMPLIFY = FALSE,
-                future.globals = future.globals,
-                future.packages = future.packages
-              )
-            )
+            results <- future.apply::future_mapply(
+              function(dgp_params, method_params) {
+                dgp_name <- dgp_params$dgp_name
+                dgp_params$dgp_name <- NULL
+                data_list <- do.call(dgp_list[[dgp_name]]$generate, 
+                                     dgp_params)
+                method_name <- method_params$method_name
+                param_df <- simplify_tibble(list_to_tibble_row(
+                  c(dgp_name = dgp_name, dgp_params, method_params)
+                ))
+                method_params$method_name <- NULL
+                method_params$data_list <- data_list
+                result <- do.call(method_list[[method_name]]$fit,
+                                  method_params)
+                return(result %>% tibble::add_column(param_df, .before=1))
+              },
+              dgp_mapply_args, method_mapply_args,
+              future.seed = future.seed, SIMPLIFY = FALSE,
+              future.globals = future.globals,
+              future.packages = future.packages
+            ) %>%
+              data.table::rbindlist(fill = TRUE) %>%
+              tibble::as_tibble()
             results$rep <- reps
             results
           }
@@ -1043,24 +1068,28 @@ Experiment <- R6::R6Class(
           parallel_strategy,
           "reps" = {
             results <- future.apply::future_replicate(n_reps, {
-              purrr::map_dfr(dgp_params_list, function(dgp_params) {
+              purrr::map(dgp_params_list, function(dgp_params) {
                 method_params_list <- private$.get_new_method_params(
                   dgp_params, new_fit_params
                 )
                 dgp_name <- dgp_params$dgp_name
                 dgp_params$dgp_name <- NULL
                 data_list <- do.call(dgp_list[[dgp_name]]$generate, dgp_params)
-                purrr::map_dfr(method_params_list, function(method_params) {
+                purrr::map(method_params_list, function(method_params) {
                   method_name <- method_params$method_name
                   param_df <- simplify_tibble(list_to_tibble_row(
                     c(dgp_name = dgp_name, dgp_params, method_params)
                   ))
                   method_params$method_name <- NULL
                   method_params$data_list <- data_list
-                  result <- do.call(method_list[[method_name]]$fit, method_params)
+                  result <- do.call(method_list[[method_name]]$fit,
+                                    method_params)
                   return(result %>% tibble::add_column(param_df, .before=1))
-                })
-              })
+                }) %>%
+                  data.table::rbindlist(fill = TRUE)
+              }) %>%
+                data.table::rbindlist(fill = TRUE) %>%
+                tibble::as_tibble()
             }, 
             simplify=FALSE,
             future.globals = future.globals,
@@ -1077,24 +1106,28 @@ Experiment <- R6::R6Class(
                 reps <- replicate(n_reps, {
                   dgp_name <- dgp_params$dgp_name
                   dgp_params$dgp_name <- NULL
-                  data_list <- do.call(dgp_list[[dgp_name]]$generate, dgp_params)
-                  purrr::map_dfr(method_params_list, function(method_params) {
+                  data_list <- do.call(dgp_list[[dgp_name]]$generate,
+                                       dgp_params)
+                  purrr::map(method_params_list, function(method_params) {
                     method_name <- method_params$method_name
                     param_df <- simplify_tibble(list_to_tibble_row(
                       c(dgp_name = dgp_name, dgp_params, method_params)
                     ))
                     method_params$method_name <- NULL
                     method_params$data_list <- data_list
-                    result <- do.call(method_list[[method_name]]$fit, method_params)
+                    result <- do.call(method_list[[method_name]]$fit,
+                                      method_params)
                     return(result %>% tibble::add_column(param_df, .before=1))
-                  })
+                  }) %>%
+                    data.table::rbindlist(fill = TRUE)
                 }, simplify=FALSE)
                 dplyr::bind_rows(reps, .id = "rep")
               }, 
               future.seed = future.seed,
               future.globals = future.globals,
               future.packages = future.packages)
-            dplyr::bind_rows(results)
+            data.table::rbindlist(results, fill = TRUE) %>%
+              tibble::as_tibble()
           },
           "methods" = {
             results <- future.apply::future_lapply(
@@ -1103,26 +1136,30 @@ Experiment <- R6::R6Class(
                   method_params, new_fit_params
                 )
                 reps <- replicate(n_reps, {
-                  purrr::map_dfr(dgp_params_list, function(dgp_params) {
+                  purrr::map(dgp_params_list, function(dgp_params) {
                     dgp_name <- dgp_params$dgp_name
                     dgp_params$dgp_name <- NULL
-                    data_list <- do.call(dgp_list[[dgp_name]]$generate, dgp_params)
+                    data_list <- do.call(dgp_list[[dgp_name]]$generate,
+                                         dgp_params)
                     method_name <- method_params$method_name
                     param_df <- simplify_tibble(list_to_tibble_row(
                       c(dgp_name = dgp_name, dgp_params, method_params)
                     ))
                     method_params$method_name <- NULL
                     method_params$data_list <- data_list
-                    result <- do.call(method_list[[method_name]]$fit, method_params)
+                    result <- do.call(method_list[[method_name]]$fit,
+                                      method_params)
                     return(result %>% tibble::add_column(param_df, .before=1))
-                  })
+                  }) %>%
+                    data.table::rbindlist(fill = TRUE)
                 }, simplify=FALSE)
                 dplyr::bind_rows(reps, .id = "rep")
               }, 
               future.seed = future.seed,
               future.globals = future.globals,
               future.packages = future.packages)
-            dplyr::bind_rows(results)
+            data.table::rbindlist(results, fill = TRUE) %>%
+              tibble::as_tibble()
           },
           "reps+dgps" = {
             n_dgps <- length(dgp_params_list)
@@ -1136,16 +1173,18 @@ Experiment <- R6::R6Class(
                 dgp_name <- dgp_params$dgp_name
                 dgp_params$dgp_name <- NULL
                 data_list <- do.call(dgp_list[[dgp_name]]$generate, dgp_params)
-                purrr::map_dfr(method_params_list, function(method_params) {
+                purrr::map(method_params_list, function(method_params) {
                   method_name <- method_params$method_name
                   param_df <- simplify_tibble(list_to_tibble_row(
                     c(dgp_name = dgp_name, dgp_params, method_params)
                   ))
                   method_params$method_name <- NULL
                   method_params$data_list <- data_list
-                  result <- do.call(method_list[[method_name]]$fit, method_params)
+                  result <- do.call(method_list[[method_name]]$fit,
+                                    method_params)
                   return(result %>% tibble::add_column(param_df, .before=1))
-                })
+                }) %>%
+                  data.table::rbindlist(fill = TRUE)
               }, 
               future.seed = future.seed,
               future.globals = future.globals,
@@ -1157,7 +1196,8 @@ Experiment <- R6::R6Class(
                                     results[[i]]$rep <- i
                                     return(results[[i]])
                                   })
-            results <- dplyr::bind_rows(results) %>%
+            results <- data.table::rbindlist(results, fill = TRUE) %>%
+              tibble::as_tibble() %>%
               dplyr::mutate(rep = (rep - 1) %/% n_dgps + 1)
             results
           },
@@ -1170,19 +1210,22 @@ Experiment <- R6::R6Class(
                 dgp_params_list <- private$.get_new_dgp_params(
                   method_params, new_fit_params
                 )
-                purrr::map_dfr(dgp_params_list, function(dgp_params) {
+                purrr::map(dgp_params_list, function(dgp_params) {
                   dgp_name <- dgp_params$dgp_name
                   dgp_params$dgp_name <- NULL
-                  data_list <- do.call(dgp_list[[dgp_name]]$generate, dgp_params)
+                  data_list <- do.call(dgp_list[[dgp_name]]$generate, 
+                                       dgp_params)
                   method_name <- method_params$method_name
                   param_df <- simplify_tibble(list_to_tibble_row(
                     c(dgp_name = dgp_name, dgp_params, method_params)
                   ))
                   method_params$method_name <- NULL
                   method_params$data_list <- data_list
-                  result <- do.call(method_list[[method_name]]$fit, method_params)
+                  result <- do.call(method_list[[method_name]]$fit,
+                                    method_params)
                   return(result %>% tibble::add_column(param_df, .before=1))
-                })
+                }) %>%
+                  data.table::rbindlist(fill = TRUE)
               },
               future.seed = future.seed,
               future.globals = future.globals,
@@ -1194,7 +1237,8 @@ Experiment <- R6::R6Class(
                                     results[[i]]$rep <- i
                                     return(results[[i]])
                                   })
-            results <- dplyr::bind_rows(results) %>%
+            results <- data.table::rbindlist(results, fill = TRUE) %>%
+              tibble::as_tibble() %>%
               dplyr::mutate(rep = (rep - 1) %/% n_methods + 1)
             results
           },
@@ -1211,14 +1255,16 @@ Experiment <- R6::R6Class(
                 reps <- replicate(n_reps, {
                   dgp_name <- dgp_params$dgp_name
                   dgp_params$dgp_name <- NULL
-                  data_list <- do.call(dgp_list[[dgp_name]]$generate, dgp_params)
+                  data_list <- do.call(dgp_list[[dgp_name]]$generate,
+                                       dgp_params)
                   method_name <- method_params$method_name
                   param_df <- simplify_tibble(list_to_tibble_row(
                     c(dgp_name = dgp_name, dgp_params, method_params)
                   ))
                   method_params$method_name <- NULL
                   method_params$data_list <- data_list
-                  result <- do.call(method_list[[method_name]]$fit, method_params)
+                  result <- do.call(method_list[[method_name]]$fit,
+                                    method_params)
                   return(result %>% tibble::add_column(param_df, .before=1))
                 }, simplify=FALSE)
                 dplyr::bind_rows(reps, .id = "rep")
@@ -1229,7 +1275,8 @@ Experiment <- R6::R6Class(
               future.packages = future.packages,
               future.seed = future.seed
             )
-            dplyr::bind_rows(results)
+            data.table::rbindlist(results, fill = TRUE) %>%
+              tibble::as_tibble()
           },
           "reps+dgps+methods" = {
             mapply_args <- purrr::map2(new_fit_params$.dgp,
@@ -1246,33 +1293,36 @@ Experiment <- R6::R6Class(
             reps <- sapply(mapply_args, `[[`, 1)
             dgp_mapply_args <- lapply(mapply_args, `[[`, 2)
             method_mapply_args <- lapply(mapply_args, `[[`, 3)
-            results <- dplyr::bind_rows(
-              future.apply::future_mapply(
-                function(dgp_params, method_params) {
-                  dgp_name <- dgp_params$dgp_name
-                  dgp_params$dgp_name <- NULL
-                  data_list <- do.call(dgp_list[[dgp_name]]$generate, dgp_params)
-                  method_name <- method_params$method_name
-                  param_df <- simplify_tibble(list_to_tibble_row(
-                    c(dgp_name = dgp_name, dgp_params, method_params)
-                  ))
-                  method_params$method_name <- NULL
-                  method_params$data_list <- data_list
-                  result <- do.call(method_list[[method_name]]$fit, method_params)
-                  return(result %>% tibble::add_column(param_df, .before=1))
-                },
-                dgp_mapply_args, method_mapply_args,
-                future.seed = future.seed, SIMPLIFY = FALSE,
-                future.globals = future.globals,
-                future.packages = future.packages
-              )
+            results <- future.apply::future_mapply(
+              function(dgp_params, method_params) {
+                dgp_name <- dgp_params$dgp_name
+                dgp_params$dgp_name <- NULL
+                data_list <- do.call(dgp_list[[dgp_name]]$generate, 
+                                     dgp_params)
+                method_name <- method_params$method_name
+                param_df <- simplify_tibble(list_to_tibble_row(
+                  c(dgp_name = dgp_name, dgp_params, method_params)
+                ))
+                method_params$method_name <- NULL
+                method_params$data_list <- data_list
+                result <- do.call(method_list[[method_name]]$fit,
+                                  method_params)
+                return(result %>% tibble::add_column(param_df, .before=1))
+              },
+              dgp_mapply_args, method_mapply_args,
+              future.seed = future.seed, SIMPLIFY = FALSE,
+              future.globals = future.globals,
+              future.packages = future.packages
             )
+            results <- data.table::rbindlist(results, fill = TRUE) %>%
+              tibble::as_tibble()
             results$rep <- reps
             results
           }
         )
       }
       
+      attr(fit_results, ".internal.selfref") <- NULL
       for (col in setdiff(private$.get_vary_params(), colnames(fit_results))) {
         fit_results[[col]] <- NA
       }
