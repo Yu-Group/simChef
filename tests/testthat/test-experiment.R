@@ -610,10 +610,30 @@ test_that("Vary across in Experiment runs properly", {
          `Vary Params` = tibble::tibble(value = "idx"))
   )
 
+  # test multi-type dgp vary across case
+  x <- list(1, 3:5)
+  experiment <- experiment %>%
+    remove_vary_across() %>%
+    add_vary_across(dgp = "DGP", x = x)
+  fit_results <- fit_experiment(experiment, save = FALSE, verbose = 0)
+  expect_equal(
+    fit_results, 
+    tibble::tibble(rep = "1", dgp_name = "DGP", method_name = "Method", 
+                   x = x, x_idx = purrr::map_dbl(x, ~.x[1]))
+  )
+  eval_results <- evaluate_experiment(experiment, fit_results = fit_results,
+                                      save = FALSE, verbose = 0)
+  expect_equal(
+    eval_results,
+    list(`Fit Results` = fit_results, 
+         `Vary Params` = tibble::tibble(value = "x"))
+  )
+  
   # test list-type method vary across case
   idx <- list(1:2, 3:5, 7:10)
   experiment <- experiment %>%
-    update_vary_across(method = "Method", idx = idx)
+    remove_vary_across() %>%
+    add_vary_across(method = "Method", idx = idx)
   fit_results <- fit_experiment(experiment, save = FALSE, verbose = 0)
   expect_equal(
     fit_results,
@@ -644,6 +664,41 @@ test_that("Vary across in Experiment runs properly", {
     list(`Fit Results` = fit_results,
          `Vary Params` = tibble::tibble(value = c("x", "y", "idx")))
   )
+  
+  # test multi-type (dgp, method) vary across case
+  x <- list(1, 3:5)
+  experiment <- experiment %>%
+    remove_vary_across() %>%
+    add_vary_across(dgp = "DGP", x = x) %>%
+    add_vary_across(method = "Method", idx = list(1, 1:2))
+  fit_results <- fit_experiment(experiment, save = FALSE, verbose = 0)
+  expect_equal(
+    fit_results, 
+    tibble::tibble(rep = "1", dgp_name = "DGP", method_name = "Method", 
+                   x = list(1, 1, 3:5, 3:5), 
+                   idx = list(1, 1:2, 1, 1:2),
+                   x_idx = list(1, c(1, NA), 3, 3:4))
+  )
+  eval_results <- evaluate_experiment(experiment, fit_results = fit_results,
+                                      save = FALSE, verbose = 0)
+  expect_equal(
+    eval_results,
+    list(`Fit Results` = fit_results, 
+         `Vary Params` = tibble::tibble(value = c("x", "idx")))
+  )
+  
+  parallel_strategies <- list(
+    "reps", "dgps", "methods", c("reps", "dgps"), c("reps", "methods"),
+    c("dgps", "methods"), c("reps", "dgps", "methods")
+  )
+  for (strat in parallel_strategies) {
+    fit_results <- fit_experiment(experiment, save = FALSE, verbose = 0,
+                                  parallel_strategy = strat)
+    expect_equal(nrow(fit_results), 4)
+    expect_true(all(fit_results$x_idx %in% list(1, c(1, NA), 3, 3:4)))
+    expect_true(all(fit_results$idx %in% list(1, 1:2, 1, 1:2)))
+    expect_true(all(fit_results$x %in% list(1, 1, 3:5, 3:5)))
+  }
 })
 
 test_that("Caching in Experiment runs properly", {
@@ -955,7 +1010,7 @@ test_that("Various parallel strategies in experiment work properly", {
 
   for (strat in strategies) {
 
-    results <- experiment$fit(n_reps=2, parallel_strategy=strat)
+    results <- experiment$fit(n_reps=2, parallel_strategy=strat, verbose=0)
 
     expect_true(
       all(c("rep", "dgp_name", "method_name", "result") %in% names(results))
@@ -985,7 +1040,8 @@ test_that("Various parallel strategies in experiment work properly", {
   for (strat in strategies) {
     # TODO: this shouldn't produce an error
     # see https://github.com/Yu-Group/simChef/issues/75
-    expect_error(results <- experiment$fit(n_reps=2, parallel_strategy=strat))
+    expect_error(results <- experiment$fit(n_reps=2, parallel_strategy=strat,
+                                           verbose=0))
   }
 
 })
