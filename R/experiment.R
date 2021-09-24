@@ -1194,16 +1194,24 @@ Experiment <- R6::R6Class(
       }
       invisible(self)
     },
-    create_rmd = function(open = TRUE, verbose = 2, ...) {
+    create_rmd = function(open = TRUE, author = "", verbose = 2, quiet = TRUE,
+                          pretty = TRUE, ...) {
       self$create_doc_template()
-      input_fname <- system.file("rmd", "results.Rmd", package = packageName())
+      if (pretty) {
+        input_fname <- system.file("rmd", "results_pretty.Rmd", 
+                                   package = packageName())
+      } else {
+        input_fname <- system.file("rmd", "results.Rmd", 
+                                   package = packageName())
+      }
       output_fname <- file.path(private$.save_dir, paste0(self$name, ".html"))
       params_list <- list(sim_name = self$name, sim_path = private$.save_dir,
-                          verbose = verbose)
+                          author = author, verbose = verbose)
       rmarkdown::render(input = input_fname,
                         params = params_list,
                         output_file = output_fname,
-                        quiet = TRUE)
+                        quiet = quiet,
+                        ...)
       output_fname <- stringr::str_replace_all(output_fname, " ", "\\\\ ")
       if (open) {
         system(paste("open", output_fname))
