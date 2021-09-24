@@ -9,162 +9,26 @@ A visualizer (or visualization function) to \strong{visualize} the performance o
 methods and/or its evaluation metrics from the \code{Experiment} run.
 }
 \section{Public fields}{
-\if{html}{\out{<div class="r6-fields">}}
+
+
 \describe{
 \item{\code{name}}{The name of the \code{Visualizer}.}
-
-\item{\code{visualizer_fun}}{The visualization function.}
-
-\item{\code{visualizer_params}}{(Named) list of parameters to input into the
-visualizer function.}
-
+\item{\code{visualizer_fun}}{The visualizer function.}
+\item{\code{visualizer_params}}{(Named) list of parameters to input into the visualizer function.}
 \item{\code{rmd_options}}{List of options to control the aesthetics of the
-\code{Visualizer}'s visualizations in the knitted R Markdown report.
-Currently, possible options are "height" and "width" (in inches).}
+displayed \code{Visualizer}'s visualizations in the knitted R Markdown
+report. Currently, possible options are "height" and "width" (in inches).}
+\item{\code{}}{If \code{TRUE} (default), show the resulting visualization
+in the R Markdown report; if \code{FALSE}, hide output in the
+R Markdown report.}
+}
+}
 
-\item{\code{show}}{If \code{TRUE} (default), show the resulting visualization in the R
-Markdown report; if \code{FALSE}, hide output in the R Markdown report.}
-}
-\if{html}{\out{</div>}}
-}
-\section{Methods}{
-\subsection{Public methods}{
+\section{Public methods}{
+
+
 \itemize{
-\item \href{#method-new}{\code{Visualizer$new()}}
-\item \href{#method-visualize}{\code{Visualizer$visualize()}}
-\item \href{#method-print}{\code{Visualizer$print()}}
-\item \href{#method-clone}{\code{Visualizer$clone()}}
+\item{\code{Visualizer$new()}} See \link{create_visualizer}.
 }
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-new"></a>}}
-\if{latex}{\out{\hypertarget{method-new}{}}}
-\subsection{Method \code{new()}}{
-Create a new \code{Visualizer}.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Visualizer$new(
-  visualizer_fun,
-  name = NULL,
-  rmd_options = list(),
-  show = TRUE,
-  ...
-)}\if{html}{\out{</div>}}
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{visualizer_fun}}{The visualization function.}
-
-\item{\code{name}}{(Optional) The name of the \code{Visualizer}. The argument
-must be specified by position or typed out in whole; no partial
-matching is allowed for this argument.}
-
-\item{\code{rmd_options}}{(Optional) List of options to control the aesthetics
-of the \code{Visualizer}'s visualization in the knitted R Markdown
-report. Currently, possible options are "height" and "width" (in
-inches). The argument must be specified by position or typed out in
-whole; no partial matching is allowed for this argument.
-inches).}
-
-\item{\code{show}}{If \code{TRUE} (default), show the resulting visualization in the R
-Markdown report; if \code{FALSE}, hide output in the R Markdown report.}
-
-\item{\code{...}}{Arguments to pass into \code{visualizer_fun()}.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Details}{
-When visualizing or running the \code{Experiment} (see
-\code{Experiment$visualize()} or \code{Experiment$run()}), the named
-arguments \code{fit_results}, \code{eval_results}, and
-\code{vary_params} are automatically passed into the \code{Visualizer}
-function \code{visualizer_fun()} and serve as placeholders for the
-\code{Experiment$fit()} results, the \code{Experiment$evaluate()}
-results, and the name of the varying parameter, respectively.
-To visualize the performance of a method(s) fit and/or its evaluation
-metrics then, the \code{Visualizer} function \code{visualizer_fun()} should
-take in the named arguments \code{fit_results} and/or
-\code{eval_results}. See \code{Experiment$fit()} or
-\code{fit_experiment()} for details on the format of \code{fit_results}.
-See \code{Experiment$evaluate()} or \code{evaluate_experiment()} for
-details on the format of \code{eval_results}. If the \code{Visualizer}
-is used for \code{Experiments} with varying parameters,
-\code{vary_params} should be used as a stand in for the name of this
-varying parameter.
-}
-
-\subsection{Returns}{
-A new \code{Visualizer} object.
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-visualize"></a>}}
-\if{latex}{\out{\hypertarget{method-visualize}{}}}
-\subsection{Method \code{visualize()}}{
-Visualize the performance of methods and/or their evaluation
-metrics from the \code{Experiment} using the \code{Visualizer} and the
-provided parameters.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Visualizer$visualize(
-  fit_results = NULL,
-  eval_results = NULL,
-  vary_params = NULL,
-  ...
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{fit_results}}{A tibble, typically returned by the
-\code{Experiment$fit()} method.}
-
-\item{\code{eval_results}}{A list of tibbles, typically returned by the
-\code{Experiment$evaluate()} method.}
-
-\item{\code{vary_params}}{Name of parameter/argument that was varied in the
-\code{Experiment} (see \code{Experiment$get_vary_across()}).
-Use \code{NULL} (default) if no \code{vary_across} component in
-\code{Experiment} run.}
-
-\item{\code{...}}{Not used.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-Result of \code{visualizer_fun()}.
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-print"></a>}}
-\if{latex}{\out{\hypertarget{method-print}{}}}
-\subsection{Method \code{print()}}{
-Print a \code{Visualizer} in a nice format, showing the
-\code{Visualizer}'s name, function, parameters, and R Markdown options.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Visualizer$print()}\if{html}{\out{</div>}}
-}
-
-\subsection{Returns}{
-The original \code{Visualizer} object.
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-clone"></a>}}
-\if{latex}{\out{\hypertarget{method-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Visualizer$clone(deep = FALSE)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
-}
-\if{html}{\out{</div>}}
-}
-}
-}

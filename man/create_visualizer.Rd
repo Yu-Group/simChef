@@ -36,3 +36,22 @@ A new instance of \code{Visualizer}.
 \description{
 Create a new \code{Visualizer}.
 }
+\details{
+When visualizing or running the \code{Experiment} (see
+\code{Experiment$visualize()} or \code{Experiment$run()}), the named
+arguments \code{fit_results}, \code{eval_results}, and
+\code{vary_params} are automatically passed into the \code{Visualizer}
+function \code{visualizer_fun()} and serve as placeholders for the
+\code{Experiment$fit()} results, the \code{Experiment$evaluate()}
+results, and the name of the varying parameter, respectively.
+To visualize the performance of a method(s) fit and/or its evaluation
+metrics then, the \code{Visualizer} function \code{visualizer_fun()} should
+take in the named arguments \code{fit_results} and/or
+\code{eval_results}. See \code{Experiment$fit()} or
+\code{fit_experiment()} for details on the format of \code{fit_results}.
+See \code{Experiment$evaluate()} or \code{evaluate_experiment()} for
+details on the format of \code{eval_results}. If the \code{Visualizer}
+is used for \code{Experiments} with varying parameters,
+\code{vary_params} should be used as a stand in for the name of this
+varying parameter.
+}

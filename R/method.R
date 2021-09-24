@@ -4,26 +4,15 @@
 #'
 #' @description A method to be **fit** and assessed in the \code{Experiment}.
 #'
+#' @template method-template
+#'
 #' @export
 Method <- R6::R6Class(
   classname = 'Method',
   public = list(
-    #' @field name The name of the \code{Method}.
     name = NULL,
-    #' @field method_fun The method function.
     method_fun = NULL,
-    #' @field method_params (Named) list of parameters to input into the
-    #'   method function.
     method_params = NULL,
-    #' @description Create a new \code{Method}.
-    #'
-    #' @param method_fun The method function.
-    #' @param name (Optional) The name of the \code{Method}. The argument must
-    #'   be specified by position or typed out in whole; no partial matching is
-    #'   allowed for this argument.
-    #' @param ... Arguments to pass into \code{method_fun()}.
-    #'
-    #' @return A new \code{Method} object.
     initialize = function(method_fun, name = NULL, ...) {
       dots_list <- list(...)
       if (".args_list" %in% names(dots_list)) {
@@ -38,17 +27,17 @@ Method <- R6::R6Class(
       args_list$name <- NULL
       self$method_params <- args_list
     },
-    #' @description Fit a \code{Method} on data using the provided \code{Method}
-    #'   parameters.
-    #'
-    #' @param data_list List of data to pass into \code{method_fun()}. If named,
-    #'   should match arguments in \code{method_fun()}.
-    #' @param ... Arguments to pass into \code{method_fun()} that will overwrite
-    #'   the initialized \code{Method} parameters. If no additional arguments
-    #'   are provided, the \code{Method} will be fit using \code{method_fun()}
-    #'   and the parameters that were set when \code{Method$new()} was called.
-    #'
-    #' @return Result of \code{method_fun()}, coerced into a single tibble row.
+    # @description Fit a \code{Method} on data using the provided \code{Method}
+    #   parameters.
+    #
+    # @param data_list List of data to pass into \code{method_fun()}. If named,
+    #   should match arguments in \code{method_fun()}.
+    # @param ... Arguments to pass into \code{method_fun()} that will overwrite
+    #   the initialized \code{Method} parameters. If no additional arguments
+    #   are provided, the \code{Method} will be fit using \code{method_fun()}
+    #   and the parameters that were set when \code{Method$new()} was called.
+    #
+    # @return Result of \code{method_fun()}, coerced into a single tibble row.
     fit = function(data_list, ...) {
       method_params <- self$method_params
       new_method_params <- list(...)
@@ -68,10 +57,10 @@ Method <- R6::R6Class(
       }
       return(list_to_tibble_row(fit_results))
     },
-    #' @description Print a \code{Method} in a nice format, showing the 
-    #'   \code{Method}'s name, function, and parameters.
-    #'
-    #' @return The original \code{Method} object.
+    # @description Print a \code{Method} in a nice format, showing the
+    #   \code{Method}'s name, function, and parameters.
+    #
+    # @return The original \code{Method} object.
     print = function() {
       if (is.null(self$name)) {
         cat("Method Name: NULL \n")
