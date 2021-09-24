@@ -461,7 +461,7 @@ experiment$create_rmd(open = FALSE)
 We can also create the R Markdown report summary by directly specifying the experiment's root results directory.
 
 ```{r eval = FALSE}
-create_rmd(experiment_dirname = experiment$get_save_dir(), open = FALSE)
+create_rmd(save_dir = experiment$get_save_dir(), open = FALSE)
 ```
 
 The results can be found [here](linear_regression_output.html). 

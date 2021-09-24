@@ -9,6 +9,8 @@
 #'   \code{Methods}, computing results in parallel. Those results can then be
 #'   evaluated using \code{Evaluators} and visualized using \code{Visualizers}.
 #'
+#' @template experiment-template
+#'
 #' @export
 Experiment <- R6::R6Class(
   classname = 'Experiment',
@@ -22,6 +24,10 @@ Experiment <- R6::R6Class(
       dgp = list(),
       method = list()
     ),
+    .fit_params = tibble::tibble(),
+    .cached_params = list(fit = tibble::tibble(),
+                          evaluate = tibble::tibble(),
+                          visualize = tibble::tibble()),
     .future.globals = TRUE,
     .future.packages = NULL,
     .add_obj = function(field_name, obj, obj_name, ...) {
@@ -181,8 +187,9 @@ Experiment <- R6::R6Class(
         return(TRUE)
       }
     },
-    .get_vary_params = function() {
-      param_names <- purrr::map(private$.vary_across_list,
+    .get_vary_params = function(field_name = c("dgp", "method")) {
+      field_name <- match.arg(field_name, several.ok = TRUE)
+      param_names <- purrr::map(private$.vary_across_list[field_name],
                                 function(x) {
                                   if (identical(x, list())) {
                                     return(NULL)
@@ -210,7 +217,274 @@ Experiment <- R6::R6Class(
       }) %>% purrr::reduce(c)
       return(param_list)
     },
-    .save_results = function(results, results_type = c("fit", "eval", "visualize"),
+    .update_fit_params = function() {
+      # update/set (dgp, method) fit parameter combinations
+      dgp_list <- private$.get_obj_list("dgp")
+      dgp_params_list <- private$.combine_vary_params("dgp")
+      method_list <- private$.get_obj_list("method")
+      method_params_list <- private$.combine_vary_params("method")
+      fit_params <- purrr::cross2(dgp_params_list, method_params_list) %>%
+        purrr::map_dfr(
+          ~tibble::tibble(
+            .dgp_name = .x[[1]]$dgp_name,
+            .dgp_fun = list(dgp_list[[.dgp_name]]$dgp_fun),
+            .dgp_params = list(dgp_list[[.dgp_name]]$dgp_params),
+            .dgp = .x[1],
+            .method_name = .x[[2]]$method_name,
+            .method_fun = list(method_list[[.method_name]]$method_fun),
+            .method_params = list(method_list[[.method_name]]$method_params),
+            .method = .x[2]
+          )
+        )
+      private$.fit_params <- fit_params
+    },
+    .get_fit_params = function(type = c("all", "cached", "new"),
+                               n_reps = NULL, simplify = FALSE) {
+      # get all/new/cached (dgp, method) fit parameter combinations
+      type <- match.arg(type)
+      fit_params <- private$.fit_params
+      if (identical(type, "all")) {
+        out_params <- fit_params
+      } else {
+        nreps <- n_reps
+        if (nrow(private$.cached_params$fit) == 0) {
+          if (identical(type, "cached")) {
+            out_params <- private$.cached_params$fit
+          } else if (identical(type, "new")) {
+            out_params <- fit_params
+          }
+        } else {
+          cached_idxs <- dplyr::bind_rows(
+            fit_params,
+            private$.cached_params$fit %>%
+              dplyr::filter(as.numeric(n_reps) >= {{nreps}}) %>%
+              dplyr::select(-n_reps)
+          ) %>%
+            duplicated(fromLast = TRUE)
+          if (identical(type, "cached")) {
+            out_params <- fit_params[cached_idxs[1:nrow(fit_params)], ]
+          } else if (identical(type, "new")) {
+            out_params <- fit_params[!cached_idxs[1:nrow(fit_params)], ]
+          }
+        }
+      }
+
+      if (simplify) {
+        for (param_name in private$.get_vary_params("dgp")) {
+          out_params[[param_name]] <- purrr::map(out_params$.dgp,
+                                                 ~.x[[param_name]])
+        }
+        for (param_name in private$.get_vary_params("method")) {
+          out_params[[param_name]] <- purrr::map(out_params$.method,
+                                                 ~.x[[param_name]])
+        }
+        out_params <- out_params %>%
+          dplyr::rename(dgp_name = .dgp_name, method_name = .method_name) %>%
+          dplyr::select(-.dgp, -.dgp_fun, -.dgp_params,
+                        -.method, -.method_fun, -.method_params) %>%
+          simplify_tibble()
+      }
+      return(out_params)
+    },
+    .get_new_dgp_params = function(method_params, new_fit_params) {
+      # get new dgp parameter combinations given method parameter set
+      dgp_params_list <- new_fit_params %>%
+        dplyr::filter(sapply(.method, identical, method_params)) %>%
+        dplyr::pull(.dgp)
+      return(dgp_params_list)
+    },
+    .get_new_method_params = function(dgp_params, new_fit_params) {
+      # get new method parameter combinations given dgp parameter set
+      method_params_list <- new_fit_params %>%
+        dplyr::filter(sapply(.dgp, identical, dgp_params)) %>%
+        dplyr::pull(.method)
+      return(method_params_list)
+    },
+    .get_new_obj_list = function(field_name = c("dgp", "method",
+                                                "evaluator", "visualizer"),
+                                 new_fit_params = NULL) {
+      # get new uncached objects for a certain class in the Experiment
+      field_name <- match.arg(field_name)
+      if (field_name %in% c("dgp", "method")) {
+        return(unique(new_fit_params[[paste0(".", field_name)]]))
+      } else if (identical(field_name, "evaluator")) {
+        evaluator_list <- private$.get_obj_list("evaluator")
+        evaluate_params <- tibble::tibble(
+          eval_name = names(evaluator_list),
+          eval_fun = purrr::map(evaluator_list, "eval_fun"),
+          eval_params = purrr::map(evaluator_list, "eval_params")
+        )
+        cached_idxs <- dplyr::bind_rows(evaluate_params,
+                                        private$.cached_params$evaluate) %>%
+          duplicated(fromLast = TRUE)
+        return(evaluator_list[
+          evaluate_params$eval_name[!cached_idxs[1:nrow(evaluate_params)]]
+        ])
+      } else if (identical(field_name, "visualizer")) {
+        visualizer_list <- private$.get_obj_list("visualizer")
+        visualize_params <- tibble::tibble(
+          visualizer_name = names(visualizer_list),
+          visualizer_fun = purrr::map(visualizer_list, "visualizer_fun"),
+          visualizer_params = purrr::map(visualizer_list, "visualizer_params")
+        )
+        cached_idxs <- dplyr::bind_rows(visualize_params,
+                                        private$.cached_params$visualize) %>%
+          duplicated(fromLast = TRUE)
+        return(visualizer_list[
+          visualize_params$visualizer_name[!cached_idxs[1:nrow(visualize_params)]]
+        ])
+      }
+    },
+    .is_fully_cached = function(results_type = c("fit", "eval", "visualize"),
+                                n_reps = NULL) {
+      # has the Experiment been completely cached
+      results_type <- match.arg(results_type)
+      if (nrow(private$.cached_params$fit) == 0) {
+        return(FALSE)
+      }
+      if (is.null(n_reps)) {
+        n_reps <- 0
+      }
+      fit_params <- private$.get_fit_params()
+      fit_cached <- dplyr::bind_rows(
+        fit_params,
+        private$.cached_params$fit %>%
+          dplyr::filter(as.numeric(n_reps) >= {{n_reps}}) %>%
+          dplyr::select(-n_reps)
+      ) %>%
+        duplicated(fromLast = TRUE) %>%
+        .[1:nrow(fit_params)] %>%
+        all()
+      if (identical(results_type, "fit")) {
+        return(fit_cached)
+      } else if (!fit_cached) {
+        stop("Changes have been made to the Experiment since last cache. ",
+             "Please run Experiment$fit(..., save = T) before trying to use ",
+             "cached fit results in Experiment$evaluate(..., use_cached = T) ",
+             "or in Experiment$visualize(..., use_cached = T).",
+             call. = FALSE)
+      }
+
+      evaluator_list <- private$.get_obj_list("evaluator")
+      evaluate_params <- tibble::tibble(
+        eval_name = names(evaluator_list),
+        eval_fun = purrr::map(evaluator_list, "eval_fun"),
+        eval_params = purrr::map(evaluator_list, "eval_params")
+      )
+      eval_cached <- dplyr::bind_rows(evaluate_params,
+                                      private$.cached_params$evaluate) %>%
+        duplicated(fromLast = TRUE) %>%
+        .[1:nrow(evaluate_params)] %>%
+        all()
+      if (identical(results_type, "eval")) {
+        return(eval_cached)
+      } else if (!eval_cached) {
+        stop("Changes have been made to the Experiment since last cache. ",
+             "Please run Experiment$evaluate(..., save = T) before trying to ",
+             "use cached results in Experiment$visualize(..., use_cached = T).",
+             call. = FALSE)
+      }
+
+      visualizer_list <- private$.get_obj_list("visualizer")
+      visualize_params <- tibble::tibble(
+        visualizer_name = names(visualizer_list),
+        visualizer_fun = purrr::map(visualizer_list, "visualizer_fun"),
+        visualizer_params = purrr::map(visualizer_list, "visualizer_params")
+      )
+      visualize_cached <- dplyr::bind_rows(visualize_params,
+                                           private$.cached_params$visualize) %>%
+        duplicated(fromLast = TRUE) %>%
+        .[1:nrow(visualize_params)] %>%
+        all()
+      return(visualize_cached)
+    },
+    .get_cached_results = function(results_type = c("experiment", "fit",
+                                                    "eval", "visualize"),
+                                   verbose = 1) {
+      results_type <- match.arg(results_type)
+      if (verbose >= 1) {
+        message(sprintf("Reading in cached %s results...", results_type))
+      }
+      if (!private$.has_vary_across()) {
+        save_dir <- private$.save_dir
+      } else {
+        obj_names <- purrr::map(private$.vary_across_list, names) %>%
+          purrr::reduce(c) %>%
+          paste(collapse = "-")
+        param_names <- private$.get_vary_params() %>%
+          paste(collapse = "-")
+        save_dir <- file.path(private$.save_dir, obj_names,
+                              paste("Varying", param_names))
+      }
+      if (results_type == "experiment") {
+        save_file <- file.path(save_dir, "experiment.rds")
+      } else {
+        save_file <- file.path(save_dir, paste0(results_type, "_results.rds"))
+      }
+      if (file.exists(save_file)) {
+        return(readRDS(save_file))
+      } else {
+        if (verbose >= 1) {
+          message(sprintf("Cannot find cached %s results.", results_type))
+        }
+        return(NULL)
+      }
+    },
+    .clear_cached_results = function() {
+      if (!private$.has_vary_across()) {
+        save_dir <- private$.save_dir
+      } else {
+        obj_names <- purrr::map(private$.vary_across_list, names) %>%
+          purrr::reduce(c) %>%
+          paste(collapse = "-")
+        param_names <- private$.get_vary_params() %>%
+          paste(collapse = "-")
+        save_dir <- file.path(private$.save_dir, obj_names,
+                              paste("Varying", param_names))
+      }
+      file.remove(file.path(save_dir, "experiment.rds"),
+                  file.path(save_dir, "fit_results.rds"),
+                  file.path(save_dir, "eval_results.rds"),
+                  file.path(save_dir, "visualize_results.rds"))
+    },
+    .update_cache = function(results_type = c("fit", "eval", "visualize"),
+                             n_reps = NULL) {
+      results_type <- match.arg(results_type)
+      if (identical(results_type, "fit")) {
+        new_fit_cache <- private$.get_fit_params() %>%
+          dplyr::mutate(n_reps = n_reps)
+        if (!isTRUE(dplyr::all_equal(private$.cached_params$fit, new_fit_cache,
+                                     ignore_row_order = TRUE,
+                                     ignore_col_order = FALSE))) {
+          private$.cached_params$evaluate <- tibble::tibble()
+          private$.cached_params$visualize <- tibble::tibble()
+        }
+        private$.cached_params$fit <- new_fit_cache
+      } else if (identical(results_type, "eval")) {
+        evaluator_list <- private$.get_obj_list("evaluator")
+        new_evaluate_cache <- tibble::tibble(
+          eval_name = names(evaluator_list),
+          eval_fun = purrr::map(evaluator_list, "eval_fun"),
+          eval_params = purrr::map(evaluator_list, "eval_params")
+        )
+        if (!isTRUE(dplyr::all_equal(private$.cached_params$evaluate,
+                                     new_evaluate_cache,
+                                     ignore_row_order = TRUE,
+                                     ignore_col_order = FALSE))) {
+          private$.cached_params$visualize <- tibble::tibble()
+        }
+        private$.cached_params$evaluate <- new_evaluate_cache
+      } else if (identical(results_type, "visualize")) {
+        visualizer_list <- private$.get_obj_list("visualizer")
+        private$.cached_params$visualize <- tibble::tibble(
+          visualizer_name = names(visualizer_list),
+          visualizer_fun = purrr::map(visualizer_list, "visualizer_fun"),
+          visualizer_params = purrr::map(visualizer_list, "visualizer_params")
+        )
+      }
+    },
+    .save_results = function(results, 
+                             results_type = c("fit", "eval", "visualize"),
                              verbose = 1) {
       results_type <- match.arg(results_type)
       if (verbose >= 1) {
@@ -232,6 +506,12 @@ Experiment <- R6::R6Class(
       if (!dir.exists(dirname(save_file))) {
         dir.create(dirname(save_file), recursive = TRUE)
       }
+      if (identical(results_type, "fit")) {
+        n_reps <- max(as.numeric(results$rep))
+      } else {
+        n_reps <- NULL
+      }
+      private$.update_cache(results_type = results_type, n_reps = n_reps)
       saveRDS(self, file.path(save_dir, "experiment.rds"))
       saveRDS(results, save_file)
       if (verbose >= 1) {
@@ -239,36 +519,6 @@ Experiment <- R6::R6Class(
                         R.utils::capitalize(results_type),
                         difftime(Sys.time(), start_time, units = "secs")))
         message("==============================")
-      }
-    },
-    .get_cached_results = function(results_type = c("fit", "eval", "visualize"),
-                                   verbose = 1) {
-      results_type <- match.arg(results_type)
-      if (verbose >= 1) {
-        message(sprintf("Reading in cached %s results...", results_type))
-      }
-      if (!private$.has_vary_across()) {
-        save_dir <- private$.save_dir
-      } else {
-        obj_names <- purrr::map(private$.vary_across_list, names) %>%
-          purrr::reduce(c) %>%
-          paste(collapse = "-")
-        param_names <- param_names <- private$.get_vary_params() %>%
-          paste(collapse = "-")
-        save_dir <- file.path(private$.save_dir, obj_names,
-                              paste("Varying", param_names))
-      }
-      save_file <- file.path(save_dir, paste0(results_type, "_results.rds"))
-      if (file.exists(save_file)) {
-        if (verbose >= 1) {
-          message("==============================")
-        }
-        return(readRDS(save_file))
-      } else {
-        if (verbose >= 1) {
-          message(sprintf("Cannot find cached %s results.", results_type))
-        }
-        return(NULL)
       }
     },
     deep_clone = function(name, value) {
@@ -280,33 +530,7 @@ Experiment <- R6::R6Class(
     }
   ),
   public = list(
-    #' @field name The name of the \code{Experiment}.
     name = NULL,
-    #' @description Create a new \code{Experiment}.
-    #'
-    #' @param name The name of the \code{Experiment}.
-    #' @param dgp_list An optional list of \code{DGP} objects.
-    #' @param method_list An optional list of \code{Method} objects.
-    #' @param evaluator_list An optional list of \code{Evaluator} objects.
-    #' @param visualizer_list An optional list of \code{Visualizer} objects.
-    #' @param future.globals Character vector of names in the global environment
-    #'   to pass to parallel workers. Passed as the argument of the same name to
-    #'   \code{future.apply::future_lapply} and related functions. See
-    #'   \link{future.apply}{future_apply}. To set for a specific run of the
-    #'   experiment, use the same argument in \code{Experiment$run}.
-    #' @param future.packages Character vector of packages required by parallel
-    #'   workers. Passed as the argument of the same name to
-    #'   \code{future.apply::future_lapply} and related functions. See
-    #'   \link{future.apply}{future_apply}. To set for a specific run of the
-    #'   experiment, use the same argument in \code{Experiment$run}.
-    #' @param clone_from An optional \code{Experiment} object to use as a base
-    #'   for this one.
-    #' @param save_dir An optional directory in which to save the experiment's
-    #'   results. If \code{NULL}, results are saved at
-    #'   ./results/\{Experiment$name\}
-    #' @param ... Not used.
-    #'
-    #' @return A new \code{Experiment} object.
     initialize = function(name = "experiment",
                           dgp_list = list(), method_list = list(),
                           evaluator_list = list(), visualizer_list = list(),
@@ -335,65 +559,10 @@ Experiment <- R6::R6Class(
       }
       private$.save_dir <- R.utils::getAbsolutePath(save_dir)
     },
-    #' @description Run the entire simulation experiment pipeline (fitting,
-    #'   evaluating, and visualizing).
-    #'
-    #' @param n_reps The number of replicates of the \code{Experiment} for this
-    #'   run.
-    #' @param parallel_strategy A vector with some combination of "reps",
-    #'   "dgps", or "methods". Determines how computation will be distributed
-    #'   across available resources. Default is "reps".
-    #' @param future.globals Character vector of names in the global environment
-    #'   to pass to parallel workers. Passed as the argument of the same name to
-    #'   \code{future.apply::future_lapply} and related functions. See
-    #'   \link{future.apply}{future_apply}. To set for all runs of the
-    #'   experiment, use the same argument during initialization.
-    #' @param future.packages Character vector of packages required by parallel
-    #'   workers. Passed as the argument of the same name to
-    #'   \code{future.apply::future_lapply} and related functions. See
-    #'   \link{future.apply}{future_apply}. To set for all runs of the
-    #'   experiment, use the same argument during initialization.
-    #' @param future.seed See the argument of the same name in
-    #'   \link{future.apply}{future_apply}.
-    #' @param use_cached If \code{TRUE}, find and return previously saved
-    #'   results. If cached results cannot be found, run experiment anyways.
-    #'   Can also be a vector with some combination of "fit",
-    #'   "eval", or "visualize" to use their respective cached results.
-    #' @param save If \code{TRUE}, save results to disk. Can also be a vector
-    #'   with some combination of "fit", "eval", or "visualize" to save to disk.
-    #' @param verbose Level of verboseness. Default is 1, which prints out
-    #'   messages after major checkpoints in the experiment. If 0, no messages
-    #'   are printed.
-    #' @param ... Not used.
-    #'
-    #' @return A list of results from the simulation experiment
-    #' \describe{
-    #' \item{fit_results}{A tibble containing results from the \code{fit}
-    #'   method. In addition to results columns, has columns named 'rep',
-    #'   'dgp_name', 'method_name', and the \code{vary_across} parameter names
-    #'   if applicable.}
-    #' \item{eval_results}{A list of tibbles containing results from the
-    #'   \code{evaluate} method, which evaluates each \code{Evaluator} in
-    #'   the \code{Experiment}. Length of list is equivalent to the number of
-    #'   \code{Evaluators}.}
-    #' \item{visualize_results}{A list of tibbles containing results from the
-    #'   \code{visualize} method, which visualizes each \code{Visualizer} in
-    #'   the \code{Experiment}. Length of list is equivalent to the number of
-    #'   \code{Visualizers}.}
-    #' }
     run = function(n_reps = 1, parallel_strategy = c("reps"),
                    future.globals = NULL, future.packages = NULL,
                    future.seed = TRUE, use_cached = FALSE, save = FALSE,
                    verbose = 1, ...) {
-      if (!is.logical(use_cached)) {
-        use_cached <- c("fit", "eval", "visualize") %in% use_cached
-      } else {
-        if (length(use_cached) > 1) {
-          warning("The input use_cached is a logical vector of length > 1. ",
-                  "Only the first element of use_cached is used.")
-        }
-        use_cached <- rep(use_cached[1], 3)
-      }
       if (!is.logical(save)) {
         save <- c("fit", "eval", "visualize") %in% save
       } else {
@@ -403,40 +572,37 @@ Experiment <- R6::R6Class(
         }
         save <- rep(save[1], 3)
       }
+      if (use_cached) {
+        # update current cache ids using previously saved results on disk
+        # useful for the case when new R session is started
+        cached_experiment <- private$.get_cached_results("experiment",
+                                                         verbose = 0)
+        if (!is.null(cached_experiment)) {
+          private$.cached_params <- cached_experiment$get_cache()
+        } else {
+          private$.cached_params <- list(fit = tibble::tibble(),
+                                         evaluate = tibble::tibble(),
+                                         visualize = tibble::tibble())
+        }
+      }
 
       fit_results <- self$fit(n_reps, parallel_strategy = parallel_strategy,
                               future.globals = future.globals,
                               future.packages = future.packages,
                               future.seed = future.seed,
-                              use_cached = use_cached[1], save = save[1],
+                              use_cached = use_cached, save = save[1],
                               verbose = verbose)
       eval_results <- self$evaluate(fit_results = fit_results,
-                                    use_cached = use_cached[2], save = save[2],
+                                    use_cached = use_cached, save = save[2],
                                     verbose = verbose)
       visualize_results <- self$visualize(fit_results = fit_results,
                                 eval_results = eval_results,
-                                use_cached = use_cached[3], save = save[3],
+                                use_cached = use_cached, save = save[3],
                                 verbose = verbose)
       return(list(fit_results = fit_results,
                   eval_results = eval_results,
                   visualize_results = visualize_results))
     },
-    #' @description Generate data from each of the \code{DGPs} in the
-    #'   \code{Experiment}.
-    #'
-    #' @param n_reps The number of datasets to generate per \code{DGP}.
-    #' @param ... Not used.
-    #'
-    #' @return A list of length equal to the number of \code{DGPs} in the
-    #'   \code{Experiment}. If the \code{Experiment} does not have a
-    #'   \code{vary_across} component, then each element in the list is a list
-    #'   of \code{n_reps} datasets generated by the given \code{DGP}. If the
-    #'   \code{Experiment} does have a \code{vary_across} component, then each
-    #'   element in the outermost list is a list of lists. The second layer of
-    #'   lists corresponds to a specific parameter setting within the
-    #'   \code{vary_across} scheme, and the innermost layer of lists is of
-    #'   length \code{n_reps} with the dataset replicates, generated by the
-    #'   \code{DGP}.
     generate_data = function(n_reps = 1, ...) {
       # TODO: generate data that was used in run() or fit() (e.g., w/ same seed)
       dgp_list <- private$.get_obj_list("dgp")
@@ -471,45 +637,34 @@ Experiment <- R6::R6Class(
       }
       return(dgp_results)
     },
-    #' @description Fit all \code{Methods} in the \code{Experiment} and return
-    #'   results.
-    #'
-    #' @param n_reps The number of replicates to run.
-    #' @param parallel_strategy A vector with some combination of "reps",
-    #'   "dgps", or "methods". Determines how computation will be distributed
-    #'   across available resources. Default is "reps".
-    #' @param future.globals Character vector of names in the global environment
-    #'   to pass to parallel workers. Passed as the argument of the same name to
-    #'   \code{future.apply::future_lapply} and related functions. See
-    #'   \link{future.apply}{future_apply}. To set for all runs of the
-    #'   experiment, use the same argument during initialization.
-    #' @param future.packages Character vector of packages required by parallel
-    #'   workers. Passed as the argument of the same name to
-    #'   \code{future.apply::future_lapply} and related functions. See
-    #'   \link{future.apply}{future_apply}. To set for all runs of the
-    #'   experiment, use the same argument during initialization.
-    #' @param future.seed See the argument of the same name in
-    #'   \link{future.apply}{future_apply}.
-    #' @param use_cached If \code{TRUE}, find and return previously saved
-    #'   results. If cached results cannot be found, fit experiment anyways.
-    #' @param save If \code{TRUE}, save results to disk.
-    #' @param verbose Level of verboseness. Default is 1, which prints out
-    #'   messages after major checkpoints in the experiment. If 0, no messages
-    #'   are printed.
-    #' @param ... Not used.
-    #'
-    #' @return A tibble containing the results from fitting all \code{Methods}
-    #'   across all \code{DGPs} for \code{n_reps} repetitions. In addition to
-    #'   results columns, has columns named 'rep', 'dgp_name', 'method_name',
-    #'   and the \code{vary_across} parameter names if applicable.
     fit = function(n_reps = 1, parallel_strategy = c("reps"),
                    future.globals = NULL, future.packages = NULL,
                    future.seed = TRUE, use_cached = FALSE, save = FALSE,
                    verbose = 1, ...) {
+
+      dgp_list <- private$.get_obj_list("dgp")
+      method_list <- private$.get_obj_list("method")
+      if (length(dgp_list) == 0) {
+        private$.throw_empty_list_error("dgp", "generate data from")
+      }
+      if (length(method_list) == 0) {
+        private$.throw_empty_list_error("method", "fit methods in")
+      }
       if (use_cached) {
-        results <- private$.get_cached_results("fit", verbose = verbose)
-        if (!is.null(results)) {
-          return(results)
+        private$.update_fit_params()
+        if (private$.is_fully_cached("fit", n_reps = n_reps)) {
+          results <- private$.get_cached_results("fit", verbose = verbose)
+          fit_params <- private$.get_fit_params(simplify = TRUE)
+          fit_results <- dplyr::inner_join(x = results,
+                                           y = fit_params,
+                                           by = colnames(fit_params)) %>%
+            dplyr::filter(as.numeric(rep) <= n_reps)
+          if (nrow(results) != nrow(fit_results)) {
+            private$.save_results(fit_results, "fit", verbose)
+          } else if (verbose >= 1) {
+            message("==============================")
+          }
+          return(fit_results)
         }
       }
 
@@ -536,14 +691,6 @@ Experiment <- R6::R6Class(
         strategy_string <- paste0(c(strategy_string, "methods"), collapse="+")
       }
       parallel_strategy <- strategy_string
-      dgp_list <- private$.get_obj_list("dgp")
-      method_list <- private$.get_obj_list("method")
-      if (length(dgp_list) == 0) {
-        private$.throw_empty_list_error("dgp", "generate data from")
-      }
-      if (length(method_list) == 0) {
-        private$.throw_empty_list_error("method", "fit methods in")
-      }
 
       if (is.null(future.packages)) {
         future.packages <- private$.future.packages
@@ -555,27 +702,57 @@ Experiment <- R6::R6Class(
       dgp_params_list <- private$.combine_vary_params("dgp")
       method_params_list <- private$.combine_vary_params("method")
 
+      check_cache <- FALSE
+      if (use_cached) {
+        new_fit_params <- private$.get_fit_params("new", n_reps)
+        n_params <- nrow(new_fit_params)
+        new_fit <- n_params == nrow(private$.get_fit_params())
+        if (!new_fit) {
+          # get only the new dgps and methods that are not cached
+          dgp_params_list <- private$.get_new_obj_list(
+            "dgp", new_fit_params = new_fit_params
+          )
+          method_params_list <- private$.get_new_obj_list(
+            "method", new_fit_params = new_fit_params
+          )
+          if (length(dgp_params_list)*length(method_params_list) != n_params) {
+            # case when not all combos of (dgp_params_list, method_params_list)
+            # need to be rerun so need to check cache ids when fitting
+            check_cache <- TRUE
+          }
+        }
+      }
+
       fit_results <- switch(
         parallel_strategy,
         "reps" = {
           results <- future.apply::future_replicate(n_reps, {
-            purrr::map_dfr(dgp_params_list, function(dgp_params) {
+            purrr::map(dgp_params_list, function(dgp_params) {
+              if (check_cache) {
+                method_params_list <- private$.get_new_method_params(
+                  dgp_params, new_fit_params
+                )
+              }
               dgp_name <- dgp_params$dgp_name
               dgp_params$dgp_name <- NULL
               data_list <- do.call(dgp_list[[dgp_name]]$generate, dgp_params)
-              purrr::map_dfr(method_params_list, function(method_params) {
+              purrr::map(method_params_list, function(method_params) {
                 method_name <- method_params$method_name
                 param_df <- simplify_tibble(list_to_tibble_row(
                   c(dgp_name = dgp_name, dgp_params, method_params)
                 ))
                 method_params$method_name <- NULL
                 method_params$data_list <- data_list
-                result <- do.call(method_list[[method_name]]$fit, method_params)
+                result <- do.call(method_list[[method_name]]$fit,
+                                  method_params)
                 return(result %>% tibble::add_column(param_df, .before=1))
-              })
-            })
-          },
-          simplify=FALSE,
+              }) %>%
+                data.table::rbindlist(fill = TRUE)
+            }) %>%
+              data.table::rbindlist(fill = TRUE) %>%
+              tibble::as_tibble()
+          }, 
+          simplify = FALSE,
           future.globals = future.globals,
           future.packages = future.packages,
           future.seed = future.seed)
@@ -584,52 +761,70 @@ Experiment <- R6::R6Class(
         "dgps" = {
           results <- future.apply::future_lapply(
             dgp_params_list, function(dgp_params) {
+              if (check_cache) {
+                method_params_list <- private$.get_new_method_params(
+                  dgp_params, new_fit_params
+                )
+              }
               reps <- replicate(n_reps, {
                 dgp_name <- dgp_params$dgp_name
                 dgp_params$dgp_name <- NULL
-                data_list <- do.call(dgp_list[[dgp_name]]$generate, dgp_params)
-                purrr::map_dfr(method_params_list, function(method_params) {
+                data_list <- do.call(dgp_list[[dgp_name]]$generate, 
+                                     dgp_params)
+                purrr::map(method_params_list, function(method_params) {
                   method_name <- method_params$method_name
                   param_df <- simplify_tibble(list_to_tibble_row(
                     c(dgp_name = dgp_name, dgp_params, method_params)
                   ))
                   method_params$method_name <- NULL
                   method_params$data_list <- data_list
-                  result <- do.call(method_list[[method_name]]$fit, method_params)
+                  result <- do.call(method_list[[method_name]]$fit,
+                                    method_params)
                   return(result %>% tibble::add_column(param_df, .before=1))
-                })
+                }) %>%
+                  data.table::rbindlist(fill = TRUE)
               }, simplify=FALSE)
               dplyr::bind_rows(reps, .id = "rep")
             },
             future.globals = future.globals,
             future.packages = future.packages,
             future.seed = future.seed)
-          dplyr::bind_rows(results)
+          data.table::rbindlist(results, fill = TRUE) %>%
+            tibble::as_tibble()
         },
         "methods" = {
           results <- future.apply::future_lapply(
             method_params_list, function(method_params) {
+              if (check_cache) {
+                dgp_params_list <- private$.get_new_dgp_params(
+                  method_params, new_fit_params
+                )
+              }
               reps <- replicate(n_reps, {
-                purrr::map_dfr(dgp_params_list, function(dgp_params) {
+                purrr::map(dgp_params_list, function(dgp_params) {
                   dgp_name <- dgp_params$dgp_name
                   dgp_params$dgp_name <- NULL
-                  data_list <- do.call(dgp_list[[dgp_name]]$generate, dgp_params)
+                  data_list <- do.call(dgp_list[[dgp_name]]$generate,
+                                       dgp_params)
                   method_name <- method_params$method_name
                   param_df <- simplify_tibble(list_to_tibble_row(
                     c(dgp_name = dgp_name, dgp_params, method_params)
                   ))
                   method_params$method_name <- NULL
                   method_params$data_list <- data_list
-                  result <- do.call(method_list[[method_name]]$fit, method_params)
+                  result <- do.call(method_list[[method_name]]$fit,
+                                    method_params)
                   return(result %>% tibble::add_column(param_df, .before=1))
-                })
-              }, simplify=FALSE)
+                }) %>%
+                  data.table::rbindlist(fill = TRUE)
+              }, simplify = FALSE)
               dplyr::bind_rows(reps, .id = "rep")
             },
             future.globals = future.globals,
             future.packages = future.packages,
             future.seed = future.seed)
-          dplyr::bind_rows(results)
+          data.table::rbindlist(results, fill = TRUE) %>%
+            tibble::as_tibble()
         },
         "reps+dgps" = {
           n_dgps <- length(dgp_params_list)
@@ -637,26 +832,40 @@ Experiment <- R6::R6Class(
           results <- future.apply::future_lapply(
             dgp_params_list,
             function(dgp_params) {
+              if (check_cache) {
+                method_params_list <- private$.get_new_method_params(
+                  dgp_params, new_fit_params
+                )
+              }
               dgp_name <- dgp_params$dgp_name
               dgp_params$dgp_name <- NULL
               data_list <- do.call(dgp_list[[dgp_name]]$generate, dgp_params)
-              purrr::map_dfr(method_params_list, function(method_params) {
+              purrr::map(method_params_list, function(method_params) {
                 method_name <- method_params$method_name
                 param_df <- simplify_tibble(list_to_tibble_row(
                   c(dgp_name = dgp_name, dgp_params, method_params)
                 ))
                 method_params$method_name <- NULL
                 method_params$data_list <- data_list
-                result <- do.call(method_list[[method_name]]$fit, method_params)
+                result <- do.call(method_list[[method_name]]$fit,
+                                  method_params)
                 return(result %>% tibble::add_column(param_df, .before=1))
-              })
-            },
+              }) %>%
+                data.table::rbindlist(fill = TRUE)
+            }, 
+            future.seed = future.seed,
             future.globals = future.globals,
-            future.packages = future.packages,
-            future.seed = future.seed
+            future.packages = future.packages
           )
-          results <- dplyr::bind_rows(results)
-          results$rep <- rep(1:n_reps, each = n_dgps*length(method_params_list))
+          # get correct rep number
+          results <- purrr::map(1:length(results),
+                                function(i) {
+                                  results[[i]]$rep <- i
+                                  return(results[[i]])
+                                })
+          results <- data.table::rbindlist(results, fill = TRUE) %>%
+            tibble::as_tibble() %>%
+            dplyr::mutate(rep = (rep - 1) %/% n_dgps + 1)
           results
         },
         "reps+methods" = {
@@ -665,34 +874,53 @@ Experiment <- R6::R6Class(
           results <- future.apply::future_lapply(
             method_params_list,
             function(method_params) {
-              purrr::map_dfr(dgp_params_list, function(dgp_params) {
+              if (check_cache) {
+                dgp_params_list <- private$.get_new_dgp_params(
+                  method_params, new_fit_params
+                )
+              }
+              purrr::map(dgp_params_list, function(dgp_params) {
                 dgp_name <- dgp_params$dgp_name
                 dgp_params$dgp_name <- NULL
-                data_list <- do.call(dgp_list[[dgp_name]]$generate, dgp_params)
+                data_list <- do.call(dgp_list[[dgp_name]]$generate, 
+                                     dgp_params)
                 method_name <- method_params$method_name
                 param_df <- simplify_tibble(list_to_tibble_row(
                   c(dgp_name = dgp_name, dgp_params, method_params)
                 ))
                 method_params$method_name <- NULL
                 method_params$data_list <- data_list
-                result <- do.call(method_list[[method_name]]$fit, method_params)
+                result <- do.call(method_list[[method_name]]$fit,
+                                  method_params)
                 return(result %>% tibble::add_column(param_df, .before=1))
-              })
+              }) %>%
+                data.table::rbindlist(fill = TRUE)
             },
+            future.seed = future.seed,
             future.globals = future.globals,
-            future.packages = future.packages,
-            future.seed = future.seed
+            future.packages = future.packages
           )
-          results <- dplyr::bind_rows(results)
-          results$rep <- rep(
-            1:n_reps, each = length(dgp_params_list)*n_methods
-          )
+          # get correct rep number
+          results <- purrr::map(1:length(results),
+                                function(i) {
+                                  results[[i]]$rep <- i
+                                  return(results[[i]])
+                                })
+          results <- data.table::rbindlist(results, fill = TRUE) %>%
+            tibble::as_tibble() %>%
+            dplyr::mutate(rep = (rep - 1) %/% n_methods + 1)
           results
         },
         "dgps+methods" = {
-          mapply_args <- purrr::cross2(
-            dgp_params_list, method_params_list
-          )
+          if (check_cache) {
+            mapply_args <- purrr::map2(new_fit_params$.dgp,
+                                       new_fit_params$.method,
+                                       ~c(list(.x), list(.y)))
+          } else {
+            mapply_args <- purrr::cross2(
+              dgp_params_list, method_params_list
+            )
+          }
           # shuffle the inputs to avoid bad load balancing
           mapply_args <- mapply_args[sample(1:length(mapply_args))]
           dgp_mapply_args <- lapply(mapply_args, `[[`, 1)
@@ -702,67 +930,104 @@ Experiment <- R6::R6Class(
               reps <- replicate(n_reps, {
                 dgp_name <- dgp_params$dgp_name
                 dgp_params$dgp_name <- NULL
-                data_list <- do.call(dgp_list[[dgp_name]]$generate, dgp_params)
+                data_list <- do.call(dgp_list[[dgp_name]]$generate,
+                                     dgp_params)
                 method_name <- method_params$method_name
                 param_df <- simplify_tibble(list_to_tibble_row(
                   c(dgp_name = dgp_name, dgp_params, method_params)
                 ))
                 method_params$method_name <- NULL
                 method_params$data_list <- data_list
-                result <- do.call(method_list[[method_name]]$fit, method_params)
+                result <- do.call(method_list[[method_name]]$fit,
+                                  method_params)
                 return(result %>% tibble::add_column(param_df, .before=1))
               }, simplify=FALSE)
               dplyr::bind_rows(reps, .id = "rep")
             },
             dgp_mapply_args, method_mapply_args,
-            SIMPLIFY = FALSE,
+            future.seed = future.seed, SIMPLIFY = FALSE,
             future.globals = future.globals,
-            future.packages = future.packages,
-            future.seed = future.seed
+            future.packages = future.packages
           )
-          dplyr::bind_rows(results)
+          data.table::rbindlist(results, fill = TRUE) %>%
+            tibble::as_tibble()
         },
         "reps+dgps+methods" = {
-          mapply_args <- purrr::cross3(
-            1:n_reps, dgp_params_list, method_params_list
-          )
+          if (check_cache) {
+            mapply_args <- purrr::map2(new_fit_params$.dgp,
+                                       new_fit_params$.method,
+                                       ~c(list(.x), list(.y)))
+            mapply_args <- purrr::map(1:n_reps,
+                                      function(i) {
+                                        purrr::map(mapply_args,
+                                                   ~c(list(i), .x))
+                                      }) %>%
+              purrr::reduce(c)
+          } else {
+            mapply_args <- purrr::cross3(
+              1:n_reps, dgp_params_list, method_params_list
+            )
+          }
           # shuffle the inputs to avoid bad load balancing
           mapply_args <- mapply_args[sample(1:length(mapply_args))]
           reps <- sapply(mapply_args, `[[`, 1)
           dgp_mapply_args <- lapply(mapply_args, `[[`, 2)
           method_mapply_args <- lapply(mapply_args, `[[`, 3)
-          results <- dplyr::bind_rows(
-            future.apply::future_mapply(
-              function(dgp_params, method_params) {
-                dgp_name <- dgp_params$dgp_name
-                dgp_params$dgp_name <- NULL
-                data_list <- do.call(dgp_list[[dgp_name]]$generate, dgp_params)
-                method_name <- method_params$method_name
-                param_df <- simplify_tibble(list_to_tibble_row(
-                  c(dgp_name = dgp_name, dgp_params, method_params)
-                ))
-                method_params$method_name <- NULL
-                method_params$data_list <- data_list
-                result <- do.call(method_list[[method_name]]$fit, method_params)
-                return(result %>% tibble::add_column(param_df, .before=1))
-              },
-              dgp_mapply_args, method_mapply_args,
-              SIMPLIFY = FALSE,
-              future.globals = future.globals,
-              future.packages = future.packages,
-              future.seed = future.seed
-            )
+          results <- future.apply::future_mapply(
+            function(dgp_params, method_params) {
+              dgp_name <- dgp_params$dgp_name
+              dgp_params$dgp_name <- NULL
+              data_list <- do.call(dgp_list[[dgp_name]]$generate, 
+                                   dgp_params)
+              method_name <- method_params$method_name
+              param_df <- simplify_tibble(list_to_tibble_row(
+                c(dgp_name = dgp_name, dgp_params, method_params)
+              ))
+              method_params$method_name <- NULL
+              method_params$data_list <- data_list
+              result <- do.call(method_list[[method_name]]$fit,
+                                method_params)
+              return(result %>% tibble::add_column(param_df, .before=1))
+            },
+            dgp_mapply_args, method_mapply_args,
+            future.seed = future.seed, SIMPLIFY = FALSE,
+            future.globals = future.globals,
+            future.packages = future.packages
           )
-          results$rep <- reps
+          results <- data.table::rbindlist(results, fill = TRUE) %>%
+            tibble::as_tibble() %>%
+            dplyr::mutate(rep = reps)
           results
         }
       )
-
+      
+      attr(fit_results, ".internal.selfref") <- NULL
+      for (col in setdiff(private$.get_vary_params(), colnames(fit_results))) {
+        fit_results[[col]] <- NA
+      }
       fit_results <- simplify_tibble(fit_results) %>%
+        dplyr::mutate(rep = as.character(rep)) %>%
         dplyr::select(rep, dgp_name, method_name,
                       private$.get_vary_params(),
                       tidyselect::everything()) %>%
         dplyr::arrange(as.numeric(rep), dgp_name, method_name)
+
+      if (use_cached && !new_fit) {
+        fit_params_cached <- private$.get_fit_params("cached", n_reps, TRUE)
+        fit_results_cached <- private$.get_cached_results("fit",
+                                                          verbose = verbose) %>%
+          dplyr::inner_join(y = fit_params_cached,
+                            by = colnames(fit_params_cached))
+        if (verbose >= 1) {
+          message("Appending cached results to the new fit results...")
+        }
+        fit_params <- private$.get_fit_params(simplify = TRUE)
+        fit_params_cols <- colnames(fit_params)
+        fit_results <- dplyr::bind_rows(fit_results, fit_results_cached) %>%
+          dplyr::inner_join(y = fit_params, by = fit_params_cols) %>%
+          dplyr::filter(as.numeric(rep) <= n_reps) %>%
+          dplyr::arrange(as.numeric(rep), dgp_name, method_name)
+      }
 
       if (verbose >= 1) {
         message(sprintf("Fitting completed | time taken: %f minutes",
@@ -777,43 +1042,47 @@ Experiment <- R6::R6Class(
       }
       return(fit_results)
     },
-    #' @description Evaluate the performance of method fits across all
-    #'   \code{Evaluators} in the \code{Experiment} and return evaluation
-    #'   results.
-    #'
-    #' @param fit_results A tibble, as returned by the \code{fit} method.
-    #' @param use_cached If \code{TRUE}, find and return previously saved
-    #'  evaluation results. If cached results cannot be found, evaluate
-    #'  experiment anyways.
-    #' @param save If \code{TRUE}, save evaluation results to disk.
-    #' @param verbose Level of verboseness. Default is 1, which prints out
-    #'   messages after major checkpoints in the experiment. If 0, no messages
-    #'   are printed.
-    #' @param ... Not used.
-    #'
-    #' @return A list of evaluation result tibbles, one for each
-    #'   \code{Evaluator}.
     evaluate = function(fit_results, use_cached = FALSE, save = FALSE,
                         verbose = 1, ...) {
+      evaluator_list <- private$.get_obj_list("evaluator")
+      evaluator_names <- names(evaluator_list)
+      if (length(evaluator_list) == 0) {
+        private$.throw_empty_list_error("evaluator", "evaluate")
+      }
+
       if (use_cached) {
-        results <- private$.get_cached_results("eval", verbose = verbose)
-        if (!is.null(results)) {
+        private$.update_fit_params()
+        if (private$.is_fully_cached("eval")) {
+          results <- private$.get_cached_results("eval", verbose = verbose)
+          if (!setequal(names(private$.get_obj_list("evaluator")),
+                        names(results))) {
+            results <- results[names(private$.get_obj_list("evaluator"))]
+            private$.save_results(results, "eval", verbose)
+          } else if (verbose >= 1) {
+            message("==============================")
+          }
           return(results)
+        } else {
+          evaluator_list <- private$.get_new_obj_list("evaluator")
         }
       }
+
       if (verbose >= 1) {
         message(sprintf("Evaluating %s...", self$name))
         start_time <- Sys.time()
-      }
-      evaluator_list <- private$.get_obj_list("evaluator")
-      if (length(evaluator_list) == 0) {
-        private$.throw_empty_list_error("evaluator", "evaluate")
       }
       eval_results <- purrr::map(evaluator_list, function(evaluator) {
         evaluator$evaluate(fit_results = fit_results,
                            vary_params = private$.get_vary_params())
       })
-
+      if (use_cached && !setequal(names(evaluator_list), evaluator_names)) {
+        eval_results_cached <- private$.get_cached_results("eval",
+                                                           verbose = verbose)
+        if (verbose >= 1) {
+          message("Appending cached results to the new evaluation results...")
+        }
+        eval_results <- c(eval_results, eval_results_cached)[evaluator_names]
+      }
       if (verbose >= 1) {
         message(sprintf("Evaluation completed | time taken: %f minutes",
                         difftime(Sys.time(), start_time, units = "mins")))
@@ -828,44 +1097,49 @@ Experiment <- R6::R6Class(
 
       return(eval_results)
     },
-    #' @description Visualize the performance of methods and/or its evaluation
-    #'   metrics using all \code{Visualizers} in the \code{Experiment} and return
-    #'   visualization results.
-    #'
-    #' @param fit_results A tibble, as returned by the \code{fit} method.
-    #' @param eval_results A list of result tibbles, as returned by the
-    #'   \code{evaluate} method.
-    #' @param use_cached If \code{TRUE}, find and return previously saved
-    #'   results. If cached results cannot be found, visualize experiment anyways.
-    #' @param save If \code{TRUE}, save visuals to disk.
-    #' @param verbose Level of verboseness. Default is 1, which prints out
-    #'   messages after major checkpoints int the experiment. If 0, no messages
-    #'   are printed.
-    #' @param ... Not used.
-    #'
-    #' @return A list of visuals, one for each \code{Visualizer}.
-    visualize = function(fit_results = NULL, eval_results = NULL,
-                    use_cached = FALSE, save = FALSE, verbose = 1, ...) {
+    visualize = function(fit_results, eval_results = NULL,
+                         use_cached = FALSE, save = FALSE, verbose = 1, ...) {
+      visualizer_list <- private$.get_obj_list("visualizer")
+      visualizer_names <- names(visualizer_list)
+      if (length(visualizer_list) == 0) {
+        private$.throw_empty_list_error("visualizer", "visualization results from")
+      }
+
       if (use_cached) {
-        results <- private$.get_cached_results("visualize", verbose = verbose)
-        if (!is.null(results)) {
+        private$.update_fit_params()
+        if (private$.is_fully_cached("visualize")) {
+          results <- private$.get_cached_results("visualize", verbose = verbose)
+          if (!setequal(names(private$.get_obj_list("visualizer")),
+                        names(results))) {
+            results <- results[names(private$.get_obj_list("visualizer"))]
+            private$.save_results(results, "visualize", verbose)
+          } else if (verbose >= 1) {
+            message("==============================")
+          }
           return(results)
+        } else {
+          visualizer_list <- private$.get_new_obj_list("visualizer")
         }
       }
+
       if (verbose >= 1) {
         message(sprintf("Visualizing %s...", self$name))
         start_time <- Sys.time()
       }
-      visualizer_list <- private$.get_obj_list("visualizer")
-      if (length(visualizer_list) == 0) {
-        private$.throw_empty_list_error("visualizer", "visualization results from")
-      }
       visualize_results <- purrr::map(visualizer_list, function(visualizer) {
         visualizer$visualize(fit_results = fit_results,
-                     eval_results = eval_results,
-                     vary_params = private$.get_vary_params())
+                             eval_results = eval_results,
+                             vary_params = private$.get_vary_params())
       })
-
+      if (use_cached && !setequal(names(visualizer_list), visualizer_names)) {
+        visualize_results_cached <- private$.get_cached_results("visualize",
+                                                                verbose = verbose)
+        if (verbose >= 1) {
+          message("Appending cached results to the new visualization results...")
+        }
+        visualize_results <- c(visualize_results,
+                               visualize_results_cached)[visualizer_names]
+      }
       if (verbose >= 1) {
         message(sprintf("Visualization completed | time taken: %f minutes",
                         difftime(Sys.time(), start_time, units = "mins")))
@@ -880,15 +1154,6 @@ Experiment <- R6::R6Class(
 
       return(visualize_results)
     },
-    #' @description Create documentation template (a series of .md files) to
-    #'   fill out for the R Markdown results report. The documentation files can
-    #'   be found in the \code{Experiment}'s results directory under docs/.
-    #'
-    #' @param save_dir An optional directory in which to find the experiment's
-    #'   saved results.
-    #' @param ... Not used.
-    #'
-    #' @return The original \code{Experiment} object.
     create_doc_template = function(save_dir = self$get_save_dir(), ...) {
       if (!dir.exists(file.path(save_dir, "docs"))) {
         dir.create(file.path(save_dir, "docs"), recursive = TRUE)
@@ -929,27 +1194,6 @@ Experiment <- R6::R6Class(
       }
       invisible(self)
     },
-    #' @description Knits an R Markdown file summarizing the results of an
-    #'   \code{Experiment}. Outputs an R Markdown-generated html file, saved in
-    #'   the \code{Experiment}'s root results directory.
-    #'
-    #' @param open If \code{TRUE}, open the R Markdown-generated html file in a
-    #'   web browser.
-    #' @param author Character string of author names to display in knitted R
-    #'   Markdown document.
-    #' @param verbose Level of verboseness (0, 1, 2) when knitting R Markdown.
-    #'   Default is 2.
-    #' @param quiet Default is \code{TRUE}. See [rmarkdown::render()] for 
-    #'   details.
-    #' @param pretty Logical. Specifies whether or not to use pretty R Markdown
-    #'   results template or more barebones R Markdown results template. Default
-    #'   \code{TRUE} uses the pretty template. Set to \code{FALSE} to start from
-    #'   the barebones template, which can be helpful when using your own custom
-    #'   R Markdown theme.
-    #' @param ... Additional arguments to pass to [rmarkdown::render()]. Useful
-    #'   for applying a custom R Markdown output theme.
-    #'
-    #' @return The original \code{Experiment} object.
     create_rmd = function(open = TRUE, author = "", verbose = 2, quiet = TRUE,
                           pretty = TRUE, ...) {
       self$create_doc_template()
@@ -974,188 +1218,74 @@ Experiment <- R6::R6Class(
       }
       invisible(self)
     },
-    #' @description Add a new \code{DGP} to the \code{Experiment}.
-    #'
-    #' @param dgp A \code{DGP} object.
-    #' @param name Name of \code{DGP}.
-    #' @param ... Not used.
-    #'
-    #' @return The original \code{Experiment} object with the \code{DGP} added.
     add_dgp = function(dgp, name=NULL, ...) {
       private$.check_obj(dgp, "DGP")
       private$.add_obj("dgp", dgp, name)
       invisible(self)
     },
-    #' @description Update an existing \code{DGP} in the \code{Experiment}.
-    #'
-    #' @param dgp A \code{DGP} object.
-    #' @param name Name of existing \code{DGP} to update.
-    #' @param ... Not used.
-    #'
-    #' @return The original \code{Experiment} object with the updated \code{DGP}.
     update_dgp = function(dgp, name, ...) {
       private$.check_obj(dgp, "DGP")
       private$.update_obj("dgp", dgp, name)
       invisible(self)
     },
-    #' @description Remove a \code{DGP} from the \code{Experiment}.
-    #'
-    #' @param name Name of \code{DGP} to remove. If \code{NULL} (default), 
-    #'   remove all \code{DGPs} from the experiment.
-    #' @param ... Not used.
-    #'
-    #' @return The original \code{Experiment} object with the \code{DGP} removed.
     remove_dgp = function(name = NULL, ...) {
       private$.remove_obj("dgp", name)
       invisible(self)
     },
-    #' @description Get all \code{DGPs} in the \code{Experiment}.
-    #'
-    #' @return A list of \code{DGP} objects in the \code{Experiment}.
     get_dgps = function() {
       return(private$.get_obj_list("dgp"))
     },
-    #' @description Add a new \code{Method} to the \code{Experiment}.
-    #'
-    #' @param method A \code{Method} object.
-    #' @param name Name of \code{Method}.
-    #' @param ... Not used.
-    #'
-    #' @return The original \code{Experiment} object with the \code{Method} added.
     add_method = function(method, name=NULL, ...) {
       private$.check_obj(method, "Method")
       private$.add_obj("method", method, name)
       invisible(self)
     },
-    #' @description Update an existing \code{Method} in the \code{Experiment}.
-    #'
-    #' @param method A \code{Method} object.
-    #' @param name Name of existing \code{Method} to update.
-    #' @param ... Not used.
-    #'
-    #' @return The original \code{Experiment} object with the updated \code{Method}.
     update_method = function(method, name, ...) {
       private$.check_obj(method, "Method")
       private$.update_obj("method", method, name)
       invisible(self)
     },
-    #' @description Remove a \code{Method} from the \code{Experiment}.
-    #'
-    #' @param name Name of \code{Method} to remove. If \code{NULL} (default),
-    #'   remove all \code{Methods} from the experiment.
-    #' @param ... Not used.
-    #'
-    #' @return The original \code{Experiment} object with the \code{Method} removed.
     remove_method = function(name = NULL, ...) {
       private$.remove_obj("method", name)
       invisible(self)
     },
-    #' @description Get all \code{Methods} in the \code{Experiment}.
-    #'
-    #' @return A list of \code{Method} objects in the \code{Experiment}.
     get_methods = function() {
       return(private$.get_obj_list("method"))
     },
-    #' @description Add a new \code{Evaluator} to the \code{Experiment}.
-    #'
-    #' @param evaluator An \code{Evaluator} object.
-    #' @param name Name of \code{Evaluator}.
-    #' @param ... Not used.
-    #'
-    #' @return The original \code{Experiment} object with the \code{Evaluator} added.
     add_evaluator = function(evaluator, name = NULL, ...) {
       private$.check_obj(evaluator, "Evaluator")
       private$.add_obj("evaluator", evaluator, name)
       invisible(self)
     },
-    #' @description Update an existing \code{Evaluator} in the \code{Experiment}.
-    #'
-    #' @param evaluator An \code{Evaluator} object.
-    #' @param name Name of existing \code{Evaluator} to update.
-    #' @param ... Not used.
-    #'
-    #' @return The original \code{Experiment} object with the updated \code{Evaluator}.
     update_evaluator = function(evaluator, name, ...) {
       private$.check_obj(evaluator, "Evaluator")
       private$.update_obj("evaluator", evaluator, name)
       invisible(self)
     },
-    #' @description Remove an \code{Evaluator} from the \code{Experiment}.
-    #'
-    #' @param name Name of \code{Evaluator} to remove. If \code{NULL} (default),
-    #'   remove all \code{Evaluators} from the experiment.
-    #' @param ... Not used.
-    #'
-    #' @return The original \code{Experiment} object with the \code{Evaluator} removed.
     remove_evaluator = function(name = NULL, ...) {
       private$.remove_obj("evaluator", name)
       invisible(self)
     },
-    #' @description Get all \code{Evaluators} in the \code{Experiment}.
-    #'
-    #' @return A list of \code{Evaluator} objects in the \code{Experiment}.
     get_evaluators = function() {
       return(private$.get_obj_list("evaluator"))
     },
-    #' @description Add a new \code{Visualizer} to the \code{Experiment}.
-    #'
-    #' @param visualizer A \code{Visualizer} object.
-    #' @param name Name of \code{Visualizer}.
-    #' @param ... Not used.
-    #'
-    #' @return The original \code{Experiment} object with the \code{Visualizer} added.
     add_visualizer = function(visualizer, name=NULL, ...) {
       private$.check_obj(visualizer, "Visualizer")
       private$.add_obj("visualizer", visualizer, name)
       invisible(self)
     },
-    #' @description Update an existing \code{Visualizer} in the \code{Experiment}.
-    #'
-    #' @param visualizer A \code{Visualizer} object.
-    #' @param name Name of existing \code{Visualizer} to update.
-    #' @param ... Not used.
-    #'
-    #' @return The original \code{Experiment} object with the updated \code{Visualizer}.
     update_visualizer = function(visualizer, name, ...) {
       private$.check_obj(visualizer, "Visualizer")
       private$.update_obj("visualizer", visualizer, name)
       invisible(self)
     },
-    #' @description Remove a \code{Visualizer} from the \code{Experiment}.
-    #'
-    #' @param name Name of \code{Visualizer} to remove. If \code{NULL} 
-    #'   (default), remove all \code{Visualizers} from the experiment.
-    #' @param ... Not used.
-    #'
-    #' @return The original \code{Experiment} object with the \code{Visualizer} removed.
     remove_visualizer = function(name = NULL, ...) {
       private$.remove_obj("visualizer", name)
       invisible(self)
     },
-    #' @description Get all \code{Visualizers} in the \code{Experiment}.
-    #'
-    #' @return A list of \code{Visualizer} objects in the \code{Experiment}.
     get_visualizers = function() {
       return(private$.get_obj_list("visualizer"))
     },
-    #' @description Add a \code{vary_across} component to the \code{Experiment}.
-    #'   When the \code{Experiment} is run, the \code{Experiment} is
-    #'   systematically varied across values of the specified parameter in the
-    #'   \code{DGP} or \code{Method} while all other parameters are held
-    #'   constant at their baseline value.
-    #'
-    #' @param dgp Name of \code{DGP} to vary in the \code{Experiment}. Can also
-    #'   be a \code{DGP} object that matches one in the \code{Experiment}. Must
-    #'   provide either the \code{dgp} or \code{method} argument.
-    #' @param method Name of \code{Method} to vary in the \code{Experiment}. Can
-    #'   also be a \code{Method} object that matches one in the \code{Experiment}.
-    #'   Must provide either the \code{dgp} or \code{method} argument.
-    #' @param ... Any number of named arguments where names match an argument in
-    #'   the user-specified \code{DGP} or \code{Method} function and values are
-    #'   vectors (for scalar parameters) or lists (for arbitrary parameters).
-    #'
-    #' @return The original \code{Experiment} object with the
-    #'   \code{vary_across} component added.
     add_vary_across = function(dgp, method, ...) {
       temp <- private$.check_vary_across(dgp, method, ...)
       dots_list <- temp$dots_list
@@ -1183,22 +1313,6 @@ Experiment <- R6::R6Class(
       private$.vary_across_list[[field_name]][[obj_name]] <- vary_across_sublist
       invisible(self)
     },
-    #' @description Update the \code{vary_across} component in the
-    #'   \code{Experiment}. Used if a \code{vary_across} component already
-    #'   exists in the \code{Experiment}.
-    #'
-    #' @param dgp Name of \code{DGP} to vary in the \code{Experiment}. Can also
-    #'   be a \code{DGP} object that matches one in the \code{Experiment}. Must
-    #'   provide either the \code{dgp} or \code{method} argument.
-    #' @param method Name of \code{Method} to vary in the \code{Experiment}. Can
-    #'   also be a \code{Method} object that matches one in the \code{Experiment}.
-    #'   Must provide either the \code{dgp} or \code{method} argument.
-    #' @param ... Any number of named arguments where names match an argument in
-    #'   the user-specified \code{DGP} or \code{Method} function and values are
-    #'   vectors (for scalar parameters) or lists (for arbitrary parameters).
-    #'
-    #' @return The original \code{Experiment} object with the updated
-    #'   \code{vary_across} component.
     update_vary_across = function(dgp, method, ...) {
       temp <- private$.check_vary_across(dgp, method, ...)
       dots_list <- temp$dots_list
@@ -1234,33 +1348,11 @@ Experiment <- R6::R6Class(
       private$.vary_across_list[[field_name]][[obj_name]] <- vary_across_sublist
       invisible(self)
     },
-    #' @description Remove part or all of the \code{vary_across} component for a
-    #'   specific \code{DGP} or \code{Method} in the \code{Experiment}.
-    #'
-    #' @param dgp Name of \code{DGP} to vary in the \code{Experiment}. Can also
-    #'   be a \code{DGP} object that matches one in the \code{Experiment}. If
-    #'   neither \code{dgp} nor \code{method} are provided, then all 
-    #'   \code{vary_across} parameters are removed from the experiment.
-    #'   Otherwise, must provide either the \code{dgp} or \code{method} 
-    #'   argument, but not both.
-    #' @param method Name of \code{Method} to vary in the \code{Experiment}. Can
-    #'   also be a \code{Method} object that matches one in the
-    #'   \code{Experiment}. If neither \code{dgp} nor \code{method} are 
-    #'   provided, then all \code{vary_across} parameters are removed from the
-    #'   experiment. Otherwise, must provide either the \code{dgp} or
-    #'   \code{method} argument, but not both.
-    #' @param param_names A character vector of parameter names to remove. If
-    #'   not provided, the entire set of \code{vary_across} parameters will be
-    #'   removed for the specified \code{DGP}/\code{Method}. Ignored if both
-    #'   \code{dgp} and \code{method} are not provided.
-    #'
-    #' @return The original \code{Experiment} object with the \code{vary_across}
-    #'   component removed.
     remove_vary_across = function(dgp, method, param_names = NULL) {
       if (missing(dgp) && missing(method)) {
         if (!private$.has_vary_across()) {
           stop(
-            paste("Cannot remove all vary_across parameters ", 
+            paste("Cannot remove all vary_across parameters ",
                   "since the vary_across parameter has not been set."),
             call. = FALSE
           )
@@ -1312,32 +1404,19 @@ Experiment <- R6::R6Class(
       }
       invisible(self)
     },
-    #' @description Get the \code{vary_across} component from the
-    #'   \code{Experiment}.
-    #'
-    #' @return A list with two components: "dgp" and "method". Both components
-    #'    are also lists that contain lists named for specific \code{DGP} or
-    #'    \code{Method} objects in the \code{Experiment}. This final layer of
-    #'    lists contains vectors or lists named for the arguments of the
-    #'    corresponding user-specified \code{DGP}/\code{Method} function.
     get_vary_across = function() {
       return(private$.vary_across_list)
     },
-    #' @description Set R Markdown options for displaying \code{Evaluator} or
-    #'   \code{Visualizer} outputs in the summary report.
-    #'
-    #' @param field_name One of "evaluator" or "visualizer".
-    #' @param name Name of \code{Evaluator} or \code{Visualizer} to set R Markdown
-    #'   options.
-    #' @param show If \code{TRUE}, show output; if \code{FALSE}, hide output in
-    #'   R Markdown report. Default \code{NULL} does not change the "show" field
-    #'   in \code{Evaluator}/\code{Visualizer}.
-    #' @param ... Named R Markdown options to set. If \code{field_name = "visualizer"},
-    #'   options are "height" and "width". If \code{field_name = "evaluator"},
-    #'   see options for [prettyDT()].
-    #'
-    #' @return The original \code{Experiment} object with the \code{rmd_options}
-    #'   and/or \code{show} fields modified in the \code{Evaluator}/\code{Visualizer}.
+    clear_cache = function() {
+      private$.clear_cached_results()
+      private$.cached_params <- list(fit = tibble::tibble(),
+                                     evaluate = tibble::tibble(),
+                                     visualize = tibble::tibble())
+      return(invisible(self))
+    },
+    get_cache = function() {
+      return(private$.cached_params)
+    },
     set_rmd_options = function(field_name, name, show = NULL, ...) {
       obj_list <- private$.get_obj_list(field_name)
       if (!name %in% names(obj_list)) {
@@ -1361,28 +1440,13 @@ Experiment <- R6::R6Class(
       }
       invisible(self)
     },
-    #' @description Get the directory in which the \code{Experiment}'s results
-    #'   are saved.
-    #'
-    #' @return The directory in which the \code{Experiment}'s results are saved.
     get_save_dir = function() {
       return(private$.save_dir)
     },
-    #' @description Set the directory in which the \code{Experiment}'s results
-    #'   are saved.
-    #'
-    #' @param save_dir The directory in which the \code{Experiment}'s results
-    #'   will be saved.
-    #'
-    #' @return The original \code{Experiment} object with the updated saving
-    #'   directory.
     set_save_dir = function(save_dir) {
       private$.save_dir <- R.utils::getAbsolutePath(save_dir)
       invisible(self)
     },
-    #' @description Save an \code{Experiment} object.
-    #'
-    #' @return The original \code{Experiment} object.
     save = function() {
       save_dir <- self$get_save_dir()
       if (!dir.exists(save_dir)) {
@@ -1391,12 +1455,6 @@ Experiment <- R6::R6Class(
       saveRDS(self, file.path(save_dir, "experiment.rds"))
       invisible(self)
     },
-    #' @description Print an \code{Experiment} in a nice format, showing the
-    #'   names of all \code{DGPs}, \code{Methods}, \code{Evaluators}, and
-    #'   \code{Visualizers} in addition to the directory where results are saved
-    #'   and the \code{vary_across} component (if any).
-    #'
-    #' @return The original \code{Experiment} object.
     print = function() {
       cat("Experiment Name:", self$name, "\n")
       cat("   Saved results at:",
@@ -1415,7 +1473,7 @@ Experiment <- R6::R6Class(
                 sep = "", collapse = ", "), "\n")
       cat("   Vary Across: ")
       if (!private$.has_vary_across()) {
-        cat("None")
+        cat("None\n")
       } else {
         vary_across_list <- private$.vary_across_list
         if (!is.null(names(vary_across_list$dgp)) |
@@ -1443,535 +1501,3 @@ Experiment <- R6::R6Class(
     }
   )
 )
-
-#' Create a new \code{Experiment}.
-#'
-#' @name create_experiment
-#'
-#' @param ... Passed to \code{Experiment$new()}.
-#'
-#' @return A new instance of \code{Experiment}.
-#'
-#' @export
-create_experiment <- function(...) {
-  Experiment$new(...)
-}
-
-#' Run the full \code{Experiment} pipeline (fitting, evaluating, and visualizing).
-#'
-#' @name run_experiment
-#'
-#' @param experiment An \code{Experiment} object.
-#' @param n_reps The number of replicates of the \code{Experiment} for this run.
-#' @param ... Passed to \code{Experiment$run()}.
-#'
-#' @return A list of results from the simulation experiment.
-#' \describe{
-#' \item{fit_results}{A tibble containing results from the \code{fit}
-#'   method. In addition to results columns, has columns named 'rep', 'dgp_name',
-#'   'method_name', and the \code{vary_across} parameter names if applicable.}
-#' \item{eval_results}{A list of tibbles containing results from the
-#'   \code{evaluate} method, which evaluates each \code{Evaluator} in
-#'   the \code{Experiment}. Length of list is equivalent to the number of
-#'   \code{Evaluators}.}
-#' \item{visualize_results}{A list of tibbles containing results from the
-#'   \code{visualize} method, which visualizes each \code{Visualizer} in
-#'   the \code{Experiment}. Length of list is equivalent to the number of
-#'   \code{Visualizers}.}
-#' }
-#' @export
-run_experiment <- function(experiment, n_reps=1, ...) {
-  return(experiment$run(n_reps, ...))
-}
-
-#' Generate data from each \code{DGP} in the \code{Experiment}.
-#'
-#' @name generate_data
-#'
-#' @param experiment An \code{Experiment} object.
-#' @param n_reps The number of datasets to generate per \code{DGP}.
-#' @param ... Passed to \code{experiment$generate_data()}.
-#'
-#' @return A list of length equal to the number of \code{DGPs} in the
-#'   \code{Experiment}. If the \code{Experiment} does not have a
-#'   \code{vary_across} component, then each element in the list is a list
-#'   of \code{n_reps} datasets generated by the given \code{DGP}. If the
-#'   \code{Experiment} does have a \code{vary_across} component, then each
-#'   element in the outermost list is a list of lists. The second layer of
-#'   lists corresponds to a specific parameter setting within the
-#'   \code{vary_across} scheme, and the innermost layer of lists is of
-#'   length \code{n_reps} with the dataset replicates, generated by the
-#'   \code{DGP}.
-#' @export
-generate_data <- function(experiment, n_reps=1, ...) {
-  return(experiment$generate_data(n_reps, ...))
-}
-
-#' Fit an \code{Experiment}.
-#'
-#' @name fit_experiment
-#' @description Fit \code{Methods} in the \code{Experiment} across all
-#'   \code{DGPs} for \code{n_reps} repetitions and return results from fits.
-#'
-#' @param experiment An \code{Experiment} object.
-#' @param n_reps The number of replicates of the \code{Experiment} for this run.
-#' @param ... Passed to \code{Experiment$fit()}.
-#'
-#' @return A tibble containing the results from fitting all \code{Methods}
-#'   across all \code{DGPs} for \code{n_reps} repetitions. In addition to
-#'   results columns, has columns named 'rep', 'dgp_name', 'method_name', and the
-#'   \code{vary_across} parameter names if applicable.
-#'
-#' @export
-fit_experiment <- function(experiment, n_reps=1, ...) {
-  return(experiment$fit(n_reps, ...))
-}
-
-#' Evaluate an \code{Experiment}.
-#'
-#' @name evaluate_experiment
-#' @description Evaluate the performance of method(s) across all
-#'   \code{Evaluators} in the \code{Experiment} and return results.
-#'
-#' @param experiment An \code{Experiment} object.
-#' @param ... Passed to \code{Experiment$evaluate()}.
-#'
-#' @return A list of evaluation result tibbles, one for each
-#'   \code{Evaluator}.
-#'
-#' @export
-evaluate_experiment <- function(experiment, ...) {
-  return(experiment$evaluate(...))
-}
-
-#' Visualize results of an \code{Experiment}.
-#'
-#' @name visualize_experiment
-#' @description Visualize the performance of methods and/or its evaluation metrics
-#'   using all \code{Visualizers} in the \code{Experiment} and return visualization results.
-#'
-#' @param experiment An \code{Experiment} object.
-#' @param ... Passed to \code{Experiment$visualize()}.
-#'
-#' @return A list of visualizations, one for each \code{Visualizer}.
-#'
-#' @export
-visualize_experiment <- function(experiment, ...) {
-  return(experiment$visualize(...))
-}
-
-#' Helper functions for adding components to an \code{Experiment}.
-#'
-#' @description Helper functions for adding \code{DGPs}, \code{Methods},
-#'   \code{Evaluators}, and \code{Visualizers} to an \code{Experiment}.
-#'
-#' @param experiment An \code{Experiment} object.
-#' @param name A name to identify the object to be added.
-#' @param dgp A \code{DGP} object.
-#' @param method A \code{Method} object.
-#' @param evaluator An \code{Evaluator} object.
-#' @param visualizer A \code{Visualizer} object.
-#' @param ... Not used.
-#'
-#' @return The original \code{Experiment} object passed to \code{add_*}.
-#'
-#' @name add_funs
-#' @rdname add_funs
-#'
-NULL
-
-#' @rdname add_funs
-#'
-#' @export
-add_dgp <- function(experiment, dgp, name=NULL, ...) {
-  experiment$add_dgp(dgp, name, ...)
-}
-
-#' @rdname add_funs
-#'
-#' @export
-add_method <- function(experiment, method, name=NULL, ...) {
-  experiment$add_method(method, name, ...)
-}
-
-#' @rdname add_funs
-#'
-#' @export
-add_evaluator <- function(experiment, evaluator, name = NULL, ...) {
-  experiment$add_evaluator(evaluator, name, ...)
-}
-
-#' @rdname add_funs
-#'
-#' @export
-add_visualizer <- function(experiment, visualizer, name=NULL, ...) {
-  experiment$add_visualizer(visualizer, name, ...)
-}
-
-#' Helper functions for updating components of an \code{Experiment}.
-#'
-#' @description Helper functions for updating \code{DGPs}, \code{Methods},
-#'   \code{Evaluators}, and \code{Visualizers} already added to an
-#'   \code{Experiment}.
-#'
-#' @inheritParams add_funs
-#' @param name A name to identify the object to be updated.
-#'
-#' @return The original \code{Experiment} object passed to \code{update_*}.
-#'
-#' @name update_funs
-#' @rdname update_funs
-#'
-NULL
-
-#' @rdname update_funs
-#'
-#' @export
-update_dgp <- function(experiment, dgp, name, ...) {
-  experiment$update_dgp(dgp, name, ...)
-}
-
-#' @rdname update_funs
-#'
-#' @export
-update_method <- function(experiment, method, name, ...) {
-  experiment$update_method(method, name, ...)
-}
-
-
-#' @rdname update_funs
-#'
-#' @export
-update_evaluator <- function(experiment, evaluator, name, ...) {
-  experiment$update_evaluator(evaluator, name, ...)
-}
-
-#' @rdname update_funs
-#'
-#' @export
-update_visualizer <- function(experiment, visualizer, name, ...) {
-  experiment$update_visualizer(visualizer, name, ...)
-}
-
-#' Helper functions for removing components of an \code{Experiment}.
-#'
-#' @description Helper functions for removing \code{DGPs}, \code{Methods},
-#'   \code{Evaluators}, and \code{Visualizers} already added to an
-#'   \code{Experiment}.
-#'
-#' @param experiment An \code{Experiment} object.
-#' @param name A name to identify the object to be removed. If \code{NULL} 
-#'   (default), remove all objects of that class from the experiment. For
-#'   example, \code{remove_dgp()} will remove all DGPs from the experiment.
-#' @param ... Not used.
-#'
-#' @return The original \code{Experiment} object passed to \code{remove_*}.
-#'
-#' @name remove_funs
-#' @rdname remove_funs
-#'
-NULL
-
-#' @rdname remove_funs
-#'
-#' @export
-remove_dgp <- function(experiment, name = NULL, ...) {
-  experiment$remove_dgp(name, ...)
-}
-
-#' @rdname remove_funs
-#'
-#' @export
-remove_method <- function(experiment, name = NULL, ...) {
-  experiment$remove_method(name, ...)
-}
-
-#' @rdname remove_funs
-#'
-#' @export
-remove_evaluator <- function(experiment, name = NULL, ...) {
-  experiment$remove_evaluator(name, ...)
-}
-
-#' @rdname remove_funs
-#'
-#' @export
-remove_visualizer <- function(experiment, name = NULL, ...) {
-  experiment$remove_visualizer(name, ...)
-}
-
-#' Helper functions for getting components in an \code{Experiment}.
-#'
-#' @description Helper functions for getting or retrieving \code{DGPs}, 
-#'   \code{Methods}, \code{Evaluators}, and \code{Visualizers} from an 
-#'   \code{Experiment}.
-#'
-#' @param experiment An \code{Experiment} object.
-#' @param ... Not used.
-#'
-#' @return The original \code{Experiment} object passed to \code{get_*}.
-#'
-#' @name get_funs
-#' @rdname get_funs
-#'
-NULL
-
-#' @rdname get_funs
-#'
-#' @export
-get_dgps <- function(experiment, ...) {
-  experiment$get_dgps()
-}
-
-#' @rdname get_funs
-#'
-#' @export
-get_methods <- function(experiment, ...) {
-  experiment$get_methods()
-}
-
-#' @rdname get_funs
-#'
-#' @export
-get_evaluators <- function(experiment, ...) {
-  experiment$get_evaluators()
-}
-
-#' @rdname get_funs
-#'
-#' @export
-get_visualizers <- function(experiment, ...) {
-  experiment$get_visualizers()
-}
-
-#' Varying across parameters in an \code{Experiment}.
-#'
-#' @description Helper functions for adding, updating, removing, or getting a
-#'   \code{vary_across} component in an \code{Experiment}. When a
-#'   \code{vary_across} component is added and the \code{Experiment} is run, the
-#'   \code{Experiment} is systematically varied across values of the specified
-#'   parameter in the \code{DGP} or \code{Method} while all other parameters are
-#'   held constant at their baseline value.
-#'
-#' @param experiment An \code{Experiment} object.
-#' @param dgp Name of \code{DGP} to vary in the \code{Experiment}. Can also be a
-#'   \code{DGP} object that matches one in the \code{Experiment}.
-#' @param method Name of \code{Method} to vary in the \code{Experiment}. Can
-#'   also be a \code{Method} object that matches one in the \code{Experiment}.
-#' @param param_names A character vector of parameter names to remove. If
-#'   not provided, the entire set of \code{vary_across} parameters will be
-#'   removed for the specified \code{DGP}/\code{Method}.
-#' @param ... Any number of named arguments where names match an argument in the
-#'   user-specified \code{DGP} or \code{Method} function and values are vectors
-#'   (for scalar parameters) or lists (for arbitrary parameters).
-#'
-#' @details One of the \code{dgp} or \code{method} arguments (but not both) must
-#'   be provided when using \code{add_vary_across()} and
-#'   \code{update_vary_across}. For \code{remove_vary_across()}, if both the
-#'   \code{dgp} and \code{method} arguments are not provided, then all 
-#'   \code{vary_across} parameters from the experiment are removed.
-#'
-#' @return The original \code{Experiment} object passed to
-#'   \code{*_vary_across()}.
-#'
-#' @name vary_across
-#' @rdname vary_across
-#'
-NULL
-
-#' @rdname vary_across
-#'
-#' @export
-add_vary_across <- function(experiment, dgp, method, ...) {
-  experiment$add_vary_across(dgp = dgp, method = method, ...)
-}
-
-#' @rdname vary_across
-#'
-#' @export
-update_vary_across <- function(experiment, dgp, method, ...) {
-  experiment$update_vary_across(dgp = dgp, method = method, ...)
-}
-
-#' @rdname vary_across
-#'
-#' @export
-remove_vary_across <- function(experiment, dgp, method, param_names = NULL) {
-  experiment$remove_vary_across(dgp = dgp, method = method, 
-                                param_names = param_names)
-}
-
-#' @rdname vary_across
-#'
-#' @export
-get_vary_across <- function(experiment) {
-  experiment$get_vary_across()
-}
-
-#' Set R Markdown options for \code{Evaluator} and \code{Visualizer} outputs in
-#'   summary report
-#'
-#' @name set_rmd_options
-#' @description Set R Markdown options for \code{Evaluator} or \code{Visualizer}
-#'   outputs in the summary report. Some options include the height/width of
-#'   plots and number of digits to show in tables.
-#'
-#' @param experiment An \code{Experiment} object
-#' @param field_name One of "evaluator" or "visualizer".
-#' @param name Name of \code{Evaluator} or \code{Visualizer} to set R Markdown
-#'   options.
-#' @param show If \code{TRUE}, show output; if \code{FALSE}, hide output in
-#'   R Markdown report. Default \code{NULL} does not change the "show" field
-#'   in \code{Evaluator}/\code{Visualizer}.
-#' @param ... Named R Markdown options to set. If \code{field_name = "visualizer"},
-#'   options are "height" and "width". If \code{field_name = "evaluator"},
-#'   see options for [prettyDT()].
-#'
-#' @return The original \code{Experiment} object with the \code{rmd_options}
-#'   and/or \code{show} fields modified in the \code{Evaluator}/\code{Visualizer}.
-#'
-#' @export
-set_rmd_options <- function(experiment, field_name = c("evaluator", "visualizer"),
-                            name, show = NULL, ...) {
-  field_name <- match.arg(field_name)
-  experiment$set_rmd_options(field_name = field_name, name = name, show = show,
-                             ...)
-}
-
-#' Set results directory for an \code{Experiment}.
-#'
-#' @name set_save_dir
-#' @description Set the directory in which the \code{Experiment}'s results and
-#'   visualizations are saved.
-#'
-#' @param experiment An \code{Experiment} object.
-#' @param save_dir The directory in which the \code{Experiment}'s results
-#'   will be saved.
-#'
-#' @return The original \code{Experiment} object with the updated saving
-#'   directory.
-#'
-#' @export
-set_save_dir <- function(experiment, save_dir) {
-  experiment$set_save_dir(save_dir)
-}
-
-#' Get results directory for an \code{Experiment}.
-#'
-#' @name get_save_dir
-#' @description Get the directory in which the \code{Experiment}'s results and
-#'   visualizations are saved.
-#'
-#' @param experiment An \code{Experiment} object.
-#'
-#' @return The relative path to where the \code{Experiment}'s results and
-#'   visualizations are saved.
-#'
-#' @export
-get_save_dir <- function(experiment) {
-  experiment$get_save_dir()
-}
-
-#' Save an \code{Experiment}.
-#'
-#' @name save_experiment
-#' @description Save an \code{Experiment} object to a .rds file under the
-#'   \code{Experiment}'s results directory (see \code{Experiment$get_save_dir()}).
-#'
-#' @param experiment An \code{Experiment} object.
-#'
-#' @return The original \code{Experiment} object passed to
-#'   \code{save_experiment}.
-#'
-#' @export
-save_experiment <- function(experiment) {
-  experiment$save()
-}
-
-#' Create documentation template for the R Markdown results report.
-#'
-#' @name create_doc_template
-#' @description Create documentation template (a series of .md files) to
-#'   fill out for the R Markdown results report. The documentation files can
-#'   be found in the \code{Experiment}'s results directory (see
-#'   \code{Experiment$get_save_dir()}) under docs/.
-#'
-#' @param experiment An \code{Experiment} object.
-#' @param experiment_dirname A directory where results from an \code{Experiment}
-#'   were previously saved. Used if \code{experiment} was not provided.
-#'
-#' @return The original \code{Experiment} object passed to
-#'   \code{create_doc_template}.
-#'
-#' @export
-create_doc_template = function(experiment, experiment_dirname) {
-  if (missing(experiment) && missing(experiment_dirname)) {
-    stop("Must provide argument for one of experiment or experiment_dirname")
-  }
-  if (missing(experiment)) {
-    # create dummy experiment
-    experiment <- create_experiment()
-  } else {
-    if (!inherits(experiment, "Experiment")) {
-      err_msg <- sprintf("%s must be an instance of simChef::%s",
-                         as.character(substitute(experiment)), "Experiment")
-      stop(err_msg, call.=FALSE)
-    }
-    experiment_dirname <- experiment$get_save_dir()
-  }
-  experiment$create_doc_template(save_dir = experiment_dirname)
-}
-
-#' Create an R Markdown file summarizing the results of an \code{Experiment}.
-#'
-#' @name create_rmd
-#' @description Knits an R Markdown file summarizing the results of an
-#'   \code{Experiment}. Outputs an R Markdown-generated html file, saved in
-#'   the \code{Experiment}'s root results directory (see
-#'   \code{Experiment$get_save_dir()}).
-#'
-#' @param experiment An \code{Experiment} object.
-#' @param experiment_dirname A directory where results from an \code{Experiment}
-#'   were previously saved. Used if \code{experiment} argument was not provided.
-#' @param open If \code{TRUE}, open the R Markdown-generated html file in a
-#'   web browser.
-#' @param author Character string of author names to display in knitted R
-#'   Markdown document.
-#' @param verbose Level of verboseness (0, 1, 2) when knitting R Markdown.
-#'   Default is 2.
-#' @param quiet Default is \code{TRUE}. See [rmarkdown::render()] for 
-#'   details.
-#' @param pretty Logical. Specifies whether or not to use pretty R Markdown
-#'   results template or more barebones R Markdown results template. Default
-#'   \code{TRUE} uses the pretty template. Set to \code{FALSE} to start from
-#'   the barebones template, which can be helpful when using your own custom
-#'   R Markdown theme.
-#' @param ... Additional arguments to pass to [rmarkdown::render()]. Useful
-#'   for applying a custom R Markdown output theme.
-#'
-#' @return The original \code{Experiment} object passed to \code{create_rmd}.
-#'
-#' @export
-create_rmd <- function(experiment, experiment_dirname, open = TRUE, 
-                       author = "", verbose = 2, quiet = TRUE, pretty = TRUE,
-                       ...) {
-  if (missing(experiment) && missing(experiment_dirname)) {
-    stop("Must provide argument for one of experiment or experiment_dirname")
-  }
-  if (missing(experiment)) {
-    if (!file.exists(file.path(experiment_dirname, "experiment.rds"))) {
-      stop(sprintf("Cannot find saved experiment.rds file in %s",
-                   experiment_dirname))
-    }
-    experiment <- readRDS(file.path(experiment_dirname, "experiment.rds"))
-  } else {
-    if (!inherits(experiment, "Experiment")) {
-      err_msg <- sprintf("%s must be an instance of simChef::%s",
-                         as.character(substitute(experiment)), "Experiment")
-      stop(err_msg, call.=FALSE)
-    }
-  }
-  experiment$create_doc_template()
-  experiment$create_rmd(open = open, author = author, verbose = verbose,
-                        quiet = quiet, pretty = pretty, ...)
-}

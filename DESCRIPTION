@@ -13,9 +13,10 @@ Description: Helps cook up the code necessary to create a fully-realized,
 License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true
-Roxygen: list(markdown = TRUE)
+Roxygen: list(markdown = TRUE, r6 = FALSE)
 RoxygenNote: 7.1.2
 Imports:
+    data.table,
     dplyr,
     DT,
     fontawesome,
@@ -37,7 +38,6 @@ Suggests:
     MASS,
     ggplot2,
     plotly,
-    data.table,
     broom,
     glmnet,
     future

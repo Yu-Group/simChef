@@ -231,9 +231,6 @@ test_that("Running experiment works properly", {
                                     verbose = 0))
   expect_equal(results, run_experiment(experiment, verbose = 0))
 
-  # check if caching works even without cached results
-  expect_error(experiment$run(use_cached = TRUE, verbose = 0), NA)
-
   # check if saving works
   expect_warning(experiment$run(save = c(F, F, F), verbose = 0))
   results <- experiment$run(save = c("test"), verbose = 0)
@@ -250,10 +247,6 @@ test_that("Running experiment works properly", {
                                     "eval_results.rds")))
   expect_true(file.exists(file.path("results", "test-run",
                                     "visualize_results.rds")))
-
-  # check if cache works
-  cached_results <- experiment$run(use_cached = T, verbose = 0)
-  expect_equal(cached_results, results)
 
   # experiment with 2 dgps, methods, evaluators, visualizers
   experiment %>%
@@ -369,10 +362,6 @@ test_that("Fitting experiment works properly", {
   expect_equal(nrow(fit_results), 3)
   expect_equal(fit_results, fit_experiment(experiment, n_reps = 3, verbose = 0))
 
-  # check if cache works
-  fit_results_cached <- experiment$fit(use_cached = TRUE, verbose = 0)
-  expect_equal(fit_results, fit_results_cached)
-
   # with one dgp and one method, both of which return lists
   fit_results <- create_experiment(name = "test-fit") %>%
     add_dgp(dgp2, "DGP2") %>%
@@ -420,10 +409,6 @@ test_that("Evaluating experiment works properly", {
   )
   expect_snapshot_output(eval_results)
 
-  # check that cache works
-  eval_results_cached <- experiment$evaluate(use_cached = TRUE, verbose = 0)
-  expect_equal(eval_results, eval_results_cached)
-
   # check that multiple evaluators works
   experiment %>% add_evaluator(vary_params_eval, name = "Vary Params")
   eval_results <- experiment$evaluate(fit_results, verbose = 0)
@@ -466,13 +451,8 @@ test_that("Plotting experiment works properly", {
                          eval_results = eval_results, verbose = 0)
   )
   expect_snapshot_output(visualize_results)
-
-  # check that cache works
-  visualize_results_cached <- experiment$visualize(use_cached = TRUE,
-                                                   verbose = 0)
-  expect_equal(visualize_results, visualize_results_cached)
-
-  # check that multiple evaluators works
+  
+  # check that multiple visualizers works
   experiment %>% add_visualizer(eval_plot, name = "Vary Params")
   visualize_results <- experiment$visualize(fit_results, eval_results,
                                             verbose = 0)
@@ -630,10 +610,30 @@ test_that("Vary across in Experiment runs properly", {
          `Vary Params` = tibble::tibble(value = "idx"))
   )
 
+  # test multi-type dgp vary across case
+  x <- list(1, 3:5)
+  experiment <- experiment %>%
+    remove_vary_across() %>%
+    add_vary_across(dgp = "DGP", x = x)
+  fit_results <- fit_experiment(experiment, save = FALSE, verbose = 0)
+  expect_equal(
+    fit_results, 
+    tibble::tibble(rep = "1", dgp_name = "DGP", method_name = "Method", 
+                   x = x, x_idx = purrr::map_dbl(x, ~.x[1]))
+  )
+  eval_results <- evaluate_experiment(experiment, fit_results = fit_results,
+                                      save = FALSE, verbose = 0)
+  expect_equal(
+    eval_results,
+    list(`Fit Results` = fit_results, 
+         `Vary Params` = tibble::tibble(value = "x"))
+  )
+  
   # test list-type method vary across case
   idx <- list(1:2, 3:5, 7:10)
   experiment <- experiment %>%
-    update_vary_across(method = "Method", idx = idx)
+    remove_vary_across() %>%
+    add_vary_across(method = "Method", idx = idx)
   fit_results <- fit_experiment(experiment, save = FALSE, verbose = 0)
   expect_equal(
     fit_results,
@@ -664,6 +664,248 @@ test_that("Vary across in Experiment runs properly", {
     list(`Fit Results` = fit_results,
          `Vary Params` = tibble::tibble(value = c("x", "y", "idx")))
   )
+  
+  # test multi-type (dgp, method) vary across case
+  x <- list(1, 3:5)
+  experiment <- experiment %>%
+    remove_vary_across() %>%
+    add_vary_across(dgp = "DGP", x = x) %>%
+    add_vary_across(method = "Method", idx = list(1, 1:2))
+  fit_results <- fit_experiment(experiment, save = FALSE, verbose = 0)
+  expect_equal(
+    fit_results, 
+    tibble::tibble(rep = "1", dgp_name = "DGP", method_name = "Method", 
+                   x = list(1, 1, 3:5, 3:5), 
+                   idx = list(1, 1:2, 1, 1:2),
+                   x_idx = list(1, c(1, NA), 3, 3:4))
+  )
+  eval_results <- evaluate_experiment(experiment, fit_results = fit_results,
+                                      save = FALSE, verbose = 0)
+  expect_equal(
+    eval_results,
+    list(`Fit Results` = fit_results, 
+         `Vary Params` = tibble::tibble(value = c("x", "idx")))
+  )
+  
+  parallel_strategies <- list(
+    "reps", "dgps", "methods", c("reps", "dgps"), c("reps", "methods"),
+    c("dgps", "methods"), c("reps", "dgps", "methods")
+  )
+  for (strat in parallel_strategies) {
+    fit_results <- fit_experiment(experiment, save = FALSE, verbose = 0,
+                                  parallel_strategy = strat)
+    expect_equal(nrow(fit_results), 4)
+    expect_true(all(fit_results$x_idx %in% list(1, c(1, NA), 3, 3:4)))
+    expect_true(all(fit_results$idx %in% list(1, 1:2, 1, 1:2)))
+    expect_true(all(fit_results$x %in% list(1, 1, 3:5, 3:5)))
+  }
+})
+
+test_that("Caching in Experiment runs properly", {
+  
+  # create experiment
+  dgp_fun1 <- function(x, y = NULL) rnorm(1, mean = x)
+  dgp_fun2 <- function(x, y = NULL) rnorm(1, mean = x, sd = 2)
+  dgp1 <- DGP$new(dgp_fun1, x = 0)
+  dgp2 <- DGP$new(dgp_fun2, x = 0)
+  
+  method_fun1 <- function(x, y = NULL) x * 1
+  method1 <- Method$new(method_fun1)
+  method_fun2 <- function(x, idx = 1) list(x_idx = x[idx])
+  method2 <- create_method(method_fun = method_fun2)
+  
+  fit_results_fun <- function(fit_results) fit_results
+  fit_results_eval <- create_evaluator(eval_fun = fit_results_fun)
+  vary_params_fun <- function(vary_params = NULL) vary_params
+  vary_params_eval <- create_evaluator(eval_fun = vary_params_fun)
+  
+  fit_plot_fun <- function(fit_results) fit_results
+  fit_plot <- create_visualizer(visualizer_fun = fit_plot_fun)
+  eval_plot_fun <- function(eval_results) eval_results
+  eval_plot <- create_visualizer(visualizer_fun = eval_plot_fun)
+  
+  experiment <- create_experiment(name = "test-cache") %>%
+    add_dgp(dgp1, name = "DGP1") %>%
+    add_method(method1, name = "Method1") %>%
+    add_evaluator(fit_results_eval, name = "Evaluator1") %>%
+    add_visualizer(fit_plot, name = "Visualizer1")
+  
+  # basic cache usage
+  verbose <- 0
+  results0 <- experiment$run(n_reps = 10, use_cached = TRUE, save = FALSE,
+                             verbose = verbose)
+  results1 <- experiment$run(n_reps = 10, save = TRUE, verbose = verbose)
+  expect_false(identical(results0$fit_results, results1$fit_results))
+  results2 <- experiment$run(n_reps = 10, use_cached = TRUE, verbose = verbose)
+  expect_equal(results1, results2)
+  
+  # caching when adding objects
+  experiment %>% add_dgp(dgp2, "DGP2")
+  # runs error - need save = TRUE
+  # results3 <- experiment$run(n_reps = 10, use_cached = TRUE, save = FALSE)
+  results3 <- experiment$run(n_reps = 10, use_cached = TRUE, save = TRUE,
+                             verbose = verbose)
+  expect_equal(nrow(results3$fit_results), 20)
+  expect_equal(results2$fit_results, 
+               results3$fit_results %>% dplyr::filter(dgp_name == "DGP1"))
+  experiment %>% add_method(method2, "Method2")
+  results4 <- experiment$run(n_reps = 10, use_cached = TRUE, save = TRUE, 
+                             verbose = verbose)
+  expect_equal(nrow(results4$fit_results), 40)
+  experiment %>% add_evaluator(vary_params_eval, "Eval2")
+  results5 <- experiment$run(n_reps = 10, use_cached = TRUE, save = TRUE,
+                             verbose = verbose)
+  expect_equal(results4$fit_results, results5$fit_results)
+  expect_equal(results4$eval_results$Evaluator1,
+               results5$eval_results$Evaluator1)
+  experiment %>% add_visualizer(eval_plot, "Plot2")
+  results6 <- experiment$run(n_reps = 10, use_cached = TRUE, save = TRUE,
+                             verbose = verbose)
+  expect_equal(results4$fit_results, results6$fit_results)
+  expect_equal(results5$eval_results, results6$eval_results)
+  expect_equal(results5$visualize_results$Visualizer1,
+               results6$visualize_results$Visualizer1)
+  results7 <- experiment$run(n_reps = 10, use_cached = TRUE, save = TRUE,
+                             verbose = verbose)
+  expect_equal(results6, results7)
+  
+  # caching when update objects does not change original object
+  experiment %>% update_dgp(dgp2, "DGP2")
+  results8 <- experiment$run(n_reps = 10, use_cached = TRUE, save = TRUE,
+                             verbose = verbose)
+  
+  # caching when updating objects that actually change
+  experiment %>% update_dgp(dgp1, "DGP2")
+  fit_cols <- colnames(results7$fit_results)
+  results8 <- experiment$run(n_reps = 10, use_cached = TRUE, save = TRUE,
+                             verbose = verbose)
+  results8$fit_results <- results8$fit_results %>% dplyr::select({{fit_cols}})
+  expect_equal(nrow(results7$fit_results), nrow(results8$fit_results))
+  expect_false(identical(results7$fit_results, results8$fit_results))
+  expect_equal(results8$fit_results %>% dplyr::filter(dgp_name == "DGP1"),
+               results7$fit_results %>% dplyr::filter(dgp_name == "DGP1"))
+  expect_false(identical(results8$eval_results, results7$eval_results))
+  expect_false(identical(results8$visualize_results, results7$visualize_results))
+  experiment %>% update_method(method1, "Method2")
+  results9 <- experiment$run(n_reps = 10, use_cached = TRUE, save = TRUE,
+                             verbose = verbose)
+  expect_equal(nrow(results7$fit_results), nrow(results9$fit_results))
+  expect_false(identical(results8$eval_results, results7$eval_results))
+  expect_false(identical(results8$visualize_results, results7$visualize_results))
+  experiment %>% update_evaluator(fit_results_eval, "Eval2")
+  results10 <- experiment$run(n_reps = 10, use_cached = TRUE, save = TRUE,
+                              verbose = verbose)
+  expect_equal(results10$fit_results, results9$fit_results)
+  expect_equal(length(results10$eval_results), 2)
+  experiment %>% update_visualizer(fit_plot, "Plot2")
+  results11 <- experiment$run(n_reps = 10, use_cached = TRUE, save = TRUE,
+                              verbose = verbose)
+  expect_equal(results11$fit_results, results10$fit_results)
+  expect_equal(results11$eval_results, results10$eval_results)
+  expect_equal(length(results11$visualize_results), 2)
+  
+  # caching when removing objects
+  experiment %>% remove_dgp("DGP2")
+  results12 <- experiment$run(n_reps = 10, use_cached = TRUE, save = TRUE,
+                              verbose = verbose)
+  expect_equal(results12$fit_results,
+               results11$fit_results %>% dplyr::filter(dgp_name == "DGP1"))
+  expect_false(identical(results12$eval_results, results11$eval_results))
+  expect_false(identical(results12$visualize_results, results11$visualize_results))
+  experiment %>% remove_method("Method2")
+  results13 <- experiment$run(n_reps = 10, use_cached = TRUE, save = TRUE,
+                              verbose = verbose)
+  expect_equal(results13$fit_results,
+               results12$fit_results %>% dplyr::filter(method_name == "Method1"))
+  expect_false(identical(results13$eval_results, results12$eval_results))
+  expect_false(identical(results13$visualize_results, results12$visualize_results))
+  experiment %>% remove_evaluator("Eval2")
+  results14 <- experiment$run(n_reps = 10, use_cached = TRUE, save = TRUE,
+                              verbose = verbose)
+  expect_equal(results14$fit_results, results13$fit_results)
+  expect_equal(names(results14$eval_results), "Evaluator1")
+  expect_equal(results14$eval_results, results13$eval_results[1])
+  experiment %>% remove_visualizer("Plot2")
+  results15 <- experiment$run(n_reps = 10, use_cached = TRUE, save = TRUE,
+                              verbose = verbose)
+  expect_equal(results15$fit_results, results14$fit_results)
+  expect_equal(results15$eval_results, results14$eval_results)
+  expect_equal(names(results15$visualize_results), "Visualizer1")
+  expect_equal(results15$visualize_results, results14$visualize_results[1])
+  
+  # caching when vary across
+  experiment %>% add_vary_across(dgp = "DGP1", x = c(0, 1))
+  results1 <- experiment$run(n_reps = 10, use_cached = TRUE, save = TRUE,
+                             verbose = verbose)
+  expect_equal(nrow(results1$fit_results), 10 * 2)
+  experiment %>% add_vary_across(method = "Method1", y = c(0, 1))
+  results2 <- experiment$run(n_reps = 10, use_cached = TRUE, save = TRUE,
+                             verbose = verbose)
+  expect_equal(nrow(results2$fit_results), 10 * 2 * 2)
+  experiment %>% remove_vary_across(method = "Method1")
+  results3 <- experiment$run(n_reps = 10, use_cached = TRUE, save = TRUE,
+                             verbose = verbose)
+  expect_equal(nrow(results3$fit_results), 10 * 2)
+  expect_true(identical(results1$fit_results, results3$fit_results))
+  experiment %>% update_vary_across(dgp = "DGP1", x = c(0, 2))
+  results4 <- experiment$run(n_reps = 10, use_cached = TRUE, save = TRUE,
+                             verbose = verbose)
+  expect_equal(results3$fit_results %>% dplyr::filter(x == 0),
+               results4$fit_results %>% dplyr::filter(x == 0))
+  experiment %>% update_vary_across(dgp = "DGP1", x = list(0, 2, 4))
+  results5 <- experiment$run(n_reps = 10, use_cached = TRUE, save = TRUE,
+                             verbose = verbose)
+  expect_equal(results4$fit_results %>% dplyr::filter(x %in% c(0, 2)),
+               results5$fit_results %>% dplyr::filter(x %in% c(0, 2)))
+  experiment %>% add_vary_across(method = "Method1", y = list("a", "b"))
+  results6 <- experiment$run(n_reps = 10, use_cached = TRUE, save = TRUE,
+                             verbose = verbose)
+  expect_equal(nrow(results6$fit_results), 10 * 3 * 2)
+  
+  # check caching when n changes
+  results7 <- experiment$run(n_reps = 4, use_cached = TRUE, save = TRUE, 
+                             verbose = verbose)
+  expect_equal(nrow(results7$fit_results), 4 * 3 * 2)
+  expect_equal(results7$fit_results, 
+               results6$fit_results %>% dplyr::filter(as.numeric(rep) <= 4))
+  results8 <- experiment$run(n_reps = 10, use_cached = TRUE, save = TRUE,
+                             verbose = verbose)
+  expect_equal(nrow(results8$fit_results), 10 * 3 * 2)
+  # expect_equal(results8$fit_results %>% dplyr::filter(as.numeric(rep) <= 4),
+  #              results7$fit_results)
+  expect_false(identical(results7$fit_results,
+                         results8$fit_results %>% 
+                           dplyr::filter(as.numeric(rep) <= 4)))
+  
+  # check when add multiple new objects to experiment
+  experiment %>% add_dgp(dgp2, "DGP2")
+  parallel_strategies <- list(
+    "reps", "dgps", "methods", c("reps", "dgps"), c("reps", "methods"),
+    c("dgps", "methods"), c("reps", "dgps", "methods")
+  )
+  for (i in 1:length(parallel_strategies)) {
+    parallel_strategy <- parallel_strategies[[i]]
+    experiment %>%
+      update_dgp(dgp2, "DGP2") %>%
+      update_vary_across(method = method1, y = c("a", letters[i+2]))
+    results9 <- experiment$run(
+      n_reps = 10, use_cached = TRUE, save = TRUE, verbose = verbose, 
+      parallel_strategy = parallel_strategy
+    )
+    expect_equal(nrow(results9$fit_results), 10 * 4 * 2)
+  }
+  
+  # check clear cache
+  results10 <- experiment$run(n_reps = 10, use_cached = TRUE, save = TRUE, 
+                              verbose = verbose)
+  expect_equal(results9, results10)
+  experiment %>% clear_cache()
+  results11 <- experiment$run(n_reps = 10, use_cached = TRUE, save = TRUE, 
+                              verbose = verbose)
+  expect_false(identical(results11$fit_results, results10$fit_results))
+  
+  # check running fit, evaluate, and visualize separately
+  
 })
 
 test_that("Saving methods in Experiment works properly", {
@@ -768,7 +1010,7 @@ test_that("Various parallel strategies in experiment work properly", {
 
   for (strat in strategies) {
 
-    results <- experiment$fit(n_reps=2, parallel_strategy=strat)
+    results <- experiment$fit(n_reps=2, parallel_strategy=strat, verbose=0)
 
     expect_true(
       all(c("rep", "dgp_name", "method_name", "result") %in% names(results))
@@ -798,7 +1040,8 @@ test_that("Various parallel strategies in experiment work properly", {
   for (strat in strategies) {
     # TODO: this shouldn't produce an error
     # see https://github.com/Yu-Group/simChef/issues/75
-    expect_error(results <- experiment$fit(n_reps=2, parallel_strategy=strat))
+    expect_error(results <- experiment$fit(n_reps=2, parallel_strategy=strat,
+                                           verbose=0))
   }
 
 })

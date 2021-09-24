@@ -9,105 +9,20 @@ A data-generating process which will be used in the
 \code{Experiment} to \strong{generate} data.
 }
 \section{Public fields}{
-\if{html}{\out{<div class="r6-fields">}}
+
+
 \describe{
 \item{\code{name}}{The name of the \code{DGP}.}
-
 \item{\code{dgp_fun}}{The data-generating process function.}
+\item{\code{dgp_params}}{(Named) list of parameters to input into the data-generating process function.}
+}
+}
 
-\item{\code{dgp_params}}{(Named) list of parameters to input into the
-data-generating process function.}
-}
-\if{html}{\out{</div>}}
-}
-\section{Methods}{
-\subsection{Public methods}{
+\section{Public methods}{
+
+
 \itemize{
-\item \href{#method-new}{\code{DGP$new()}}
-\item \href{#method-generate}{\code{DGP$generate()}}
-\item \href{#method-print}{\code{DGP$print()}}
-\item \href{#method-clone}{\code{DGP$clone()}}
+\item{\code{DGP$new()}} See \link{create_dgp}.
 }
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-new"></a>}}
-\if{latex}{\out{\hypertarget{method-new}{}}}
-\subsection{Method \code{new()}}{
-Create a new \code{DGP} (data-generating process).
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DGP$new(dgp_fun, name = NULL, ...)}\if{html}{\out{</div>}}
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{dgp_fun}}{The data-generating process function.}
-
-\item{\code{name}}{(Optional) The name of the \code{DGP}. The argument must be
-specified by position or typed out in whole; no partial matching is
-allowed for this argument.}
-
-\item{\code{...}}{Arguments to pass into \code{dgp_fun()}.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-A new \code{DGP} object.
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-generate"></a>}}
-\if{latex}{\out{\hypertarget{method-generate}{}}}
-\subsection{Method \code{generate()}}{
-Generate data from a \code{DGP} with the provided \code{DGP}
-parameters.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DGP$generate(...)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{...}}{Arguments to pass into \code{dgp_fun()} that will overwrite
-the initialized \code{DGP} parameters. If no additional arguments are
-provided, data will be generated using \code{dgp_fun()} with the
-parameters that were set when \code{DGP$new()} was called.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-Result of \code{dgp_fun()}.
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-print"></a>}}
-\if{latex}{\out{\hypertarget{method-print}{}}}
-\subsection{Method \code{print()}}{
-Print a \code{DGP} in a nice format, showing the
-\code{DGP}'s name, function, and parameters.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DGP$print()}\if{html}{\out{</div>}}
-}
-
-\subsection{Returns}{
-The original \code{DGP} object.
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-clone"></a>}}
-\if{latex}{\out{\hypertarget{method-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DGP$clone(deep = FALSE)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
-}
-\if{html}{\out{</div>}}
-}
-}
-}

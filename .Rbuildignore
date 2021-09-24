@@ -4,3 +4,4 @@
 ^LICENSE\.md$
 ^\.github$
 ^vignettes/results$
+^man-roxygen
