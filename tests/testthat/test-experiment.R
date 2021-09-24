@@ -206,9 +206,9 @@ test_that("Running experiment works properly", {
   experiment %>% add_dgp(dgp1, name = "DGP1")
   expect_error(experiment$run(verbose = 0))
   experiment %>% add_method(method1, name = "Method1")
-  expect_error(experiment$run(verbose = 0))
+  expect_error(experiment$run(verbose = 0), NA)
   experiment %>% add_evaluator(fit_results_eval, name = "Evaluator1")
-  expect_error(experiment$run(verbose = 0))
+  expect_error(experiment$run(verbose = 0), NA)
   experiment %>% add_visualizer(fit_plot, name = "Visualizer1")
 
   # remove cache
@@ -391,7 +391,7 @@ test_that("Evaluating experiment works properly", {
 
   # with no evaluators
   experiment <- create_experiment(name = "test-evaluate")
-  expect_error(experiment$evaluate(fit_results = fit_results, verbose = 0))
+  expect_error(experiment$evaluate(fit_results = fit_results, verbose = 0), NA)
 
   # with one evaluator
   experiment %>% add_evaluator(fit_results_eval, name = "Fit Results")
@@ -438,7 +438,8 @@ test_that("Plotting experiment works properly", {
   experiment <- create_experiment(name = "test-visualize")
   expect_error(experiment$visualize(fit_results = fit_results,
                                     eval_results = eval_results,
-                                    verbose = 0))
+                                    verbose = 0), 
+               NA)
 
   # with one visualizer
   experiment %>% add_visualizer(fit_plot, name = "Fit Results")
