@@ -1047,7 +1047,11 @@ Experiment <- R6::R6Class(
       evaluator_list <- private$.get_obj_list("evaluator")
       evaluator_names <- names(evaluator_list)
       if (length(evaluator_list) == 0) {
-        private$.throw_empty_list_error("evaluator", "evaluate")
+        if (verbose >= 1) {
+          message("No evaluators to evaluate. Skipping evaluation.")
+          message("==============================")
+        }
+        return(NULL)
       }
 
       if (use_cached) {
@@ -1102,7 +1106,11 @@ Experiment <- R6::R6Class(
       visualizer_list <- private$.get_obj_list("visualizer")
       visualizer_names <- names(visualizer_list)
       if (length(visualizer_list) == 0) {
-        private$.throw_empty_list_error("visualizer", "visualization results from")
+        if (verbose >= 1) {
+          message("No visualizers to visualize. Skipping visualization.")
+          message("==============================")
+        }
+        return(NULL)
       }
 
       if (use_cached) {
