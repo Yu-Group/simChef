@@ -131,82 +131,24 @@
 
     <h2 class="hasAnchor" id="public-fields"><a class="anchor" href="#public-fields"></a>Public fields</h2>
 
-    <p><div class="r6-fields"></p><dl>
+    
+
+
+<dl>
 <dt><code>name</code></dt><dd><p>The name of the <code>Method</code>.</p></dd>
+<dt><code>method_fun</code></dt><dd><p>The data-generating process function.</p></dd>
+<dt><code>method_params</code></dt><dd><p>(Named) list of parameters to input into the data-generating process function.</p></dd>
 
-<dt><code>method_fun</code></dt><dd><p>The method function.</p></dd>
+</dl>
 
-<dt><code>method_params</code></dt><dd><p>(Named) list of parameters to input into the
-method function.</p></dd>
-
-</dl><p></div></p>
-    <h2 class="hasAnchor" id="methods"><a class="anchor" href="#methods"></a>Methods</h2>
+    <h2 class="hasAnchor" id="public-methods"><a class="anchor" href="#public-methods"></a>Public methods</h2>
 
     
-<h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Public methods</h3>
+
 
 <ul>
-<li><p><a href='#method-new'><code>Method$new()</code></a></p></li>
-<li><p><a href='#method-fit'><code>Method$fit()</code></a></p></li>
-<li><p><a href='#method-print'><code>Method$print()</code></a></p></li>
-<li><p><a href='#method-clone'><code>Method$clone()</code></a></p></li>
+<li><p><code>Method$new()</code> See <a href='create_method.html'>create_method</a>.</p></li>
 </ul>
-<p><hr>
-<a id="method-new"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>new()</code></h3>
-<p>Create a new <code>Method</code>.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
-<p><div class="r"></p><pre><span class='va'>Method</span><span class='op'>$</span><span class='fu'>new</span><span class='op'>(</span><span class='va'>method_fun</span>, name <span class='op'>=</span> <span class='cn'>NULL</span>, <span class='va'>...</span><span class='op'>)</span></pre><p></div></p>
-
-<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
-<p><div class="arguments"></p><dl>
-<dt><code>method_fun</code></dt><dd><p>The method function.</p></dd>
-
-<dt><code>name</code></dt><dd><p>(Optional) The name of the <code>Method</code>. The argument must
-be specified by position or typed out in whole; no partial matching is
-allowed for this argument.</p></dd>
-
-<dt><code>...</code></dt><dd><p>Arguments to pass into <code>method_fun()</code>.</p></dd>
-
-</dl><p></div></p>
-<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Returns</h4>
-<p>A new <code>Method</code> object.</p>
-<p><hr>
-<a id="method-fit"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>fit()</code></h3>
-<p>Fit a <code>Method</code> on data using the provided <code>Method</code>
-parameters.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
-<p><div class="r"></p><pre><span class='va'>Method</span><span class='op'>$</span><span class='fu'>fit</span><span class='op'>(</span><span class='va'>data_list</span>, <span class='va'>...</span><span class='op'>)</span></pre><p></div></p>
-
-<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
-<p><div class="arguments"></p><dl>
-<dt><code>data_list</code></dt><dd><p>List of data to pass into <code>method_fun()</code>. If named,
-should match arguments in <code>method_fun()</code>.</p></dd>
-
-<dt><code>...</code></dt><dd><p>Arguments to pass into <code>method_fun()</code> that will overwrite
-the initialized <code>Method</code> parameters. If no additional arguments
-are provided, the <code>Method</code> will be fit using <code>method_fun()</code>
-and the parameters that were set when <code>Method$new()</code> was called.</p></dd>
-
-</dl><p></div></p>
-<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Returns</h4>
-<p>Result of <code>method_fun()</code>, coerced into a single tibble row.</p>
-<p><hr>
-<a id="method-print"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code><a href='https://rdrr.io/r/base/print.html'>print()</a></code></h3>
-<p>Print a <code>Method</code> in a nice format, showing the
-<code>Method</code>'s name, function, and parameters.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
-<p><div class="r"></p><pre><span class='va'>Method</span><span class='op'>$</span><span class='fu'>print</span><span class='op'>(</span><span class='op'>)</span></pre><p></div></p>
-
-<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Returns</h4>
-<p>The original <code>Method</code> object.</p>
-<p><hr>
-<a id="method-clone"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>clone()</code></h3>
-<p>The objects of this class are cloneable with this method.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
-<p><div class="r"></p><pre><span class='va'>Method</span><span class='op'>$</span><span class='fu'>clone</span><span class='op'>(</span>deep <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span></pre><p></div></p>
-
-<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
-<p><div class="arguments"></p><dl>
-<dt><code>deep</code></dt><dd><p>Whether to make a deep clone.</p></dd>
-
-</dl><p></div></p>
-
 
 
   </div>

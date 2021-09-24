@@ -133,135 +133,30 @@ methods and/or its evaluation metrics from the <code>Experiment</code> run.</p>
 
     <h2 class="hasAnchor" id="public-fields"><a class="anchor" href="#public-fields"></a>Public fields</h2>
 
-    <p><div class="r6-fields"></p><dl>
+    
+
+
+<dl>
 <dt><code>name</code></dt><dd><p>The name of the <code>Visualizer</code>.</p></dd>
-
-<dt><code>visualizer_fun</code></dt><dd><p>The visualization function.</p></dd>
-
-<dt><code>visualizer_params</code></dt><dd><p>(Named) list of parameters to input into the
-visualizer function.</p></dd>
-
+<dt><code>visualizer_fun</code></dt><dd><p>The visualizer function.</p></dd>
+<dt><code>visualizer_params</code></dt><dd><p>(Named) list of parameters to input into the visualizer function.</p></dd>
 <dt><code>rmd_options</code></dt><dd><p>List of options to control the aesthetics of the
-<code>Visualizer</code>'s visualizations in the knitted R Markdown report.
-Currently, possible options are "height" and "width" (in inches).</p></dd>
+displayed <code>Visualizer</code>'s visualizations in the knitted R Markdown
+report. Currently, possible options are "height" and "width" (in inches).</p></dd>
+<dt><code></code></dt><dd><p>If <code>TRUE</code> (default), show the resulting visualization
+in the R Markdown report; if <code>FALSE</code>, hide output in the
+R Markdown report.</p></dd>
 
-<dt><code>show</code></dt><dd><p>If <code>TRUE</code> (default), show the resulting visualization in the R
-Markdown report; if <code>FALSE</code>, hide output in the R Markdown report.</p></dd>
+</dl>
 
-</dl><p></div></p>
-    <h2 class="hasAnchor" id="methods"><a class="anchor" href="#methods"></a>Methods</h2>
+    <h2 class="hasAnchor" id="public-methods"><a class="anchor" href="#public-methods"></a>Public methods</h2>
 
     
-<h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Public methods</h3>
+
 
 <ul>
-<li><p><a href='#method-new'><code>Visualizer$new()</code></a></p></li>
-<li><p><a href='#method-visualize'><code>Visualizer$visualize()</code></a></p></li>
-<li><p><a href='#method-print'><code>Visualizer$print()</code></a></p></li>
-<li><p><a href='#method-clone'><code>Visualizer$clone()</code></a></p></li>
+<li><p><code>Visualizer$new()</code> See <a href='create_visualizer.html'>create_visualizer</a>.</p></li>
 </ul>
-<p><hr>
-<a id="method-new"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>new()</code></h3>
-<p>Create a new <code>Visualizer</code>.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
-<p><div class="r"></p><pre><span class='va'>Visualizer</span><span class='op'>$</span><span class='fu'>new</span><span class='op'>(</span>
-  <span class='va'>visualizer_fun</span>,
-  name <span class='op'>=</span> <span class='cn'>NULL</span>,
-  rmd_options <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span><span class='op'>)</span>,
-  show <span class='op'>=</span> <span class='cn'>TRUE</span>,
-  <span class='va'>...</span>
-<span class='op'>)</span></pre><p></div></p>
-
-<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
-<p><div class="arguments"></p><dl>
-<dt><code>visualizer_fun</code></dt><dd><p>The visualization function.</p></dd>
-
-<dt><code>name</code></dt><dd><p>(Optional) The name of the <code>Visualizer</code>. The argument
-must be specified by position or typed out in whole; no partial
-matching is allowed for this argument.</p></dd>
-
-<dt><code>rmd_options</code></dt><dd><p>(Optional) List of options to control the aesthetics
-of the <code>Visualizer</code>'s visualization in the knitted R Markdown
-report. Currently, possible options are "height" and "width" (in
-inches). The argument must be specified by position or typed out in
-whole; no partial matching is allowed for this argument.
-inches).</p></dd>
-
-<dt><code>show</code></dt><dd><p>If <code>TRUE</code> (default), show the resulting visualization in the R
-Markdown report; if <code>FALSE</code>, hide output in the R Markdown report.</p></dd>
-
-<dt><code>...</code></dt><dd><p>Arguments to pass into <code>visualizer_fun()</code>.</p></dd>
-
-</dl><p></div></p>
-<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Details</h4>
-<p>When visualizing or running the <code>Experiment</code> (see
-<code>Experiment$visualize()</code> or <code>Experiment$run()</code>), the named
-arguments <code>fit_results</code>, <code>eval_results</code>, and
-<code>vary_params</code> are automatically passed into the <code>Visualizer</code>
-function <code>visualizer_fun()</code> and serve as placeholders for the
-<code>Experiment$fit()</code> results, the <code>Experiment$evaluate()</code>
-results, and the name of the varying parameter, respectively.
-To visualize the performance of a method(s) fit and/or its evaluation
-metrics then, the <code>Visualizer</code> function <code>visualizer_fun()</code> should
-take in the named arguments <code>fit_results</code> and/or
-<code>eval_results</code>. See <code>Experiment$fit()</code> or
-<code><a href='fit_experiment.html'>fit_experiment()</a></code> for details on the format of <code>fit_results</code>.
-See <code>Experiment$evaluate()</code> or <code><a href='evaluate_experiment.html'>evaluate_experiment()</a></code> for
-details on the format of <code>eval_results</code>. If the <code>Visualizer</code>
-is used for <code>Experiments</code> with varying parameters,
-<code>vary_params</code> should be used as a stand in for the name of this
-varying parameter.</p>
-
-<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Returns</h4>
-<p>A new <code>Visualizer</code> object.</p>
-<p><hr>
-<a id="method-visualize"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>visualize()</code></h3>
-<p>Visualize the performance of methods and/or their evaluation
-metrics from the <code>Experiment</code> using the <code>Visualizer</code> and the
-provided parameters.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
-<p><div class="r"></p><pre><span class='va'>Visualizer</span><span class='op'>$</span><span class='fu'>visualize</span><span class='op'>(</span>
-  fit_results <span class='op'>=</span> <span class='cn'>NULL</span>,
-  eval_results <span class='op'>=</span> <span class='cn'>NULL</span>,
-  vary_params <span class='op'>=</span> <span class='cn'>NULL</span>,
-  <span class='va'>...</span>
-<span class='op'>)</span></pre><p></div></p>
-
-<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
-<p><div class="arguments"></p><dl>
-<dt><code>fit_results</code></dt><dd><p>A tibble, typically returned by the
-<code>Experiment$fit()</code> method.</p></dd>
-
-<dt><code>eval_results</code></dt><dd><p>A list of tibbles, typically returned by the
-<code>Experiment$evaluate()</code> method.</p></dd>
-
-<dt><code>vary_params</code></dt><dd><p>Name of parameter/argument that was varied in the
-<code>Experiment</code> (see <code>Experiment$get_vary_across()</code>).
-Use <code>NULL</code> (default) if no <code>vary_across</code> component in
-<code>Experiment</code> run.</p></dd>
-
-<dt><code>...</code></dt><dd><p>Not used.</p></dd>
-
-</dl><p></div></p>
-<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Returns</h4>
-<p>Result of <code>visualizer_fun()</code>.</p>
-<p><hr>
-<a id="method-print"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code><a href='https://rdrr.io/r/base/print.html'>print()</a></code></h3>
-<p>Print a <code>Visualizer</code> in a nice format, showing the
-<code>Visualizer</code>'s name, function, parameters, and R Markdown options.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
-<p><div class="r"></p><pre><span class='va'>Visualizer</span><span class='op'>$</span><span class='fu'>print</span><span class='op'>(</span><span class='op'>)</span></pre><p></div></p>
-
-<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Returns</h4>
-<p>The original <code>Visualizer</code> object.</p>
-<p><hr>
-<a id="method-clone"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>clone()</code></h3>
-<p>The objects of this class are cloneable with this method.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
-<p><div class="r"></p><pre><span class='va'>Visualizer</span><span class='op'>$</span><span class='fu'>clone</span><span class='op'>(</span>deep <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span></pre><p></div></p>
-
-<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
-<p><div class="arguments"></p><dl>
-<dt><code>deep</code></dt><dd><p>Whether to make a deep clone.</p></dd>
-
-</dl><p></div></p>
-
 
 
   </div>

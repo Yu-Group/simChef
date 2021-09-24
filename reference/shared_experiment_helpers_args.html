@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Create an R Markdown file summarizing the results of an Experiment. — create_rmd • simChef</title>
+<title>Arguments that are shared by multiple Experiment helper funs. — shared_experiment_helpers_args • simChef</title>
 
 
 <!-- jquery -->
@@ -39,11 +39,8 @@
 
 
 
-<meta property="og:title" content="Create an R Markdown file summarizing the results of an Experiment. — create_rmd" />
-<meta property="og:description" content="Knits an R Markdown file summarizing the results of an
-Experiment. Outputs an R Markdown-generated html file, saved in
-the Experiment's root results directory (see
-Experiment$get_save_dir())." />
+<meta property="og:title" content="Arguments that are shared by multiple Experiment helper funs. — shared_experiment_helpers_args" />
+<meta property="og:description" content="Arguments that are shared by multiple Experiment helper funs." />
 
 
 
@@ -121,81 +118,89 @@ Experiment$get_save_dir())." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Create an R Markdown file summarizing the results of an <code>Experiment</code>.</h1>
+    <h1>Arguments that are shared by multiple Experiment helper funs.</h1>
     
-    <div class="hidden name"><code>create_rmd.Rd</code></div>
+    <div class="hidden name"><code>shared_experiment_helpers_args.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Knits an R Markdown file summarizing the results of an
-<code>Experiment</code>. Outputs an R Markdown-generated html file, saved in
-the <code>Experiment</code>'s root results directory (see
-<code>Experiment$get_save_dir()</code>).</p>
+    <p>Arguments that are shared by multiple Experiment helper funs.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>create_rmd</span><span class='op'>(</span>
-  <span class='va'>experiment</span>,
-  <span class='va'>save_dir</span>,
-  open <span class='op'>=</span> <span class='cn'>TRUE</span>,
-  author <span class='op'>=</span> <span class='st'>""</span>,
-  verbose <span class='op'>=</span> <span class='fl'>2</span>,
-  quiet <span class='op'>=</span> <span class='cn'>TRUE</span>,
-  pretty <span class='op'>=</span> <span class='cn'>TRUE</span>,
-  <span class='va'>...</span>
-<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
+      <th>dgp</th>
+      <td><p>A <code>DGP</code> object.</p></td>
+    </tr>
+    <tr>
+      <th>evaluator</th>
+      <td><p>An <code>Evaluator</code> object.</p></td>
+    </tr>
+    <tr>
       <th>experiment</th>
-      <td><p>An <code>Experiment</code> object. If provided,
-<code>experiment$get_save_dir()</code> is used to find previously saved results.
-If not provided, then <code>save_dir</code> is used instead.</p></td>
+      <td><p>An <code>Experiment</code> object.</p></td>
     </tr>
     <tr>
-      <th>save_dir</th>
-      <td><p>An optional directory in which to find saved results. Not
-used if <code>experiment</code> provided.</p></td>
+      <th>future.globals</th>
+      <td><p>Character vector of names in the global environment to
+pass to parallel workers. Passed as the argument of the same name to
+<code><a href='https://future.apply.futureverse.org/reference/future_lapply.html'>future.apply::future_lapply</a></code> and related functions. To set for all
+runs of the experiment, use the same argument during initialization.</p></td>
     </tr>
     <tr>
-      <th>open</th>
-      <td><p>If <code>TRUE</code>, open the R Markdown-generated html file in a
-web browser.</p></td>
+      <th>future.packages</th>
+      <td><p>Character vector of packages required by parallel
+workers. Passed as the argument of the same name to
+<code><a href='https://future.apply.futureverse.org/reference/future_lapply.html'>future.apply::future_lapply</a></code> and related functions. To set for all
+runs of the experiment, use the same argument during initialization.</p></td>
     </tr>
     <tr>
-      <th>author</th>
-      <td><p>Character string of author names to display in knitted R
-Markdown document.</p></td>
+      <th>future.seed</th>
+      <td><p>Passed as the argument of the same name in
+<code><a href='https://future.apply.futureverse.org/reference/future_apply.html'>future.apply::future_apply</a></code>.</p></td>
+    </tr>
+    <tr>
+      <th>method</th>
+      <td><p>A <code>Method</code> object.</p></td>
+    </tr>
+    <tr>
+      <th>n_reps</th>
+      <td><p>The number of replicates of the <code>Experiment</code> for this run.</p></td>
+    </tr>
+    <tr>
+      <th>parallel_strategy</th>
+      <td><p>A vector with some combination of "reps", "dgps", or
+"methods". Determines how computation will be distributed across available
+resources. Default is "reps".</p></td>
+    </tr>
+    <tr>
+      <th>save</th>
+      <td><p>If <code>TRUE</code>, save outputs to disk.</p></td>
+    </tr>
+    <tr>
+      <th>use_cached</th>
+      <td><p>Logical. If <code>TRUE</code>, find and return previously saved
+results. If cached results cannot be found, continue as if
+<code>use_cached</code> was <code>FALSE</code>.</p></td>
     </tr>
     <tr>
       <th>verbose</th>
-      <td><p>Level of verboseness (0, 1, 2) when knitting R Markdown.
-Default is 2.</p></td>
+      <td><p>Level of verbosity. Default is 1, which prints out messages
+after major checkpoints in the experiment. If 0, no messages are printed.</p></td>
     </tr>
     <tr>
-      <th>quiet</th>
-      <td><p>Default is <code>TRUE</code>. See <code><a href='https://pkgs.rstudio.com/rmarkdown/reference/render.html'>rmarkdown::render()</a></code> for
-details.</p></td>
-    </tr>
-    <tr>
-      <th>pretty</th>
-      <td><p>Logical. Specifies whether or not to use pretty R Markdown
-results template or more barebones R Markdown results template. Default
-<code>TRUE</code> uses the pretty template. Set to <code>FALSE</code> to start from
-the barebones template, which can be helpful when using your own custom
-R Markdown theme.</p></td>
+      <th>visualizer</th>
+      <td><p>A <code>Visualizer</code> object.</p></td>
     </tr>
     <tr>
       <th>...</th>
-      <td><p>Additional arguments to pass to <code><a href='https://pkgs.rstudio.com/rmarkdown/reference/render.html'>rmarkdown::render()</a></code>. Useful
-for applying a custom R Markdown output theme.</p></td>
+      <td><p>Not used.</p></td>
     </tr>
     </table>
 
-    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
-
-    <p>The original <code>Experiment</code> object passed to <code>create_rmd</code>.</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

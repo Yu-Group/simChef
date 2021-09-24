@@ -133,79 +133,24 @@ Experiment to generate data." />
 
     <h2 class="hasAnchor" id="public-fields"><a class="anchor" href="#public-fields"></a>Public fields</h2>
 
-    <p><div class="r6-fields"></p><dl>
+    
+
+
+<dl>
 <dt><code>name</code></dt><dd><p>The name of the <code>DGP</code>.</p></dd>
-
 <dt><code>dgp_fun</code></dt><dd><p>The data-generating process function.</p></dd>
+<dt><code>dgp_params</code></dt><dd><p>(Named) list of parameters to input into the data-generating process function.</p></dd>
 
-<dt><code>dgp_params</code></dt><dd><p>(Named) list of parameters to input into the
-data-generating process function.</p></dd>
+</dl>
 
-</dl><p></div></p>
-    <h2 class="hasAnchor" id="methods"><a class="anchor" href="#methods"></a>Methods</h2>
+    <h2 class="hasAnchor" id="public-methods"><a class="anchor" href="#public-methods"></a>Public methods</h2>
 
     
-<h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Public methods</h3>
+
 
 <ul>
-<li><p><a href='#method-new'><code>DGP$new()</code></a></p></li>
-<li><p><a href='#method-generate'><code>DGP$generate()</code></a></p></li>
-<li><p><a href='#method-print'><code>DGP$print()</code></a></p></li>
-<li><p><a href='#method-clone'><code>DGP$clone()</code></a></p></li>
+<li><p><code>DGP$new()</code> See <a href='create_dgp.html'>create_dgp</a>.</p></li>
 </ul>
-<p><hr>
-<a id="method-new"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>new()</code></h3>
-<p>Create a new <code>DGP</code> (data-generating process).</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
-<p><div class="r"></p><pre><span class='va'>DGP</span><span class='op'>$</span><span class='fu'>new</span><span class='op'>(</span><span class='va'>dgp_fun</span>, name <span class='op'>=</span> <span class='cn'>NULL</span>, <span class='va'>...</span><span class='op'>)</span></pre><p></div></p>
-
-<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
-<p><div class="arguments"></p><dl>
-<dt><code>dgp_fun</code></dt><dd><p>The data-generating process function.</p></dd>
-
-<dt><code>name</code></dt><dd><p>(Optional) The name of the <code>DGP</code>. The argument must be
-specified by position or typed out in whole; no partial matching is
-allowed for this argument.</p></dd>
-
-<dt><code>...</code></dt><dd><p>Arguments to pass into <code>dgp_fun()</code>.</p></dd>
-
-</dl><p></div></p>
-<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Returns</h4>
-<p>A new <code>DGP</code> object.</p>
-<p><hr>
-<a id="method-generate"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>generate()</code></h3>
-<p>Generate data from a <code>DGP</code> with the provided <code>DGP</code>
-parameters.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
-<p><div class="r"></p><pre><span class='va'>DGP</span><span class='op'>$</span><span class='fu'>generate</span><span class='op'>(</span><span class='va'>...</span><span class='op'>)</span></pre><p></div></p>
-
-<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
-<p><div class="arguments"></p><dl>
-<dt><code>...</code></dt><dd><p>Arguments to pass into <code>dgp_fun()</code> that will overwrite
-the initialized <code>DGP</code> parameters. If no additional arguments are
-provided, data will be generated using <code>dgp_fun()</code> with the
-parameters that were set when <code>DGP$new()</code> was called.</p></dd>
-
-</dl><p></div></p>
-<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Returns</h4>
-<p>Result of <code>dgp_fun()</code>.</p>
-<p><hr>
-<a id="method-print"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code><a href='https://rdrr.io/r/base/print.html'>print()</a></code></h3>
-<p>Print a <code>DGP</code> in a nice format, showing the
-<code>DGP</code>'s name, function, and parameters.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
-<p><div class="r"></p><pre><span class='va'>DGP</span><span class='op'>$</span><span class='fu'>print</span><span class='op'>(</span><span class='op'>)</span></pre><p></div></p>
-
-<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Returns</h4>
-<p>The original <code>DGP</code> object.</p>
-<p><hr>
-<a id="method-clone"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>clone()</code></h3>
-<p>The objects of this class are cloneable with this method.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
-<p><div class="r"></p><pre><span class='va'>DGP</span><span class='op'>$</span><span class='fu'>clone</span><span class='op'>(</span>deep <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span></pre><p></div></p>
-
-<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
-<p><div class="arguments"></p><dl>
-<dt><code>deep</code></dt><dd><p>Whether to make a deep clone.</p></dd>
-
-</dl><p></div></p>
-
 
 
   </div>

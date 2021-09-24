@@ -129,7 +129,15 @@ using all Visualizers in the Experiment and return visualization results." />
 using all <code>Visualizers</code> in the <code>Experiment</code> and return visualization results.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>visualize_experiment</span><span class='op'>(</span><span class='va'>experiment</span>, <span class='va'>...</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>visualize_experiment</span><span class='op'>(</span>
+  <span class='va'>experiment</span>,
+  <span class='va'>fit_results</span>,
+  eval_results <span class='op'>=</span> <span class='cn'>NULL</span>,
+  use_cached <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  save <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  verbose <span class='op'>=</span> <span class='fl'>1</span>,
+  <span class='va'>...</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -139,8 +147,32 @@ using all <code>Visualizers</code> in the <code>Experiment</code> and return vis
       <td><p>An <code>Experiment</code> object.</p></td>
     </tr>
     <tr>
+      <th>fit_results</th>
+      <td><p>A tibble, as returned by the <code>fit</code> method.</p></td>
+    </tr>
+    <tr>
+      <th>eval_results</th>
+      <td><p>A list of result tibbles, as returned by the
+<code>evaluate</code> method.</p></td>
+    </tr>
+    <tr>
+      <th>use_cached</th>
+      <td><p>Logical. If <code>TRUE</code>, find and return previously saved
+results. If cached results cannot be found, continue as if
+<code>use_cached</code> was <code>FALSE</code>.</p></td>
+    </tr>
+    <tr>
+      <th>save</th>
+      <td><p>If <code>TRUE</code>, save outputs to disk.</p></td>
+    </tr>
+    <tr>
+      <th>verbose</th>
+      <td><p>Level of verbosity. Default is 1, which prints out messages
+after major checkpoints in the experiment. If 0, no messages are printed.</p></td>
+    </tr>
+    <tr>
       <th>...</th>
-      <td><p>Passed to <code>Experiment$visualize()</code>.</p></td>
+      <td><p>Not used.</p></td>
     </tr>
     </table>
 

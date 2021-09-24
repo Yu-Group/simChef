@@ -127,7 +127,18 @@
     <p>Run the full <code>Experiment</code> pipeline (fitting, evaluating, and visualizing).</p>
     </div>
 
-    <pre class="usage"><span class='fu'>run_experiment</span><span class='op'>(</span><span class='va'>experiment</span>, n_reps <span class='op'>=</span> <span class='fl'>1</span>, <span class='va'>...</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>run_experiment</span><span class='op'>(</span>
+  <span class='va'>experiment</span>,
+  n_reps <span class='op'>=</span> <span class='fl'>1</span>,
+  parallel_strategy <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"reps"</span><span class='op'>)</span>,
+  future.globals <span class='op'>=</span> <span class='cn'>NULL</span>,
+  future.packages <span class='op'>=</span> <span class='cn'>NULL</span>,
+  future.seed <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  use_cached <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  save <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  verbose <span class='op'>=</span> <span class='fl'>1</span>,
+  <span class='va'>...</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -141,8 +152,48 @@
       <td><p>The number of replicates of the <code>Experiment</code> for this run.</p></td>
     </tr>
     <tr>
+      <th>parallel_strategy</th>
+      <td><p>A vector with some combination of "reps", "dgps", or
+"methods". Determines how computation will be distributed across available
+resources. Default is "reps".</p></td>
+    </tr>
+    <tr>
+      <th>future.globals</th>
+      <td><p>Character vector of names in the global environment to
+pass to parallel workers. Passed as the argument of the same name to
+<code><a href='https://future.apply.futureverse.org/reference/future_lapply.html'>future.apply::future_lapply</a></code> and related functions. To set for all
+runs of the experiment, use the same argument during initialization.</p></td>
+    </tr>
+    <tr>
+      <th>future.packages</th>
+      <td><p>Character vector of packages required by parallel
+workers. Passed as the argument of the same name to
+<code><a href='https://future.apply.futureverse.org/reference/future_lapply.html'>future.apply::future_lapply</a></code> and related functions. To set for all
+runs of the experiment, use the same argument during initialization.</p></td>
+    </tr>
+    <tr>
+      <th>future.seed</th>
+      <td><p>Passed as the argument of the same name in
+<code><a href='https://future.apply.futureverse.org/reference/future_apply.html'>future.apply::future_apply</a></code>.</p></td>
+    </tr>
+    <tr>
+      <th>use_cached</th>
+      <td><p>Logical. If <code>TRUE</code>, find and return previously saved
+results. If cached results cannot be found, continue as if
+<code>use_cached</code> was <code>FALSE</code>.</p></td>
+    </tr>
+    <tr>
+      <th>save</th>
+      <td><p>If <code>TRUE</code>, save outputs to disk.</p></td>
+    </tr>
+    <tr>
+      <th>verbose</th>
+      <td><p>Level of verbosity. Default is 1, which prints out messages
+after major checkpoints in the experiment. If 0, no messages are printed.</p></td>
+    </tr>
+    <tr>
       <th>...</th>
-      <td><p>Passed to <code>Experiment$run()</code>.</p></td>
+      <td><p>Not used.</p></td>
     </tr>
     </table>
 

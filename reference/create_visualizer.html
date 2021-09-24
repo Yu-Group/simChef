@@ -170,6 +170,25 @@ Markdown report; if <code>FALSE</code>, hide output in the R Markdown report.</p
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>A new instance of <code>Visualizer</code>.</p>
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>When visualizing or running the <code>Experiment</code> (see
+<code>Experiment$visualize()</code> or <code>Experiment$run()</code>), the named
+arguments <code>fit_results</code>, <code>eval_results</code>, and
+<code>vary_params</code> are automatically passed into the <code>Visualizer</code>
+function <code>visualizer_fun()</code> and serve as placeholders for the
+<code>Experiment$fit()</code> results, the <code>Experiment$evaluate()</code>
+results, and the name of the varying parameter, respectively.
+To visualize the performance of a method(s) fit and/or its evaluation
+metrics then, the <code>Visualizer</code> function <code>visualizer_fun()</code> should
+take in the named arguments <code>fit_results</code> and/or
+<code>eval_results</code>. See <code>Experiment$fit()</code> or
+<code><a href='fit_experiment.html'>fit_experiment()</a></code> for details on the format of <code>fit_results</code>.
+See <code>Experiment$evaluate()</code> or <code><a href='evaluate_experiment.html'>evaluate_experiment()</a></code> for
+details on the format of <code>eval_results</code>. If the <code>Visualizer</code>
+is used for <code>Experiments</code> with varying parameters,
+<code>vary_params</code> should be used as a stand in for the name of this
+varying parameter.</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

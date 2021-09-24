@@ -127,20 +127,79 @@
     <p>Create a new <code>Experiment</code>.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>create_experiment</span><span class='op'>(</span><span class='va'>...</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>create_experiment</span><span class='op'>(</span>
+  name <span class='op'>=</span> <span class='st'>"experiment"</span>,
+  dgp_list <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span><span class='op'>)</span>,
+  method_list <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span><span class='op'>)</span>,
+  evaluator_list <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span><span class='op'>)</span>,
+  visualizer_list <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span><span class='op'>)</span>,
+  future.globals <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  future.packages <span class='op'>=</span> <span class='cn'>NULL</span>,
+  clone_from <span class='op'>=</span> <span class='cn'>NULL</span>,
+  save_dir <span class='op'>=</span> <span class='cn'>NULL</span>,
+  <span class='va'>...</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
+      <th>name</th>
+      <td><p>The name of the <code>Experiment</code>.</p></td>
+    </tr>
+    <tr>
+      <th>dgp_list</th>
+      <td><p>An optional list of <code>DGP</code> objects.</p></td>
+    </tr>
+    <tr>
+      <th>method_list</th>
+      <td><p>An optional list of <code>Method</code> objects.</p></td>
+    </tr>
+    <tr>
+      <th>evaluator_list</th>
+      <td><p>An optional list of <code>Evaluator</code> objects.</p></td>
+    </tr>
+    <tr>
+      <th>visualizer_list</th>
+      <td><p>An optional list of <code>Visualizer</code> objects.</p></td>
+    </tr>
+    <tr>
+      <th>future.globals</th>
+      <td><p>Character vector of names in the global environment to
+pass to parallel workers. Passed as the argument of the same name to
+<code><a href='https://future.apply.futureverse.org/reference/future_lapply.html'>future.apply::future_lapply</a></code> and related functions. To set for a
+specific run of the experiment, use the same argument in
+<code>Experiment$run</code>.</p></td>
+    </tr>
+    <tr>
+      <th>future.packages</th>
+      <td><p>Character vector of packages required by parallel
+workers. Passed as the argument of the same name to
+<code><a href='https://future.apply.futureverse.org/reference/future_lapply.html'>future.apply::future_lapply</a></code> and related functions. To set for a
+specific run of the experiment, use the same argument in
+<code>Experiment$run</code>.</p></td>
+    </tr>
+    <tr>
+      <th>clone_from</th>
+      <td><p>An optional <code>Experiment</code> object to use as a base for
+this one.</p></td>
+    </tr>
+    <tr>
+      <th>save_dir</th>
+      <td><p>An optional directory in which to save the experiment's
+results. If <code>NULL</code>, results are saved in the current working directory
+in a directory called "results" with a sub-directory named after
+<code>Experiment$name</code>.</p></td>
+    </tr>
+    <tr>
       <th>...</th>
-      <td><p>Passed to <code>Experiment$new()</code>.</p></td>
+      <td><p>Not used.</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A new instance of <code>Experiment</code>.</p>
+    <p>A new <code>Experiment</code> object.</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

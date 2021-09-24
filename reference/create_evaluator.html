@@ -164,7 +164,23 @@ R Markdown report.</p></td>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A new instance of <code>Evaluator</code>.</p>
+    <p>A new <code>Evaluator</code> object.</p>
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>When evaluating or running the <code>Experiment</code> (see
+<code><a href='evaluate_experiment.html'>evaluate_experiment()</a></code> or <code><a href='run_experiment.html'>run_experiment()</a></code>), the named
+arguments <code>fit_results</code> and <code>vary_params</code> are automatically
+passed into the <code>Evaluator</code> function <code>eval_fun()</code> and serve
+as placeholders for the <code><a href='fit_experiment.html'>fit_experiment()</a></code> results (i.e., the
+results from the method fits) and the name of the varying parameter,
+respectively. To evaluate the performance of a method(s) fit then,
+the <code>Evaluator</code> function <code>eval_fun()</code> should almost always
+take in the named argument <code>fit_results</code>. See
+<code>Experiment$fit()</code> or <code><a href='fit_experiment.html'>fit_experiment()</a></code> for details on the
+format of <code>fit_results</code>. If the <code>Evaluator</code>
+is used for <code>Experiments</code> with varying parameters,
+<code>vary_params</code> should be used as a stand in for the name of this
+varying parameter.</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

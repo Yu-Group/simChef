@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Create an R Markdown file summarizing the results of an Experiment. — create_rmd • simChef</title>
+<title>Retrieve cached results from previously saved Experiment. — get_cache • simChef</title>
 
 
 <!-- jquery -->
@@ -39,11 +39,8 @@
 
 
 
-<meta property="og:title" content="Create an R Markdown file summarizing the results of an Experiment. — create_rmd" />
-<meta property="og:description" content="Knits an R Markdown file summarizing the results of an
-Experiment. Outputs an R Markdown-generated html file, saved in
-the Experiment's root results directory (see
-Experiment$get_save_dir())." />
+<meta property="og:title" content="Retrieve cached results from previously saved Experiment. — get_cache" />
+<meta property="og:description" content="Retrieve cached results from previously saved Experiment." />
 
 
 
@@ -121,81 +118,30 @@ Experiment$get_save_dir())." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Create an R Markdown file summarizing the results of an <code>Experiment</code>.</h1>
+    <h1>Retrieve cached results from previously saved <code>Experiment</code>.</h1>
     
-    <div class="hidden name"><code>create_rmd.Rd</code></div>
+    <div class="hidden name"><code>get_cache.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Knits an R Markdown file summarizing the results of an
-<code>Experiment</code>. Outputs an R Markdown-generated html file, saved in
-the <code>Experiment</code>'s root results directory (see
-<code>Experiment$get_save_dir()</code>).</p>
+    <p>Retrieve cached results from previously saved <code>Experiment</code>.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>create_rmd</span><span class='op'>(</span>
-  <span class='va'>experiment</span>,
-  <span class='va'>save_dir</span>,
-  open <span class='op'>=</span> <span class='cn'>TRUE</span>,
-  author <span class='op'>=</span> <span class='st'>""</span>,
-  verbose <span class='op'>=</span> <span class='fl'>2</span>,
-  quiet <span class='op'>=</span> <span class='cn'>TRUE</span>,
-  pretty <span class='op'>=</span> <span class='cn'>TRUE</span>,
-  <span class='va'>...</span>
-<span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>get_cache</span><span class='op'>(</span><span class='va'>experiment</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>experiment</th>
-      <td><p>An <code>Experiment</code> object. If provided,
-<code>experiment$get_save_dir()</code> is used to find previously saved results.
-If not provided, then <code>save_dir</code> is used instead.</p></td>
-    </tr>
-    <tr>
-      <th>save_dir</th>
-      <td><p>An optional directory in which to find saved results. Not
-used if <code>experiment</code> provided.</p></td>
-    </tr>
-    <tr>
-      <th>open</th>
-      <td><p>If <code>TRUE</code>, open the R Markdown-generated html file in a
-web browser.</p></td>
-    </tr>
-    <tr>
-      <th>author</th>
-      <td><p>Character string of author names to display in knitted R
-Markdown document.</p></td>
-    </tr>
-    <tr>
-      <th>verbose</th>
-      <td><p>Level of verboseness (0, 1, 2) when knitting R Markdown.
-Default is 2.</p></td>
-    </tr>
-    <tr>
-      <th>quiet</th>
-      <td><p>Default is <code>TRUE</code>. See <code><a href='https://pkgs.rstudio.com/rmarkdown/reference/render.html'>rmarkdown::render()</a></code> for
-details.</p></td>
-    </tr>
-    <tr>
-      <th>pretty</th>
-      <td><p>Logical. Specifies whether or not to use pretty R Markdown
-results template or more barebones R Markdown results template. Default
-<code>TRUE</code> uses the pretty template. Set to <code>FALSE</code> to start from
-the barebones template, which can be helpful when using your own custom
-R Markdown theme.</p></td>
-    </tr>
-    <tr>
-      <th>...</th>
-      <td><p>Additional arguments to pass to <code><a href='https://pkgs.rstudio.com/rmarkdown/reference/render.html'>rmarkdown::render()</a></code>. Useful
-for applying a custom R Markdown output theme.</p></td>
+      <td><p>An <code>Experiment</code> object.</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>The original <code>Experiment</code> object passed to <code>create_rmd</code>.</p>
+    <p>The DGP, Method, Evaluator, and Visualizer IDs in this
+<code>Experiment</code> that have been cached (i.e., saved to disk).</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
