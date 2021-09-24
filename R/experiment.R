@@ -199,7 +199,22 @@ Experiment <- R6::R6Class(
                                   }
                                 }) %>%
         purrr::reduce(c)
+      # fix duplicate names in dgp and method vary across components
+      if (all(c("dgp", "method") %in% field_name)) {
+        same_names <- unique(param_names[duplicated(param_names)])
+        if (length(same_names) >= 1) {
+          unique_param_names <- setdiff(param_names, same_names)
+          same_param_names <- c(paste0(same_names, "_dgp"),
+                                paste0(same_names, "_method"))
+          param_names <- c(unique_param_names, same_param_names)
+        }
+      }
       return(param_names)
+    },
+    .get_duplicate_param_names = function() {
+      dgp_params <- private$.get_vary_params("dgp")
+      method_params <- private$.get_vary_params("method")
+      return(intersect(dgp_params, method_params))
     },
     .combine_vary_params = function(field_name = c("dgp", "method")) {
       field_name <- match.arg(field_name)
@@ -270,13 +285,22 @@ Experiment <- R6::R6Class(
       }
 
       if (simplify) {
+        duplicate_param_names <- private$.get_duplicate_param_names()
         for (param_name in private$.get_vary_params("dgp")) {
-          out_params[[param_name]] <- purrr::map(out_params$.dgp,
-                                                 ~.x[[param_name]])
+          # fix naming if also in method vary across
+          col_name <- ifelse(param_name %in% duplicate_param_names,
+                             paste0(param_name, "_dgp"),
+                             param_name)
+          out_params[[col_name]] <- purrr::map(out_params$.dgp,
+                                               ~.x[[param_name]])
         }
         for (param_name in private$.get_vary_params("method")) {
-          out_params[[param_name]] <- purrr::map(out_params$.method,
-                                                 ~.x[[param_name]])
+          # fix naming if also in dgp vary across
+          col_name <- ifelse(param_name %in% duplicate_param_names,
+                             paste0(param_name, "_method"),
+                             param_name)
+          out_params[[col_name]] <- purrr::map(out_params$.method,
+                                               ~.x[[param_name]])
         }
         out_params <- out_params %>%
           dplyr::rename(dgp_name = .dgp_name, method_name = .method_name) %>%
@@ -722,7 +746,8 @@ Experiment <- R6::R6Class(
           }
         }
       }
-
+      
+      duplicate_param_names <- private$.get_duplicate_param_names()
       fit_results <- switch(
         parallel_strategy,
         "reps" = {
@@ -738,9 +763,13 @@ Experiment <- R6::R6Class(
               data_list <- do.call(dgp_list[[dgp_name]]$generate, dgp_params)
               purrr::map(method_params_list, function(method_params) {
                 method_name <- method_params$method_name
-                param_df <- simplify_tibble(list_to_tibble_row(
-                  c(dgp_name = dgp_name, dgp_params, method_params)
-                ))
+                param_df <- fix_duplicate_param_names(
+                  dgp_params = c(dgp_name = dgp_name, dgp_params),
+                  method_params = method_params,
+                  duplicate_param_names = duplicate_param_names
+                ) %>%
+                  list_to_tibble_row() %>%
+                  simplify_tibble()
                 method_params$method_name <- NULL
                 method_params$data_list <- data_list
                 result <- do.call(method_list[[method_name]]$fit,
@@ -773,9 +802,13 @@ Experiment <- R6::R6Class(
                                      dgp_params)
                 purrr::map(method_params_list, function(method_params) {
                   method_name <- method_params$method_name
-                  param_df <- simplify_tibble(list_to_tibble_row(
-                    c(dgp_name = dgp_name, dgp_params, method_params)
-                  ))
+                  param_df <- fix_duplicate_param_names(
+                    dgp_params = c(dgp_name = dgp_name, dgp_params),
+                    method_params = method_params,
+                    duplicate_param_names = duplicate_param_names
+                  ) %>%
+                    list_to_tibble_row() %>%
+                    simplify_tibble()
                   method_params$method_name <- NULL
                   method_params$data_list <- data_list
                   result <- do.call(method_list[[method_name]]$fit,
@@ -807,9 +840,13 @@ Experiment <- R6::R6Class(
                   data_list <- do.call(dgp_list[[dgp_name]]$generate,
                                        dgp_params)
                   method_name <- method_params$method_name
-                  param_df <- simplify_tibble(list_to_tibble_row(
-                    c(dgp_name = dgp_name, dgp_params, method_params)
-                  ))
+                  param_df <- fix_duplicate_param_names(
+                    dgp_params = c(dgp_name = dgp_name, dgp_params),
+                    method_params = method_params,
+                    duplicate_param_names = duplicate_param_names
+                  ) %>%
+                    list_to_tibble_row() %>%
+                    simplify_tibble()
                   method_params$method_name <- NULL
                   method_params$data_list <- data_list
                   result <- do.call(method_list[[method_name]]$fit,
@@ -842,9 +879,13 @@ Experiment <- R6::R6Class(
               data_list <- do.call(dgp_list[[dgp_name]]$generate, dgp_params)
               purrr::map(method_params_list, function(method_params) {
                 method_name <- method_params$method_name
-                param_df <- simplify_tibble(list_to_tibble_row(
-                  c(dgp_name = dgp_name, dgp_params, method_params)
-                ))
+                param_df <- fix_duplicate_param_names(
+                  dgp_params = c(dgp_name = dgp_name, dgp_params),
+                  method_params = method_params,
+                  duplicate_param_names = duplicate_param_names
+                ) %>%
+                  list_to_tibble_row() %>%
+                  simplify_tibble()
                 method_params$method_name <- NULL
                 method_params$data_list <- data_list
                 result <- do.call(method_list[[method_name]]$fit,
@@ -885,9 +926,13 @@ Experiment <- R6::R6Class(
                 data_list <- do.call(dgp_list[[dgp_name]]$generate, 
                                      dgp_params)
                 method_name <- method_params$method_name
-                param_df <- simplify_tibble(list_to_tibble_row(
-                  c(dgp_name = dgp_name, dgp_params, method_params)
-                ))
+                param_df <- fix_duplicate_param_names(
+                  dgp_params = c(dgp_name = dgp_name, dgp_params),
+                  method_params = method_params,
+                  duplicate_param_names = duplicate_param_names
+                ) %>%
+                  list_to_tibble_row() %>%
+                  simplify_tibble()
                 method_params$method_name <- NULL
                 method_params$data_list <- data_list
                 result <- do.call(method_list[[method_name]]$fit,
@@ -933,9 +978,13 @@ Experiment <- R6::R6Class(
                 data_list <- do.call(dgp_list[[dgp_name]]$generate,
                                      dgp_params)
                 method_name <- method_params$method_name
-                param_df <- simplify_tibble(list_to_tibble_row(
-                  c(dgp_name = dgp_name, dgp_params, method_params)
-                ))
+                param_df <- fix_duplicate_param_names(
+                  dgp_params = c(dgp_name = dgp_name, dgp_params),
+                  method_params = method_params,
+                  duplicate_param_names = duplicate_param_names
+                ) %>%
+                  list_to_tibble_row() %>%
+                  simplify_tibble()
                 method_params$method_name <- NULL
                 method_params$data_list <- data_list
                 result <- do.call(method_list[[method_name]]$fit,
@@ -980,9 +1029,13 @@ Experiment <- R6::R6Class(
               data_list <- do.call(dgp_list[[dgp_name]]$generate, 
                                    dgp_params)
               method_name <- method_params$method_name
-              param_df <- simplify_tibble(list_to_tibble_row(
-                c(dgp_name = dgp_name, dgp_params, method_params)
-              ))
+              param_df <- fix_duplicate_param_names(
+                dgp_params = c(dgp_name = dgp_name, dgp_params),
+                method_params = method_params,
+                duplicate_param_names = duplicate_param_names
+              ) %>%
+                list_to_tibble_row() %>%
+                simplify_tibble()
               method_params$method_name <- NULL
               method_params$data_list <- data_list
               result <- do.call(method_list[[method_name]]$fit,

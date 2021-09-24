@@ -1039,10 +1039,21 @@ test_that("Various parallel strategies in experiment work properly", {
                         "data2+method2")
 
   for (strat in strategies) {
-    # TODO: this shouldn't produce an error
-    # see https://github.com/Yu-Group/simChef/issues/75
-    expect_error(results <- experiment$fit(n_reps=2, parallel_strategy=strat,
-                                           verbose=0))
+    results <- experiment$fit(n_reps = 2, parallel_strategy = strat, 
+                              verbose = 0)
+    
+    expect_true(
+      all(c("rep", "dgp_name", "method_name", "y_dgp", "y_method", "result")
+          %in% names(results))
+    )
+    
+    results_tally <- results %>%
+      dplyr::group_by(result) %>%
+      dplyr::tally()
+    
+    expect_true(length(results_tally$result) == 16)
+    expect_true(all(expected_results %in% results_tally$result))
+    expect_equal(results_tally$n, rep(2, 16))
   }
 
 })

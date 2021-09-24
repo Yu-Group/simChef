@@ -150,6 +150,38 @@ simplify_tibble <- function(tib, omit_cols = NULL) {
   return(tib)
 }
 
+#' Fix duplicate vary across parameter names.
+#' 
+#' @description Add "_dgp" or "_method" suffixes to parameter names that are
+#'   found in both the DGP and Method vary across components. This is to avoid
+#'   errors that occur from duplicate column names when trying to create a 
+#'   tibble.
+#'   
+#' @param dgp_params A named list of the DGP parameters.
+#' @param method_params A named list of the Method parameters.
+#' @param duplicate_param_names A vector of parameter names that are varied
+#'   across in both a DGP and a Method
+#' 
+#' @return A named list of the DGP and Method parameters with no duplicate 
+#'   names.
+#' @keywords internal
+fix_duplicate_param_names <- function(dgp_params, method_params,
+                                      duplicate_param_names = NULL) {
+  dgp_param_names <- names(dgp_params)
+  method_param_names <- names(method_params)
+  if (length(duplicate_param_names) >= 1) {
+    dgp_param_names <- ifelse(dgp_param_names %in% duplicate_param_names,
+                              paste0(dgp_param_names, "_dgp"),
+                              dgp_param_names)
+    method_param_names <- ifelse(method_param_names %in% duplicate_param_names,
+                                 paste0(method_param_names, "_method"),
+                                 method_param_names)
+    names(dgp_params) <- dgp_param_names
+    names(method_params) <- method_param_names
+  }
+  return(c(dgp_params, method_params))
+}
+
 #' The point of this method is to undo partial argument matching on the formals
 #' of the method that calls make_initialize_arg_list().
 #'
