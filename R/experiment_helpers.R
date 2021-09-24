@@ -586,15 +586,28 @@ create_doc_template <- function(experiment, save_dir, ...) {
 #'   \code{Experiment$get_save_dir()}).
 #'
 #' @inheritParams create_doc_template
-#' @param open If \code{TRUE}, open the R Markdown-generated html file in a web
-#'   browser.
+#' @param open If \code{TRUE}, open the R Markdown-generated html file in a
+#'   web browser.
+#' @param author Character string of author names to display in knitted R
+#'   Markdown document.
 #' @param verbose Level of verboseness (0, 1, 2) when knitting R Markdown.
 #'   Default is 2.
+#' @param quiet Default is \code{TRUE}. See [rmarkdown::render()] for 
+#'   details.
+#' @param pretty Logical. Specifies whether or not to use pretty R Markdown
+#'   results template or more barebones R Markdown results template. Default
+#'   \code{TRUE} uses the pretty template. Set to \code{FALSE} to start from
+#'   the barebones template, which can be helpful when using your own custom
+#'   R Markdown theme.
+#' @param ... Additional arguments to pass to [rmarkdown::render()]. Useful
+#'   for applying a custom R Markdown output theme.
 #'
 #' @return The original \code{Experiment} object passed to \code{create_rmd}.
 #'
 #' @export
-create_rmd <- function(experiment, save_dir, open = TRUE, verbose = 2) {
+create_rmd <- function(experiment, save_dir, open = TRUE, 
+                       author = "", verbose = 2, quiet = TRUE, pretty = TRUE,
+                       ...) {
   if (missing(experiment) && missing(save_dir)) {
     stop("Must provide argument for one of experiment or save_dir")
   }
@@ -612,5 +625,6 @@ create_rmd <- function(experiment, save_dir, open = TRUE, verbose = 2) {
     }
   }
   experiment$create_doc_template()
-  experiment$create_rmd(open = open, verbose = verbose)
+  experiment$create_rmd(open = open, author = author, verbose = verbose,
+                        quiet = quiet, pretty = pretty, ...)
 }

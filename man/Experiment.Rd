@@ -14,6 +14,8 @@ When run, an \code{Experiment} seamlessly combines \code{DGPs} and
 evaluated using \code{Evaluators} and visualized using \code{Visualizers}.
 }
 \section{Public fields}{
+
+
 \describe{
 \item{\code{name}}{The name of the \code{Experiment}.}
 }

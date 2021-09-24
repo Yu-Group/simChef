@@ -6,7 +6,7 @@
 \usage{
 create_rmd(
   experiment,
-  experiment_dirname,
+  save_dir,
   open = TRUE,
   author = "",
   verbose = 2,
@@ -23,8 +23,8 @@ If not provided, then \code{save_dir} is used instead.}
 \item{save_dir}{An optional directory in which to find saved results. Not
 used if \code{experiment} provided.}
 
-\item{open}{If \code{TRUE}, open the R Markdown-generated html file in a web
-browser.}
+\item{open}{If \code{TRUE}, open the R Markdown-generated html file in a
+web browser.}
 
 \item{author}{Character string of author names to display in knitted R
 Markdown document.}
