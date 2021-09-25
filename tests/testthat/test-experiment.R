@@ -383,14 +383,21 @@ test_that("Fitting experiment works properly", {
 })
 
 test_that("Evaluating experiment works properly", {
+  dgp_fun <- function(x, y = NULL) x + 1
+  dgp <- DGP$new(dgp_fun, x = 1)
+  method_fun <- function(x, y = NULL) x * 1
+  method <- Method$new(method_fun)
   fit_results_fun <- function(fit_results) fit_results
   fit_results_eval <- create_evaluator(eval_fun = fit_results_fun)
   vary_params_fun <- function(vary_params = NULL) vary_params
   vary_params_eval <- create_evaluator(eval_fun = vary_params_fun)
-  fit_results <- tibble::tibble(a = 1:3)
 
+  experiment <- create_experiment(name = "test-evaluate") %>%
+    add_dgp(dgp, "DGP") %>%
+    add_method(method, "Method")
+  fit_results <- experiment$fit(verbose = 0)
+  
   # with no evaluators
-  experiment <- create_experiment(name = "test-evaluate")
   expect_error(experiment$evaluate(fit_results = fit_results, verbose = 0), NA)
 
   # with one evaluator
@@ -407,7 +414,11 @@ test_that("Evaluating experiment works properly", {
     eval_results,
     evaluate_experiment(experiment, fit_results = fit_results, verbose = 0)
   )
-  expect_snapshot_output(eval_results)
+  expect_equal(
+    eval_results,
+    list(`Fit Results` = tibble::tibble(rep = as.character(1), dgp_name = "DGP", 
+                                        method_name = "Method", result1 = 2))
+  )
 
   # check that multiple evaluators works
   experiment %>% add_evaluator(vary_params_eval, name = "Vary Params")
@@ -421,21 +432,35 @@ test_that("Evaluating experiment works properly", {
     eval_results,
     evaluate_experiment(experiment, fit_results = fit_results, verbose = 0)
   )
-  expect_snapshot_output(eval_results)
+  expect_equal(
+    eval_results,
+    list(`Fit Results` = tibble::tibble(rep = as.character(1), dgp_name = "DGP", 
+                                        method_name = "Method", result1 = 2),
+         `Vary Params` = tibble::tibble())
+  )
 })
 
 test_that("Plotting experiment works properly", {
 
+  dgp_fun <- function(x, y = NULL) x + 1
+  dgp <- DGP$new(dgp_fun, x = 1)
+  method_fun <- function(x, y = NULL) x * 1
+  method <- Method$new(method_fun)
+  fit_results_fun <- function(fit_results) fit_results
+  fit_results_eval <- create_evaluator(eval_fun = fit_results_fun)
   fit_plot_fun <- function(fit_results) fit_results
   fit_plot <- create_visualizer(visualizer_fun = fit_plot_fun)
   eval_plot_fun <- function(eval_results) eval_results
   eval_plot <- create_visualizer(visualizer_fun = eval_plot_fun)
 
-  fit_results <- list(tibble::tibble(a = "fit"))
-  eval_results <- list(tibble::tibble(a = "eval"))
+  experiment <- create_experiment(name = "test-evaluate") %>%
+    add_dgp(dgp, "DGP") %>%
+    add_method(method, "Method") %>%
+    add_evaluator(fit_results_eval, "Evaluator")
+  fit_results <- experiment$fit(verbose = 0)
+  eval_results <- experiment$evaluate(fit_results, verbose = 0)
 
   # with no visualizers
-  experiment <- create_experiment(name = "test-visualize")
   expect_error(experiment$visualize(fit_results = fit_results,
                                     eval_results = eval_results,
                                     verbose = 0), 
@@ -451,7 +476,10 @@ test_that("Plotting experiment works properly", {
     visualize_experiment(experiment, fit_results = fit_results,
                          eval_results = eval_results, verbose = 0)
   )
-  expect_snapshot_output(visualize_results)
+  expect_equal(
+    visualize_results,
+    list(`Fit Results` = fit_results)
+  )
   
   # check that multiple visualizers works
   experiment %>% add_visualizer(eval_plot, name = "Vary Params")
@@ -463,7 +491,10 @@ test_that("Plotting experiment works properly", {
     visualize_experiment(experiment, fit_results = fit_results,
                          eval_results = eval_results, verbose = 0)
   )
-  expect_snapshot_output(visualize_results)
+  expect_equal(
+    visualize_results,
+    list(`Fit Results` = fit_results, `Vary Params` = eval_results)
+  )
 })
 
 test_that("Add/update/remove vary across works properly", {
@@ -731,6 +762,14 @@ test_that("Caching in Experiment runs properly", {
     add_evaluator(fit_results_eval, name = "Evaluator1") %>%
     add_visualizer(fit_plot, name = "Visualizer1")
   
+  # remove cache
+  if (dir.exists(file.path("results", "test-cache"))) {
+    for (fname in list.files(file.path("results", "test-cache"),
+                             recursive = T, full.names = TRUE)) {
+      file.remove(fname)
+    }
+  }
+  
   # basic cache usage
   verbose <- 0
   results0 <- experiment$run(n_reps = 10, use_cached = TRUE, save = FALSE,
@@ -905,8 +944,50 @@ test_that("Caching in Experiment runs properly", {
                               verbose = verbose)
   expect_false(identical(results11$fit_results, results10$fit_results))
   
-  # check running fit, evaluate, and visualize separately
+  # check caching works when not saving
+  results12 <- experiment$run(n_reps = 4, use_cached = TRUE, save = FALSE,
+                              verbose = verbose)
+  expect_true(identical(results11$fit_results %>%
+                          dplyr::filter(as.numeric(rep) <= 4), 
+                        results12$fit_results))
+  results13 <- experiment$run(n_reps = 10, use_cached = TRUE, save = FALSE,
+                              verbose = verbose)
+  expect_true(identical(results13, results11))
   
+  # check running fit, evaluate, and visualize separately
+  fit_results <- experiment$fit(n_reps = 10, use_cached = TRUE, save = TRUE,
+                                verbose = verbose)
+  eval_results <- experiment$evaluate(fit_results, use_cached = TRUE, 
+                                      save = TRUE, verbose = verbose)
+  visualize_results <- experiment$visualize(fit_results, eval_results,
+                                            use_cached = TRUE, save = TRUE,
+                                            verbose = verbose)
+  fit_results <- experiment$fit(n_reps = 4, use_cached = TRUE, save = FALSE,
+                                verbose = verbose)
+  eval_results <- experiment$evaluate(fit_results, use_cached = TRUE,
+                                      save = FALSE, verbose = verbose)
+  visualize_results <- experiment$visualize(fit_results, eval_results,
+                                            use_cached = TRUE, save = FALSE,
+                                            verbose = verbose)
+  # check with non-standard combos of save = T and F are used
+  fit_results2 <- experiment$fit(n_reps = 12, use_cached = TRUE, save = FALSE,
+                                 verbose = verbose)
+  experiment %>% 
+    add_evaluator(vary_params_eval, "Evaluator2")
+  eval_results2 <- experiment$evaluate(fit_results2, use_cached = TRUE,
+                                       save = TRUE, verbose = verbose)
+  expect_false(identical(eval_results2$Evaluator1, eval_results$Evaluator1))
+  visualize_results2 <- experiment$visualize(fit_results2, eval_results2,
+                                             use_cached = TRUE, save = FALSE,
+                                             verbose = verbose)
+  expect_false(identical(visualize_results, visualize_results2))
+  cached_params <- readRDS(
+    file.path("results", "test-cache", "DGP1-Method1", "Varying x-y",
+              "experiment_cached_params.rds")
+  )
+  expect_equal(cached_params$fit$fit$n_reps, rep(10, 8))
+  expect_equal(cached_params$evaluate$fit$n_reps, rep(12, 8))
+  expect_equal(cached_params$visualize$fit$n_reps, rep(10, 8))
 })
 
 test_that("Saving methods in Experiment works properly", {

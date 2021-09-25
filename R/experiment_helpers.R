@@ -450,14 +450,25 @@ clear_cache <- function(experiment) {
 
 #' Retrieve cached results from previously saved \code{Experiment}.
 #'
-#' @name get_cache
+#' @name get_cached_results
+#' @description Read in cached results from disk from a previously saved
+#'   \code{Experiment}.
 #'
 #' @inheritParams shared_experiment_helpers_args
+#' @param results_type Character string indicating the type of results to read
+#'   in. Must be one of "experiment", "experiment_cached_params", "fit", "eval",
+#'   or "visualize".
 #'
-#' @return The DGP, Method, Evaluator, and Visualizer IDs in this
-#'   \code{Experiment} that have been cached (i.e., saved to disk).
-get_cache <- function(experiment) {
-  experiment$get_cache()
+#' @return The cached results, specifically the cached \code{Experiment} object
+#'   if \code{results_type = "experiment"}, the cached fit results if 
+#'   \code{results_type = "fit"}, the cached evaluation results if 
+#'   \code{results_type = "eval"}, the cached visualization results if
+#'   \code{results_type = "visualize"}, and the experiment parameters used in 
+#'   the cache if \code{results_type = "experiment_cached_params"}.
+#'   
+#' @export
+get_cached_results <- function(experiment, results_type, verbose = 0) {
+  experiment$get_cached_results(results_type = results_type, verbose = verbose)
 }
 
 #' Set R Markdown options for \code{Evaluator} and \code{Visualizer} outputs in

@@ -182,6 +182,41 @@ fix_duplicate_param_names <- function(dgp_params, method_params,
   return(c(dgp_params, method_params))
 }
 
+#' Compare two tibbles.
+#' 
+#' @description Compare two tibbles for equality or containment.
+#'   
+#' @param x A tibble with unique rows.
+#' @param y A tibble with unique rows.
+#' @param op Name of opertaion.
+#' 
+#' @return If \code{op == "equal"}, returns a boolean indicating if \code{x} and
+#'   \code{y} have the same rows, ignoring the row order. If 
+#'   \code{op == "contained_in"}, returns a boolean indicating if all rows in 
+#'   \code{x} are contained in the rows of \code{y}.
+#' @keywords internal
+compare_tibble_rows <- function(x, y, op = c("equal", "contained_in")) {
+  op <- match.arg(op)
+  if ((!tibble::is_tibble(x)) | (!tibble::is_tibble(y))) {
+    stop("x and y must be tibbles.")
+  }
+  if (ncol(x) != ncol(y)) {
+    return(FALSE)
+  }
+  if (identical(op, "equal")) {
+    if (nrow(x) != nrow(y)) {
+      return(FALSE)
+    }
+  } else if (identical(op, "contained_in")) {
+    if (nrow(x) > nrow(y)) {
+      return(FALSE)
+    }
+  }
+  duplicated_rows <- dplyr::bind_rows(x, y) %>%
+    duplicated(fromLast = TRUE)
+  return(all(duplicated_rows[1:nrow(x)]))
+}
+
 #' The point of this method is to undo partial argument matching on the formals
 #' of the method that calls make_initialize_arg_list().
 #'
