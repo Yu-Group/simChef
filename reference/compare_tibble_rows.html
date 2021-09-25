@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>R6 class representing a simulation experiment. — Experiment • simChef</title>
+<title>Compare two tibbles. — compare_tibble_rows • simChef</title>
 
 
 <!-- jquery -->
@@ -39,9 +39,8 @@
 
 
 
-<meta property="og:title" content="R6 class representing a simulation experiment. — Experiment" />
-<meta property="og:description" content="A simulation experiment with any number of DGPs,
-Methods, Evaluators, and Visualizers." />
+<meta property="og:title" content="Compare two tibbles. — compare_tibble_rows" />
+<meta property="og:description" content="Compare two tibbles for equality or containment." />
 
 
 
@@ -119,74 +118,40 @@ Methods, Evaluators, and Visualizers." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1><code>R6</code> class representing a simulation experiment.</h1>
+    <h1>Compare two tibbles.</h1>
     
-    <div class="hidden name"><code>Experiment.Rd</code></div>
+    <div class="hidden name"><code>compare_tibble_rows.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>A simulation experiment with any number of <code>DGPs</code>,
-<code>Methods</code>, <code>Evaluators</code>, and <code>Visualizers</code>.</p>
+    <p>Compare two tibbles for equality or containment.</p>
     </div>
 
+    <pre class="usage"><span class='fu'>compare_tibble_rows</span><span class='op'>(</span><span class='va'>x</span>, <span class='va'>y</span>, op <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"equal"</span>, <span class='st'>"contained_in"</span><span class='op'>)</span><span class='op'>)</span></pre>
 
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>x</th>
+      <td><p>A tibble with unique rows.</p></td>
+    </tr>
+    <tr>
+      <th>y</th>
+      <td><p>A tibble with unique rows.</p></td>
+    </tr>
+    <tr>
+      <th>op</th>
+      <td><p>Name of opertaion.</p></td>
+    </tr>
+    </table>
 
-    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>When run, an <code>Experiment</code> seamlessly combines <code>DGPs</code> and
-<code>Methods</code>, computing results in parallel. Those results can then be
-evaluated using <code>Evaluators</code> and visualized using <code>Visualizers</code>.</p>
-    <h2 class="hasAnchor" id="public-fields"><a class="anchor" href="#public-fields"></a>Public fields</h2>
-
-    
-
-
-<dl>
-<dt><code>name</code></dt><dd><p>The name of the <code>Experiment</code>.</p></dd>
-
-</dl>
-
-    <h2 class="hasAnchor" id="public-methods"><a class="anchor" href="#public-methods"></a>Public methods</h2>
-
-    
-
-
-<ul>
-<li><p><code>Experiment$new()</code> See <a href='create_experiment.html'>create_experiment</a>.</p></li>
-<li><p><code>Experiment$run()</code> See <a href='run_experiment.html'>run_experiment</a>.</p></li>
-<li><p><code>Experiment$generate_data()</code> See <a href='generate_data.html'>generate_data</a>.</p></li>
-<li><p><code>Experiment$fit()</code> See <a href='fit_experiment.html'>fit_experiment</a>.</p></li>
-<li><p><code>Experiment$evaluate()</code> See <a href='evaluate_experiment.html'>evaluate_experiment</a>.</p></li>
-<li><p><code>Experiment$visualize()</code> See <a href='visualize_experiment.html'>visualize_experiment</a>.</p></li>
-<li><p><code>Experiment$create_doc_template()</code> See <a href='create_doc_template.html'>create_doc_template</a>.</p></li>
-<li><p><code>Experiment$create_rmd()</code> See <a href='create_rmd.html'>create_rmd</a>.</p></li>
-<li><p><code>Experiment$add_dgp()</code> See <a href='add_funs.html'>add_dgp</a>.</p></li>
-<li><p><code>Experiment$update_dgp()</code> See <a href='update_funs.html'>update_dgp</a>.</p></li>
-<li><p><code>Experiment$remove_dgp()</code> See <a href='remove_funs.html'>remove_dgp</a>.</p></li>
-<li><p><code>Experiment$get_dgps()</code> See <a href='get_funs.html'>get_dgps</a>.</p></li>
-<li><p><code>Experiment$add_method()</code> See <a href='add_funs.html'>add_method</a>.</p></li>
-<li><p><code>Experiment$update_method()</code> See <a href='update_funs.html'>update_method</a>.</p></li>
-<li><p><code>Experiment$remove_method()</code> See <a href='remove_funs.html'>remove_method</a>.</p></li>
-<li><p><code>Experiment$get_methods()</code> See <a href='get_funs.html'>get_methods</a>.</p></li>
-<li><p><code>Experiment$add_evaluator()</code> See <a href='add_funs.html'>add_evaluator</a>.</p></li>
-<li><p><code>Experiment$update_evaluator()</code> See <a href='update_funs.html'>update_evaluator</a>.</p></li>
-<li><p><code>Experiment$remove_evaluator()</code> See <a href='remove_funs.html'>remove_evaluator</a>.</p></li>
-<li><p><code>Experiment$get_evaluators()</code> See <a href='get_funs.html'>get_evaluators</a>.</p></li>
-<li><p><code>Experiment$add_visualizer()</code> See <a href='add_funs.html'>add_visualizer</a>.</p></li>
-<li><p><code>Experiment$update_visualizer()</code> See <a href='update_funs.html'>update_visualizer</a>.</p></li>
-<li><p><code>Experiment$remove_visualizer()</code> See <a href='remove_funs.html'>remove_visualizer</a>.</p></li>
-<li><p><code>Experiment$get_visualizers()</code> See <a href='get_funs.html'>get_visualizers</a>.</p></li>
-<li><p><code>Experiment$add_vary_across()</code> See <a href='vary_across.html'>add_vary_across</a>.</p></li>
-<li><p><code>Experiment$update_vary_across()</code> See <a href='vary_across.html'>update_vary_across</a>.</p></li>
-<li><p><code>Experiment$remove_vary_across()</code> See <a href='vary_across.html'>remove_vary_across</a>.</p></li>
-<li><p><code>Experiment$get_vary_across()</code> See <a href='vary_across.html'>get_vary_across</a>.</p></li>
-<li><p><code>Experiment$clear_cache()</code> See <a href='clear_cache.html'>clear_cache</a>.</p></li>
-<li><p><code>Experiment$get_cached_results()</code> See <a href='get_cached_results.html'>get_cached_results</a>.</p></li>
-<li><p><code>Experiment$set_rmd_options()</code> See <a href='set_rmd_options.html'>set_rmd_options</a>.</p></li>
-<li><p><code>Experiment$set_save_dir()</code> See <a href='set_save_dir.html'>set_save_dir</a>.</p></li>
-<li><p><code>Experiment$save()</code> See <a href='save_experiment.html'>save_experiment</a>.</p></li>
-</ul>
-
+    <p>If <code>op == "equal"</code>, returns a boolean indicating if <code>x</code> and
+<code>y</code> have the same rows, ignoring the row order. If
+<code>op == "contained_in"</code>, returns a boolean indicating if all rows in
+<code>x</code> are contained in the rows of <code>y</code>.</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
