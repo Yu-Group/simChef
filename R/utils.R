@@ -322,3 +322,41 @@ make_initialize_arg_list <- function(obj_fun, ..., which=-1) {
   args_list[[obj_fun_name]] <- obj_fun
   return(args_list)
 }
+
+#' Call a function with given parameters and if an error, warning, or message
+#' occurs during the call print information about the call to the console.
+#'
+#' @param name a name to give some context for the call
+#' @param fun a function to call
+#' @param params arguments to pass to fun
+#'
+#' @return the results of calling fun with params
+#' @keywords internal
+do_call_handler <- function(name, fun, params = list()) {
+  if (length(params) == 0) {
+    params_str <- ""
+  } else {
+    params_str <- paste0(capture.output(tibble::glimpse(params))[-1], collapse="\n")
+    params_str <- paste0(" with params:\n", params_str)
+  }
+  msg <- paste0(" occured while processing *", name, "*", params_str)
+  handler <- function(condition = c("Error", "Warning", "Message")) {
+    condition <- match.arg(condition)
+    condition_str <- paste0("\n", condition)
+    function(c) {
+      cat(paste0(condition_str, msg))
+      cat(paste0("\nThe ", tolower(condition), ": "))
+      cat(c$message)
+      cat("\n")
+    }
+  }
+  # As opposed to tryCatch, this registers a local handler in the context of the
+  # call that generated the error, warning, or message and continues from where
+  # the code left off when the condition was generated.
+  withCallingHandlers(
+    do.call(fun, params),
+    error = handler(),
+    warning = handler("Warning"),
+    message = handler("Message")
+  )
+}

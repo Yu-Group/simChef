@@ -373,7 +373,7 @@ Experiment <- R6::R6Class(
           return(NULL)
         }
       }
-      
+
       if (identical(results_type, "fit")) {
         cached_fit_params <- cached_params$fit %>%
           dplyr::filter(as.numeric(n_reps) >= {{nreps}}) %>%
@@ -391,7 +391,7 @@ Experiment <- R6::R6Class(
           viz_cached_op <- "contained_in"
         }
       }
-      
+
       fit_params <- private$.get_fit_params()
       fit_cached <- compare_tibble_rows(fit_params, cached_fit_params,
                                         op = fit_cached_op)
@@ -407,7 +407,7 @@ Experiment <- R6::R6Class(
         eval_fun = purrr::map(evaluator_list, "eval_fun"),
         eval_params = purrr::map(evaluator_list, "eval_params")
       )
-      eval_cached <- compare_tibble_rows(evaluate_params, 
+      eval_cached <- compare_tibble_rows(evaluate_params,
                                          cached_params$evaluate,
                                          op = eval_cached_op)
       if (identical(results_type, "eval")) {
@@ -484,7 +484,7 @@ Experiment <- R6::R6Class(
       }
       file.remove(file.path(save_dir, "experiment_cached_params.rds"))
     },
-    .get_cache = function(results_type = c("all", "fit", "evaluate", 
+    .get_cache = function(results_type = c("all", "fit", "evaluate",
                                            "visualize")) {
       results_type <- match.arg(results_type)
       cached_params <- private$.get_cached_results("experiment_cached_params",
@@ -516,7 +516,7 @@ Experiment <- R6::R6Class(
         cached_params_all$fit <- cached_params
         return(cached_params_all)
       }
-      
+
       evaluator_list <- private$.get_obj_list("evaluator")
       cached_params$evaluate <- tibble::tibble(
         eval_name = names(evaluator_list),
@@ -527,7 +527,7 @@ Experiment <- R6::R6Class(
         cached_params_all$evaluate <- cached_params
         return(cached_params_all)
       }
-      
+
       visualizer_list <- private$.get_obj_list("visualizer")
       cached_params$visualize <- tibble::tibble(
         visualizer_name = names(visualizer_list),
@@ -537,7 +537,7 @@ Experiment <- R6::R6Class(
       cached_params_all$visualize <- cached_params
       return(cached_params_all)
     },
-    .save_results = function(results, 
+    .save_results = function(results,
                              results_type = c("fit", "eval", "visualize"),
                              n_reps, verbose = 1) {
       results_type <- match.arg(results_type)
@@ -560,9 +560,9 @@ Experiment <- R6::R6Class(
       if (!dir.exists(dirname(save_file))) {
         dir.create(dirname(save_file), recursive = TRUE)
       }
-      cached_params <- private$.update_cache(results_type = results_type, 
+      cached_params <- private$.update_cache(results_type = results_type,
                                              n_reps = n_reps)
-      saveRDS(cached_params, 
+      saveRDS(cached_params,
               file.path(save_dir, "experiment_cached_params.rds"))
       saveRDS(self, file.path(save_dir, "experiment.rds"))
       saveRDS(results, save_file)
@@ -767,7 +767,7 @@ Experiment <- R6::R6Class(
           }
         }
       }
-      
+
       duplicate_param_names <- private$.get_duplicate_param_names()
       fit_results <- switch(
         parallel_strategy,
@@ -781,7 +781,9 @@ Experiment <- R6::R6Class(
               }
               dgp_name <- dgp_params$dgp_name
               dgp_params$dgp_name <- NULL
-              data_list <- do.call(dgp_list[[dgp_name]]$generate, dgp_params)
+              data_list <- do_call_handler(
+                dgp_name, dgp_list[[dgp_name]]$generate, dgp_params
+              )
               purrr::map(method_params_list, function(method_params) {
                 method_name <- method_params$method_name
                 param_df <- fix_duplicate_param_names(
@@ -793,15 +795,16 @@ Experiment <- R6::R6Class(
                   simplify_tibble()
                 method_params$method_name <- NULL
                 method_params$data_list <- data_list
-                result <- do.call(method_list[[method_name]]$fit,
-                                  method_params)
+                result <- do_call_handler(
+                  method_name, method_list[[method_name]]$fit, method_params
+                )
                 return(result %>% tibble::add_column(param_df, .before=1))
               }) %>%
                 data.table::rbindlist(fill = TRUE)
             }) %>%
               data.table::rbindlist(fill = TRUE) %>%
               tibble::as_tibble()
-          }, 
+          },
           simplify = FALSE,
           future.globals = future.globals,
           future.packages = future.packages,
@@ -819,8 +822,9 @@ Experiment <- R6::R6Class(
               reps <- replicate(n_reps, {
                 dgp_name <- dgp_params$dgp_name
                 dgp_params$dgp_name <- NULL
-                data_list <- do.call(dgp_list[[dgp_name]]$generate, 
-                                     dgp_params)
+                data_list <- do_call_handler(
+                  dgp_name, dgp_list[[dgp_name]]$generate, dgp_params
+                )
                 purrr::map(method_params_list, function(method_params) {
                   method_name <- method_params$method_name
                   param_df <- fix_duplicate_param_names(
@@ -832,8 +836,9 @@ Experiment <- R6::R6Class(
                     simplify_tibble()
                   method_params$method_name <- NULL
                   method_params$data_list <- data_list
-                  result <- do.call(method_list[[method_name]]$fit,
-                                    method_params)
+                  result <- do_call_handler(
+                    method_name, method_list[[method_name]]$fit, method_params
+                  )
                   return(result %>% tibble::add_column(param_df, .before=1))
                 }) %>%
                   data.table::rbindlist(fill = TRUE)
@@ -858,8 +863,9 @@ Experiment <- R6::R6Class(
                 purrr::map(dgp_params_list, function(dgp_params) {
                   dgp_name <- dgp_params$dgp_name
                   dgp_params$dgp_name <- NULL
-                  data_list <- do.call(dgp_list[[dgp_name]]$generate,
-                                       dgp_params)
+                  data_list <- do_call_handler(
+                    dgp_name, dgp_list[[dgp_name]]$generate, dgp_params
+                  )
                   method_name <- method_params$method_name
                   param_df <- fix_duplicate_param_names(
                     dgp_params = c(dgp_name = dgp_name, dgp_params),
@@ -870,8 +876,9 @@ Experiment <- R6::R6Class(
                     simplify_tibble()
                   method_params$method_name <- NULL
                   method_params$data_list <- data_list
-                  result <- do.call(method_list[[method_name]]$fit,
-                                    method_params)
+                  result <- do_call_handler(
+                    method_name, method_list[[method_name]]$fit, method_params
+                  )
                   return(result %>% tibble::add_column(param_df, .before=1))
                 }) %>%
                   data.table::rbindlist(fill = TRUE)
@@ -897,7 +904,9 @@ Experiment <- R6::R6Class(
               }
               dgp_name <- dgp_params$dgp_name
               dgp_params$dgp_name <- NULL
-              data_list <- do.call(dgp_list[[dgp_name]]$generate, dgp_params)
+              data_list <- do_call_handler(
+                dgp_name, dgp_list[[dgp_name]]$generate, dgp_params
+              )
               purrr::map(method_params_list, function(method_params) {
                 method_name <- method_params$method_name
                 param_df <- fix_duplicate_param_names(
@@ -909,12 +918,13 @@ Experiment <- R6::R6Class(
                   simplify_tibble()
                 method_params$method_name <- NULL
                 method_params$data_list <- data_list
-                result <- do.call(method_list[[method_name]]$fit,
-                                  method_params)
+                result <- do_call_handler(
+                  method_name, method_list[[method_name]]$fit, method_params
+                )
                 return(result %>% tibble::add_column(param_df, .before=1))
               }) %>%
                 data.table::rbindlist(fill = TRUE)
-            }, 
+            },
             future.seed = future.seed,
             future.globals = future.globals,
             future.packages = future.packages
@@ -944,8 +954,9 @@ Experiment <- R6::R6Class(
               purrr::map(dgp_params_list, function(dgp_params) {
                 dgp_name <- dgp_params$dgp_name
                 dgp_params$dgp_name <- NULL
-                data_list <- do.call(dgp_list[[dgp_name]]$generate, 
-                                     dgp_params)
+                data_list <- do_call_handler(
+                  dgp_name, dgp_list[[dgp_name]]$generate, dgp_params
+                )
                 method_name <- method_params$method_name
                 param_df <- fix_duplicate_param_names(
                   dgp_params = c(dgp_name = dgp_name, dgp_params),
@@ -956,8 +967,9 @@ Experiment <- R6::R6Class(
                   simplify_tibble()
                 method_params$method_name <- NULL
                 method_params$data_list <- data_list
-                result <- do.call(method_list[[method_name]]$fit,
-                                  method_params)
+                result <- do_call_handler(
+                  method_name, method_list[[method_name]]$fit, method_params
+                )
                 return(result %>% tibble::add_column(param_df, .before=1))
               }) %>%
                 data.table::rbindlist(fill = TRUE)
@@ -996,8 +1008,9 @@ Experiment <- R6::R6Class(
               reps <- replicate(n_reps, {
                 dgp_name <- dgp_params$dgp_name
                 dgp_params$dgp_name <- NULL
-                data_list <- do.call(dgp_list[[dgp_name]]$generate,
-                                     dgp_params)
+                data_list <- do_call_handler(
+                  dgp_name, dgp_list[[dgp_name]]$generate, dgp_params
+                )
                 method_name <- method_params$method_name
                 param_df <- fix_duplicate_param_names(
                   dgp_params = c(dgp_name = dgp_name, dgp_params),
@@ -1008,8 +1021,9 @@ Experiment <- R6::R6Class(
                   simplify_tibble()
                 method_params$method_name <- NULL
                 method_params$data_list <- data_list
-                result <- do.call(method_list[[method_name]]$fit,
-                                  method_params)
+                result <- do_call_handler(
+                  method_name, method_list[[method_name]]$fit, method_params
+                )
                 return(result %>% tibble::add_column(param_df, .before=1))
               }, simplify=FALSE)
               dplyr::bind_rows(reps, .id = "rep")
@@ -1047,8 +1061,9 @@ Experiment <- R6::R6Class(
             function(dgp_params, method_params) {
               dgp_name <- dgp_params$dgp_name
               dgp_params$dgp_name <- NULL
-              data_list <- do.call(dgp_list[[dgp_name]]$generate, 
-                                   dgp_params)
+              data_list <- do_call_handler(
+                dgp_name, dgp_list[[dgp_name]]$generate, dgp_params
+              )
               method_name <- method_params$method_name
               param_df <- fix_duplicate_param_names(
                 dgp_params = c(dgp_name = dgp_name, dgp_params),
@@ -1059,8 +1074,9 @@ Experiment <- R6::R6Class(
                 simplify_tibble()
               method_params$method_name <- NULL
               method_params$data_list <- data_list
-              result <- do.call(method_list[[method_name]]$fit,
-                                method_params)
+              result <- do_call_handler(
+                method_name, method_list[[method_name]]$fit, method_params
+              )
               return(result %>% tibble::add_column(param_df, .before=1))
             },
             dgp_mapply_args, method_mapply_args,
@@ -1074,7 +1090,7 @@ Experiment <- R6::R6Class(
           results
         }
       )
-      
+
       attr(fit_results, ".internal.selfref") <- NULL
       for (col in setdiff(private$.get_vary_params(), colnames(fit_results))) {
         fit_results[[col]] <- NA
@@ -1127,7 +1143,7 @@ Experiment <- R6::R6Class(
         }
         return(NULL)
       }
-      
+
       n_reps <- max(as.numeric(fit_results$rep))
       private$.update_fit_params()
       if (use_cached) {
@@ -1149,7 +1165,7 @@ Experiment <- R6::R6Class(
         } else if (is.null(is_cached)) {
           use_cached <- FALSE
         } else {
-          evaluator_list <- private$.get_new_obj_list(cached_params, 
+          evaluator_list <- private$.get_new_obj_list(cached_params,
                                                       "evaluator")
         }
       }
@@ -1297,10 +1313,10 @@ Experiment <- R6::R6Class(
                           pretty = TRUE, ...) {
       self$create_doc_template()
       if (pretty) {
-        input_fname <- system.file("rmd", "results_pretty.Rmd", 
+        input_fname <- system.file("rmd", "results_pretty.Rmd",
                                    package = packageName())
       } else {
-        input_fname <- system.file("rmd", "results.Rmd", 
+        input_fname <- system.file("rmd", "results.Rmd",
                                    package = packageName())
       }
       output_fname <- file.path(private$.save_dir, paste0(self$name, ".html"))
