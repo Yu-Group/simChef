@@ -336,7 +336,9 @@ do_call_handler <- function(name, fun, params = list()) {
   if (length(params) == 0) {
     params_str <- ""
   } else {
-    params_str <- paste0(capture.output(tibble::glimpse(params))[-1], collapse="\n")
+    params_str <- paste0(
+      utils::capture.output(tibble::glimpse(params))[-1], collapse="\n"
+    )
     params_str <- paste0(" with params:\n", params_str)
   }
   msg <- paste0(" occured while processing *", name, "*", params_str)
