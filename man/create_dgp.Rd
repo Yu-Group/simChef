@@ -10,8 +10,8 @@ create_dgp(dgp_fun, name = NULL, ...)
 \item{dgp_fun}{The data-generating process function.}
 
 \item{name}{(Optional) The name of the \code{DGP}. The argument must be
-specified by position or typed out in whole; no partial matching is allowed
-for this argument.}
+specified by position or typed out in whole; no partial matching is
+allowed.}
 
 \item{...}{Arguments to pass into \code{dgp_fun()}.}
 }

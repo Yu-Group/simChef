@@ -26,8 +26,24 @@ R Markdown report.}
 \item{...}{Arguments to pass into \code{eval_fun()}.}
 }
 \value{
-A new instance of \code{Evaluator}.
+A new \code{Evaluator} object.
 }
 \description{
 Create a new \code{Evaluator}.
+}
+\details{
+When evaluating or running the \code{Experiment} (see
+\code{evaluate_experiment()} or \code{run_experiment()}), the named
+arguments \code{fit_results} and \code{vary_params} are automatically
+passed into the \code{Evaluator} function \code{eval_fun()} and serve
+as placeholders for the \code{fit_experiment()} results (i.e., the
+results from the method fits) and the name of the varying parameter,
+respectively. To evaluate the performance of a method(s) fit then,
+the \code{Evaluator} function \code{eval_fun()} should almost always
+take in the named argument \code{fit_results}. See
+\code{Experiment$fit()} or \code{fit_experiment()} for details on the
+format of \code{fit_results}. If the \code{Evaluator}
+is used for \code{Experiments} with varying parameters,
+\code{vary_params} should be used as a stand in for the name of this
+varying parameter.
 }

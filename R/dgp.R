@@ -5,26 +5,15 @@
 #' @description A data-generating process which will be used in the
 #'   \code{Experiment} to **generate** data.
 #'
+#' @template dgp-template
+#'
 #' @export
 DGP <- R6::R6Class(
   classname = 'DGP',
   public = list(
-    #' @field name The name of the \code{DGP}.
     name = NULL,
-    #' @field dgp_fun The data-generating process function.
     dgp_fun = NULL,
-    #' @field dgp_params (Named) list of parameters to input into the
-    #'   data-generating process function.
     dgp_params = NULL,
-    #' @description Create a new \code{DGP} (data-generating process).
-    #'
-    #' @param dgp_fun The data-generating process function.
-    #' @param name (Optional) The name of the \code{DGP}. The argument must be
-    #'   specified by position or typed out in whole; no partial matching is
-    #'   allowed for this argument.
-    #' @param ... Arguments to pass into \code{dgp_fun()}.
-    #'
-    #' @return A new \code{DGP} object.
     initialize = function(dgp_fun, name = NULL, ...) {
       dots_list <- list(...)
       if (".args_list" %in% names(dots_list)) {
@@ -39,15 +28,15 @@ DGP <- R6::R6Class(
       args_list$name <- NULL
       self$dgp_params <- args_list
     },
-    #' @description Generate data from a \code{DGP} with the provided \code{DGP}
-    #'   parameters.
-    #'
-    #' @param ... Arguments to pass into \code{dgp_fun()} that will overwrite
-    #'   the initialized \code{DGP} parameters. If no additional arguments are
-    #'   provided, data will be generated using \code{dgp_fun()} with the
-    #'   parameters that were set when \code{DGP$new()} was called.
-    #'
-    #' @return Result of \code{dgp_fun()}.
+    # @description Generate data from a \code{DGP} with the provided \code{DGP}
+    #   parameters.
+    #
+    # @param ... Arguments to pass into \code{dgp_fun()} that will overwrite
+    #   the initialized \code{DGP} parameters. If no additional arguments are
+    #   provided, data will be generated using \code{dgp_fun()} with the
+    #   parameters that were set when \code{DGP$new()} was called.
+    #
+    # @return Result of \code{dgp_fun()}.
     generate = function(...) {
       dgp_params <- self$dgp_params
       new_dgp_params <- list(...)
@@ -70,10 +59,10 @@ DGP <- R6::R6Class(
 
       return(data_list)
     },
-    #' @description Print a \code{DGP} in a nice format, showing the 
-    #'   \code{DGP}'s name, function, and parameters.
-    #'
-    #' @return The original \code{DGP} object.
+    # @description Print a \code{DGP} in a nice format, showing the
+    #   \code{DGP}'s name, function, and parameters.
+    #
+    # @return The original \code{DGP} object.
     print = function() {
       if (is.null(self$name)) {
         cat("DGP Name: NULL \n")
@@ -96,8 +85,8 @@ DGP <- R6::R6Class(
 #'
 #' @param dgp_fun The data-generating process function.
 #' @param name (Optional) The name of the \code{DGP}. The argument must be
-#'   specified by position or typed out in whole; no partial matching is allowed
-#'   for this argument.
+#'   specified by position or typed out in whole; no partial matching is
+#'   allowed.
 #' @param ... Arguments to pass into \code{dgp_fun()}.
 #'
 #' @return A new instance of \code{DGP}.

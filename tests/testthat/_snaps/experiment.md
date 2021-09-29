@@ -532,61 +532,6 @@
     11 3     DGP2     Method1           3     NA <NULL>    <NULL>        <NULL>     
     12 3     DGP2     Method2          NA      5 <dbl [3]> <int [4 x 2]> <tibble [3~
 
-# Evaluating experiment works properly
-
-    $`Fit Results`
-    # A tibble: 3 x 1
-          a
-      <int>
-    1     1
-    2     2
-    3     3
-    
-
----
-
-    $`Fit Results`
-    # A tibble: 3 x 1
-          a
-      <int>
-    1     1
-    2     2
-    3     3
-    
-    $`Vary Params`
-    # A tibble: 0 x 0
-    
-
-# Plotting experiment works properly
-
-    $`Fit Results`
-    $`Fit Results`[[1]]
-    # A tibble: 1 x 1
-      a    
-      <chr>
-    1 fit  
-    
-    
-
----
-
-    $`Fit Results`
-    $`Fit Results`[[1]]
-    # A tibble: 1 x 1
-      a    
-      <chr>
-    1 fit  
-    
-    
-    $`Vary Params`
-    $`Vary Params`[[1]]
-    # A tibble: 1 x 1
-      a    
-      <chr>
-    1 eval 
-    
-    
-
 # Printing Experiment works properly
 
     Experiment Name: test-print 

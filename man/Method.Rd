@@ -8,108 +8,20 @@
 A method to be \strong{fit} and assessed in the \code{Experiment}.
 }
 \section{Public fields}{
-\if{html}{\out{<div class="r6-fields">}}
+
+
 \describe{
 \item{\code{name}}{The name of the \code{Method}.}
-
-\item{\code{method_fun}}{The method function.}
-
-\item{\code{method_params}}{(Named) list of parameters to input into the
-method function.}
+\item{\code{method_fun}}{The data-generating process function.}
+\item{\code{method_params}}{(Named) list of parameters to input into the data-generating process function.}
 }
-\if{html}{\out{</div>}}
 }
-\section{Methods}{
-\subsection{Public methods}{
+
+\section{Public methods}{
+
+
 \itemize{
-\item \href{#method-new}{\code{Method$new()}}
-\item \href{#method-fit}{\code{Method$fit()}}
-\item \href{#method-print}{\code{Method$print()}}
-\item \href{#method-clone}{\code{Method$clone()}}
+\item{\code{Method$new()}} See \link{create_method}.
 }
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-new"></a>}}
-\if{latex}{\out{\hypertarget{method-new}{}}}
-\subsection{Method \code{new()}}{
-Create a new \code{Method}.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Method$new(method_fun, name = NULL, ...)}\if{html}{\out{</div>}}
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{method_fun}}{The method function.}
-
-\item{\code{name}}{(Optional) The name of the \code{Method}. The argument must
-be specified by position or typed out in whole; no partial matching is
-allowed for this argument.}
-
-\item{\code{...}}{Arguments to pass into \code{method_fun()}.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-A new \code{Method} object.
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-fit"></a>}}
-\if{latex}{\out{\hypertarget{method-fit}{}}}
-\subsection{Method \code{fit()}}{
-Fit a \code{Method} on data using the provided \code{Method}
-parameters.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Method$fit(data_list, ...)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{data_list}}{List of data to pass into \code{method_fun()}. If named,
-should match arguments in \code{method_fun()}.}
-
-\item{\code{...}}{Arguments to pass into \code{method_fun()} that will overwrite
-the initialized \code{Method} parameters. If no additional arguments
-are provided, the \code{Method} will be fit using \code{method_fun()}
-and the parameters that were set when \code{Method$new()} was called.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-Result of \code{method_fun()}, coerced into a single tibble row.
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-print"></a>}}
-\if{latex}{\out{\hypertarget{method-print}{}}}
-\subsection{Method \code{print()}}{
-Print a \code{Method} in a nice format, showing the
-\code{Method}'s name, function, and parameters.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Method$print()}\if{html}{\out{</div>}}
-}
-
-\subsection{Returns}{
-The original \code{Method} object.
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-clone"></a>}}
-\if{latex}{\out{\hypertarget{method-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Method$clone(deep = FALSE)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
-}
-\if{html}{\out{</div>}}
-}
-}
-}

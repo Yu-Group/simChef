@@ -144,7 +144,7 @@ create_rmd(experiment)
 - [x] Give user the ability to choose which tasks are distributed to parallel
       workers, i.e. simulation replicates, DGPs, Methods, or combinations of the
       three.
-- [ ] Cache results to avoid re-running already computed components of an
+- [x] Cache results to avoid re-running already computed components of an
       Experiment.
 - [ ] Gracefully handle errors from user-defined functions and returns error
       information for user to inspect upon completion.
@@ -166,7 +166,7 @@ create_rmd(experiment)
 - [ ] Initialize a new simulation experiment interactively via a helper
       function, incorporating best practice nudges derived from the PCS
       simulation guidelines.
-- [ ] Let user incorporate their own R Markdown report template.
+- [x] Let user incorporate their own R Markdown report template.
 - [ ] Publish to CRAN.
 
 ## Related R packages
