@@ -1174,10 +1174,17 @@ Experiment <- R6::R6Class(
         message(sprintf("Evaluating %s...", self$name))
         start_time <- Sys.time()
       }
-      eval_results <- purrr::map(evaluator_list, function(evaluator) {
-        evaluator$evaluate(fit_results = fit_results,
-                           vary_params = private$.get_vary_params())
-      })
+      eval_results <- purrr::map2(
+        names(evaluator_list), evaluator_list,
+        function(name, evaluator) {
+          do_call_handler(
+            name, evaluator$evaluate,
+            list(fit_results = fit_results,
+                 vary_params = private$.get_vary_params())
+          )
+        }
+      )
+      names(eval_results) <- names(evaluator_list)
       if (use_cached && !setequal(names(evaluator_list), evaluator_names)) {
         eval_results_cached <- private$.get_cached_results("eval",
                                                            verbose = verbose)
@@ -1242,11 +1249,18 @@ Experiment <- R6::R6Class(
         message(sprintf("Visualizing %s...", self$name))
         start_time <- Sys.time()
       }
-      visualize_results <- purrr::map(visualizer_list, function(visualizer) {
-        visualizer$visualize(fit_results = fit_results,
-                             eval_results = eval_results,
-                             vary_params = private$.get_vary_params())
-      })
+      visualize_results <- purrr::map2(
+        names(visualizer_list), visualizer_list,
+        function(name, visualizer) {
+          do_call_handler(
+            name, visualizer$visualize,
+            list(fit_results = fit_results,
+                 eval_results = eval_results,
+                 vary_params = private$.get_vary_params())
+          )
+        }
+      )
+      names(visualize_results) <- names(visualizer_list)
       if (use_cached && !setequal(names(visualizer_list), visualizer_names)) {
         visualize_results_cached <- private$.get_cached_results("visualize",
                                                                 verbose = verbose)
