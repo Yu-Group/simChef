@@ -5,6 +5,8 @@
 #' @param evaluator_name Name of \code{Evaluator} containing results to plot.
 #'   To compute the evaluation summary results from scratch or if the evaluation
 #'   summary results have not yet been evaluated, set to \code{NULL}.
+#' @param interactive Logical. If \code{TRUE}, returns interactive \code{plotly}
+#'   plots. If \code{FALSE}, returns static \code{ggplot} plots.
 #' @param metric Either "ROC" or "PR" indicating whether to plot the ROC or 
 #'   Precision-Recall curve.
 #' @param show Character vector with elements being one of "boxplot", "point",
@@ -65,8 +67,6 @@ NULL
 #'   \code{ggplot2::geom_ribbon()}.
 #' @param facet_args (Optional) Additional arguments to pass into 
 #'   \code{ggplot2::facet_grid()} or \code{ggplot2::facet_wrap()}.
-#' @param interactive Logical. If \code{TRUE}, returns interactive \code{plotly}
-#'   plots. If \code{FALSE}, returns static \code{ggplot} plots.
 #' @param ... Additional arguments to pass to \code{eval_fun()}. This is only
 #'   used if necessary results have not already been computed in 
 #'   \code{eval_out}.
@@ -359,6 +359,79 @@ plot_eval_summary <- function(fit_results, eval_out = NULL, eval_id = "",
     plt <- plt_ls
   }
   return(plt)
+}
+
+#' Developer function for plotting results from particular replicate(s) in the 
+#' \code{Experiment} fit.
+#' 
+#' @description A helper function for developing new \code{Visualizer} plotting
+#'   functions that plot results from particular replicate(s) in the 
+#'   \code{Experiment} fit. This function will construct one plot for each
+#'   row in the \code{Experiment}'s \code{fit_results} from the specified
+#'   replicates.
+#'   
+#' @inheritParams shared_experiment_helpers_args
+#' @inheritParams shared_viz_lib_args
+#' @param reps Vector of replicates from which to plot results.
+#' @param plot_fun The plotting function, which takes in the arguments
+#'   \code{fit_results}, \code{vary_params}, and possibly others passed from 
+#'   \code{...}.
+#' @param ... Additional arguments to pass to \code{plot_fun()}.
+#' 
+#' @return If \code{interactive = TRUE}, returns a \code{plotly} object or 
+#'   list of \code{plotly} objects if there are multiple replicates, DGPs, or 
+#'   Methods to plot. If \code{interactive = FALSE}, returns a \code{ggplot}
+#'   object or list of \code{ggplot} objects if there are multiple replicates,
+#'   DGPs, or Methods to plot.
+#'   
+#' @export
+plot_fit_results <- function(fit_results, vary_params = NULL, reps = 1, 
+                             plot_fun, interactive, ...) {
+  dots_list <- list(...)
+  if (identical(dots_list, list())) {
+    dots_list <- NULL
+  }
+  plt_df <- fit_results %>%
+    dplyr::filter(rep %in% reps) %>%
+    dplyr::rowwise()
+  plt_ls <- dplyr::group_map(plt_df,
+                             function(x, key) {
+                               out <- do.call(plot_fun,
+                                              c(list(fit_results = x,
+                                                     vary_params = vary_params),
+                                                dots_list))
+                               return(out)
+                             })
+  plt_names <- list()
+  if (length(unique(plt_df$dgp_name)) > 1) {
+    plt_names[["dgp"]] <- paste("DGP = ", plt_df$dgp_name, sep = "")
+  }
+  if (length(unique(plt_df$method_name)) > 1) {
+    plt_names[["method"]] <- paste("Method = ", plt_df$method_name, sep = "")
+  }
+  plt_names[["rep"]] <- paste("Rep = ", plt_df$rep, sep = "")
+  if (!is.null(vary_params)) {
+    plt_names[["vary_params"]] <- purrr::map(
+      vary_params,
+      function(param_name) {
+        if (is.list(plt_df[[param_name]])) {
+          plt_col <- list_col_to_chr(plt_df[[param_name]], name = param_name,
+                                     verbatim = TRUE)
+        } else {
+          plt_col <- plt_df[[param_name]]
+        }
+        return(paste(param_name, " = ", plt_col))
+      }
+    ) %>%
+      purrr::reduce(paste, sep = " // ")
+  }
+  names(plt_ls) <- plt_names %>%
+    purrr::reduce(paste, sep = " // ")
+  
+  if (interactive) {
+    plt_ls <- purrr::map(plt_ls, ~plotly::ggplotly(.x))
+  }
+  return(plt_ls)
 }
 
 #' Get list of aesthetics to add to ggplot.

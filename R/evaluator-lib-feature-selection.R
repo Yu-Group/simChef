@@ -50,7 +50,8 @@ eval_feature_recovery <- function(data, truth, estimate, metrics = NULL,
   data <- data %>%
     dplyr::mutate(prob = abs(.data[[estimate]])) %>%
     dplyr::mutate(dplyr::across(tidyselect::all_of(c(truth, estimate)),
-                                ~as.factor(as.integer(as.numeric(.x) != 0))))
+                                ~factor(as.integer(as.numeric(.x) != 0),
+                                        levels = 0:1)))
   
   if (is.null(metrics)) {
     metrics <- yardstick::metric_set(tp, fp, 

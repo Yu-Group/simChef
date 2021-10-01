@@ -57,7 +57,7 @@ plot_feature_imp <- function(fit_results, eval_results, evaluator_name = NULL,
   return(plt)
 }
 
-#' Plot feature recovery error according to various metrics
+#' Plot feature recovery error according to various metrics.
 #' 
 #' @description Plot the raw or summarized feature recovery errors as a boxplot,
 #'   scatter plot, line plot, or bar plot with or without 1 SD error bars. 
@@ -115,6 +115,9 @@ plot_feature_recovery <- function(fit_results, eval_results,
 #'   across experimental replicates.
 #' 
 #' @inheritParams plot_pred_curve
+#' @param ... Additional arguments to pass to \code{plot_eval_summary()}. This
+#'   includes arguments for plotting and for passing into
+#'   \code{summarize_feature_recovery()}.
 #' 
 #' @inherit plot_eval_summary return
 #' 

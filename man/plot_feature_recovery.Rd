@@ -2,7 +2,7 @@
 % Please edit documentation in R/visualizer-lib-feature-selection.R
 \name{plot_feature_recovery}
 \alias{plot_feature_recovery}
-\title{Plot feature recovery error according to various metrics}
+\title{Plot feature recovery error according to various metrics.}
 \usage{
 plot_feature_recovery(
   fit_results,

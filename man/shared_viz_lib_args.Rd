@@ -8,6 +8,9 @@
 To compute the evaluation summary results from scratch or if the evaluation
 summary results have not yet been evaluated, set to \code{NULL}.}
 
+\item{interactive}{Logical. If \code{TRUE}, returns interactive \code{plotly}
+plots. If \code{FALSE}, returns static \code{ggplot} plots.}
+
 \item{metric}{Either "ROC" or "PR" indicating whether to plot the ROC or
 Precision-Recall curve.}
 
