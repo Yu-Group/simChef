@@ -78,7 +78,7 @@ generate_y_lss <- function(X, k, s, thresholds = 1, signs = 1,
   
   if (!is.matrix(s)) {
     support_idx <- sample(1:ncol(X), k * s, replace = overlap) %>%
-      matrix(., nrow = s, ncol = k)
+      matrix(nrow = s, ncol = k)
   } else {
     support_idx <- s
     s <- nrow(support_idx)

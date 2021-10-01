@@ -8,6 +8,8 @@ block_errors(n, rho = 0.8)
 }
 \arguments{
 \item{n}{Number of observations.}
+
+\item{rho}{Correlation.}
 }
 \value{
 A vector of simulated errors of length n.

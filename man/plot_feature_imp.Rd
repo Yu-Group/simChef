@@ -9,38 +9,58 @@ plot_feature_imp(
   eval_results,
   evaluator_name = NULL,
   vary_params = NULL,
-  feature_col = "feature",
-  show = c("boxplot", "point", "line", "bar", "errorbar"),
+  max_features = NULL,
+  feature,
+  show = c("errorbar", "bar"),
   ...
 )
 }
 \arguments{
-\item{fit_results}{A tibble, as returned by the \code{Experiment$fit()}
-method.}
+\item{fit_results}{A tibble, as returned by the \code{fit} method.}
 
 \item{eval_results}{A list of result tibbles, as returned by the
-\code{Experiment$evaluate()} method.}
+\code{evaluate} method.}
 
-\item{evaluator_name}{(Optional) Name of evaluator containing results to
-plot. If not provided, evaluation results will be automatically
-computed by calling \code{eval_fun()}. If the evaluation results have
-already been computed previously, should provide \code{evaluator_name} to
-avoid duplicate computations.}
+\item{evaluator_name}{Name of \code{Evaluator} containing results to plot.
+To compute the evaluation summary results from scratch or if the evaluation
+summary results have not yet been evaluated, set to \code{NULL}.}
 
-\item{vary_params}{Vector of parameter names that are varied in the
-\code{Experiment}'s run.}
+\item{vary_params}{A vector of parameter names that are varied across in the
+\code{Experiment}.}
 
-\item{feature_col}{Character string. Name of the feature column.}
+\item{max_features}{Maximum number of features to plot.}
+
+\item{feature}{A character string identifying the column with the feature
+names.}
 
 \item{show}{Character vector with elements being one of "boxplot", "point",
-"line", "bar", "errorbar", "ribbon" indicating what plot(s) to construct.}
+"line", "bar", "errorbar", "ribbon" indicating what plot layer(s) to
+construct.}
 
-\item{...}{Additional arguments to pass to \code{plot_eval_summary()}.}
+\item{...}{Additional arguments to pass to \code{plot_eval_summary()}. This
+includes arguments for plotting and for passing into
+\code{summarize_feature_importances()}.}
 }
 \value{
-A ggplot object or list of ggplot objects.
+If \code{interactive = TRUE}, returns a \code{plotly} object if
+\code{plot_by} is \code{NULL} and a list of \code{plotly} objects if
+\code{plot_by} is not \code{NULL}. If \code{interactive = FALSE}, returns
+a \code{ggplot} object if \code{plot_by} is \code{NULL} and a list of
+\code{ggplot} objects if \code{plot_by} is not \code{NULL}.
 }
 \description{
-Plot raw or summarized feature importances as a boxplot, scatter
-plot, line plot, or bar plot with or without 1 SD error bars.
+Plot the raw or summarized feature importances as a boxplot,
+scatter plot, line plot, or bar plot with or without 1 SD error bars.
 }
+\seealso{
+Other feature_selection_funs: 
+\code{\link{eval_feature_importances}()},
+\code{\link{eval_feature_recovery_curve}()},
+\code{\link{eval_feature_recovery}()},
+\code{\link{plot_feature_recovery_curve}()},
+\code{\link{plot_feature_recovery}()},
+\code{\link{summarize_feature_importances}()},
+\code{\link{summarize_feature_recovery_curve}()},
+\code{\link{summarize_feature_recovery}()}
+}
+\concept{feature_selection_funs}

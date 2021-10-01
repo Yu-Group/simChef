@@ -108,18 +108,21 @@ prettyGGplotTheme <- function(font = "Helvetica",
   return(custom_theme)
 }
 
-#' Customized pretty ggplot color theme
+#' Customized pretty ggplot color and fill themes
 #' 
 #' @param color Vector used for color aesthetic. Should match 
 #'   \code{ggplot2::aes(color = ...)} argument.
-#' @param viridis Logical. Whether or not to use viridis scheme if using
-#'   discrete color scheme
-#' @param option Argument indicating viridis palette name
+#' @param fill Vector used for fill aesthetic. Should match 
+#'   \code{ggplot2::aes(fill = ...)} argument.
+#' @param viridis Logical. Whether or not to use \code{viridis} scheme if using
+#'   discrete color scheme.
+#' @param option Argument indicating \code{viridis} palette name.
 #' @param drop Logical; whether or not to drop factors with no observations.
-#' @param ... Other arguments to pass to scale_color_manual() or 
-#'   scale_colour_viridis()
+#' @param ... Other arguments to pass to [ggplot2::scale_color_manual()],
+#'   [ggplot2::scale_fill_manual()], [viridis::scale_colour_viridis()], or
+#'   [viridis::scale_fill_viridis()].
 #'
-#' @return A ggplot color theme object.
+#' @return A ggplot color or fill theme object.
 #' 
 #' @examples
 #' require(ggplot2)
@@ -128,7 +131,19 @@ prettyGGplotTheme <- function(font = "Helvetica",
 #'   geom_point() +
 #'   prettyGGplotTheme() +
 #'   prettyGGplotColor(color = iris$Species)
+#' ggplot(iris) +
+#'   aes(x = Sepal.Length, fill = Species) +
+#'   geom_density() +
+#'   prettyGGplotTheme() +
+#'   prettyGGplotFill(fill = iris$Species)
 #'   
+#' @name prettyGGplotColorTheme
+#' @rdname prettyGGplotColorTheme
+#'   
+NULL
+
+#' @rdname prettyGGplotColorTheme
+#' 
 #' @export
 prettyGGplotColor <- function(color, viridis = F, option = "plasma", 
                               drop = T, ...) {
@@ -156,27 +171,8 @@ prettyGGplotColor <- function(color, viridis = F, option = "plasma",
 }
 
 
-#' Customized pretty ggplot fill theme
+#' @rdname prettyGGplotColorTheme
 #' 
-#' @param fill Vector used for fill aesthetic. Should match 
-#'   \code{ggplot2::aes(fill = ...)} argument.
-#' @param viridis Logical. Whether or not to use viridis scheme if using
-#'   discrete fill scheme
-#' @param option Argument indicating viridis palette name
-#' @param drop Logical; whether or not to drop factors with no observations.
-#' @param ... Other arguments to pass to scale_fill_manual() or 
-#'   scale_fill_viridis()
-#'
-#' @return A ggplot color theme object.
-#' 
-#' @examples
-#' require(ggplot2)
-#' ggplot(iris) +
-#'   aes(x = Sepal.Length, fill = Species) +
-#'   geom_density() +
-#'   prettyGGplotTheme() +
-#'   prettyGGplotFill(fill = iris$Species)
-#'   
 #' @export
 prettyGGplotFill <- function(fill, viridis = F, option = "plasma", 
                              drop = T, ...) {

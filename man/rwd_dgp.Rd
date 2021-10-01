@@ -19,8 +19,6 @@ sets according to \code{train_prop}.}
 
 \item{return_values}{Character vector indicating what objects to return in
 list. Elements in vector must be one of "X", "y", "support".}
-
-\item{...}{other arguments to pass to generate_X_rwd().}
 }
 \description{
 Read in real world data from X and y.

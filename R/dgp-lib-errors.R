@@ -54,6 +54,7 @@ ar1_errors <- function(n, rho) {
 #'   covariance structure (with 3 blocks).
 #'
 #' @param n Number of observations.
+#' @param rho Correlation.
 #' 
 #' @return A vector of simulated errors of length n.
 #' 

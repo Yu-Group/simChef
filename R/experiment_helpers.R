@@ -4,7 +4,10 @@
 #'
 #' @param dgp A \code{DGP} object.
 #' @param evaluator An \code{Evaluator} object.
+#' @param eval_results A list of result tibbles, as returned by the
+#'   \code{evaluate} method.
 #' @param experiment An \code{Experiment} object.
+#' @param fit_results A tibble, as returned by the \code{fit} method.
 #' @param future.globals Character vector of names in the global environment to
 #'   pass to parallel workers. Passed as the argument of the same name to
 #'   \code{future.apply::future_lapply} and related functions. To set for all
@@ -24,6 +27,8 @@
 #' @param use_cached Logical. If \code{TRUE}, find and return previously saved
 #'   results. If cached results cannot be found, continue as if
 #'   \code{use_cached} was \code{FALSE}.
+#' @param vary_params A vector of parameter names that are varied across in the 
+#'   \code{Experiment}.
 #' @param verbose Level of verbosity. Default is 1, which prints out messages
 #'   after major checkpoints in the experiment. If 0, no messages are printed.
 #' @param visualizer A \code{Visualizer} object.
@@ -158,7 +163,6 @@ fit_experiment <- function(experiment, n_reps=1, parallel_strategy = c("reps"),
 #'   \code{Evaluators} in the \code{Experiment} and return results.
 #'
 #' @inheritParams shared_experiment_helpers_args
-#' @param fit_results A tibble, as returned by the \code{fit} method.
 #'
 #' @return A list of evaluation result tibbles, one for each
 #'   \code{Evaluator}.
@@ -177,9 +181,6 @@ evaluate_experiment <- function(experiment, fit_results, use_cached = FALSE,
 #'   using all \code{Visualizers} in the \code{Experiment} and return visualization results.
 #'
 #' @inheritParams shared_experiment_helpers_args
-#' @param fit_results A tibble, as returned by the \code{fit} method.
-#' @param eval_results A list of result tibbles, as returned by the
-#'   \code{evaluate} method.
 #'
 #' @return A list of visualizations, one for each \code{Visualizer}.
 #'

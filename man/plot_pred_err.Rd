@@ -10,44 +10,52 @@ plot_pred_err(
   evaluator_name = NULL,
   vary_params = NULL,
   metrics = NULL,
-  group = NULL,
-  show = c("boxplot", "point", "line", "bar", "errorbar"),
+  show = c("point", "line", "bar"),
   ...
 )
 }
 \arguments{
-\item{fit_results}{A tibble, as returned by the \code{Experiment$fit()}
-method.}
+\item{fit_results}{A tibble, as returned by the \code{fit} method.}
 
 \item{eval_results}{A list of result tibbles, as returned by the
-\code{Experiment$evaluate()} method.}
+\code{evaluate} method.}
 
-\item{evaluator_name}{(Optional) Name of evaluator containing results to
-plot. If not provided, evaluation results will be automatically
-computed by calling \code{eval_fun()}. If the evaluation results have
-already been computed previously, should provide \code{evaluator_name} to
-avoid duplicate computations.}
+\item{evaluator_name}{Name of \code{Evaluator} containing results to plot.
+To compute the evaluation summary results from scratch or if the evaluation
+summary results have not yet been evaluated, set to \code{NULL}.}
 
-\item{vary_params}{Vector of parameter names that are varied in the
-\code{Experiment}'s run.}
+\item{vary_params}{A vector of parameter names that are varied across in the
+\code{Experiment}.}
 
-\item{metrics}{Prediction error metrics for which to plot results. If
-\code{evaluator_name} is provided, then this argument is optional, and the
-default is to use all metrics found in the Evaluator's prediction error
-results. Otherwise, this argument is required.}
-
-\item{group}{(Optional) vector of group ids (as a factor) to use for
-assessing within-group prediction errors.}
+\item{metrics}{A \code{metric_set} object indicating the metrics to plot.
+See \code{\link[yardstick:metric_set]{yardstick::metric_set()}} for more details. Default \code{NULL} will
+use the default metrics in \code{\link[yardstick:metrics]{yardstick::metrics()}}.}
 
 \item{show}{Character vector with elements being one of "boxplot", "point",
-"line", "bar", "errorbar", "ribbon" indicating what plot(s) to construct.}
+"line", "bar", "errorbar", "ribbon" indicating what plot layer(s) to
+construct.}
 
-\item{...}{Additional arguments to pass to \code{plot_eval_summary()}.}
+\item{...}{Additional arguments to pass to \code{plot_eval_summary()}. This
+includes arguments for plotting and for passing into
+\code{summarize_pred_err()}.}
 }
 \value{
-A ggplot object or list of ggplot objects.
+If \code{interactive = TRUE}, returns a \code{plotly} object if
+\code{plot_by} is \code{NULL} and a list of \code{plotly} objects if
+\code{plot_by} is not \code{NULL}. If \code{interactive = FALSE}, returns
+a \code{ggplot} object if \code{plot_by} is \code{NULL} and a list of
+\code{ggplot} objects if \code{plot_by} is not \code{NULL}.
 }
 \description{
-Plot raw or summarized prediction errors as a boxplot, scatter
-plot, line plot, or bar plot with or without 1 SD error bars.
+Plot the raw or summarized prediction errors as a boxplot,
+scatter plot, line plot, or bar plot with or without 1 SD error bars.
 }
+\seealso{
+Other prediction_error_funs: 
+\code{\link{eval_pred_curve}()},
+\code{\link{eval_pred_err}()},
+\code{\link{plot_pred_curve}()},
+\code{\link{summarize_pred_curve}()},
+\code{\link{summarize_pred_err}()}
+}
+\concept{prediction_error_funs}

@@ -27,6 +27,7 @@ Imports:
     purrr,
     R.utils,
     R6,
+    rlang,
     rmarkdown,
     rmdformats,
     stringr,
@@ -44,6 +45,7 @@ Suggests:
     PRROC,
     RColorBrewer,
     tidyr,
-    viridis
+    viridis,
+    yardstick
 VignetteBuilder: knitr
 Config/testthat/edition: 3

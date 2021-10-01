@@ -1,251 +1,128 @@
 #' Evaluate prediction error.
 #' 
-#' @description Evaluate various prediction error metrics, given the observed 
-#'   values \code{y} and the predicted values \code{yhat}.
+#' @description Evaluate various prediction error metrics, given the true 
+#'   responses and the predicted (or estimated) responses.
 #'   
-#' @param y Vector, matrix, or data.frame of the true/observed response values.
-#' @param yhat Vector, matrix, or data.frame of the predicted response values. 
-#'   Must be of the same dimension as \code{y}.
-#' @param metrics Character vector of the prediction error metrics to compute.
-#'   Elements of the vector must be one of "RMSE", "MSE", "R2", "MAE",
-#'   "Corr", "ClassErr", "BalancedClassErr", "AUROC", "AUPRC".
-#' @param custom_metrics Named list of custom metric functions to compute. Names
-#'   in the list should correspond to the name of the metric. Values in the
-#'   list should be a function that takes in the arguments \code{y} and 
-#'   \code{yhat} only and returns the evaluated metric value.
-#' @param group (Optional) vector of group ids (as a factor) to use for
-#'   assessing within-group prediction errors.
-#' @param na.rm Logical. Should missing values be removed?
+#' @inheritParams shared_eval_lib_args
+#' @param data A \code{data.frame} containing the \code{truth} and 
+#'   \code{estimate} columns. Each row in this \code{data.frame} typically
+#'   corresponds to a sample or observation in the data.
+#' @param truth A character string identifying the column with the true 
+#'   responses. The column should be numeric for a regression problem and a 
+#'   factor for a classification problem.
+#' @param estimate A character string identifying the column with the estimated 
+#'   or predicted responses. The column should be numeric for a regression
+#'   problem and a factor (with the predicted classes) for a classification
+#'   problem.
+#' @param probs A character string or vector identifying the column(s) with the
+#'   columns containing class probabilities. If \code{truth} is binary, only
+#'   1 column name should be provided. Otherwise, the length of the character
+#'   vector should be equal to the number of factor levels of \code{truth}.
+#'   This argument is not used when evaluating numeric metrics.
+#' @param metrics A \code{metric_set} object indicating the metrics to evaluate.
+#'   See [yardstick::metric_set()] for more details. Default \code{NULL} will
+#'   use the default metrics in [yardstick::metrics()].
+#' @param groups (Optional) vector of group IDs to group observations by before
+#'   evaluating prediction errors. This is useful for assessing within-group
+#'   prediction errors. Note: the (unstratified) prediction errors, aggregated
+#'   across the full data set, are computed in addition to these stratified
+#'   within-group errors.
+#' @inheritParams yardstick::roc_auc
 #' 
-#' @return A (long-shaped) data frame with the following columns:
+#' @return A \code{tibble} with the following columns:
 #' \describe{
-#' \item{group}{Name of group for within-group prediction errors. Note that the 
-#'   group id "all" is used to denote the full data set without any grouping. 
-#'   Column is only present if \code{group} is not \code{NULL}.}
-#' \item{metric}{Name of prediction error metric.}
-#' \item{value}{Prediction error value for the given group and metric.}
+#' \item{.group}{If the \code{groups} argument is not \code{NULL}, the name of
+#'   the group over which the prediction error is being computed. Here, ".all" 
+#'   is used to indicate the full unstratified data set (with no groups). If
+#'   \code{groups} is \code{NULL}, this column is not returned.}
+#' \item{.metric}{Name of prediction error metric}
+#' \item{.estimate}{Prediction error value for the given metric.}
 #' }
 #' 
-#' @details TODO: explain different metrics and which are used for regression 
-#'   vs. binary vs. classification.
-#' @examples
-#' eval_out <- eval_pred_err(y = rnorm(10), yhat = rnorm(10),
-#'                           metrics = c("RMSE", "MSE", "R2", "MAE", "Corr"))
-#' eval_out <- eval_pred_err(y = rep(0:1, length.out = 10), yhat = runif(10),
-#'                           metrics = c("AUROC", "AUPRC"))
-#' eval_out <- eval_pred_err(y = rep(c("a", "b"), length.out = 10),
-#'                           yhat = runif(10), metrics = c("AUROC", "AUPRC"))
-#' eval_out <- eval_pred_err(y = rep(c("a", "b"), length.out = 10),
-#'                           yhat = rep(c("a", "b"), length.out = 10), 
-#'                           metrics = c("BalancedClassErr", "ClassErr"))
-#' eval_out <- eval_pred_err(y = rnorm(10), yhat = rnorm(10),
-#'                           metrics = c("RMSE", "MSE", "R2", "MAE", "Corr"),
-#'                           custom_metrics = list(
-#'                             MSE2 = function(y, yhat) {mean((y - yhat)^2)},
-#'                             MAE2 = function(y, yhat) {mean(abs(y - yhat))}
-#'                           ))
+#' @family prediction_error_funs
+#' 
 #' @export
-eval_pred_err <- function(y, yhat, metrics = NULL, custom_metrics = NULL,
-                          group = NULL, na.rm = F) {
-  # error checking
-  metrics <- match.arg(metrics, 
-                       choices = c("RMSE", "MSE", "R2", "MAE", "Corr", 
-                                   "ClassErr", "BalancedClassErr", 
-                                   "AUROC", "AUPRC"), 
-                       several.ok = TRUE)
-  isvec <- is.null(dim(y))
-  if ((isvec & (length(y) != length(yhat))) |
-      (!isvec & any(dim(y) != dim(yhat)))) {
-    stop("y and yhat must be the same size.")
-  }
-  if (("AUROC" %in% metrics) | ("AUPRC" %in% metrics)) {
-    if (length(unique(y)) != 2) {
-      stop("y must be binary to evaluate AUC and PR metrics.")
-    }
-    ylevels <- levels(as.factor(y))
-    Y0 <- ylevels[1]
-    Y1 <- ylevels[2]
-  }
-  if (("ClassErr" %in% metrics) | ("BalancedClassErr" %in% metrics)) {
-    if (length(unique(y)) == length(y)) {
-      warning("ClassErr and BalancedClassErr are metrics for classification problems, ",
-              "but the response y does not look like a classification outcome vector. ",
-              "Please double check that the choice of metric is correct.")
-    }
-    if ((length(unique(yhat)) > length(unique(y))) && 
-        (is.numeric(yhat) && !is.integer(yhat))) {
-      warning("The predicted responses, yhat, take on more values than the observed ",
-              "response, y. ClassErr and BalancedClassErr checks for equality between ",
-              "y and yhat. Please make sure that yhat contains the class responses ",
-              "and not the predicted probabilities.")
-    }
+eval_pred_err <- function(data, truth, estimate, probs = NULL, 
+                          metrics = NULL, groups = NULL, 
+                          options = list(), na_rm = FALSE) {
+  .estimator <- NULL  # to fix no visible binding for global variable error
+  if (!is.null(metrics) && !inherits(metrics, "metric_set")) {
+    stop("Unknown metrics. ",
+         "metrics must be of class 'yardstick::metric_set' or NULL.")
   }
   
-  # create (long) grouped prediction data frame with groups, y, and yhat
-  if (isvec) {
-    pred_df <- data.frame(group = "all", y = y, yhat = yhat)
-    if (!is.null(group)) {
-      pred_df <- rbind(pred_df, data.frame(group = group, y = y, yhat = yhat))
-    }
-    pred_df <- pred_df %>%
-      dplyr::group_by(group)
+  names <- names(data)
+  truth <- tidyselect::vars_pull(names, tidyselect::all_of(truth))
+  estimate <- tidyselect::vars_pull(names, tidyselect::all_of(estimate))
+  probs <- intersect(names, probs)
+  
+  if (!is.null(groups)) {
+    data <- dplyr::bind_rows(data, data) %>%
+      dplyr::group_by(.group = tidyselect::all_of(c(rep(".all", nrow(data)),
+                                                    groups)))
+  }
+  
+  if (is.null(metrics)) {
+    res <- yardstick::metrics(data = data, 
+                              truth = !!truth, estimate = !!estimate, 
+                              tidyselect::all_of(probs), 
+                              options = options, na_rm = na_rm)
   } else {
-    y_long <- data.frame(id = 1:nrow(y), group = "all", y) %>%
-      tidyr::gather(key = "column", value = "y", -group, -id)
-    yhat_long <- data.frame(id = 1:nrow(yhat), group = "all", yhat) %>%
-      tidyr::gather(key = "column", value = "yhat", -group, -id)
-    if (!is.null(group)) {
-      y_long <- rbind(
-        y_long,
-        data.frame(id = 1:nrow(y), group = group, y) %>%
-          tidyr::gather(key = "column", value = "y", -group, -id)
-      )
-      yhat_long <- rbind(
-        yhat_long,
-        data.frame(id = 1:nrow(yhat), group = group, yhat) %>%
-          tidyr::gather(key = "column", value = "yhat", -group, -id)
-      )
+    is_class <- is.factor(data[[truth]]) || 
+      inherits(data[[truth]], "class_pred")
+    if (is_class) {
+      res <- yardstick::metrics(data = data, 
+                                truth = !!truth, estimate = !!estimate,
+                                tidyselect::all_of(probs),
+                                na_rm = na_rm)
+    } else {
+      res <- yardstick::metrics(data, truth = !!truth, estimate = !!estimate,
+                                na_rm = na_rm)
     }
-    pred_df <- dplyr::left_join(y_long, yhat_long, 
-                                by = c("id", "group", "column")) %>%
-      dplyr::group_by(group, column)
   }
-  
-  # compute error metrics between y and yhat
-  err_out <- NULL
-  for (m in metrics) {
-    if (m == "RMSE") {
-      err <- pred_df %>%
-        dplyr::summarise(metric = m,
-                         value = sqrt(mean((y - yhat)^2, na.rm = na.rm)))
-    } else if (m == "MSE") {
-      err <- pred_df %>%
-        dplyr::summarise(metric = m,
-                         value = mean((y - yhat)^2, na.rm = na.rm))
-    } else if (m == "R2") {
-      err <- pred_df %>%
-        dplyr::summarise(metric = m,
-                         value = 1 - mean((y - yhat)^2, na.rm = na.rm) / 
-                           mean((y - mean(y))^2, na.rm = na.rm))
-    } else if (m == "MAE") {
-      err <- pred_df %>%
-        dplyr::summarise(metric = m,
-                         value = mean(abs(y - yhat), na.rm = na.rm))
-    } else if (m == "Corr") {
-      err <- pred_df %>%
-        dplyr::summarise(metric = m,
-                         value = cor(y, yhat, use = "pairwise.complete.obs"))
-    } else if (m == "ClassErr") {
-      err <- pred_df %>%
-        dplyr::summarise(metric = m,
-                         value = mean(y == yhat, na.rm = na.rm))
-    } else if (m == "BalancedClassErr") {
-      err <- pred_df %>%
-        dplyr::summarise(metric = m,
-                         value = mean(sapply(unique(y),
-                                             function(y0) {
-                                               mean(y[y == y0] == yhat[y == y0], 
-                                                    na.rm = na.rm)
-                                             }),
-                                      na.rm = na.rm))
-    } else if (m == "AUROC") {
-      err <- pred_df %>%
-        dplyr::summarise(metric = m,
-                         value = PRROC::roc.curve(yhat[(y == Y1) & !(is.na(y))],
-                                                  yhat[(y == Y0) & !(is.na(y))],
-                                                  curve = F)$auc)
-    } else if (m == "AUPRC") {
-      err <- pred_df %>%
-        dplyr::summarise(metric = m,
-                         value = PRROC::pr.curve(yhat[(y == Y1) & !(is.na(y))],
-                                                 yhat[(y == Y0) & !(is.na(y))],
-                                                 curve = F)$auc.integral)
-    }
-    err_out <- rbind(err_out, err)
-  }
-  
-  if (!is.null(custom_metrics)) {
-    if (is.null(names(custom_metrics))) {
-      names(custom_metrics) <- paste0("pred_err_metric",
-                                      1:length(custom_metrics))
-    }
-    custom_err_out <- purrr::map_dfr(
-      custom_metrics,
-      function(metric_fun) {
-        pred_df %>% dplyr::summarise(value = metric_fun(y = y, yhat = yhat))
-      },
-      .id = "metric"
-    )
-    err_out <- dplyr::bind_rows(err_out, custom_err_out)
-  }
-  
-  # clean up output formatting
-  if (!isvec) {
-    err_out <- err_out %>%
-      tidyr::spread(key = "column", value = "value") %>%
-      dplyr::select(group, metric, colnames(data.frame(y)))
-  }
-  if (is.null(group)) {
-    err_out <- err_out %>% 
-      dplyr::ungroup() %>%
-      dplyr::select(-group)
-  }
-  
-  return(err_out)
+  return(res %>% dplyr::select(-.estimator))
 }
 
 #' Evaluate ROC or PR curves.
 #' 
-#' @description Compute the ROC or PR curves and its corresponding AUC value for
-#'   the given observed and predicted response values.
+#' @description Evaluate the ROC or PR curves and return a tibble with the
+#'   results.
 #'   
-#' @param y Vector of the true/observed response values.
-#' @param yhat Vector of the predicted response values. Must be of the same 
-#'   length as \code{y}.
-#' @param metric A character string. Either "ROC" or "PR".
+#' @inheritParams shared_eval_lib_args
+#' @inheritParams eval_pred_err
+#'   
+#' @returns If \code{metric = "ROC"}, returns a \code{tibble} with the columns
+#'   \code{.threshold}, \code{FPR}, and \code{TPR} for the threshold, false
+#'   positive rate, and true positive rate, respectively. If 
+#'   \code{metric = "PR"}, returns a \code{tibble} with columns 
+#'   \code{.threshold}, \code{recall}, and \code{precision}.
 #' 
-#' @return A list of two:
-#' \describe{
-#' \item{AUC}{Area under the curve.}
-#' \item{curve_df}{Data frame with the x and y values to plot curve. If 
-#'   \code{metric = "ROC"}, the data frame columns give the true positive rate 
-#'   (TPR) and the false positive rate (FPR). If \code{metric = "PR"}, the data
-#'   frame columns give the Precision and Recall.}
-#' }
+#' @family prediction_error_funs
 #' 
 #' @export
-eval_auc_curve <- function(y, yhat, metric = c("ROC", "PR")) {
+eval_pred_curve <- function(data, truth, probs, metric = c("ROC", "PR"), 
+                            groups = NULL, options = list(), na_rm = FALSE) {
+  specificity <- NULL  # to fix no visible binding for global variable error
+  sensitivity <- NULL
+  FPR <- NULL
   metric <- match.arg(metric)
-  if (length(y) != length(yhat)) {
-    stop("Length of y must be equal to length of yhat.")
-  } else if (length(unique(y)) != 2) {
-    stop("y must be binary to evaluate AUC and PR metrics.")
+  if (!is.null(groups)) {
+    data <- dplyr::bind_rows(data, data) %>%
+      dplyr::group_by(.group = tidyselect::all_of(c(rep(".all", nrow(data)),
+                                                    groups)))
   }
   
-  ylevels <- levels(as.factor(y))
-  Y0 <- ylevels[1]
-  Y1 <- ylevels[2]
-  
-  if (all(yhat == yhat[1])) {
-    warning("Predictions are all the same. Returning NULL.")
-    return(NULL)
-  } else {
-    if (metric == "ROC") {
-      out <- PRROC::roc.curve(yhat[(y == Y1) & !is.na(y)], 
-                              yhat[(y == Y0) & !is.na(y)], 
-                              curve = T)
-      return(list(AUC = out$auc, 
-                  curve_df = data.frame(FPR = out$curve[, 1],
-                                        TPR = out$curve[, 2])))
-    } else if (metric == "PR") {
-      out <- PRROC::pr.curve(yhat[(y == Y1) & !(is.na(y))],
-                             yhat[(y == Y0) & !(is.na(y))],
-                             curve = T)
-      return(list(AUC = out$auc.integral,
-                  curve_df = data.frame(Recall = out$curve[, 1],
-                                        Precision = out$curve[, 2])))
-    }
+  if (identical(metric, "ROC")) {
+    curve_df <- yardstick::roc_curve(data = data, truth = !!truth, 
+                                     tidyselect::all_of(probs),
+                                     options = options, na_rm = na_rm) %>%
+      dplyr::rename(FPR = specificity, TPR = sensitivity) %>%
+      dplyr::mutate(FPR = 1 - FPR)
+  } else if (identical(metric, "PR")) {
+    curve_df <- yardstick::pr_curve(data = data, truth = !!truth, 
+                                    tidyselect::all_of(probs), na_rm = na_rm)
   }
+  return(curve_df)
 }
 
 #' Summarize prediction error evaluation results.
@@ -253,66 +130,57 @@ eval_auc_curve <- function(y, yhat, metric = c("ROC", "PR")) {
 #' @description Summarize prediction error evaluation results for a variety of
 #'   evaluation metrics across experimental repetitions.
 #' 
-#' @param fit_results A tibble, as returned by the \code{Experiment$fit()} 
-#'   method.
-#' @param vary_params A vector of parameter names that are varied over in the 
-#'   Experiment.
-#' @param y Character string. Name of column in \code{fit_results} with the
-#'   observed response values.
-#' @param yhat Character string. Name of column in \code{fit_results} with the
-#'   predicted response values.
+#' @inheritParams shared_experiment_helpers_args
+#' @inheritParams shared_eval_lib_args
 #' @inheritParams eval_pred_err
-#' @inheritParams summarize_eval_results
 #' 
-#' @return A data frame with the following columns in addition to any arguments
-#'   in the \code{Experiment}'s \code{vary_params}:
-#' \describe{
-#' \item{dgp_name}{Name of DGP.}
-#' \item{method_name}{Name of Method.}
-#' \item{group}{Name of group for within-group prediction errors. Note that the 
-#'   group id "all" is used to denote the full data set without any grouping. 
-#'   Column is only present if \code{group} is not \code{NULL}.}
-#' \item{metric}{Name of prediction error metric.}
-#' \item{...}{Other columns corresponding to the results from the provided 
-#'   \code{summary_funs} and \code{custom_summary_funs} functions.}
-#' }
+#' @return A grouped \code{tibble} containing both identifying information
+#'   and the prediction error results aggregated over experimental replicates.
+#'   Specifically, the identifier columns include \code{dgp_name},
+#'   \code{method_name}, any columns specified by \code{vary_params}, and 
+#'   \code{.metric}. In addition, there are results columns corresponding to the
+#'   requested statistics in \code{summary_funs} and \code{custom_summary_funs}.
+#'   These columns end in the suffix "_pred_err".
+#' 
+#' @family prediction_error_funs
 #' 
 #' @export
-summarize_pred_err <- function(fit_results, vary_params = NULL, 
-                               y = "y", yhat = "yhat",
-                               metrics = NULL, custom_metrics = NULL,
+summarize_pred_err <- function(fit_results, vary_params = NULL,
+                               truth, estimate, probs = NULL, 
+                               metrics = NULL, groups = NULL, 
+                               options = list(), na_rm = FALSE,
                                summary_funs = c("mean", "median", "min", "max",
                                                 "sd", "raw"),
-                               custom_summary_funs = NULL,
-                               group = NULL, na.rm = F) {
-  metrics <- match.arg(metrics, 
-                       choices = c("RMSE", "MSE", "R2", "MAE", "Corr", 
-                                   "ClassErr", "BalancedClassErr", 
-                                   "AUROC", "AUPRC"), 
-                       several.ok = TRUE)
+                               custom_summary_funs = NULL) {
+  eval_out <- NULL  # to fix no visible binding for global variable error
   summary_funs <- match.arg(summary_funs, several.ok = TRUE)
-  
-  if (!is.null(group)) {
-    group_vars <- c("dgp_name", "method_name", vary_params, "group", "metric")
+  id_vars <- c("rep", "dgp_name", "method_name", vary_params)
+  if (!is.null(groups)) {
+    group_vars <- c("dgp_name", "method_name", vary_params, ".group", ".metric")
   } else {
-    group_vars <- c("dgp_name", "method_name", vary_params, "metric")
+    group_vars <- c("dgp_name", "method_name", vary_params, ".metric")
   }
   eval_results <- fit_results %>%
+    dplyr::rowwise() %>%
     dplyr::mutate(
-      eval_out = purrr::map2(.data[[y]], .data[[yhat]], 
-                             ~eval_pred_err(y = ..1, yhat = ..2, 
-                                            metrics = metrics, 
-                                            custom_metrics = custom_metrics, 
-                                            group = group, na.rm = na.rm))
+      eval_out = list(
+        eval_pred_err(
+          data = dplyr::cur_data(), truth = !!truth, 
+          estimate = !!estimate, probs = !!probs,
+          metrics = !!metrics, groups = !!groups, 
+          options = options, na_rm = na_rm
+        )
+      )
     ) %>%
+    dplyr::select(tidyselect::all_of(id_vars), eval_out) %>%
     tidyr::unnest(eval_out) %>%
     dplyr::group_by(dplyr::across({{group_vars}})) 
   
-  eval_summary <- summarize_eval_results(
-    eval_results, id = "pred_err",
+  eval_summary <- eval_summary_constructor(
+    eval_results, id = "pred_err", value = ".estimate",
     summary_funs = summary_funs,
     custom_summary_funs = custom_summary_funs,
-    na.rm = na.rm
+    na_rm = na_rm
   )
   return(eval_summary)
 }
@@ -321,76 +189,76 @@ summarize_pred_err <- function(fit_results, vary_params = NULL,
 #' 
 #' @description Summarize ROC/PR curves across experimental repetitions.
 #' 
-#' @param fit_results A tibble, as returned by the \code{Experiment$fit()} 
-#'   method.
-#' @param vary_params A vector of parameter names that are varied over in the 
-#'   Experiment.
-#' @param y Character string. Name of column in \code{fit_results} with the
-#'   observed response values.
-#' @param yhat Character string. Name of column in \code{fit_results} with the
-#'   predicted response values.
-#' @param grid Sequence of x-values to evaluate ROC or PR curve.
-#' @inheritParams eval_auc_curve
-#' @inheritParams summarize_eval_results
+#' @inheritParams summarize_pred_err
+#' @inheritParams eval_pred_curve
+#' @param x_grid Vector of values between 0 and 1 at which to evaluate the ROC 
+#'   or PR curve. If \code{metric = "ROC"}, the provided vector of values are
+#'   the FPR values at which to evaluate the TPR, and if \code{metric = "PR"},
+#'   the values are the recall values at which to evaluate the precision.
 #' 
-#' @return A data frame with the following columns in addition to any arguments
-#'   in the \code{Experiment}'s \code{vary_params}:
-#' \describe{
-#' \item{dgp_name}{Name of DGP.}
-#' \item{method_name}{Name of Method.}
-#' \item{...}{Other columns corresponding to the results from the provided 
-#'   \code{summary_funs} and \code{custom_summary_funs} functions.}
-#' }
+#' @return A grouped \code{tibble} containing both identifying information
+#'   and the feature recovery curve results aggregated over experimental
+#'   replicates. Specifically, the identifier columns include \code{dgp_name},
+#'   \code{method_name}, and any columns specified by \code{vary_params}. In
+#'   addition, there are results columns corresponding to the
+#'   requested statistics in \code{summary_funs} and \code{custom_summary_funs}.
+#'   If \code{metric = "ROC"}, these results columns include \code{FPR} and
+#'   others that end in the suffix "_TPR". If \code{metric = "PR"}, the results
+#'   columns include \code{recall} and others that end in the suffix 
+#'   "_precision".
+#' 
+#' @family prediction_error_funs
 #' 
 #' @export
-summarize_auc_curve <- function(fit_results, vary_params = NULL, 
-                                y = "y", yhat = "yhat", metric = c("ROC", "PR"),
-                                x_grid = seq(0, 1, by = 1e-2),
-                                summary_funs = c("mean", "median", "min", "max",
-                                                 "sd", "raw"),
-                                custom_summary_funs = NULL,
-                                na.rm = F) {
-  # TODO: test this function if eval_auc_curve returns NULL
+summarize_pred_curve <- function(fit_results, vary_params = NULL,
+                                 truth, probs, metric = c("ROC", "PR"), 
+                                 groups = NULL, options = list(), na_rm = FALSE,
+                                 x_grid = seq(0, 1, by = 1e-2),
+                                 summary_funs = c("mean", "median", "min", "max",
+                                                  "sd", "raw"),
+                                 custom_summary_funs = NULL) {
+  curve_df <- NULL  # to fix no visible binding for global variable error
   metric <- match.arg(metric)
   summary_funs <- match.arg(summary_funs, several.ok = TRUE)
   if (metric == "PR") {
-    xvar <- "Recall"
-    yvar <- "Precision"
+    xvar <- "recall"
+    yvar <- "precision"
   } else if (metric == "ROC") {
     xvar <- "FPR"
     yvar <- "TPR"
   }
+  id_vars <- c("rep", "dgp_name", "method_name", vary_params)
   group_vars <- c("dgp_name", "method_name", vary_params, xvar)
   
+  eval_and_rescale_curve <- function(data) {
+    # evaluate ROC/PR curve and transform data frame to have same x scale
+    curve_df <- eval_pred_curve(
+      data = data, truth = truth, probs = probs,
+      metric = metric, groups = groups, options = options, na_rm = na_rm
+    )
+    curve_df = data.frame(
+      .x_auc = x_grid,
+      .y_auc = purrr::map_dbl(x_grid,
+                              ~max(curve_df[curve_df[[xvar]] <= .x, yvar]))
+    ) %>%
+      stats::setNames(c(xvar, yvar))
+    return(curve_df)
+  }
+  
   eval_results <- fit_results %>%
+    dplyr::rowwise() %>%
     dplyr::mutate(
-      eval_out = purrr::map2(.data[[y]], .data[[yhat]],
-                             ~eval_auc_curve(y = ..1, yhat = ..2,
-                                             metric = metric))
+      curve_df = list(eval_and_rescale_curve(dplyr::cur_data()))
     ) %>%
-    tidyr::unnest_wider(eval_out) %>%
-    # transform auc curves to have same x scale
-    dplyr::mutate(
-      curve_df = purrr::map(
-        curve_df,
-        function(df) {
-          data.frame(
-            .x_auc = x_grid, 
-            .y_auc = purrr::map_dbl(x_grid, 
-                                    ~max(df[df[[xvar]] <= .x, yvar]))
-          ) %>%
-            setNames(c(xvar, yvar))
-        }
-      )
-    ) %>%
+    dplyr::select(tidyselect::all_of(id_vars), curve_df) %>%
     tidyr::unnest(curve_df) %>%
     dplyr::group_by(dplyr::across({{group_vars}}))
   
-  eval_summary <- summarize_eval_results(
+  eval_summary <- eval_summary_constructor(
     eval_results, id = yvar, value = yvar,
     summary_funs = summary_funs,
     custom_summary_funs = custom_summary_funs,
-    na.rm = na.rm
+    na_rm = na_rm
   )
   return(eval_summary)
 }

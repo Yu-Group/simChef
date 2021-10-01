@@ -1,8 +1,8 @@
-#' General DGP wrapper function to generate X and y data.
+#' General DGP constructor function to generate X and y data.
 #' 
-#' @description A general DGP wrapper function that generates X and y data for
-#'   any supervised learning DGP, provided the functions for simulating X, y, 
-#'   and the additive error term.
+#' @description A general DGP constructor function that generates X and y data 
+#'   for any supervised learning DGP, provided the functions for simulating X, 
+#'   y, and the additive error term.
 #'
 #' @param x_fun Function to generate X data.
 #' @param y_fun Function to generate y data.
@@ -27,32 +27,34 @@
 #'   Model: y = y_fun(X) + err_fun(X, y_fun(X)), where X = x_fun(...)
 #'
 #' @examples 
-#' data_out <- xy_dgp_wrapper(x_fun = MASS::mvrnorm, y_fun = generate_y_linear,
-#'                            err_fun = rnorm, data_split = TRUE,
-#'                            # dgp arguments
-#'                            n = 100, 
-#'                            # arguments specifically for x_fun
-#'                            .x_mu = rep(0, 10), .x_Sigma = diag(10),
-#'                            # arguments specifically for y_fun
-#'                            .y_betas = rnorm(10), .y_return_support = TRUE,
-#'                            # arguments specifically for err_fun
-#'                            .err_sd = 1)
-#' data_out <- xy_dgp_wrapper(x_fun = MASS::mvrnorm, y_fun = generate_y_linear,
-#'                            err_fun = rnorm, data_split = TRUE,
-#'                            # dgp arguments
-#'                            n = 100, 
-#'                            # arguments specifically for x_fun
-#'                            mu = rep(0, 10), Sigma = diag(10),
-#'                            # arguments specifically for y_fun
-#'                            betas = rnorm(10), return_support = TRUE,
-#'                            # arguments specifically for err_fun
-#'                            sd = 1)
+#' data_out <- xy_dgp_constructor(x_fun = MASS::mvrnorm, 
+#'                                y_fun = generate_y_linear,
+#'                                err_fun = rnorm, data_split = TRUE,
+#'                                # dgp arguments
+#'                                n = 100,
+#'                                # arguments specifically for x_fun
+#'                                .x_mu = rep(0, 10), .x_Sigma = diag(10),
+#'                                # arguments specifically for y_fun
+#'                                .y_betas = rnorm(10), .y_return_support = TRUE,
+#'                                # arguments specifically for err_fun
+#'                                .err_sd = 1)
+#' data_out <- xy_dgp_constructor(x_fun = MASS::mvrnorm, 
+#'                                y_fun = generate_y_linear,
+#'                                err_fun = rnorm, data_split = TRUE,
+#'                                # dgp arguments
+#'                                n = 100,
+#'                                # arguments specifically for x_fun
+#'                                mu = rep(0, 10), Sigma = diag(10),
+#'                                # arguments specifically for y_fun
+#'                                betas = rnorm(10), return_support = TRUE,
+#'                                # arguments specifically for err_fun
+#'                                sd = 1)
 #'
 #' @export
-xy_dgp_wrapper <- function(x_fun, y_fun, err_fun, 
-                           data_split = FALSE, train_prop = 0.5,
-                           return_values = c("X", "y", "support"),
-                           ...) {
+xy_dgp_constructor <- function(x_fun, y_fun, err_fun, 
+                               data_split = FALSE, train_prop = 0.5,
+                               return_values = c("X", "y", "support"),
+                               ...) {
   return_values <- match.arg(return_values, several.ok = TRUE)
   
   args_list <- list(...)
@@ -195,7 +197,7 @@ linear_gaussian_dgp <- function(n, p_obs = 0, p_unobs = 0,
   
   # simulate betas from gaussian
   if (is.null(betas)) {
-    betas <- rnorm(p_obs, mean = 0, sd = betas_sd)
+    betas <- stats::rnorm(p_obs, mean = 0, sd = betas_sd)
     if (s_obs != p_obs) {
       betas[(s_obs + 1):length(betas)] <- 0
     }
@@ -203,7 +205,7 @@ linear_gaussian_dgp <- function(n, p_obs = 0, p_unobs = 0,
   
   # simulate unobserved betas from gaussian
   if (is.null(betas_unobs)) {
-    betas_unobs <- rnorm(p_unobs, mean = 0, sd = betas_unobs_sd)
+    betas_unobs <- stats::rnorm(p_unobs, mean = 0, sd = betas_unobs_sd)
     if (s_unobs != p_unobs) {
       betas_unobs[(s_unobs + 1):length(betas_unobs)] <- 0
     }
@@ -299,7 +301,7 @@ correlated_linear_gaussian_dgp <- function(n, p_uncorr, p_corr,
   
   # simulate betas_corr from gaussian
   if (is.null(betas_corr)) {
-    betas_corr <- rnorm(p_corr, mean = 0, sd = betas_corr_sd)
+    betas_corr <- stats::rnorm(p_corr, mean = 0, sd = betas_corr_sd)
     if ((s_corr != p_corr) && (p_corr > 0)) {
       betas_corr[(s_corr + 1):length(betas_corr)] <- 0
     }
@@ -307,7 +309,7 @@ correlated_linear_gaussian_dgp <- function(n, p_uncorr, p_corr,
   
   # simulate betas_uncorr from gaussian
   if (is.null(betas_uncorr)) {
-    betas_uncorr <- rnorm(p_uncorr, mean = 0, sd = betas_uncorr_sd)
+    betas_uncorr <- stats::rnorm(p_uncorr, mean = 0, sd = betas_uncorr_sd)
     if ((s_uncorr != p_uncorr) && (p_uncorr > 0)) {
       betas_uncorr[(s_uncorr + 1):length(betas_uncorr)] <- 0
     }
@@ -504,7 +506,6 @@ correlated_lss_gaussian_dgp <- function(n, p_uncorr, p_corr,
 #'   \code{data_split = TRUE}.
 #' @param return_values Character vector indicating what objects to return in 
 #'   list. Elements in vector must be one of "X", "y", "support".
-#' @param ... other arguments to pass to generate_X_rwd().
 #' 
 #' @export
 rwd_dgp <- function(X, y, data_split, train_prop = 0.5, 

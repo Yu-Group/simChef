@@ -2,7 +2,7 @@
 % Please edit documentation in R/visualizer-lib-utils.R
 \name{get_aesthetics}
 \alias{get_aesthetics}
-\title{Get list of aesthetics to add to ggplot}
+\title{Get list of aesthetics to add to ggplot.}
 \usage{
 get_aesthetics(
   x_str = NULL,
@@ -12,10 +12,26 @@ get_aesthetics(
   group_str = NULL
 )
 }
+\arguments{
+\item{x_str}{Character string specifying the name of the data column to plot
+on the x-axis.}
+
+\item{y_str}{Character string specifying the name of the data column to plot
+on the y-axis.}
+
+\item{color_str}{Character string specifying the name of the data column to
+use for the color aesthetic.}
+
+\item{fill_str}{Character string specifying the name of the data column to
+use for the fill aesthetic.}
+
+\item{group_str}{Character string specifying the name of the data column to
+use for the group aesthetic.}
+}
 \value{
-Named list of non-NULL inputs.
+A \code{\link[ggplot2:aes]{ggplot2::aes()}} object.
 }
 \description{
-Helper funciton to ignore NULL inputs when adding aesthetics to
-a ggplot
+Helper function to ignore \code{NULL} inputs when adding
+aesthetics to a ggplot.
 }

@@ -7,54 +7,66 @@
 summarize_feature_importances(
   fit_results,
   vary_params = NULL,
-  fi = "fi",
-  feature_col = "feature",
-  imp_col = "importance",
+  data_col,
+  feature,
+  estimate,
+  na_rm = FALSE,
   summary_funs = c("mean", "median", "min", "max", "sd", "raw"),
-  custom_summary_funs = NULL,
-  na.rm = F
+  custom_summary_funs = NULL
 )
 }
 \arguments{
-\item{fit_results}{A tibble, as returned by the \code{Experiment$fit()}
-method.}
+\item{fit_results}{A tibble, as returned by the \code{fit} method.}
 
-\item{vary_params}{A vector of parameter names that are varied over in the
-Experiment.}
+\item{vary_params}{A vector of parameter names that are varied across in the
+\code{Experiment}.}
 
-\item{fi}{Character string or vector. Name of column(s) in \code{fit_results}
-with the feature importance score information.}
+\item{data_col}{Character string specifying the name of the list-type column
+in \code{fit_results} with the feature importance \code{data.frames} or
+\code{tibbles} that contain the \code{feature} and \code{estimate} columns.}
 
-\item{feature_col}{Character string. Name of the feature column. Could be the
-name of a column in \code{fi} or \code{fit_results}.}
+\item{feature}{A character string identifying the column with the feature
+names.}
 
-\item{imp_col}{Character string. Name of the importance column. Could be the
-name of a column in \code{fi} or \code{fit_results}.}
+\item{estimate}{A character string identifying the column with the estimated
+feature importance scores.}
+
+\item{na_rm}{A \code{logical} value indicating whether \code{NA} values
+should be stripped before the computation proceeds.}
 
 \item{summary_funs}{Character vector specifying how to summarize
-evaluation metrics. Elements of the vector must be one of "mean", "median",
+evaluation metrics. Must choose from a built-in library of summary
+functions - elements of the vector must be one of "mean", "median",
 "min", "max", "sd", "raw".}
 
 \item{custom_summary_funs}{Named list of custom functions to summarize
 results. Names in the list should correspond to the name of the summary
 function. Values in the list should be a function that takes in one
-argument, that being the values of the evaluated metrics. See examples.}
-
-\item{na.rm}{Logical. Should missing values be removed in evaluating summary
-functions?}
+argument, that being the values of the evaluated metrics.}
 }
 \value{
-A data frame with the following columns in addition to any arguments
-in the \code{Experiment}'s \code{vary_params}:
-\describe{
-\item{dgp_name}{Name of DGP.}
-\item{method_name}{Name of Method.}
-\item{metric}{Name of prediction error metric.}
-\item{...}{Other columns corresponding to the results from the provided
-\code{summary_funs} and \code{custom_summary_funs} functions.}
-}
+A grouped \code{tibble} containing both identifying information
+and the feature importance results aggregated over experimental replicates.
+Specifically, the identifier columns include \code{dgp_name},
+\code{method_name}, any columns specified by \code{vary_params}, and
+the column specified by \code{feature}. In addition, there are results
+columns corresponding to the requested statistics in \code{summary_funs}
+and \code{custom_summary_funs}. These columns end in the suffix
+"_feature_imp".
 }
 \description{
 Summarize feature importance results across experimental
 repetitions.
 }
+\seealso{
+Other feature_selection_funs: 
+\code{\link{eval_feature_importances}()},
+\code{\link{eval_feature_recovery_curve}()},
+\code{\link{eval_feature_recovery}()},
+\code{\link{plot_feature_imp}()},
+\code{\link{plot_feature_recovery_curve}()},
+\code{\link{plot_feature_recovery}()},
+\code{\link{summarize_feature_recovery_curve}()},
+\code{\link{summarize_feature_recovery}()}
+}
+\concept{feature_selection_funs}

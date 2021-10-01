@@ -31,7 +31,7 @@ generate_X_gaussian <- function(n, p, mean = 0,
   
   if (is.null(Sigma)) {
     if ((corr == 0) && (length(mean) == 1)) {
-      X <- matrix(rnorm(n * p, mean = mean, sd = sd), nrow = n, ncol = p)
+      X <- matrix(stats::rnorm(n * p, mean = mean, sd = sd), nrow = n, ncol = p)
     } else {
       Sigma <- matrix(corr, nrow = p, ncol = p)
       diag(Sigma) <- 1
