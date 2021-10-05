@@ -7,7 +7,7 @@
 block_errors(n, rho = 0.8)
 }
 \arguments{
-\item{n}{Number of observations.}
+\item{n}{Number of samples.}
 
 \item{rho}{Correlation.}
 }

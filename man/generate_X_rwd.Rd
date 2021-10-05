@@ -7,7 +7,7 @@
 generate_X_rwd(X, n = nrow(X), p = ncol(X), clusters = NULL, replace = FALSE)
 }
 \arguments{
-\item{X}{A data frame.}
+\item{X}{Data matrix or data frame.}
 
 \item{n}{Number of samples if \code{clusters} is not \code{NULL}. If
 \code{clusters = NULL}, this is the number of clusters.}

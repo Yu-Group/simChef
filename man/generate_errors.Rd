@@ -14,7 +14,7 @@ is \code{NULL} which returns an error vector of all zeros.}
 
 \item{X}{Data matrix or data frame. Used to determine n if n is missing.}
 
-\item{...}{Other arguments to pass to \code{err()}.}
+\item{...}{Other arguments to pass to err() to generate the error vector.}
 }
 \value{
 A vector of length n with simulated errors.

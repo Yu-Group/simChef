@@ -24,7 +24,7 @@ generate_y_linear(
 \item{betas_unobs}{Coefficient vector for unobserved design matrix.}
 
 \item{err}{Function from which to generate simulate error vector. Default
-is \code{NULL} which adds no error to the response y.}
+is \code{NULL} which adds no error to the DGP.}
 
 \item{return_support}{Logical specifying whether or not to return a vector
 of the support column names. If \code{X} has no column names, then the

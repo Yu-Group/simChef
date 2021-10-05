@@ -7,11 +7,16 @@
 dataSplit(X, y, train_prop = 0.5)
 }
 \arguments{
-\item{X}{Data matrix.}
+\item{X}{Data matrix or data frame.}
 
 \item{y}{Response vector.}
 
 \item{train_prop}{Proportion of data in training set.}
+}
+\value{
+A list of four: "X", "y", "Xtest", and "ytest" containing the
+training data, training response, test data, and test response,
+respectively.
 }
 \description{
 Helper function to split data into training and test sets

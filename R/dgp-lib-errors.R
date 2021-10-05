@@ -3,11 +3,10 @@
 #' @description Generate simulated errors from the specified error function and
 #'   passed arguments.
 #' 
+#' @inheritParams shared_dgp_lib_args
 #' @param err Function from which to generate simulate error vector. Default
 #'   is \code{NULL} which returns an error vector of all zeros.
-#' @param n Number of samples.
 #' @param X Data matrix or data frame. Used to determine n if n is missing.
-#' @param ... Other arguments to pass to \code{err()}.
 #' 
 #' @return A vector of length n with simulated errors.
 #' 
@@ -36,7 +35,7 @@ generate_errors <- function(err = NULL, n, X, ...) {
 #' @description Generate correlated Gaussian errors based on an 
 #'   autoregressive(1) covariance structure.
 #' 
-#' @param n Number of observations.
+#' @inheritParams shared_dgp_lib_args
 #' @param rho Correlation.
 #' 
 #' @return A vector of simulated errors of length n.
@@ -53,7 +52,7 @@ ar1_errors <- function(n, rho) {
 #' @description Generate correlated Gaussian errors based on a block-dependence
 #'   covariance structure (with 3 blocks).
 #'
-#' @param n Number of observations.
+#' @inheritParams shared_dgp_lib_args
 #' @param rho Correlation.
 #' 
 #' @return A vector of simulated errors of length n.
@@ -74,7 +73,7 @@ block_errors <- function(n, rho = 0.8) {
 #' @description Generate independent Gaussian errors with variance based on norm
 #'   of row observations in the data matrix X.
 #'
-#' @param X Data design matrix
+#' @inheritParams shared_dgp_lib_args
 #' 
 #' @return A vector of simulated errors of length n.
 #' 

@@ -20,9 +20,9 @@
 #' @export
 plot_pred_err <- function(fit_results, eval_results, evaluator_name = NULL,
                           vary_params = NULL, metrics = NULL,
-                          show = c("point", "line", "bar"), ...) {
+                          show = c("point", "line"), ...) {
   .metric <- NULL  # to fix no visible binding for global variable error
-  arg_list <- get_args(
+  arg_list <- get_dot_args(
     user_args = list(...), 
     default_args = list(eval_id = "pred_err",
                         eval_fun = "summarize_pred_err",
@@ -81,7 +81,7 @@ plot_pred_curve <- function(fit_results, eval_results, evaluator_name = NULL,
     eval_id <- "precision"
     x_str <- "recall"
   }
-  arg_list <- get_args(
+  arg_list <- get_dot_args(
     user_args = list(...), 
     default_args = list(eval_id = eval_id,
                         eval_fun = "summarize_pred_curve",

@@ -19,7 +19,7 @@ generate_y_lss(
 )
 }
 \arguments{
-\item{X}{Design data matrix of observed variables.}
+\item{X}{Data matrix or data frame.}
 
 \item{k}{Order of the interactions.}
 
@@ -40,7 +40,7 @@ in the LSS model.}
 simulate support indices without replacement (so no overlap)}
 
 \item{err}{Function from which to generate simulate error vector. Default
-is \code{NULL} which adds no error to the response y.}
+is \code{NULL} which adds no error to the DGP.}
 
 \item{return_support}{Logical specifying whether or not to return a vector
 of the support column names. If \code{X} has no column names, then the

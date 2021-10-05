@@ -7,7 +7,7 @@
 norm_errors(X)
 }
 \arguments{
-\item{X}{Data design matrix}
+\item{X}{Data matrix or data frame.}
 }
 \value{
 A vector of simulated errors of length n.

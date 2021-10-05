@@ -7,8 +7,8 @@
 lss_gaussian_dgp(
   n,
   p,
-  s,
   k,
+  s,
   thresholds = 0,
   signs = 1,
   betas = 1,
@@ -24,12 +24,11 @@ lss_gaussian_dgp(
 \arguments{
 \item{n}{Number of samples.}
 
-\item{p}{Number of (uncorrelated) features.}
-
-\item{s}{Number of interactions in the LSS model or a matrix of the support
-indices with each interaction taking a row in this matrix and ncol = k}
+\item{p}{Number of features.}
 
 \item{k}{Order of the interactions.}
+
+\item{s}{Number of interactions in the LSS model.}
 
 \item{thresholds}{A scalar or a s x k matrix of the thresholds for each term
 in the LSS model.}
@@ -57,6 +56,12 @@ sets according to \code{train_prop}.}
 list. Elements in vector must be one of "X", "y", "support".}
 
 \item{...}{Other arguments to pass to err() to generate the error vector.}
+}
+\value{
+A list of the named objects that were requested in
+\code{return_values}. Note that if \code{data_split = TRUE} and "X", "y"
+are in \code{return_values}, then the returned list also contains slots for
+"Xtest" and "ytest".
 }
 \description{
 Generate independent normally-distributed covariates and LSS

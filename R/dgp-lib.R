@@ -4,23 +4,15 @@
 #'   for any supervised learning DGP, provided the functions for simulating X, 
 #'   y, and the additive error term.
 #'
+#' @inheritParams shared_dgp_lib_args
 #' @param x_fun Function to generate X data.
 #' @param y_fun Function to generate y data.
 #' @param err_fun Function to generate error/noise data.
-#' @param data_split Logical; if \code{TRUE}, splits data into training and test
-#'   sets according to \code{train_prop}.
-#' @param train_prop Proportion of data in training set if 
-#'   \code{data_split = TRUE}.
-#' @param return_values Character vector indicating what objects to return in 
-#'   list. Elements in vector must be one of "X", "y", "support".
 #' @param ... Additional arguments to pass to \code{x_fun}, \code{y_fun},
 #'   and \code{err_fun}. If argument does not exist in \code{x_fun}, 
 #'   \code{y_fun}, or \code{err_fun}, argument is ignored.
 #' 
-#' @returns A list of the named objects that were requested in
-#'   \code{return_values}. Note that if \code{data_split = TRUE} and "X", "y" 
-#'   are in \code{return_values}, then the returned list also contains slots for
-#'   "Xtest" and "ytest".
+#' @inherit shared_dgp_lib_args return
 #'   
 #' @details TODO: explain how to write x_fun, y_fun, err_fun. Required args +
 #'   optional args + other caveats.
@@ -112,23 +104,9 @@ xy_dgp_constructor <- function(x_fun, y_fun, err_fun,
                              alwaysArgs = err_args_list)
   y <- y_true_out$y + err_out
   
-  out <- NULL
-  if (any(c("X", "y") %in% return_values)) {
-    if (data_split) {
-      data_out <- dataSplit(X = X_out$X, y = y, train_prop = train_prop)
-    } else {
-      data_out <- list(X = X_out$X, y = y)
-    }
-    if ("X" %in% return_values) {
-      out <- c(out, data_out[intersect(names(data_out), c("X", "Xtest"))])
-    }
-    if ("y" %in% return_values) {
-      out <- c(out, data_out[intersect(names(data_out), c("y", "ytest"))])
-    }
-  }
-  if ("support" %in% return_values) {
-    out <- c(out, list(support = y_true_out$support))
-  }
+  out <- return_DGP_output(X = X_out$X, y = y, support = y_true_out$support, 
+                           data_split = data_split, train_prop = train_prop,
+                           return_values = return_values)
   return(out)
 }
 
@@ -138,7 +116,7 @@ xy_dgp_constructor <- function(x_fun, y_fun, err_fun,
 #'   potentially omitted variables) and linear response data with a specified
 #'   error distribution.
 #'
-#' @param n Number of samples.
+#' @inheritParams shared_dgp_lib_args
 #' @param p_obs Number of observed features.
 #' @param p_unobs Number of unobserved (omitted) features.
 #' @param s_obs Number of observed features with non-zero coefficients.
@@ -151,20 +129,8 @@ xy_dgp_constructor <- function(x_fun, y_fun, err_fun,
 #' @param betas_unobs_sd (Optional) SD of normal distribution from which to draw 
 #'   \code{betas_unobs}. Only used if \code{betas_unobs} argument is 
 #'   \code{NULL}.
-#' @param err Function from which to generate simulate error vector. Default
-#'   is \code{NULL} which adds no error to the DGP.
-#' @param data_split Logical; if \code{TRUE}, splits data into training and test
-#'   sets according to \code{train_prop}.
-#' @param train_prop Proportion of data in training set if 
-#'   \code{data_split = TRUE}.
-#' @param return_values Character vector indicating what objects to return in 
-#'   list. Elements in vector must be one of "X", "y", "support".
-#' @param ... Other arguments to pass to err() to generate the error vector.
 #' 
-#' @returns A list of the named objects that were requested in
-#'   \code{return_values}. Note that if \code{data_split = TRUE} and "X", "y" 
-#'   are in \code{return_values}, then the returned list also contains slots for
-#'   "Xtest" and "ytest".
+#' @inherit shared_dgp_lib_args return
 #' 
 #' @details TODO: Support is the first s_obs and s_unobs features in the
 #'   generated X and U data.
@@ -216,32 +182,15 @@ linear_gaussian_dgp <- function(n, p_obs = 0, p_unobs = 0,
     X = X, U = U, betas = betas, betas_unobs = betas_unobs, err = err,
     return_support = "support" %in% return_values, ...
   )
+  
   if ("support" %in% return_values) {
     support <- y$support
     y <- y$y
   }
+  out <- return_DGP_output(X = X, y = y, support = support,
+                           data_split = data_split, train_prop = train_prop,
+                           return_values = return_values)
   
-  # convert to data frames
-  X <- as.data.frame(X)
-  U <- as.data.frame(U)
-  
-  out <- NULL
-  if (any(c("X", "y") %in% return_values)) {
-    if (data_split) {
-      data_out <- dataSplit(X = X, y = y, train_prop = train_prop)
-    } else {
-      data_out <- list(X = X, y = y)
-    }
-    if ("X" %in% return_values) {
-      out <- c(out, data_out[intersect(names(data_out), c("X", "Xtest"))])
-    }
-    if ("y" %in% return_values) {
-      out <- c(out, data_out[intersect(names(data_out), c("y", "ytest"))])
-    }
-  }
-  if ("support" %in% return_values) {
-    out <- c(out, list(support = support))
-  }
   return(out)
 }
 
@@ -250,7 +199,7 @@ linear_gaussian_dgp <- function(n, p_obs = 0, p_unobs = 0,
 #' @description Generate normally-distributed covariates that are potentially
 #'   correlated and linear response data with a specified error distribution.
 #'
-#' @param n Number of samples.
+#' @inheritParams shared_dgp_lib_args
 #' @param p_uncorr Number of uncorrelated features.
 #' @param p_corr Number of features in correlated group.
 #' @param s_uncorr Number of features in uncorrelated group with non-zero coef.
@@ -264,15 +213,8 @@ linear_gaussian_dgp <- function(n, p_obs = 0, p_unobs = 0,
 #' @param betas_corr_sd (Optional) SD of normal distribution from which to draw 
 #'   \code{betas_corr}. Only used if \code{betas_corr} argument is 
 #'   \code{NULL}.
-#' @param err Function from which to generate simulate error vector. Default
-#'   is \code{NULL} which adds no error to the DGP.
-#' @param data_split Logical; if \code{TRUE}, splits data into training and test
-#'   sets according to \code{train_prop}.
-#' @param train_prop Proportion of data in training set if 
-#'   \code{data_split = TRUE}.
-#' @param return_values Character vector indicating what objects to return in 
-#'   list. Elements in vector must be one of "X", "y", "support".
-#' @param ... Other arguments to pass to err() to generate the error vector.
+#'   
+#' @inherit shared_dgp_lib_args return
 #' 
 #' @export
 correlated_linear_gaussian_dgp <- function(n, p_uncorr, p_corr, 
@@ -321,31 +263,14 @@ correlated_linear_gaussian_dgp <- function(n, p_uncorr, p_corr,
   # simulate linear y
   y <- generate_y_linear(X = X, betas = betas, err = err, 
                          return_support = "support" %in% return_values, ...)
+  
   if ("support" %in% return_values) {
     support <- y$support
     y <- y$y
   }
-  
-  # convert to data frames
-  X <- as.data.frame(X)
-  
-  out <- NULL
-  if (any(c("X", "y") %in% return_values)) {
-    if (data_split) {
-      data_out <- dataSplit(X = X, y = y, train_prop = train_prop)
-    } else {
-      data_out <- list(X = X, y = y)
-    }
-    if ("X" %in% return_values) {
-      out <- c(out, data_out[intersect(names(data_out), c("X", "Xtest"))])
-    }
-    if ("y" %in% return_values) {
-      out <- c(out, data_out[intersect(names(data_out), c("y", "ytest"))])
-    }
-  }
-  if ("support" %in% return_values) {
-    out <- c(out, list(support = support))
-  }
+  out <- return_DGP_output(X = X, y = y, support = support,
+                           data_split = data_split, train_prop = train_prop,
+                           return_values = return_values)
   return(out)
 }
 
@@ -354,11 +279,9 @@ correlated_linear_gaussian_dgp <- function(n, p_uncorr, p_corr,
 #' @description Generate independent normally-distributed covariates and LSS
 #'   response data with a specified error distribution.
 #'   
-#' @param n Number of samples.
-#' @param p Number of (uncorrelated) features.
-#' @param s Number of interactions in the LSS model or a matrix of the support
-#'   indices with each interaction taking a row in this matrix and ncol = k
+#' @inheritParams shared_dgp_lib_args
 #' @param k Order of the interactions.
+#' @param s Number of interactions in the LSS model.
 #' @param thresholds A scalar or a s x k matrix of the thresholds for each term 
 #'   in the LSS model.
 #' @param signs A scalar or a s x k matrix of the sign of each interaction 
@@ -367,50 +290,28 @@ correlated_linear_gaussian_dgp <- function(n, p_uncorr, p_corr,
 #' @param intercept Scalar intercept term.
 #' @param overlap If TRUE, simulate support indices with replacement; if FALSE,
 #'   simualte support indices without replacement (so no overlap).
-#' @param err Function from which to generate simulate error vector. Default
-#'   is \code{NULL} which adds no error to the DGP.
-#' @param data_split Logical; if \code{TRUE}, splits data into training and test
-#'   sets according to \code{train_prop}.
-#' @param train_prop Proportion of data in training set if 
-#'   \code{data_split = TRUE}.
-#' @param return_values Character vector indicating what objects to return in 
-#'   list. Elements in vector must be one of "X", "y", "support".
-#' @param ... Other arguments to pass to err() to generate the error vector.
+#'   
+#' @inherit shared_dgp_lib_args return
 #' 
 #' @export
-lss_gaussian_dgp <- function(n, p, s, k, thresholds = 0, signs = 1, betas = 1,
+lss_gaussian_dgp <- function(n, p, k, s, thresholds = 0, signs = 1, betas = 1,
                              intercept = 0, overlap = FALSE, err = NULL,
                              data_split = FALSE, train_prop = 0.5,
                              return_values = c("X", "y", "support"), ...) {
   X <- generate_X_gaussian(n = n, p = p)
-  y <- generate_y_lss(X = X, k = k, s = matrix(1:s, nrow = s, ncol = 1),
+  y <- generate_y_lss(X = X, k = k, s = matrix(1:(s * k), nrow = s, ncol = k),
                       thresholds = thresholds, 
                       signs = signs, betas = betas, intercept = intercept, 
                       overlap = overlap, err = err, 
                       return_support = "support" %in% return_values, ...)
+  
   if ("support" %in% return_values) {
     support <- y$support
     y <- y$y
   }
-  X <- as.data.frame(X)
-  
-  out <- NULL
-  if (any(c("X", "y") %in% return_values)) {
-    if (data_split) {
-      data_out <- dataSplit(X = X, y = y, train_prop = train_prop)
-    } else {
-      data_out <- list(X = X, y = y)
-    }
-    if ("X" %in% return_values) {
-      out <- c(out, data_out[intersect(names(data_out), c("X", "Xtest"))])
-    }
-    if ("y" %in% return_values) {
-      out <- c(out, data_out[intersect(names(data_out), c("y", "ytest"))])
-    }
-  }
-  if ("support" %in% return_values) {
-    out <- c(out, list(support = support))
-  }
+  out <- return_DGP_output(X = X, y = y, support = support,
+                           data_split = data_split, train_prop = train_prop,
+                           return_values = return_values)
   return(out)
 }
 
@@ -419,11 +320,11 @@ lss_gaussian_dgp <- function(n, p, s, k, thresholds = 0, signs = 1, betas = 1,
 #' @description Generate normally-distributed covariates that are potentially
 #'   correlated and LSS response data with a specified error distribution.
 #'
-#' @param n Number of samples.
+#' @inheritParams shared_dgp_lib_args
 #' @param p_uncorr Number of uncorrelated features.
 #' @param p_corr Number of features in correlated group.
-#' @param s_uncorr Number of features in uncorrelated group in support.
-#' @param s_corr Number of features in correlated group in support.
+#' @param s_uncorr Number of interactions from features in uncorrelated group.
+#' @param s_corr Number of interactions from features in correlated group.
 #' @param corr Correlation between features in correlated group.
 #' @param k Order of the interactions.
 #' @param thresholds A scalar or a s x k matrix of the thresholds for each term 
@@ -432,25 +333,23 @@ lss_gaussian_dgp <- function(n, p, s, k, thresholds = 0, signs = 1, betas = 1,
 #'   (1 means > while -1 means <).
 #' @param betas Scalar or parameter vector for interaction terms.
 #' @param intercept Scalar intercept term.
-#' @param overlap If TRUE, simulate support indices with replacement; if FALSE,
-#'   simualte support indices without replacement (so no overlap).
-#' @param err Function from which to generate simulate error vector. Default
-#'   is \code{NULL} which adds no error to the DGP.
-#' @param data_split Logical; if \code{TRUE}, splits data into training and test
-#'   sets according to \code{train_prop}.
-#' @param train_prop Proportion of data in training set if 
-#'   \code{data_split = TRUE}.
-#' @param return_values Character vector indicating what objects to return in 
-#'   list. Elements in vector must be one of "X", "y", "support".
-#' @param ... Other arguments to pass to err() to generate the error vector.
+#' @param overlap If \code{TRUE}, simulate support indices with replacement; if
+#'   \code{FALSE}, simualte support indices without replacement (so no overlap).
+#' @param mixed_int If \code{TRUE}, correlated and uncorrelated variables are
+#'   mixed together when constructing an interaction of order-k. If 
+#'   \code{FALSE}, each interaction of order-k is composed of only correlated
+#'   variables or only uncorrelated variables.
+#'   
+#' @inherit shared_dgp_lib_args return
 #' 
 #' @export
 correlated_lss_gaussian_dgp <- function(n, p_uncorr, p_corr, 
                                         s_uncorr = p_uncorr, s_corr = p_corr,
                                         corr, k, thresholds = 0, signs = 1, 
                                         betas = 1,  intercept = 0, 
-                                        overlap = FALSE, err = NULL,
-                                        data_split = FALSE, train_prop = 0.5,
+                                        overlap = FALSE, mixed_int = FALSE,
+                                        err = NULL, data_split = FALSE,
+                                        train_prop = 0.5,
                                         return_values = c("X", "y", "support"),
                                         ...) {
   
@@ -460,71 +359,44 @@ correlated_lss_gaussian_dgp <- function(n, p_uncorr, p_corr,
   
   support <- NULL
   if (s_uncorr > 0) {
-    support <- c(support, 1:s_uncorr)
+    support <- c(support, 1:(s_uncorr * k))
   }
   if (s_corr > 0) {
-    support <- c(support, (p_uncorr + 1):(p_uncorr + s_corr))
+    support <- c(support, (p_uncorr + 1):(p_uncorr + (s_corr * k)))
   }
-  y <- generate_y_lss(X = X, k = k, 
-                      s = matrix(support, nrow = s_uncorr + s_corr, ncol = k), 
+  if (mixed_int) {
+    s <- matrix(sample(support, size = length(support), replace = F), 
+                nrow = s_uncorr + s_corr, ncol = k)
+  } else {
+    s <- matrix(support, nrow = s_uncorr + s_corr, ncol = k)
+  }
+  y <- generate_y_lss(X = X, k = k, s = s, 
                       thresholds = thresholds, signs = signs, betas = betas, 
                       intercept = intercept, overlap = overlap, err = err, 
                       return_support = "support" %in% return_values, ...)
+  
   if ("support" %in% return_values) {
     support <- y$support
     y <- y$y
   }
-  X <- as.data.frame(X)
-  
-  out <- NULL
-  if (any(c("X", "y") %in% return_values)) {
-    if (data_split) {
-      data_out <- dataSplit(X = X, y = y, train_prop = train_prop)
-    } else {
-      data_out <- list(X = X, y = y)
-    }
-    if ("X" %in% return_values) {
-      out <- c(out, data_out[intersect(names(data_out), c("X", "Xtest"))])
-    }
-    if ("y" %in% return_values) {
-      out <- c(out, data_out[intersect(names(data_out), c("y", "ytest"))])
-    }
-  }
-  if ("support" %in% return_values) {
-    out <- c(out, list(support = support))
-  }
+  out <- return_DGP_output(X = X, y = y, support = support,
+                           data_split = data_split, train_prop = train_prop,
+                           return_values = return_values)
   return(out)
 }
 
 #' Read in real world data from X and y.
 #' 
-#' @param X Data matrix.
-#' @param y Response vector.
-#' @param data_split Logical; if \code{TRUE}, splits data into training and test
-#'   sets according to \code{train_prop}.
-#' @param train_prop Proportion of data in training set if 
-#'   \code{data_split = TRUE}.
-#' @param return_values Character vector indicating what objects to return in 
-#'   list. Elements in vector must be one of "X", "y", "support".
+#' @inheritParams shared_dgp_lib_args
+#' @inherit shared_dgp_lib_args return
 #' 
 #' @export
 rwd_dgp <- function(X, y, data_split, train_prop = 0.5, 
                     return_values = c("X", "y")) {
   return_values <- match.arg(return_values, choices = c("X", "y", "support"),
                              several.ok = TRUE)
-  out <- NULL
-  if (any(c("X", "y") %in% return_values)) {
-    if (data_split) {
-      data_out <- dataSplit(X = X, y = y, train_prop = train_prop)
-    } else {
-      data_out <- list(X = X, y = y)
-    }
-    if ("X" %in% return_values) {
-      out <- c(out, data_out[intersect(names(data_out), c("X", "Xtest"))])
-    }
-    if ("y" %in% return_values) {
-      out <- c(out, data_out[intersect(names(data_out), c("y", "ytest"))])
-    }
-  }
+  out <- return_DGP_output(X = X, y = y, support = NULL,
+                           data_split = data_split, train_prop = train_prop,
+                           return_values = return_values)
   return(out)
 }

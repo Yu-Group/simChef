@@ -7,7 +7,7 @@
 indicator(X, thresh, sgn)
 }
 \arguments{
-\item{X}{data matrix}
+\item{X}{Data matrix or data frame.}
 
 \item{thresh}{thresholds}
 

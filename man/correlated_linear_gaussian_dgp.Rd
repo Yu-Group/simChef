@@ -61,6 +61,12 @@ list. Elements in vector must be one of "X", "y", "support".}
 
 \item{...}{Other arguments to pass to err() to generate the error vector.}
 }
+\value{
+A list of the named objects that were requested in
+\code{return_values}. Note that if \code{data_split = TRUE} and "X", "y"
+are in \code{return_values}, then the returned list also contains slots for
+"Xtest" and "ytest".
+}
 \description{
 Generate normally-distributed covariates that are potentially
 correlated and linear response data with a specified error distribution.

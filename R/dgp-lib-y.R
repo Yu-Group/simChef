@@ -2,17 +2,12 @@
 #' 
 #' @description Generate linear response data with a specified error 
 #'   distribution given the observed and unobserved design matrices.
-#'
+#' 
+#' @inheritParams shared_dgp_lib_args
 #' @param X Design data matrix of observed variables.
 #' @param U Design data matrix of unobserved (omitted) variables.
 #' @param betas Coefficient vector for observed design matrix.
 #' @param betas_unobs Coefficient vector for unobserved design matrix.
-#' @param err Function from which to generate simulate error vector. Default
-#'   is \code{NULL} which adds no error to the response y.
-#' @param return_support Logical specifying whether or not to return a vector
-#'   of the support column names. If \code{X} has no column names, then the
-#'   indices of the support are used.
-#' @param ... Other arguments to pass to err() to generate the error vector.
 #' 
 #' @return A response vector of length nrow(X).
 #' 
@@ -31,7 +26,7 @@ generate_y_linear <- function(X, U, betas, betas_unobs, err = NULL,
   
   eps <- generate_errors(err = err, n = n, ...)
   
-  y <- U %*% betas_unobs + X %*% betas + eps
+  y <- as.matrix(U) %*% betas_unobs + as.matrix(X) %*% betas + eps
   
   if (return_support) {
     if (is.null(colnames(X))) {
@@ -50,7 +45,7 @@ generate_y_linear <- function(X, U, betas, betas_unobs, err = NULL,
 #' @description Generate LSS response data with a specified error
 #'   distribution given the observed data matrices.
 #'
-#' @param X Design data matrix of observed variables.
+#' @inheritParams shared_dgp_lib_args
 #' @param k Order of the interactions.
 #' @param s Number of interactions in the LSS model or a matrix of the support
 #'   indices with each interaction taking a row in this matrix and ncol = k.
@@ -62,12 +57,6 @@ generate_y_linear <- function(X, U, betas, betas_unobs, err = NULL,
 #' @param intercept Scalar intercept term.
 #' @param overlap If TRUE, simulate support indices with replacement; if FALSE,
 #'   simulate support indices without replacement (so no overlap)
-#' @param err Function from which to generate simulate error vector. Default
-#'   is \code{NULL} which adds no error to the response y.
-#' @param return_support Logical specifying whether or not to return a vector
-#'   of the support column names. If \code{X} has no column names, then the
-#'   indices of the support are used.
-#' @param ... Other arguments to pass to err() to generate the error vector.
 #' 
 #' @return A response vector of length nrow(X).
 #' 

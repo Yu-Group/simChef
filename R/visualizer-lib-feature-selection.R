@@ -21,7 +21,7 @@ plot_feature_imp <- function(fit_results, eval_results, evaluator_name = NULL,
                              vary_params = NULL, max_features = NULL, feature,
                              show = c("errorbar", "bar"), ...) {
   imp <- NULL  # to fix no visible binding for global variable error
-  arg_list <- get_args(
+  arg_list <- get_dot_args(
     user_args = list(...), 
     default_args = list(eval_id = "feature_imp",
                         eval_fun = "summarize_feature_importances",
@@ -77,7 +77,7 @@ plot_feature_recovery <- function(fit_results, eval_results,
                                   metrics = NULL, 
                                   show = c("point", "line", "errorbar"), ...) {
   .metric <- NULL  # to fix no visible binding for global variable error
-  arg_list <- get_args(
+  arg_list <- get_dot_args(
     user_args = list(...), 
     default_args = list(eval_id = "feature_recovery",
                         eval_fun = "summarize_feature_recovery",
@@ -137,7 +137,7 @@ plot_feature_recovery_curve <- function(fit_results, eval_results,
     eval_id <- "precision"
     x_str <- "recall"
   }
-  arg_list <- get_args(
+  arg_list <- get_dot_args(
     user_args = list(...), 
     default_args = list(eval_id = eval_id,
                         eval_fun = "summarize_feature_recovery_curve",

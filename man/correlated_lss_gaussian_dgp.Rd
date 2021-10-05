@@ -17,6 +17,7 @@ correlated_lss_gaussian_dgp(
   betas = 1,
   intercept = 0,
   overlap = FALSE,
+  mixed_int = FALSE,
   err = NULL,
   data_split = FALSE,
   train_prop = 0.5,
@@ -31,9 +32,9 @@ correlated_lss_gaussian_dgp(
 
 \item{p_corr}{Number of features in correlated group.}
 
-\item{s_uncorr}{Number of features in uncorrelated group in support.}
+\item{s_uncorr}{Number of interactions from features in uncorrelated group.}
 
-\item{s_corr}{Number of features in correlated group in support.}
+\item{s_corr}{Number of interactions from features in correlated group.}
 
 \item{corr}{Correlation between features in correlated group.}
 
@@ -49,8 +50,13 @@ in the LSS model.}
 
 \item{intercept}{Scalar intercept term.}
 
-\item{overlap}{If TRUE, simulate support indices with replacement; if FALSE,
-simualte support indices without replacement (so no overlap).}
+\item{overlap}{If \code{TRUE}, simulate support indices with replacement; if
+\code{FALSE}, simualte support indices without replacement (so no overlap).}
+
+\item{mixed_int}{If \code{TRUE}, correlated and uncorrelated variables are
+mixed together when constructing an interaction of order-k. If
+\code{FALSE}, each interaction of order-k is composed of only correlated
+variables or only uncorrelated variables.}
 
 \item{err}{Function from which to generate simulate error vector. Default
 is \code{NULL} which adds no error to the DGP.}
@@ -65,6 +71,12 @@ sets according to \code{train_prop}.}
 list. Elements in vector must be one of "X", "y", "support".}
 
 \item{...}{Other arguments to pass to err() to generate the error vector.}
+}
+\value{
+A list of the named objects that were requested in
+\code{return_values}. Note that if \code{data_split = TRUE} and "X", "y"
+are in \code{return_values}, then the returned list also contains slots for
+"Xtest" and "ytest".
 }
 \description{
 Generate normally-distributed covariates that are potentially

@@ -7,7 +7,7 @@
 ar1_errors(n, rho)
 }
 \arguments{
-\item{n}{Number of observations.}
+\item{n}{Number of samples.}
 
 \item{rho}{Correlation.}
 }

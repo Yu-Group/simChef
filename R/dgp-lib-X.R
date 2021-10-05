@@ -3,8 +3,7 @@
 #' @description Generate an n x p normal random matrix with the specified mean
 #'   and covariance structure.
 #'
-#' @param n Number of samples.
-#' @param p Number of features.
+#' @inheritParams shared_dgp_lib_args
 #' @param mean Mean of normal distribution from which to generate data. Can be
 #'   either a scalar value or vector of length p. Default is 0.
 #' @param sd Standard deviation of normal distribution from which to generate 
@@ -49,7 +48,7 @@ generate_X_gaussian <- function(n, p, mean = 0,
 #' @description Generate a design matrix X by sampling from a real-world data 
 #'   matrix under the specified sampling scheme.
 #' 
-#' @param X A data frame.
+#' @inheritParams shared_dgp_lib_args
 #' @param n Number of samples if \code{clusters} is not \code{NULL}. If
 #'   \code{clusters = NULL}, this is the number of clusters.
 #' @param p Number of features. If \code{p < ncol(X)}, the \code{p} features
@@ -71,6 +70,7 @@ generate_X_rwd <- function(X, n = nrow(X), p = ncol(X),
   if (is.null(clusters)) {
     if ((n != nrow(X) | replace)) {
       X <- X %>%
+        as.data.frame() %>%
         dplyr::slice_sample(n = n, replace = replace)
     }
   } else if (!is.null(clusters)) {

@@ -22,7 +22,7 @@ plot_reject_prob <- function(fit_results, eval_results, evaluator_name = NULL,
   .alpha <- NULL  # to fix no visible binding for global variable error
   show <- match.arg(show, choices = c("point", "line", "bar"))
   if (!is.null(feature)) {
-    arg_list <- get_args(
+    arg_list <- get_dot_args(
       user_args = list(...), 
       default_args = list(eval_id = "",
                           eval_fun = "eval_reject_prob",
@@ -32,7 +32,7 @@ plot_reject_prob <- function(fit_results, eval_results, evaluator_name = NULL,
                                                   list(feature = feature)))
     )
   } else {
-    arg_list <- get_args(
+    arg_list <- get_dot_args(
       user_args = list(...), 
       default_args = list(eval_id = "",
                           eval_fun = "eval_reject_prob",
@@ -79,7 +79,7 @@ plot_testing_err <- function(fit_results, eval_results, evaluator_name = NULL,
                              vary_params = NULL, metrics = NULL, 
                              show = c("point", "line", "errorbar"), ...) {
   .metric <- NULL  # to fix no visible binding for global variable error
-  arg_list <- get_args(
+  arg_list <- get_dot_args(
     user_args = list(...), 
     default_args = list(eval_id = "testing_err",
                         eval_fun = "summarize_testing_err",
@@ -138,7 +138,7 @@ plot_pval_ranking_curve <- function(fit_results, eval_results,
     eval_id <- "precision"
     x_str <- "recall"
   }
-  arg_list <- get_args(
+  arg_list <- get_dot_args(
     user_args = list(...), 
     default_args = list(eval_id = eval_id,
                         eval_fun = "summarize_pval_ranking_curve",

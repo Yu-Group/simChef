@@ -45,6 +45,8 @@ NULL
 #'   ribbon ggplot layers.
 #' @param color_str (Optional) Name of column in \code{eval_out} to use for the
 #'   color and fill aesthetics when plotting.
+#' @param linetype_str (Optional) Name of column in \code{eval_out} to use for
+#'   the linetype aesthetic when plotting. Used only when \code{show = "line"}.
 #' @param facet_wrap_formula (Optional) Formula for \code{ggplot2::facet_wrap()}
 #'   if need be.
 #' @param facet_grid_formula (Optional) Formula for \code{ggplot2::facet_grid()}
@@ -85,7 +87,8 @@ plot_eval_summary <- function(fit_results, eval_out = NULL, eval_id = "",
                               show = c("boxplot", "point", "line", "bar", 
                                        "errorbar", "ribbon"),
                               x_str = NULL, y_str = NULL, err_sd_str = NULL, 
-                              color_str = NULL, facet_wrap_formula = NULL, 
+                              color_str = NULL, linetype_str = NULL,
+                              facet_wrap_formula = NULL, 
                               facet_grid_formula = NULL, plot_by = NULL, 
                               add_ggplot_layers = NULL, boxplot_args = NULL, 
                               point_args = NULL, line_args = NULL, 
@@ -183,7 +186,7 @@ plot_eval_summary <- function(fit_results, eval_out = NULL, eval_id = "",
     }
   }
   if (is.null(plot_by)) {
-    plt_args <- c(x_str, y_str, color_str,
+    plt_args <- c(x_str, y_str, color_str, linetype_str,
                   as.character(facet_wrap_formula),
                   as.character(facet_grid_formula))
     if ((n_dgps > 1) && !("dgp_name" %in% plt_args)) {
@@ -203,7 +206,8 @@ plot_eval_summary <- function(fit_results, eval_out = NULL, eval_id = "",
                                 bar_args, errorbar_args, facet_args) {
     plt <- ggplot2::ggplot(plt_df)
     base_aes <- get_aesthetics(x_str = x_str, y_str = y_str, 
-                               color_str = color_str, fill_str = color_str)
+                               color_str = color_str, fill_str = color_str,
+                               linetype_str = linetype_str)
     # add ggplot geom layers
     if ("ribbon" %in% show) {
       if (!is.null(color_str)) {
@@ -241,12 +245,14 @@ plot_eval_summary <- function(fit_results, eval_out = NULL, eval_id = "",
       }
       plt <- plt + 
         do.call(ggplot2::geom_errorbar, 
-                args = c(list(mapping = errorbar_aes), errorbar_args))
+                args = c(list(mapping = errorbar_aes,
+                              position = "dodge"), errorbar_args))
     }
     if ("bar" %in% show) {
+      bar_aes <- base_aes[names(base_aes) %in% c("x", "y", "colour", "fill")]
       plt <- plt +
         do.call(ggplot2::geom_bar,
-                args = c(list(mapping = base_aes, 
+                args = c(list(mapping = bar_aes, 
                               stat = "identity", position = "dodge"), 
                          bar_args))
     }
@@ -267,16 +273,18 @@ plot_eval_summary <- function(fit_results, eval_out = NULL, eval_id = "",
                               mapping = boxplot_aes), 
                          boxplot_args))
     }
-    base_aes <- base_aes[names(base_aes) %in% c("x", "y", "colour")]
     if ("line" %in% show) {
+      line_aes <- base_aes[names(base_aes) %in% c("x", "y", "colour", 
+                                                  "linetype")]
       plt <- plt +
         do.call(ggplot2::geom_line,
-                args = c(list(mapping = base_aes), line_args))
+                args = c(list(mapping = line_aes), line_args))
     }
     if ("point" %in% show) {
+      point_aes <- base_aes[names(base_aes) %in% c("x", "y", "colour")]
       plt <- plt +
         do.call(ggplot2::geom_point,
-                args = c(list(mapping = base_aes), point_args))
+                args = c(list(mapping = point_aes), point_args))
     }
     if (!is.null(facet_wrap_formula)) {
       plt <- plt + 
@@ -449,13 +457,15 @@ plot_fit_results <- function(fit_results, vary_params = NULL, reps = 1,
 #'   use for the fill aesthetic.
 #' @param group_str Character string specifying the name of the data column to 
 #'   use for the group aesthetic.
+#' @param linetype_str Character string specifying the name of the data column 
+#'   to use for the linetype aesthetic.
 #'   
 #' @return A [ggplot2::aes()] object.
 #' 
 #' @export
 get_aesthetics <- function(x_str = NULL, y_str = NULL,
                            color_str = NULL, fill_str = NULL,
-                           group_str = NULL) {
+                           group_str = NULL, linetype_str = NULL) {
   aes_list <- list()
   if (!is.null(x_str)) {
     aes_list$x <- substitute(.data[[x_str]], list(x_str = x_str))
@@ -469,6 +479,10 @@ get_aesthetics <- function(x_str = NULL, y_str = NULL,
   }
   if (!is.null(fill_str)) {
     aes_list$fill <- substitute(.data[[fill_str]], list(fill_str = fill_str))
+  }
+  if (!is.null(linetype_str)) {
+    aes_list$linetype <- substitute(as.factor(.data[[linetype_str]]),
+                                    list(linetype_str = linetype_str))
   }
   if (!is.null(group_str)) {
     aes_list$group <- substitute(.data[[group_str]],
@@ -543,4 +557,30 @@ get_eval_tibble <- function(fit_results, eval_results, evaluator_name = NULL,
   }
   
   return(eval_out)
+}
+
+#' Get dot (...) arguments.
+#' 
+#' @description Helper function to merge default and user-specified dot (...)
+#'   arguments such that default arguments are overwritten by the user-specified
+#'   arguments.
+#'   
+#' @param user_args List of user-specified dot (...) arguments.
+#' @param default_args List of default dot (...) arguments.
+#' 
+#' @return A named list of arguments that includes all arguments from the user
+#'   and the defaults, but with the user-specified arguments overwriting the
+#'   defaults.
+#' 
+#' @export
+get_dot_args <- function(user_args, default_args) {
+  arg_list <- list()
+  for (arg_name in unique(c(names(user_args), names(default_args)))) {
+    if (arg_name %in% names(user_args)) {
+      arg_list[[arg_name]] <- user_args[[arg_name]]
+    } else {
+      arg_list[[arg_name]] <- default_args[[arg_name]]
+    }
+  }
+  return(arg_list)
 }
