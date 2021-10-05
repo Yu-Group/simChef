@@ -10,7 +10,7 @@ plot_pred_err(
   evaluator_name = NULL,
   vary_params = NULL,
   metrics = NULL,
-  show = c("point", "line", "bar"),
+  show = c("point", "line"),
   ...
 )
 }

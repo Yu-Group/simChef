@@ -9,7 +9,8 @@ get_aesthetics(
   y_str = NULL,
   color_str = NULL,
   fill_str = NULL,
-  group_str = NULL
+  group_str = NULL,
+  linetype_str = NULL
 )
 }
 \arguments{
@@ -27,6 +28,9 @@ use for the fill aesthetic.}
 
 \item{group_str}{Character string specifying the name of the data column to
 use for the group aesthetic.}
+
+\item{linetype_str}{Character string specifying the name of the data column
+to use for the linetype aesthetic.}
 }
 \value{
 A \code{\link[ggplot2:aes]{ggplot2::aes()}} object.

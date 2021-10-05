@@ -32,7 +32,8 @@ Imports:
     rmdformats,
     stringr,
     tibble,
-    tidyselect
+    tidyselect,
+    yardstick
 Suggests:
     testthat (>= 3.0.0),
     prettydoc,
@@ -45,7 +46,6 @@ Suggests:
     PRROC,
     RColorBrewer,
     tidyr,
-    viridis,
-    yardstick
+    viridis
 VignetteBuilder: knitr
 Config/testthat/edition: 3

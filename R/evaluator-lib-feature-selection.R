@@ -17,7 +17,7 @@
 #'   feature is not part of the estimated support. Moreover, a higher magnitude
 #'   indicates a more important feature.
 #' @param metrics A \code{metric_set} object indicating the metrics to evaluate.
-#'   See [yardstick::metric_set] for more details. Default \code{NULL} will
+#'   See [yardstick::metric_set()] for more details. Default \code{NULL} will
 #'   evaluate the following: number of true positives (\code{tp}), number of
 #'   false positives (\code{fp}), sensitivity (\code{sens}), specificity
 #'   (\code{spec}), positive predictive value (\code{ppv}), number of features

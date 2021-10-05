@@ -15,6 +15,7 @@ plot_eval_summary(
   y_str = NULL,
   err_sd_str = NULL,
   color_str = NULL,
+  linetype_str = NULL,
   facet_wrap_formula = NULL,
   facet_grid_formula = NULL,
   plot_by = NULL,
@@ -67,6 +68,9 @@ ribbon ggplot layers.}
 
 \item{color_str}{(Optional) Name of column in \code{eval_out} to use for the
 color and fill aesthetics when plotting.}
+
+\item{linetype_str}{(Optional) Name of column in \code{eval_out} to use for
+the linetype aesthetic when plotting. Used only when \code{show = "line"}.}
 
 \item{facet_wrap_formula}{(Optional) Formula for \code{ggplot2::facet_wrap()}
 if need be.}
