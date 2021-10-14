@@ -6,8 +6,8 @@
 \usage{
 plot_eval_summary(
   fit_results,
-  eval_out = NULL,
-  eval_id = "",
+  eval_tib = NULL,
+  eval_id = NULL,
   eval_fun = paste0("summarize_", eval_id),
   vary_params = NULL,
   show = c("boxplot", "point", "line", "bar", "errorbar", "ribbon"),
@@ -34,20 +34,20 @@ plot_eval_summary(
 \arguments{
 \item{fit_results}{A tibble, as returned by the \code{fit} method.}
 
-\item{eval_out}{(Optional) \code{Tibble} (typically from the output of
+\item{eval_tib}{(Optional) \code{Tibble} (typically from the output of
 \code{eval_summary_constructor}) containing the summarized evaluation
 results to plot. If not provided, the evaluation results will be
 automatically computed by calling \code{eval_fun()}. If the summarized
-evaluation results have already been computed previously, \code{eval_out}
+evaluation results have already been computed previously, \code{eval_tib}
 should be specified to avoid duplicate computations.}
 
 \item{eval_id}{Character string. ID used as the suffix for naming columns in
-\code{eval_summary_constructor()}. Should be the same as the \code{id}
+\code{eval_summary_constructor()}. Should be the same as the \code{eval_id}
 argument in \code{eval_summary_constructor()}.}
 
 \item{eval_fun}{Function used to compute evaluation results summary. This
 function is only used (and required) if necessary results have not already
-been computed in \code{eval_out}.}
+been computed in \code{eval_tib}.}
 
 \item{vary_params}{A vector of parameter names that are varied across in the
 \code{Experiment}.}
@@ -56,20 +56,20 @@ been computed in \code{eval_out}.}
 "line", "bar", "errorbar", "ribbon" indicating what plot layer(s) to
 construct.}
 
-\item{x_str}{(Optional) Name of column in \code{eval_out} to plot on the
+\item{x_str}{(Optional) Name of column in \code{eval_tib} to plot on the
 x-axis.}
 
-\item{y_str}{(Optional) Name of column in \code{eval_out} to plot on the
+\item{y_str}{(Optional) Name of column in \code{eval_tib} to plot on the
 y-axis if \code{show} is anything but "boxplot".}
 
-\item{err_sd_str}{(Optional) Name of column in \code{eval_out} containing the
+\item{err_sd_str}{(Optional) Name of column in \code{eval_tib} containing the
 standard deviations of \code{y_str}. Used for plotting the errorbar and
 ribbon ggplot layers.}
 
-\item{color_str}{(Optional) Name of column in \code{eval_out} to use for the
+\item{color_str}{(Optional) Name of column in \code{eval_tib} to use for the
 color and fill aesthetics when plotting.}
 
-\item{linetype_str}{(Optional) Name of column in \code{eval_out} to use for
+\item{linetype_str}{(Optional) Name of column in \code{eval_tib} to use for
 the linetype aesthetic when plotting. Used only when \code{show = "line"}.}
 
 \item{facet_wrap_formula}{(Optional) Formula for \code{ggplot2::facet_wrap()}
@@ -78,7 +78,7 @@ if need be.}
 \item{facet_grid_formula}{(Optional) Formula for \code{ggplot2::facet_grid()}
 if need be.}
 
-\item{plot_by}{(Optional) Name of column in \code{eval_out} to use for
+\item{plot_by}{(Optional) Name of column in \code{eval_tib} to use for
 subsetting data and creating different plots for each unique value.}
 
 \item{add_ggplot_layers}{Additional layers to add to a ggplot object via
@@ -110,7 +110,7 @@ plots. If \code{FALSE}, returns static \code{ggplot} plots.}
 
 \item{...}{Additional arguments to pass to \code{eval_fun()}. This is only
 used if necessary results have not already been computed in
-\code{eval_out}.}
+\code{eval_tib}.}
 }
 \value{
 If \code{interactive = TRUE}, returns a \code{plotly} object if
@@ -123,5 +123,8 @@ a \code{ggplot} object if \code{plot_by} is \code{NULL} and a list of
 A helper function for developing new \code{Visualizer} plotting
 functions that plot the summarized evaluation results as a boxplot,
 scatter plot, line plot, or bar plot with or without 1 SD error
-bars/ribbons.
+bars/ribbons. This function accepts either (1) a pre-computed tibble
+containing the summarized evaluation results or (2) the Evaluator function
+and its corresponding function arguments for computing the evaluation
+results within this function call.
 }

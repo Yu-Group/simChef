@@ -9,7 +9,7 @@ plot_pred_curve(
   eval_results,
   evaluator_name = NULL,
   vary_params = NULL,
-  metric = c("ROC", "PR"),
+  curve = c("ROC", "PR"),
   show = c("line", "ribbon"),
   ...
 )
@@ -27,7 +27,7 @@ summary results have not yet been evaluated, set to \code{NULL}.}
 \item{vary_params}{A vector of parameter names that are varied across in the
 \code{Experiment}.}
 
-\item{metric}{Either "ROC" or "PR" indicating whether to plot the ROC or
+\item{curve}{Either "ROC" or "PR" indicating whether to plot the ROC or
 Precision-Recall curve.}
 
 \item{show}{Character vector with elements being one of "boxplot", "point",
@@ -51,10 +51,8 @@ replicates.
 }
 \seealso{
 Other prediction_error_funs: 
-\code{\link{eval_pred_curve}()},
-\code{\link{eval_pred_err}()},
-\code{\link{plot_pred_err}()},
-\code{\link{summarize_pred_curve}()},
-\code{\link{summarize_pred_err}()}
+\code{\link{eval_pred_curve_funs}},
+\code{\link{eval_pred_err_funs}},
+\code{\link{plot_pred_err}()}
 }
 \concept{prediction_error_funs}

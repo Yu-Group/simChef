@@ -17,12 +17,13 @@ is \code{NULL} which returns an error vector of all zeros.}
 \item{...}{Other arguments to pass to err() to generate the error vector.}
 }
 \value{
-A vector of length n with simulated errors.
+A vector of simulated errors with length \code{n}.
 }
 \description{
 Generate simulated errors from the specified error function and
 passed arguments.
 }
 \details{
-The function argument err must accept n argument.
+The function \code{err} must accept an argument named \code{n}
+(i.e., the sample size).
 }

@@ -6,10 +6,9 @@
 \usage{
 get_eval_tibble(
   fit_results,
-  eval_results,
-  evaluator_name = NULL,
-  eval_id,
-  eval_fun,
+  eval_tib = NULL,
+  eval_id = NULL,
+  eval_fun = paste0("summarize_", eval_id),
   vary_params = NULL,
   show,
   y_str = NULL,
@@ -19,20 +18,20 @@ get_eval_tibble(
 \arguments{
 \item{fit_results}{A tibble, as returned by the \code{fit} method.}
 
-\item{eval_results}{A list of result tibbles, as returned by the
-\code{evaluate} method.}
-
-\item{evaluator_name}{Name of \code{Evaluator} containing results to plot.
-To compute the evaluation summary results from scratch or if the evaluation
-summary results have not yet been evaluated, set to \code{NULL}.}
+\item{eval_tib}{(Optional) \code{Tibble} (typically from the output of
+\code{eval_summary_constructor}) containing the summarized evaluation
+results to plot. If not provided, the evaluation results will be
+automatically computed by calling \code{eval_fun()}. If the summarized
+evaluation results have already been computed previously, \code{eval_tib}
+should be specified to avoid duplicate computations.}
 
 \item{eval_id}{Character string. ID used as the suffix for naming columns in
-\code{eval_summary_constructor()}. Should be the same as the \code{id}
+\code{eval_summary_constructor()}. Should be the same as the \code{eval_id}
 argument in \code{eval_summary_constructor()}.}
 
 \item{eval_fun}{Function used to compute evaluation results summary. This
 function is only used (and required) if necessary results have not already
-been computed in the evaluation summary results.}
+been computed in \code{eval_tib}.}
 
 \item{vary_params}{A vector of parameter names that are varied across in the
 \code{Experiment}.}
@@ -41,13 +40,15 @@ been computed in the evaluation summary results.}
 "line", "bar", "errorbar", "ribbon" indicating what plot layer(s) to
 construct.}
 
-\item{y_str}{(Optional) Name of column in evaluation summary results
-\code{tibble} to plot on the y-axis if \code{show} is anything but
-"boxplot".}
+\item{y_str}{(Optional) Name of column in \code{eval_tib} to plot on the
+y-axis if \code{show} is anything but "boxplot".}
 
 \item{...}{Additional arguments to pass to \code{eval_fun()}. This is only
 used if necessary results have not already been computed in
-\code{eval_results[[evaluator_name]]}.}
+\code{eval_tib}.}
+}
+\value{
+A \code{tibble} with the summarized evaluation results.
 }
 \description{
 Helper function to get the summarized evaluation results

@@ -2,14 +2,14 @@
 % Please edit documentation in R/visualizer-lib-inference.R
 \name{plot_reject_prob}
 \alias{plot_reject_prob}
-\title{Plot the rejection probability of a test.}
+\title{Plot the rejection probability of a hypothesis test.}
 \usage{
 plot_reject_prob(
   fit_results,
   eval_results,
   evaluator_name = NULL,
   vary_params = NULL,
-  feature = NULL,
+  feature_col = NULL,
   show = c("line"),
   ...
 )
@@ -27,9 +27,8 @@ summary results have not yet been evaluated, set to \code{NULL}.}
 \item{vary_params}{A vector of parameter names that are varied across in the
 \code{Experiment}.}
 
-\item{feature}{(Optional) A character string identifying the column with the
-feature names nested within the \code{data_col} column. Default \code{NULL}
-is used when no feature information is needed.}
+\item{feature_col}{A character string identifying the column in
+\code{fit_results} with the feature names or IDs.}
 
 \item{show}{Character vector with elements being one of "boxplot", "point",
 "line", "bar", "errorbar", "ribbon" indicating what plot layer(s) to
@@ -52,12 +51,10 @@ across various levels of significance.
 }
 \seealso{
 Other inference_funs: 
-\code{\link{eval_pval_ranking_curve}()},
 \code{\link{eval_reject_prob}()},
-\code{\link{eval_testing_err}()},
-\code{\link{plot_pval_ranking_curve}()},
-\code{\link{plot_testing_err}()},
-\code{\link{summarize_pval_ranking_curve}()},
-\code{\link{summarize_testing_err}()}
+\code{\link{eval_testing_curve_funs}},
+\code{\link{eval_testing_err_funs}},
+\code{\link{plot_testing_curve}()},
+\code{\link{plot_testing_err}()}
 }
 \concept{inference_funs}

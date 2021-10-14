@@ -49,7 +49,16 @@ indices of the support are used.}
 \item{...}{Other arguments to pass to err() to generate the error vector.}
 }
 \value{
-A response vector of length nrow(X).
+If \code{return_support = TRUE}, returns a list of two:
+\describe{
+\item{y}{A response vector of length \code{nrow(X)}.}
+\item{support}{A vector of signed feature indices in the true (interaction)
+support of the DGP. For example, "1+_2-" means that the interaction
+between high values of feature 1 and low values of feature 2 appears in the
+underlying DGP.}
+}
+
+If \code{return_support = FALSE}, returns only the response vector \code{y}.
 }
 \description{
 Generate LSS response data with a specified error

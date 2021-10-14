@@ -12,7 +12,7 @@ block_errors(n, rho = 0.8)
 \item{rho}{Correlation.}
 }
 \value{
-A vector of simulated errors of length n.
+A vector of simulated errors with length \code{n}.
 }
 \description{
 Generate correlated Gaussian errors based on a block-dependence

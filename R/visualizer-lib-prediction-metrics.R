@@ -16,7 +16,6 @@
 #' 
 #' @family prediction_error_funs
 #' 
-#' 
 #' @export
 plot_pred_err <- function(fit_results, eval_results, evaluator_name = NULL,
                           vary_params = NULL, metrics = NULL,
@@ -35,19 +34,19 @@ plot_pred_err <- function(fit_results, eval_results, evaluator_name = NULL,
          "metrics must be of class 'yardstick::metric_set' or NULL.")
   }
   
-  eval_out <- NULL
+  eval_tib <- NULL
   if (!is.null(evaluator_name)) {
-    eval_out <- eval_results[[evaluator_name]]
+    eval_tib <- eval_results[[evaluator_name]]
     if (!is.null(metrics)) {
       metric_names <- names(attr(metrics, "metrics"))
-      eval_out <- eval_out %>%
+      eval_tib <- eval_tib %>%
         dplyr::filter(.metric %in% metric_names)
     }
   }
   
   plt <- do.call(
     plot_eval_summary, 
-    args = c(list(fit_results = fit_results, eval_out = eval_out,
+    args = c(list(fit_results = fit_results, eval_tib = eval_tib,
                   vary_params = vary_params, show = show, metrics = metrics),
              arg_list)
   )
@@ -71,13 +70,13 @@ plot_pred_err <- function(fit_results, eval_results, evaluator_name = NULL,
 #' 
 #' @export
 plot_pred_curve <- function(fit_results, eval_results, evaluator_name = NULL,
-                            vary_params = NULL, metric = c("ROC", "PR"),
+                            vary_params = NULL, curve = c("ROC", "PR"),
                             show = c("line", "ribbon"), ...) {
-  metric <- match.arg(metric)
-  if (metric == "ROC") {
+  curve <- match.arg(curve)
+  if (curve == "ROC") {
     eval_id <- "TPR"
     x_str <- "FPR"
-  } else if (metric == "PR") {
+  } else if (curve == "PR") {
     eval_id <- "precision"
     x_str <- "recall"
   }
@@ -89,20 +88,20 @@ plot_pred_curve <- function(fit_results, eval_results, evaluator_name = NULL,
                         ribbon_args = list(alpha = 0.2))
   )
   
-  eval_out <- NULL
+  eval_tib <- NULL
   if (!is.null(evaluator_name)) {
-    eval_out <- eval_results[[evaluator_name]]
-    if (("recall" %in% colnames(eval_out)) && (identical(metric, "ROC"))) {
-      eval_out <- NULL
-    } else if (("FPR" %in% colnames(eval_out)) && (identical(metric, "PR"))) {
-      eval_out <- NULL
+    eval_tib <- eval_results[[evaluator_name]]
+    if (("recall" %in% colnames(eval_tib)) && (identical(curve, "ROC"))) {
+      eval_tib <- NULL
+    } else if (("FPR" %in% colnames(eval_tib)) && (identical(curve, "PR"))) {
+      eval_tib <- NULL
     }
   }
   
   plt <- do.call(
     plot_eval_summary, 
-    args = c(list(fit_results = fit_results, eval_out = eval_out,
-                  vary_params = vary_params, show = show, metric = metric),
+    args = c(list(fit_results = fit_results, eval_tib = eval_tib,
+                  vary_params = vary_params, show = show, curve = curve),
              arg_list)
   )
   return(plt)

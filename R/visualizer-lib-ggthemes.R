@@ -34,22 +34,25 @@
 #' ggplot(iris) +
 #'   aes(x = Sepal.Length, y = Sepal.Width) +
 #'   geom_point() +
-#'   prettyGGplotTheme()
+#'   pretty_ggplot_theme()
 #'
 #' @export
-prettyGGplotTheme <- function(font = "Helvetica",
-                              background_color = "grey98",
-                              strip_background_color = "#2c3e50",
-                              grid_color = "grey90",
-                              axis_line_width = 1,
-                              show_ticks = TRUE,
-                              x_text_angle = FALSE,
-                              size_theme = NULL,
-                              axis_title_size = 10, axis_text_size = 7,
-                              legend_title_size = 10, legend_text_size = 8,
-                              strip_text_size = 9, title_size = 12, 
-                              ...) {
+pretty_ggplot_theme <- function(font = "Helvetica",
+                                background_color = "grey98",
+                                strip_background_color = "#2c3e50",
+                                grid_color = "grey90",
+                                axis_line_width = 1,
+                                show_ticks = TRUE,
+                                x_text_angle = FALSE,
+                                size_theme = NULL,
+                                axis_title_size = 10, axis_text_size = 7,
+                                legend_title_size = 10, legend_text_size = 8,
+                                strip_text_size = 9, title_size = 12, 
+                                ...) {
   if (!is.null(size_theme)) {
+    size_theme <- match.arg(size_theme, 
+                            choices = c("small", "medium", "large",
+                                        "xlarge", "xxlarge", "xxxlarge"))
     if (size_theme == "small") {
       axis_title_size <- 10
       axis_text_size <- 7
@@ -72,8 +75,6 @@ prettyGGplotTheme <- function(font = "Helvetica",
       legend_text_size <- 14 + num_x * 2
       strip_text_size <- 16 + num_x * 2
       title_size <- 20 + num_x * 2
-    } else {
-      stop("size_theme must be one of 'small', 'medium', 'large', 'xlarge', or NULL.")
     }
   }
   
@@ -129,24 +130,24 @@ prettyGGplotTheme <- function(font = "Helvetica",
 #' ggplot(iris) +
 #'   aes(x = Sepal.Length, y = Sepal.Width, color = Species) +
 #'   geom_point() +
-#'   prettyGGplotTheme() +
-#'   prettyGGplotColor(color = iris$Species)
+#'   pretty_ggplot_theme() +
+#'   pretty_ggplot_color(color = iris$Species)
 #' ggplot(iris) +
 #'   aes(x = Sepal.Length, fill = Species) +
 #'   geom_density() +
-#'   prettyGGplotTheme() +
-#'   prettyGGplotFill(fill = iris$Species)
+#'   pretty_ggplot_theme() +
+#'   pretty_ggplot_fill(fill = iris$Species)
 #'   
-#' @name prettyGGplotColorTheme
-#' @rdname prettyGGplotColorTheme
+#' @name pretty_ggplot_color_fill_themes
+#' @rdname pretty_ggplot_color_fill_themes
 #'   
 NULL
 
-#' @rdname prettyGGplotColorTheme
+#' @rdname pretty_ggplot_color_fill_themes
 #' 
 #' @export
-prettyGGplotColor <- function(color, viridis = F, option = "plasma", 
-                              drop = T, ...) {
+pretty_ggplot_color <- function(color, viridis = F, option = "plasma", drop = T,
+                                ...) {
   discrete <- is.factor(color)
   if (discrete) {
     if (nlevels(color) <= 8 & viridis == FALSE) {
@@ -171,11 +172,11 @@ prettyGGplotColor <- function(color, viridis = F, option = "plasma",
 }
 
 
-#' @rdname prettyGGplotColorTheme
+#' @rdname pretty_ggplot_color_fill_themes
 #' 
 #' @export
-prettyGGplotFill <- function(fill, viridis = F, option = "plasma", 
-                             drop = T, ...) {
+pretty_ggplot_fill <- function(fill, viridis = F, option = "plasma", drop = T,
+                               ...) {
   discrete <- is.factor(fill)
   if (discrete) {
     if (nlevels(fill) <= 8 & viridis == FALSE) {
@@ -199,17 +200,38 @@ prettyGGplotFill <- function(fill, viridis = F, option = "plasma",
   return(custom_fill)
 }
 
-#' Blank x-axis theme for ggplot objects.
+#' Blank axis themes for ggplot objects.
 #'
 #' @return A ggplot theme object.
 #' 
 #' @examples
 #' require(ggplot2)
+#' 
+#' ## blank x-axis theme
 #' ggplot(iris) +
 #'   aes(x = Sepal.Length, fill = Species) +
 #'   geom_density() +
 #'   blank_x_theme()
 #'   
+#' ## blank y-axis theme
+#' ggplot(iris) +
+#'   aes(x = Sepal.Length, fill = Species) +
+#'   geom_density() +
+#'   blank_y_theme()
+#'   
+#' ## blank x- and y-axes theme
+#' ggplot(iris) +
+#'   aes(x = Sepal.Length, fill = Species) +
+#'   geom_density() +
+#'   blank_xy_theme()
+#'   
+#' @name blank_ggplot_themes
+#' @rdname blank_ggplot_themes
+#'   
+NULL
+
+#' @rdname blank_ggplot_themes
+#' 
 #' @export
 blank_x_theme <- function() {
   ggplot2::theme(axis.line.x = ggplot2::element_blank(),
@@ -219,17 +241,8 @@ blank_x_theme <- function() {
                  panel.grid.major.x = ggplot2::element_blank())
 }
 
-#' Blank y-axis theme for ggplot objects.
-#'
-#' @return A ggplot theme object.
+#' @rdname blank_ggplot_themes
 #' 
-#' @examples
-#' require(ggplot2)
-#' ggplot(iris) +
-#'   aes(x = Sepal.Length, fill = Species) +
-#'   geom_density() +
-#'   blank_y_theme()
-#'   
 #' @export
 blank_y_theme <- function() {
   ggplot2::theme(axis.line.y = ggplot2::element_blank(),
@@ -239,17 +252,8 @@ blank_y_theme <- function() {
                  panel.grid.major.y = ggplot2::element_blank())
 }
 
-#' Blank x- and y-axis theme for ggplot objects.
-#'
-#' @return A ggplot theme object.
+#' @rdname blank_ggplot_themes
 #' 
-#' @examples
-#' require(ggplot2)
-#' ggplot(iris) +
-#'   aes(x = Sepal.Length, fill = Species) +
-#'   geom_density() +
-#'   blank_xy_theme()
-#'   
 #' @export
 blank_xy_theme <- function() {
   ggplot2::theme(axis.line = ggplot2::element_blank(),

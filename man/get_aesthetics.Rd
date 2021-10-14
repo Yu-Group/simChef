@@ -39,3 +39,4 @@ A \code{\link[ggplot2:aes]{ggplot2::aes()}} object.
 Helper function to ignore \code{NULL} inputs when adding
 aesthetics to a ggplot.
 }
+\keyword{internal}

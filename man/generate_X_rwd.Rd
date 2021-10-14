@@ -29,7 +29,3 @@ A matrix of size n x p.
 Generate a design matrix X by sampling from a real-world data
 matrix under the specified sampling scheme.
 }
-\details{
-Only one of the \code{strata} and \code{clusters} arguments should
-be provided.
-}

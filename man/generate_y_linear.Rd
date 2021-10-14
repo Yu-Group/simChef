@@ -33,7 +33,13 @@ indices of the support are used.}
 \item{...}{Other arguments to pass to err() to generate the error vector.}
 }
 \value{
-A response vector of length nrow(X).
+If \code{return_support = TRUE}, returns a list of two:
+\describe{
+\item{y}{A response vector of length \code{nrow(X)}.}
+\item{support}{A vector of feature indices in the true support of the DGP.}
+}
+
+If \code{return_support = FALSE}, returns only the response vector \code{y}.
 }
 \description{
 Generate linear response data with a specified error

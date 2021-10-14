@@ -31,7 +31,7 @@ NULL
 #'   function.
 #'   
 #' @inheritParams shared_dgp_lib_args
-#' @param support Support vector.
+#' @param support Vector of feature indices in the true support of the DGP.
 #' 
 #' @inherit shared_dgp_lib_args return
 #' 
@@ -42,7 +42,7 @@ return_DGP_output <- function(X, y, support, data_split, train_prop,
   X <- as.data.frame(X)
   if (any(c("X", "y") %in% return_values)) {
     if (data_split) {
-      data_out <- dataSplit(X = X, y = y, train_prop = train_prop)
+      data_out <- split_data(X = X, y = y, train_prop = train_prop)
     } else {
       data_out <- list(X = X, y = y)
     }
@@ -68,8 +68,8 @@ return_DGP_output <- function(X, y, support, data_split, train_prop,
 #'   training data, training response, test data, and test response,
 #'   respectively.
 #' 
-#' @export
-dataSplit <- function(X, y, train_prop = 0.5) {
+#' @keywords internal
+split_data <- function(X, y, train_prop = 0.5) {
   n <- nrow(X)
   train_ids <- sample(1:n, size = round(n * train_prop), replace = F)
   out <- list(X = X[train_ids, , drop = FALSE], y = y[train_ids],

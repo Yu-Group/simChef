@@ -9,16 +9,34 @@ results. Names in the list should correspond to the name of the summary
 function. Values in the list should be a function that takes in one
 argument, that being the values of the evaluated metrics.}
 
-\item{metric}{Either "ROC" or "PR" indicating whether to evaluate the ROC or
+\item{curve}{Either "ROC" or "PR" indicating whether to evaluate the ROC or
 Precision-Recall curve.}
+
+\item{feature_col}{A character string identifying the column in
+\code{fit_results} with the feature names or IDs.}
 
 \item{na_rm}{A \code{logical} value indicating whether \code{NA} values
 should be stripped before the computation proceeds.}
+
+\item{nested_data}{(Optional) Character string. If specified, should be the
+name of the column in \code{fit_results} containing columns that must be
+unnested before evaluating results. Default is \code{NULL}, meaning no
+columns in \code{fit_results} need to be unnested prior to computation.}
+
+\item{options}{A list of named options to pass to \code{pROC::roc()} such as
+\code{smooth}. These options should not include \code{response},
+\code{predictor}, \code{levels}, \code{quiet}, or \code{direction}. This
+argument is only used when computing the ROC and is ignored otherwise.}
 
 \item{summary_funs}{Character vector specifying how to summarize
 evaluation metrics. Must choose from a built-in library of summary
 functions - elements of the vector must be one of "mean", "median",
 "min", "max", "sd", "raw".}
+
+\item{x_grid}{Vector of values between 0 and 1 at which to evaluate the ROC
+or PR curve. If \code{curve = "ROC"}, the provided vector of values are
+the FPR values at which to evaluate the TPR, and if \code{curve = "PR"},
+the values are the recall values at which to evaluate the precision.}
 }
 \description{
 Arguments that are shared by multiple \code{Evaluator} library functions.

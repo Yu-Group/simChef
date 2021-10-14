@@ -52,10 +52,8 @@ scatter plot, line plot, or bar plot with or without 1 SD error bars.
 }
 \seealso{
 Other prediction_error_funs: 
-\code{\link{eval_pred_curve}()},
-\code{\link{eval_pred_err}()},
-\code{\link{plot_pred_curve}()},
-\code{\link{summarize_pred_curve}()},
-\code{\link{summarize_pred_err}()}
+\code{\link{eval_pred_curve_funs}},
+\code{\link{eval_pred_err_funs}},
+\code{\link{plot_pred_curve}()}
 }
 \concept{prediction_error_funs}

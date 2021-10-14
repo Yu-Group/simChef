@@ -9,7 +9,13 @@
 #' @param betas Coefficient vector for observed design matrix.
 #' @param betas_unobs Coefficient vector for unobserved design matrix.
 #' 
-#' @return A response vector of length nrow(X).
+#' @returns If \code{return_support = TRUE}, returns a list of two:
+#' \describe{
+#' \item{y}{A response vector of length \code{nrow(X)}.}
+#' \item{support}{A vector of feature indices in the true support of the DGP.}
+#' }
+#' 
+#' If \code{return_support = FALSE}, returns only the response vector \code{y}.
 #' 
 #' @export
 generate_y_linear <- function(X, U, betas, betas_unobs, err = NULL,
@@ -29,11 +35,7 @@ generate_y_linear <- function(X, U, betas, betas_unobs, err = NULL,
   y <- as.matrix(U) %*% betas_unobs + as.matrix(X) %*% betas + eps
   
   if (return_support) {
-    if (is.null(colnames(X))) {
-      support <- which(betas != 0)
-    } else {
-      support <- colnames(X)[betas != 0]
-    }
+    support <- which(betas != 0)
     return(list(y = y, support = support))
   } else {
     return(y)
@@ -58,7 +60,16 @@ generate_y_linear <- function(X, U, betas, betas_unobs, err = NULL,
 #' @param overlap If TRUE, simulate support indices with replacement; if FALSE,
 #'   simulate support indices without replacement (so no overlap)
 #' 
-#' @return A response vector of length nrow(X).
+#' @returns If \code{return_support = TRUE}, returns a list of two:
+#' \describe{
+#' \item{y}{A response vector of length \code{nrow(X)}.}
+#' \item{support}{A vector of signed feature indices in the true (interaction)
+#'   support of the DGP. For example, "1+_2-" means that the interaction
+#'   between high values of feature 1 and low values of feature 2 appears in the
+#'   underlying DGP.}
+#' }
+#' 
+#' If \code{return_support = FALSE}, returns only the response vector \code{y}.
 #' 
 #' @export
 generate_y_lss <- function(X, k, s, thresholds = 1, signs = 1,
@@ -98,9 +109,6 @@ generate_y_lss <- function(X, k, s, thresholds = 1, signs = 1,
   y <- intercept + add_terms + eps
   
   if (return_support) {
-    if (!is.null(colnames(X))) {
-      support_idx <- apply(support_idx, 1:2, function(i) colnames(X)[i])
-    }
     support <- purrr::map_chr(
       1:s,
       function(i) {

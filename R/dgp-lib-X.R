@@ -61,9 +61,6 @@ generate_X_gaussian <- function(n, p, mean = 0,
 #'   
 #' @return A matrix of size n x p.
 #' 
-#' @details Only one of the \code{strata} and \code{clusters} arguments should
-#'   be provided.
-#' 
 #' @export
 generate_X_rwd <- function(X, n = nrow(X), p = ncol(X), 
                            clusters = NULL, replace = FALSE) {

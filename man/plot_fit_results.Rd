@@ -10,7 +10,7 @@ plot_fit_results(
   vary_params = NULL,
   reps = 1,
   plot_fun,
-  interactive,
+  interactive = FALSE,
   ...
 )
 }

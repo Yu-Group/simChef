@@ -8,9 +8,10 @@
 #'   is \code{NULL} which returns an error vector of all zeros.
 #' @param X Data matrix or data frame. Used to determine n if n is missing.
 #' 
-#' @return A vector of length n with simulated errors.
+#' @return A vector of simulated errors with length \code{n}.
 #' 
-#' @details The function argument err must accept n argument.
+#' @details The function \code{err} must accept an argument named \code{n} 
+#'   (i.e., the sample size).
 #' 
 #' @export
 generate_errors <- function(err = NULL, n, X, ...) {
@@ -30,6 +31,7 @@ generate_errors <- function(err = NULL, n, X, ...) {
   return(eps)
 }
 
+#---------------------------- Common Error Types -------------------------------
 #' Generate autoregressive Gaussian errors.
 #' 
 #' @description Generate correlated Gaussian errors based on an 
@@ -38,7 +40,7 @@ generate_errors <- function(err = NULL, n, X, ...) {
 #' @inheritParams shared_dgp_lib_args
 #' @param rho Correlation.
 #' 
-#' @return A vector of simulated errors of length n.
+#' @inherit generate_errors return
 #' 
 #' @export
 ar1_errors <- function(n, rho) {
@@ -55,7 +57,7 @@ ar1_errors <- function(n, rho) {
 #' @inheritParams shared_dgp_lib_args
 #' @param rho Correlation.
 #' 
-#' @return A vector of simulated errors of length n.
+#' @inherit generate_errors return
 #' 
 #' @export
 block_errors <- function(n, rho = 0.8) {
@@ -75,7 +77,7 @@ block_errors <- function(n, rho = 0.8) {
 #'
 #' @inheritParams shared_dgp_lib_args
 #' 
-#' @return A vector of simulated errors of length n.
+#' @inherit generate_errors return
 #' 
 #' @export
 norm_errors <- function(X) {

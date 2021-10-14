@@ -11,7 +11,7 @@ return_DGP_output(X, y, support, data_split, train_prop, return_values)
 
 \item{y}{Response vector.}
 
-\item{support}{Support vector.}
+\item{support}{Vector of feature indices in the true support of the DGP.}
 
 \item{data_split}{Logical; if \code{TRUE}, splits data into training and test
 sets according to \code{train_prop}.}

@@ -53,12 +53,10 @@ bars.
 }
 \seealso{
 Other inference_funs: 
-\code{\link{eval_pval_ranking_curve}()},
 \code{\link{eval_reject_prob}()},
-\code{\link{eval_testing_err}()},
-\code{\link{plot_pval_ranking_curve}()},
+\code{\link{eval_testing_curve_funs}},
+\code{\link{eval_testing_err_funs}},
 \code{\link{plot_reject_prob}()},
-\code{\link{summarize_pval_ranking_curve}()},
-\code{\link{summarize_testing_err}()}
+\code{\link{plot_testing_curve}()}
 }
 \concept{inference_funs}

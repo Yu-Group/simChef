@@ -10,7 +10,7 @@ norm_errors(X)
 \item{X}{Data matrix or data frame.}
 }
 \value{
-A vector of simulated errors of length n.
+A vector of simulated errors with length \code{n}.
 }
 \description{
 Generate independent Gaussian errors with variance based on norm

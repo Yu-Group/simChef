@@ -2,14 +2,14 @@
 % Please edit documentation in R/evaluator-lib-inference.R
 \name{eval_reject_prob}
 \alias{eval_reject_prob}
-\title{Evaluate rejection probability of a test.}
+\title{Evaluate the rejection probability of a hypothesis test.}
 \usage{
 eval_reject_prob(
   fit_results,
   vary_params = NULL,
-  data_col = NULL,
-  feature = NULL,
-  p_value,
+  nested_data = NULL,
+  feature_col = NULL,
+  pval_col,
   alphas = NULL,
   na_rm = FALSE
 )
@@ -20,26 +20,24 @@ eval_reject_prob(
 \item{vary_params}{A vector of parameter names that are varied across in the
 \code{Experiment}.}
 
-\item{data_col}{(Optional) Character string specifying the name of the
-list-type column in \code{fit_results} with the feature support
-\code{data.frames} or \code{tibbles} that contain the \code{truth},
-\code{feature}, and \code{p_value} columns. Each row in these
-\code{data.frames} or \code{tibbles} typically corresponds to a feature or
-variable. Default \code{NULL} is used in the case where the p-value column
-is a column in \code{fit_results} and no feature information is needed.}
+\item{nested_data}{(Optional) Character string. If specified, should be the
+name of the column in \code{fit_results} containing columns that must be
+unnested before evaluating results. Default is \code{NULL}, meaning no
+columns in \code{fit_results} need to be unnested prior to computation.}
 
-\item{feature}{(Optional) A character string identifying the column with the
-feature names nested within the \code{data_col} column. Default \code{NULL}
-is used when no feature information is needed.}
+\item{feature_col}{A character string identifying the column in
+\code{fit_results} with the feature names or IDs.}
 
-\item{p_value}{A character string identifying the column with the estimated
-p-values. Can either be a column nested in \code{data_col} or a column
-directly in the \code{fit_results} tibble.}
+\item{pval_col}{A character string identifying the column in
+\code{fit_results} with the estimated p-values data. Each element in
+this column should be an array of length \code{p}, where \code{p} is the
+number of features and the feature order aligns with that of
+\code{truth_col}.}
 
 \item{alphas}{(Optional) Vector of significance levels at which to evaluate
 the rejection probability. By default, \code{alphas} is \code{NULL}, which
 evaluates the full empirical cumulative distribution of the p-values, i.e.,
-the rejection probability is evaluated at all possible signficance levels.}
+the rejection probability is evaluated at all possible significance levels.}
 
 \item{na_rm}{A \code{logical} value indicating whether \code{NA} values
 should be stripped before the computation proceeds.}
@@ -49,23 +47,22 @@ A grouped \code{tibble} containing both identifying information
 and the rejection probability results aggregated over experimental
 replicates. Specifically, the identifier columns include \code{dgp_name},
 \code{method_name}, any columns specified by \code{vary_params}, and the
-feature names given in \code{feature} if applicable. In addition, there are
-results columns \code{.alpha} and "Rejection Prob", which respectively give
-the significance level and rejection probabilities (averaged across
-experimental replicates).
+feature names given in \code{feature_col} if applicable. In addition, there
+are results columns \code{.alpha} and \code{reject_prob}, which
+respectively give the significance level and the estimated rejection
+probabilities (averaged across experimental replicates).
 }
 \description{
 Evaluate the probability of rejecting the null hypothesis
-across various levels of significance.
+across various levels of significance (possibly for multiple hypothesis
+tests, one for each feature).
 }
 \seealso{
 Other inference_funs: 
-\code{\link{eval_pval_ranking_curve}()},
-\code{\link{eval_testing_err}()},
-\code{\link{plot_pval_ranking_curve}()},
+\code{\link{eval_testing_curve_funs}},
+\code{\link{eval_testing_err_funs}},
 \code{\link{plot_reject_prob}()},
-\code{\link{plot_testing_err}()},
-\code{\link{summarize_pval_ranking_curve}()},
-\code{\link{summarize_testing_err}()}
+\code{\link{plot_testing_curve}()},
+\code{\link{plot_testing_err}()}
 }
 \concept{inference_funs}

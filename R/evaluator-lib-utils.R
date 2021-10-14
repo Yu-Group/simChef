@@ -6,83 +6,106 @@
 #'   results. Names in the list should correspond to the name of the summary
 #'   function. Values in the list should be a function that takes in one 
 #'   argument, that being the values of the evaluated metrics.
-#' @param metric Either "ROC" or "PR" indicating whether to evaluate the ROC or 
+#' @param curve Either "ROC" or "PR" indicating whether to evaluate the ROC or 
 #'   Precision-Recall curve.
+#' @param feature_col A character string identifying the column in 
+#'   \code{fit_results} with the feature names or IDs.
 #' @param na_rm A \code{logical} value indicating whether \code{NA} values 
 #'   should be stripped before the computation proceeds.
+#' @param nested_data (Optional) Character string. If specified, should be the
+#'   name of the column in \code{fit_results} containing columns that must be
+#'   unnested before evaluating results. Default is \code{NULL}, meaning no
+#'   columns in \code{fit_results} need to be unnested prior to computation.
+#' @param options A list of named options to pass to \code{pROC::roc()} such as 
+#'   \code{smooth}. These options should not include \code{response}, 
+#'   \code{predictor}, \code{levels}, \code{quiet}, or \code{direction}. This
+#'   argument is only used when computing the ROC and is ignored otherwise.
 #' @param summary_funs Character vector specifying how to summarize 
 #'   evaluation metrics. Must choose from a built-in library of summary
 #'   functions - elements of the vector must be one of "mean", "median",
 #'   "min", "max", "sd", "raw".
+#' @param x_grid Vector of values between 0 and 1 at which to evaluate the ROC 
+#'   or PR curve. If \code{curve = "ROC"}, the provided vector of values are
+#'   the FPR values at which to evaluate the TPR, and if \code{curve = "PR"},
+#'   the values are the recall values at which to evaluate the precision.
 #'   
 NULL
 
 #' Developer function for summarizing evaluation results.
 #' 
 #' @description A helper function for developing new \code{Evaluator} functions
-#'   that summarize results over multiple experimental replicates.
+#'   that summarize results over pre-specified groups in a grouped
+#'   \code{data.frame} (e.g., over multiple experimental replicates).
 #'
-#' @inheritParams shared_experiment_helpers_args
 #' @inheritParams shared_eval_lib_args
-#' @param id Character string. ID to be used as a suffix when naming result
-#'   columns.
-#' @param value Character string. Name of column in \code{eval_results} to
+#' @param eval_data A grouped \code{data.frame} of evaluation results to 
 #'   summarize.
+#' @param eval_id Character string. ID to be used as a suffix when naming result
+#'   columns. Default \code{NULL} does not add any ID to the column names.
+#' @param value_col Character string. Name of column in \code{eval_data} with
+#'   values to summarize.
 #' 
 #' @return A \code{tibble} containing the summarized results aggregated
-#'   over experimental replicates. These columns correspond to the requested
+#'   over the given groups. These columns correspond to the requested
 #'   statistics in \code{summary_funs} and \code{custom_summary_funs} and end
-#'   with the suffix specified by \code{id}. Note that if \code{eval_results}
-#'   is a grouped \code{data.frame}, then the group IDs are also retained in the
-#'   returned \code{tibble}.
+#'   with the suffix specified by \code{eval_id}. Note that the group IDs are 
+#'   also retained in the returned \code{tibble}.
 #' 
 #' @importFrom rlang .data
 #' @export
-eval_summary_constructor <- function(eval_results, id, value = "value",
-                                     summary_funs = c("mean", "median", "min",
-                                                      "max", "sd", "raw"), 
-                                     custom_summary_funs = NULL,
-                                     na_rm = FALSE) {
-  
-  group_ids <- dplyr::group_vars(eval_results)
+summarize_eval_results <- function(eval_data, eval_id = NULL, value_col,
+                                   summary_funs = c("mean", "median", "min",
+                                                    "max", "sd", "raw"), 
+                                   custom_summary_funs = NULL,
+                                   na_rm = FALSE) {
+  summary_funs <- match.arg(summary_funs, several.ok = TRUE)
+  group_ids <- dplyr::group_vars(eval_data)
+  if (length(group_ids) == 0) {
+    stop("eval_data must be a grouped data.frame. Use dplyr::group_by() to ",
+         "specify groups.")
+  }
+  if (!is.null(eval_id)) {
+    eval_id <- paste0("_", eval_id)
+  }
   
   # summarize results according to summary_funs
   eval_out <- purrr::map(
     summary_funs,
     function(f) {
       summary_fun <- eval(parse(text = f))
-      col_name <- paste0(f, "_", id)
+      col_name <- paste0(f, eval_id)
       if (f == "raw") {
-        eval_out <- eval_results %>%
-          dplyr::summarise(summary = list(.data[[value]]), 
-                           .groups = "keep") %>%
-          dplyr::rename({{col_name}} := "summary") %>%
-          dplyr::ungroup()
+        eval_out <- eval_data %>%
+          dplyr::summarise(summary = list(.data[[value_col]]), 
+                           .groups = "keep")
       } else {
-        eval_out <- eval_results %>%
-          dplyr::summarise(summary = summary_fun(.data[[value]], na.rm = na_rm),
-                           .groups = "keep") %>%
-          dplyr::rename({{col_name}} := "summary")
+        eval_out <- eval_data %>%
+          dplyr::summarise(summary = summary_fun(.data[[value_col]], 
+                                                 na.rm = na_rm),
+                           .groups = "keep")
       }
-      return(eval_out)
+      return(eval_out %>% dplyr::rename({{col_name}} := "summary"))
     }
   ) %>%
-    purrr::reduce(dplyr::left_join, by = group_ids) %>%
-    dplyr::group_by(dplyr::across({{group_ids}}))
+    purrr::reduce(dplyr::left_join, by = group_ids)
   
   # summarize results according to custom_summary_funs
   if (!is.null(custom_summary_funs)) {
     if (is.null(names(custom_summary_funs))) {
-      names(custom_summary_funs) <- paste0(id, "_summary", 
+      names(custom_summary_funs) <- paste0("eval_summary", eval_id,
                                            1:length(custom_summary_funs))
+    } else if (any(names(custom_summary_funs) == "")) {
+      empty_names <- which(names(custom_summary_funs) == "")
+      names(custom_summary_funs)[empty_names] <- paste0("eval_summary", eval_id,
+                                                        empty_names)
     }
     custom_eval_out <- purrr::map(
       1:length(custom_summary_funs),
       function(i) {
         summary_name <- names(custom_summary_funs)[i]
         summary_fun <- custom_summary_funs[[i]]
-        eval_results %>% 
-          dplyr::summarise({{summary_name}} := summary_fun(.data[[value]]),
+        eval_data %>% 
+          dplyr::summarise({{summary_name}} := summary_fun(.data[[value_col]]),
                            .groups = "keep")
       }
     ) %>%
@@ -94,6 +117,7 @@ eval_summary_constructor <- function(eval_results, id, value = "value",
   return(tibble::tibble(eval_out))
 }
 
+#----------------------------- Yardstick Helpers -------------------------------
 #' Logic for \code{event_level} in custom \code{yardstick} metrics.
 #' 
 #' @param xtab Frequency table from \code{table()}
@@ -149,7 +173,8 @@ metric_vec_constructor <- function(name, fun, truth, estimate, estimator, na_rm,
   )
 }
 
-#------------------------------------------------------------------------------
+#-------------------------- Custom Yardstick Metrics ---------------------------
+#-------------------------------------------------------------------------------
 #' Number of true positives
 #' 
 #' @description These functions calculate the [tp()] (number of true positives) 
