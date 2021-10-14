@@ -378,11 +378,20 @@ summary report.</p></td>
     </tbody><tbody>
       <tr>
         <th colspan="2">
-          <h2 id="section-miscellaneous" class="hasAnchor"><a href="#section-miscellaneous" class="anchor"></a>Miscellaneous</h2>
-          <p class="section-desc"><p>Miscellaneous functions.</p></p>
+          <h2 id="section-simulation-experiment-library" class="hasAnchor"><a href="#section-simulation-experiment-library" class="anchor"></a>Simulation Experiment Library</h2>
+          <p class="section-desc"><p>A library of common functions that can be used to create a simulation experiment.</p></p>
         </th>
       </tr>
       
+      
+    </tbody><tbody>
+      
+      <tr>
+        <th colspan="2">
+          <h3 id="section-dgp-library" class="hasAnchor"><a href="#section-dgp-library" class="anchor"></a>DGP Library</h3>
+          <p class="section-desc"><p>A library of common functions for creating DGPs.</p></p>
+        </th>
+      </tr>
       
     </tbody><tbody>
       
@@ -390,15 +399,432 @@ summary report.</p></td>
       <tr>
         
         <td>
-          <p><code><a href="prettyDT.html">prettyDT()</a></code> </p>
+          <p><code><a href="xy_dgp_constructor.html">xy_dgp_constructor()</a></code> </p>
+        </td>
+        <td><p>General DGP constructor function to generate X and y data.</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="linear_gaussian_dgp.html">linear_gaussian_dgp()</a></code> </p>
+        </td>
+        <td><p>Generate independent Gaussian covariates and linear response data.</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="correlated_linear_gaussian_dgp.html">correlated_linear_gaussian_dgp()</a></code> </p>
+        </td>
+        <td><p>Generate correlated Gaussian covariates and linear response data.</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="lss_gaussian_dgp.html">lss_gaussian_dgp()</a></code> </p>
+        </td>
+        <td><p>Generate independent Gaussian covariates and LSS response data.</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="correlated_lss_gaussian_dgp.html">correlated_lss_gaussian_dgp()</a></code> </p>
+        </td>
+        <td><p>Generate correlated Gaussian covariates and LSS response data.</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="rwd_dgp.html">rwd_dgp()</a></code> </p>
+        </td>
+        <td><p>Read in real world data from X and y.</p></td>
+      </tr>
+    </tbody><tbody>
+      
+      <tr>
+        <th colspan="2">
+          <h3 id="section-dgp-library-x" class="hasAnchor"><a href="#section-dgp-library-x" class="anchor"></a>DGP Library: X</h3>
+          <p class="section-desc"><p>A library of common functions for generating data for X in a DGP.</p></p>
+        </th>
+      </tr>
+      
+    </tbody><tbody>
+      
+      
+      <tr>
+        
+        <td>
+          <p><code><a href="generate_X_gaussian.html">generate_X_gaussian()</a></code> </p>
+        </td>
+        <td><p>Generate a normal random matrix of covariates/features.</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="generate_X_rwd.html">generate_X_rwd()</a></code> </p>
+        </td>
+        <td><p>Generate a design matrix X by sampling from a real-world data matrix.</p></td>
+      </tr>
+    </tbody><tbody>
+      
+      <tr>
+        <th colspan="2">
+          <h3 id="section-dgp-library-y" class="hasAnchor"><a href="#section-dgp-library-y" class="anchor"></a>DGP Library: y</h3>
+          <p class="section-desc"><p>A library of common functions for generating data for y in a DGP.</p></p>
+        </th>
+      </tr>
+      
+    </tbody><tbody>
+      
+      
+      <tr>
+        
+        <td>
+          <p><code><a href="generate_y_linear.html">generate_y_linear()</a></code> </p>
+        </td>
+        <td><p>Simulate linear response data.</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="generate_y_lss.html">generate_y_lss()</a></code> </p>
+        </td>
+        <td><p>Generate locally spiky smooth (LSS) response data.</p></td>
+      </tr>
+    </tbody><tbody>
+      
+      <tr>
+        <th colspan="2">
+          <h3 id="section-dgp-library-errors" class="hasAnchor"><a href="#section-dgp-library-errors" class="anchor"></a>DGP Library: Errors</h3>
+          <p class="section-desc"><p>A library of common functions for generating errors in a DGP.</p></p>
+        </th>
+      </tr>
+      
+    </tbody><tbody>
+      
+      
+      <tr>
+        
+        <td>
+          <p><code><a href="generate_errors.html">generate_errors()</a></code> </p>
+        </td>
+        <td><p>Helper function to generate simulated errors.</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="ar1_errors.html">ar1_errors()</a></code> </p>
+        </td>
+        <td><p>Generate autoregressive Gaussian errors.</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="block_errors.html">block_errors()</a></code> </p>
+        </td>
+        <td><p>Generate block-correlated Gaussian errors.</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="norm_errors.html">norm_errors()</a></code> </p>
+        </td>
+        <td><p>Generate heteroskedastic Gaussian errors based on the norm of X.</p></td>
+      </tr>
+    </tbody><tbody>
+      
+      <tr>
+        <th colspan="2">
+          <h3 id="section-evaluator-library-prediction" class="hasAnchor"><a href="#section-evaluator-library-prediction" class="anchor"></a>Evaluator Library: Prediction</h3>
+          <p class="section-desc"><p>A library of common functions for evaluating prediction-focused simulation experiments.</p></p>
+        </th>
+      </tr>
+      
+    </tbody><tbody>
+      
+      
+      <tr>
+        
+        <td>
+          <p><code><a href="eval_pred_err_funs.html">eval_pred_err()</a></code> <code><a href="eval_pred_err_funs.html">summarize_pred_err()</a></code> </p>
+        </td>
+        <td><p>Evaluate and/or summarize prediction errors.</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="eval_pred_curve_funs.html">eval_pred_curve()</a></code> <code><a href="eval_pred_curve_funs.html">summarize_pred_curve()</a></code> </p>
+        </td>
+        <td><p>Evaluate and/or summarize ROC or PR curves.</p></td>
+      </tr>
+    </tbody><tbody>
+      
+      <tr>
+        <th colspan="2">
+          <h3 id="section-evaluator-library-feature-selection" class="hasAnchor"><a href="#section-evaluator-library-feature-selection" class="anchor"></a>Evaluator Library: Feature Selection</h3>
+          <p class="section-desc"><p>A library of common functions for evaluating feature-selection-focused simulation experiments.</p></p>
+        </th>
+      </tr>
+      
+    </tbody><tbody>
+      
+      
+      <tr>
+        
+        <td>
+          <p><code><a href="eval_feature_selection_err_funs.html">eval_feature_selection_err()</a></code> <code><a href="eval_feature_selection_err_funs.html">summarize_feature_selection_err()</a></code> </p>
+        </td>
+        <td><p>Evaluate and/or summarize feature selection errors.</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="eval_feature_selection_curve_funs.html">eval_feature_selection_curve()</a></code> <code><a href="eval_feature_selection_curve_funs.html">summarize_feature_selection_curve()</a></code> </p>
+        </td>
+        <td><p>Evaluate and/or summarize ROC or PR curves for feature selection.</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="eval_feature_importance_funs.html">eval_feature_importance()</a></code> <code><a href="eval_feature_importance_funs.html">summarize_feature_importance()</a></code> </p>
+        </td>
+        <td><p>Evaluate and/or summarize feature importance scores.</p></td>
+      </tr>
+    </tbody><tbody>
+      
+      <tr>
+        <th colspan="2">
+          <h3 id="section-evaluator-library-inference" class="hasAnchor"><a href="#section-evaluator-library-inference" class="anchor"></a>Evaluator Library: Inference</h3>
+          <p class="section-desc"><p>A library of common functions for evaluating inference-focused simulation experiments.</p></p>
+        </th>
+      </tr>
+      
+    </tbody><tbody>
+      
+      
+      <tr>
+        
+        <td>
+          <p><code><a href="eval_testing_err_funs.html">eval_testing_err()</a></code> <code><a href="eval_testing_err_funs.html">summarize_testing_err()</a></code> </p>
+        </td>
+        <td><p>Evaluate and/or summarize error metrics when conducting multiple hypothesis
+tests.</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="eval_testing_curve_funs.html">eval_testing_curve()</a></code> <code><a href="eval_testing_curve_funs.html">summarize_testing_curve()</a></code> </p>
+        </td>
+        <td><p>Evaluate and/or summarize ROC or PR curves for feature rankings, ranked by
+p-value.</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="eval_reject_prob.html">eval_reject_prob()</a></code> </p>
+        </td>
+        <td><p>Evaluate the rejection probability of a hypothesis test.</p></td>
+      </tr>
+    </tbody><tbody>
+      
+      <tr>
+        <th colspan="2">
+          <h3 id="section-evaluator-library-additional-yardstick-metrics" class="hasAnchor"><a href="#section-evaluator-library-additional-yardstick-metrics" class="anchor"></a>Evaluator Library: Additional Yardstick Metrics</h3>
+          <p class="section-desc"><p>A library of additional <code>yardstick</code> metrics for evaluating simulation experiments.</p></p>
+        </th>
+      </tr>
+      
+    </tbody><tbody>
+      
+      
+      <tr>
+        
+        <td>
+          <p><code><a href="fp.html">fp()</a></code> <code><a href="fp.html">fp_vec()</a></code> </p>
+        </td>
+        <td><p>Number of false positives</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="tp.html">tp()</a></code> <code><a href="tp.html">tp_vec()</a></code> </p>
+        </td>
+        <td><p>Number of true positives</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="neg.html">neg()</a></code> <code><a href="neg.html">neg_vec()</a></code> </p>
+        </td>
+        <td><p>Number of estimated negative cases</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="pos.html">pos()</a></code> <code><a href="pos.html">pos_vec()</a></code> </p>
+        </td>
+        <td><p>Number of estimated positive cases</p></td>
+      </tr>
+    </tbody><tbody>
+      
+      <tr>
+        <th colspan="2">
+          <h3 id="section-visualizer-library-prediction" class="hasAnchor"><a href="#section-visualizer-library-prediction" class="anchor"></a>Visualizer Library: Prediction</h3>
+          <p class="section-desc"><p>A library of common functions for visualizing prediction-focused simulation experiments.</p></p>
+        </th>
+      </tr>
+      
+    </tbody><tbody>
+      
+      
+      <tr>
+        
+        <td>
+          <p><code><a href="plot_pred_err.html">plot_pred_err()</a></code> </p>
+        </td>
+        <td><p>Plot prediction error according to various metrics.</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="plot_pred_curve.html">plot_pred_curve()</a></code> </p>
+        </td>
+        <td><p>Plot ROC/PR curves.</p></td>
+      </tr>
+    </tbody><tbody>
+      
+      <tr>
+        <th colspan="2">
+          <h3 id="section-visualizer-library-feature-selection" class="hasAnchor"><a href="#section-visualizer-library-feature-selection" class="anchor"></a>Visualizer Library: Feature Selection</h3>
+          <p class="section-desc"><p>A library of common functions for visualizing feature-selection-focused simulation experiments.</p></p>
+        </th>
+      </tr>
+      
+    </tbody><tbody>
+      
+      
+      <tr>
+        
+        <td>
+          <p><code><a href="plot_feature_selection_err.html">plot_feature_selection_err()</a></code> </p>
+        </td>
+        <td><p>Plot feature selection error according to various metrics.</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="plot_feature_selection_curve.html">plot_feature_selection_curve()</a></code> </p>
+        </td>
+        <td><p>Plot ROC/PR curves for feature selection.</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="plot_feature_importance.html">plot_feature_importance()</a></code> </p>
+        </td>
+        <td><p>Plot feature importances.</p></td>
+      </tr>
+    </tbody><tbody>
+      
+      <tr>
+        <th colspan="2">
+          <h3 id="section-visualizer-library-inference" class="hasAnchor"><a href="#section-visualizer-library-inference" class="anchor"></a>Visualizer Library: Inference</h3>
+          <p class="section-desc"><p>A library of common functions for visualizing inference-focused simulation experiments.</p></p>
+        </th>
+      </tr>
+      
+    </tbody><tbody>
+      
+      
+      <tr>
+        
+        <td>
+          <p><code><a href="plot_testing_err.html">plot_testing_err()</a></code> </p>
+        </td>
+        <td><p>Plot testing error evaluation results according to various metrics.</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="plot_testing_curve.html">plot_testing_curve()</a></code> </p>
+        </td>
+        <td><p>Plot ROC/PR curves for feature rankings, ranked by p-values.</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="plot_reject_prob.html">plot_reject_prob()</a></code> </p>
+        </td>
+        <td><p>Plot the rejection probability of a hypothesis test.</p></td>
+      </tr>
+    </tbody><tbody>
+      
+      <tr>
+        <th colspan="2">
+          <h3 id="section-visualizer-library-custom-themes" class="hasAnchor"><a href="#section-visualizer-library-custom-themes" class="anchor"></a>Visualizer Library: Custom Themes</h3>
+          <p class="section-desc"><p>A library of custom table and ggplot themes.</p></p>
+        </th>
+      </tr>
+      
+    </tbody><tbody>
+      
+      
+      <tr>
+        
+        <td>
+          <p><code><a href="pretty_DT.html">pretty_DT()</a></code> </p>
         </td>
         <td><p>Create pretty datatable with custom bolding options.</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="prettyKable.html">prettyKable()</a></code> </p>
+          <p><code><a href="pretty_kable.html">pretty_kable()</a></code> </p>
         </td>
         <td><p>Create pretty kable tables with custom bolding options.</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="pretty_ggplot_theme.html">pretty_ggplot_theme()</a></code> </p>
+        </td>
+        <td><p>Customized pretty ggplot theme</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="pretty_ggplot_color_fill_themes.html">pretty_ggplot_color()</a></code> <code><a href="pretty_ggplot_color_fill_themes.html">pretty_ggplot_fill()</a></code> </p>
+        </td>
+        <td><p>Customized pretty ggplot color and fill themes</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="blank_ggplot_themes.html">blank_x_theme()</a></code> <code><a href="blank_ggplot_themes.html">blank_y_theme()</a></code> <code><a href="blank_ggplot_themes.html">blank_xy_theme()</a></code> </p>
+        </td>
+        <td><p>Blank axis themes for ggplot objects.</p></td>
+      </tr>
+    </tbody><tbody>
+      
+      <tr>
+        <th colspan="2">
+          <h3 id="section-developer-functions" class="hasAnchor"><a href="#section-developer-functions" class="anchor"></a>Developer Functions</h3>
+          <p class="section-desc"><p>Helper functions for developers to create their own simulation experiment components.</p></p>
+        </th>
+      </tr>
+      
+    </tbody><tbody>
+      
+      
+      <tr>
+        
+        <td>
+          <p><code><a href="get_dot_args.html">get_dot_args()</a></code> </p>
+        </td>
+        <td><p>Get dot (...) arguments.</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="get_eval_tibble.html">get_eval_tibble()</a></code> </p>
+        </td>
+        <td><p>Get the summarized evaluation results tibble for plotting.</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="return_DGP_output.html">return_DGP_output()</a></code> </p>
+        </td>
+        <td><p>Developer function to return consistent outputs in DGP.</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="summarize_eval_results.html">summarize_eval_results()</a></code> </p>
+        </td>
+        <td><p>Developer function for summarizing evaluation results.</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="plot_eval_summary.html">plot_eval_summary()</a></code> </p>
+        </td>
+        <td><p>Developer function for plotting summary of evaluation results.</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="plot_fit_results.html">plot_fit_results()</a></code> </p>
+        </td>
+        <td><p>Developer function for plotting results from particular replicate(s) in the
+<code>Experiment</code> fit.</p></td>
       </tr><tr>
         
         <td>

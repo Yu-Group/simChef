@@ -127,19 +127,13 @@
     <p>Create a new <code>Visualizer</code>.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>create_visualizer</span><span class='op'>(</span>
-  <span class='va'>visualizer_fun</span>,
-  name <span class='op'>=</span> <span class='cn'>NULL</span>,
-  rmd_options <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span><span class='op'>)</span>,
-  show <span class='op'>=</span> <span class='cn'>TRUE</span>,
-  <span class='va'>...</span>
-<span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>create_visualizer</span><span class='op'>(</span><span class='va'>viz_fun</span>, name <span class='op'>=</span> <span class='cn'>NULL</span>, rmd_options <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span><span class='op'>)</span>, show <span class='op'>=</span> <span class='cn'>TRUE</span>, <span class='va'>...</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>visualizer_fun</th>
+      <th>viz_fun</th>
       <td><p>The visualization function.</p></td>
     </tr>
     <tr>
@@ -163,7 +157,7 @@ Markdown report; if <code>FALSE</code>, hide output in the R Markdown report.</p
     </tr>
     <tr>
       <th>...</th>
-      <td><p>Arguments to pass into <code>visualizer_fun()</code>.</p></td>
+      <td><p>Arguments to pass into <code>viz_fun()</code>.</p></td>
     </tr>
     </table>
 
@@ -176,11 +170,11 @@ Markdown report; if <code>FALSE</code>, hide output in the R Markdown report.</p
 <code>Experiment$visualize()</code> or <code>Experiment$run()</code>), the named
 arguments <code>fit_results</code>, <code>eval_results</code>, and
 <code>vary_params</code> are automatically passed into the <code>Visualizer</code>
-function <code>visualizer_fun()</code> and serve as placeholders for the
+function <code>viz_fun()</code> and serve as placeholders for the
 <code>Experiment$fit()</code> results, the <code>Experiment$evaluate()</code>
 results, and the name of the varying parameter, respectively.
 To visualize the performance of a method(s) fit and/or its evaluation
-metrics then, the <code>Visualizer</code> function <code>visualizer_fun()</code> should
+metrics then, the <code>Visualizer</code> function <code>viz_fun()</code> should
 take in the named arguments <code>fit_results</code> and/or
 <code>eval_results</code>. See <code>Experiment$fit()</code> or
 <code><a href='fit_experiment.html'>fit_experiment()</a></code> for details on the format of <code>fit_results</code>.

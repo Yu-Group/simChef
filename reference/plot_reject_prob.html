@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Fit an Experiment. — fit_experiment • simChef</title>
+<title>Plot the rejection probability of a hypothesis test. — plot_reject_prob • simChef</title>
 
 
 <!-- jquery -->
@@ -39,9 +39,9 @@
 
 
 
-<meta property="og:title" content="Fit an Experiment. — fit_experiment" />
-<meta property="og:description" content="Fit Methods in the Experiment across all
-DGPs for n_reps repetitions and return results from fits." />
+<meta property="og:title" content="Plot the rejection probability of a hypothesis test. — plot_reject_prob" />
+<meta property="og:description" content="Plot the probability of rejecting the null hypothesis
+across various levels of significance." />
 
 
 
@@ -119,26 +119,23 @@ DGPs for n_reps repetitions and return results from fits." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Fit an <code>Experiment</code>.</h1>
+    <h1>Plot the rejection probability of a hypothesis test.</h1>
     
-    <div class="hidden name"><code>fit_experiment.Rd</code></div>
+    <div class="hidden name"><code>plot_reject_prob.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Fit <code>Methods</code> in the <code>Experiment</code> across all
-<code>DGPs</code> for <code>n_reps</code> repetitions and return results from fits.</p>
+    <p>Plot the probability of rejecting the null hypothesis
+across various levels of significance.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>fit_experiment</span><span class='op'>(</span>
-  <span class='va'>experiment</span>,
-  n_reps <span class='op'>=</span> <span class='fl'>1</span>,
-  parallel_strategy <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"reps"</span><span class='op'>)</span>,
-  future.globals <span class='op'>=</span> <span class='cn'>NULL</span>,
-  future.packages <span class='op'>=</span> <span class='cn'>NULL</span>,
-  future.seed <span class='op'>=</span> <span class='cn'>TRUE</span>,
-  use_cached <span class='op'>=</span> <span class='cn'>FALSE</span>,
-  save <span class='op'>=</span> <span class='cn'>FALSE</span>,
-  verbose <span class='op'>=</span> <span class='fl'>1</span>,
+    <pre class="usage"><span class='fu'>plot_reject_prob</span><span class='op'>(</span>
+  <span class='va'>fit_results</span>,
+  <span class='va'>eval_results</span>,
+  evaluator_name <span class='op'>=</span> <span class='cn'>NULL</span>,
+  vary_params <span class='op'>=</span> <span class='cn'>NULL</span>,
+  feature_col <span class='op'>=</span> <span class='cn'>NULL</span>,
+  show <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"line"</span><span class='op'>)</span>,
   <span class='va'>...</span>
 <span class='op'>)</span></pre>
 
@@ -146,65 +143,59 @@ DGPs for n_reps repetitions and return results from fits." />
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>experiment</th>
-      <td><p>An <code>Experiment</code> object.</p></td>
+      <th>fit_results</th>
+      <td><p>A tibble, as returned by the <code>fit</code> method.</p></td>
     </tr>
     <tr>
-      <th>n_reps</th>
-      <td><p>The number of replicates of the <code>Experiment</code> for this run.</p></td>
+      <th>eval_results</th>
+      <td><p>A list of result tibbles, as returned by the
+<code>evaluate</code> method.</p></td>
     </tr>
     <tr>
-      <th>parallel_strategy</th>
-      <td><p>A vector with some combination of "reps", "dgps", or
-"methods". Determines how computation will be distributed across available
-resources. Default is "reps".</p></td>
+      <th>evaluator_name</th>
+      <td><p>Name of <code>Evaluator</code> containing results to plot.
+To compute the evaluation summary results from scratch or if the evaluation
+summary results have not yet been evaluated, set to <code>NULL</code>.</p></td>
     </tr>
     <tr>
-      <th>future.globals</th>
-      <td><p>Character vector of names in the global environment to
-pass to parallel workers. Passed as the argument of the same name to
-<code><a href='https://future.apply.futureverse.org/reference/future_lapply.html'>future.apply::future_lapply</a></code> and related functions. To set for all
-runs of the experiment, use the same argument during initialization.</p></td>
+      <th>vary_params</th>
+      <td><p>A vector of parameter names that are varied across in the
+<code>Experiment</code>.</p></td>
     </tr>
     <tr>
-      <th>future.packages</th>
-      <td><p>Character vector of packages required by parallel
-workers. Passed as the argument of the same name to
-<code><a href='https://future.apply.futureverse.org/reference/future_lapply.html'>future.apply::future_lapply</a></code> and related functions. To set for all
-runs of the experiment, use the same argument during initialization.</p></td>
+      <th>feature_col</th>
+      <td><p>A character string identifying the column in
+<code>fit_results</code> with the feature names or IDs.</p></td>
     </tr>
     <tr>
-      <th>future.seed</th>
-      <td><p>Passed as the argument of the same name in
-<code><a href='https://future.apply.futureverse.org/reference/future_apply.html'>future.apply::future_apply</a></code>.</p></td>
-    </tr>
-    <tr>
-      <th>use_cached</th>
-      <td><p>Logical. If <code>TRUE</code>, find and return previously saved
-results. If cached results cannot be found, continue as if
-<code>use_cached</code> was <code>FALSE</code>.</p></td>
-    </tr>
-    <tr>
-      <th>save</th>
-      <td><p>If <code>TRUE</code>, save outputs to disk.</p></td>
-    </tr>
-    <tr>
-      <th>verbose</th>
-      <td><p>Level of verbosity. Default is 1, which prints out messages
-after major checkpoints in the experiment. If 0, no messages are printed.</p></td>
+      <th>show</th>
+      <td><p>Character vector with elements being one of "boxplot", "point",
+"line", "bar", "errorbar", "ribbon" indicating what plot layer(s) to
+construct.</p></td>
     </tr>
     <tr>
       <th>...</th>
-      <td><p>Not used.</p></td>
+      <td><p>Additional arguments to pass to <code><a href='plot_eval_summary.html'>plot_eval_summary()</a></code>. This
+includes arguments for plotting and for passing into
+<code><a href='eval_reject_prob.html'>eval_reject_prob()</a></code>.</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A tibble containing the results from fitting all <code>Methods</code>
-across all <code>DGPs</code> for <code>n_reps</code> repetitions. In addition to
-results columns, has columns named '.rep', '.dgp_name', '.method_name', and the
-<code>vary_across</code> parameter names if applicable.</p>
+    <p>If <code>interactive = TRUE</code>, returns a <code>plotly</code> object if
+<code>plot_by</code> is <code>NULL</code> and a list of <code>plotly</code> objects if
+<code>plot_by</code> is not <code>NULL</code>. If <code>interactive = FALSE</code>, returns
+a <code>ggplot</code> object if <code>plot_by</code> is <code>NULL</code> and a list of
+<code>ggplot</code> objects if <code>plot_by</code> is not <code>NULL</code>.</p>
+    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
+
+    <div class='dont-index'><p>Other inference_funs: 
+<code><a href='eval_reject_prob.html'>eval_reject_prob</a>()</code>,
+<code><a href='eval_testing_curve_funs.html'>eval_testing_curve_funs</a></code>,
+<code><a href='eval_testing_err_funs.html'>eval_testing_err_funs</a></code>,
+<code><a href='plot_testing_curve.html'>plot_testing_curve</a>()</code>,
+<code><a href='plot_testing_err.html'>plot_testing_err</a>()</code></p></div>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

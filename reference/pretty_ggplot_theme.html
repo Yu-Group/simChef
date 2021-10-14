@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Fit an Experiment. — fit_experiment • simChef</title>
+<title>Customized pretty ggplot theme — pretty_ggplot_theme • simChef</title>
 
 
 <!-- jquery -->
@@ -39,9 +39,8 @@
 
 
 
-<meta property="og:title" content="Fit an Experiment. — fit_experiment" />
-<meta property="og:description" content="Fit Methods in the Experiment across all
-DGPs for n_reps repetitions and return results from fits." />
+<meta property="og:title" content="Customized pretty ggplot theme — pretty_ggplot_theme" />
+<meta property="og:description" content="Customized pretty ggplot theme" />
 
 
 
@@ -119,26 +118,30 @@ DGPs for n_reps repetitions and return results from fits." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Fit an <code>Experiment</code>.</h1>
+    <h1>Customized pretty ggplot theme</h1>
     
-    <div class="hidden name"><code>fit_experiment.Rd</code></div>
+    <div class="hidden name"><code>pretty_ggplot_theme.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Fit <code>Methods</code> in the <code>Experiment</code> across all
-<code>DGPs</code> for <code>n_reps</code> repetitions and return results from fits.</p>
+    <p>Customized pretty ggplot theme</p>
     </div>
 
-    <pre class="usage"><span class='fu'>fit_experiment</span><span class='op'>(</span>
-  <span class='va'>experiment</span>,
-  n_reps <span class='op'>=</span> <span class='fl'>1</span>,
-  parallel_strategy <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"reps"</span><span class='op'>)</span>,
-  future.globals <span class='op'>=</span> <span class='cn'>NULL</span>,
-  future.packages <span class='op'>=</span> <span class='cn'>NULL</span>,
-  future.seed <span class='op'>=</span> <span class='cn'>TRUE</span>,
-  use_cached <span class='op'>=</span> <span class='cn'>FALSE</span>,
-  save <span class='op'>=</span> <span class='cn'>FALSE</span>,
-  verbose <span class='op'>=</span> <span class='fl'>1</span>,
+    <pre class="usage"><span class='fu'>pretty_ggplot_theme</span><span class='op'>(</span>
+  font <span class='op'>=</span> <span class='st'>"Helvetica"</span>,
+  background_color <span class='op'>=</span> <span class='st'>"grey98"</span>,
+  strip_background_color <span class='op'>=</span> <span class='st'>"#2c3e50"</span>,
+  grid_color <span class='op'>=</span> <span class='st'>"grey90"</span>,
+  axis_line_width <span class='op'>=</span> <span class='fl'>1</span>,
+  show_ticks <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  x_text_angle <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  size_theme <span class='op'>=</span> <span class='cn'>NULL</span>,
+  axis_title_size <span class='op'>=</span> <span class='fl'>10</span>,
+  axis_text_size <span class='op'>=</span> <span class='fl'>7</span>,
+  legend_title_size <span class='op'>=</span> <span class='fl'>10</span>,
+  legend_text_size <span class='op'>=</span> <span class='fl'>8</span>,
+  strip_text_size <span class='op'>=</span> <span class='fl'>9</span>,
+  title_size <span class='op'>=</span> <span class='fl'>12</span>,
   <span class='va'>...</span>
 <span class='op'>)</span></pre>
 
@@ -146,66 +149,90 @@ DGPs for n_reps repetitions and return results from fits." />
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>experiment</th>
-      <td><p>An <code>Experiment</code> object.</p></td>
+      <th>font</th>
+      <td><p>Font family for ggplot text.</p></td>
     </tr>
     <tr>
-      <th>n_reps</th>
-      <td><p>The number of replicates of the <code>Experiment</code> for this run.</p></td>
+      <th>background_color</th>
+      <td><p>Color for plot background.</p></td>
     </tr>
     <tr>
-      <th>parallel_strategy</th>
-      <td><p>A vector with some combination of "reps", "dgps", or
-"methods". Determines how computation will be distributed across available
-resources. Default is "reps".</p></td>
+      <th>strip_background_color</th>
+      <td><p>Color for strip background (for
+<code><a href='https://ggplot2.tidyverse.org/reference/facet_grid.html'>ggplot2::facet_grid()</a></code> and <code><a href='https://ggplot2.tidyverse.org/reference/facet_wrap.html'>ggplot2::facet_wrap()</a></code>).</p></td>
     </tr>
     <tr>
-      <th>future.globals</th>
-      <td><p>Character vector of names in the global environment to
-pass to parallel workers. Passed as the argument of the same name to
-<code><a href='https://future.apply.futureverse.org/reference/future_lapply.html'>future.apply::future_lapply</a></code> and related functions. To set for all
-runs of the experiment, use the same argument during initialization.</p></td>
+      <th>grid_color</th>
+      <td><p>Color of panel grid major axes or <code>NULL</code> if want no
+major grid lines.</p></td>
     </tr>
     <tr>
-      <th>future.packages</th>
-      <td><p>Character vector of packages required by parallel
-workers. Passed as the argument of the same name to
-<code><a href='https://future.apply.futureverse.org/reference/future_lapply.html'>future.apply::future_lapply</a></code> and related functions. To set for all
-runs of the experiment, use the same argument during initialization.</p></td>
+      <th>axis_line_width</th>
+      <td><p>Width of x and y axes lines.</p></td>
     </tr>
     <tr>
-      <th>future.seed</th>
-      <td><p>Passed as the argument of the same name in
-<code><a href='https://future.apply.futureverse.org/reference/future_apply.html'>future.apply::future_apply</a></code>.</p></td>
+      <th>show_ticks</th>
+      <td><p>Logical; whether or not to show axes tick marks.</p></td>
     </tr>
     <tr>
-      <th>use_cached</th>
-      <td><p>Logical. If <code>TRUE</code>, find and return previously saved
-results. If cached results cannot be found, continue as if
-<code>use_cached</code> was <code>FALSE</code>.</p></td>
+      <th>x_text_angle</th>
+      <td><p>Logical; whether or not to angle x text at 45 degrees.</p></td>
     </tr>
     <tr>
-      <th>save</th>
-      <td><p>If <code>TRUE</code>, save outputs to disk.</p></td>
+      <th>size_theme</th>
+      <td><p>One of "small", "normal", "large", "xlarge"; default sizes
+for plot text and titles. If <code>NULL</code>, defaults to values specified by
+<code>axis_title_size</code>, <code>axis_text_size</code>, <code>legend_title_size</code>,
+<code>legend_text_size</code>, <code>strip_text_size</code>, <code>title_size</code>.</p></td>
     </tr>
     <tr>
-      <th>verbose</th>
-      <td><p>Level of verbosity. Default is 1, which prints out messages
-after major checkpoints in the experiment. If 0, no messages are printed.</p></td>
+      <th>axis_title_size</th>
+      <td><p>Font size of axis title. Ignored if <code>size_theme</code>
+not <code>NULL</code>.</p></td>
+    </tr>
+    <tr>
+      <th>axis_text_size</th>
+      <td><p>Font size of axis text. Ignored if <code>size_theme</code>
+not <code>NULL</code>.</p></td>
+    </tr>
+    <tr>
+      <th>legend_title_size</th>
+      <td><p>Font size of legend title. Ignored if
+<code>size_theme</code> not <code>NULL</code>.</p></td>
+    </tr>
+    <tr>
+      <th>legend_text_size</th>
+      <td><p>Font size of legend text/key. Ignored if
+<code>size_theme</code> not <code>NULL</code>.</p></td>
+    </tr>
+    <tr>
+      <th>strip_text_size</th>
+      <td><p>Font size of strip text. Ignored if <code>size_theme</code>
+not <code>NULL</code>.</p></td>
+    </tr>
+    <tr>
+      <th>title_size</th>
+      <td><p>Font size of plot title. Ignored if <code>size_theme</code>
+not <code>NULL</code>.</p></td>
     </tr>
     <tr>
       <th>...</th>
-      <td><p>Not used.</p></td>
+      <td><p>= other arguments to pass to <code><a href='https://ggplot2.tidyverse.org/reference/theme.html'>ggplot2::theme()</a></code></p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A tibble containing the results from fitting all <code>Methods</code>
-across all <code>DGPs</code> for <code>n_reps</code> repetitions. In addition to
-results columns, has columns named '.rep', '.dgp_name', '.method_name', and the
-<code>vary_across</code> parameter names if applicable.</p>
+    <p>A <code><a href='https://ggplot2.tidyverse.org/reference/theme.html'>ggplot2::theme()</a></code> object.</p>
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'><span class='kw'><a href='https://rdrr.io/r/base/library.html'>require</a></span><span class='op'>(</span><span class='va'><a href='https://ggplot2.tidyverse.org'>ggplot2</a></span><span class='op'>)</span>
+<span class='fu'><a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot</a></span><span class='op'>(</span><span class='va'>iris</span><span class='op'>)</span> <span class='op'>+</span>
+  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes</a></span><span class='op'>(</span>x <span class='op'>=</span> <span class='va'>Sepal.Length</span>, y <span class='op'>=</span> <span class='va'>Sepal.Width</span><span class='op'>)</span> <span class='op'>+</span>
+  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/geom_point.html'>geom_point</a></span><span class='op'>(</span><span class='op'>)</span> <span class='op'>+</span>
+  <span class='fu'>pretty_ggplot_theme</span><span class='op'>(</span><span class='op'>)</span>
+</div><div class='img'><img src='pretty_ggplot_theme-1.png' alt='' width='700' height='433' /></div><div class='input'>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Fit an Experiment. — fit_experiment • simChef</title>
+<title>Number of estimated negative cases — neg • simChef</title>
 
 
 <!-- jquery -->
@@ -39,9 +39,10 @@
 
 
 
-<meta property="og:title" content="Fit an Experiment. — fit_experiment" />
-<meta property="og:description" content="Fit Methods in the Experiment across all
-DGPs for n_reps repetitions and return results from fits." />
+<meta property="og:title" content="Number of estimated negative cases — neg" />
+<meta property="og:description" content="These functions calculate the neg() (number of estimated
+negative cases) of a measurement system compared to the reference results
+(the &quot;truth&quot;)." />
 
 
 
@@ -119,26 +120,36 @@ DGPs for n_reps repetitions and return results from fits." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Fit an <code>Experiment</code>.</h1>
+    <h1>Number of estimated negative cases</h1>
     
-    <div class="hidden name"><code>fit_experiment.Rd</code></div>
+    <div class="hidden name"><code>neg.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Fit <code>Methods</code> in the <code>Experiment</code> across all
-<code>DGPs</code> for <code>n_reps</code> repetitions and return results from fits.</p>
+    <p>These functions calculate the <code>neg()</code> (number of estimated
+negative cases) of a measurement system compared to the reference results
+(the "truth").</p>
     </div>
 
-    <pre class="usage"><span class='fu'>fit_experiment</span><span class='op'>(</span>
-  <span class='va'>experiment</span>,
-  n_reps <span class='op'>=</span> <span class='fl'>1</span>,
-  parallel_strategy <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"reps"</span><span class='op'>)</span>,
-  future.globals <span class='op'>=</span> <span class='cn'>NULL</span>,
-  future.packages <span class='op'>=</span> <span class='cn'>NULL</span>,
-  future.seed <span class='op'>=</span> <span class='cn'>TRUE</span>,
-  use_cached <span class='op'>=</span> <span class='cn'>FALSE</span>,
-  save <span class='op'>=</span> <span class='cn'>FALSE</span>,
-  verbose <span class='op'>=</span> <span class='fl'>1</span>,
+    <pre class="usage"><span class='fu'>neg</span><span class='op'>(</span><span class='va'>data</span>, <span class='va'>...</span><span class='op'>)</span>
+
+<span class='co'># S3 method for data.frame</span>
+<span class='fu'>neg</span><span class='op'>(</span>
+  <span class='va'>data</span>,
+  <span class='va'>truth</span>,
+  <span class='va'>estimate</span>,
+  estimator <span class='op'>=</span> <span class='cn'>NULL</span>,
+  na_rm <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  event_level <span class='op'>=</span> <span class='st'>"first"</span>,
+  <span class='va'>...</span>
+<span class='op'>)</span>
+
+<span class='fu'>neg_vec</span><span class='op'>(</span>
+  <span class='va'>truth</span>,
+  <span class='va'>estimate</span>,
+  estimator <span class='op'>=</span> <span class='cn'>NULL</span>,
+  na_rm <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  event_level <span class='op'>=</span> <span class='st'>"first"</span>,
   <span class='va'>...</span>
 <span class='op'>)</span></pre>
 
@@ -146,65 +157,61 @@ DGPs for n_reps repetitions and return results from fits." />
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>experiment</th>
-      <td><p>An <code>Experiment</code> object.</p></td>
-    </tr>
-    <tr>
-      <th>n_reps</th>
-      <td><p>The number of replicates of the <code>Experiment</code> for this run.</p></td>
-    </tr>
-    <tr>
-      <th>parallel_strategy</th>
-      <td><p>A vector with some combination of "reps", "dgps", or
-"methods". Determines how computation will be distributed across available
-resources. Default is "reps".</p></td>
-    </tr>
-    <tr>
-      <th>future.globals</th>
-      <td><p>Character vector of names in the global environment to
-pass to parallel workers. Passed as the argument of the same name to
-<code><a href='https://future.apply.futureverse.org/reference/future_lapply.html'>future.apply::future_lapply</a></code> and related functions. To set for all
-runs of the experiment, use the same argument during initialization.</p></td>
-    </tr>
-    <tr>
-      <th>future.packages</th>
-      <td><p>Character vector of packages required by parallel
-workers. Passed as the argument of the same name to
-<code><a href='https://future.apply.futureverse.org/reference/future_lapply.html'>future.apply::future_lapply</a></code> and related functions. To set for all
-runs of the experiment, use the same argument during initialization.</p></td>
-    </tr>
-    <tr>
-      <th>future.seed</th>
-      <td><p>Passed as the argument of the same name in
-<code><a href='https://future.apply.futureverse.org/reference/future_apply.html'>future.apply::future_apply</a></code>.</p></td>
-    </tr>
-    <tr>
-      <th>use_cached</th>
-      <td><p>Logical. If <code>TRUE</code>, find and return previously saved
-results. If cached results cannot be found, continue as if
-<code>use_cached</code> was <code>FALSE</code>.</p></td>
-    </tr>
-    <tr>
-      <th>save</th>
-      <td><p>If <code>TRUE</code>, save outputs to disk.</p></td>
-    </tr>
-    <tr>
-      <th>verbose</th>
-      <td><p>Level of verbosity. Default is 1, which prints out messages
-after major checkpoints in the experiment. If 0, no messages are printed.</p></td>
+      <th>data</th>
+      <td><p>Either a <code>data.frame</code> containing the <code>truth</code> and <code>estimate</code>
+columns, or a <code>table</code>/<code>matrix</code> where the true class results should be
+in the columns of the table.</p></td>
     </tr>
     <tr>
       <th>...</th>
-      <td><p>Not used.</p></td>
+      <td><p>Not currently used.</p></td>
+    </tr>
+    <tr>
+      <th>truth</th>
+      <td><p>The column identifier for the true class results
+(that is a <code>factor</code>). This should be an unquoted column name although
+this argument is passed by expression and supports
+<a href='https://rlang.r-lib.org/reference/nse-force.html'>quasiquotation</a> (you can unquote column
+names). For <code>_vec()</code> functions, a <code>factor</code> vector.</p></td>
+    </tr>
+    <tr>
+      <th>estimate</th>
+      <td><p>The column identifier for the predicted class
+results (that is also <code>factor</code>). As with <code>truth</code> this can be
+specified different ways but the primary method is to use an
+unquoted variable name. For <code>_vec()</code> functions, a <code>factor</code> vector.</p></td>
+    </tr>
+    <tr>
+      <th>estimator</th>
+      <td><p>One of: <code>"binary"</code>, <code>"macro"</code>, <code>"macro_weighted"</code>,
+or <code>"micro"</code> to specify the type of averaging to be done. <code>"binary"</code> is
+only relevant for the two class case. The other three are general methods
+for calculating multiclass metrics. The default will automatically choose
+<code>"binary"</code> or <code>"macro"</code> based on <code>estimate</code>.</p></td>
+    </tr>
+    <tr>
+      <th>na_rm</th>
+      <td><p>A <code>logical</code> value indicating whether <code>NA</code>
+values should be stripped before the computation proceeds.</p></td>
+    </tr>
+    <tr>
+      <th>event_level</th>
+      <td><p>A single string. Either <code>"first"</code> or <code>"second"</code> to specify
+which level of <code>truth</code> to consider as the "event". This argument is only
+applicable when <code>estimator = "binary"</code>. The default uses an
+internal helper that generally defaults to <code>"first"</code>, however, if the
+deprecated global option <code>yardstick.event_first</code> is set, that will be
+used instead with a warning.</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A tibble containing the results from fitting all <code>Methods</code>
-across all <code>DGPs</code> for <code>n_reps</code> repetitions. In addition to
-results columns, has columns named '.rep', '.dgp_name', '.method_name', and the
-<code>vary_across</code> parameter names if applicable.</p>
+    <p>A <code>tibble</code> with columns <code>.metric</code>, <code>.estimator</code>, and
+<code>.estimate</code> with 1 row of values.</p>
+<p>For grouped data frames, the number of rows returned will be the same as the
+number of groups.</p>
+<p>For <code>neg_vec()</code>, a single <code>numeric</code> value (or <code>NA</code>).</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

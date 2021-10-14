@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Fit an Experiment. — fit_experiment • simChef</title>
+<title>Generate independent Gaussian covariates and LSS response data. — lss_gaussian_dgp • simChef</title>
 
 
 <!-- jquery -->
@@ -39,9 +39,9 @@
 
 
 
-<meta property="og:title" content="Fit an Experiment. — fit_experiment" />
-<meta property="og:description" content="Fit Methods in the Experiment across all
-DGPs for n_reps repetitions and return results from fits." />
+<meta property="og:title" content="Generate independent Gaussian covariates and LSS response data. — lss_gaussian_dgp" />
+<meta property="og:description" content="Generate independent normally-distributed covariates and LSS
+response data with a specified error distribution." />
 
 
 
@@ -119,26 +119,30 @@ DGPs for n_reps repetitions and return results from fits." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Fit an <code>Experiment</code>.</h1>
+    <h1>Generate independent Gaussian covariates and LSS response data.</h1>
     
-    <div class="hidden name"><code>fit_experiment.Rd</code></div>
+    <div class="hidden name"><code>lss_gaussian_dgp.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Fit <code>Methods</code> in the <code>Experiment</code> across all
-<code>DGPs</code> for <code>n_reps</code> repetitions and return results from fits.</p>
+    <p>Generate independent normally-distributed covariates and LSS
+response data with a specified error distribution.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>fit_experiment</span><span class='op'>(</span>
-  <span class='va'>experiment</span>,
-  n_reps <span class='op'>=</span> <span class='fl'>1</span>,
-  parallel_strategy <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"reps"</span><span class='op'>)</span>,
-  future.globals <span class='op'>=</span> <span class='cn'>NULL</span>,
-  future.packages <span class='op'>=</span> <span class='cn'>NULL</span>,
-  future.seed <span class='op'>=</span> <span class='cn'>TRUE</span>,
-  use_cached <span class='op'>=</span> <span class='cn'>FALSE</span>,
-  save <span class='op'>=</span> <span class='cn'>FALSE</span>,
-  verbose <span class='op'>=</span> <span class='fl'>1</span>,
+    <pre class="usage"><span class='fu'>lss_gaussian_dgp</span><span class='op'>(</span>
+  <span class='va'>n</span>,
+  <span class='va'>p</span>,
+  <span class='va'>k</span>,
+  <span class='va'>s</span>,
+  thresholds <span class='op'>=</span> <span class='fl'>0</span>,
+  signs <span class='op'>=</span> <span class='fl'>1</span>,
+  betas <span class='op'>=</span> <span class='fl'>1</span>,
+  intercept <span class='op'>=</span> <span class='fl'>0</span>,
+  overlap <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  err <span class='op'>=</span> <span class='cn'>NULL</span>,
+  data_split <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  train_prop <span class='op'>=</span> <span class='fl'>0.5</span>,
+  return_values <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"X"</span>, <span class='st'>"y"</span>, <span class='st'>"support"</span><span class='op'>)</span>,
   <span class='va'>...</span>
 <span class='op'>)</span></pre>
 
@@ -146,65 +150,76 @@ DGPs for n_reps repetitions and return results from fits." />
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>experiment</th>
-      <td><p>An <code>Experiment</code> object.</p></td>
+      <th>n</th>
+      <td><p>Number of samples.</p></td>
     </tr>
     <tr>
-      <th>n_reps</th>
-      <td><p>The number of replicates of the <code>Experiment</code> for this run.</p></td>
+      <th>p</th>
+      <td><p>Number of features.</p></td>
     </tr>
     <tr>
-      <th>parallel_strategy</th>
-      <td><p>A vector with some combination of "reps", "dgps", or
-"methods". Determines how computation will be distributed across available
-resources. Default is "reps".</p></td>
+      <th>k</th>
+      <td><p>Order of the interactions.</p></td>
     </tr>
     <tr>
-      <th>future.globals</th>
-      <td><p>Character vector of names in the global environment to
-pass to parallel workers. Passed as the argument of the same name to
-<code><a href='https://future.apply.futureverse.org/reference/future_lapply.html'>future.apply::future_lapply</a></code> and related functions. To set for all
-runs of the experiment, use the same argument during initialization.</p></td>
+      <th>s</th>
+      <td><p>Number of interactions in the LSS model.</p></td>
     </tr>
     <tr>
-      <th>future.packages</th>
-      <td><p>Character vector of packages required by parallel
-workers. Passed as the argument of the same name to
-<code><a href='https://future.apply.futureverse.org/reference/future_lapply.html'>future.apply::future_lapply</a></code> and related functions. To set for all
-runs of the experiment, use the same argument during initialization.</p></td>
+      <th>thresholds</th>
+      <td><p>A scalar or a s x k matrix of the thresholds for each term
+in the LSS model.</p></td>
     </tr>
     <tr>
-      <th>future.seed</th>
-      <td><p>Passed as the argument of the same name in
-<code><a href='https://future.apply.futureverse.org/reference/future_apply.html'>future.apply::future_apply</a></code>.</p></td>
+      <th>signs</th>
+      <td><p>A scalar or a s x k matrix of the sign of each interaction
+(1 means &gt; while -1 means &lt;).</p></td>
     </tr>
     <tr>
-      <th>use_cached</th>
-      <td><p>Logical. If <code>TRUE</code>, find and return previously saved
-results. If cached results cannot be found, continue as if
-<code>use_cached</code> was <code>FALSE</code>.</p></td>
+      <th>betas</th>
+      <td><p>Scalar or parameter vector for interaction terms.</p></td>
     </tr>
     <tr>
-      <th>save</th>
-      <td><p>If <code>TRUE</code>, save outputs to disk.</p></td>
+      <th>intercept</th>
+      <td><p>Scalar intercept term.</p></td>
     </tr>
     <tr>
-      <th>verbose</th>
-      <td><p>Level of verbosity. Default is 1, which prints out messages
-after major checkpoints in the experiment. If 0, no messages are printed.</p></td>
+      <th>overlap</th>
+      <td><p>If TRUE, simulate support indices with replacement; if FALSE,
+simualte support indices without replacement (so no overlap).</p></td>
+    </tr>
+    <tr>
+      <th>err</th>
+      <td><p>Function from which to generate simulate error vector. Default
+is <code>NULL</code> which adds no error to the DGP.</p></td>
+    </tr>
+    <tr>
+      <th>data_split</th>
+      <td><p>Logical; if <code>TRUE</code>, splits data into training and test
+sets according to <code>train_prop</code>.</p></td>
+    </tr>
+    <tr>
+      <th>train_prop</th>
+      <td><p>Proportion of data in training set if
+<code>data_split = TRUE</code>.</p></td>
+    </tr>
+    <tr>
+      <th>return_values</th>
+      <td><p>Character vector indicating what objects to return in
+list. Elements in vector must be one of "X", "y", "support".</p></td>
     </tr>
     <tr>
       <th>...</th>
-      <td><p>Not used.</p></td>
+      <td><p>Other arguments to pass to err() to generate the error vector.</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A tibble containing the results from fitting all <code>Methods</code>
-across all <code>DGPs</code> for <code>n_reps</code> repetitions. In addition to
-results columns, has columns named '.rep', '.dgp_name', '.method_name', and the
-<code>vary_across</code> parameter names if applicable.</p>
+    <p>A list of the named objects that were requested in
+<code>return_values</code>. Note that if <code>data_split = TRUE</code> and "X", "y"
+are in <code>return_values</code>, then the returned list also contains slots for
+"Xtest" and "ytest".</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

@@ -201,13 +201,13 @@ after major checkpoints in the experiment. If 0, no messages are printed.</p></t
 
     <p>A list of results from the simulation experiment.</p><dl>
 <dt>fit_results</dt><dd><p>A tibble containing results from the <code>fit</code>
-method. In addition to results columns, has columns named 'rep', 'dgp_name',
-'method_name', and the <code>vary_across</code> parameter names if applicable.</p></dd>
+method. In addition to results columns, has columns named '.rep', '.dgp_name',
+'.method_name', and the <code>vary_across</code> parameter names if applicable.</p></dd>
 <dt>eval_results</dt><dd><p>A list of tibbles containing results from the
 <code>evaluate</code> method, which evaluates each <code>Evaluator</code> in
 the <code>Experiment</code>. Length of list is equivalent to the number of
 <code>Evaluators</code>.</p></dd>
-<dt>visualize_results</dt><dd><p>A list of tibbles containing results from the
+<dt>viz_results</dt><dd><p>A list of tibbles containing results from the
 <code>visualize</code> method, which visualizes each <code>Visualizer</code> in
 the <code>Experiment</code>. Length of list is equivalent to the number of
 <code>Visualizers</code>.</p></dd>

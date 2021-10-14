@@ -140,8 +140,17 @@
       <td><p>An <code>Evaluator</code> object.</p></td>
     </tr>
     <tr>
+      <th>eval_results</th>
+      <td><p>A list of result tibbles, as returned by the
+<code>evaluate</code> method.</p></td>
+    </tr>
+    <tr>
       <th>experiment</th>
       <td><p>An <code>Experiment</code> object.</p></td>
+    </tr>
+    <tr>
+      <th>fit_results</th>
+      <td><p>A tibble, as returned by the <code>fit</code> method.</p></td>
     </tr>
     <tr>
       <th>future.globals</th>
@@ -185,6 +194,11 @@ resources. Default is "reps".</p></td>
       <td><p>Logical. If <code>TRUE</code>, find and return previously saved
 results. If cached results cannot be found, continue as if
 <code>use_cached</code> was <code>FALSE</code>.</p></td>
+    </tr>
+    <tr>
+      <th>vary_params</th>
+      <td><p>A vector of parameter names that are varied across in the
+<code>Experiment</code>.</p></td>
     </tr>
     <tr>
       <th>verbose</th>

@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Fit an Experiment. — fit_experiment • simChef</title>
+<title>Developer function for summarizing evaluation results. — summarize_eval_results • simChef</title>
 
 
 <!-- jquery -->
@@ -39,9 +39,10 @@
 
 
 
-<meta property="og:title" content="Fit an Experiment. — fit_experiment" />
-<meta property="og:description" content="Fit Methods in the Experiment across all
-DGPs for n_reps repetitions and return results from fits." />
+<meta property="og:title" content="Developer function for summarizing evaluation results. — summarize_eval_results" />
+<meta property="og:description" content="A helper function for developing new Evaluator functions
+that summarize results over pre-specified groups in a grouped
+data.frame (e.g., over multiple experimental replicates)." />
 
 
 
@@ -119,92 +120,72 @@ DGPs for n_reps repetitions and return results from fits." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Fit an <code>Experiment</code>.</h1>
+    <h1>Developer function for summarizing evaluation results.</h1>
     
-    <div class="hidden name"><code>fit_experiment.Rd</code></div>
+    <div class="hidden name"><code>summarize_eval_results.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Fit <code>Methods</code> in the <code>Experiment</code> across all
-<code>DGPs</code> for <code>n_reps</code> repetitions and return results from fits.</p>
+    <p>A helper function for developing new <code>Evaluator</code> functions
+that summarize results over pre-specified groups in a grouped
+<code>data.frame</code> (e.g., over multiple experimental replicates).</p>
     </div>
 
-    <pre class="usage"><span class='fu'>fit_experiment</span><span class='op'>(</span>
-  <span class='va'>experiment</span>,
-  n_reps <span class='op'>=</span> <span class='fl'>1</span>,
-  parallel_strategy <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"reps"</span><span class='op'>)</span>,
-  future.globals <span class='op'>=</span> <span class='cn'>NULL</span>,
-  future.packages <span class='op'>=</span> <span class='cn'>NULL</span>,
-  future.seed <span class='op'>=</span> <span class='cn'>TRUE</span>,
-  use_cached <span class='op'>=</span> <span class='cn'>FALSE</span>,
-  save <span class='op'>=</span> <span class='cn'>FALSE</span>,
-  verbose <span class='op'>=</span> <span class='fl'>1</span>,
-  <span class='va'>...</span>
+    <pre class="usage"><span class='fu'>summarize_eval_results</span><span class='op'>(</span>
+  <span class='va'>eval_data</span>,
+  eval_id <span class='op'>=</span> <span class='cn'>NULL</span>,
+  <span class='va'>value_col</span>,
+  summary_funs <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"mean"</span>, <span class='st'>"median"</span>, <span class='st'>"min"</span>, <span class='st'>"max"</span>, <span class='st'>"sd"</span>, <span class='st'>"raw"</span><span class='op'>)</span>,
+  custom_summary_funs <span class='op'>=</span> <span class='cn'>NULL</span>,
+  na_rm <span class='op'>=</span> <span class='cn'>FALSE</span>
 <span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>experiment</th>
-      <td><p>An <code>Experiment</code> object.</p></td>
+      <th>eval_data</th>
+      <td><p>A grouped <code>data.frame</code> of evaluation results to
+summarize.</p></td>
     </tr>
     <tr>
-      <th>n_reps</th>
-      <td><p>The number of replicates of the <code>Experiment</code> for this run.</p></td>
+      <th>eval_id</th>
+      <td><p>Character string. ID to be used as a suffix when naming result
+columns. Default <code>NULL</code> does not add any ID to the column names.</p></td>
     </tr>
     <tr>
-      <th>parallel_strategy</th>
-      <td><p>A vector with some combination of "reps", "dgps", or
-"methods". Determines how computation will be distributed across available
-resources. Default is "reps".</p></td>
+      <th>value_col</th>
+      <td><p>Character string. Name of column in <code>eval_data</code> with
+values to summarize.</p></td>
     </tr>
     <tr>
-      <th>future.globals</th>
-      <td><p>Character vector of names in the global environment to
-pass to parallel workers. Passed as the argument of the same name to
-<code><a href='https://future.apply.futureverse.org/reference/future_lapply.html'>future.apply::future_lapply</a></code> and related functions. To set for all
-runs of the experiment, use the same argument during initialization.</p></td>
+      <th>summary_funs</th>
+      <td><p>Character vector specifying how to summarize
+evaluation metrics. Must choose from a built-in library of summary
+functions - elements of the vector must be one of "mean", "median",
+"min", "max", "sd", "raw".</p></td>
     </tr>
     <tr>
-      <th>future.packages</th>
-      <td><p>Character vector of packages required by parallel
-workers. Passed as the argument of the same name to
-<code><a href='https://future.apply.futureverse.org/reference/future_lapply.html'>future.apply::future_lapply</a></code> and related functions. To set for all
-runs of the experiment, use the same argument during initialization.</p></td>
+      <th>custom_summary_funs</th>
+      <td><p>Named list of custom functions to summarize
+results. Names in the list should correspond to the name of the summary
+function. Values in the list should be a function that takes in one
+argument, that being the values of the evaluated metrics.</p></td>
     </tr>
     <tr>
-      <th>future.seed</th>
-      <td><p>Passed as the argument of the same name in
-<code><a href='https://future.apply.futureverse.org/reference/future_apply.html'>future.apply::future_apply</a></code>.</p></td>
-    </tr>
-    <tr>
-      <th>use_cached</th>
-      <td><p>Logical. If <code>TRUE</code>, find and return previously saved
-results. If cached results cannot be found, continue as if
-<code>use_cached</code> was <code>FALSE</code>.</p></td>
-    </tr>
-    <tr>
-      <th>save</th>
-      <td><p>If <code>TRUE</code>, save outputs to disk.</p></td>
-    </tr>
-    <tr>
-      <th>verbose</th>
-      <td><p>Level of verbosity. Default is 1, which prints out messages
-after major checkpoints in the experiment. If 0, no messages are printed.</p></td>
-    </tr>
-    <tr>
-      <th>...</th>
-      <td><p>Not used.</p></td>
+      <th>na_rm</th>
+      <td><p>A <code>logical</code> value indicating whether <code>NA</code> values
+should be stripped before the computation proceeds.</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A tibble containing the results from fitting all <code>Methods</code>
-across all <code>DGPs</code> for <code>n_reps</code> repetitions. In addition to
-results columns, has columns named '.rep', '.dgp_name', '.method_name', and the
-<code>vary_across</code> parameter names if applicable.</p>
+    <p>A <code>tibble</code> containing the summarized results aggregated
+over the given groups. These columns correspond to the requested
+statistics in <code>summary_funs</code> and <code>custom_summary_funs</code> and end
+with the suffix specified by <code>eval_id</code>. Note that the group IDs are
+also retained in the returned <code>tibble</code>.</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
