@@ -17,7 +17,8 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 
-library(simChef)
+devtools::load_all()
+# library(simChef)
 
 set.seed(12345)
 
@@ -52,8 +53,7 @@ results <- experiment$run(n_reps = 100, save = T)
 ```
 4. Document simulation experiment recipe and visualize summary of results via R Markdown
 ```{r eval = FALSE}
-experiment$create_rmd()  
-# or alternatively, `create_rmd(experiment)`
+create_rmd(experiment)
 ```
 
 We will next go through a toy example simulation using linear regression.
@@ -246,18 +246,12 @@ The experiment can also be run in parallel. For a more detailed walkthrough on h
 Finally, we can easily visualize all results from the simulation experiment in an html file (generated using R Markdown) or browser.
 
 ```{r}
-experiment$create_rmd(open = FALSE)
-```
-
-or alternatively,
-
-```{r eval = FALSE}
 create_rmd(experiment, open = FALSE)
 ```
 
 The results can be found [here](linear_regression_base_output.html).
 
-Note that in the first run of `experiment$create_rmd()`, a documentation template (i.e., a series of blank .md files) is created for the user to fill out with descriptions of the simulation experiment and its recipe components. These blank .md files can be found in the experiment's root results directory under docs/. To find the experiment's root results directory, use `experiment$get_save_dir()`.
+Note that in the first run of `create_rmd(experiment)`, a documentation template (i.e., a series of blank .md files) is created for the user to fill out with descriptions of the simulation experiment and its recipe components. These blank .md files can be found in the experiment's root results directory under docs/. To find the experiment's root results directory, use `experiment$get_save_dir()`.
 
 # Advanced usage
 
@@ -457,7 +451,7 @@ experiment
 When generating the R Markdown report summary for an `Experiment`, the R Markdown will compile results (both evaluation and visualization results) from all saved `Experiments` under the root results directory `experiment$get_save_dir()`. Since the results from the many `vary_across` runs above are all saved under the original `experiment`'s results directory, then the following will include all of these results in a single document.
 
 ```{r}
-experiment$create_rmd(open = FALSE)
+create_rmd(experiment, open = FALSE)
 ```
 
 We can also create the R Markdown report summary by directly specifying the experiment's root results directory.

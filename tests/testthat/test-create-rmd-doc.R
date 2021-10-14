@@ -62,16 +62,16 @@ test_that("Automated R Markdown documentation works properly", {
   )
   results <- greatgrandchild2$run(save = TRUE, verbose = 0)
 
-  expect_error(base_experiment$create_rmd(open = FALSE, verbose = 0), NA)
+  expect_error(create_rmd(base_experiment, open = FALSE, verbose = 0), NA)
   expect_error(
-    base_experiment$create_rmd(
-      open = FALSE, verbose = 0, pretty = FALSE,
+    create_rmd(
+      base_experiment, open = FALSE, verbose = 0, pretty = FALSE,
       output_format = rmarkdown::html_document()),
     NA
   )
   expect_error(
-    base_experiment$create_rmd(
-      open = FALSE, verbose = 0, pretty = FALSE, 
+    create_rmd(
+      base_experiment, open = FALSE, verbose = 0, pretty = FALSE, 
       output_options = list(css = "css/pretty_rmd_theme_addons.css")
     ),
     NA
@@ -107,7 +107,7 @@ test_that("Visualizations in R Markdown documentation render correctly", {
     add_visualizer(texter, "Text")
   results <- run_experiment(experiment, save = TRUE, verbose = 0)
 
-  expect_error(experiment$create_rmd(open = FALSE, verbose = 0), NA)
+  expect_error(create_rmd(experiment, open = FALSE, verbose = 0), NA)
 })
 
 test_that("R Markdown options work properly", {
