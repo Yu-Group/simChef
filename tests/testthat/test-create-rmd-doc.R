@@ -7,12 +7,12 @@ test_that("Automated R Markdown documentation works properly", {
   method <- create_method(method_fun)
   eval_fun <- function() "Evaluation."
   evaluator <- create_evaluator(eval_fun)
-  visualizer_fun <- function() {
+  viz_fun <- function() {
     ggplot2::ggplot(iris) +
       ggplot2::aes(x = Sepal.Length, y = Sepal.Width, color = Species) +
       ggplot2::geom_point()
   }
-  visualizer <- create_visualizer(visualizer_fun)
+  visualizer <- create_visualizer(viz_fun)
 
   base_experiment <- create_experiment(name = "test-rmd") %>%
     add_dgp(dgp, "DGP") %>%
@@ -87,12 +87,12 @@ test_that("Visualizations in R Markdown documentation render correctly", {
   method <- create_method(method_fun)
   eval_fun <- function() "Evaluation."
   evaluator <- create_evaluator(eval_fun)
-  visualizer_fun <- function() {
+  viz_fun <- function() {
     ggplot2::ggplot(iris) +
       ggplot2::aes(x = Sepal.Length, y = Sepal.Width, color = Species) +
       ggplot2::geom_point()
   }
-  visualizer <- create_visualizer(visualizer_fun)
+  visualizer <- create_visualizer(viz_fun)
   tab_fun <- function() prettyDT(iris)
   tabler <- create_visualizer(tab_fun)
   text_fun <- function() "Hello world!"
@@ -122,15 +122,15 @@ test_that("R Markdown options work properly", {
   evaluator2 <- create_evaluator(eval_fun, rmd_options = list(digits = 3))
   evaluator3 <- create_evaluator(eval_fun)
   evaluator4 <- create_evaluator(eval_fun)
-  visualizer_fun <- function() {
+  viz_fun <- function() {
     ggplot2::ggplot(iris) +
       ggplot2::aes(x = Sepal.Length, y = Sepal.Width, color = Species) +
       ggplot2::geom_point()
   }
-  visualizer1 <- create_visualizer(visualizer_fun)
-  visualizer2 <- create_visualizer(visualizer_fun, rmd_options = list(height = 3))
-  visualizer3 <- create_visualizer(visualizer_fun)
-  visualizer4 <- create_visualizer(visualizer_fun)
+  visualizer1 <- create_visualizer(viz_fun)
+  visualizer2 <- create_visualizer(viz_fun, rmd_options = list(height = 3))
+  visualizer3 <- create_visualizer(viz_fun)
+  visualizer4 <- create_visualizer(viz_fun)
 
   experiment <- create_experiment(name = "test-rmd-options") %>%
     add_dgp(dgp, "DGP") %>%

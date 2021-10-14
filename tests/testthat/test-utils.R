@@ -48,10 +48,10 @@ test_that("check_equal works properly", {
                              rmd_options = list(digits = 3),
                              name = "Eval")
   eval2 <- create_evaluator(eval_fun = function(x) x * 2)
-  visualizer1 <- create_visualizer(visualizer_fun = function(x) x)
-  visualizer1b <- create_visualizer(visualizer_fun = function(x) x,
+  visualizer1 <- create_visualizer(viz_fun = function(x) x)
+  visualizer1b <- create_visualizer(viz_fun = function(x) x,
                            rmd_options = list(height = 8))
-  visualizer2 <- create_visualizer(visualizer_fun = function(x) x / 2)
+  visualizer2 <- create_visualizer(viz_fun = function(x) x / 2)
   
   expect_true(check_equal(dgp1, dgp1))
   expect_true(check_equal(dgp1, dgp1_copy))

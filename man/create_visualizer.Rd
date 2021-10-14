@@ -4,16 +4,10 @@
 \alias{create_visualizer}
 \title{Create a new \code{Visualizer}.}
 \usage{
-create_visualizer(
-  visualizer_fun,
-  name = NULL,
-  rmd_options = list(),
-  show = TRUE,
-  ...
-)
+create_visualizer(viz_fun, name = NULL, rmd_options = list(), show = TRUE, ...)
 }
 \arguments{
-\item{visualizer_fun}{The visualization function.}
+\item{viz_fun}{The visualization function.}
 
 \item{name}{(Optional) The name of the \code{Visualizer}. The argument must
 be specified by position or typed out in whole; no partial matching is
@@ -28,7 +22,7 @@ matching is allowed for this argument.}
 \item{show}{If \code{TRUE} (default), show the resulting visualization in the R
 Markdown report; if \code{FALSE}, hide output in the R Markdown report.}
 
-\item{...}{Arguments to pass into \code{visualizer_fun()}.}
+\item{...}{Arguments to pass into \code{viz_fun()}.}
 }
 \value{
 A new instance of \code{Visualizer}.
@@ -41,11 +35,11 @@ When visualizing or running the \code{Experiment} (see
 \code{Experiment$visualize()} or \code{Experiment$run()}), the named
 arguments \code{fit_results}, \code{eval_results}, and
 \code{vary_params} are automatically passed into the \code{Visualizer}
-function \code{visualizer_fun()} and serve as placeholders for the
+function \code{viz_fun()} and serve as placeholders for the
 \code{Experiment$fit()} results, the \code{Experiment$evaluate()}
 results, and the name of the varying parameter, respectively.
 To visualize the performance of a method(s) fit and/or its evaluation
-metrics then, the \code{Visualizer} function \code{visualizer_fun()} should
+metrics then, the \code{Visualizer} function \code{viz_fun()} should
 take in the named arguments \code{fit_results} and/or
 \code{eval_results}. See \code{Experiment$fit()} or
 \code{fit_experiment()} for details on the format of \code{fit_results}.

@@ -112,6 +112,7 @@ showRecipePart <- function(field_name = c("dgp", "method",
 
   field_name <- match.arg(field_name)
   func_name <- dplyr::case_when(field_name == "evaluator" ~ "eval",
+                                field_name == "visualizer" ~ "viz",
                                 TRUE ~ field_name)
   descendants <- getDescendants(dir_name = params$sim_path)
   objs <- purrr::map(descendants, ~.x[[paste0("get_", field_name, "s")]]())
@@ -240,12 +241,12 @@ showResults <- function(dir_name, depth, base = FALSE, show_header = TRUE,
   exp_fname <- file.path(dir_name, "experiment.rds")
   # fit_fname <- file.path(dir_name, "fit_results.rds")
   eval_fname <- file.path(dir_name, "eval_results.rds")
-  visualize_fname <- file.path(dir_name, "visualize_results.rds")
+  viz_fname <- file.path(dir_name, "viz_results.rds")
 
   exp <- getResults(exp_fname)
   # fit_results <- getResults(fit_fname)
   eval_results <- getResults(eval_fname)
-  visualize_results <- getResults(visualize_fname)
+  viz_results <- getResults(viz_fname)
 
   if (!is.null(eval_results)) {
     cat(sprintf(showtype_template, fontawesome::fa("table")))
@@ -264,10 +265,10 @@ showResults <- function(dir_name, depth, base = FALSE, show_header = TRUE,
     }
   }
 
-  if (!is.null(visualize_results)) {
+  if (!is.null(viz_results)) {
     cat(sprintf(showtype_template,
                 fontawesome::fa("chart-bar")))
-    for (plot_name in names(visualize_results)) {
+    for (plot_name in names(viz_results)) {
       if (verbose >= 2) {
         message(rep(" ", depth + 1), plot_name)
       }
@@ -275,7 +276,7 @@ showResults <- function(dir_name, depth, base = FALSE, show_header = TRUE,
       if (visualizer$show) {
         cat(invisible_header)
         cat(sprintf(figname_template, plot_name))
-        plts <- visualize_results[[plot_name]]
+        plts <- viz_results[[plot_name]]
         if (!inherits(plts, "list")) {
           plts <- list(plt = plts)
         }

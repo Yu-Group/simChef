@@ -57,6 +57,7 @@ check_equal <- function(obj1, obj2) {
   } else {
     class_name <- tolower(class(obj1)[1])
     class_name <- dplyr::case_when(class_name == "evaluator" ~ "eval",
+                                   class_name == "visualizer" ~ "viz",
                                    TRUE ~ class_name)
   }
   # check if function and function parameters are equal

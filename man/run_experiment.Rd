@@ -60,7 +60,7 @@ method. In addition to results columns, has columns named '.rep', '.dgp_name',
 \code{evaluate} method, which evaluates each \code{Evaluator} in
 the \code{Experiment}. Length of list is equivalent to the number of
 \code{Evaluators}.}
-\item{visualize_results}{A list of tibbles containing results from the
+\item{viz_results}{A list of tibbles containing results from the
 \code{visualize} method, which visualizes each \code{Visualizer} in
 the \code{Experiment}. Length of list is equivalent to the number of
 \code{Visualizers}.}

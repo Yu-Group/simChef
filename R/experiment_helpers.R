@@ -90,7 +90,7 @@ create_experiment <- function(name = "experiment",
 #'   \code{evaluate} method, which evaluates each \code{Evaluator} in
 #'   the \code{Experiment}. Length of list is equivalent to the number of
 #'   \code{Evaluators}.}
-#' \item{visualize_results}{A list of tibbles containing results from the
+#' \item{viz_results}{A list of tibbles containing results from the
 #'   \code{visualize} method, which visualizes each \code{Visualizer} in
 #'   the \code{Experiment}. Length of list is equivalent to the number of
 #'   \code{Visualizers}.}
@@ -458,13 +458,13 @@ clear_cache <- function(experiment) {
 #' @inheritParams shared_experiment_helpers_args
 #' @param results_type Character string indicating the type of results to read
 #'   in. Must be one of "experiment", "experiment_cached_params", "fit", "eval",
-#'   or "visualize".
+#'   or "viz".
 #'
 #' @return The cached results, specifically the cached \code{Experiment} object
 #'   if \code{results_type = "experiment"}, the cached fit results if 
 #'   \code{results_type = "fit"}, the cached evaluation results if 
 #'   \code{results_type = "eval"}, the cached visualization results if
-#'   \code{results_type = "visualize"}, and the experiment parameters used in 
+#'   \code{results_type = "viz"}, and the experiment parameters used in 
 #'   the cache if \code{results_type = "experiment_cached_params"}.
 #'   
 #' @export
