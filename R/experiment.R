@@ -782,7 +782,7 @@ Experiment <- R6::R6Class(
               dgp_name <- dgp_params$dgp_name
               dgp_params$dgp_name <- NULL
               data_list <- do_call_handler(
-                dgp_name, dgp_list[[dgp_name]]$generate, dgp_params
+                dgp_name, dgp_list[[dgp_name]]$generate, dgp_params, verbose
               )
               purrr::map(method_params_list, function(method_params) {
                 method_name <- method_params$method_name
@@ -796,7 +796,7 @@ Experiment <- R6::R6Class(
                 method_params$method_name <- NULL
                 method_params$data_list <- data_list
                 result <- do_call_handler(
-                  method_name, method_list[[method_name]]$fit, method_params
+                  method_name, method_list[[method_name]]$fit, method_params, verbose
                 )
                 return(result %>% tibble::add_column(param_df, .before=1))
               }) %>%
@@ -823,7 +823,7 @@ Experiment <- R6::R6Class(
                 dgp_name <- dgp_params$dgp_name
                 dgp_params$dgp_name <- NULL
                 data_list <- do_call_handler(
-                  dgp_name, dgp_list[[dgp_name]]$generate, dgp_params
+                  dgp_name, dgp_list[[dgp_name]]$generate, dgp_params, verbose
                 )
                 purrr::map(method_params_list, function(method_params) {
                   method_name <- method_params$method_name
@@ -837,7 +837,8 @@ Experiment <- R6::R6Class(
                   method_params$method_name <- NULL
                   method_params$data_list <- data_list
                   result <- do_call_handler(
-                    method_name, method_list[[method_name]]$fit, method_params
+                    method_name, method_list[[method_name]]$fit, method_params,
+                    verbose
                   )
                   return(result %>% tibble::add_column(param_df, .before=1))
                 }) %>%
@@ -864,7 +865,7 @@ Experiment <- R6::R6Class(
                   dgp_name <- dgp_params$dgp_name
                   dgp_params$dgp_name <- NULL
                   data_list <- do_call_handler(
-                    dgp_name, dgp_list[[dgp_name]]$generate, dgp_params
+                    dgp_name, dgp_list[[dgp_name]]$generate, dgp_params, verbose
                   )
                   method_name <- method_params$method_name
                   param_df <- fix_duplicate_param_names(
@@ -877,7 +878,8 @@ Experiment <- R6::R6Class(
                   method_params$method_name <- NULL
                   method_params$data_list <- data_list
                   result <- do_call_handler(
-                    method_name, method_list[[method_name]]$fit, method_params
+                    method_name, method_list[[method_name]]$fit, method_params,
+                    verbose
                   )
                   return(result %>% tibble::add_column(param_df, .before=1))
                 }) %>%
@@ -905,7 +907,7 @@ Experiment <- R6::R6Class(
               dgp_name <- dgp_params$dgp_name
               dgp_params$dgp_name <- NULL
               data_list <- do_call_handler(
-                dgp_name, dgp_list[[dgp_name]]$generate, dgp_params
+                dgp_name, dgp_list[[dgp_name]]$generate, dgp_params, verbose
               )
               purrr::map(method_params_list, function(method_params) {
                 method_name <- method_params$method_name
@@ -919,7 +921,8 @@ Experiment <- R6::R6Class(
                 method_params$method_name <- NULL
                 method_params$data_list <- data_list
                 result <- do_call_handler(
-                  method_name, method_list[[method_name]]$fit, method_params
+                  method_name, method_list[[method_name]]$fit, method_params,
+                  verbose
                 )
                 return(result %>% tibble::add_column(param_df, .before=1))
               }) %>%
@@ -955,7 +958,7 @@ Experiment <- R6::R6Class(
                 dgp_name <- dgp_params$dgp_name
                 dgp_params$dgp_name <- NULL
                 data_list <- do_call_handler(
-                  dgp_name, dgp_list[[dgp_name]]$generate, dgp_params
+                  dgp_name, dgp_list[[dgp_name]]$generate, dgp_params, verbose
                 )
                 method_name <- method_params$method_name
                 param_df <- fix_duplicate_param_names(
@@ -968,7 +971,8 @@ Experiment <- R6::R6Class(
                 method_params$method_name <- NULL
                 method_params$data_list <- data_list
                 result <- do_call_handler(
-                  method_name, method_list[[method_name]]$fit, method_params
+                  method_name, method_list[[method_name]]$fit, method_params,
+                  verbose
                 )
                 return(result %>% tibble::add_column(param_df, .before=1))
               }) %>%
@@ -1009,7 +1013,7 @@ Experiment <- R6::R6Class(
                 dgp_name <- dgp_params$dgp_name
                 dgp_params$dgp_name <- NULL
                 data_list <- do_call_handler(
-                  dgp_name, dgp_list[[dgp_name]]$generate, dgp_params
+                  dgp_name, dgp_list[[dgp_name]]$generate, dgp_params, verbose
                 )
                 method_name <- method_params$method_name
                 param_df <- fix_duplicate_param_names(
@@ -1022,7 +1026,8 @@ Experiment <- R6::R6Class(
                 method_params$method_name <- NULL
                 method_params$data_list <- data_list
                 result <- do_call_handler(
-                  method_name, method_list[[method_name]]$fit, method_params
+                  method_name, method_list[[method_name]]$fit, method_params,
+                  verbose
                 )
                 return(result %>% tibble::add_column(param_df, .before=1))
               }, simplify=FALSE)
@@ -1062,7 +1067,7 @@ Experiment <- R6::R6Class(
               dgp_name <- dgp_params$dgp_name
               dgp_params$dgp_name <- NULL
               data_list <- do_call_handler(
-                dgp_name, dgp_list[[dgp_name]]$generate, dgp_params
+                dgp_name, dgp_list[[dgp_name]]$generate, dgp_params, verbose
               )
               method_name <- method_params$method_name
               param_df <- fix_duplicate_param_names(
@@ -1075,7 +1080,8 @@ Experiment <- R6::R6Class(
               method_params$method_name <- NULL
               method_params$data_list <- data_list
               result <- do_call_handler(
-                method_name, method_list[[method_name]]$fit, method_params
+                method_name, method_list[[method_name]]$fit, method_params,
+                verbose
               )
               return(result %>% tibble::add_column(param_df, .before=1))
             },
@@ -1180,7 +1186,8 @@ Experiment <- R6::R6Class(
           do_call_handler(
             name, evaluator$evaluate,
             list(fit_results = fit_results,
-                 vary_params = private$.get_vary_params())
+                 vary_params = private$.get_vary_params()),
+            verbose
           )
         }
       )
@@ -1256,7 +1263,8 @@ Experiment <- R6::R6Class(
             name, visualizer$visualize,
             list(fit_results = fit_results,
                  eval_results = eval_results,
-                 vary_params = private$.get_vary_params())
+                 vary_params = private$.get_vary_params()),
+            verbose
           )
         }
       )
