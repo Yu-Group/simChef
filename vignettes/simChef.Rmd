@@ -17,8 +17,7 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 
-devtools::load_all()
-# library(simChef)
+library(simChef)
 
 set.seed(12345)
 
