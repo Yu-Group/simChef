@@ -27,11 +27,13 @@ Imports:
     purrr,
     R.utils,
     R6,
+    rlang,
     rmarkdown,
     rmdformats,
     stringr,
     tibble,
-    tidyselect
+    tidyselect,
+    yardstick
 Suggests:
     testthat (>= 3.0.0),
     prettydoc,
@@ -40,6 +42,10 @@ Suggests:
     plotly,
     broom,
     glmnet,
-    future
+    future,
+    PRROC,
+    RColorBrewer,
+    tidyr,
+    viridis
 VignetteBuilder: knitr
 Config/testthat/edition: 3

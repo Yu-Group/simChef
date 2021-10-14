@@ -12,32 +12,32 @@ Visualizer <- R6::R6Class(
   classname = 'Visualizer',
   public = list(
     name = NULL,
-    visualizer_fun = NULL,
-    visualizer_params = NULL,
+    viz_fun = NULL,
+    viz_params = NULL,
     rmd_options = list(height = 6, width = 10),
     show = TRUE,
-    initialize = function(visualizer_fun, name = NULL, rmd_options = list(),
+    initialize = function(viz_fun, name = NULL, rmd_options = list(),
                           show = TRUE, ...) {
       dots_list <- list(...)
       if (".args_list" %in% names(dots_list)) {
         args_list <- dots_list[[".args_list"]]
       } else {
-        args_list <- make_initialize_arg_list(visualizer_fun, name = name,
+        args_list <- make_initialize_arg_list(viz_fun, name = name,
                                               rmd_options = rmd_options,
                                               show = show, ..., which = -2)
       }
-      self$visualizer_fun <- args_list$visualizer_fun
+      self$viz_fun <- args_list$viz_fun
       self$name <- args_list$name
       rmd_options <- args_list$rmd_options
       for (opt in names(rmd_options)) {
         self$rmd_options[[opt]] <- rmd_options[[opt]]
       }
       self$show <- args_list$show
-      args_list$visualizer_fun <- NULL
+      args_list$viz_fun <- NULL
       args_list$name <- NULL
       args_list$rmd_options <- NULL
       args_list$show <- NULL
-      self$visualizer_params <- args_list
+      self$viz_params <- args_list
     },
     # @description Visualize the performance of methods and/or their evaluation
     #   metrics from the \code{Experiment} using the \code{Visualizer} and the
@@ -53,21 +53,21 @@ Visualizer <- R6::R6Class(
     #   \code{Experiment} run.
     # @param ... Not used.
     #
-    # @return Result of \code{visualizer_fun()}.
+    # @return Result of \code{viz_fun()}.
     visualize = function(fit_results = NULL, eval_results = NULL,
                          vary_params = NULL, ...) {
       args_list <- list(fit_results = fit_results,
                         eval_results = eval_results,
                         vary_params = vary_params)
-      if (!identical(self$visualizer_params, list())) {
-        always_args_list <- self$visualizer_params
+      if (!identical(self$viz_params, list())) {
+        always_args_list <- self$viz_params
       } else {
         always_args_list <- NULL
       }
-      visualize_results <- R.utils::doCall(self$visualizer_fun,
+      viz_results <- R.utils::doCall(self$viz_fun,
                                       args = args_list,
                                       alwaysArgs = always_args_list)
-      return(visualize_results)
+      return(viz_results)
     },
     # @description Print a \code{Visualizer} in a nice format, showing the 
     #   \code{Visualizer}'s name, function, parameters, and R Markdown options.
@@ -80,9 +80,9 @@ Visualizer <- R6::R6Class(
         cat("Visualizer Name:", self$name, "\n")
       }
       cat("   Function: ")
-      cat(str(self$visualizer_fun, give.attr = F))
+      cat(str(self$viz_fun, give.attr = F))
       cat("   Parameters: ")
-      cat(str(self$visualizer_params,
+      cat(str(self$viz_params,
               indent.str = "     ", no.list = F))
       cat("   R Markdown Options: ")
       cat(str(self$rmd_options,
@@ -97,7 +97,7 @@ Visualizer <- R6::R6Class(
 #'
 #' @name create_visualizer
 #'
-#' @param visualizer_fun The visualization function.
+#' @param viz_fun The visualization function.
 #' @param name (Optional) The name of the \code{Visualizer}. The argument must
 #'   be specified by position or typed out in whole; no partial matching is
 #'   allowed for this argument.
@@ -108,17 +108,17 @@ Visualizer <- R6::R6Class(
 #'   matching is allowed for this argument.
 #' @param show If \code{TRUE} (default), show the resulting visualization in the R
 #'   Markdown report; if \code{FALSE}, hide output in the R Markdown report.
-#' @param ... Arguments to pass into \code{visualizer_fun()}.
+#' @param ... Arguments to pass into \code{viz_fun()}.
 #'
 #' @details When visualizing or running the \code{Experiment} (see
 #'   \code{Experiment$visualize()} or \code{Experiment$run()}), the named
 #'   arguments \code{fit_results}, \code{eval_results}, and
 #'   \code{vary_params} are automatically passed into the \code{Visualizer}
-#'   function \code{visualizer_fun()} and serve as placeholders for the
+#'   function \code{viz_fun()} and serve as placeholders for the
 #'   \code{Experiment$fit()} results, the \code{Experiment$evaluate()}
 #'   results, and the name of the varying parameter, respectively.
 #'   To visualize the performance of a method(s) fit and/or its evaluation
-#'   metrics then, the \code{Visualizer} function \code{visualizer_fun()} should
+#'   metrics then, the \code{Visualizer} function \code{viz_fun()} should
 #'   take in the named arguments \code{fit_results} and/or
 #'   \code{eval_results}. See \code{Experiment$fit()} or
 #'   \code{fit_experiment()} for details on the format of \code{fit_results}.
@@ -131,9 +131,9 @@ Visualizer <- R6::R6Class(
 #' @return A new instance of \code{Visualizer}.
 #'
 #' @export
-create_visualizer <- function(visualizer_fun, name = NULL,
+create_visualizer <- function(viz_fun, name = NULL,
                               rmd_options = list(), show = TRUE, ...) {
-  args_list <- make_initialize_arg_list(visualizer_fun, name = name,
+  args_list <- make_initialize_arg_list(viz_fun, name = name,
                                         rmd_options = rmd_options, show = show,
                                         ...)
   do.call(Visualizer$new, list(.args_list = args_list))
