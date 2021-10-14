@@ -19,6 +19,8 @@ knitr::opts_chunk$set(
 
 library(simChef)
 
+set.seed(12345)
+
 # remove old cached results to start fresh
 for (fname in list.files(file.path("results", "Linear Regression Experiment"), 
                          pattern = ".rds", recursive = T, full.names = T)) {
