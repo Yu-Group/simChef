@@ -232,8 +232,7 @@ plot_eval_summary <- function(fit_results, eval_tib = NULL, eval_id = NULL,
       }
       plt <- plt + 
         do.call(ggplot2::geom_errorbar, 
-                args = c(list(mapping = errorbar_aes,
-                              position = "dodge"), errorbar_args))
+                args = c(list(mapping = errorbar_aes), errorbar_args))
     }
     if ("bar" %in% show) {
       bar_aes <- base_aes[names(base_aes) %in% c("x", "y", "colour", "fill")]

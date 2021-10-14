@@ -26,7 +26,8 @@ plot_feature_importance <- function(fit_results, eval_results,
     user_args = list(...), 
     default_args = list(eval_id = "feature_importance",
                         eval_fun = "summarize_feature_importance",
-                        x_str = feature_col)
+                        x_str = feature_col,
+                        errorbar_args = list(position = "dodge"))
   )
   
   if (!is.null(evaluator_name)) {
