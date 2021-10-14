@@ -52,10 +52,105 @@ reference:
     contents:
       - Visualizer
       - create_visualizer
-  - title: "Miscellaneous"
+  - title: "Simulation Experiment Library"
     desc: >
-      Miscellaneous functions.
+      A library of common functions that can be used to create a simulation experiment.
+  - subtitle: "DGP Library"
+    desc: >
+      A library of common functions for creating DGPs.
     contents:
-      - prettyDT
-      - prettyKable
+      - xy_dgp_constructor
+      - linear_gaussian_dgp
+      - correlated_linear_gaussian_dgp
+      - lss_gaussian_dgp
+      - correlated_lss_gaussian_dgp
+      - rwd_dgp
+  - subtitle: "DGP Library: X"
+    desc: >
+      A library of common functions for generating data for X in a DGP.
+    contents:
+      - generate_X_gaussian
+      - generate_X_rwd
+  - subtitle: "DGP Library: y"
+    desc: >
+      A library of common functions for generating data for y in a DGP.
+    contents:
+      - generate_y_linear
+      - generate_y_lss
+  - subtitle: "DGP Library: Errors"
+    desc: >
+      A library of common functions for generating errors in a DGP.
+    contents:
+      - generate_errors
+      - ar1_errors
+      - block_errors
+      - norm_errors
+  - subtitle: "Evaluator Library: Prediction"
+    desc: >
+      A library of common functions for evaluating prediction-focused simulation experiments.
+    contents:
+      - eval_pred_err_funs
+      - eval_pred_curve_funs
+  - subtitle: "Evaluator Library: Feature Selection"
+    desc: >
+      A library of common functions for evaluating feature-selection-focused simulation experiments.
+    contents:
+      - eval_feature_selection_err_funs
+      - eval_feature_selection_curve_funs
+      - eval_feature_importance_funs
+  - subtitle: "Evaluator Library: Inference"
+    desc: >
+      A library of common functions for evaluating inference-focused simulation experiments.
+    contents:
+      - eval_testing_err_funs
+      - eval_testing_curve_funs
+      - eval_reject_prob
+  - subtitle: "Evaluator Library: Additional Yardstick Metrics"
+    desc: >
+      A library of additional `yardstick` metrics for evaluating simulation experiments.
+    contents:
+      - fp
+      - tp
+      - neg
+      - pos
+  - subtitle: "Visualizer Library: Prediction"
+    desc: >
+      A library of common functions for visualizing prediction-focused simulation experiments.
+    contents:
+      - plot_pred_err
+      - plot_pred_curve
+  - subtitle: "Visualizer Library: Feature Selection"
+    desc: >
+      A library of common functions for visualizing feature-selection-focused simulation experiments.
+    contents:
+      - plot_feature_selection_err
+      - plot_feature_selection_curve
+      - plot_feature_importance
+  - subtitle: "Visualizer Library: Inference"
+    desc: >
+      A library of common functions for visualizing inference-focused simulation experiments.
+    contents:
+      - plot_testing_err
+      - plot_testing_curve
+      - plot_reject_prob
+  - subtitle: "Visualizer Library: Custom Themes"
+    desc: >
+      A library of custom table and ggplot themes.
+    contents:
+      - pretty_DT
+      - pretty_kable
+      - pretty_ggplot_theme
+      - pretty_ggplot_color_fill_themes
+      - blank_ggplot_themes
+  - subtitle: "Developer Functions"
+    desc: >
+      Helper functions for developers to create their own simulation experiment components.
+    contents:
+      - get_dot_args
+      - get_eval_tibble
+      - return_DGP_output
+      - summarize_eval_results
+      - plot_eval_summary
+      - plot_fit_results
       - list_col_to_chr
+      
