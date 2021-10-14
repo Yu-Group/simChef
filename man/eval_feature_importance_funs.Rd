@@ -61,14 +61,14 @@ argument, that being the values of the evaluated metrics.}
 }
 \value{
 The output of \code{eval_feature_importance()} is a \code{tibble} with
-the columns \code{rep}, \code{dgp_name}, and \code{method_name} in addition
+the columns \code{.rep}, \code{.dgp_name}, and \code{.method_name} in addition
 to the columns specified by \code{vary_params}, \code{feature_col}, and
 \code{imp_col}.
 
 The output of \code{summarize_feature_importance()} is a grouped
 \code{tibble} containing both identifying information and the feature
 importance results aggregated over experimental replicates. Specifically, the
-identifier columns include \code{dgp_name}, \code{method_name}, any columns
+identifier columns include \code{.dgp_name}, \code{.method_name}, any columns
 specified by \code{vary_params}, and the column specified by
 \code{feature_col}. In addition, there are results columns corresponding to
 the requested statistics in \code{summary_funs} and

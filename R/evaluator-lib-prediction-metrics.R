@@ -36,9 +36,9 @@
 #' The output of \code{eval_pred_err()} is a \code{tibble} with the following
 #' columns:
 #' \describe{
-#' \item{rep}{Replicate ID.}
-#' \item{dgp_name}{Name of DGP.}
-#' \item{method_name}{Name of Method.}
+#' \item{.rep}{Replicate ID.}
+#' \item{.dgp_name}{Name of DGP.}
+#' \item{.method_name}{Name of Method.}
 #' \item{.group}{If \code{groups} is not \code{NULL}, this column specifies the
 #'   name of the group under evaluation. Otherwise, this column is not returned.}
 #' \item{.metric}{Name of the evaluation metric.}
@@ -49,7 +49,7 @@
 #' The output of \code{summarize_pred_err()} is a grouped \code{tibble} 
 #' containing both identifying information and the prediction error results
 #' aggregated over experimental replicates. Specifically, the identifier columns 
-#' include \code{dgp_name}, \code{method_name}, any columns specified by
+#' include \code{.dgp_name}, \code{.method_name}, any columns specified by
 #' \code{vary_params}, and  \code{.metric}. In addition, there are results 
 #' columns corresponding to the requested statistics in \code{summary_funs} and
 #' \code{custom_summary_funs}. These columns end in the suffix "_pred_err".
@@ -113,7 +113,7 @@ eval_pred_err <- function(fit_results, vary_params = NULL, nested_data = NULL,
     return(res %>% dplyr::select(-.estimator))
   }
   
-  id_vars <- c("rep", "dgp_name", "method_name", vary_params)
+  id_vars <- c(".rep", ".dgp_name", ".method_name", vary_params)
   eval_tib <- fit_results %>%
     dplyr::mutate(
       .eval_res = purrr::map(
@@ -137,9 +137,9 @@ summarize_pred_err <- function(fit_results, vary_params = NULL,
                                                 "sd", "raw"),
                                custom_summary_funs = NULL) {
   if (!is.null(groups)) {
-    group_vars <- c("dgp_name", "method_name", vary_params, ".group", ".metric")
+    group_vars <- c(".dgp_name", ".method_name", vary_params, ".group", ".metric")
   } else {
-    group_vars <- c("dgp_name", "method_name", vary_params, ".metric")
+    group_vars <- c(".dgp_name", ".method_name", vary_params, ".metric")
   }
   eval_tib <- eval_pred_err(
     fit_results = fit_results, vary_params = vary_params,
@@ -173,9 +173,9 @@ summarize_pred_err <- function(fit_results, vary_params = NULL,
 #' The output of \code{eval_pred_curve()} is a \code{tibble} with the following
 #' columns:
 #' \describe{
-#' \item{rep}{Replicate ID.}
-#' \item{dgp_name}{Name of DGP.}
-#' \item{method_name}{Name of Method.}
+#' \item{.rep}{Replicate ID.}
+#' \item{.dgp_name}{Name of DGP.}
+#' \item{.method_name}{Name of Method.}
 #' \item{.group}{If \code{groups} is not \code{NULL}, this column specifies the
 #'   name of the group under evaluation. Otherwise, this column is not returned.}
 #' \item{curve_estimate}{A list of tibbles with x and y coordinate values for 
@@ -190,7 +190,7 @@ summarize_pred_err <- function(fit_results, vary_params = NULL,
 #' The output of \code{summarize_pred_curve()} is a grouped \code{tibble}
 #' containing both identifying information and the prediction curve results
 #' aggregated over experimental replicates. Specifically, the identifier columns
-#' include \code{dgp_name}, \code{method_name}, and any columns specified by
+#' include \code{.dgp_name}, \code{.method_name}, and any columns specified by
 #' \code{vary_params}. In addition, there are results columns corresponding to 
 #' the requested statistics in \code{summary_funs} and 
 #' \code{custom_summary_funs}. If \code{curve = "ROC"}, these results columns 
@@ -247,7 +247,7 @@ eval_pred_curve <- function(fit_results, vary_params = NULL, nested_data = NULL,
     return(curve_df)
   }
   
-  id_vars <- c("rep", "dgp_name", "method_name", vary_params)
+  id_vars <- c(".rep", ".dgp_name", ".method_name", vary_params)
   eval_tib <- fit_results %>%
     dplyr::mutate(
       curve_estimate = purrr::map(
@@ -279,9 +279,9 @@ summarize_pred_curve <- function(fit_results, vary_params = NULL,
     yvar <- "TPR"
   }
   if (!is.null(groups)) {
-    group_vars <- c("dgp_name", "method_name", vary_params, ".group", xvar)
+    group_vars <- c(".dgp_name", ".method_name", vary_params, ".group", xvar)
   } else {
-    group_vars <- c("dgp_name", "method_name", vary_params, xvar)
+    group_vars <- c(".dgp_name", ".method_name", vary_params, xvar)
   }
   
   rescale_curve <- function(curve_data) {

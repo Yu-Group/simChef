@@ -54,8 +54,8 @@ after major checkpoints in the experiment. If 0, no messages are printed.}
 A list of results from the simulation experiment.
 \describe{
 \item{fit_results}{A tibble containing results from the \code{fit}
-method. In addition to results columns, has columns named 'rep', 'dgp_name',
-'method_name', and the \code{vary_across} parameter names if applicable.}
+method. In addition to results columns, has columns named '.rep', '.dgp_name',
+'.method_name', and the \code{vary_across} parameter names if applicable.}
 \item{eval_results}{A list of tibbles containing results from the
 \code{evaluate} method, which evaluates each \code{Evaluator} in
 the \code{Experiment}. Length of list is equivalent to the number of

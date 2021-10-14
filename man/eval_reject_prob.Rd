@@ -45,8 +45,8 @@ should be stripped before the computation proceeds.}
 \value{
 A grouped \code{tibble} containing both identifying information
 and the rejection probability results aggregated over experimental
-replicates. Specifically, the identifier columns include \code{dgp_name},
-\code{method_name}, any columns specified by \code{vary_params}, and the
+replicates. Specifically, the identifier columns include \code{.dgp_name},
+\code{.method_name}, any columns specified by \code{vary_params}, and the
 feature names given in \code{feature_col} if applicable. In addition, there
 are results columns \code{.alpha} and \code{reject_prob}, which
 respectively give the significance level and the estimated rejection

@@ -83,9 +83,9 @@ argument, that being the values of the evaluated metrics.}
 The output of \code{eval_testing_err()} is a \code{tibble} with the following
 columns:
 \describe{
-\item{rep}{Replicate ID.}
-\item{dgp_name}{Name of DGP.}
-\item{method_name}{Name of Method.}
+\item{.rep}{Replicate ID.}
+\item{.dgp_name}{Name of DGP.}
+\item{.method_name}{Name of Method.}
 \item{.alpha}{Level of significance.}
 \item{.metric}{Name of the evaluation metric.}
 \item{.estimate}{Value of the evaluation metric.}
@@ -95,7 +95,7 @@ as well as any columns specified by \code{vary_params}.
 The output of \code{summarize_testing_err()} is a grouped \code{tibble}
 containing both identifying information and the evaluation results
 aggregated over experimental replicates. Specifically, the identifier columns
-include \code{dgp_name}, \code{method_name}, any columns specified by
+include \code{.dgp_name}, \code{.method_name}, any columns specified by
 \code{vary_params}, and \code{.metric}. In addition, there are results columns
 corresponding to the requested statistics in \code{summary_funs} and
 \code{custom_summary_funs}. These columns end in the suffix "_testing_err".

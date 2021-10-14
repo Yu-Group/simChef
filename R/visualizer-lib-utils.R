@@ -105,8 +105,8 @@ plot_eval_summary <- function(fit_results, eval_tib = NULL, eval_id = NULL,
                             vary_params = vary_params, show = show, 
                             y_str = y_str, ...)
   
-  dgps <- unique(plt_df$dgp_name)
-  methods <- unique(plt_df$method_name)
+  dgps <- unique(plt_df$.dgp_name)
+  methods <- unique(plt_df$.method_name)
   n_dgps <- length(dgps)
   n_methods <- length(methods)
   if (!is.null(eval_id)) {
@@ -143,9 +143,9 @@ plot_eval_summary <- function(fit_results, eval_tib = NULL, eval_id = NULL,
   if (is.null(x_str)) {
     if (is.null(vary_params)) {
       if ((n_methods == 1) && (n_dgps > 1)) {
-        x_str <- "dgp_name"
+        x_str <- ".dgp_name"
       } else {
-        x_str <- "method_name"
+        x_str <- ".method_name"
       }
     } else if (length(vary_params) == 1) {
       x_str <- vary_params
@@ -154,10 +154,10 @@ plot_eval_summary <- function(fit_results, eval_tib = NULL, eval_id = NULL,
     }
   }
   if (is.null(color_str)) {
-    if ((x_str != "method_name") && (n_methods > 1)) {
-      color_str <- "method_name"
-    } else if ((x_str != "dgp_name") && (n_dgps > 1)) {
-      color_str <- "dgp_name"
+    if ((x_str != ".method_name") && (n_methods > 1)) {
+      color_str <- ".method_name"
+    } else if ((x_str != ".dgp_name") && (n_dgps > 1)) {
+      color_str <- ".dgp_name"
     } else if (!identical(x_str, vary_params) &
                !identical(x_str, ".vary_params")) {
       if (is.null(vary_params) | (length(vary_params) == 1)) {
@@ -171,8 +171,8 @@ plot_eval_summary <- function(fit_results, eval_tib = NULL, eval_id = NULL,
     plt_args <- c(x_str, y_str, color_str, linetype_str,
                   as.character(facet_wrap_formula),
                   as.character(facet_grid_formula))
-    if ((n_dgps > 1) && !("dgp_name" %in% plt_args)) {
-      plot_by <- "dgp_name"
+    if ((n_dgps > 1) && !(".dgp_name" %in% plt_args)) {
+      plot_by <- ".dgp_name"
     } else if ((length(vary_params) == 1) && !(vary_params %in% plt_args)) {
       plot_by <- vary_params
     } else if ((length(vary_params) > 1) && !(".vary_params" %in% plt_args)) {
@@ -300,8 +300,8 @@ plot_eval_summary <- function(fit_results, eval_tib = NULL, eval_id = NULL,
           return(NULL)
         } else {
           l <- dplyr::case_when(
-            identical(l, "dgp_name") ~ "DGP",
-            identical(l, "method_name") ~ "Method",
+            identical(l, ".dgp_name") ~ "DGP",
+            identical(l, ".method_name") ~ "Method",
             identical(l, paste("raw", eval_id)) ~ ifelse(is.null(eval_id),
                                                          "Value", eval_id),
             identical(l, ".vary_params") ~ paste(vary_params, collapse = "_"),
@@ -364,12 +364,13 @@ plot_eval_summary <- function(fit_results, eval_tib = NULL, eval_id = NULL,
 #' @export
 plot_fit_results <- function(fit_results, vary_params = NULL, reps = 1, 
                              plot_fun, interactive = FALSE, ...) {
+  .rep <- NULL  # to fix no visible binding for global variable error
   dots_list <- list(...)
   if (identical(dots_list, list())) {
     dots_list <- NULL
   }
   plt_df <- fit_results %>%
-    dplyr::filter(rep %in% reps) %>%
+    dplyr::filter(.rep %in% reps) %>%
     dplyr::rowwise()
   plt_ls <- dplyr::group_map(plt_df,
                              function(x, key) {
@@ -380,13 +381,13 @@ plot_fit_results <- function(fit_results, vary_params = NULL, reps = 1,
                                return(out)
                              })
   plt_names <- list()
-  if (length(unique(plt_df$dgp_name)) > 1) {
-    plt_names[["dgp"]] <- paste("DGP = ", plt_df$dgp_name, sep = "")
+  if (length(unique(plt_df$.dgp_name)) > 1) {
+    plt_names[["dgp"]] <- paste("DGP = ", plt_df$.dgp_name, sep = "")
   }
-  if (length(unique(plt_df$method_name)) > 1) {
-    plt_names[["method"]] <- paste("Method = ", plt_df$method_name, sep = "")
+  if (length(unique(plt_df$.method_name)) > 1) {
+    plt_names[["method"]] <- paste("Method = ", plt_df$.method_name, sep = "")
   }
-  plt_names[["rep"]] <- paste("Rep = ", plt_df$rep, sep = "")
+  plt_names[["rep"]] <- paste("Rep = ", plt_df$.rep, sep = "")
   if (!is.null(vary_params)) {
     plt_names[["vary_params"]] <- purrr::map(
       vary_params,

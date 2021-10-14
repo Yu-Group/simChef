@@ -356,8 +356,8 @@ test_that("Fitting experiment works properly", {
   # with one dgp and one method
   experiment %>% add_method(method1, name = "Method1")
   expect_equal(experiment$fit(verbose = 0),
-               tibble::tibble(rep = "1", dgp_name = "DGP1",
-                              method_name = "Method1", result1 = 2))
+               tibble::tibble(.rep = "1", .dgp_name = "DGP1",
+                              .method_name = "Method1", result1 = 2))
   fit_results <- experiment$fit(n_reps = 3, save = TRUE, verbose = 0)
   expect_equal(nrow(fit_results), 3)
   expect_equal(fit_results, fit_experiment(experiment, n_reps = 3, verbose = 0))
@@ -416,8 +416,8 @@ test_that("Evaluating experiment works properly", {
   )
   expect_equal(
     eval_results,
-    list(`Fit Results` = tibble::tibble(rep = as.character(1), dgp_name = "DGP", 
-                                        method_name = "Method", result1 = 2))
+    list(`Fit Results` = tibble::tibble(.rep = as.character(1), .dgp_name = "DGP", 
+                                        .method_name = "Method", result1 = 2))
   )
 
   # check that multiple evaluators works
@@ -434,8 +434,8 @@ test_that("Evaluating experiment works properly", {
   )
   expect_equal(
     eval_results,
-    list(`Fit Results` = tibble::tibble(rep = as.character(1), dgp_name = "DGP", 
-                                        method_name = "Method", result1 = 2),
+    list(`Fit Results` = tibble::tibble(.rep = as.character(1), .dgp_name = "DGP", 
+                                        .method_name = "Method", result1 = 2),
          `Vary Params` = tibble::tibble())
   )
 })
@@ -594,7 +594,7 @@ test_that("Vary across in Experiment runs properly", {
   fit_results <- fit_experiment(experiment, save = FALSE, verbose = 0)
   expect_equal(
     fit_results,
-    tibble::tibble(rep = "1", dgp_name = "DGP", method_name = "Method",
+    tibble::tibble(.rep = "1", .dgp_name = "DGP", .method_name = "Method",
                    x = x, x_idx = x)
   )
   eval_results <- evaluate_experiment(experiment, fit_results = fit_results,
@@ -612,7 +612,7 @@ test_that("Vary across in Experiment runs properly", {
   fit_results <- fit_experiment(experiment, save = FALSE, verbose = 0)
   expect_equal(
     fit_results,
-    tibble::tibble(rep = "1", dgp_name = "DGP", method_name = "Method",
+    tibble::tibble(.rep = "1", .dgp_name = "DGP", .method_name = "Method",
                    x = x, x_idx = purrr::map_dbl(x, ~.x[1]))
   )
   eval_results <- evaluate_experiment(experiment, fit_results = fit_results,
@@ -631,7 +631,7 @@ test_that("Vary across in Experiment runs properly", {
   fit_results <- fit_experiment(experiment, save = FALSE, verbose = 0)
   expect_equal(
     fit_results,
-    tibble::tibble(rep = "1", dgp_name = "DGP", method_name = "Method",
+    tibble::tibble(.rep = "1", .dgp_name = "DGP", .method_name = "Method",
                    idx = idx, x_idx = idx)
   )
   eval_results <- evaluate_experiment(experiment, fit_results = fit_results,
@@ -650,7 +650,7 @@ test_that("Vary across in Experiment runs properly", {
   fit_results <- fit_experiment(experiment, save = FALSE, verbose = 0)
   expect_equal(
     fit_results, 
-    tibble::tibble(rep = "1", dgp_name = "DGP", method_name = "Method", 
+    tibble::tibble(.rep = "1", .dgp_name = "DGP", .method_name = "Method", 
                    x = x, x_idx = purrr::map_dbl(x, ~.x[1]))
   )
   eval_results <- evaluate_experiment(experiment, fit_results = fit_results,
@@ -669,7 +669,7 @@ test_that("Vary across in Experiment runs properly", {
   fit_results <- fit_experiment(experiment, save = FALSE, verbose = 0)
   expect_equal(
     fit_results,
-    tibble::tibble(rep = "1", dgp_name = "DGP", method_name = "Method",
+    tibble::tibble(.rep = "1", .dgp_name = "DGP", .method_name = "Method",
                    idx = idx, x_idx = idx)
   )
   eval_results <- evaluate_experiment(experiment, fit_results = fit_results,
@@ -706,7 +706,7 @@ test_that("Vary across in Experiment runs properly", {
   fit_results <- fit_experiment(experiment, save = FALSE, verbose = 0)
   expect_equal(
     fit_results, 
-    tibble::tibble(rep = "1", dgp_name = "DGP", method_name = "Method", 
+    tibble::tibble(.rep = "1", .dgp_name = "DGP", .method_name = "Method", 
                    x = list(1, 1, 3:5, 3:5), 
                    idx = list(1, 1:2, 1, 1:2),
                    x_idx = list(1, c(1, NA), 3, 3:4))
@@ -787,7 +787,7 @@ test_that("Caching in Experiment runs properly", {
                              verbose = verbose)
   expect_equal(nrow(results3$fit_results), 20)
   expect_equal(results2$fit_results, 
-               results3$fit_results %>% dplyr::filter(dgp_name == "DGP1"))
+               results3$fit_results %>% dplyr::filter(.dgp_name == "DGP1"))
   experiment %>% add_method(method2, "Method2")
   results4 <- experiment$run(n_reps = 10, use_cached = TRUE, save = TRUE, 
                              verbose = verbose)
@@ -822,8 +822,8 @@ test_that("Caching in Experiment runs properly", {
   results8$fit_results <- results8$fit_results %>% dplyr::select({{fit_cols}})
   expect_equal(nrow(results7$fit_results), nrow(results8$fit_results))
   expect_false(identical(results7$fit_results, results8$fit_results))
-  expect_equal(results8$fit_results %>% dplyr::filter(dgp_name == "DGP1"),
-               results7$fit_results %>% dplyr::filter(dgp_name == "DGP1"))
+  expect_equal(results8$fit_results %>% dplyr::filter(.dgp_name == "DGP1"),
+               results7$fit_results %>% dplyr::filter(.dgp_name == "DGP1"))
   expect_false(identical(results8$eval_results, results7$eval_results))
   expect_false(identical(results8$visualize_results, results7$visualize_results))
   experiment %>% update_method(method1, "Method2")
@@ -849,14 +849,14 @@ test_that("Caching in Experiment runs properly", {
   results12 <- experiment$run(n_reps = 10, use_cached = TRUE, save = TRUE,
                               verbose = verbose)
   expect_equal(results12$fit_results,
-               results11$fit_results %>% dplyr::filter(dgp_name == "DGP1"))
+               results11$fit_results %>% dplyr::filter(.dgp_name == "DGP1"))
   expect_false(identical(results12$eval_results, results11$eval_results))
   expect_false(identical(results12$visualize_results, results11$visualize_results))
   experiment %>% remove_method("Method2")
   results13 <- experiment$run(n_reps = 10, use_cached = TRUE, save = TRUE,
                               verbose = verbose)
   expect_equal(results13$fit_results,
-               results12$fit_results %>% dplyr::filter(method_name == "Method1"))
+               results12$fit_results %>% dplyr::filter(.method_name == "Method1"))
   expect_false(identical(results13$eval_results, results12$eval_results))
   expect_false(identical(results13$visualize_results, results12$visualize_results))
   experiment %>% remove_evaluator("Eval2")
@@ -907,15 +907,15 @@ test_that("Caching in Experiment runs properly", {
                              verbose = verbose)
   expect_equal(nrow(results7$fit_results), 4 * 3 * 2)
   expect_equal(results7$fit_results, 
-               results6$fit_results %>% dplyr::filter(as.numeric(rep) <= 4))
+               results6$fit_results %>% dplyr::filter(as.numeric(.rep) <= 4))
   results8 <- experiment$run(n_reps = 10, use_cached = TRUE, save = TRUE,
                              verbose = verbose)
   expect_equal(nrow(results8$fit_results), 10 * 3 * 2)
-  # expect_equal(results8$fit_results %>% dplyr::filter(as.numeric(rep) <= 4),
+  # expect_equal(results8$fit_results %>% dplyr::filter(as.numeric(.rep) <= 4),
   #              results7$fit_results)
   expect_false(identical(results7$fit_results,
                          results8$fit_results %>% 
-                           dplyr::filter(as.numeric(rep) <= 4)))
+                           dplyr::filter(as.numeric(.rep) <= 4)))
   
   # check when add multiple new objects to experiment
   experiment %>% add_dgp(dgp2, "DGP2")
@@ -948,7 +948,7 @@ test_that("Caching in Experiment runs properly", {
   results12 <- experiment$run(n_reps = 4, use_cached = TRUE, save = FALSE,
                               verbose = verbose)
   expect_true(identical(results11$fit_results %>%
-                          dplyr::filter(as.numeric(rep) <= 4), 
+                          dplyr::filter(as.numeric(.rep) <= 4), 
                         results12$fit_results))
   results13 <- experiment$run(n_reps = 10, use_cached = TRUE, save = FALSE,
                               verbose = verbose)
@@ -985,9 +985,9 @@ test_that("Caching in Experiment runs properly", {
     file.path("results", "test-cache", "DGP1-Method1", "Varying x-y",
               "experiment_cached_params.rds")
   )
-  expect_equal(cached_params$fit$fit$n_reps, rep(10, 8))
-  expect_equal(cached_params$evaluate$fit$n_reps, rep(12, 8))
-  expect_equal(cached_params$visualize$fit$n_reps, rep(10, 8))
+  expect_equal(cached_params$fit$fit$.n_reps, rep(10, 8))
+  expect_equal(cached_params$evaluate$fit$.n_reps, rep(12, 8))
+  expect_equal(cached_params$visualize$fit$.n_reps, rep(10, 8))
 })
 
 test_that("Saving methods in Experiment works properly", {
@@ -1095,7 +1095,7 @@ test_that("Various parallel strategies in experiment work properly", {
     results <- experiment$fit(n_reps=2, parallel_strategy=strat, verbose=0)
 
     expect_true(
-      all(c("rep", "dgp_name", "method_name", "result") %in% names(results))
+      all(c(".rep", ".dgp_name", ".method_name", "result") %in% names(results))
     )
 
     results_tally <- results %>%
@@ -1124,7 +1124,7 @@ test_that("Various parallel strategies in experiment work properly", {
                               verbose = 0)
     
     expect_true(
-      all(c("rep", "dgp_name", "method_name", "y_dgp", "y_method", "result")
+      all(c(".rep", ".dgp_name", ".method_name", "y_dgp", "y_method", "result")
           %in% names(results))
     )
     

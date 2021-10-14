@@ -86,9 +86,9 @@ argument, that being the values of the evaluated metrics.}
 The output of \code{eval_testing_curve()} is a \code{tibble} with the
 following columns:
 \describe{
-\item{rep}{Replicate ID.}
-\item{dgp_name}{Name of DGP.}
-\item{method_name}{Name of Method.}
+\item{.rep}{Replicate ID.}
+\item{.dgp_name}{Name of DGP.}
+\item{.method_name}{Name of Method.}
 \item{curve_estimate}{A list of tibbles with x and y coordinate values for
 the ROC/PR curve for the given experimental replicate. If
 \code{curve = "ROC"}, the \code{tibble} has the columns \code{.threshold},
@@ -101,7 +101,7 @@ as well as any columns specified by \code{vary_params}.
 The output of \code{summarize_testing_curve()} is a grouped \code{tibble}
 containing both identifying information and the evaluation curve
 results aggregated over experimental replicates. Specifically, the identifier
-columns include \code{dgp_name}, \code{method_name}, and any columns
+columns include \code{.dgp_name}, \code{.method_name}, and any columns
 specified by \code{vary_params}. In addition, there are results columns
 corresponding to the requested statistics in \code{summary_funs} and
 \code{custom_summary_funs}. If \code{curve = "ROC"}, these results columns

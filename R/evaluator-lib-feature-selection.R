@@ -44,9 +44,9 @@
 #' The output of \code{eval_feature_selection_err()} is a \code{tibble} with the
 #' following columns:
 #' \describe{
-#' \item{rep}{Replicate ID.}
-#' \item{dgp_name}{Name of DGP.}
-#' \item{method_name}{Name of Method.}
+#' \item{.rep}{Replicate ID.}
+#' \item{.dgp_name}{Name of DGP.}
+#' \item{.method_name}{Name of Method.}
 #' \item{.metric}{Name of the evaluation metric.}
 #' \item{.estimate}{Value of the evaluation metric.}
 #' }
@@ -55,7 +55,7 @@
 #' The output of \code{summarize_feature_selection_err()} is a grouped
 #' \code{tibble} containing both identifying information and the feature 
 #' selection results aggregated over experimental replicates. Specifically, the 
-#' identifier columns include \code{dgp_name}, \code{method_name}, any columns
+#' identifier columns include \code{.dgp_name}, \code{.method_name}, any columns
 #' specified by \code{vary_params}, and \code{.metric}. In addition, there are 
 #' results columns corresponding to the requested statistics in 
 #' \code{summary_funs} and \code{custom_summary_funs}. These columns end in the 
@@ -116,7 +116,7 @@ eval_feature_selection_err <- function(fit_results, vary_params = NULL,
     return(res)
   }
   
-  id_vars <- c("rep", "dgp_name", "method_name", vary_params)
+  id_vars <- c(".rep", ".dgp_name", ".method_name", vary_params)
   eval_tib <- fit_results %>%
     dplyr::mutate(
       .eval_res = purrr::map(
@@ -140,7 +140,7 @@ summarize_feature_selection_err <- function(fit_results, vary_params = NULL,
                                                              "min", "max", 
                                                              "sd", "raw"),
                                             custom_summary_funs = NULL) {
-  group_vars <- c("dgp_name", "method_name", vary_params, ".metric")
+  group_vars <- c(".dgp_name", ".method_name", vary_params, ".metric")
   eval_tib <- eval_feature_selection_err(
     fit_results = fit_results, vary_params = vary_params,
     nested_data = nested_data, truth_col = truth_col, 
@@ -174,9 +174,9 @@ summarize_feature_selection_err <- function(fit_results, vary_params = NULL,
 #' The output of \code{eval_feature_selection_curve()} is a \code{tibble} with 
 #' the following columns:
 #' \describe{
-#' \item{rep}{Replicate ID.}
-#' \item{dgp_name}{Name of DGP.}
-#' \item{method_name}{Name of Method.}
+#' \item{.rep}{Replicate ID.}
+#' \item{.dgp_name}{Name of DGP.}
+#' \item{.method_name}{Name of Method.}
 #' \item{curve_estimate}{A list of tibbles with x and y coordinate values for 
 #'   the ROC/PR curve for the given experimental replicate. If 
 #'   \code{curve = "ROC"}, the \code{tibble} has the columns \code{.threshold}, 
@@ -189,8 +189,8 @@ summarize_feature_selection_err <- function(fit_results, vary_params = NULL,
 #' The output of \code{summarize_feature_selection_curve()} is a grouped
 #' \code{tibble} containing both identifying information and the 
 #' feature selection curve results aggregated over experimental replicates. 
-#' Specifically, the identifier columns include \code{dgp_name},
-#' \code{method_name}, and any columns specified by \code{vary_params}. In
+#' Specifically, the identifier columns include \code{.dgp_name},
+#' \code{.method_name}, and any columns specified by \code{vary_params}. In
 #' addition, there are results columns corresponding to the requested statistics 
 #' in \code{summary_funs} and \code{custom_summary_funs}. If 
 #' \code{curve = "ROC"}, these results columns include \code{FPR} and others 
@@ -258,7 +258,7 @@ summarize_feature_selection_curve <- function(fit_results, vary_params = NULL,
     xvar <- "FPR"
     yvar <- "TPR"
   }
-  group_vars <- c("dgp_name", "method_name", vary_params, xvar)
+  group_vars <- c(".dgp_name", ".method_name", vary_params, xvar)
   
   rescale_curve <- function(curve_data) {
     # map curves onto same x-axis scale
@@ -304,14 +304,14 @@ summarize_feature_selection_curve <- function(fit_results, vary_params = NULL,
 #' 
 #' @returns
 #' The output of \code{eval_feature_importance()} is a \code{tibble} with 
-#' the columns \code{rep}, \code{dgp_name}, and \code{method_name} in addition 
+#' the columns \code{.rep}, \code{.dgp_name}, and \code{.method_name} in addition 
 #' to the columns specified by \code{vary_params}, \code{feature_col}, and
 #' \code{imp_col}.
 #' 
 #' The output of \code{summarize_feature_importance()} is a grouped 
 #' \code{tibble} containing both identifying information and the feature 
 #' importance results aggregated over experimental replicates. Specifically, the
-#' identifier columns include \code{dgp_name}, \code{method_name}, any columns
+#' identifier columns include \code{.dgp_name}, \code{.method_name}, any columns
 #' specified by \code{vary_params}, and the column specified by 
 #' \code{feature_col}. In addition, there are results columns corresponding to 
 #' the requested statistics in \code{summary_funs} and 
@@ -327,7 +327,7 @@ NULL
 #' @export
 eval_feature_importance <- function(fit_results, vary_params = NULL,
                                     nested_data = NULL, feature_col, imp_col) {
-  id_vars <- c("rep", "dgp_name", "method_name", vary_params)
+  id_vars <- c(".rep", ".dgp_name", ".method_name", vary_params)
   if (!is.null(nested_data)) {
     fit_results <- fit_results %>% 
       tidyr::unnest(tidyselect::all_of(nested_data))
@@ -348,7 +348,7 @@ summarize_feature_importance <- function(fit_results, vary_params = NULL,
                                                           "min", "max", 
                                                           "sd", "raw"),
                                          custom_summary_funs = NULL) {
-  group_vars <- c("dgp_name", "method_name", vary_params, feature_col)
+  group_vars <- c(".dgp_name", ".method_name", vary_params, feature_col)
   eval_tib <- eval_feature_importance(
     fit_results = fit_results, vary_params = vary_params,
     nested_data = nested_data, feature_col = feature_col, imp_col = imp_col

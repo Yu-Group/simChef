@@ -29,9 +29,9 @@
 #' The output of \code{eval_testing_err()} is a \code{tibble} with the following
 #' columns:
 #' \describe{
-#' \item{rep}{Replicate ID.}
-#' \item{dgp_name}{Name of DGP.}
-#' \item{method_name}{Name of Method.}
+#' \item{.rep}{Replicate ID.}
+#' \item{.dgp_name}{Name of DGP.}
+#' \item{.method_name}{Name of Method.}
 #' \item{.alpha}{Level of significance.}
 #' \item{.metric}{Name of the evaluation metric.}
 #' \item{.estimate}{Value of the evaluation metric.}
@@ -41,7 +41,7 @@
 #' The output of \code{summarize_testing_err()} is a grouped \code{tibble}
 #' containing both identifying information and the evaluation results 
 #' aggregated over experimental replicates. Specifically, the identifier columns
-#' include \code{dgp_name}, \code{method_name}, any columns specified by
+#' include \code{.dgp_name}, \code{.method_name}, any columns specified by
 #' \code{vary_params}, and \code{.metric}. In addition, there are results columns
 #' corresponding to the requested statistics in \code{summary_funs} and 
 #' \code{custom_summary_funs}. These columns end in the suffix "_testing_err".
@@ -113,7 +113,7 @@ eval_testing_err <- function(fit_results, vary_params = NULL,
     return(res)
   }
   
-  id_vars <- c("rep", "dgp_name", "method_name", vary_params)
+  id_vars <- c(".rep", ".dgp_name", ".method_name", vary_params)
   eval_tib <- fit_results %>%
     dplyr::mutate(
       .eval_res = purrr::map(
@@ -138,7 +138,7 @@ summarize_testing_err <- function(fit_results, vary_params = NULL,
                                   summary_funs = c("mean", "median", "min",
                                                    "max", "sd", "raw"),
                                   custom_summary_funs = NULL) {
-  group_vars <- c("dgp_name", "method_name", vary_params, ".metric")
+  group_vars <- c(".dgp_name", ".method_name", vary_params, ".metric")
   eval_tib <- eval_testing_err(
     fit_results = fit_results, vary_params = vary_params,
     nested_data = nested_data, truth_col = truth_col, pval_col = pval_col,
@@ -171,9 +171,9 @@ summarize_testing_err <- function(fit_results, vary_params = NULL,
 #' The output of \code{eval_testing_curve()} is a \code{tibble} with the 
 #' following columns:
 #' \describe{
-#' \item{rep}{Replicate ID.}
-#' \item{dgp_name}{Name of DGP.}
-#' \item{method_name}{Name of Method.}
+#' \item{.rep}{Replicate ID.}
+#' \item{.dgp_name}{Name of DGP.}
+#' \item{.method_name}{Name of Method.}
 #' \item{curve_estimate}{A list of tibbles with x and y coordinate values for 
 #'   the ROC/PR curve for the given experimental replicate. If 
 #'   \code{curve = "ROC"}, the \code{tibble} has the columns \code{.threshold}, 
@@ -186,7 +186,7 @@ summarize_testing_err <- function(fit_results, vary_params = NULL,
 #' The output of \code{summarize_testing_curve()} is a grouped \code{tibble} 
 #' containing both identifying information and the evaluation curve 
 #' results aggregated over experimental replicates. Specifically, the identifier
-#' columns include \code{dgp_name}, \code{method_name}, and any columns 
+#' columns include \code{.dgp_name}, \code{.method_name}, and any columns 
 #' specified by \code{vary_params}. In addition, there are results columns 
 #' corresponding to the requested statistics in \code{summary_funs} and 
 #' \code{custom_summary_funs}. If \code{curve = "ROC"}, these results columns 
@@ -244,7 +244,7 @@ summarize_testing_curve <- function(fit_results, vary_params = NULL,
     xvar <- "FPR"
     yvar <- "TPR"
   }
-  group_vars <- c("dgp_name", "method_name", vary_params, xvar)
+  group_vars <- c(".dgp_name", ".method_name", vary_params, xvar)
   
   rescale_curve <- function(curve_data) {
     # map curves onto same x-axis scale
@@ -291,8 +291,8 @@ summarize_testing_curve <- function(fit_results, vary_params = NULL,
 #' 
 #' @return A grouped \code{tibble} containing both identifying information
 #'   and the rejection probability results aggregated over experimental 
-#'   replicates. Specifically, the identifier columns include \code{dgp_name},
-#'   \code{method_name}, any columns specified by \code{vary_params}, and the
+#'   replicates. Specifically, the identifier columns include \code{.dgp_name},
+#'   \code{.method_name}, any columns specified by \code{vary_params}, and the
 #'   feature names given in \code{feature_col} if applicable. In addition, there
 #'   are results columns \code{.alpha} and \code{reject_prob}, which 
 #'   respectively give the significance level and the estimated rejection 
@@ -306,7 +306,7 @@ eval_reject_prob <- function(fit_results, vary_params = NULL,
                              nested_data = NULL, feature_col = NULL, pval_col,
                              alphas = NULL, na_rm = FALSE) {
   .alpha <- NULL  # to fix no visible binding for global variable error
-  group_vars <- c("dgp_name", "method_name", vary_params, feature_col)
+  group_vars <- c(".dgp_name", ".method_name", vary_params, feature_col)
   if (!is.null(nested_data)) {
     data <- data %>% tidyr::unnest(tidyselect::all_of(nested_data))
   }

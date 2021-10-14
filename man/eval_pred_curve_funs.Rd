@@ -91,9 +91,9 @@ argument, that being the values of the evaluated metrics.}
 The output of \code{eval_pred_curve()} is a \code{tibble} with the following
 columns:
 \describe{
-\item{rep}{Replicate ID.}
-\item{dgp_name}{Name of DGP.}
-\item{method_name}{Name of Method.}
+\item{.rep}{Replicate ID.}
+\item{.dgp_name}{Name of DGP.}
+\item{.method_name}{Name of Method.}
 \item{.group}{If \code{groups} is not \code{NULL}, this column specifies the
 name of the group under evaluation. Otherwise, this column is not returned.}
 \item{curve_estimate}{A list of tibbles with x and y coordinate values for
@@ -108,7 +108,7 @@ as well as any columns specified by \code{vary_params}.
 The output of \code{summarize_pred_curve()} is a grouped \code{tibble}
 containing both identifying information and the prediction curve results
 aggregated over experimental replicates. Specifically, the identifier columns
-include \code{dgp_name}, \code{method_name}, and any columns specified by
+include \code{.dgp_name}, \code{.method_name}, and any columns specified by
 \code{vary_params}. In addition, there are results columns corresponding to
 the requested statistics in \code{summary_funs} and
 \code{custom_summary_funs}. If \code{curve = "ROC"}, these results columns
