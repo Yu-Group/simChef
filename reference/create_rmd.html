@@ -6,7 +6,8 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Create an R Markdown file summarizing the results of an Experiment. — create_rmd • simChef</title>
+<title>Create an R Markdown file summarizing the results of an Experiment or
+set of Experiments. — create_rmd • simChef</title>
 
 
 <!-- jquery -->
@@ -39,11 +40,16 @@
 
 
 
-<meta property="og:title" content="Create an R Markdown file summarizing the results of an Experiment. — create_rmd" />
+<meta property="og:title" content="Create an R Markdown file summarizing the results of an Experiment or
+set of Experiments. — create_rmd" />
 <meta property="og:description" content="Knits an R Markdown file summarizing the results of an
-Experiment. Outputs an R Markdown-generated html file, saved in
-the Experiment's root results directory (see
-Experiment$get_save_dir())." />
+Experiment or set of Experiments. Outputs an R
+Markdown-generated html file. If experiment is provided, the results
+are saved in the Experiment's root results directory (see
+Experiment$get_save_dir()). Otherwise, the root results directory is
+taken to be that specified by save_dir. Note that
+create_rmd() will process and include results from all
+Experiments found under the root directory." />
 
 
 
@@ -121,22 +127,28 @@ Experiment$get_save_dir())." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Create an R Markdown file summarizing the results of an <code>Experiment</code>.</h1>
+    <h1>Create an R Markdown file summarizing the results of an <code>Experiment</code> or
+set of <code>Experiments</code>.</h1>
     
     <div class="hidden name"><code>create_rmd.Rd</code></div>
     </div>
 
     <div class="ref-description">
     <p>Knits an R Markdown file summarizing the results of an
-<code>Experiment</code>. Outputs an R Markdown-generated html file, saved in
-the <code>Experiment</code>'s root results directory (see
-<code>Experiment$get_save_dir()</code>).</p>
+<code>Experiment</code> or set of <code>Experiments</code>. Outputs an R
+Markdown-generated html file. If <code>experiment</code> is provided, the results
+are saved in the <code>Experiment</code>'s root results directory (see
+<code>Experiment$get_save_dir()</code>). Otherwise, the root results directory is
+taken to be that specified by <code>save_dir</code>. Note that
+<code>create_rmd()</code> will process and include results from all
+<code>Experiments</code> found <em>under</em> the root directory.</p>
     </div>
 
     <pre class="usage"><span class='fu'>create_rmd</span><span class='op'>(</span>
   <span class='va'>experiment</span>,
   <span class='va'>save_dir</span>,
   open <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  title <span class='op'>=</span> <span class='cn'>NULL</span>,
   author <span class='op'>=</span> <span class='st'>""</span>,
   verbose <span class='op'>=</span> <span class='fl'>2</span>,
   quiet <span class='op'>=</span> <span class='cn'>TRUE</span>,
@@ -162,6 +174,11 @@ used if <code>experiment</code> provided.</p></td>
       <th>open</th>
       <td><p>If <code>TRUE</code>, open the R Markdown-generated html file in a
 web browser.</p></td>
+    </tr>
+    <tr>
+      <th>title</th>
+      <td><p>Character string. Title of the report. By default, this will be
+the name of the <code>experiment</code> if <code>experiment</code> is provided.</p></td>
     </tr>
     <tr>
       <th>author</th>
@@ -195,7 +212,8 @@ for applying a custom R Markdown output theme.</p></td>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>The original <code>Experiment</code> object passed to <code>create_rmd</code>.</p>
+    <p>The original <code>Experiment</code> object if provided. Otherwise,
+returns <code>NULL</code>.</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

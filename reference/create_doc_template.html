@@ -41,9 +41,11 @@
 
 <meta property="og:title" content="Create documentation template for the R Markdown results report. — create_doc_template" />
 <meta property="og:description" content="Create documentation template (a series of .md files) to
-fill out for the R Markdown results report. The documentation files can
-be found in the Experiment's results directory (see
-Experiment$get_save_dir()) under docs/." />
+fill out for the R Markdown results report. If the experiment is
+provided, the documentation files can be found in the Experiment's
+results directory (see Experiment$get_save_dir()) under docs/.
+Otherwise, the documentation files can be found in the specified
+save_dir directory under docs/." />
 
 
 
@@ -128,12 +130,14 @@ Experiment$get_save_dir()) under docs/." />
 
     <div class="ref-description">
     <p>Create documentation template (a series of .md files) to
-fill out for the R Markdown results report. The documentation files can
-be found in the <code>Experiment</code>'s results directory (see
-<code>Experiment$get_save_dir()</code>) under docs/.</p>
+fill out for the R Markdown results report. If the <code>experiment</code> is
+provided, the documentation files can be found in the <code>Experiment</code>'s
+results directory (see <code>Experiment$get_save_dir()</code>) under docs/.
+Otherwise, the documentation files can be found in the specified
+<code>save_dir</code> directory under docs/.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>create_doc_template</span><span class='op'>(</span><span class='va'>experiment</span>, <span class='va'>save_dir</span>, <span class='va'>...</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>create_doc_template</span><span class='op'>(</span><span class='va'>experiment</span>, <span class='va'>save_dir</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -149,16 +153,12 @@ If not provided, then <code>save_dir</code> is used instead.</p></td>
       <td><p>An optional directory in which to find saved results. Not
 used if <code>experiment</code> provided.</p></td>
     </tr>
-    <tr>
-      <th>...</th>
-      <td><p>Not used.</p></td>
-    </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>The original <code>Experiment</code> object passed to
-<code>create_doc_template</code>.</p>
+    <p>The original <code>Experiment</code> object if provided. Otherwise,
+returns <code>NULL</code>.</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
