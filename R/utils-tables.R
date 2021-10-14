@@ -52,22 +52,22 @@
 #' 
 #' @examples
 #' ## Show iris data table
-#' prettyKable(iris, align = "c", caption = "Iris Data Table")
+#' pretty_kable(iris, align = "c", caption = "Iris Data Table")
 #' 
 #' ## Bold max value of each numeric column of Iris data in red
-#' prettyKable(iris, caption = "Iris Data Table", scroll = TRUE,
+#' pretty_kable(iris, caption = "Iris Data Table", scroll = TRUE,
 #'             bold_function = ". == max(.)", bold_margin = 2,
 #'             bold_scheme = c(TRUE, TRUE, TRUE, TRUE, FALSE), 
 #'             bold_color = "red")
 #'             
 #' ## Bold min value of each row in Iris data
-#' prettyKable(iris %>% dplyr::select(-Species), sigfig = TRUE, 
+#' pretty_kable(iris %>% dplyr::select(-Species), sigfig = TRUE, 
 #'             caption = "Iris Data Table", format = "latex", 
 #'             scroll = TRUE, na_disp = "NA",
 #'             bold_function = ". == min(.)", bold_margin = 1,
 #'             bold_scheme = TRUE, bold_color = "black")
 #' @export
-prettyKable <- function(X, digits = 3, sigfig = T, align = "c", caption = "",
+pretty_kable <- function(X, digits = 3, sigfig = T, align = "c", caption = "",
                         format = c("html", "latex"), na_disp = "NA",
                         bold_function = NULL, bold_margin = NULL, 
                         bold_scheme = T, bold_color = NULL,
@@ -260,20 +260,20 @@ prettyKable <- function(X, digits = 3, sigfig = T, align = "c", caption = "",
 #' 
 #' @examples
 #' ## Show iris data table
-#' prettyDT(iris, caption = "Iris Data Table")
+#' pretty_DT(iris, caption = "Iris Data Table")
 #' 
 #' ## Bold max value of each numeric column of Iris data in red
-#' prettyDT(iris, caption = "Iris Data Table",
+#' pretty_DT(iris, caption = "Iris Data Table",
 #'          bold_function = ". == max(.)", bold_margin = 2,
 #'          bold_scheme = c(TRUE, TRUE, TRUE, TRUE, FALSE), bold_color = "red")
 #'             
 #' ## Bold min value of each row in Iris data
-#' prettyDT(iris %>% dplyr::select(-Species), 
+#' pretty_DT(iris %>% dplyr::select(-Species), 
 #'          sigfig = TRUE, caption = "Iris Data Table",
 #'          na_disp = "NA", bold_function = ". == min(.)", bold_margin = 1,
 #'          bold_scheme = TRUE, bold_color = "black")
 #' @export     
-prettyDT <- function(X, digits = 3, sigfig = T,
+pretty_DT <- function(X, digits = 3, sigfig = T,
                      escape = F, rownames = TRUE, caption = "", na_disp = "NA",
                      bold_function = NULL, bold_margin = NULL, 
                      bold_scheme = T, bold_color = NULL,

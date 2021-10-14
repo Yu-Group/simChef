@@ -99,7 +99,7 @@ Evaluator <- R6::R6Class(
 #'   for this argument.
 #' @param rmd_options (Optional) List of options to control the aesthetics of
 #'   the displayed \code{Evaluator}'s results table in the knitted R Markdown
-#'   report. See [prettyDT()] for possible options. The argument must be
+#'   report. See [pretty_DT()] for possible options. The argument must be
 #'   specified by position or typed out in whole; no partial matching is allowed
 #'   for this argument.
 #' @param show If \code{TRUE} (default), show \code{Evaluator}'s results as

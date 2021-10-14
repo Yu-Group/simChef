@@ -1,4 +1,4 @@
-# prettyKable works
+# pretty_kable works
 
                             Sepal.Length                      Sepal.Width
     1   <span style="     " >5.10</span> <span style="     " >3.50</span>
@@ -1822,7 +1822,7 @@
     149         6.20        3.40         5.40  \\textcolor{black}{\\textbf{2.30}}
     150         5.90        3.00         5.10  \\textcolor{black}{\\textbf{1.80}}
 
-# prettyDT works
+# pretty_DT works
 
                             Sepal.Length                      Sepal.Width
     1   <span style="     " >5.10</span> <span style="     " >3.50</span>
