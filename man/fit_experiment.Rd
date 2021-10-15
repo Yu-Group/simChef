@@ -46,7 +46,10 @@ results. If cached results cannot be found, continue as if
 \item{save}{If \code{TRUE}, save outputs to disk.}
 
 \item{verbose}{Level of verbosity. Default is 1, which prints out messages
-after major checkpoints in the experiment. If 0, no messages are printed.}
+after major checkpoints in the experiment. If 2, prints additional
+debugging information for warnings and messages from user-defined functions
+(in addition to error debugging information). If 0, no messages are printed
+other than user-defined function error debugging information.}
 
 \item{...}{Not used.}
 }

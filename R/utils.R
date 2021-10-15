@@ -330,10 +330,12 @@ make_initialize_arg_list <- function(obj_fun, ..., which=-1) {
 #' @param name a name to give some context for the call
 #' @param fun a function to call
 #' @param params arguments to pass to fun
+#' @param verbose Verbosity level. If greater than 1, then handle warnings and
+#'   messages in addition to errors.
 #'
 #' @return the results of calling fun with params
 #' @keywords internal
-do_call_handler <- function(name, fun, params = list()) {
+do_call_handler <- function(name, fun, params = list(), verbose = 1) {
   if (length(params) == 0) {
     params_str <- ""
   } else {
@@ -356,10 +358,19 @@ do_call_handler <- function(name, fun, params = list()) {
   # As opposed to tryCatch, this registers a local handler in the context of the
   # call that generated the error, warning, or message and continues from where
   # the code left off when the condition was generated.
-  withCallingHandlers(
-    do.call(fun, params),
-    error = handler(),
-    warning = handler("Warning"),
-    message = handler("Message")
-  )
+  if (verbose > 1) {
+    # catch and process warnings and messages in addition to errors
+    withCallingHandlers(
+      do.call(fun, params),
+      error = handler(),
+      warning = handler("Warning"),
+      message = handler("Message")
+    )
+  } else {
+    # handle only errors
+    withCallingHandlers(
+      do.call(fun, params),
+      error = handler()
+    )
+  }
 }

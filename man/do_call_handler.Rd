@@ -5,7 +5,7 @@
 \title{Call a function with given parameters and if an error, warning, or message
 occurs during the call print information about the call to the console.}
 \usage{
-do_call_handler(name, fun, params = list())
+do_call_handler(name, fun, params = list(), verbose = 1)
 }
 \arguments{
 \item{name}{a name to give some context for the call}
@@ -13,6 +13,9 @@ do_call_handler(name, fun, params = list())
 \item{fun}{a function to call}
 
 \item{params}{arguments to pass to fun}
+
+\item{verbose}{Verbosity level. If greater than 1, then handle warnings and
+messages in addition to errors.}
 }
 \value{
 the results of calling fun with params
