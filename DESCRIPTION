@@ -24,6 +24,7 @@ Imports:
     kableExtra,
     knitr,
     magrittr,
+    progressr (>= 0.9.0),
     purrr,
     R.utils,
     R6,
