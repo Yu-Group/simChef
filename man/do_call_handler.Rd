@@ -13,6 +13,9 @@ do_call_handler(name, fun, params = list(), verbose = 1)
 \item{fun}{a function to call}
 
 \item{params}{arguments to pass to fun}
+
+\item{verbose}{Verbosity level. If greater than 1, then handle warnings and
+messages in addition to errors.}
 }
 \value{
 the results of calling fun with params

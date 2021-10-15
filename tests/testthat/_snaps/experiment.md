@@ -620,3 +620,600 @@
           Method: Method1 
              x:  int [1:3] 1 2 3
 
+# Capturing errors, warnings, and messages from user-defined functions works as expected
+
+    Code
+      experiment$fit(n_reps = 2)
+    Message <simpleMessage>
+      Fitting error-tracking...
+    Warning <simpleWarning>
+      rho must be greater than 0.5
+    Message <simpleMessage>
+      3 isn't in vec
+      3 isn't in vec
+    Warning <simpleWarning>
+      rho must be greater than 0.5
+    Message <simpleMessage>
+      3 isn't in vec
+      3 isn't in vec
+    Warning <simpleWarning>
+      rho must be greater than 0.5
+    Message <simpleMessage>
+      3 isn't in vec
+      3 isn't in vec
+      3 isn't in vec
+      3 isn't in vec
+    Warning <simpleWarning>
+      rho must be greater than 0.5
+    Message <simpleMessage>
+      3 isn't in vec
+      3 isn't in vec
+      3 isn't in vec
+      3 isn't in vec
+    Warning <simpleWarning>
+      rho must be greater than 0.5
+    Message <simpleMessage>
+      3 isn't in vec
+      3 isn't in vec
+    Warning <simpleWarning>
+      rho must be greater than 0.5
+    Message <simpleMessage>
+      3 isn't in vec
+      3 isn't in vec
+    Warning <simpleWarning>
+      rho must be greater than 0.5
+    Message <simpleMessage>
+      3 isn't in vec
+      3 isn't in vec
+      3 isn't in vec
+      3 isn't in vec
+    Warning <simpleWarning>
+      rho must be greater than 0.5
+    Message <simpleMessage>
+      3 isn't in vec
+      3 isn't in vec
+      3 isn't in vec
+      3 isn't in vec
+      Fitting completed | time taken: _x_ minutes
+      ==============================
+    Output
+      # A tibble: 48 x 14
+         rep   dgp_name method_name param2 vec       rho_dgp noise_level_dgp rho_method
+         <chr> <chr>    <chr>        <dbl> <list>    <lgl>   <lgl>           <lgl>     
+       1 1     dgp1     method_test      2 <dbl [3]> NA      NA              NA        
+       2 1     dgp1     method_test      4 <dbl [3]> NA      NA              NA        
+       3 1     dgp1     method_test      2 <int [4]> NA      NA              NA        
+       4 1     dgp1     method_test      4 <int [4]> NA      NA              NA        
+       5 1     dgp1     method_test      2 <dbl [3]> NA      NA              NA        
+       6 1     dgp1     method_test      4 <dbl [3]> NA      NA              NA        
+       7 1     dgp1     method_test      2 <int [4]> NA      NA              NA        
+       8 1     dgp1     method_test      4 <int [4]> NA      NA              NA        
+       9 1     dgp_test method_test      2 <dbl [3]> NA      NA              NA        
+      10 1     dgp_test method_test      4 <dbl [3]> NA      NA              NA        
+      # ... with 38 more rows, and 6 more variables: noise_level_method <lgl>,
+      #   rho <dbl>, noise_level <dbl>, .n <dbl>, .rho <dbl>, .noise_level <dbl>
+
+---
+
+    Code
+      fit_results <- experiment$fit(n_reps = 2, verbose = 2)
+    Message <simpleMessage>
+      Fitting error-tracking...
+    Output
+      
+      Warning occured while processing *dgp1* with params:
+       $ rho        : num 0.2
+       $ noise_level: num 1
+      The warning: rho must be greater than 0.5
+      
+      Message occured while processing *method_test* with params:
+       $ param2   : num 2
+       $ vec      : int [1:4] 4 5 6 7
+       $ data_list:List of 1
+        ..$ X:'data.frame':	1 obs. of  3 variables:
+        .. ..$ .n          : num 10
+        .. ..$ .rho        : num 0.2
+        .. ..$ .noise_level: num 1
+      The message: 3 isn't in vec
+      
+      
+      Message occured while processing *method_test* with params:
+       $ param2   : num 4
+       $ vec      : int [1:4] 4 5 6 7
+       $ data_list:List of 1
+        ..$ X:'data.frame':	1 obs. of  3 variables:
+        .. ..$ .n          : num 10
+        .. ..$ .rho        : num 0.2
+        .. ..$ .noise_level: num 1
+      The message: 3 isn't in vec
+      
+      
+      Warning occured while processing *dgp1* with params:
+       $ rho        : num 0.2
+       $ noise_level: num 2
+      The warning: rho must be greater than 0.5
+      
+      Message occured while processing *method_test* with params:
+       $ param2   : num 2
+       $ vec      : int [1:4] 4 5 6 7
+       $ data_list:List of 1
+        ..$ X:'data.frame':	1 obs. of  3 variables:
+        .. ..$ .n          : num 10
+        .. ..$ .rho        : num 0.2
+        .. ..$ .noise_level: num 2
+      The message: 3 isn't in vec
+      
+      
+      Message occured while processing *method_test* with params:
+       $ param2   : num 4
+       $ vec      : int [1:4] 4 5 6 7
+       $ data_list:List of 1
+        ..$ X:'data.frame':	1 obs. of  3 variables:
+        .. ..$ .n          : num 10
+        .. ..$ .rho        : num 0.2
+        .. ..$ .noise_level: num 2
+      The message: 3 isn't in vec
+      
+      
+      Warning occured while processing *dgp_test* with params:
+       $ rho        : num 0.2
+       $ noise_level: num 1
+      The warning: rho must be greater than 0.5
+      
+      Message occured while processing *method_test* with params:
+       $ param2   : num 2
+       $ vec      : int [1:4] 4 5 6 7
+       $ data_list:List of 1
+        ..$ X:'data.frame':	1 obs. of  3 variables:
+        .. ..$ .n          : num 10
+        .. ..$ .rho        : num 0.2
+        .. ..$ .noise_level: num 1
+      The message: 3 isn't in vec
+      
+      
+      Message occured while processing *method_test* with params:
+       $ param2   : num 4
+       $ vec      : int [1:4] 4 5 6 7
+       $ data_list:List of 1
+        ..$ X:'data.frame':	1 obs. of  3 variables:
+        .. ..$ .n          : num 10
+        .. ..$ .rho        : num 0.2
+        .. ..$ .noise_level: num 1
+      The message: 3 isn't in vec
+      
+      
+      Message occured while processing *method_test* with params:
+       $ param2   : num 2
+       $ vec      : int [1:4] 4 5 6 7
+       $ data_list:List of 1
+        ..$ X:'data.frame':	1 obs. of  3 variables:
+        .. ..$ .n          : num 10
+        .. ..$ .rho        : num 0.9
+        .. ..$ .noise_level: num 1
+      The message: 3 isn't in vec
+      
+      
+      Message occured while processing *method_test* with params:
+       $ param2   : num 4
+       $ vec      : int [1:4] 4 5 6 7
+       $ data_list:List of 1
+        ..$ X:'data.frame':	1 obs. of  3 variables:
+        .. ..$ .n          : num 10
+        .. ..$ .rho        : num 0.9
+        .. ..$ .noise_level: num 1
+      The message: 3 isn't in vec
+      
+      
+      Warning occured while processing *dgp_test* with params:
+       $ rho        : num 0.2
+       $ noise_level: num 2
+      The warning: rho must be greater than 0.5
+      
+      Message occured while processing *method_test* with params:
+       $ param2   : num 2
+       $ vec      : int [1:4] 4 5 6 7
+       $ data_list:List of 1
+        ..$ X:'data.frame':	1 obs. of  3 variables:
+        .. ..$ .n          : num 10
+        .. ..$ .rho        : num 0.2
+        .. ..$ .noise_level: num 2
+      The message: 3 isn't in vec
+      
+      
+      Message occured while processing *method_test* with params:
+       $ param2   : num 4
+       $ vec      : int [1:4] 4 5 6 7
+       $ data_list:List of 1
+        ..$ X:'data.frame':	1 obs. of  3 variables:
+        .. ..$ .n          : num 10
+        .. ..$ .rho        : num 0.2
+        .. ..$ .noise_level: num 2
+      The message: 3 isn't in vec
+      
+      
+      Message occured while processing *method_test* with params:
+       $ param2   : num 2
+       $ vec      : int [1:4] 4 5 6 7
+       $ data_list:List of 1
+        ..$ X:'data.frame':	1 obs. of  3 variables:
+        .. ..$ .n          : num 10
+        .. ..$ .rho        : num 0.9
+        .. ..$ .noise_level: num 2
+      The message: 3 isn't in vec
+      
+      
+      Message occured while processing *method_test* with params:
+       $ param2   : num 4
+       $ vec      : int [1:4] 4 5 6 7
+       $ data_list:List of 1
+        ..$ X:'data.frame':	1 obs. of  3 variables:
+        .. ..$ .n          : num 10
+        .. ..$ .rho        : num 0.9
+        .. ..$ .noise_level: num 2
+      The message: 3 isn't in vec
+      
+      
+      Warning occured while processing *dgp1* with params:
+       $ rho        : num 0.2
+       $ noise_level: num 1
+      The warning: rho must be greater than 0.5
+      
+      Message occured while processing *method_test* with params:
+       $ param2   : num 2
+       $ vec      : int [1:4] 4 5 6 7
+       $ data_list:List of 1
+        ..$ X:'data.frame':	1 obs. of  3 variables:
+        .. ..$ .n          : num 10
+        .. ..$ .rho        : num 0.2
+        .. ..$ .noise_level: num 1
+      The message: 3 isn't in vec
+      
+      
+      Message occured while processing *method_test* with params:
+       $ param2   : num 4
+       $ vec      : int [1:4] 4 5 6 7
+       $ data_list:List of 1
+        ..$ X:'data.frame':	1 obs. of  3 variables:
+        .. ..$ .n          : num 10
+        .. ..$ .rho        : num 0.2
+        .. ..$ .noise_level: num 1
+      The message: 3 isn't in vec
+      
+      
+      Warning occured while processing *dgp1* with params:
+       $ rho        : num 0.2
+       $ noise_level: num 2
+      The warning: rho must be greater than 0.5
+      
+      Message occured while processing *method_test* with params:
+       $ param2   : num 2
+       $ vec      : int [1:4] 4 5 6 7
+       $ data_list:List of 1
+        ..$ X:'data.frame':	1 obs. of  3 variables:
+        .. ..$ .n          : num 10
+        .. ..$ .rho        : num 0.2
+        .. ..$ .noise_level: num 2
+      The message: 3 isn't in vec
+      
+      
+      Message occured while processing *method_test* with params:
+       $ param2   : num 4
+       $ vec      : int [1:4] 4 5 6 7
+       $ data_list:List of 1
+        ..$ X:'data.frame':	1 obs. of  3 variables:
+        .. ..$ .n          : num 10
+        .. ..$ .rho        : num 0.2
+        .. ..$ .noise_level: num 2
+      The message: 3 isn't in vec
+      
+      
+      Warning occured while processing *dgp_test* with params:
+       $ rho        : num 0.2
+       $ noise_level: num 1
+      The warning: rho must be greater than 0.5
+      
+      Message occured while processing *method_test* with params:
+       $ param2   : num 2
+       $ vec      : int [1:4] 4 5 6 7
+       $ data_list:List of 1
+        ..$ X:'data.frame':	1 obs. of  3 variables:
+        .. ..$ .n          : num 10
+        .. ..$ .rho        : num 0.2
+        .. ..$ .noise_level: num 1
+      The message: 3 isn't in vec
+      
+      
+      Message occured while processing *method_test* with params:
+       $ param2   : num 4
+       $ vec      : int [1:4] 4 5 6 7
+       $ data_list:List of 1
+        ..$ X:'data.frame':	1 obs. of  3 variables:
+        .. ..$ .n          : num 10
+        .. ..$ .rho        : num 0.2
+        .. ..$ .noise_level: num 1
+      The message: 3 isn't in vec
+      
+      
+      Message occured while processing *method_test* with params:
+       $ param2   : num 2
+       $ vec      : int [1:4] 4 5 6 7
+       $ data_list:List of 1
+        ..$ X:'data.frame':	1 obs. of  3 variables:
+        .. ..$ .n          : num 10
+        .. ..$ .rho        : num 0.9
+        .. ..$ .noise_level: num 1
+      The message: 3 isn't in vec
+      
+      
+      Message occured while processing *method_test* with params:
+       $ param2   : num 4
+       $ vec      : int [1:4] 4 5 6 7
+       $ data_list:List of 1
+        ..$ X:'data.frame':	1 obs. of  3 variables:
+        .. ..$ .n          : num 10
+        .. ..$ .rho        : num 0.9
+        .. ..$ .noise_level: num 1
+      The message: 3 isn't in vec
+      
+      
+      Warning occured while processing *dgp_test* with params:
+       $ rho        : num 0.2
+       $ noise_level: num 2
+      The warning: rho must be greater than 0.5
+      
+      Message occured while processing *method_test* with params:
+       $ param2   : num 2
+       $ vec      : int [1:4] 4 5 6 7
+       $ data_list:List of 1
+        ..$ X:'data.frame':	1 obs. of  3 variables:
+        .. ..$ .n          : num 10
+        .. ..$ .rho        : num 0.2
+        .. ..$ .noise_level: num 2
+      The message: 3 isn't in vec
+      
+      
+      Message occured while processing *method_test* with params:
+       $ param2   : num 4
+       $ vec      : int [1:4] 4 5 6 7
+       $ data_list:List of 1
+        ..$ X:'data.frame':	1 obs. of  3 variables:
+        .. ..$ .n          : num 10
+        .. ..$ .rho        : num 0.2
+        .. ..$ .noise_level: num 2
+      The message: 3 isn't in vec
+      
+      
+      Message occured while processing *method_test* with params:
+       $ param2   : num 2
+       $ vec      : int [1:4] 4 5 6 7
+       $ data_list:List of 1
+        ..$ X:'data.frame':	1 obs. of  3 variables:
+        .. ..$ .n          : num 10
+        .. ..$ .rho        : num 0.9
+        .. ..$ .noise_level: num 2
+      The message: 3 isn't in vec
+      
+      
+      Message occured while processing *method_test* with params:
+       $ param2   : num 4
+       $ vec      : int [1:4] 4 5 6 7
+       $ data_list:List of 1
+        ..$ X:'data.frame':	1 obs. of  3 variables:
+        .. ..$ .n          : num 10
+        .. ..$ .rho        : num 0.9
+        .. ..$ .noise_level: num 2
+      The message: 3 isn't in vec
+      
+    Warning <simpleWarning>
+      rho must be greater than 0.5
+    Message <simpleMessage>
+      3 isn't in vec
+      3 isn't in vec
+    Warning <simpleWarning>
+      rho must be greater than 0.5
+    Message <simpleMessage>
+      3 isn't in vec
+      3 isn't in vec
+    Warning <simpleWarning>
+      rho must be greater than 0.5
+    Message <simpleMessage>
+      3 isn't in vec
+      3 isn't in vec
+      3 isn't in vec
+      3 isn't in vec
+    Warning <simpleWarning>
+      rho must be greater than 0.5
+    Message <simpleMessage>
+      3 isn't in vec
+      3 isn't in vec
+      3 isn't in vec
+      3 isn't in vec
+    Warning <simpleWarning>
+      rho must be greater than 0.5
+    Message <simpleMessage>
+      3 isn't in vec
+      3 isn't in vec
+    Warning <simpleWarning>
+      rho must be greater than 0.5
+    Message <simpleMessage>
+      3 isn't in vec
+      3 isn't in vec
+    Warning <simpleWarning>
+      rho must be greater than 0.5
+    Message <simpleMessage>
+      3 isn't in vec
+      3 isn't in vec
+      3 isn't in vec
+      3 isn't in vec
+    Warning <simpleWarning>
+      rho must be greater than 0.5
+    Message <simpleMessage>
+      3 isn't in vec
+      3 isn't in vec
+      3 isn't in vec
+      3 isn't in vec
+      Fitting completed | time taken: _x_ minutes
+      ==============================
+
+---
+
+    Code
+      experiment$evaluate(fit_results)
+    Message <simpleMessage>
+      Evaluating error-tracking...
+    Warning <simpleWarning>
+      that's a lot of rows
+    Message <simpleMessage>
+      Evaluation completed | time taken: _x_ minutes
+      ==============================
+    Output
+      $evaluator1
+      # A tibble: 1 x 14
+        rep   dgp_name method_name param2 vec       rho_dgp noise_level_dgp rho_method
+        <chr> <chr>    <chr>        <dbl> <list>    <lgl>   <lgl>           <lgl>     
+      1 1     dgp1     method_test      2 <dbl [3]> NA      NA              NA        
+      # ... with 6 more variables: noise_level_method <lgl>, rho <dbl>,
+      #   noise_level <dbl>, .n <dbl>, .rho <dbl>, .noise_level <dbl>
+      
+
+---
+
+    Code
+      eval_results <- experiment$evaluate(fit_results, verbose = 2)
+    Message <simpleMessage>
+      Evaluating error-tracking...
+    Output
+      
+      Warning occured while processing *evaluator1* with params:
+       $ fit_results: tibble [48 x 14] (S3: tbl_df/tbl/data.frame)
+        ..$ rep               : chr [1:48] "1" "1" "1" "1" ...
+        ..$ dgp_name          : chr [1:48] "dgp1" "dgp1" "dgp1" "dgp1" ...
+        ..$ method_name       : chr [1:48] "method_test" "method_test" "method_test" "method_test" ...
+        ..$ param2            : num [1:48] 2 4 2 4 2 4 2 4 2 4 ...
+        ..$ vec               :List of 48
+        ..$ rho_dgp           : logi [1:48] NA NA NA NA NA NA ...
+        ..$ noise_level_dgp   : logi [1:48] NA NA NA NA NA NA ...
+        ..$ rho_method        : logi [1:48] NA NA NA NA NA NA ...
+        ..$ noise_level_method: logi [1:48] NA NA NA NA NA NA ...
+        ..$ rho               : num [1:48] 0.2 0.2 0.2 0.2 0.2 0.2 0.2 0.2 0.2 0.2 ...
+        ..$ noise_level       : num [1:48] 1 1 1 1 2 2 2 2 1 1 ...
+        ..$ .n                : num [1:48] 10 10 10 10 10 10 10 10 10 10 ...
+        ..$ .rho              : num [1:48] 0.2 0.2 0.2 0.2 0.2 0.2 0.2 0.2 0.2 0.2 ...
+        ..$ .noise_level      : num [1:48] 1 1 1 1 2 2 2 2 1 1 ...
+       $ vary_params: chr [1:6] "param2" "vec" "rho_dgp" "noise_level_dgp" ...
+      The warning: that's a lot of rows
+    Warning <simpleWarning>
+      that's a lot of rows
+    Message <simpleMessage>
+      Evaluation completed | time taken: _x_ minutes
+      ==============================
+
+---
+
+    Code
+      experiment$visualize(fit_results, eval_results)
+    Message <simpleMessage>
+      Visualizing error-tracking...
+    Warning <simpleWarning>
+      False alarm!
+    Message <simpleMessage>
+      Visualization completed | time taken: _x_ minutes
+      ==============================
+    Output
+      $visualizer1
+      [1] "plot"
+      
+
+---
+
+    Code
+      experiment$visualize(fit_results, eval_results, verbose = 2)
+    Message <simpleMessage>
+      Visualizing error-tracking...
+    Output
+      
+      Warning occured while processing *visualizer1* with params:
+       $ fit_results : tibble [48 x 14] (S3: tbl_df/tbl/data.frame)
+        ..$ rep               : chr [1:48] "1" "1" "1" "1" ...
+        ..$ dgp_name          : chr [1:48] "dgp1" "dgp1" "dgp1" "dgp1" ...
+        ..$ method_name       : chr [1:48] "method_test" "method_test" "method_test" "method_test" ...
+        ..$ param2            : num [1:48] 2 4 2 4 2 4 2 4 2 4 ...
+        ..$ vec               :List of 48
+        ..$ rho_dgp           : logi [1:48] NA NA NA NA NA NA ...
+        ..$ noise_level_dgp   : logi [1:48] NA NA NA NA NA NA ...
+        ..$ rho_method        : logi [1:48] NA NA NA NA NA NA ...
+        ..$ noise_level_method: logi [1:48] NA NA NA NA NA NA ...
+        ..$ rho               : num [1:48] 0.2 0.2 0.2 0.2 0.2 0.2 0.2 0.2 0.2 0.2 ...
+        ..$ noise_level       : num [1:48] 1 1 1 1 2 2 2 2 1 1 ...
+        ..$ .n                : num [1:48] 10 10 10 10 10 10 10 10 10 10 ...
+        ..$ .rho              : num [1:48] 0.2 0.2 0.2 0.2 0.2 0.2 0.2 0.2 0.2 0.2 ...
+        ..$ .noise_level      : num [1:48] 1 1 1 1 2 2 2 2 1 1 ...
+       $ eval_results:List of 1
+        ..$ evaluator1: tibble [1 x 14] (S3: tbl_df/tbl/data.frame)
+       $ vary_params : chr [1:6] "param2" "vec" "rho_dgp" "noise_level_dgp" ...
+      The warning: False alarm!
+    Warning <simpleWarning>
+      False alarm!
+    Message <simpleMessage>
+      Visualization completed | time taken: _x_ minutes
+      ==============================
+    Output
+      $visualizer1
+      [1] "plot"
+      
+
+---
+
+    Code
+      experiment$visualize(fit_results, eval_results, verbose = 2)
+    Message <simpleMessage>
+      Visualizing error-tracking...
+    Output
+      
+      Warning occured while processing *visualizer1* with params:
+       $ fit_results : tibble [48 x 14] (S3: tbl_df/tbl/data.frame)
+        ..$ rep               : chr [1:48] "1" "1" "1" "1" ...
+        ..$ dgp_name          : chr [1:48] "dgp1" "dgp1" "dgp1" "dgp1" ...
+        ..$ method_name       : chr [1:48] "method_test" "method_test" "method_test" "method_test" ...
+        ..$ param2            : num [1:48] 2 4 2 4 2 4 2 4 2 4 ...
+        ..$ vec               :List of 48
+        ..$ rho_dgp           : logi [1:48] NA NA NA NA NA NA ...
+        ..$ noise_level_dgp   : logi [1:48] NA NA NA NA NA NA ...
+        ..$ rho_method        : logi [1:48] NA NA NA NA NA NA ...
+        ..$ noise_level_method: logi [1:48] NA NA NA NA NA NA ...
+        ..$ rho               : num [1:48] 0.2 0.2 0.2 0.2 0.2 0.2 0.2 0.2 0.2 0.2 ...
+        ..$ noise_level       : num [1:48] 1 1 1 1 2 2 2 2 1 1 ...
+        ..$ .n                : num [1:48] 10 10 10 10 10 10 10 10 10 10 ...
+        ..$ .rho              : num [1:48] 0.2 0.2 0.2 0.2 0.2 0.2 0.2 0.2 0.2 0.2 ...
+        ..$ .noise_level      : num [1:48] 1 1 1 1 2 2 2 2 1 1 ...
+       $ eval_results:List of 1
+        ..$ evaluator1: tibble [1 x 14] (S3: tbl_df/tbl/data.frame)
+       $ vary_params : chr [1:6] "param2" "vec" "rho_dgp" "noise_level_dgp" ...
+      The warning: False alarm!
+    Warning <simpleWarning>
+      False alarm!
+    Output
+      
+      Error occured while processing *visualizer2* with params:
+       $ fit_results : tibble [48 x 14] (S3: tbl_df/tbl/data.frame)
+        ..$ rep               : chr [1:48] "1" "1" "1" "1" ...
+        ..$ dgp_name          : chr [1:48] "dgp1" "dgp1" "dgp1" "dgp1" ...
+        ..$ method_name       : chr [1:48] "method_test" "method_test" "method_test" "method_test" ...
+        ..$ param2            : num [1:48] 2 4 2 4 2 4 2 4 2 4 ...
+        ..$ vec               :List of 48
+        ..$ rho_dgp           : logi [1:48] NA NA NA NA NA NA ...
+        ..$ noise_level_dgp   : logi [1:48] NA NA NA NA NA NA ...
+        ..$ rho_method        : logi [1:48] NA NA NA NA NA NA ...
+        ..$ noise_level_method: logi [1:48] NA NA NA NA NA NA ...
+        ..$ rho               : num [1:48] 0.2 0.2 0.2 0.2 0.2 0.2 0.2 0.2 0.2 0.2 ...
+        ..$ noise_level       : num [1:48] 1 1 1 1 2 2 2 2 1 1 ...
+        ..$ .n                : num [1:48] 10 10 10 10 10 10 10 10 10 10 ...
+        ..$ .rho              : num [1:48] 0.2 0.2 0.2 0.2 0.2 0.2 0.2 0.2 0.2 0.2 ...
+        ..$ .noise_level      : num [1:48] 1 1 1 1 2 2 2 2 1 1 ...
+       $ eval_results:List of 1
+        ..$ evaluator1: tibble [1 x 14] (S3: tbl_df/tbl/data.frame)
+       $ vary_params : chr [1:6] "param2" "vec" "rho_dgp" "noise_level_dgp" ...
+      The error: Oh no!
+    Error <simpleError>
+      Oh no!
+

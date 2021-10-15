@@ -33,7 +33,7 @@ Imports:
     tibble,
     tidyselect
 Suggests:
-    testthat (>= 3.0.0),
+    testthat (>= 3.1.0),
     prettydoc,
     MASS,
     ggplot2,
