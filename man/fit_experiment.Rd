@@ -56,7 +56,7 @@ other than user-defined function error debugging information.}
 \value{
 A tibble containing the results from fitting all \code{Methods}
 across all \code{DGPs} for \code{n_reps} repetitions. In addition to
-results columns, has columns named 'rep', 'dgp_name', 'method_name', and the
+results columns, has columns named '.rep', '.dgp_name', '.method_name', and the
 \code{vary_across} parameter names if applicable.
 }
 \description{

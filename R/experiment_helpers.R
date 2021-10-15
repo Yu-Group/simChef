@@ -4,7 +4,10 @@
 #'
 #' @param dgp A \code{DGP} object.
 #' @param evaluator An \code{Evaluator} object.
+#' @param eval_results A list of result tibbles, as returned by the
+#'   \code{evaluate} method.
 #' @param experiment An \code{Experiment} object.
+#' @param fit_results A tibble, as returned by the \code{fit} method.
 #' @param future.globals Character vector of names in the global environment to
 #'   pass to parallel workers. Passed as the argument of the same name to
 #'   \code{future.apply::future_lapply} and related functions. To set for all
@@ -24,6 +27,8 @@
 #' @param use_cached Logical. If \code{TRUE}, find and return previously saved
 #'   results. If cached results cannot be found, continue as if
 #'   \code{use_cached} was \code{FALSE}.
+#' @param vary_params A vector of parameter names that are varied across in the 
+#'   \code{Experiment}.
 #' @param verbose Level of verbosity. Default is 1, which prints out messages
 #'   after major checkpoints in the experiment. If 2, prints additional
 #'   debugging information for warnings and messages from user-defined functions
@@ -82,13 +87,13 @@ create_experiment <- function(name = "experiment",
 #' @return A list of results from the simulation experiment.
 #' \describe{
 #' \item{fit_results}{A tibble containing results from the \code{fit}
-#'   method. In addition to results columns, has columns named 'rep', 'dgp_name',
-#'   'method_name', and the \code{vary_across} parameter names if applicable.}
+#'   method. In addition to results columns, has columns named '.rep', '.dgp_name',
+#'   '.method_name', and the \code{vary_across} parameter names if applicable.}
 #' \item{eval_results}{A list of tibbles containing results from the
 #'   \code{evaluate} method, which evaluates each \code{Evaluator} in
 #'   the \code{Experiment}. Length of list is equivalent to the number of
 #'   \code{Evaluators}.}
-#' \item{visualize_results}{A list of tibbles containing results from the
+#' \item{viz_results}{A list of tibbles containing results from the
 #'   \code{visualize} method, which visualizes each \code{Visualizer} in
 #'   the \code{Experiment}. Length of list is equivalent to the number of
 #'   \code{Visualizers}.}
@@ -138,7 +143,7 @@ generate_data <- function(experiment, n_reps=1, ...) {
 #'
 #' @return A tibble containing the results from fitting all \code{Methods}
 #'   across all \code{DGPs} for \code{n_reps} repetitions. In addition to
-#'   results columns, has columns named 'rep', 'dgp_name', 'method_name', and the
+#'   results columns, has columns named '.rep', '.dgp_name', '.method_name', and the
 #'   \code{vary_across} parameter names if applicable.
 #'
 #' @export
@@ -161,7 +166,6 @@ fit_experiment <- function(experiment, n_reps=1, parallel_strategy = c("reps"),
 #'   \code{Evaluators} in the \code{Experiment} and return results.
 #'
 #' @inheritParams shared_experiment_helpers_args
-#' @param fit_results A tibble, as returned by the \code{fit} method.
 #'
 #' @return A list of evaluation result tibbles, one for each
 #'   \code{Evaluator}.
@@ -180,9 +184,6 @@ evaluate_experiment <- function(experiment, fit_results, use_cached = FALSE,
 #'   using all \code{Visualizers} in the \code{Experiment} and return visualization results.
 #'
 #' @inheritParams shared_experiment_helpers_args
-#' @param fit_results A tibble, as returned by the \code{fit} method.
-#' @param eval_results A list of result tibbles, as returned by the
-#'   \code{evaluate} method.
 #'
 #' @return A list of visualizations, one for each \code{Visualizer}.
 #'
@@ -460,13 +461,13 @@ clear_cache <- function(experiment) {
 #' @inheritParams shared_experiment_helpers_args
 #' @param results_type Character string indicating the type of results to read
 #'   in. Must be one of "experiment", "experiment_cached_params", "fit", "eval",
-#'   or "visualize".
+#'   or "viz".
 #'
 #' @return The cached results, specifically the cached \code{Experiment} object
 #'   if \code{results_type = "experiment"}, the cached fit results if 
 #'   \code{results_type = "fit"}, the cached evaluation results if 
 #'   \code{results_type = "eval"}, the cached visualization results if
-#'   \code{results_type = "visualize"}, and the experiment parameters used in 
+#'   \code{results_type = "viz"}, and the experiment parameters used in 
 #'   the cache if \code{results_type = "experiment_cached_params"}.
 #'   
 #' @export
@@ -491,7 +492,7 @@ get_cached_results <- function(experiment, results_type, verbose = 0) {
 #'   in \code{Evaluator}/\code{Visualizer}.
 #' @param ... Named R Markdown options to set. If \code{field_name = "visualizer"},
 #'   options are "height" and "width". If \code{field_name = "evaluator"},
-#'   see options for [prettyDT()].
+#'   see options for [pretty_DT()].
 #'
 #' @return The original \code{Experiment} object with the \code{rmd_options}
 #'   and/or \code{show} fields modified in the \code{Evaluator}/\code{Visualizer}.
@@ -552,93 +553,4 @@ get_save_dir <- function(experiment) {
 #' @export
 save_experiment <- function(experiment) {
   experiment$save()
-}
-
-#' Create documentation template for the R Markdown results report.
-#'
-#' @name create_doc_template
-#' @description Create documentation template (a series of .md files) to
-#'   fill out for the R Markdown results report. The documentation files can
-#'   be found in the \code{Experiment}'s results directory (see
-#'   \code{Experiment$get_save_dir()}) under docs/.
-#'
-#' @inheritParams shared_experiment_helpers_args
-#' @param experiment An \code{Experiment} object. If provided,
-#'   \code{experiment$get_save_dir()} is used to find previously saved results.
-#'   If not provided, then \code{save_dir} is used instead.
-#' @param save_dir An optional directory in which to find saved results. Not
-#'   used if \code{experiment} provided.
-#'
-#' @return The original \code{Experiment} object passed to
-#'   \code{create_doc_template}.
-#'
-#' @export
-create_doc_template <- function(experiment, save_dir, ...) {
-  if (missing(experiment) && missing(save_dir)) {
-    stop("Must provide argument for one of experiment or save_dir")
-  }
-  if (missing(experiment)) {
-    # create dummy experiment
-    experiment <- create_experiment()
-  } else {
-    if (!inherits(experiment, "Experiment")) {
-      err_msg <- sprintf("%s must be an instance of simChef::%s",
-                         as.character(substitute(experiment)), "Experiment")
-      stop(err_msg, call.=FALSE)
-    }
-    save_dir <- experiment$get_save_dir()
-  }
-  experiment$create_doc_template(save_dir = save_dir)
-}
-
-#' Create an R Markdown file summarizing the results of an \code{Experiment}.
-#'
-#' @name create_rmd
-#' @description Knits an R Markdown file summarizing the results of an
-#'   \code{Experiment}. Outputs an R Markdown-generated html file, saved in
-#'   the \code{Experiment}'s root results directory (see
-#'   \code{Experiment$get_save_dir()}).
-#'
-#' @inheritParams create_doc_template
-#' @param open If \code{TRUE}, open the R Markdown-generated html file in a
-#'   web browser.
-#' @param author Character string of author names to display in knitted R
-#'   Markdown document.
-#' @param verbose Level of verboseness (0, 1, 2) when knitting R Markdown.
-#'   Default is 2.
-#' @param quiet Default is \code{TRUE}. See [rmarkdown::render()] for 
-#'   details.
-#' @param pretty Logical. Specifies whether or not to use pretty R Markdown
-#'   results template or more barebones R Markdown results template. Default
-#'   \code{TRUE} uses the pretty template. Set to \code{FALSE} to start from
-#'   the barebones template, which can be helpful when using your own custom
-#'   R Markdown theme.
-#' @param ... Additional arguments to pass to [rmarkdown::render()]. Useful
-#'   for applying a custom R Markdown output theme.
-#'
-#' @return The original \code{Experiment} object passed to \code{create_rmd}.
-#'
-#' @export
-create_rmd <- function(experiment, save_dir, open = TRUE, 
-                       author = "", verbose = 2, quiet = TRUE, pretty = TRUE,
-                       ...) {
-  if (missing(experiment) && missing(save_dir)) {
-    stop("Must provide argument for one of experiment or save_dir")
-  }
-  if (missing(experiment)) {
-    if (!file.exists(file.path(save_dir, "experiment.rds"))) {
-      stop(sprintf("Cannot find saved experiment.rds file in %s",
-                   save_dir))
-    }
-    experiment <- readRDS(file.path(save_dir, "experiment.rds"))
-  } else {
-    if (!inherits(experiment, "Experiment")) {
-      err_msg <- sprintf("%s must be an instance of simChef::%s",
-                         as.character(substitute(experiment)), "Experiment")
-      stop(err_msg, call.=FALSE)
-    }
-  }
-  experiment$create_doc_template()
-  experiment$create_rmd(open = open, author = author, verbose = verbose,
-                        quiet = quiet, pretty = pretty, ...)
 }

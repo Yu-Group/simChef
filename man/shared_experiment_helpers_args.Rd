@@ -8,7 +8,12 @@
 
 \item{evaluator}{An \code{Evaluator} object.}
 
+\item{eval_results}{A list of result tibbles, as returned by the
+\code{evaluate} method.}
+
 \item{experiment}{An \code{Experiment} object.}
+
+\item{fit_results}{A tibble, as returned by the \code{fit} method.}
 
 \item{future.globals}{Character vector of names in the global environment to
 pass to parallel workers. Passed as the argument of the same name to
@@ -36,6 +41,9 @@ resources. Default is "reps".}
 \item{use_cached}{Logical. If \code{TRUE}, find and return previously saved
 results. If cached results cannot be found, continue as if
 \code{use_cached} was \code{FALSE}.}
+
+\item{vary_params}{A vector of parameter names that are varied across in the
+\code{Experiment}.}
 
 \item{verbose}{Level of verbosity. Default is 1, which prints out messages
 after major checkpoints in the experiment. If 2, prints additional

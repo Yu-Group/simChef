@@ -11,7 +11,7 @@ get_cached_results(experiment, results_type, verbose = 0)
 
 \item{results_type}{Character string indicating the type of results to read
 in. Must be one of "experiment", "experiment_cached_params", "fit", "eval",
-or "visualize".}
+or "viz".}
 
 \item{verbose}{Level of verbosity. Default is 1, which prints out messages
 after major checkpoints in the experiment. If 2, prints additional
@@ -24,7 +24,7 @@ The cached results, specifically the cached \code{Experiment} object
 if \code{results_type = "experiment"}, the cached fit results if
 \code{results_type = "fit"}, the cached evaluation results if
 \code{results_type = "eval"}, the cached visualization results if
-\code{results_type = "visualize"}, and the experiment parameters used in
+\code{results_type = "viz"}, and the experiment parameters used in
 the cache if \code{results_type = "experiment_cached_params"}.
 }
 \description{

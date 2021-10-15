@@ -19,6 +19,8 @@ knitr::opts_chunk$set(
 
 library(simChef)
 
+set.seed(12345)
+
 # remove old cached results to start fresh
 for (fname in list.files(file.path("results", "Linear Regression Experiment"), 
                          pattern = ".rds", recursive = T, full.names = T)) {
@@ -50,8 +52,7 @@ results <- experiment$run(n_reps = 100, save = T)
 ```
 4. Document simulation experiment recipe and visualize summary of results via R Markdown
 ```{r eval = FALSE}
-experiment$create_rmd()  
-# or alternatively, `create_rmd(experiment)`
+create_rmd(experiment)
 ```
 
 We will next go through a toy example simulation using linear regression.
@@ -130,7 +131,7 @@ To evaluate the performance of linear regression, one metric (or statistic) of i
 
 ```{r}
 reject_prob_fun <- function(fit_results, alpha = 0.05) {
-  group_vars <- c("dgp_name", "method_name")
+  group_vars <- c(".dgp_name", ".method_name")
   eval_out <- fit_results %>%
     dplyr::group_by(across({{group_vars}})) %>%
     dplyr::summarise(
@@ -149,8 +150,8 @@ reject_prob_eval <- create_evaluator(eval_fun = reject_prob_fun, alpha = 0.1)
 
 There are a few key points to keep in mind when writing a custom Evaluator function such as `reject_prob_fun()`.
 
-- First, the Evaluator function should almost always take in the named argument `fit_results`. `fit_results` is a placeholder for the tibble that will be outputted by `Experiment$fit()` and automatically passed in when the experiment is fitted. Note that this argument must be exactly named `fit_results` or else the Evaluator function will not receive the results from `Experiment$fit()`. We will see `Experiment$fit()` in action later, but for now, we can think of `fit_results` as a tibble containing the results of all (repetition, DGP, method) combinations fitted in the experiment. Naturally, `fit_results` will have columns named `rep`, `dgp_name`, `method_name`, and any other named arguments that were outputted from the method function (i.e., `lm_fun`).
-- Many evaluation metrics are most naturally computed across repetitions, so it is common to group the `fit_results` by `dgp_name` and `method_name` as seen in `reject_prob_fun()` above. In doing so, the rejection probability (across repetitions) will be computed for each (DGP, Method) combination separately. However, depending on the goal of the Evaluator function, grouping by `dgp_name` and `method_name` might not be necessary.
+- First, the Evaluator function should almost always take in the named argument `fit_results`. `fit_results` is a placeholder for the tibble that will be outputted by `Experiment$fit()` and automatically passed in when the experiment is fitted. Note that this argument must be exactly named `fit_results` or else the Evaluator function will not receive the results from `Experiment$fit()`. We will see `Experiment$fit()` in action later, but for now, we can think of `fit_results` as a tibble containing the results of all (replicate, DGP, method) combinations fitted in the experiment. Naturally, `fit_results` will have columns named `.rep`, `.dgp_name`, `.method_name`, and any other named arguments that were outputted from the method function (i.e., `lm_fun`).
+- Many evaluation metrics are most naturally computed across replicates, so it is common to group the `fit_results` by `.dgp_name` and `.method_name` as seen in `reject_prob_fun()` above. In doing so, the rejection probability (across replicates) will be computed for each (DGP, Method) combination separately. However, depending on the goal of the Evaluator function, grouping by `.dgp_name` and `.method_name` might not be necessary.
 
 As before, additional arguments can be passed into `create_evaluator()`, and in this case, we have overwritten the default value of `alpha` with `alpha = 0.1`.
 
@@ -162,7 +163,7 @@ Lastly, we may want to plot the results from the `Method` fits (stored in `fit_r
 power_plot_fun <- function(fit_results, col = "X1") {
   plt <- ggplot2::ggplot(fit_results) +
     ggplot2::aes(x = .data[[paste(col, "p-value")]],
-                 color = as.factor(method_name)) +
+                 color = as.factor(.method_name)) +
     ggplot2::geom_abline(slope = 1, intercept = 0, 
                          color = "darkgray", linetype = "solid", size = 1) +
     ggplot2::stat_ecdf(size = 1) +
@@ -176,7 +177,7 @@ power_plot_fun <- function(fit_results, col = "X1") {
 We can create an object of class `Visualizer()` from this function via
 
 ```{r}
-power_plot <- create_visualizer(visualizer_fun = power_plot_fun)
+power_plot <- create_visualizer(viz_fun = power_plot_fun)
 ```
 
 Like the custom `Evaluator` functions, custom `Visualizer` functions such as `power_plot_fun()` can take in the argument `fit_results` if we want to construct a plot from the method fit outputs. If we want to construct a visualization using the output of our `Evaluators` (e.g., the output from `reject_prob_fun()`), the `Visualizer` function can also take the argument `eval_results` as input. Note again that the arguments must be exactly named `fit_results` and `eval_results` in order to work properly. Beyond creating plots, `Visualizers` can return tables and more generally, any R Markdown snippet containing results.
@@ -208,7 +209,7 @@ Once a DGP, Method, Evaluator, or Visualizer has been added to the simulation ex
 
 # Run the experiment
 
-Thus far, we have only created the simulation experiment recipe and have not generated any results from the experiment. That is, we have only given the simulation experiment instructions on what to do. To run the experiment, say over 100 repetitions, we can do so via
+Thus far, we have only created the simulation experiment recipe and have not generated any results from the experiment. That is, we have only given the simulation experiment instructions on what to do. To run the experiment, say over 100 replicates, we can do so via
 
 ```{r}
 results <- experiment$run(n_reps = 100, save = TRUE)
@@ -225,13 +226,13 @@ The output of `experiment$run()` is a list of length three:
 
 - `fit_results`: output of `Method` fits (see `experiment$fit()`)
 - `eval_results`: output of `Evaluators` (see `experiment$evaluate()`)
-- `visualize_results`: output of `Visualizers` (see `experiment$visualize()`)
+- `viz_results`: output of `Visualizers` (see `experiment$visualize()`)
 
 ```{r}
 str(results, max.level = 2)
 results$fit_results
 results$eval_results
-results$visualize_results
+results$viz_results
 ```
 
 
@@ -243,19 +244,13 @@ The experiment can also be run in parallel. For a more detailed walkthrough on h
 
 Finally, we can easily visualize all results from the simulation experiment in an html file (generated using R Markdown) or browser.
 
-```{r}
-experiment$create_rmd(open = FALSE)
-```
-
-or alternatively,
-
-```{r eval = FALSE}
+```{r warning = FALSE}
 create_rmd(experiment, open = FALSE)
 ```
 
 The results can be found [here](linear_regression_base_output.html).
 
-Note that in the first run of `experiment$create_rmd()`, a documentation template (i.e., a series of blank .md files) is created for the user to fill out with descriptions of the simulation experiment and its recipe components. These blank .md files can be found in the experiment's root results directory under docs/. To find the experiment's root results directory, use `experiment$get_save_dir()`.
+Note that in the first run of `create_rmd(experiment)`, a documentation template (i.e., a series of blank .md files) is created for the user to fill out with descriptions of the simulation experiment and its recipe components. These blank .md files can be found in the experiment's root results directory under docs/. To find the experiment's root results directory, use `experiment$get_save_dir()`.
 
 # Advanced usage
 
@@ -281,14 +276,14 @@ However, when we run the experiment, the results are not quite what we expect. T
 ```{r}
 vary_results <- experiment$run(n_reps = 100, save = TRUE)
 vary_results$eval_results
-vary_results$visualize_results
+vary_results$viz_results
 ```
 
-To see how different values of `sigma` affect the experiment results, we need to modify our `Evaluator` and `Visualizer` functions. Specifically, in `reject_prob_eval`, we want to group `fit_results` by `sigma` in addition to `dgp_name` and `method_name`. To do this, we need to add a `vary_params` argument to our custom `Evaluator` function. When we run the experiment, `vary_params` will be auto-filled by a vector of the parameter names that are varied (i.e., those that have been added via `add_vary_across()`). In this case, `vary_params` will be auto-filled by `c("sigma")`.
+To see how different values of `sigma` affect the experiment results, we need to modify our `Evaluator` and `Visualizer` functions. Specifically, in `reject_prob_eval`, we want to group `fit_results` by `sigma` in addition to `.dgp_name` and `.method_name`. To do this, we need to add a `vary_params` argument to our custom `Evaluator` function. When we run the experiment, `vary_params` will be auto-filled by a vector of the parameter names that are varied (i.e., those that have been added via `add_vary_across()`). In this case, `vary_params` will be auto-filled by `c("sigma")`.
 
 ```{r}
 reject_prob_fun <- function(fit_results, vary_params = NULL, alpha = 0.05) {
-  group_vars <- c("dgp_name", "method_name", vary_params)
+  group_vars <- c(".dgp_name", ".method_name", vary_params)
   eval_out <- fit_results %>%
     dplyr::group_by(across({{group_vars}})) %>%
     dplyr::summarise(
@@ -316,7 +311,7 @@ power_plot_fun <- function(fit_results, vary_params = NULL, col = "X1") {
   
   plt <- ggplot2::ggplot(fit_results) +
     ggplot2::aes(x = .data[[paste(col, "p-value")]],
-                 color = as.factor(method_name)) +
+                 color = as.factor(.method_name)) +
     ggplot2::geom_abline(slope = 1, intercept = 0, 
                          color = "darkgray", linetype = "solid", size = 1) +
     ggplot2::stat_ecdf(size = 1) +
@@ -328,7 +323,7 @@ power_plot_fun <- function(fit_results, vary_params = NULL, col = "X1") {
   }
   return(plt)
 }
-power_plot <- create_visualizer(visualizer_fun = power_plot_fun)
+power_plot <- create_visualizer(viz_fun = power_plot_fun)
 
 ```
 
@@ -341,7 +336,7 @@ vary_results <- experiment %>%
   update_visualizer(power_plot, name = "Power") %>%
   run_experiment(n_reps = 100, save = TRUE)
 vary_results$eval_results
-vary_results$visualize_results
+vary_results$viz_results
 ```
 
 Note here we need to use `update_*` instead of `add_*` since an `Evaluator` named "Rejection Prob. (alpha = 0.1)" and a `Visualizer` named "Power" already exist in the  `Experiment`. Using `add_*` will throw an error.
@@ -361,8 +356,8 @@ reject_prob_plot_fun <- function(eval_results, vary_params = NULL,
   }
   plt <- ggplot2::ggplot(eval_results) +
     ggplot2::aes(x = .data[[vary_params]], y = `X1 Reject Prob.`, 
-                 color = as.factor(method_name), 
-                 fill = as.factor(method_name)) +
+                 color = as.factor(.method_name), 
+                 fill = as.factor(.method_name)) +
     ggplot2::labs(x = vary_params, 
                   y = sprintf("Rejection Probability (alpha = %s)", alpha),
                   color = "Method", fill = "Method") +
@@ -377,7 +372,7 @@ reject_prob_plot_fun <- function(eval_results, vary_params = NULL,
   }
   return(plotly::ggplotly(plt))
 }
-reject_prob_plot <- create_visualizer(visualizer_fun = reject_prob_plot_fun, alpha = 0.1)
+reject_prob_plot <- create_visualizer(viz_fun = reject_prob_plot_fun, alpha = 0.1)
 
 experiment <- experiment %>%
   add_visualizer(reject_prob_plot, name = "Rejection Prob. (alpha = 0.1) Plot")
@@ -454,8 +449,8 @@ experiment
 
 When generating the R Markdown report summary for an `Experiment`, the R Markdown will compile results (both evaluation and visualization results) from all saved `Experiments` under the root results directory `experiment$get_save_dir()`. Since the results from the many `vary_across` runs above are all saved under the original `experiment`'s results directory, then the following will include all of these results in a single document.
 
-```{r}
-experiment$create_rmd(open = FALSE)
+```{r warning = FALSE}
+create_rmd(experiment, open = FALSE)
 ```
 
 We can also create the R Markdown report summary by directly specifying the experiment's root results directory.
@@ -470,7 +465,7 @@ In addition to showing all results under the root results directory, `create_rmd
 
 There are also several customizable options regarding the aesthetics of the R Markdown output. These can be modified using the `rmd_options` argument in `create_evaluator()` and `create_visualizer()`. For example, we can customize the height and width of the Power plot via
 ```{r}
-power_plot <- create_visualizer(visualizer_fun = power_plot_fun, 
+power_plot <- create_visualizer(viz_fun = power_plot_fun, 
                                 rmd_options = list(height = 10, width = 8))
 experiment <- experiment %>%
   update_visualizer(power_plot, "Power")
@@ -508,14 +503,14 @@ For a concrete example of the saving structure, please refer to [this GitHub dir
 
 `Experiment$run()` is the easiest and most concise way of running the simulation experiment from start to finish. However, when debugging and developing the simulation experiment, it may be helpful to run only parts of the experiment so as to not repeat time-consuming, redundant computations. We split up the experimental run into the following three parts:
 
-1. `experiment$fit()`: fit the Method(s) in the experiment on multiple repetitions of the DGP(s) and return the results from the fits
+1. `experiment$fit()`: fit the Method(s) in the experiment on multiple replicates of the DGP(s) and return the results from the fits
 2. `experiment$evaluate()`: evaluate the experiment through the Evaluator(s) and return the evaluation results
 3. `experiment$visualize()`: create visualizations of the fit/evaluation results from the experiment using the Visualizer(s) and return the visualization results
 
 ```{r}
 fit_results <- experiment$fit(n_reps = 100)
 eval_results <- experiment$evaluate(fit_results)
-visualize_results <- experiment$visualize(fit_results, eval_results)
+viz_results <- experiment$visualize(fit_results, eval_results)
 ```
 
 or alternatively,
@@ -523,7 +518,7 @@ or alternatively,
 ```{r eval = FALSE}
 fit_results <- fit_experiment(experiment, n_reps = 100)
 eval_results <- evaluate_experiment(experiment, fit_results)
-visualize_results <- visualize_experiment(experiment, fit_results, eval_results)
+viz_results <- visualize_experiment(experiment, fit_results, eval_results)
 ```
 
 `Experiment$run()` is simply a wrapper around these three functions: `fit()`, `evaluate()`, and `visualize()`.
