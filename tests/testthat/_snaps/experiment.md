@@ -626,6 +626,18 @@
       experiment$fit(n_reps = 2)
     Message <simpleMessage>
       Fitting error-tracking...
+    Message <packageStartupMessage>
+      
+      Attaching package: 'dplyr'
+      The following object is masked from 'package:testthat':
+      
+          matches
+      The following objects are masked from 'package:stats':
+      
+          filter, lag
+      The following objects are masked from 'package:base':
+      
+          intersect, setdiff, setequal, union
     Warning <simpleWarning>
       rho must be greater than 0.5
     Message <simpleMessage>
@@ -678,18 +690,18 @@
       ==============================
     Output
       # A tibble: 48 x 14
-         rep   dgp_name method_name param2 vec       rho_dgp noise_level_dgp rho_method
-         <chr> <chr>    <chr>        <dbl> <list>    <lgl>   <lgl>           <lgl>     
-       1 1     dgp1     method_test      2 <dbl [3]> NA      NA              NA        
-       2 1     dgp1     method_test      4 <dbl [3]> NA      NA              NA        
-       3 1     dgp1     method_test      2 <int [4]> NA      NA              NA        
-       4 1     dgp1     method_test      4 <int [4]> NA      NA              NA        
-       5 1     dgp1     method_test      2 <dbl [3]> NA      NA              NA        
-       6 1     dgp1     method_test      4 <dbl [3]> NA      NA              NA        
-       7 1     dgp1     method_test      2 <int [4]> NA      NA              NA        
-       8 1     dgp1     method_test      4 <int [4]> NA      NA              NA        
-       9 1     dgp_test method_test      2 <dbl [3]> NA      NA              NA        
-      10 1     dgp_test method_test      4 <dbl [3]> NA      NA              NA        
+         .rep  .dgp_name .method_name param2 vec       rho_dgp noise_level_dgp rho_method
+         <chr> <chr>     <chr>         <dbl> <list>    <lgl>   <lgl>           <lgl>     
+       1 1     dgp1      method_test       2 <dbl [3]> NA      NA              NA        
+       2 1     dgp1      method_test       4 <dbl [3]> NA      NA              NA        
+       3 1     dgp1      method_test       2 <int [4]> NA      NA              NA        
+       4 1     dgp1      method_test       4 <int [4]> NA      NA              NA        
+       5 1     dgp1      method_test       2 <dbl [3]> NA      NA              NA        
+       6 1     dgp1      method_test       4 <dbl [3]> NA      NA              NA        
+       7 1     dgp1      method_test       2 <int [4]> NA      NA              NA        
+       8 1     dgp1      method_test       4 <int [4]> NA      NA              NA        
+       9 1     dgp_test  method_test       2 <dbl [3]> NA      NA              NA        
+      10 1     dgp_test  method_test       4 <dbl [3]> NA      NA              NA        
       # ... with 38 more rows, and 6 more variables: noise_level_method <lgl>,
       #   rho <dbl>, noise_level <dbl>, .n <dbl>, .rho <dbl>, .noise_level <dbl>
 
@@ -1069,9 +1081,9 @@
     Output
       $evaluator1
       # A tibble: 1 x 14
-        rep   dgp_name method_name param2 vec       rho_dgp noise_level_dgp rho_method
-        <chr> <chr>    <chr>        <dbl> <list>    <lgl>   <lgl>           <lgl>     
-      1 1     dgp1     method_test      2 <dbl [3]> NA      NA              NA        
+        .rep  .dgp_name .method_name param2 vec       rho_dgp noise_level_dgp rho_method
+        <chr> <chr>     <chr>         <dbl> <list>    <lgl>   <lgl>           <lgl>     
+      1 1     dgp1      method_test       2 <dbl [3]> NA      NA              NA        
       # ... with 6 more variables: noise_level_method <lgl>, rho <dbl>,
       #   noise_level <dbl>, .n <dbl>, .rho <dbl>, .noise_level <dbl>
       
@@ -1086,9 +1098,9 @@
       
       Warning occured while processing *evaluator1* with params:
        $ fit_results: tibble [48 x 14] (S3: tbl_df/tbl/data.frame)
-        ..$ rep               : chr [1:48] "1" "1" "1" "1" ...
-        ..$ dgp_name          : chr [1:48] "dgp1" "dgp1" "dgp1" "dgp1" ...
-        ..$ method_name       : chr [1:48] "method_test" "method_test" "method_test" "method_test" ...
+        ..$ .rep              : chr [1:48] "1" "1" "1" "1" ...
+        ..$ .dgp_name         : chr [1:48] "dgp1" "dgp1" "dgp1" "dgp1" ...
+        ..$ .method_name      : chr [1:48] "method_test" "method_test" "method_test" "method_test" ...
         ..$ param2            : num [1:48] 2 4 2 4 2 4 2 4 2 4 ...
         ..$ vec               :List of 48
         ..$ rho_dgp           : logi [1:48] NA NA NA NA NA NA ...
@@ -1134,9 +1146,9 @@
       
       Warning occured while processing *visualizer1* with params:
        $ fit_results : tibble [48 x 14] (S3: tbl_df/tbl/data.frame)
-        ..$ rep               : chr [1:48] "1" "1" "1" "1" ...
-        ..$ dgp_name          : chr [1:48] "dgp1" "dgp1" "dgp1" "dgp1" ...
-        ..$ method_name       : chr [1:48] "method_test" "method_test" "method_test" "method_test" ...
+        ..$ .rep              : chr [1:48] "1" "1" "1" "1" ...
+        ..$ .dgp_name         : chr [1:48] "dgp1" "dgp1" "dgp1" "dgp1" ...
+        ..$ .method_name      : chr [1:48] "method_test" "method_test" "method_test" "method_test" ...
         ..$ param2            : num [1:48] 2 4 2 4 2 4 2 4 2 4 ...
         ..$ vec               :List of 48
         ..$ rho_dgp           : logi [1:48] NA NA NA NA NA NA ...
@@ -1172,9 +1184,9 @@
       
       Warning occured while processing *visualizer1* with params:
        $ fit_results : tibble [48 x 14] (S3: tbl_df/tbl/data.frame)
-        ..$ rep               : chr [1:48] "1" "1" "1" "1" ...
-        ..$ dgp_name          : chr [1:48] "dgp1" "dgp1" "dgp1" "dgp1" ...
-        ..$ method_name       : chr [1:48] "method_test" "method_test" "method_test" "method_test" ...
+        ..$ .rep              : chr [1:48] "1" "1" "1" "1" ...
+        ..$ .dgp_name         : chr [1:48] "dgp1" "dgp1" "dgp1" "dgp1" ...
+        ..$ .method_name      : chr [1:48] "method_test" "method_test" "method_test" "method_test" ...
         ..$ param2            : num [1:48] 2 4 2 4 2 4 2 4 2 4 ...
         ..$ vec               :List of 48
         ..$ rho_dgp           : logi [1:48] NA NA NA NA NA NA ...
@@ -1196,9 +1208,9 @@
       
       Error occured while processing *visualizer2* with params:
        $ fit_results : tibble [48 x 14] (S3: tbl_df/tbl/data.frame)
-        ..$ rep               : chr [1:48] "1" "1" "1" "1" ...
-        ..$ dgp_name          : chr [1:48] "dgp1" "dgp1" "dgp1" "dgp1" ...
-        ..$ method_name       : chr [1:48] "method_test" "method_test" "method_test" "method_test" ...
+        ..$ .rep              : chr [1:48] "1" "1" "1" "1" ...
+        ..$ .dgp_name         : chr [1:48] "dgp1" "dgp1" "dgp1" "dgp1" ...
+        ..$ .method_name      : chr [1:48] "method_test" "method_test" "method_test" "method_test" ...
         ..$ param2            : num [1:48] 2 4 2 4 2 4 2 4 2 4 ...
         ..$ vec               :List of 48
         ..$ rho_dgp           : logi [1:48] NA NA NA NA NA NA ...
