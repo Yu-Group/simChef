@@ -132,7 +132,7 @@ occurs during the call print information about the call to the console.</h1>
 occurs during the call print information about the call to the console.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>do_call_handler</span><span class='op'>(</span><span class='va'>name</span>, <span class='va'>fun</span>, params <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span><span class='op'>)</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>do_call_handler</span><span class='op'>(</span><span class='va'>name</span>, <span class='va'>fun</span>, params <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span><span class='op'>)</span>, verbose <span class='op'>=</span> <span class='fl'>1</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -148,6 +148,11 @@ occurs during the call print information about the call to the console.</p>
     <tr>
       <th>params</th>
       <td><p>arguments to pass to fun</p></td>
+    </tr>
+    <tr>
+      <th>verbose</th>
+      <td><p>Verbosity level. If greater than 1, then handle warnings and
+messages in addition to errors.</p></td>
     </tr>
     </table>
 
