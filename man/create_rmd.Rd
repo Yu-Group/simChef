@@ -14,6 +14,8 @@ create_rmd(
   verbose = 2,
   quiet = TRUE,
   pretty = TRUE,
+  eval_order = NULL,
+  viz_order = NULL,
   ...
 )
 }
@@ -45,6 +47,14 @@ results template or more barebones R Markdown results template. Default
 \code{TRUE} uses the pretty template. Set to \code{FALSE} to start from
 the barebones template, which can be helpful when using your own custom
 R Markdown theme.}
+
+\item{eval_order}{Vector of \code{Evaluator} names in their desired order for
+display. By default, the report will display the \code{Evaluator} results
+in the order that they were computed.}
+
+\item{viz_order}{Vector of \code{Visualizer} names in their desired order for
+display. By default, the report will display the \code{Visualizer} results
+in the order that they were computed.}
 
 \item{...}{Additional arguments to pass to \code{\link[rmarkdown:render]{rmarkdown::render()}}. Useful
 for applying a custom R Markdown output theme.}

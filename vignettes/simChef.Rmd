@@ -244,7 +244,7 @@ The experiment can also be run in parallel. For a more detailed walkthrough on h
 
 Finally, we can easily visualize all results from the simulation experiment in an html file (generated using R Markdown) or browser.
 
-```{r}
+```{r warning = FALSE}
 create_rmd(experiment, open = FALSE)
 ```
 
@@ -449,7 +449,7 @@ experiment
 
 When generating the R Markdown report summary for an `Experiment`, the R Markdown will compile results (both evaluation and visualization results) from all saved `Experiments` under the root results directory `experiment$get_save_dir()`. Since the results from the many `vary_across` runs above are all saved under the original `experiment`'s results directory, then the following will include all of these results in a single document.
 
-```{r}
+```{r warning = FALSE}
 create_rmd(experiment, open = FALSE)
 ```
 

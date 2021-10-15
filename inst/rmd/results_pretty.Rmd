@@ -20,6 +20,12 @@ params:
   sim_path:
     label: "Path to Simulation Experiment Folder:"
     value: ""
+  eval_order:
+    label: "Order of Evaluators:"
+    value: NULL
+  viz_order:
+    label: "Order of Visualizers:"
+    value: NULL
   verbose:
     label: "Verbose Level:"
     value: 2
@@ -60,6 +66,19 @@ doc_dir <- file.path(params$sim_path, "docs")
 ```
 
 ```{r helper-funs}
+
+#' Get order of objects to display
+#'
+#' @param obj_names Vector of all object names that need to be displayed.
+#' @param obj_order Vector of object names in the desired appearance order.
+#' @return Vector of object names in the order in which they will be displayed.
+getObjOrder <- function(obj_names, obj_order = NULL) {
+  if (is.null(obj_order)) {
+    return(obj_names)
+  } else {
+    return(intersect(obj_order, obj_names))
+  }
+}
 
 #' Get all experiments under a given directory name
 #'
@@ -252,7 +271,8 @@ showResults <- function(dir_name, depth, base = FALSE, show_header = TRUE,
 
   if (!is.null(eval_results)) {
     cat(sprintf(showtype_template, fontawesome::fa("table", fill = "white")))
-    for (eval_name in names(eval_results)) {
+    eval_names <- getObjOrder(names(eval_results), params$eval_order)
+    for (eval_name in eval_names) {
       if (verbose >= 2) {
         message(rep(" ", depth + 1), eval_name)
       }
@@ -270,15 +290,16 @@ showResults <- function(dir_name, depth, base = FALSE, show_header = TRUE,
   if (!is.null(viz_results)) {
     cat(sprintf(showtype_template,
                 fontawesome::fa("chart-bar", fill = "white")))
-    for (plot_name in names(viz_results)) {
+    viz_names <- getObjOrder(names(viz_results), params$viz_order)
+    for (viz_name in viz_names) {
       if (verbose >= 2) {
-        message(rep(" ", depth + 1), plot_name)
+        message(rep(" ", depth + 1), viz_name)
       }
-      visualizer <- exp$get_visualizers()[[plot_name]]
+      visualizer <- exp$get_visualizers()[[viz_name]]
       if (visualizer$show) {
         cat(invisible_header)
-        cat(sprintf(figname_template, plot_name))
-        plts <- viz_results[[plot_name]]
+        cat(sprintf(figname_template, viz_name))
+        plts <- viz_results[[viz_name]]
         if (!inherits(plts, "list")) {
           plts <- list(plt = plts)
         }

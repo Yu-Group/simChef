@@ -103,6 +103,12 @@ create_doc_template <- function(experiment, save_dir) {
 #'   \code{TRUE} uses the pretty template. Set to \code{FALSE} to start from
 #'   the barebones template, which can be helpful when using your own custom
 #'   R Markdown theme.
+#' @param eval_order Vector of \code{Evaluator} names in their desired order for 
+#'   display. By default, the report will display the \code{Evaluator} results
+#'   in the order that they were computed.
+#' @param viz_order Vector of \code{Visualizer} names in their desired order for 
+#'   display. By default, the report will display the \code{Visualizer} results
+#'   in the order that they were computed.
 #' @param ... Additional arguments to pass to [rmarkdown::render()]. Useful
 #'   for applying a custom R Markdown output theme.
 #'
@@ -112,7 +118,7 @@ create_doc_template <- function(experiment, save_dir) {
 #' @export
 create_rmd <- function(experiment, save_dir, open = TRUE, title = NULL,
                        author = "", verbose = 2, quiet = TRUE, pretty = TRUE, 
-                       ...) {
+                       eval_order = NULL, viz_order = NULL, ...) {
   if (missing(experiment) && missing(save_dir)) {
     stop("Must provide argument for one of experiment or save_dir.")
   }
@@ -142,8 +148,9 @@ create_rmd <- function(experiment, save_dir, open = TRUE, title = NULL,
                                package = utils::packageName())
   }
   output_fname <- file.path(save_dir, paste0(title, ".html"))
-  params_list <- list(sim_name = title, sim_path = save_dir,
-                      author = author, verbose = verbose)
+  params_list <- list(sim_name = title, sim_path = save_dir, author = author, 
+                      eval_order = eval_order, viz_order = viz_order, 
+                      verbose = verbose)
   rmarkdown::render(input = input_fname, params = params_list,
                     output_file = output_fname, quiet = quiet, ...)
   output_fname <- stringr::str_replace_all(output_fname, " ", "\\\\ ")

@@ -76,6 +76,41 @@ test_that("Automated R Markdown documentation works properly", {
     ),
     NA
   )
+  
+  # test eval_order and viz_order
+  base_experiment <- base_experiment %>%
+    add_evaluator(evaluator, "Evaluator2") %>%
+    add_visualizer(visualizer, "Plot2")
+  results <- base_experiment$run(save = TRUE, verbose = 0)
+  
+  expect_error(
+    create_rmd(
+      base_experiment, open = FALSE, verbose = 0, pretty = FALSE,
+      eval_order = "Evaluator", viz_order = c("Plot2", "Plot3", "Plot")
+    ),
+    NA
+  )
+  expect_error(
+    create_rmd(
+      base_experiment, open = FALSE, verbose = 0, pretty = TRUE,
+      eval_order = "Evaluator", viz_order = c("Plot2", "Plot3", "Plot")
+    ),
+    NA
+  )
+  expect_error(
+    create_rmd(
+      base_experiment, open = FALSE, verbose = 0, pretty = FALSE,
+      eval_order = c("Evaluator2", "Evaluator"), viz_order = c("Plot2", "Plot")
+    ),
+    NA
+  )
+  expect_error(
+    create_rmd(
+      base_experiment, open = FALSE, verbose = 0, pretty = TRUE,
+      eval_order = c("Evaluator2", "Evaluator"), viz_order = c("Plot2", "Plot")
+    ),
+    NA
+  )
 })
 
 test_that("Visualizations in R Markdown documentation render correctly", {
