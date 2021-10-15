@@ -334,19 +334,19 @@ make_initialize_arg_list <- function(obj_fun, ..., which=-1) {
 #' @return the results of calling fun with params
 #' @keywords internal
 do_call_handler <- function(name, fun, params = list()) {
-  if (length(params) == 0) {
-    params_str <- ""
-  } else {
-    params_str <- paste0(
-      utils::capture.output(tibble::glimpse(params))[-1], collapse="\n"
-    )
-    params_str <- paste0(" with params:\n", params_str)
-  }
-  msg <- paste0(" occured while processing *", name, "*", params_str)
-  handler <- function(condition = c("Error", "Warning", "Message")) {
-    condition <- match.arg(condition)
-    condition_str <- paste0("\n", condition)
+  handler <- function(condition = "Error") {
     function(c) {
+      if (length(params) == 0) {
+        params_str <- ""
+      } else {
+        params_str <- paste0(
+          utils::capture.output(tibble::glimpse(params))[-1], collapse="\n"
+        )
+        params_str <- paste0(" with params:\n", params_str)
+      }
+      msg <- paste0(" occured while processing *", name, "*", params_str)
+      condition <- match.arg(condition, choices = c("Error", "Warning", "Message"))
+      condition_str <- paste0("\n", condition)
       cat(paste0(condition_str, msg))
       cat(paste0("\nThe ", tolower(condition), ": "))
       cat(c$message)
