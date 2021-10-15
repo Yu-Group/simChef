@@ -268,9 +268,9 @@
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">results</span> <span class="op">&lt;-</span> <span class="va">experiment</span><span class="op">$</span><span class="fu">run</span><span class="op">(</span>n_reps <span class="op">=</span> <span class="fl">100</span>, save <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
 <span class="co">#&gt; Fitting Linear Regression Experiment...</span>
-<span class="co">#&gt; Fitting completed | time taken: 0.021759 minutes</span>
+<span class="co">#&gt; Fitting completed | time taken: 0.022496 minutes</span>
 <span class="co">#&gt; Saving fit results...</span>
-<span class="co">#&gt; Fit results saved | time taken: 0.019097 seconds</span>
+<span class="co">#&gt; Fit results saved | time taken: 0.019322 seconds</span>
 <span class="co">#&gt; ==============================</span>
 <span class="co">#&gt; Evaluating Linear Regression Experiment...</span>
 <span class="co">#&gt; </span>
@@ -284,14 +284,14 @@
 <span class="co">#&gt;  $ vary_params: NULL</span>
 <span class="co">#&gt; The message: `summarise()` has grouped output by '.dgp_name'. You can override using the `.groups` argument.</span>
 <span class="co">#&gt; `summarise()` has grouped output by '.dgp_name'. You can override using the `.groups` argument.</span>
-<span class="co">#&gt; Evaluation completed | time taken: 0.000949 minutes</span>
+<span class="co">#&gt; Evaluation completed | time taken: 0.000990 minutes</span>
 <span class="co">#&gt; Saving eval results...</span>
-<span class="co">#&gt; Eval results saved | time taken: 0.062363 seconds</span>
+<span class="co">#&gt; Eval results saved | time taken: 0.065360 seconds</span>
 <span class="co">#&gt; ==============================</span>
 <span class="co">#&gt; Visualizing Linear Regression Experiment...</span>
-<span class="co">#&gt; Visualization completed | time taken: 0.001667 minutes</span>
+<span class="co">#&gt; Visualization completed | time taken: 0.001732 minutes</span>
 <span class="co">#&gt; Saving viz results...</span>
-<span class="co">#&gt; Viz results saved | time taken: 0.071933 seconds</span>
+<span class="co">#&gt; Viz results saved | time taken: 0.074207 seconds</span>
 <span class="co">#&gt; ==============================</span></code></pre></div>
 <p>or alternatively,</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
@@ -348,26 +348,7 @@
 <p>Finally, we can easily visualize all results from the simulation experiment in an html file (generated using R Markdown) or browser.</p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/create_rmd.html">create_rmd</a></span><span class="op">(</span><span class="va">experiment</span>, open <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
-<span class="co">#&gt; Warning: Line 4 ("```") was not properly indented to match the indentation of the chunk header. You are recommended to change this line to " ```".</span>
-
-<span class="co">#&gt; Warning: Line 4 ("```") was not properly indented to match the indentation of the chunk header. You are recommended to change this line to " ```".</span>
-
-<span class="co">#&gt; Warning: Line 4 ("```") was not properly indented to match the indentation of the chunk header. You are recommended to change this line to " ```".</span>
-
-<span class="co">#&gt; Warning: Line 4 ("```") was not properly indented to match the indentation of the chunk header. You are recommended to change this line to " ```".</span>
-
-<span class="co">#&gt; Warning: Line 4 ("```") was not properly indented to match the indentation of the chunk header. You are recommended to change this line to " ```".</span>
-
-<span class="co">#&gt; Warning: Line 4 ("```") was not properly indented to match the indentation of the chunk header. You are recommended to change this line to " ```".</span>
-
-<span class="co">#&gt; Warning: Line 4 ("```") was not properly indented to match the indentation of the chunk header. You are recommended to change this line to " ```".</span>
-
-<span class="co">#&gt; Warning: Line 4 ("```") was not properly indented to match the indentation of the chunk header. You are recommended to change this line to " ```".</span>
-<span class="co">#&gt; Creating R Markdown report for Linear Regression Experiment...</span>
-<span class="co">#&gt; Warning: Line 4 ("```") was not properly indented to match the indentation of the chunk header. You are recommended to change this line to " ```".</span>
-
-<span class="co">#&gt; Warning: Line 4 ("```") was not properly indented to match the indentation of the chunk header. You are recommended to change this line to " ```".</span>
-<span class="co">#&gt; Warning: MathJax doesn't work with self_contained when not using the rmarkdown "default" template.</span></code></pre></div>
+<span class="co">#&gt; Creating R Markdown report for Linear Regression Experiment...</span></code></pre></div>
 <p>The results can be found <a href="linear_regression_base_output.html">here</a>.</p>
 <p>Note that in the first run of <code><a href="../reference/create_rmd.html">create_rmd(experiment)</a></code>, a documentation template (i.e., a series of blank .md files) is created for the user to fill out with descriptions of the simulation experiment and its recipe components. These blank .md files can be found in the experiment’s root results directory under docs/. To find the experiment’s root results directory, use <code>experiment$get_save_dir()</code>.</p>
 </div>
@@ -398,19 +379,19 @@
 <div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">vary_results</span> <span class="op">&lt;-</span> <span class="va">experiment</span><span class="op">$</span><span class="fu">run</span><span class="op">(</span>n_reps <span class="op">=</span> <span class="fl">100</span>, save <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
 <span class="co">#&gt; Fitting Linear Regression Experiment...</span>
-<span class="co">#&gt; Fitting completed | time taken: 0.071356 minutes</span>
+<span class="co">#&gt; Fitting completed | time taken: 0.070773 minutes</span>
 <span class="co">#&gt; Saving fit results...</span>
-<span class="co">#&gt; Fit results saved | time taken: 0.034225 seconds</span>
+<span class="co">#&gt; Fit results saved | time taken: 0.034343 seconds</span>
 <span class="co">#&gt; ==============================</span>
 <span class="co">#&gt; Evaluating Linear Regression Experiment...</span>
-<span class="co">#&gt; Evaluation completed | time taken: 0.000407 minutes</span>
+<span class="co">#&gt; Evaluation completed | time taken: 0.000402 minutes</span>
 <span class="co">#&gt; Saving eval results...</span>
-<span class="co">#&gt; Eval results saved | time taken: 0.038635 seconds</span>
+<span class="co">#&gt; Eval results saved | time taken: 0.038556 seconds</span>
 <span class="co">#&gt; ==============================</span>
 <span class="co">#&gt; Visualizing Linear Regression Experiment...</span>
-<span class="co">#&gt; Visualization completed | time taken: 0.000387 minutes</span>
+<span class="co">#&gt; Visualization completed | time taken: 0.000394 minutes</span>
 <span class="co">#&gt; Saving viz results...</span>
-<span class="co">#&gt; Viz results saved | time taken: 0.085908 seconds</span>
+<span class="co">#&gt; Viz results saved | time taken: 0.085702 seconds</span>
 <span class="co">#&gt; ==============================</span>
 <span class="va">vary_results</span><span class="op">$</span><span class="va">eval_results</span>
 <span class="co">#&gt; $`Rejection Prob. (alpha = 0.1)`</span>
@@ -470,19 +451,19 @@
   <span class="fu"><a href="../reference/update_funs.html">update_visualizer</a></span><span class="op">(</span><span class="va">power_plot</span>, name <span class="op">=</span> <span class="st">"Power"</span><span class="op">)</span> <span class="op">%&gt;%</span>
   <span class="fu"><a href="../reference/run_experiment.html">run_experiment</a></span><span class="op">(</span>n_reps <span class="op">=</span> <span class="fl">100</span>, save <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
 <span class="co">#&gt; Fitting Linear Regression Experiment...</span>
-<span class="co">#&gt; Fitting completed | time taken: 0.071852 minutes</span>
+<span class="co">#&gt; Fitting completed | time taken: 0.070559 minutes</span>
 <span class="co">#&gt; Saving fit results...</span>
-<span class="co">#&gt; Fit results saved | time taken: 0.046424 seconds</span>
+<span class="co">#&gt; Fit results saved | time taken: 0.046844 seconds</span>
 <span class="co">#&gt; ==============================</span>
 <span class="co">#&gt; Evaluating Linear Regression Experiment...</span>
-<span class="co">#&gt; Evaluation completed | time taken: 0.000324 minutes</span>
+<span class="co">#&gt; Evaluation completed | time taken: 0.000337 minutes</span>
 <span class="co">#&gt; Saving eval results...</span>
-<span class="co">#&gt; Eval results saved | time taken: 0.046374 seconds</span>
+<span class="co">#&gt; Eval results saved | time taken: 0.047375 seconds</span>
 <span class="co">#&gt; ==============================</span>
 <span class="co">#&gt; Visualizing Linear Regression Experiment...</span>
-<span class="co">#&gt; Visualization completed | time taken: 0.000533 minutes</span>
+<span class="co">#&gt; Visualization completed | time taken: 0.000549 minutes</span>
 <span class="co">#&gt; Saving viz results...</span>
-<span class="co">#&gt; Viz results saved | time taken: 0.097310 seconds</span>
+<span class="co">#&gt; Viz results saved | time taken: 0.097404 seconds</span>
 <span class="co">#&gt; ==============================</span>
 <span class="va">vary_results</span><span class="op">$</span><span class="va">eval_results</span>
 <span class="co">#&gt; $`Rejection Prob. (alpha = 0.1)`</span>
@@ -543,19 +524,19 @@
                               <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
   <span class="fu"><a href="../reference/run_experiment.html">run_experiment</a></span><span class="op">(</span>n_reps <span class="op">=</span> <span class="fl">100</span>, save <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
 <span class="co">#&gt; Fitting Linear Regression Experiment...</span>
-<span class="co">#&gt; Fitting completed | time taken: 0.136364 minutes</span>
+<span class="co">#&gt; Fitting completed | time taken: 0.134052 minutes</span>
 <span class="co">#&gt; Saving fit results...</span>
-<span class="co">#&gt; Fit results saved | time taken: 0.041229 seconds</span>
+<span class="co">#&gt; Fit results saved | time taken: 0.041186 seconds</span>
 <span class="co">#&gt; ==============================</span>
 <span class="co">#&gt; Evaluating Linear Regression Experiment...</span>
 <span class="co">#&gt; Evaluation completed | time taken: 0.000441 minutes</span>
 <span class="co">#&gt; Saving eval results...</span>
-<span class="co">#&gt; Eval results saved | time taken: 0.045758 seconds</span>
+<span class="co">#&gt; Eval results saved | time taken: 0.045999 seconds</span>
 <span class="co">#&gt; ==============================</span>
 <span class="co">#&gt; Visualizing Linear Regression Experiment...</span>
-<span class="co">#&gt; Visualization completed | time taken: 0.002971 minutes</span>
+<span class="co">#&gt; Visualization completed | time taken: 0.003040 minutes</span>
 <span class="co">#&gt; Saving viz results...</span>
-<span class="co">#&gt; Viz results saved | time taken: 0.141768 seconds</span>
+<span class="co">#&gt; Viz results saved | time taken: 0.142132 seconds</span>
 <span class="co">#&gt; ==============================</span>
 
 <span class="co"># run experiment across values of rho (correlation)</span>
@@ -565,19 +546,19 @@
                   rho <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0.2</span>, <span class="fl">0.5</span>, <span class="fl">0.9</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
   <span class="fu"><a href="../reference/run_experiment.html">run_experiment</a></span><span class="op">(</span>n_reps <span class="op">=</span> <span class="fl">100</span>, save <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
 <span class="co">#&gt; Fitting Linear Regression Experiment...</span>
-<span class="co">#&gt; Fitting completed | time taken: 0.069587 minutes</span>
+<span class="co">#&gt; Fitting completed | time taken: 0.070332 minutes</span>
 <span class="co">#&gt; Saving fit results...</span>
-<span class="co">#&gt; Fit results saved | time taken: 0.041813 seconds</span>
+<span class="co">#&gt; Fit results saved | time taken: 0.041854 seconds</span>
 <span class="co">#&gt; ==============================</span>
 <span class="co">#&gt; Evaluating Linear Regression Experiment...</span>
-<span class="co">#&gt; Evaluation completed | time taken: 0.000323 minutes</span>
+<span class="co">#&gt; Evaluation completed | time taken: 0.000325 minutes</span>
 <span class="co">#&gt; Saving eval results...</span>
-<span class="co">#&gt; Eval results saved | time taken: 0.046349 seconds</span>
+<span class="co">#&gt; Eval results saved | time taken: 0.046112 seconds</span>
 <span class="co">#&gt; ==============================</span>
 <span class="co">#&gt; Visualizing Linear Regression Experiment...</span>
-<span class="co">#&gt; Visualization completed | time taken: 0.001912 minutes</span>
+<span class="co">#&gt; Visualization completed | time taken: 0.001983 minutes</span>
 <span class="co">#&gt; Saving viz results...</span>
-<span class="co">#&gt; Viz results saved | time taken: 0.144046 seconds</span>
+<span class="co">#&gt; Viz results saved | time taken: 0.143962 seconds</span>
 <span class="co">#&gt; ==============================</span></code></pre></div>
 </div>
 <div id="experiment-as-an-r6-class" class="section level2">
@@ -669,84 +650,19 @@
 <p>When generating the R Markdown report summary for an <code>Experiment</code>, the R Markdown will compile results (both evaluation and visualization results) from all saved <code>Experiments</code> under the root results directory <code>experiment$get_save_dir()</code>. Since the results from the many <code>vary_across</code> runs above are all saved under the original <code>experiment</code>’s results directory, then the following will include all of these results in a single document.</p>
 <div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/create_rmd.html">create_rmd</a></span><span class="op">(</span><span class="va">experiment</span>, open <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
-<span class="co">#&gt; Warning: Line 4 ("```") was not properly indented to match the indentation of the chunk header. You are recommended to change this line to " ```".</span>
-
-<span class="co">#&gt; Warning: Line 4 ("```") was not properly indented to match the indentation of the chunk header. You are recommended to change this line to " ```".</span>
-
-<span class="co">#&gt; Warning: Line 4 ("```") was not properly indented to match the indentation of the chunk header. You are recommended to change this line to " ```".</span>
-
-<span class="co">#&gt; Warning: Line 4 ("```") was not properly indented to match the indentation of the chunk header. You are recommended to change this line to " ```".</span>
-
-<span class="co">#&gt; Warning: Line 4 ("```") was not properly indented to match the indentation of the chunk header. You are recommended to change this line to " ```".</span>
-
-<span class="co">#&gt; Warning: Line 4 ("```") was not properly indented to match the indentation of the chunk header. You are recommended to change this line to " ```".</span>
-
-<span class="co">#&gt; Warning: Line 4 ("```") was not properly indented to match the indentation of the chunk header. You are recommended to change this line to " ```".</span>
-
-<span class="co">#&gt; Warning: Line 4 ("```") was not properly indented to match the indentation of the chunk header. You are recommended to change this line to " ```".</span>
-
-<span class="co">#&gt; Warning: Line 4 ("```") was not properly indented to match the indentation of the chunk header. You are recommended to change this line to " ```".</span>
-
-<span class="co">#&gt; Warning: Line 4 ("```") was not properly indented to match the indentation of the chunk header. You are recommended to change this line to " ```".</span>
-
-<span class="co">#&gt; Warning: Line 4 ("```") was not properly indented to match the indentation of the chunk header. You are recommended to change this line to " ```".</span>
-
-<span class="co">#&gt; Warning: Line 4 ("```") was not properly indented to match the indentation of the chunk header. You are recommended to change this line to " ```".</span>
-
-<span class="co">#&gt; Warning: Line 4 ("```") was not properly indented to match the indentation of the chunk header. You are recommended to change this line to " ```".</span>
-
-<span class="co">#&gt; Warning: Line 4 ("```") was not properly indented to match the indentation of the chunk header. You are recommended to change this line to " ```".</span>
-
-<span class="co">#&gt; Warning: Line 4 ("```") was not properly indented to match the indentation of the chunk header. You are recommended to change this line to " ```".</span>
-
-<span class="co">#&gt; Warning: Line 4 ("```") was not properly indented to match the indentation of the chunk header. You are recommended to change this line to " ```".</span>
-
-<span class="co">#&gt; Warning: Line 4 ("```") was not properly indented to match the indentation of the chunk header. You are recommended to change this line to " ```".</span>
-
-<span class="co">#&gt; Warning: Line 4 ("```") was not properly indented to match the indentation of the chunk header. You are recommended to change this line to " ```".</span>
-
-<span class="co">#&gt; Warning: Line 4 ("```") was not properly indented to match the indentation of the chunk header. You are recommended to change this line to " ```".</span>
-
-<span class="co">#&gt; Warning: Line 4 ("```") was not properly indented to match the indentation of the chunk header. You are recommended to change this line to " ```".</span>
-
-<span class="co">#&gt; Warning: Line 4 ("```") was not properly indented to match the indentation of the chunk header. You are recommended to change this line to " ```".</span>
-
-<span class="co">#&gt; Warning: Line 4 ("```") was not properly indented to match the indentation of the chunk header. You are recommended to change this line to " ```".</span>
-
-<span class="co">#&gt; Warning: Line 4 ("```") was not properly indented to match the indentation of the chunk header. You are recommended to change this line to " ```".</span>
-
-<span class="co">#&gt; Warning: Line 4 ("```") was not properly indented to match the indentation of the chunk header. You are recommended to change this line to " ```".</span>
 <span class="co">#&gt; Creating R Markdown report for Linear Regression Experiment...</span>
-<span class="co">#&gt; Warning: Line 4 ("```") was not properly indented to match the indentation of the chunk header. You are recommended to change this line to " ```".</span>
-
-<span class="co">#&gt; Warning: Line 4 ("```") was not properly indented to match the indentation of the chunk header. You are recommended to change this line to " ```".</span>
 <span class="co">#&gt; *Linear Gaussian DGP</span>
 <span class="co">#&gt; **Varying beta</span>
 <span class="co">#&gt;    Rejection Prob. (alpha = 0.1)</span>
-<span class="co">#&gt; Warning: Line 4 ("```") was not properly indented to match the indentation of the chunk header. You are recommended to change this line to " ```".</span>
 <span class="co">#&gt;    Power</span>
-<span class="co">#&gt; Warning: Line 4 ("```") was not properly indented to match the indentation of the chunk header. You are recommended to change this line to " ```".</span>
 <span class="co">#&gt;    Rejection Prob. (alpha = 0.1) Plot</span>
-<span class="co">#&gt; Warning: Line 4 ("```") was not properly indented to match the indentation of the chunk header. You are recommended to change this line to " ```".</span>
-
-<span class="co">#&gt; Warning: Line 4 ("```") was not properly indented to match the indentation of the chunk header. You are recommended to change this line to " ```".</span>
 <span class="co">#&gt; **Varying rho</span>
 <span class="co">#&gt;    Rejection Prob. (alpha = 0.1)</span>
-<span class="co">#&gt; Warning: Line 4 ("```") was not properly indented to match the indentation of the chunk header. You are recommended to change this line to " ```".</span>
 <span class="co">#&gt;    Power</span>
-<span class="co">#&gt; Warning: Line 4 ("```") was not properly indented to match the indentation of the chunk header. You are recommended to change this line to " ```".</span>
 <span class="co">#&gt;    Rejection Prob. (alpha = 0.1) Plot</span>
-<span class="co">#&gt; Warning: Line 4 ("```") was not properly indented to match the indentation of the chunk header. You are recommended to change this line to " ```".</span>
-
-<span class="co">#&gt; Warning: Line 4 ("```") was not properly indented to match the indentation of the chunk header. You are recommended to change this line to " ```".</span>
 <span class="co">#&gt; **Varying sigma</span>
 <span class="co">#&gt;    Rejection Prob. (alpha = 0.1)</span>
-<span class="co">#&gt; Warning: Line 4 ("```") was not properly indented to match the indentation of the chunk header. You are recommended to change this line to " ```".</span>
-<span class="co">#&gt;    Power</span>
-<span class="co">#&gt; Warning: Line 4 ("```") was not properly indented to match the indentation of the chunk header. You are recommended to change this line to " ```".</span>
-
-<span class="co">#&gt; Warning: Line 4 ("```") was not properly indented to match the indentation of the chunk header. You are recommended to change this line to " ```".</span>
-<span class="co">#&gt; Warning: MathJax doesn't work with self_contained when not using the rmarkdown "default" template.</span></code></pre></div>
+<span class="co">#&gt;    Power</span></code></pre></div>
 <p>We can also create the R Markdown report summary by directly specifying the experiment’s root results directory.</p>
 <div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/create_rmd.html">create_rmd</a></span><span class="op">(</span>save_dir <span class="op">=</span> <span class="va">experiment</span><span class="op">$</span><span class="fu">get_save_dir</span><span class="op">(</span><span class="op">)</span>, open <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></code></pre></div>
@@ -794,15 +710,15 @@
 <div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">fit_results</span> <span class="op">&lt;-</span> <span class="va">experiment</span><span class="op">$</span><span class="fu">fit</span><span class="op">(</span>n_reps <span class="op">=</span> <span class="fl">100</span><span class="op">)</span>
 <span class="co">#&gt; Fitting Linear Regression Experiment...</span>
-<span class="co">#&gt; Fitting completed | time taken: 0.074825 minutes</span>
+<span class="co">#&gt; Fitting completed | time taken: 0.075486 minutes</span>
 <span class="co">#&gt; ==============================</span>
 <span class="va">eval_results</span> <span class="op">&lt;-</span> <span class="va">experiment</span><span class="op">$</span><span class="fu">evaluate</span><span class="op">(</span><span class="va">fit_results</span><span class="op">)</span>
 <span class="co">#&gt; Evaluating Linear Regression Experiment...</span>
-<span class="co">#&gt; Evaluation completed | time taken: 0.000343 minutes</span>
+<span class="co">#&gt; Evaluation completed | time taken: 0.000313 minutes</span>
 <span class="co">#&gt; ==============================</span>
 <span class="va">viz_results</span> <span class="op">&lt;-</span> <span class="va">experiment</span><span class="op">$</span><span class="fu">visualize</span><span class="op">(</span><span class="va">fit_results</span>, <span class="va">eval_results</span><span class="op">)</span>
 <span class="co">#&gt; Visualizing Linear Regression Experiment...</span>
-<span class="co">#&gt; Visualization completed | time taken: 0.001811 minutes</span>
+<span class="co">#&gt; Visualization completed | time taken: 0.001759 minutes</span>
 <span class="co">#&gt; ==============================</span></code></pre></div>
 <p>or alternatively,</p>
 <div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">

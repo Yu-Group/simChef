@@ -153,6 +153,8 @@ taken to be that specified by <code>save_dir</code>. Note that
   verbose <span class='op'>=</span> <span class='fl'>2</span>,
   quiet <span class='op'>=</span> <span class='cn'>TRUE</span>,
   pretty <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  eval_order <span class='op'>=</span> <span class='cn'>NULL</span>,
+  viz_order <span class='op'>=</span> <span class='cn'>NULL</span>,
   <span class='va'>...</span>
 <span class='op'>)</span></pre>
 
@@ -202,6 +204,18 @@ results template or more barebones R Markdown results template. Default
 <code>TRUE</code> uses the pretty template. Set to <code>FALSE</code> to start from
 the barebones template, which can be helpful when using your own custom
 R Markdown theme.</p></td>
+    </tr>
+    <tr>
+      <th>eval_order</th>
+      <td><p>Vector of <code>Evaluator</code> names in their desired order for
+display. By default, the report will display the <code>Evaluator</code> results
+in the order that they were computed.</p></td>
+    </tr>
+    <tr>
+      <th>viz_order</th>
+      <td><p>Vector of <code>Visualizer</code> names in their desired order for
+display. By default, the report will display the <code>Visualizer</code> results
+in the order that they were computed.</p></td>
     </tr>
     <tr>
       <th>...</th>
