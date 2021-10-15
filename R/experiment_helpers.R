@@ -30,7 +30,10 @@
 #' @param vary_params A vector of parameter names that are varied across in the 
 #'   \code{Experiment}.
 #' @param verbose Level of verbosity. Default is 1, which prints out messages
-#'   after major checkpoints in the experiment. If 0, no messages are printed.
+#'   after major checkpoints in the experiment. If 2, prints additional
+#'   debugging information for warnings and messages from user-defined functions
+#'   (in addition to error debugging information). If 0, no messages are printed
+#'   other than user-defined function error debugging information.
 #' @param visualizer A \code{Visualizer} object.
 #' @param ... Not used.
 NULL

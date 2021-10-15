@@ -1138,3 +1138,107 @@ test_that("Various parallel strategies in experiment work properly", {
   }
 
 })
+
+#' this function is passed to expect_snapshot() and scrubs stochastic lines
+#' (e.g., the "time taken:" lines in verbose Experiment output)
+#'
+#' @param lines a character vector of output line see
+#'  \code{testthat::expect_snapshot}
+#' @return the character vector lines, scrubbed of stochastic output
+transform_fun <- function(lines) {
+  sapply(lines, function(line) {
+    gsub("time taken: [[:alnum:]]*.?[[:alnum:]]* ", "time taken: _x_ ", line)
+  })
+}
+
+test_that("Capturing errors, warnings, and messages from user-defined functions works as expected", {
+
+  dgp_fun <- function(n=100, rho=0.5, noise_level=1) {
+    X <- data.frame(.n = n, .rho = rho, .noise_level = noise_level)
+    if (rho < 0.5)
+      warning("rho must be greater than 0.5")
+    return(list(X = X))
+  }
+
+  method_fun <- function(X, param1=1, param2=2, vec=c(1,2,3)) {
+    if (param2 == 3)
+      stop(sprintf("invalid param2 value: %s", param2))
+    if (!3 %in% vec) {
+      message("3 isn't in vec")
+    }
+    return(X)
+  }
+
+  eval_fun <- function(fit_results) {
+    if (nrow(fit_results) > 1) {
+      warning("that's a lot of rows")
+    }
+    fit_results[1, ]
+  }
+
+  viz_fun <- function(fit_results, eval_results, error=FALSE) {
+    if (error) {
+      stop("Oh no!")
+    } else {
+      warning("False alarm!")
+    }
+    "plot"
+  }
+
+  experiment <- create_experiment(
+    name = "error-tracking", future.packages = "dplyr"
+  ) %>%
+    add_dgp(create_dgp(dgp_fun, n = 10)) %>%
+    add_dgp(create_dgp(dgp_fun, name = "dgp_test", n = 10)) %>%
+    add_method(create_method(method_fun), name="method_test") %>%
+    add_vary_across(
+      dgp = "dgp1",
+      rho = c(0.2),
+      noise_level = c(1, 2)
+    ) %>%
+    add_vary_across(
+      dgp = "dgp_test",
+      rho = c(0.2, 0.9),
+      noise_level = c(1, 2)
+    ) %>%
+    add_vary_across(
+      method = "method_test",
+      param2 = c(2, 4),
+      vec = list(c(2,3,4), 4:7)
+    ) %>%
+    add_evaluator(create_evaluator(eval_fun)) %>%
+    add_visualizer(create_visualizer(viz_fun))
+
+  expect_snapshot(experiment$fit(n_reps=2), transform = transform_fun)
+
+  expect_snapshot(
+    fit_results <- experiment$fit(n_reps=2, verbose=2),
+    transform = transform_fun
+  )
+
+  expect_snapshot(
+    experiment$evaluate(fit_results), transform = transform_fun
+  )
+  expect_snapshot(
+    eval_results <- experiment$evaluate(fit_results, verbose=2),
+    transform = transform_fun
+  )
+
+  expect_snapshot(
+    experiment$visualize(fit_results, eval_results),
+    transform = transform_fun
+  )
+  expect_snapshot(
+    experiment$visualize(fit_results, eval_results, verbose = 2),
+    transform = transform_fun
+  )
+
+  experiment %>%
+    add_visualizer(create_visualizer(viz_fun, error = TRUE))
+
+  expect_snapshot(
+    experiment$visualize(fit_results, eval_results, verbose = 2),
+    error = TRUE, transform = transform_fun
+  )
+
+})
