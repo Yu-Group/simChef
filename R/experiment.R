@@ -766,10 +766,13 @@ Experiment <- R6::R6Class(
       }
 
       duplicate_param_names <- private$.get_duplicate_param_names()
+      progressr::handlers("progress")
       fit_results <- switch(
         parallel_strategy,
         "reps" = {
+          p <- progressr::progressor(steps = n_reps)
           results <- future.apply::future_replicate(n_reps, {
+            p()
             purrr::map(dgp_params_list, function(dgp_params) {
               if (check_cache) {
                 method_params_list <- private$.get_new_method_params(
@@ -809,6 +812,7 @@ Experiment <- R6::R6Class(
           dplyr::bind_rows(results, .id = ".rep")
         },
         "dgps" = {
+          p <- progressr::progressor(steps = length(dgp_params_list)*n_reps)
           results <- future.apply::future_lapply(
             dgp_params_list, function(dgp_params) {
               if (check_cache) {
@@ -817,6 +821,7 @@ Experiment <- R6::R6Class(
                 )
               }
               reps <- replicate(n_reps, {
+                p()
                 dgp_name <- dgp_params$.dgp_name
                 dgp_params$.dgp_name <- NULL
                 data_list <- do_call_handler(
@@ -850,6 +855,7 @@ Experiment <- R6::R6Class(
             tibble::as_tibble()
         },
         "methods" = {
+          p <- progressr::progressor(steps = length(method_params_list)*n_reps)
           results <- future.apply::future_lapply(
             method_params_list, function(method_params) {
               if (check_cache) {
@@ -858,6 +864,7 @@ Experiment <- R6::R6Class(
                 )
               }
               reps <- replicate(n_reps, {
+                p()
                 purrr::map(dgp_params_list, function(dgp_params) {
                   dgp_name <- dgp_params$.dgp_name
                   dgp_params$.dgp_name <- NULL
@@ -893,9 +900,11 @@ Experiment <- R6::R6Class(
         "reps+dgps" = {
           n_dgps <- length(dgp_params_list)
           dgp_params_list <- rep(dgp_params_list, times = n_reps)
+          p <- progressr::progressor(along = dgp_params_list)
           results <- future.apply::future_lapply(
             dgp_params_list,
             function(dgp_params) {
+              p()
               if (check_cache) {
                 method_params_list <- private$.get_new_method_params(
                   dgp_params, new_fit_params
@@ -943,9 +952,11 @@ Experiment <- R6::R6Class(
         "reps+methods" = {
           n_methods <- length(method_params_list)
           method_params_list <- rep(method_params_list, times = n_reps)
+          p <- progressr::progressor(along = method_params_list)
           results <- future.apply::future_lapply(
             method_params_list,
             function(method_params) {
+              p()
               if (check_cache) {
                 dgp_params_list <- private$.get_new_dgp_params(
                   method_params, new_fit_params
@@ -1004,9 +1015,11 @@ Experiment <- R6::R6Class(
           mapply_args <- mapply_args[sample(1:length(mapply_args))]
           dgp_mapply_args <- lapply(mapply_args, `[[`, 1)
           method_mapply_args <- lapply(mapply_args, `[[`, 2)
+          p <- progressr::progressor(steps = length(dgp_mapply_args)*n_reps)
           results <- future.apply::future_mapply(
             function(dgp_params, method_params) {
               reps <- replicate(n_reps, {
+                p()
                 dgp_name <- dgp_params$.dgp_name
                 dgp_params$.dgp_name <- NULL
                 data_list <- do_call_handler(
@@ -1059,8 +1072,10 @@ Experiment <- R6::R6Class(
           reps <- sapply(mapply_args, `[[`, 1)
           dgp_mapply_args <- lapply(mapply_args, `[[`, 2)
           method_mapply_args <- lapply(mapply_args, `[[`, 3)
+          p <- progressr::progressor(along = dgp_mapply_args)
           results <- future.apply::future_mapply(
             function(dgp_params, method_params) {
+              p()
               dgp_name <- dgp_params$.dgp_name
               dgp_params$.dgp_name <- NULL
               data_list <- do_call_handler(
