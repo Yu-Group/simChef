@@ -146,19 +146,19 @@ create_rmd(experiment)
       three.
 - [x] Cache results to avoid re-running already computed components of an
       Experiment.
-- [ ] Gracefully handle errors from user-defined functions and returns error
+- [x] Gracefully handle errors from user-defined functions and returns error
       information for user to inspect upon completion.
 - [ ] Checkpoint simulations to avoid losing progress in the case of unexpected
       problems, e.g. node failure.
-- [ ] Incorporate `progressr` for simulation progress updates.
-- [ ] Include a set of off-the-shelf DGPs and Methods to allow users to quickly
+- [x] Incorporate `progressr` for simulation progress updates.
+- [x] Include a set of off-the-shelf DGPs and Methods to allow users to quickly
       run their methods in a number of realistic scenarios compared against a
       number of high-quality methodologies for those scenarios.
-- [ ] Include a set of off-the-shelf Evaluators and Visualizers that
+- [x] Include a set of off-the-shelf Evaluators and Visualizers that
       respectively calculate common evaluation metrics from simulation results
       and output plots, tables, and other snippets that can be included in the
       output R Markdown report.
-- [ ] Provide settings to effectively organize Visualizers in the final R
+- [x] Provide settings to effectively organize Visualizers in the final R
       Markdown report.
 - [ ] Enable nested parallelization, e.g. one may paralellize across DGPs using
       multiple nodes on a cluster and parallelize across simulation replicates
