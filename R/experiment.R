@@ -239,11 +239,11 @@ Experiment <- R6::R6Class(
         purrr::map_dfr(
           ~tibble::tibble(
             .dgp_name = .x[[1]]$.dgp_name,
-            .dgp_fun = list(dgp_list[[.dgp_name]]$dgp_fun),
+            .dgp_fun = list(deparse(dgp_list[[.dgp_name]]$dgp_fun)),
             .dgp_params = list(dgp_list[[.dgp_name]]$dgp_params),
             .dgp = .x[1],
             .method_name = .x[[2]]$.method_name,
-            .method_fun = list(method_list[[.method_name]]$method_fun),
+            .method_fun = list(deparse(method_list[[.method_name]]$method_fun)),
             .method_params = list(method_list[[.method_name]]$method_params),
             .method = .x[2]
           )
@@ -356,6 +356,28 @@ Experiment <- R6::R6Class(
         ])
       }
     },
+    .n_reps_cached = function(cached_fit_params) {
+      if (nrow(cached_fit_params) == 0) {
+        return(0)
+      }
+
+      n_reps_complete <- cached_fit_params %>%
+        dplyr::pull(.n_reps) %>% unique %>% as.numeric
+
+      cached_fit_params <- cached_fit_params %>%
+        dplyr::select(-.n_reps)
+
+      fit_cached_op <- "contained_in"
+
+      fit_params <- private$.get_fit_params()
+      fit_cached <- compare_tibble_rows(fit_params, cached_fit_params,
+                                        op = fit_cached_op)
+      if (fit_cached) {
+        return(n_reps_complete)
+      } else {
+        return(0)
+      }
+    },
     .is_fully_cached = function(cached_params,
                                 results_type = c("fit", "eval", "viz"),
                                 n_reps) {
@@ -363,38 +385,31 @@ Experiment <- R6::R6Class(
       # where NULL means the cached experimental setup is a mismatch and need
       # to switch from use_cached = TRUE to use_cached = FALSE
       results_type <- match.arg(results_type)
-      if (nrow(cached_params$fit) == 0) {
-        if (identical(results_type, "fit")) {
-          return(FALSE)
-        } else {
-          return(NULL)
-        }
-      }
 
       if (identical(results_type, "fit")) {
-        cached_fit_params <- cached_params$fit %>%
-          dplyr::filter(as.numeric(.n_reps) >= n_reps) %>%
-          dplyr::select(-.n_reps)
-        fit_cached_op <- "contained_in"
-      } else {
-        cached_fit_params <- cached_params$fit %>%
-          dplyr::filter(as.numeric(.n_reps) == n_reps) %>%
-          dplyr::select(-.n_reps)
-        fit_cached_op <- "equal"
-        if (identical(results_type, "eval")) {
-          eval_cached_op <- "contained_in"
-        } else if (identical(results_type, "viz")) {
-          eval_cached_op <- "equal"
-          viz_cached_op <- "contained_in"
-        }
+        n_reps_cached <- private$.n_reps_cached(cached_params$fit)
+        return(n_reps_cached >= n_reps)
+      }
+
+      if (nrow(cached_params$fit) == 0) {
+          return(NULL)
+      }
+
+      cached_fit_params <- cached_params$fit %>%
+        dplyr::filter(as.numeric(.n_reps) == n_reps) %>%
+        dplyr::select(-.n_reps)
+      fit_cached_op <- "equal"
+      if (identical(results_type, "eval")) {
+        eval_cached_op <- "contained_in"
+      } else if (identical(results_type, "viz")) {
+        eval_cached_op <- "equal"
+        viz_cached_op <- "contained_in"
       }
 
       fit_params <- private$.get_fit_params()
       fit_cached <- compare_tibble_rows(fit_params, cached_fit_params,
                                         op = fit_cached_op)
-      if (identical(results_type, "fit")) {
-        return(fit_cached)
-      } else if (!fit_cached) {
+      if (!fit_cached) {
         return(NULL)
       }
 
@@ -536,10 +551,14 @@ Experiment <- R6::R6Class(
     },
     .save_results = function(results,
                              results_type = c("fit", "eval", "viz"),
-                             n_reps, verbose = 1) {
+                             n_reps, verbose = 1, checkpoint = FALSE) {
       results_type <- match.arg(results_type)
       if (verbose >= 1) {
-        message(sprintf("Saving %s results...", results_type))
+        if (checkpoint) {
+          message(sprintf("Saving %s results checkpoint...", results_type))
+        } else {
+          message(sprintf("Saving %s results...", results_type))
+        }
         start_time <- Sys.time()
       }
       if (!private$.has_vary_across()) {
@@ -610,7 +629,7 @@ Experiment <- R6::R6Class(
     run = function(n_reps = 1, parallel_strategy = c("reps"),
                    future.globals = NULL, future.packages = NULL,
                    future.seed = TRUE, use_cached = FALSE, save = FALSE,
-                   verbose = 1, ...) {
+                   checkpoint_n_reps = 0, verbose = 1, ...) {
       if (!is.logical(save)) {
         save <- c("fit", "eval", "viz") %in% save
       } else {
@@ -626,14 +645,15 @@ Experiment <- R6::R6Class(
                               future.packages = future.packages,
                               future.seed = future.seed,
                               use_cached = use_cached, save = save[1],
-                              verbose = verbose)
+                              checkpoint_n_reps = checkpoint_n_reps,
+                              verbose = verbose, ...)
       eval_results <- self$evaluate(fit_results = fit_results,
                                     use_cached = use_cached, save = save[2],
-                                    verbose = verbose)
+                                    verbose = verbose, ...)
       viz_results <- self$visualize(fit_results = fit_results,
                                 eval_results = eval_results,
                                 use_cached = use_cached, save = save[3],
-                                verbose = verbose)
+                                verbose = verbose, ...)
       return(list(fit_results = fit_results,
                   eval_results = eval_results,
                   viz_results = viz_results))
@@ -675,7 +695,7 @@ Experiment <- R6::R6Class(
     fit = function(n_reps = 1, parallel_strategy = c("reps"),
                    future.globals = NULL, future.packages = NULL,
                    future.seed = TRUE, use_cached = FALSE, save = FALSE,
-                   verbose = 1, ...) {
+                   checkpoint_n_reps = 0, verbose = 1, ...) {
 
       dgp_list <- private$.get_obj_list("dgp")
       method_list <- private$.get_obj_list("method")
@@ -686,27 +706,43 @@ Experiment <- R6::R6Class(
         private$.throw_empty_list_error("method", "fit methods in")
       }
       private$.update_fit_params()
-      if (use_cached) {
+
+      if (!is.numeric(checkpoint_n_reps)) {
+        checkpoint <- FALSE
+      } else {
+        checkpoint <- isTRUE(checkpoint_n_reps > 0)
+      }
+
+      n_reps_cached <- 0
+      n_reps_total <- n_reps
+      fit_results <- data.frame()
+      if (checkpoint) {
+        n_reps <- round(checkpoint_n_reps)
+      }
+
+      if (use_cached || checkpoint) {
         cached_params <- private$.get_cache("fit")
-        is_cached <- private$.is_fully_cached(cached_params, "fit", n_reps)
-        if (isTRUE(is_cached)) {
+        n_reps_cached <- private$.n_reps_cached(cached_params$fit)
+        if (n_reps_cached > 0) {
           results <- private$.get_cached_results("fit", verbose = verbose)
           fit_params <- private$.get_fit_params(simplify = TRUE)
           fit_results <- dplyr::inner_join(x = results,
                                            y = fit_params,
                                            by = colnames(fit_params)) %>%
-            dplyr::filter(as.numeric(.rep) <= n_reps)
+            dplyr::filter(as.numeric(.rep) <= n_reps_total)
           if (save) {
             if (nrow(results) != nrow(fit_results)) {
-              private$.save_results(fit_results, "fit", n_reps, verbose)
+              # discard extra reps
+              n_reps_cached <- min(n_reps_total, n_reps_cached)
+              private$.save_results(fit_results, "fit", n_reps_cached, verbose)
             }
           }
-          if (verbose >= 1) {
-            message("==============================")
+          if (n_reps_cached >= n_reps_total) {
+            if (verbose >= 1) {
+              message("==============================")
+            }
+            return(fit_results)
           }
-          return(fit_results)
-        } else if (is.null(is_cached)) {
-          use_cached <- FALSE
         }
       }
 
@@ -746,7 +782,9 @@ Experiment <- R6::R6Class(
 
       check_cache <- FALSE
       if (use_cached) {
-        new_fit_params <- private$.get_fit_params(cached_params, "new", n_reps)
+        new_fit_params <- private$.get_fit_params(
+          cached_params, "new", n_reps
+        )
         n_params <- nrow(new_fit_params)
         new_fit <- n_params == nrow(private$.get_fit_params())
         if (!new_fit) {
@@ -767,61 +805,153 @@ Experiment <- R6::R6Class(
 
       duplicate_param_names <- private$.get_duplicate_param_names()
       progressr::handlers("progress")
-      fit_results <- switch(
-        parallel_strategy,
-        "reps" = {
-          p <- progressr::progressor(steps = n_reps)
-          results <- future.apply::future_replicate(n_reps, {
-            p()
-            purrr::map(dgp_params_list, function(dgp_params) {
-              if (check_cache) {
-                method_params_list <- private$.get_new_method_params(
-                  dgp_params, new_fit_params
+
+      while (n_reps_cached < n_reps_total) {
+        n_reps <- min(n_reps, n_reps_total - n_reps_cached)
+
+        new_fit_results <- switch(
+          parallel_strategy,
+          "reps" = {
+            p <- progressr::progressor(steps = n_reps)
+            results <- future.apply::future_replicate(n_reps, {
+              p()
+              purrr::map(dgp_params_list, function(dgp_params) {
+                if (check_cache) {
+                  method_params_list <- private$.get_new_method_params(
+                    dgp_params, new_fit_params
+                  )
+                }
+                dgp_name <- dgp_params$.dgp_name
+                dgp_params$.dgp_name <- NULL
+                data_list <- do_call_handler(
+                  dgp_name, dgp_list[[dgp_name]]$generate, dgp_params, verbose
                 )
-              }
-              dgp_name <- dgp_params$.dgp_name
-              dgp_params$.dgp_name <- NULL
-              data_list <- do_call_handler(
-                dgp_name, dgp_list[[dgp_name]]$generate, dgp_params, verbose
-              )
-              purrr::map(method_params_list, function(method_params) {
-                method_name <- method_params$.method_name
-                param_df <- fix_duplicate_param_names(
-                  dgp_params = c(.dgp_name = dgp_name, dgp_params),
-                  method_params = method_params,
-                  duplicate_param_names = duplicate_param_names
-                ) %>%
-                  list_to_tibble_row() %>%
-                  simplify_tibble()
-                method_params$.method_name <- NULL
-                method_params$data_list <- data_list
-                result <- do_call_handler(
-                  method_name, method_list[[method_name]]$fit, method_params, verbose
-                )
-                return(result %>% tibble::add_column(param_df, .before=1))
+                purrr::map(method_params_list, function(method_params) {
+                  method_name <- method_params$.method_name
+                  param_df <- fix_duplicate_param_names(
+                    dgp_params = c(.dgp_name = dgp_name, dgp_params),
+                    method_params = method_params,
+                    duplicate_param_names = duplicate_param_names
+                  ) %>%
+                    list_to_tibble_row() %>%
+                    simplify_tibble()
+                  method_params$.method_name <- NULL
+                  method_params$data_list <- data_list
+                  result <- do_call_handler(
+                    method_name, method_list[[method_name]]$fit, method_params, verbose
+                  )
+                  return(result %>% tibble::add_column(param_df, .before=1))
+                }) %>%
+                  data.table::rbindlist(fill = TRUE)
               }) %>%
-                data.table::rbindlist(fill = TRUE)
-            }) %>%
-              data.table::rbindlist(fill = TRUE) %>%
+                data.table::rbindlist(fill = TRUE) %>%
+                tibble::as_tibble()
+            },
+            simplify = FALSE,
+            future.globals = future.globals,
+            future.packages = future.packages,
+            future.seed = future.seed)
+            dplyr::bind_rows(results, .id = ".rep")
+          },
+          "dgps" = {
+            p <- progressr::progressor(steps = length(dgp_params_list)*n_reps)
+            results <- future.apply::future_lapply(
+              dgp_params_list, function(dgp_params) {
+                if (check_cache) {
+                  method_params_list <- private$.get_new_method_params(
+                    dgp_params, new_fit_params
+                  )
+                }
+                reps <- replicate(n_reps, {
+                  p()
+                  dgp_name <- dgp_params$.dgp_name
+                  dgp_params$.dgp_name <- NULL
+                  data_list <- do_call_handler(
+                    dgp_name, dgp_list[[dgp_name]]$generate, dgp_params, verbose
+                  )
+                  purrr::map(method_params_list, function(method_params) {
+                    method_name <- method_params$.method_name
+                    param_df <- fix_duplicate_param_names(
+                      dgp_params = c(.dgp_name = dgp_name, dgp_params),
+                      method_params = method_params,
+                      duplicate_param_names = duplicate_param_names
+                    ) %>%
+                      list_to_tibble_row() %>%
+                      simplify_tibble()
+                    method_params$.method_name <- NULL
+                    method_params$data_list <- data_list
+                    result <- do_call_handler(
+                      method_name, method_list[[method_name]]$fit, method_params,
+                      verbose
+                    )
+                    return(result %>% tibble::add_column(param_df, .before=1))
+                  }) %>%
+                    data.table::rbindlist(fill = TRUE)
+                }, simplify=FALSE)
+                dplyr::bind_rows(reps, .id = ".rep")
+              },
+              future.globals = future.globals,
+              future.packages = future.packages,
+              future.seed = future.seed)
+            data.table::rbindlist(results, fill = TRUE) %>%
               tibble::as_tibble()
           },
-          simplify = FALSE,
-          future.globals = future.globals,
-          future.packages = future.packages,
-          future.seed = future.seed)
-          dplyr::bind_rows(results, .id = ".rep")
-        },
-        "dgps" = {
-          p <- progressr::progressor(steps = length(dgp_params_list)*n_reps)
-          results <- future.apply::future_lapply(
-            dgp_params_list, function(dgp_params) {
-              if (check_cache) {
-                method_params_list <- private$.get_new_method_params(
-                  dgp_params, new_fit_params
-                )
-              }
-              reps <- replicate(n_reps, {
+          "methods" = {
+            p <- progressr::progressor(steps = length(method_params_list)*n_reps)
+            results <- future.apply::future_lapply(
+              method_params_list, function(method_params) {
+                if (check_cache) {
+                  dgp_params_list <- private$.get_new_dgp_params(
+                    method_params, new_fit_params
+                  )
+                }
+                reps <- replicate(n_reps, {
+                  p()
+                  purrr::map(dgp_params_list, function(dgp_params) {
+                    dgp_name <- dgp_params$.dgp_name
+                    dgp_params$.dgp_name <- NULL
+                    data_list <- do_call_handler(
+                      dgp_name, dgp_list[[dgp_name]]$generate, dgp_params, verbose
+                    )
+                    method_name <- method_params$.method_name
+                    param_df <- fix_duplicate_param_names(
+                      dgp_params = c(.dgp_name = dgp_name, dgp_params),
+                      method_params = method_params,
+                      duplicate_param_names = duplicate_param_names
+                    ) %>%
+                      list_to_tibble_row() %>%
+                      simplify_tibble()
+                    method_params$.method_name <- NULL
+                    method_params$data_list <- data_list
+                    result <- do_call_handler(
+                      method_name, method_list[[method_name]]$fit, method_params,
+                      verbose
+                    )
+                    return(result %>% tibble::add_column(param_df, .before=1))
+                  }) %>%
+                    data.table::rbindlist(fill = TRUE)
+                }, simplify = FALSE)
+                dplyr::bind_rows(reps, .id = ".rep")
+              },
+              future.globals = future.globals,
+              future.packages = future.packages,
+              future.seed = future.seed)
+            data.table::rbindlist(results, fill = TRUE) %>%
+              tibble::as_tibble()
+          },
+          "reps+dgps" = {
+            n_dgps <- length(dgp_params_list)
+            dgp_params_list <- rep(dgp_params_list, times = n_reps)
+            p <- progressr::progressor(along = dgp_params_list)
+            results <- future.apply::future_lapply(
+              dgp_params_list,
+              function(dgp_params) {
                 p()
+                if (check_cache) {
+                  method_params_list <- private$.get_new_method_params(
+                    dgp_params, new_fit_params
+                  )
+                }
                 dgp_name <- dgp_params$.dgp_name
                 dgp_params$.dgp_name <- NULL
                 data_list <- do_call_handler(
@@ -845,26 +975,35 @@ Experiment <- R6::R6Class(
                   return(result %>% tibble::add_column(param_df, .before=1))
                 }) %>%
                   data.table::rbindlist(fill = TRUE)
-              }, simplify=FALSE)
-              dplyr::bind_rows(reps, .id = ".rep")
-            },
-            future.globals = future.globals,
-            future.packages = future.packages,
-            future.seed = future.seed)
-          data.table::rbindlist(results, fill = TRUE) %>%
-            tibble::as_tibble()
-        },
-        "methods" = {
-          p <- progressr::progressor(steps = length(method_params_list)*n_reps)
-          results <- future.apply::future_lapply(
-            method_params_list, function(method_params) {
-              if (check_cache) {
-                dgp_params_list <- private$.get_new_dgp_params(
-                  method_params, new_fit_params
-                )
-              }
-              reps <- replicate(n_reps, {
+              },
+              future.seed = future.seed,
+              future.globals = future.globals,
+              future.packages = future.packages
+            )
+            # get correct rep number
+            results <- purrr::map(1:length(results),
+                                  function(i) {
+                                    results[[i]]$.rep <- i
+                                    return(results[[i]])
+                                  })
+            results <- data.table::rbindlist(results, fill = TRUE) %>%
+              tibble::as_tibble() %>%
+              dplyr::mutate(.rep = (.rep - 1) %/% n_dgps + 1)
+            results
+          },
+          "reps+methods" = {
+            n_methods <- length(method_params_list)
+            method_params_list <- rep(method_params_list, times = n_reps)
+            p <- progressr::progressor(along = method_params_list)
+            results <- future.apply::future_lapply(
+              method_params_list,
+              function(method_params) {
                 p()
+                if (check_cache) {
+                  dgp_params_list <- private$.get_new_dgp_params(
+                    method_params, new_fit_params
+                  )
+                }
                 purrr::map(dgp_params_list, function(dgp_params) {
                   dgp_name <- dgp_params$.dgp_name
                   dgp_params$.dgp_name <- NULL
@@ -888,137 +1027,96 @@ Experiment <- R6::R6Class(
                   return(result %>% tibble::add_column(param_df, .before=1))
                 }) %>%
                   data.table::rbindlist(fill = TRUE)
-              }, simplify = FALSE)
-              dplyr::bind_rows(reps, .id = ".rep")
-            },
-            future.globals = future.globals,
-            future.packages = future.packages,
-            future.seed = future.seed)
-          data.table::rbindlist(results, fill = TRUE) %>%
-            tibble::as_tibble()
-        },
-        "reps+dgps" = {
-          n_dgps <- length(dgp_params_list)
-          dgp_params_list <- rep(dgp_params_list, times = n_reps)
-          p <- progressr::progressor(along = dgp_params_list)
-          results <- future.apply::future_lapply(
-            dgp_params_list,
-            function(dgp_params) {
-              p()
-              if (check_cache) {
-                method_params_list <- private$.get_new_method_params(
-                  dgp_params, new_fit_params
-                )
-              }
-              dgp_name <- dgp_params$.dgp_name
-              dgp_params$.dgp_name <- NULL
-              data_list <- do_call_handler(
-                dgp_name, dgp_list[[dgp_name]]$generate, dgp_params, verbose
-              )
-              purrr::map(method_params_list, function(method_params) {
-                method_name <- method_params$.method_name
-                param_df <- fix_duplicate_param_names(
-                  dgp_params = c(.dgp_name = dgp_name, dgp_params),
-                  method_params = method_params,
-                  duplicate_param_names = duplicate_param_names
-                ) %>%
-                  list_to_tibble_row() %>%
-                  simplify_tibble()
-                method_params$.method_name <- NULL
-                method_params$data_list <- data_list
-                result <- do_call_handler(
-                  method_name, method_list[[method_name]]$fit, method_params,
-                  verbose
-                )
-                return(result %>% tibble::add_column(param_df, .before=1))
-              }) %>%
-                data.table::rbindlist(fill = TRUE)
-            },
-            future.seed = future.seed,
-            future.globals = future.globals,
-            future.packages = future.packages
-          )
-          # get correct rep number
-          results <- purrr::map(1:length(results),
-                                function(i) {
-                                  results[[i]]$.rep <- i
-                                  return(results[[i]])
-                                })
-          results <- data.table::rbindlist(results, fill = TRUE) %>%
-            tibble::as_tibble() %>%
-            dplyr::mutate(.rep = (.rep - 1) %/% n_dgps + 1)
-          results
-        },
-        "reps+methods" = {
-          n_methods <- length(method_params_list)
-          method_params_list <- rep(method_params_list, times = n_reps)
-          p <- progressr::progressor(along = method_params_list)
-          results <- future.apply::future_lapply(
-            method_params_list,
-            function(method_params) {
-              p()
-              if (check_cache) {
-                dgp_params_list <- private$.get_new_dgp_params(
-                  method_params, new_fit_params
-                )
-              }
-              purrr::map(dgp_params_list, function(dgp_params) {
-                dgp_name <- dgp_params$.dgp_name
-                dgp_params$.dgp_name <- NULL
-                data_list <- do_call_handler(
-                  dgp_name, dgp_list[[dgp_name]]$generate, dgp_params, verbose
-                )
-                method_name <- method_params$.method_name
-                param_df <- fix_duplicate_param_names(
-                  dgp_params = c(.dgp_name = dgp_name, dgp_params),
-                  method_params = method_params,
-                  duplicate_param_names = duplicate_param_names
-                ) %>%
-                  list_to_tibble_row() %>%
-                  simplify_tibble()
-                method_params$.method_name <- NULL
-                method_params$data_list <- data_list
-                result <- do_call_handler(
-                  method_name, method_list[[method_name]]$fit, method_params,
-                  verbose
-                )
-                return(result %>% tibble::add_column(param_df, .before=1))
-              }) %>%
-                data.table::rbindlist(fill = TRUE)
-            },
-            future.seed = future.seed,
-            future.globals = future.globals,
-            future.packages = future.packages
-          )
-          # get correct rep number
-          results <- purrr::map(1:length(results),
-                                function(i) {
-                                  results[[i]]$.rep <- i
-                                  return(results[[i]])
-                                })
-          results <- data.table::rbindlist(results, fill = TRUE) %>%
-            tibble::as_tibble() %>%
-            dplyr::mutate(.rep = (.rep - 1) %/% n_methods + 1)
-          results
-        },
-        "dgps+methods" = {
-          if (check_cache) {
-            mapply_args <- purrr::map2(new_fit_params$.dgp,
-                                       new_fit_params$.method,
-                                       ~c(list(.x), list(.y)))
-          } else {
-            mapply_args <- purrr::cross2(
-              dgp_params_list, method_params_list
+              },
+              future.seed = future.seed,
+              future.globals = future.globals,
+              future.packages = future.packages
             )
-          }
-          # shuffle the inputs to avoid bad load balancing
-          mapply_args <- mapply_args[sample(1:length(mapply_args))]
-          dgp_mapply_args <- lapply(mapply_args, `[[`, 1)
-          method_mapply_args <- lapply(mapply_args, `[[`, 2)
-          p <- progressr::progressor(steps = length(dgp_mapply_args)*n_reps)
-          results <- future.apply::future_mapply(
-            function(dgp_params, method_params) {
-              reps <- replicate(n_reps, {
+            # get correct rep number
+            results <- purrr::map(1:length(results),
+                                  function(i) {
+                                    results[[i]]$.rep <- i
+                                    return(results[[i]])
+                                  })
+            results <- data.table::rbindlist(results, fill = TRUE) %>%
+              tibble::as_tibble() %>%
+              dplyr::mutate(.rep = (.rep - 1) %/% n_methods + 1)
+            results
+          },
+          "dgps+methods" = {
+            if (check_cache) {
+              mapply_args <- purrr::map2(new_fit_params$.dgp,
+                                         new_fit_params$.method,
+                                         ~c(list(.x), list(.y)))
+            } else {
+              mapply_args <- purrr::cross2(
+                dgp_params_list, method_params_list
+              )
+            }
+            # shuffle the inputs to avoid bad load balancing
+            mapply_args <- mapply_args[sample(1:length(mapply_args))]
+            dgp_mapply_args <- lapply(mapply_args, `[[`, 1)
+            method_mapply_args <- lapply(mapply_args, `[[`, 2)
+            p <- progressr::progressor(steps = length(dgp_mapply_args)*n_reps)
+            results <- future.apply::future_mapply(
+              function(dgp_params, method_params) {
+                reps <- replicate(n_reps, {
+                  p()
+                  dgp_name <- dgp_params$.dgp_name
+                  dgp_params$.dgp_name <- NULL
+                  data_list <- do_call_handler(
+                    dgp_name, dgp_list[[dgp_name]]$generate, dgp_params, verbose
+                  )
+                  method_name <- method_params$.method_name
+                  param_df <- fix_duplicate_param_names(
+                    dgp_params = c(.dgp_name = dgp_name, dgp_params),
+                    method_params = method_params,
+                    duplicate_param_names = duplicate_param_names
+                  ) %>%
+                    list_to_tibble_row() %>%
+                    simplify_tibble()
+                  method_params$.method_name <- NULL
+                  method_params$data_list <- data_list
+                  result <- do_call_handler(
+                    method_name, method_list[[method_name]]$fit, method_params,
+                    verbose
+                  )
+                  return(result %>% tibble::add_column(param_df, .before=1))
+                }, simplify=FALSE)
+                dplyr::bind_rows(reps, .id = ".rep")
+              },
+              dgp_mapply_args, method_mapply_args,
+              future.seed = future.seed, SIMPLIFY = FALSE,
+              future.globals = future.globals,
+              future.packages = future.packages
+            )
+            data.table::rbindlist(results, fill = TRUE) %>%
+              tibble::as_tibble()
+          },
+          "reps+dgps+methods" = {
+            if (check_cache) {
+              mapply_args <- purrr::map2(new_fit_params$.dgp,
+                                         new_fit_params$.method,
+                                         ~c(list(.x), list(.y)))
+              mapply_args <- purrr::map(1:n_reps,
+                                        function(i) {
+                                          purrr::map(mapply_args,
+                                                     ~c(list(i), .x))
+                                        }) %>%
+                purrr::reduce(c)
+            } else {
+              mapply_args <- purrr::cross3(
+                1:n_reps, dgp_params_list, method_params_list
+              )
+            }
+            # shuffle the inputs to avoid bad load balancing
+            mapply_args <- mapply_args[sample(1:length(mapply_args))]
+            reps <- sapply(mapply_args, `[[`, 1)
+            dgp_mapply_args <- lapply(mapply_args, `[[`, 2)
+            method_mapply_args <- lapply(mapply_args, `[[`, 3)
+            p <- progressr::progressor(along = dgp_mapply_args)
+            results <- future.apply::future_mapply(
+              function(dgp_params, method_params) {
                 p()
                 dgp_name <- dgp_params$.dgp_name
                 dgp_params$.dgp_name <- NULL
@@ -1040,110 +1138,66 @@ Experiment <- R6::R6Class(
                   verbose
                 )
                 return(result %>% tibble::add_column(param_df, .before=1))
-              }, simplify=FALSE)
-              dplyr::bind_rows(reps, .id = ".rep")
-            },
-            dgp_mapply_args, method_mapply_args,
-            future.seed = future.seed, SIMPLIFY = FALSE,
-            future.globals = future.globals,
-            future.packages = future.packages
-          )
-          data.table::rbindlist(results, fill = TRUE) %>%
-            tibble::as_tibble()
-        },
-        "reps+dgps+methods" = {
-          if (check_cache) {
-            mapply_args <- purrr::map2(new_fit_params$.dgp,
-                                       new_fit_params$.method,
-                                       ~c(list(.x), list(.y)))
-            mapply_args <- purrr::map(1:n_reps,
-                                      function(i) {
-                                        purrr::map(mapply_args,
-                                                   ~c(list(i), .x))
-                                      }) %>%
-              purrr::reduce(c)
-          } else {
-            mapply_args <- purrr::cross3(
-              1:n_reps, dgp_params_list, method_params_list
+              },
+              dgp_mapply_args, method_mapply_args,
+              future.seed = future.seed, SIMPLIFY = FALSE,
+              future.globals = future.globals,
+              future.packages = future.packages
             )
+            results <- data.table::rbindlist(results, fill = TRUE) %>%
+              tibble::as_tibble() %>%
+              dplyr::mutate(.rep = reps)
+            results
           }
-          # shuffle the inputs to avoid bad load balancing
-          mapply_args <- mapply_args[sample(1:length(mapply_args))]
-          reps <- sapply(mapply_args, `[[`, 1)
-          dgp_mapply_args <- lapply(mapply_args, `[[`, 2)
-          method_mapply_args <- lapply(mapply_args, `[[`, 3)
-          p <- progressr::progressor(along = dgp_mapply_args)
-          results <- future.apply::future_mapply(
-            function(dgp_params, method_params) {
-              p()
-              dgp_name <- dgp_params$.dgp_name
-              dgp_params$.dgp_name <- NULL
-              data_list <- do_call_handler(
-                dgp_name, dgp_list[[dgp_name]]$generate, dgp_params, verbose
-              )
-              method_name <- method_params$.method_name
-              param_df <- fix_duplicate_param_names(
-                dgp_params = c(.dgp_name = dgp_name, dgp_params),
-                method_params = method_params,
-                duplicate_param_names = duplicate_param_names
-              ) %>%
-                list_to_tibble_row() %>%
-                simplify_tibble()
-              method_params$.method_name <- NULL
-              method_params$data_list <- data_list
-              result <- do_call_handler(
-                method_name, method_list[[method_name]]$fit, method_params,
-                verbose
-              )
-              return(result %>% tibble::add_column(param_df, .before=1))
-            },
-            dgp_mapply_args, method_mapply_args,
-            future.seed = future.seed, SIMPLIFY = FALSE,
-            future.globals = future.globals,
-            future.packages = future.packages
-          )
-          results <- data.table::rbindlist(results, fill = TRUE) %>%
-            tibble::as_tibble() %>%
-            dplyr::mutate(.rep = reps)
-          results
-        }
-      )
+        ) %>%
+          dplyr::mutate(.rep = as.numeric(.rep) + n_reps_cached)
 
-      attr(fit_results, ".internal.selfref") <- NULL
-      for (col in setdiff(private$.get_vary_params(), colnames(fit_results))) {
-        fit_results[[col]] <- NA
-      }
-      fit_results <- simplify_tibble(fit_results) %>%
-        dplyr::mutate(.rep = as.character(.rep)) %>%
-        dplyr::select(.rep, .dgp_name, .method_name,
-                      private$.get_vary_params(),
-                      tidyselect::everything()) %>%
-        dplyr::arrange(as.numeric(.rep), .dgp_name, .method_name)
+        n_reps_cached <- n_reps_cached + n_reps
 
-      if (use_cached && !new_fit) {
-        fit_params_cached <- private$.get_fit_params(cached_params, "cached",
-                                                     n_reps, TRUE)
-        fit_results_cached <- private$.get_cached_results("fit",
-                                                          verbose = verbose) %>%
-          dplyr::inner_join(y = fit_params_cached,
-                            by = colnames(fit_params_cached))
-        if (verbose >= 1) {
-          message("Appending cached results to the new fit results...")
+        attr(new_fit_results, ".internal.selfref") <- NULL
+        col_diff <- setdiff(
+          private$.get_vary_params(), colnames(new_fit_results)
+        )
+        for (col in col_diff) {
+          new_fit_results[[col]] <- NA
         }
-        fit_params <- private$.get_fit_params(simplify = TRUE)
-        fit_params_cols <- colnames(fit_params)
-        fit_results <- dplyr::bind_rows(fit_results, fit_results_cached) %>%
-          dplyr::inner_join(y = fit_params, by = fit_params_cols) %>%
-          dplyr::filter(as.numeric(.rep) <= n_reps) %>%
+        fit_results <- simplify_tibble(new_fit_results) %>%
+          dplyr::mutate(.rep = as.character(.rep)) %>%
+          dplyr::select(.rep, .dgp_name, .method_name,
+                        private$.get_vary_params(),
+                        tidyselect::everything()) %>%
+          dplyr::bind_rows(fit_results) %>%
           dplyr::arrange(as.numeric(.rep), .dgp_name, .method_name)
-      }
 
-      if (verbose >= 1) {
-        message(sprintf("Fitting completed | time taken: %f minutes",
-                        difftime(Sys.time(), start_time, units = "mins")))
-      }
-      if (save) {
-        private$.save_results(fit_results, "fit", n_reps, verbose)
+        if (use_cached && !new_fit) {
+          fit_params_cached <- private$.get_fit_params(cached_params, "cached",
+                                                       n_reps_total, TRUE)
+          fit_results_cached <- private$.get_cached_results("fit",
+                                                            verbose = verbose) %>%
+            dplyr::inner_join(y = fit_params_cached,
+                              by = colnames(fit_params_cached))
+          if (verbose >= 1) {
+            message("Appending cached results to the new fit results...")
+          }
+          fit_params <- private$.get_fit_params(simplify = TRUE)
+          fit_params_cols <- colnames(fit_params)
+          fit_results <- dplyr::bind_rows(fit_results, fit_results_cached) %>%
+            dplyr::inner_join(y = fit_params, by = fit_params_cols) %>%
+            dplyr::filter(as.numeric(.rep) <= n_reps_total) %>%
+            dplyr::arrange(as.numeric(.rep), .dgp_name, .method_name)
+        }
+
+        if (verbose >= 1) {
+          message(sprintf("%s reps completed (totals: %s/%s) | time taken: %f minutes",
+                          n_reps, n_reps_cached, n_reps_total,
+                          difftime(Sys.time(), start_time, units = "mins")))
+        }
+        if (save || checkpoint) {
+          private$.save_results(
+            fit_results, "fit", n_reps_cached, verbose,
+            checkpoint && n_reps_cached < n_reps_total
+          )
+        }
       }
       if (verbose >= 1) {
         message("==============================")
