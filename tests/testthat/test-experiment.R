@@ -911,10 +911,8 @@ test_that("Caching in Experiment runs properly", {
   results8 <- experiment$run(n_reps = 10, use_cached = TRUE, save = TRUE,
                              verbose = verbose)
   expect_equal(nrow(results8$fit_results), 10 * 3 * 2)
-  # expect_equal(results8$fit_results %>% dplyr::filter(as.numeric(.rep) <= 4),
-  #              results7$fit_results)
-  expect_false(identical(results7$fit_results,
-                         results8$fit_results %>% 
+  expect_true(identical(results7$fit_results,
+                         results8$fit_results %>%
                            dplyr::filter(as.numeric(.rep) <= 4)))
   
   # check when add multiple new objects to experiment
@@ -1185,9 +1183,7 @@ test_that("Capturing errors, warnings, and messages from user-defined functions 
     "plot"
   }
 
-  experiment <- create_experiment(
-    name = "error-tracking", future.packages = "dplyr"
-  ) %>%
+  experiment <- create_experiment(name = "error-tracking") %>%
     add_dgp(create_dgp(dgp_fun, n = 10)) %>%
     add_dgp(create_dgp(dgp_fun, name = "dgp_test", n = 10)) %>%
     add_method(create_method(method_fun), name="method_test") %>%
@@ -1209,27 +1205,32 @@ test_that("Capturing errors, warnings, and messages from user-defined functions 
     add_evaluator(create_evaluator(eval_fun)) %>%
     add_visualizer(create_visualizer(viz_fun))
 
-  expect_snapshot(experiment$fit(n_reps=2), transform = transform_fun)
+  expect_snapshot(
+    invisible(experiment$fit(n_reps=2)), transform = transform_fun
+  )
 
   expect_snapshot(
-    fit_results <- experiment$fit(n_reps=2, verbose=2),
+    invisible(fit_results <- experiment$fit(n_reps=2, verbose=2)),
     transform = transform_fun
   )
 
   expect_snapshot(
-    experiment$evaluate(fit_results), transform = transform_fun
+    invisible(experiment$evaluate(fit_results)),
+    transform = transform_fun
   )
   expect_snapshot(
-    eval_results <- experiment$evaluate(fit_results, verbose=2),
+    invisible(eval_results <- experiment$evaluate(fit_results, verbose=2)),
     transform = transform_fun
   )
 
   expect_snapshot(
-    experiment$visualize(fit_results, eval_results),
+    invisible(experiment$visualize(fit_results, eval_results)),
     transform = transform_fun
   )
   expect_snapshot(
-    experiment$visualize(fit_results, eval_results, verbose = 2),
+    invisible(viz_results <- experiment$visualize(
+      fit_results, eval_results, verbose = 2
+    )),
     transform = transform_fun
   )
 
@@ -1237,8 +1238,79 @@ test_that("Capturing errors, warnings, and messages from user-defined functions 
     add_visualizer(create_visualizer(viz_fun, error = TRUE))
 
   expect_snapshot(
-    experiment$visualize(fit_results, eval_results, verbose = 2),
+    invisible(experiment$visualize(fit_results, eval_results, verbose = 2)),
     error = TRUE, transform = transform_fun
   )
+
+})
+
+test_that("Experiment checkpointing works as expected", {
+
+  dgp_fun <- function(n=100, rho=0.5, noise_level=1) {
+    X <- data.frame(.n = n, .rho = rho, .noise_level = noise_level)
+    return(list(X = X))
+  }
+
+  counter <- 0
+
+  method_fun <- function(X, param1=1, param2=2, vec=c(1,2,3)) {
+    if (param1 == 2 && param2 == 3 && 2 %in% vec) {
+      # simulate an error due to conditions external to the method_fun
+      counter <<- counter + 1
+      if (counter > 6) {
+        counter <<- 0
+        stop("Unexpected error!")
+      }
+    }
+    return(X)
+  }
+
+  experiment <- create_experiment(
+    name = "checkpoint-exper"
+  ) %>%
+    add_dgp(create_dgp(dgp_fun, n = 10)) %>%
+    add_method(create_method(method_fun)) %>%
+    add_vary_across(
+      method = "method1",
+      param1 = c(1, 2),
+      param2 = c(3, 4),
+      vec = list(c(1,3,4), 2:7)
+    )
+
+  expect_error(
+    experiment$fit(n_reps = 10, checkpoint_n_reps = 5)
+  )
+
+  fit_results <- get_cached_results(experiment, "fit")
+
+  distinct_results <- fit_results %>%
+    dplyr::select(-.rep) %>%
+    dplyr::distinct()
+
+  expect_equal(max(as.numeric(fit_results$.rep)), 5)
+  expect_equal(nrow(fit_results), 40)
+
+  vary_results <- mapply(list, distinct_results$param1, distinct_results$param2,
+                         distinct_results$vec, SIMPLIFY = FALSE)
+  expected_vary_results <- purrr::cross3(c(1,2), c(3,4), list(c(1,3,4), 2:7))
+
+  expect_equal(vary_results, expected_vary_results)
+
+  fit_results <- experiment$fit(n_reps = 10, checkpoint_n_reps = 5)
+
+  distinct_results2 <- fit_results %>%
+    dplyr::select(-.rep) %>%
+    dplyr::distinct()
+
+  expect_equal(max(as.numeric(fit_results$.rep)), 10)
+  expect_equal(nrow(fit_results), 80)
+  expect_equal(distinct_results, distinct_results2)
+
+  if (dir.exists(file.path("results", "checkpoint-exper"))) {
+    for (fname in list.files(file.path("results", "checkpoint-exper"),
+                             recursive = T, full.names = TRUE)) {
+      file.remove(fname)
+    }
+  }
 
 })

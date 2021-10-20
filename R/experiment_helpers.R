@@ -2,6 +2,9 @@
 #'
 #' @name shared_experiment_helpers_args
 #'
+#' @param checkpoint_n_reps The number of experiment replicates to compute
+#'   before saving results to disk. If 0 (the default), no checkpoints are
+#'   saved.
 #' @param dgp A \code{DGP} object.
 #' @param evaluator An \code{Evaluator} object.
 #' @param eval_results A list of result tibbles, as returned by the
@@ -27,7 +30,7 @@
 #' @param use_cached Logical. If \code{TRUE}, find and return previously saved
 #'   results. If cached results cannot be found, continue as if
 #'   \code{use_cached} was \code{FALSE}.
-#' @param vary_params A vector of parameter names that are varied across in the 
+#' @param vary_params A vector of parameter names that are varied across in the
 #'   \code{Experiment}.
 #' @param verbose Level of verbosity. Default is 1, which prints out messages
 #'   after major checkpoints in the experiment. If 2, prints additional
@@ -102,13 +105,15 @@ create_experiment <- function(name = "experiment",
 run_experiment <- function(experiment, n_reps = 1,
                            parallel_strategy = c("reps"), future.globals = NULL,
                            future.packages = NULL, future.seed = TRUE,
-                           use_cached = FALSE, save = FALSE, verbose = 1, ...) {
+                           use_cached = FALSE, save = FALSE,
+                           checkpoint_n_reps = 0, verbose = 1, ...) {
   return(experiment$run(n_reps = n_reps,
                         parallel_strategy = parallel_strategy,
                         future.globals = future.globals,
                         future.packages = future.packages,
                         future.seed = future.seed, use_cached = use_cached,
-                        save = save, verbose = verbose, ...))
+                        save = save, checkpoint_n_reps = checkpoint_n_reps,
+                        verbose = verbose, ...))
 }
 
 #' Generate data from each \code{DGP} in the \code{Experiment}.
@@ -150,13 +155,14 @@ generate_data <- function(experiment, n_reps=1, ...) {
 fit_experiment <- function(experiment, n_reps=1, parallel_strategy = c("reps"),
                            future.globals = NULL, future.packages = NULL,
                            future.seed = TRUE, use_cached = FALSE, save = FALSE,
-                           verbose = 1, ...) {
+                           checkpoint_n_reps = 0, verbose = 1, ...) {
   return(experiment$fit(n_reps = n_reps,
                         parallel_strategy = parallel_strategy,
                         future.globals = future.globals,
                         future.packages = future.packages,
                         future.seed = future.seed, use_cached = use_cached,
-                        save = save, verbose = verbose, ...))
+                        save = save, checkpoint_n_reps = checkpoint_n_reps,
+                        verbose = verbose, ...))
 }
 
 #' Evaluate an \code{Experiment}.

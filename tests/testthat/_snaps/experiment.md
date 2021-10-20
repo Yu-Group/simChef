@@ -623,21 +623,9 @@
 # Capturing errors, warnings, and messages from user-defined functions works as expected
 
     Code
-      experiment$fit(n_reps = 2)
+      invisible(experiment$fit(n_reps = 2))
     Message <simpleMessage>
       Fitting error-tracking...
-    Message <packageStartupMessage>
-      
-      Attaching package: 'dplyr'
-      The following object is masked from 'package:testthat':
-      
-          matches
-      The following objects are masked from 'package:stats':
-      
-          filter, lag
-      The following objects are masked from 'package:base':
-      
-          intersect, setdiff, setequal, union
     Warning <simpleWarning>
       rho must be greater than 0.5
     Message <simpleMessage>
@@ -686,29 +674,13 @@
       3 isn't in vec
       3 isn't in vec
       3 isn't in vec
-      Fitting completed | time taken: _x_ minutes
+      2 reps completed (totals: 2/2) | time taken: _x_ minutes
       ==============================
-    Output
-      # A tibble: 48 x 14
-         .rep  .dgp_name .method_name param2 vec       rho_dgp noise_level_dgp rho_method
-         <chr> <chr>     <chr>         <dbl> <list>    <lgl>   <lgl>           <lgl>     
-       1 1     dgp1      method_test       2 <dbl [3]> NA      NA              NA        
-       2 1     dgp1      method_test       4 <dbl [3]> NA      NA              NA        
-       3 1     dgp1      method_test       2 <int [4]> NA      NA              NA        
-       4 1     dgp1      method_test       4 <int [4]> NA      NA              NA        
-       5 1     dgp1      method_test       2 <dbl [3]> NA      NA              NA        
-       6 1     dgp1      method_test       4 <dbl [3]> NA      NA              NA        
-       7 1     dgp1      method_test       2 <int [4]> NA      NA              NA        
-       8 1     dgp1      method_test       4 <int [4]> NA      NA              NA        
-       9 1     dgp_test  method_test       2 <dbl [3]> NA      NA              NA        
-      10 1     dgp_test  method_test       4 <dbl [3]> NA      NA              NA        
-      # ... with 38 more rows, and 6 more variables: noise_level_method <lgl>,
-      #   rho <dbl>, noise_level <dbl>, .n <dbl>, .rho <dbl>, .noise_level <dbl>
 
 ---
 
     Code
-      fit_results <- experiment$fit(n_reps = 2, verbose = 2)
+      invisible(fit_results <- experiment$fit(n_reps = 2, verbose = 2))
     Message <simpleMessage>
       Fitting error-tracking...
     Output
@@ -1064,13 +1036,13 @@
       3 isn't in vec
       3 isn't in vec
       3 isn't in vec
-      Fitting completed | time taken: _x_ minutes
+      2 reps completed (totals: 2/2) | time taken: _x_ minutes
       ==============================
 
 ---
 
     Code
-      experiment$evaluate(fit_results)
+      invisible(experiment$evaluate(fit_results))
     Message <simpleMessage>
       Evaluating error-tracking...
     Warning <simpleWarning>
@@ -1078,20 +1050,11 @@
     Message <simpleMessage>
       Evaluation completed | time taken: _x_ minutes
       ==============================
-    Output
-      $evaluator1
-      # A tibble: 1 x 14
-        .rep  .dgp_name .method_name param2 vec       rho_dgp noise_level_dgp rho_method
-        <chr> <chr>     <chr>         <dbl> <list>    <lgl>   <lgl>           <lgl>     
-      1 1     dgp1      method_test       2 <dbl [3]> NA      NA              NA        
-      # ... with 6 more variables: noise_level_method <lgl>, rho <dbl>,
-      #   noise_level <dbl>, .n <dbl>, .rho <dbl>, .noise_level <dbl>
-      
 
 ---
 
     Code
-      eval_results <- experiment$evaluate(fit_results, verbose = 2)
+      invisible(eval_results <- experiment$evaluate(fit_results, verbose = 2))
     Message <simpleMessage>
       Evaluating error-tracking...
     Output
@@ -1123,7 +1086,7 @@
 ---
 
     Code
-      experiment$visualize(fit_results, eval_results)
+      invisible(experiment$visualize(fit_results, eval_results))
     Message <simpleMessage>
       Visualizing error-tracking...
     Warning <simpleWarning>
@@ -1131,15 +1094,12 @@
     Message <simpleMessage>
       Visualization completed | time taken: _x_ minutes
       ==============================
-    Output
-      $visualizer1
-      [1] "plot"
-      
 
 ---
 
     Code
-      experiment$visualize(fit_results, eval_results, verbose = 2)
+      invisible(viz_results <- experiment$visualize(fit_results, eval_results,
+        verbose = 2))
     Message <simpleMessage>
       Visualizing error-tracking...
     Output
@@ -1169,15 +1129,11 @@
     Message <simpleMessage>
       Visualization completed | time taken: _x_ minutes
       ==============================
-    Output
-      $visualizer1
-      [1] "plot"
-      
 
 ---
 
     Code
-      experiment$visualize(fit_results, eval_results, verbose = 2)
+      invisible(experiment$visualize(fit_results, eval_results, verbose = 2))
     Message <simpleMessage>
       Visualizing error-tracking...
     Output

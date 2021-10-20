@@ -13,6 +13,7 @@ run_experiment(
   future.seed = TRUE,
   use_cached = FALSE,
   save = FALSE,
+  checkpoint_n_reps = 0,
   verbose = 1,
   ...
 )
@@ -44,6 +45,10 @@ results. If cached results cannot be found, continue as if
 \code{use_cached} was \code{FALSE}.}
 
 \item{save}{If \code{TRUE}, save outputs to disk.}
+
+\item{checkpoint_n_reps}{The number of experiment replicates to compute
+before saving results to disk. If 0 (the default), no checkpoints are
+saved.}
 
 \item{verbose}{Level of verbosity. Default is 1, which prints out messages
 after major checkpoints in the experiment. If 2, prints additional

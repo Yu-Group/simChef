@@ -4,6 +4,10 @@
 \alias{shared_experiment_helpers_args}
 \title{Arguments that are shared by multiple Experiment helper funs.}
 \arguments{
+\item{checkpoint_n_reps}{The number of experiment replicates to compute
+before saving results to disk. If 0 (the default), no checkpoints are
+saved.}
+
 \item{dgp}{A \code{DGP} object.}
 
 \item{evaluator}{An \code{Evaluator} object.}
