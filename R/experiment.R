@@ -186,19 +186,20 @@ Experiment <- R6::R6Class(
     },
     .get_vary_params = function(field_name = c("dgp", "method")) {
       field_name <- match.arg(field_name, several.ok = TRUE)
-      param_names <- purrr::map(private$.vary_across_list[field_name],
-                                function(x) {
-                                  if (identical(x, list())) {
-                                    return(NULL)
-                                  } else {
-                                    return(purrr::map(x, names) %>%
-                                             purrr::reduce(c))
-                                  }
-                                }) %>%
-        purrr::reduce(c)
+      param_names_ls <- purrr::map(private$.vary_across_list[field_name],
+                                   function(x) {
+                                     if (identical(x, list())) {
+                                       return(NULL)
+                                     } else {
+                                       return(purrr::map(x, names) %>%
+                                                purrr::reduce(c))
+                                     }
+                                   })
+      param_names <- purrr::reduce(param_names_ls, c)
       # fix duplicate names in dgp and method vary across components
       if (all(c("dgp", "method") %in% field_name)) {
-        same_names <- unique(param_names[duplicated(param_names)])
+        same_names <- unique(intersect(param_names_ls[[1]], 
+                                       param_names_ls[[2]]))
         if (length(same_names) >= 1) {
           unique_param_names <- setdiff(param_names, same_names)
           same_param_names <- c(paste0(same_names, "_dgp"),
