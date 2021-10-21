@@ -374,3 +374,28 @@ do_call_handler <- function(name, fun, params = list(), verbose = 1) {
     )
   }
 }
+
+#' Helper function to throw informative error when column names are duplicated,
+#' in particular, when the same parameter is in the user-provided method 
+#' results output and also in vary_across.
+#' 
+#' @param names Vector of column names to check for uniqueness
+#' @return Throws an error if duplicate names are found. Returns the original
+#'   names otherwise.
+#' @keywords internal
+check_results_names <- function(names, method_name) {
+  if (any(duplicated(names))) {
+    dup_names <- unique(names[duplicated(names)])
+    stop(
+      paste0(
+        "Cannot create results tibble with duplicate column names: `",
+        paste(dup_names, collapse = "`, `"), "`.\nPlease check that the ",
+        method_name, "() output does not have the same names as the ",
+        "parameters being varied across in the Experiment and avoid using `",
+        paste(dup_names, collapse = "`, `"), "` as names in the ",
+        method_name, "() output."
+      )
+    )
+  }
+  return(names)
+}

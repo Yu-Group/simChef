@@ -781,8 +781,6 @@ test_that("Caching in Experiment runs properly", {
   
   # caching when adding objects
   experiment %>% add_dgp(dgp2, "DGP2")
-  # runs error - need save = TRUE
-  # results3 <- experiment$run(n_reps = 10, use_cached = TRUE, save = FALSE)
   results3 <- experiment$run(n_reps = 10, use_cached = TRUE, save = TRUE,
                              verbose = verbose)
   expect_equal(nrow(results3$fit_results), 20)
@@ -1135,6 +1133,20 @@ test_that("Various parallel strategies in experiment work properly", {
     expect_equal(results_tally$n, rep(2, 16))
   }
 
+  # return error if duplicate column names
+  dgp_fun1 <- function(y = "") return(x = list(paste0("data1", y)))
+  dgp1 <- create_dgp(dgp_fun1)
+  method_fun1 <- function(x) return(list(y = paste0(x, "+method1")))
+  method1 <- create_method(method_fun1)
+  experiment <- create_experiment(dgp_list = list(dgp1), 
+                                  method_list = list(method1)) %>%
+    add_vary_across(dgp = dgp1, y = c("a", "b", "c"))
+  expected_results <- c("data1a+method1", "data1b+method1", "data1c+method1", 
+                        "data1a+method1", "data1b+method1", "data1c+method1")
+  for (strat in strategies) {
+    expect_error(experiment$fit(n_reps = 2, parallel_strategy = strat, 
+                                verbose = 0))
+  }
 })
 
 #' this function is passed to expect_snapshot() and scrubs stochastic lines

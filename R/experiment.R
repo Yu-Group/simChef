@@ -840,7 +840,12 @@ Experiment <- R6::R6Class(
                   result <- do_call_handler(
                     method_name, method_list[[method_name]]$fit, method_params, verbose
                   )
-                  return(result %>% tibble::add_column(param_df, .before=1))
+                  result <- result %>%
+                    tibble::add_column(
+                      param_df, .before = 1,
+                      .name_repair = ~check_results_names(., method_name)
+                    )
+                  return(result)
                 }) %>%
                   data.table::rbindlist(fill = TRUE)
               }) %>%
@@ -884,7 +889,12 @@ Experiment <- R6::R6Class(
                       method_name, method_list[[method_name]]$fit, method_params,
                       verbose
                     )
-                    return(result %>% tibble::add_column(param_df, .before=1))
+                    result <- result %>%
+                      tibble::add_column(
+                        param_df, .before = 1,
+                        .name_repair = ~check_results_names(., method_name)
+                      )
+                    return(result)
                   }) %>%
                     data.table::rbindlist(fill = TRUE)
                 }, simplify=FALSE)
@@ -927,7 +937,12 @@ Experiment <- R6::R6Class(
                       method_name, method_list[[method_name]]$fit, method_params,
                       verbose
                     )
-                    return(result %>% tibble::add_column(param_df, .before=1))
+                    result <- result %>%
+                      tibble::add_column(
+                        param_df, .before = 1,
+                        .name_repair = ~check_results_names(., method_name)
+                      )
+                    return(result)
                   }) %>%
                     data.table::rbindlist(fill = TRUE)
                 }, simplify = FALSE)
@@ -972,7 +987,12 @@ Experiment <- R6::R6Class(
                     method_name, method_list[[method_name]]$fit, method_params,
                     verbose
                   )
-                  return(result %>% tibble::add_column(param_df, .before=1))
+                  result <- result %>%
+                    tibble::add_column(
+                      param_df, .before = 1,
+                      .name_repair = ~check_results_names(., method_name)
+                    )
+                  return(result)
                 }) %>%
                   data.table::rbindlist(fill = TRUE)
               },
@@ -1024,7 +1044,12 @@ Experiment <- R6::R6Class(
                     method_name, method_list[[method_name]]$fit, method_params,
                     verbose
                   )
-                  return(result %>% tibble::add_column(param_df, .before=1))
+                  result <- result %>%
+                    tibble::add_column(
+                      param_df, .before = 1,
+                      .name_repair = ~check_results_names(., method_name)
+                    )
+                  return(result)
                 }) %>%
                   data.table::rbindlist(fill = TRUE)
               },
@@ -1081,7 +1106,12 @@ Experiment <- R6::R6Class(
                     method_name, method_list[[method_name]]$fit, method_params,
                     verbose
                   )
-                  return(result %>% tibble::add_column(param_df, .before=1))
+                  result <- result %>%
+                    tibble::add_column(
+                      param_df, .before = 1,
+                      .name_repair = ~check_results_names(., method_name)
+                    )
+                  return(result)
                 }, simplify=FALSE)
                 dplyr::bind_rows(reps, .id = ".rep")
               },
@@ -1137,7 +1167,12 @@ Experiment <- R6::R6Class(
                   method_name, method_list[[method_name]]$fit, method_params,
                   verbose
                 )
-                return(result %>% tibble::add_column(param_df, .before=1))
+                result <- result %>%
+                  tibble::add_column(
+                    param_df, .before = 1,
+                    .name_repair = ~check_results_names(., method_name)
+                  )
+                return(result)
               },
               dgp_mapply_args, method_mapply_args,
               future.seed = future.seed, SIMPLIFY = FALSE,
