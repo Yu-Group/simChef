@@ -28,7 +28,8 @@ summarize_testing_err(
   alphas = 0.05,
   na_rm = FALSE,
   summary_funs = c("mean", "median", "min", "max", "sd", "raw"),
-  custom_summary_funs = NULL
+  custom_summary_funs = NULL,
+  eval_id = NULL
 )
 }
 \arguments{
@@ -78,6 +79,9 @@ functions - elements of the vector must be one of "mean", "median",
 results. Names in the list should correspond to the name of the summary
 function. Values in the list should be a function that takes in one
 argument, that being the values of the evaluated metrics.}
+
+\item{eval_id}{Character string. ID to be used as a suffix when naming result
+columns. Default \code{NULL} does not add any ID to the column names.}
 }
 \value{
 The output of \code{eval_testing_err()} is a \code{tibble} with the following
