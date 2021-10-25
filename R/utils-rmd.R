@@ -31,13 +31,10 @@ subchunkify <- function(g, i, fig_height = 12, fig_width = 10, caption = "''",
     }
   }
   
-  sub_chunk <- paste0("
-  `","``{r subchunk_", i, 
-                      ", fig.height=", fig_height, ", fig.width=", fig_width, 
-                      ", fig.cap=", caption,", echo=FALSE", other_args, "}",
-                      "\n(", g_deparsed, ")()",
-                      "\n`","``
-  ")
+  sub_chunk <- paste0("\n```{r subchunk_", i, ", fig.height=", fig_height, 
+                      ", fig.width=", fig_width, ", fig.cap=", caption,
+                      ", echo=FALSE", other_args, "}", "\n(", g_deparsed, ")()",
+                      "\n```\n")
   
   if (!is.null(add_class)) {
     cat(sprintf("<div class='%s'>", paste(add_class)))
