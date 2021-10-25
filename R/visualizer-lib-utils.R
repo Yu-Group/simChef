@@ -501,7 +501,7 @@ get_eval_tibble <- function(fit_results, eval_tib = NULL, eval_id = NULL,
   }
   
   # append new results to previous results
-  if (!is.null(summary_funs)) {
+  if (!is.null(summary_funs) | is.null(eval_tib)) {
     new_eval_tib <- R.utils::doCall(eval_fun, fit_results = fit_results,
                                     vary_params = vary_params, 
                                     summary_funs = summary_funs, ...)

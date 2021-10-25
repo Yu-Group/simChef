@@ -43,7 +43,7 @@
 #'                                sd = 1)
 #'
 #' @export
-xy_dgp_constructor <- function(x_fun, y_fun, err_fun, 
+xy_dgp_constructor <- function(x_fun, y_fun, err_fun = NULL, 
                                data_split = FALSE, train_prop = 0.5,
                                return_values = c("X", "y", "support"),
                                ...) {
@@ -100,9 +100,13 @@ xy_dgp_constructor <- function(x_fun, y_fun, err_fun,
   if (!is.list(y_true_out)) {
     y_true_out <- list(y = y_true_out)
   }
-  err_out <- R.utils::doCall(err_fun, args = c(X_out, y_true_out, args_list),
-                             alwaysArgs = err_args_list)
-  y <- y_true_out$y + err_out
+  if (!is.null(err_fun)) {
+    err_out <- R.utils::doCall(err_fun, args = c(X_out, y_true_out, args_list),
+                               alwaysArgs = err_args_list)
+    y <- y_true_out$y + err_out
+  } else {
+    y <- y_true_out$y
+  }
   
   out <- return_DGP_output(X = X_out$X, y = y, support = y_true_out$support, 
                            data_split = data_split, train_prop = train_prop,
@@ -274,6 +278,136 @@ correlated_linear_gaussian_dgp <- function(n, p_uncorr, p_corr,
   return(out)
 }
 
+#' Generate independent Gaussian covariates and (binary) logistic response data.
+#' 
+#' @description Generate independent normally-distributed covariates and 
+#'   logistic response data.
+#'
+#' @inheritParams shared_dgp_lib_args
+#' @param s Number of features with non-zero coefficients.
+#' @param betas Coefficient vector for observed design matrix.
+#' @param betas_sd (Optional) SD of normal distribution from which to draw 
+#'   \code{betas}. Only used if \code{betas} argument is \code{NULL}.
+#' @param ... Not used.
+#' 
+#' @inherit shared_dgp_lib_args return
+#'   
+#' @export
+logistic_gaussian_dgp <- function(n, p, s = p, betas = NULL, betas_sd = 1,
+                                  data_split = FALSE, train_prop = 0.5,
+                                  return_values = c("X", "y", "support"),
+                                  ...) {
+  return_values <- match.arg(return_values, several.ok = TRUE)
+  
+  # simulate observed covariates
+  X <- generate_X_gaussian(n = n, p = p)
+  
+  # simulate betas from gaussian
+  if (is.null(betas)) {
+    betas <- stats::rnorm(p, mean = 0, sd = betas_sd)
+    if (s != p) {
+      betas[(s + 1):length(betas)] <- 0
+    }
+  }
+  
+  # simulate linear y
+  y <- generate_y_logistic(
+    X = X, betas = betas, return_support = "support" %in% return_values, ...
+  )
+  
+  if ("support" %in% return_values) {
+    support <- y$support
+    y <- y$y
+  }
+  out <- return_DGP_output(X = X, y = y, support = support,
+                           data_split = data_split, train_prop = train_prop,
+                           return_values = return_values)
+  
+  return(out)
+}
+
+#' Generate correlated Gaussian covariates and (binary) logistic response data.
+#' 
+#' @description Generate normally-distributed covariates that are potentially
+#'   correlated and (binary) logistic response data.
+#'
+#' @inheritParams shared_dgp_lib_args
+#' @param p_uncorr Number of uncorrelated features.
+#' @param p_corr Number of features in correlated group.
+#' @param s_uncorr Number of features in uncorrelated group with non-zero coef.
+#' @param s_corr Number of features in correlated group with non-zero coef.
+#' @param corr Correlation between features in correlated group.
+#' @param betas_uncorr Coefficient vector for uncorrelated features.
+#' @param betas_corr Coefficient vector for correlated features.
+#' @param betas_uncorr_sd (Optional) SD of normal distribution from which to 
+#'   draw \code{betas_uncorr}. Only used if \code{betas_uncorr} argument is 
+#'   \code{NULL}.
+#' @param betas_corr_sd (Optional) SD of normal distribution from which to draw 
+#'   \code{betas_corr}. Only used if \code{betas_corr} argument is 
+#'   \code{NULL}.
+#'   
+#' @inherit shared_dgp_lib_args return
+#' 
+#' @export
+correlated_logstic_gaussian_dgp <- function(n, p_uncorr, p_corr, 
+                                            s_uncorr = p_uncorr, 
+                                            s_corr = p_corr,
+                                            corr, 
+                                            betas_uncorr = NULL, 
+                                            betas_corr = NULL,
+                                            betas_uncorr_sd = 1,
+                                            betas_corr_sd = 1,
+                                            err = NULL,
+                                            data_split = FALSE, 
+                                            train_prop = 0.5,
+                                            return_values = c("X", "y", 
+                                                              "support"), 
+                                            ...) {
+  # simulate correlated covariates
+  X_corr <- NULL
+  if (p_corr != 0) {
+    X_corr <- generate_X_gaussian(n = n, p = p_corr, corr = corr)
+  }
+  
+  # simulate uncorrelated covariates
+  X_uncorr <- NULL
+  if (p_uncorr != 0) {
+    X_uncorr <- generate_X_gaussian(n = n, p = p_uncorr, corr = 0)
+  }
+  
+  # simulate betas_corr from gaussian
+  if (is.null(betas_corr)) {
+    betas_corr <- stats::rnorm(p_corr, mean = 0, sd = betas_corr_sd)
+    if ((s_corr != p_corr) && (p_corr > 0)) {
+      betas_corr[(s_corr + 1):length(betas_corr)] <- 0
+    }
+  }
+  
+  # simulate betas_uncorr from gaussian
+  if (is.null(betas_uncorr)) {
+    betas_uncorr <- stats::rnorm(p_uncorr, mean = 0, sd = betas_uncorr_sd)
+    if ((s_uncorr != p_uncorr) && (p_uncorr > 0)) {
+      betas_uncorr[(s_uncorr + 1):length(betas_uncorr)] <- 0
+    }
+  }
+  
+  X <- cbind(X_uncorr, X_corr)
+  betas <- c(betas_uncorr, betas_corr)
+  
+  # simulate linear y
+  y <- generate_y_logistic(X = X, betas = betas,
+                           return_support = "support" %in% return_values, ...)
+  
+  if ("support" %in% return_values) {
+    support <- y$support
+    y <- y$y
+  }
+  out <- return_DGP_output(X = X, y = y, support = support,
+                           data_split = data_split, train_prop = train_prop,
+                           return_values = return_values)
+  return(out)
+}
+
 #' Generate independent Gaussian covariates and LSS response data.
 #'
 #' @description Generate independent normally-distributed covariates and LSS
@@ -299,11 +433,17 @@ lss_gaussian_dgp <- function(n, p, k, s, thresholds = 0, signs = 1, betas = 1,
                              data_split = FALSE, train_prop = 0.5,
                              return_values = c("X", "y", "support"), ...) {
   X <- generate_X_gaussian(n = n, p = p)
-  y <- generate_y_lss(X = X, k = k, s = matrix(1:(s * k), nrow = s, ncol = k),
-                      thresholds = thresholds, 
+  if (overlap) {
+    s_mat <- matrix(sample(1:p, s * k, replace = TRUE),
+                    nrow = s, ncol = k, byrow = TRUE)
+  } else {
+    s_mat <- matrix(1:(s * k), nrow = s, ncol = k, byrow = TRUE)
+  }
+  
+  y <- generate_y_lss(X = X, k = k, s = s_mat, thresholds = thresholds, 
                       signs = signs, betas = betas, intercept = intercept, 
-                      overlap = overlap, err = err, 
-                      return_support = "support" %in% return_values, ...)
+                      err = err, return_support = "support" %in% return_values,
+                      ...)
   
   if ("support" %in% return_values) {
     support <- y$support
@@ -359,16 +499,25 @@ correlated_lss_gaussian_dgp <- function(n, p_uncorr, p_corr,
   
   support <- NULL
   if (s_uncorr > 0) {
-    support <- c(support, 1:(s_uncorr * k))
+    if (overlap) {
+      support <- c(support, sample(1:p_uncorr, (s_uncorr * k), replace = TRUE))
+    } else {
+      support <- c(support, 1:(s_uncorr * k))
+    }
   }
   if (s_corr > 0) {
-    support <- c(support, (p_uncorr + 1):(p_uncorr + (s_corr * k)))
+    if (overlap) {
+      support <- c(support, sample((p_uncorr + 1):(p_corr + p_uncorr),
+                                   (s_corr * k), replace = TRUE))
+    } else {
+      support <- c(support, (p_uncorr + 1):(p_uncorr + (s_corr * k)))
+    }
   }
   if (mixed_int) {
     s <- matrix(sample(support, size = length(support), replace = F), 
                 nrow = s_uncorr + s_corr, ncol = k)
   } else {
-    s <- matrix(support, nrow = s_uncorr + s_corr, ncol = k)
+    s <- matrix(support, nrow = s_uncorr + s_corr, ncol = k, byrow = TRUE)
   }
   y <- generate_y_lss(X = X, k = k, s = s, 
                       thresholds = thresholds, signs = signs, betas = betas, 

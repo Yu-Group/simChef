@@ -42,6 +42,42 @@ generate_y_linear <- function(X, U, betas, betas_unobs, err = NULL,
   }
 }
 
+#' Simulate (binary) logistic response data.
+#' 
+#' @description Generate (binary) logistic response data given the observed
+#'   design matrices.
+#' 
+#' @inheritParams shared_dgp_lib_args
+#' @param X Design data matrix of observed variables.
+#' @param betas Coefficient vector for observed design matrix.
+#' @param ... Not used.
+#' 
+#' @returns If \code{return_support = TRUE}, returns a list of two:
+#' \describe{
+#' \item{y}{A response vector of length \code{nrow(X)}.}
+#' \item{support}{A vector of feature indices in the true support of the DGP.}
+#' }
+#' 
+#' If \code{return_support = FALSE}, returns only the response vector \code{y}.
+#' 
+#' @export
+generate_y_logistic <- function(X, betas, return_support = FALSE, ...) {
+  n <- nrow(X)
+  p <- ncol(X)
+  
+  probs <- 1 / (1 + exp(-(as.matrix(X) %*% betas)))
+  y <- as.factor(
+    ifelse(stats::runif(n = n, min = 0, max = 1) > probs, "0", "1")
+  )
+  
+  if (return_support) {
+    support <- which(betas != 0)
+    return(list(y = y, support = support))
+  } else {
+    return(y)
+  }
+}
+
 #' Generate locally spiky smooth (LSS) response data.
 #' 
 #' @description Generate LSS response data with a specified error
