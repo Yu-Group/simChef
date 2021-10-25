@@ -109,8 +109,10 @@ list_to_tibble <- function(ls) {
   }, error = function(e) {
     out <- purrr::map(ls, ~list(.x)) %>%
       tibble::as_tibble()
-    simplify_cols <- purrr::map_lgl(out,
-                                    ~length(unlist(.x, recursive = F)) == 1) %>%
+    simplify_cols <- purrr::map_lgl(
+      out,
+      ~(length(unlist(.x, recursive = F)) == 1) & !tibble::is_tibble(.x[[1]])
+    ) %>%
       which() %>%
       names()
     out <- out %>%
@@ -135,8 +137,11 @@ simplify_tibble <- function(tib, omit_cols = NULL) {
   simplify_cols <- purrr::map_lgl(
     tib,
     function(col) {
-      all(purrr::map_lgl(1:length(col), 
-                         ~length(unlist(col[.x], recursive = FALSE)) <= 1))
+      all(purrr::map_lgl(
+        1:length(col), 
+        ~(length(unlist(col[.x], recursive = FALSE)) <= 1) &
+          (!tibble::is_tibble(col[[.x]]))
+      ))
     }
   ) %>%
     which() %>%
