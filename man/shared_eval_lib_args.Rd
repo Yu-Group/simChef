@@ -12,6 +12,9 @@ argument, that being the values of the evaluated metrics.}
 \item{curve}{Either "ROC" or "PR" indicating whether to evaluate the ROC or
 Precision-Recall curve.}
 
+\item{eval_id}{Character string. ID to be used as a suffix when naming result
+columns. Default \code{NULL} does not add any ID to the column names.}
+
 \item{feature_col}{A character string identifying the column in
 \code{fit_results} with the feature names or IDs.}
 

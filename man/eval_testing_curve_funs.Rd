@@ -29,7 +29,8 @@ summarize_testing_curve(
   na_rm = FALSE,
   x_grid = seq(0, 1, by = 0.01),
   summary_funs = c("mean", "median", "min", "max", "sd", "raw"),
-  custom_summary_funs = NULL
+  custom_summary_funs = NULL,
+  eval_id = ifelse(curve == "PR", "precision", "TPR")
 )
 }
 \arguments{
@@ -81,6 +82,9 @@ functions - elements of the vector must be one of "mean", "median",
 results. Names in the list should correspond to the name of the summary
 function. Values in the list should be a function that takes in one
 argument, that being the values of the evaluated metrics.}
+
+\item{eval_id}{Character string. ID to be used as a suffix when naming result
+columns. Default \code{NULL} does not add any ID to the column names.}
 }
 \value{
 The output of \code{eval_testing_curve()} is a \code{tibble} with the

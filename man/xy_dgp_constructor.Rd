@@ -7,7 +7,7 @@
 xy_dgp_constructor(
   x_fun,
   y_fun,
-  err_fun,
+  err_fun = NULL,
   data_split = FALSE,
   train_prop = 0.5,
   return_values = c("X", "y", "support"),
