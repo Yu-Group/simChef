@@ -135,7 +135,8 @@ summarize_pred_err <- function(fit_results, vary_params = NULL,
                                options = list(), na_rm = FALSE,
                                summary_funs = c("mean", "median", "min", "max",
                                                 "sd", "raw"),
-                               custom_summary_funs = NULL) {
+                               custom_summary_funs = NULL,
+                               eval_id = "pred_err") {
   if (!is.null(groups)) {
     group_vars <- c(".dgp_name", ".method_name", vary_params, ".group", ".metric")
   } else {
@@ -150,7 +151,7 @@ summarize_pred_err <- function(fit_results, vary_params = NULL,
     dplyr::group_by(dplyr::across({{group_vars}})) 
   
   eval_summary <- summarize_eval_results(
-    eval_data = eval_tib, eval_id = "pred_err", value_col = ".estimate",
+    eval_data = eval_tib, eval_id = eval_id, value_col = ".estimate",
     summary_funs = summary_funs, custom_summary_funs = custom_summary_funs,
     na_rm = na_rm
   )
@@ -269,7 +270,9 @@ summarize_pred_curve <- function(fit_results, vary_params = NULL,
                                  x_grid = seq(0, 1, by = 1e-2),
                                  summary_funs = c("mean", "median", "min", 
                                                   "max", "sd", "raw"),
-                                 custom_summary_funs = NULL) {
+                                 custom_summary_funs = NULL,
+                                 eval_id = ifelse(curve == "PR", 
+                                                  "precision", "TPR")) {
   curve_estimate <- NULL  # to fix no visible binding for global variable error
   if (curve == "PR") {
     xvar <- "recall"
@@ -307,7 +310,7 @@ summarize_pred_curve <- function(fit_results, vary_params = NULL,
     dplyr::group_by(dplyr::across({{group_vars}})) 
   
   eval_summary <- summarize_eval_results(
-    eval_data = eval_tib, eval_id = yvar, value_col = yvar,
+    eval_data = eval_tib, eval_id = eval_id, value_col = yvar,
     summary_funs = summary_funs, custom_summary_funs = custom_summary_funs,
     na_rm = na_rm
   )

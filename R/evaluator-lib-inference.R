@@ -137,7 +137,8 @@ summarize_testing_err <- function(fit_results, vary_params = NULL,
                                   alphas = 0.05, na_rm = FALSE,
                                   summary_funs = c("mean", "median", "min",
                                                    "max", "sd", "raw"),
-                                  custom_summary_funs = NULL) {
+                                  custom_summary_funs = NULL,
+                                  eval_id = "testing_err") {
   group_vars <- c(".dgp_name", ".method_name", vary_params, ".metric")
   eval_tib <- eval_testing_err(
     fit_results = fit_results, vary_params = vary_params,
@@ -147,7 +148,7 @@ summarize_testing_err <- function(fit_results, vary_params = NULL,
     dplyr::group_by(dplyr::across({{group_vars}})) 
   
   eval_summary <- summarize_eval_results(
-    eval_data = eval_tib, eval_id = "testing_err", value_col = ".estimate",
+    eval_data = eval_tib, eval_id = eval_id, value_col = ".estimate",
     summary_funs = summary_funs, custom_summary_funs = custom_summary_funs,
     na_rm = na_rm
   )
@@ -235,7 +236,9 @@ summarize_testing_curve <- function(fit_results, vary_params = NULL,
                                     x_grid = seq(0, 1, by = 1e-2),
                                     summary_funs = c("mean", "median", "min", 
                                                      "max", "sd", "raw"),
-                                    custom_summary_funs = NULL) {
+                                    custom_summary_funs = NULL,
+                                    eval_id = ifelse(curve == "PR", 
+                                                     "precision", "TPR")) {
   curve_estimate <- NULL  # to fix no visible binding for global variable error
   if (curve == "PR") {
     xvar <- "recall"
@@ -269,7 +272,7 @@ summarize_testing_curve <- function(fit_results, vary_params = NULL,
     dplyr::group_by(dplyr::across({{group_vars}})) 
   
   eval_summary <- summarize_eval_results(
-    eval_data = eval_tib, eval_id = yvar, value_col = yvar,
+    eval_data = eval_tib, eval_id = eval_id, value_col = yvar,
     summary_funs = summary_funs, custom_summary_funs = custom_summary_funs,
     na_rm = na_rm
   )
@@ -308,9 +311,10 @@ eval_reject_prob <- function(fit_results, vary_params = NULL,
   .alpha <- NULL  # to fix no visible binding for global variable error
   group_vars <- c(".dgp_name", ".method_name", vary_params, feature_col)
   if (!is.null(nested_data)) {
-    data <- data %>% tidyr::unnest(tidyselect::all_of(nested_data))
+    fit_results <- fit_results %>% 
+      tidyr::unnest(tidyselect::all_of(nested_data))
   }
-  data <- data %>%
+  fit_results <- fit_results %>%
     tidyr::unnest(tidyselect::all_of(c(feature_col, pval_col)))
   if (is.null(alphas)) {
     eval_tib <- fit_results %>%

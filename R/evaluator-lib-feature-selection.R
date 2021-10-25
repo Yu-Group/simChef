@@ -139,7 +139,8 @@ summarize_feature_selection_err <- function(fit_results, vary_params = NULL,
                                             summary_funs = c("mean", "median",
                                                              "min", "max", 
                                                              "sd", "raw"),
-                                            custom_summary_funs = NULL) {
+                                            custom_summary_funs = NULL,
+                                            eval_id = "feature_selection") {
   group_vars <- c(".dgp_name", ".method_name", vary_params, ".metric")
   eval_tib <- eval_feature_selection_err(
     fit_results = fit_results, vary_params = vary_params,
@@ -147,10 +148,10 @@ summarize_feature_selection_err <- function(fit_results, vary_params = NULL,
     estimate_col = estimate_col, imp_col = imp_col, 
     metrics = metrics, na_rm = na_rm
   ) %>%
-    dplyr::group_by(dplyr::across({{group_vars}})) 
+    dplyr::group_by(dplyr::across({{group_vars}}))
   
   eval_summary <- summarize_eval_results(
-    eval_data = eval_tib, eval_id = "feature_selection", value_col = ".estimate",
+    eval_data = eval_tib, eval_id = eval_id, value_col = ".estimate",
     summary_funs = summary_funs, custom_summary_funs = custom_summary_funs,
     na_rm = na_rm
   )
@@ -249,7 +250,10 @@ summarize_feature_selection_curve <- function(fit_results, vary_params = NULL,
                                               summary_funs = c("mean", "median",
                                                                "min", "max", 
                                                                "sd", "raw"),
-                                              custom_summary_funs = NULL) {
+                                              custom_summary_funs = NULL,
+                                              eval_id = ifelse(curve == "PR", 
+                                                               "precision", 
+                                                               "TPR")) {
   curve_estimate <- NULL  # to fix no visible binding for global variable error
   if (curve == "PR") {
     xvar <- "recall"
@@ -283,7 +287,7 @@ summarize_feature_selection_curve <- function(fit_results, vary_params = NULL,
     dplyr::group_by(dplyr::across({{group_vars}})) 
   
   eval_summary <- summarize_eval_results(
-    eval_data = eval_tib, eval_id = yvar, value_col = yvar,
+    eval_data = eval_tib, eval_id = eval_id, value_col = yvar,
     summary_funs = summary_funs, custom_summary_funs = custom_summary_funs,
     na_rm = na_rm
   )
@@ -347,7 +351,8 @@ summarize_feature_importance <- function(fit_results, vary_params = NULL,
                                          summary_funs = c("mean", "median",
                                                           "min", "max", 
                                                           "sd", "raw"),
-                                         custom_summary_funs = NULL) {
+                                         custom_summary_funs = NULL,
+                                         eval_id = "feature_importance") {
   group_vars <- c(".dgp_name", ".method_name", vary_params, feature_col)
   eval_tib <- eval_feature_importance(
     fit_results = fit_results, vary_params = vary_params,
@@ -356,7 +361,7 @@ summarize_feature_importance <- function(fit_results, vary_params = NULL,
     dplyr::group_by(dplyr::across({{group_vars}})) 
   
   eval_summary <- summarize_eval_results(
-    eval_data = eval_tib, eval_id = "feature_importance", value_col = imp_col,
+    eval_data = eval_tib, eval_id = eval_id, value_col = imp_col,
     summary_funs = summary_funs, custom_summary_funs = custom_summary_funs,
     na_rm = na_rm
   )

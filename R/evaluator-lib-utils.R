@@ -8,6 +8,8 @@
 #'   argument, that being the values of the evaluated metrics.
 #' @param curve Either "ROC" or "PR" indicating whether to evaluate the ROC or 
 #'   Precision-Recall curve.
+#' @param eval_id Character string. ID to be used as a suffix when naming result
+#'   columns. Default \code{NULL} does not add any ID to the column names.
 #' @param feature_col A character string identifying the column in 
 #'   \code{fit_results} with the feature names or IDs.
 #' @param na_rm A \code{logical} value indicating whether \code{NA} values 
@@ -40,8 +42,6 @@ NULL
 #' @inheritParams shared_eval_lib_args
 #' @param eval_data A grouped \code{data.frame} of evaluation results to 
 #'   summarize.
-#' @param eval_id Character string. ID to be used as a suffix when naming result
-#'   columns. Default \code{NULL} does not add any ID to the column names.
 #' @param value_col Character string. Name of column in \code{eval_data} with
 #'   values to summarize.
 #' 
