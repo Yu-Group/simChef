@@ -903,18 +903,45 @@ test_that("Caching in Experiment runs properly", {
   # check caching when n changes
   results7 <- experiment$run(n_reps = 4, use_cached = TRUE, save = TRUE, 
                              verbose = verbose)
-  expect_equal(nrow(results7$fit_results), 4 * 3 * 2)
+  extra_reps_fpath <- file.path(
+    "results", "test-cache", "DGP1-Method1", "Varying x-y",
+    "fit_results_extra_cached_reps.rds"
+  )
+  extra_fit_results7 <- readRDS(extra_reps_fpath)
+  expect_equal(nrow(results7$fit_results),4 * 3 * 2)
+  expect_equal(nrow(extra_fit_results7), 6 * 3 * 2)
   expect_equal(results7$fit_results, 
                results6$fit_results %>% dplyr::filter(as.numeric(.rep) <= 4))
+  expect_equal(extra_fit_results7,
+               results6$fit_results %>% dplyr::filter(as.numeric(.rep) > 4))
   results8 <- experiment$run(n_reps = 10, use_cached = TRUE, save = TRUE,
                              verbose = verbose)
+  fit_results8 <- readRDS(
+    file.path("results", "test-cache", "DGP1-Method1", "Varying x-y", 
+              "fit_results.rds")
+  )
+  expect_equal(results8$fit_results, fit_results8)
   expect_equal(nrow(results8$fit_results), 10 * 3 * 2)
+  expect_false(file.exists(extra_reps_fpath))
   expect_true(identical(results7$fit_results,
                          results8$fit_results %>%
                            dplyr::filter(as.numeric(.rep) <= 4)))
+  expect_true(identical(results6$fit_results, results8$fit_results))
+  
+  # check caching when n changes and experiment changes
+  experiment %>% add_dgp(dgp2, "DGP2")
+  results9 <- experiment$run(n_reps = 5, use_cached = TRUE, save = TRUE,
+                             verbose = verbose)
+  expect_true(all(results9$fit_results$.rep %in% as.character(1:5)))
+  expect_equal(results9$fit_results %>% dplyr::filter(.dgp_name != "DGP2"),
+               results8$fit_results %>% dplyr::filter(as.numeric(.rep) <= 5))
+  expect_equal(readRDS(extra_reps_fpath),
+               results8$fit_results %>% dplyr::filter(as.numeric(.rep) > 5))
+  expect_equal(nrow(results9$fit_results), 5 * 3 * 2 + 5 * 2)
+  experiment %>% remove_dgp("DGP2")
   
   # check when add multiple new objects to experiment
-  experiment %>% add_dgp(dgp2, "DGP2")
+  experiment %>% add_dgp(dgp2, "DGP3")
   parallel_strategies <- list(
     "reps", "dgps", "methods", c("reps", "dgps"), c("reps", "methods"),
     c("dgps", "methods"), c("reps", "dgps", "methods")
@@ -922,7 +949,7 @@ test_that("Caching in Experiment runs properly", {
   for (i in 1:length(parallel_strategies)) {
     parallel_strategy <- parallel_strategies[[i]]
     experiment %>%
-      update_dgp(dgp2, "DGP2") %>%
+      update_dgp(dgp2, "DGP3") %>%
       update_vary_across(method = method1, y = c("a", letters[i+2]))
     results9 <- experiment$run(
       n_reps = 10, use_cached = TRUE, save = TRUE, verbose = verbose, 
@@ -965,6 +992,7 @@ test_that("Caching in Experiment runs properly", {
   viz_results <- experiment$visualize(fit_results, eval_results,
                                             use_cached = TRUE, save = FALSE,
                                             verbose = verbose)
+  
   # check with non-standard combos of save = T and F are used
   fit_results2 <- experiment$fit(n_reps = 12, use_cached = TRUE, save = FALSE,
                                  verbose = verbose)
