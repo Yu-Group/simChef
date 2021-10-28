@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Arguments that are shared by multiple Evaluator library functions. — shared_eval_lib_args • simChef</title>
+<title>Function to create boilerplate code for creating DGPs. — use_dgp_template • simChef</title>
 
 
 <!-- jquery -->
@@ -39,8 +39,8 @@
 
 
 
-<meta property="og:title" content="Arguments that are shared by multiple Evaluator library functions. — shared_eval_lib_args" />
-<meta property="og:description" content="Arguments that are shared by multiple Evaluator library functions." />
+<meta property="og:title" content="Function to create boilerplate code for creating DGPs. — use_dgp_template" />
+<meta property="og:description" content="Function to create boilerplate code for creating DGPs." />
 
 
 
@@ -118,75 +118,17 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Arguments that are shared by multiple <code>Evaluator</code> library functions.</h1>
+    <h1>Function to create boilerplate code for creating DGPs.</h1>
     
-    <div class="hidden name"><code>shared_eval_lib_args.Rd</code></div>
+    <div class="hidden name"><code>use_dgp_template.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Arguments that are shared by multiple <code>Evaluator</code> library functions.</p>
+    <p>Function to create boilerplate code for creating DGPs.</p>
     </div>
 
+    <pre class="usage"><span class='fu'>use_dgp_template</span><span class='op'>(</span>ids <span class='op'>=</span> <span class='cn'>NULL</span><span class='op'>)</span></pre>
 
-    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
-    <table class="ref-arguments">
-    <colgroup><col class="name" /><col class="desc" /></colgroup>
-    <tr>
-      <th>custom_summary_funs</th>
-      <td><p>Named list of custom functions to summarize
-results. Names in the list should correspond to the name of the summary
-function. Values in the list should be a function that takes in one
-argument, that being the values of the evaluated metrics.</p></td>
-    </tr>
-    <tr>
-      <th>curve</th>
-      <td><p>Either "ROC" or "PR" indicating whether to evaluate the ROC or
-Precision-Recall curve.</p></td>
-    </tr>
-    <tr>
-      <th>eval_id</th>
-      <td><p>Character string. ID to be used as a suffix when naming result
-columns. Default <code>NULL</code> does not add any ID to the column names.</p></td>
-    </tr>
-    <tr>
-      <th>feature_col</th>
-      <td><p>A character string identifying the column in
-<code>fit_results</code> with the feature names or IDs.</p></td>
-    </tr>
-    <tr>
-      <th>na_rm</th>
-      <td><p>A <code>logical</code> value indicating whether <code>NA</code> values
-should be stripped before the computation proceeds.</p></td>
-    </tr>
-    <tr>
-      <th>nested_data</th>
-      <td><p>(Optional) Character string. If specified, should be the
-name of the column in <code>fit_results</code> containing columns that must be
-unnested before evaluating results. Default is <code>NULL</code>, meaning no
-columns in <code>fit_results</code> need to be unnested prior to computation.</p></td>
-    </tr>
-    <tr>
-      <th>options</th>
-      <td><p>A list of named options to pass to <code><a href='https://rdrr.io/pkg/pROC/man/roc.html'>pROC::roc()</a></code> such as
-<code>smooth</code>. These options should not include <code>response</code>,
-<code>predictor</code>, <code>levels</code>, <code>quiet</code>, or <code>direction</code>. This
-argument is only used when computing the ROC and is ignored otherwise.</p></td>
-    </tr>
-    <tr>
-      <th>summary_funs</th>
-      <td><p>Character vector specifying how to summarize
-evaluation metrics. Must choose from a built-in library of summary
-functions - elements of the vector must be one of "mean", "median",
-"min", "max", "sd", "raw".</p></td>
-    </tr>
-    <tr>
-      <th>x_grid</th>
-      <td><p>Vector of values between 0 and 1 at which to evaluate the ROC
-or PR curve. If <code>curve = "ROC"</code>, the provided vector of values are
-the FPR values at which to evaluate the TPR, and if <code>curve = "PR"</code>,
-the values are the recall values at which to evaluate the precision.</p></td>
-    </tr>
-    </table>
 
 
   </div>

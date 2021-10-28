@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>General DGP constructor function to generate X and y data. — xy_dgp_constructor • simChef</title>
+<title>Generate independent Gaussian covariates and (binary) logistic response data. — logistic_gaussian_dgp • simChef</title>
 
 
 <!-- jquery -->
@@ -39,10 +39,9 @@
 
 
 
-<meta property="og:title" content="General DGP constructor function to generate X and y data. — xy_dgp_constructor" />
-<meta property="og:description" content="A general DGP constructor function that generates X and y data
-for any supervised learning DGP, provided the functions for simulating X,
-y, and the additive error term." />
+<meta property="og:title" content="Generate independent Gaussian covariates and (binary) logistic response data. — logistic_gaussian_dgp" />
+<meta property="og:description" content="Generate independent normally-distributed covariates and
+logistic response data." />
 
 
 
@@ -120,21 +119,22 @@ y, and the additive error term." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>General DGP constructor function to generate X and y data.</h1>
+    <h1>Generate independent Gaussian covariates and (binary) logistic response data.</h1>
     
-    <div class="hidden name"><code>xy_dgp_constructor.Rd</code></div>
+    <div class="hidden name"><code>logistic_gaussian_dgp.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>A general DGP constructor function that generates X and y data
-for any supervised learning DGP, provided the functions for simulating X,
-y, and the additive error term.</p>
+    <p>Generate independent normally-distributed covariates and
+logistic response data.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>xy_dgp_constructor</span><span class='op'>(</span>
-  <span class='va'>x_fun</span>,
-  <span class='va'>y_fun</span>,
-  err_fun <span class='op'>=</span> <span class='cn'>NULL</span>,
+    <pre class="usage"><span class='fu'>logistic_gaussian_dgp</span><span class='op'>(</span>
+  <span class='va'>n</span>,
+  <span class='va'>p</span>,
+  s <span class='op'>=</span> <span class='va'>p</span>,
+  betas <span class='op'>=</span> <span class='cn'>NULL</span>,
+  betas_sd <span class='op'>=</span> <span class='fl'>1</span>,
   data_split <span class='op'>=</span> <span class='cn'>FALSE</span>,
   train_prop <span class='op'>=</span> <span class='fl'>0.5</span>,
   return_values <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"X"</span>, <span class='st'>"y"</span>, <span class='st'>"support"</span><span class='op'>)</span>,
@@ -145,16 +145,25 @@ y, and the additive error term.</p>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>x_fun</th>
-      <td><p>Function to generate X data.</p></td>
+      <th>n</th>
+      <td><p>Number of samples.</p></td>
     </tr>
     <tr>
-      <th>y_fun</th>
-      <td><p>Function to generate y data.</p></td>
+      <th>p</th>
+      <td><p>Number of features.</p></td>
     </tr>
     <tr>
-      <th>err_fun</th>
-      <td><p>Function to generate error/noise data.</p></td>
+      <th>s</th>
+      <td><p>Number of features with non-zero coefficients.</p></td>
+    </tr>
+    <tr>
+      <th>betas</th>
+      <td><p>Coefficient vector for observed design matrix.</p></td>
+    </tr>
+    <tr>
+      <th>betas_sd</th>
+      <td><p>(Optional) SD of normal distribution from which to draw
+<code>betas</code>. Only used if <code>betas</code> argument is <code>NULL</code>.</p></td>
     </tr>
     <tr>
       <th>data_split</th>
@@ -173,9 +182,7 @@ list. Elements in vector must be one of "X", "y", "support".</p></td>
     </tr>
     <tr>
       <th>...</th>
-      <td><p>Additional arguments to pass to <code>x_fun</code>, <code>y_fun</code>,
-and <code>err_fun</code>. If argument does not exist in <code>x_fun</code>,
-<code>y_fun</code>, or <code>err_fun</code>, argument is ignored.</p></td>
+      <td><p>Not used.</p></td>
     </tr>
     </table>
 
@@ -185,37 +192,7 @@ and <code>err_fun</code>. If argument does not exist in <code>x_fun</code>,
 <code>return_values</code>. Note that if <code>data_split = TRUE</code> and "X", "y"
 are in <code>return_values</code>, then the returned list also contains slots for
 "Xtest" and "ytest".</p>
-    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>TODO: explain how to write x_fun, y_fun, err_fun. Required args +
-optional args + other caveats.
-Model: y = y_fun(X) + err_fun(X, y_fun(X)), where X = x_fun(...)</p>
-
-    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='va'>data_out</span> <span class='op'>&lt;-</span> <span class='fu'>xy_dgp_constructor</span><span class='op'>(</span>x_fun <span class='op'>=</span> <span class='fu'>MASS</span><span class='fu'>::</span><span class='va'><a href='https://rdrr.io/pkg/MASS/man/mvrnorm.html'>mvrnorm</a></span>, 
-                               y_fun <span class='op'>=</span> <span class='va'>generate_y_linear</span>,
-                               err_fun <span class='op'>=</span> <span class='va'>rnorm</span>, data_split <span class='op'>=</span> <span class='cn'>TRUE</span>,
-                               <span class='co'># dgp arguments</span>
-                               n <span class='op'>=</span> <span class='fl'>100</span>,
-                               <span class='co'># arguments specifically for x_fun</span>
-                               .x_mu <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span><span class='op'>(</span><span class='fl'>0</span>, <span class='fl'>10</span><span class='op'>)</span>, .x_Sigma <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/diag.html'>diag</a></span><span class='op'>(</span><span class='fl'>10</span><span class='op'>)</span>,
-                               <span class='co'># arguments specifically for y_fun</span>
-                               .y_betas <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/stats/Normal.html'>rnorm</a></span><span class='op'>(</span><span class='fl'>10</span><span class='op'>)</span>, .y_return_support <span class='op'>=</span> <span class='cn'>TRUE</span>,
-                               <span class='co'># arguments specifically for err_fun</span>
-                               .err_sd <span class='op'>=</span> <span class='fl'>1</span><span class='op'>)</span>
-<span class='va'>data_out</span> <span class='op'>&lt;-</span> <span class='fu'>xy_dgp_constructor</span><span class='op'>(</span>x_fun <span class='op'>=</span> <span class='fu'>MASS</span><span class='fu'>::</span><span class='va'><a href='https://rdrr.io/pkg/MASS/man/mvrnorm.html'>mvrnorm</a></span>, 
-                               y_fun <span class='op'>=</span> <span class='va'>generate_y_linear</span>,
-                               err_fun <span class='op'>=</span> <span class='va'>rnorm</span>, data_split <span class='op'>=</span> <span class='cn'>TRUE</span>,
-                               <span class='co'># dgp arguments</span>
-                               n <span class='op'>=</span> <span class='fl'>100</span>,
-                               <span class='co'># arguments specifically for x_fun</span>
-                               mu <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span><span class='op'>(</span><span class='fl'>0</span>, <span class='fl'>10</span><span class='op'>)</span>, Sigma <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/diag.html'>diag</a></span><span class='op'>(</span><span class='fl'>10</span><span class='op'>)</span>,
-                               <span class='co'># arguments specifically for y_fun</span>
-                               betas <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/stats/Normal.html'>rnorm</a></span><span class='op'>(</span><span class='fl'>10</span><span class='op'>)</span>, return_support <span class='op'>=</span> <span class='cn'>TRUE</span>,
-                               <span class='co'># arguments specifically for err_fun</span>
-                               sd <span class='op'>=</span> <span class='fl'>1</span><span class='op'>)</span>
-
-</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

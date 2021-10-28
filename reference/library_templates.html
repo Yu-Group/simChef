@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Arguments that are shared by multiple Evaluator library functions. — shared_eval_lib_args • simChef</title>
+<title>Functions to create boilerplate code for specific types of experiments. — library_templates • simChef</title>
 
 
 <!-- jquery -->
@@ -39,8 +39,11 @@
 
 
 
-<meta property="og:title" content="Arguments that are shared by multiple Evaluator library functions. — shared_eval_lib_args" />
-<meta property="og:description" content="Arguments that are shared by multiple Evaluator library functions." />
+<meta property="og:title" content="Functions to create boilerplate code for specific types of experiments. — library_templates" />
+<meta property="og:description" content="These functions make suggestions for code when performing a few
+common types of experiments (i.e., for prediction, feature selection, and
+inference). They print out code to the console that could be considered
+minimal syntax." />
 
 
 
@@ -118,76 +121,70 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Arguments that are shared by multiple <code>Evaluator</code> library functions.</h1>
+    <h1>Functions to create boilerplate code for specific types of experiments.</h1>
     
-    <div class="hidden name"><code>shared_eval_lib_args.Rd</code></div>
+    <div class="hidden name"><code>library_templates.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Arguments that are shared by multiple <code>Evaluator</code> library functions.</p>
+    <p>These functions make suggestions for code when performing a few
+common types of experiments (i.e., for prediction, feature selection, and
+inference). They print out code to the console that could be considered
+minimal syntax.</p>
     </div>
 
+    <pre class="usage"><span class='fu'>use_prediction_template</span><span class='op'>(</span>
+  experiment_name <span class='op'>=</span> <span class='st'>"Prediction Experiment"</span>,
+  type <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"regression"</span>, <span class='st'>"classification"</span><span class='op'>)</span>,
+  support <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  include_dgp_example <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  include_method_example <span class='op'>=</span> <span class='cn'>FALSE</span>
+<span class='op'>)</span>
+
+<span class='fu'>use_feature_selection_template</span><span class='op'>(</span>
+  experiment_name <span class='op'>=</span> <span class='st'>"Feature Selection Experiment"</span>,
+  include_dgp_example <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  include_method_example <span class='op'>=</span> <span class='cn'>FALSE</span>
+<span class='op'>)</span>
+
+<span class='fu'>use_inference_template</span><span class='op'>(</span>
+  experiment_name <span class='op'>=</span> <span class='st'>"Inference Experiment"</span>,
+  include_dgp_example <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  include_method_example <span class='op'>=</span> <span class='cn'>FALSE</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>custom_summary_funs</th>
-      <td><p>Named list of custom functions to summarize
-results. Names in the list should correspond to the name of the summary
-function. Values in the list should be a function that takes in one
-argument, that being the values of the evaluated metrics.</p></td>
+      <th>experiment_name</th>
+      <td><p>Name of the experiment.</p></td>
     </tr>
     <tr>
-      <th>curve</th>
-      <td><p>Either "ROC" or "PR" indicating whether to evaluate the ROC or
-Precision-Recall curve.</p></td>
+      <th>type</th>
+      <td><p>Either "regression" or "classification" specifying the type of
+prediction problem.</p></td>
     </tr>
     <tr>
-      <th>eval_id</th>
-      <td><p>Character string. ID to be used as a suffix when naming result
-columns. Default <code>NULL</code> does not add any ID to the column names.</p></td>
+      <th>support</th>
+      <td><p>Logical. If <code>TRUE</code>, include code to evaluate the
+estimated feature support.</p></td>
     </tr>
     <tr>
-      <th>feature_col</th>
-      <td><p>A character string identifying the column in
-<code>fit_results</code> with the feature names or IDs.</p></td>
+      <th>include_dgp_example</th>
+      <td><p>Logical. If <code>TRUE</code>, include a completed
+DGP example, rather than a fill-in-the-blank template.</p></td>
     </tr>
     <tr>
-      <th>na_rm</th>
-      <td><p>A <code>logical</code> value indicating whether <code>NA</code> values
-should be stripped before the computation proceeds.</p></td>
-    </tr>
-    <tr>
-      <th>nested_data</th>
-      <td><p>(Optional) Character string. If specified, should be the
-name of the column in <code>fit_results</code> containing columns that must be
-unnested before evaluating results. Default is <code>NULL</code>, meaning no
-columns in <code>fit_results</code> need to be unnested prior to computation.</p></td>
-    </tr>
-    <tr>
-      <th>options</th>
-      <td><p>A list of named options to pass to <code><a href='https://rdrr.io/pkg/pROC/man/roc.html'>pROC::roc()</a></code> such as
-<code>smooth</code>. These options should not include <code>response</code>,
-<code>predictor</code>, <code>levels</code>, <code>quiet</code>, or <code>direction</code>. This
-argument is only used when computing the ROC and is ignored otherwise.</p></td>
-    </tr>
-    <tr>
-      <th>summary_funs</th>
-      <td><p>Character vector specifying how to summarize
-evaluation metrics. Must choose from a built-in library of summary
-functions - elements of the vector must be one of "mean", "median",
-"min", "max", "sd", "raw".</p></td>
-    </tr>
-    <tr>
-      <th>x_grid</th>
-      <td><p>Vector of values between 0 and 1 at which to evaluate the ROC
-or PR curve. If <code>curve = "ROC"</code>, the provided vector of values are
-the FPR values at which to evaluate the TPR, and if <code>curve = "PR"</code>,
-the values are the recall values at which to evaluate the precision.</p></td>
+      <th>include_method_example</th>
+      <td><p>Logical. If <code>TRUE</code>, include a completed
+Method example, rather than a fill-in-the-blank template.</p></td>
     </tr>
     </table>
 
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+
+    <p>Invisible <code>NULL</code> but code is printed to the console.</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

@@ -159,7 +159,8 @@ across experimental replicates.</p>
   na_rm <span class='op'>=</span> <span class='cn'>FALSE</span>,
   x_grid <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq</a></span><span class='op'>(</span><span class='fl'>0</span>, <span class='fl'>1</span>, by <span class='op'>=</span> <span class='fl'>0.01</span><span class='op'>)</span>,
   summary_funs <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"mean"</span>, <span class='st'>"median"</span>, <span class='st'>"min"</span>, <span class='st'>"max"</span>, <span class='st'>"sd"</span>, <span class='st'>"raw"</span><span class='op'>)</span>,
-  custom_summary_funs <span class='op'>=</span> <span class='cn'>NULL</span>
+  custom_summary_funs <span class='op'>=</span> <span class='cn'>NULL</span>,
+  eval_id <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/ifelse.html'>ifelse</a></span><span class='op'>(</span><span class='va'>curve</span> <span class='op'>==</span> <span class='st'>"PR"</span>, <span class='st'>"precision"</span>, <span class='st'>"TPR"</span><span class='op'>)</span>
 <span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -236,6 +237,11 @@ functions - elements of the vector must be one of "mean", "median",
 results. Names in the list should correspond to the name of the summary
 function. Values in the list should be a function that takes in one
 argument, that being the values of the evaluated metrics.</p></td>
+    </tr>
+    <tr>
+      <th>eval_id</th>
+      <td><p>Character string. ID to be used as a suffix when naming result
+columns. Default <code>NULL</code> does not add any ID to the column names.</p></td>
     </tr>
     </table>
 
