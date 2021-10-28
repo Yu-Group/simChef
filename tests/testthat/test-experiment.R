@@ -938,6 +938,16 @@ test_that("Caching in Experiment runs properly", {
   expect_equal(readRDS(extra_reps_fpath),
                results8$fit_results %>% dplyr::filter(as.numeric(.rep) > 5))
   expect_equal(nrow(results9$fit_results), 5 * 3 * 2 + 5 * 2)
+  
+  # check return_all_cached_reps works properly
+  results10 <- experiment$run(n_reps = 5, use_cached = FALSE,
+                              return_all_cached_reps = TRUE, verbose = verbose)
+  expect_equal(nrow(results9$fit_results), nrow(results10$fit_results))
+  results11 <- experiment$run(n_reps = 5, use_cached = TRUE,
+                              return_all_cached_reps = TRUE, verbose = verbose)
+  expect_equal(nrow(results11$fit_results), 10 * 3 * 2 + 5 * 2)
+  expect_equal(results11$eval_results, results9$eval_results)
+  expect_equal(results11$viz_results, results9$viz_results)
   experiment %>% remove_dgp("DGP2")
   
   # check when add multiple new objects to experiment

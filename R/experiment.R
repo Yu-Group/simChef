@@ -671,7 +671,8 @@ Experiment <- R6::R6Class(
     },
     run = function(n_reps = 1, parallel_strategy = c("reps"),
                    future.globals = NULL, future.packages = NULL,
-                   future.seed = TRUE, use_cached = FALSE, save = FALSE,
+                   future.seed = TRUE, use_cached = FALSE, 
+                   return_all_cached_reps = FALSE, save = FALSE,
                    checkpoint_n_reps = 0, verbose = 1, ...) {
       if (!is.logical(save)) {
         save <- c("fit", "eval", "viz") %in% save
@@ -687,13 +688,17 @@ Experiment <- R6::R6Class(
                               future.globals = future.globals,
                               future.packages = future.packages,
                               future.seed = future.seed,
-                              use_cached = use_cached, save = save[1],
+                              use_cached = use_cached,
+                              return_all_cached_reps = return_all_cached_reps,
+                              save = save[1], 
                               checkpoint_n_reps = checkpoint_n_reps,
                               verbose = verbose, ...)
-      eval_results <- self$evaluate(fit_results = fit_results,
+      eval_results <- self$evaluate(fit_results = fit_results %>%
+                                      dplyr::filter(as.numeric(.rep) <= n_reps),
                                     use_cached = use_cached, save = save[2],
                                     verbose = verbose, ...)
-      viz_results <- self$visualize(fit_results = fit_results,
+      viz_results <- self$visualize(fit_results = fit_results %>%
+                                      dplyr::filter(as.numeric(.rep) <= n_reps),
                                 eval_results = eval_results,
                                 use_cached = use_cached, save = save[3],
                                 verbose = verbose, ...)
@@ -737,7 +742,8 @@ Experiment <- R6::R6Class(
     },
     fit = function(n_reps = 1, parallel_strategy = c("reps"),
                    future.globals = NULL, future.packages = NULL,
-                   future.seed = TRUE, use_cached = FALSE, save = FALSE,
+                   future.seed = TRUE, use_cached = FALSE,
+                   return_all_cached_reps = FALSE, save = FALSE,
                    checkpoint_n_reps = 0, verbose = 1, ...) {
 
       dgp_list <- private$.get_obj_list("dgp")
@@ -781,8 +787,12 @@ Experiment <- R6::R6Class(
             if (verbose >= 1) {
               message("==============================")
             }
-            return(fit_results %>%
-                     dplyr::filter(as.numeric(.rep) <= n_reps_total))
+            if (use_cached && return_all_cached_reps) {
+              return(fit_results)
+            } else {
+              return(fit_results %>%
+                       dplyr::filter(as.numeric(.rep) <= n_reps_total))
+            }
           }
         }
       }
@@ -1277,7 +1287,12 @@ Experiment <- R6::R6Class(
       if (verbose >= 1) {
         message("==============================")
       }
-      return(fit_results %>% dplyr::filter(as.numeric(.rep) <= n_reps_total))
+      
+      if (use_cached && return_all_cached_reps) {
+        return(fit_results)
+      } else {
+        return(fit_results %>% dplyr::filter(as.numeric(.rep) <= n_reps_total))
+      }
     },
     evaluate = function(fit_results, use_cached = FALSE, save = FALSE,
                         verbose = 1, ...) {
