@@ -413,15 +413,15 @@
       name = 'RF'
     ) 
     
-    nested_pred_data <- c('y', 'predictions', 'prob_predictions')
-    true_pred_col <- 'y'
-    est_pred_col <- 'predictions'
+    nested_pred_data <- c('y', 'predictions', 'prob_predictions')  # prediction results columns to be unnested
+    true_pred_col <- 'y'  # true response column
+    est_pred_col <- 'predictions'  # predicted response column
     
-    nested_feature_data <- 'support_df'
-    feature_col <- 'feature'
-    true_feature_col <- 'true_support'
-    feature_imp_col <- 'imp'
-    feature_sel_col <- 'selected'
+    nested_feature_data <- 'support_df'  # feature importance columns to be unnested
+    feature_col <- 'feature'  # feature names column
+    true_feature_col <- 'true_support'  # true feature support column
+    feature_imp_col <- 'imp'  # feature importance column
+    feature_sel_col <- 'selected'  # estimated feature support column
     
     pred_err <- create_evaluator(
       eval_fun = summarize_pred_err,
@@ -565,16 +565,16 @@
       name = 'RF'
     ) 
     
-    nested_pred_data <- c('y', 'predictions', 'prob_predictions')
-    true_pred_col <- 'y'
-    est_pred_col <- 'predictions'
-    prob_pred_cols <- '1'
+    nested_pred_data <- c('y', 'predictions', 'prob_predictions')  # prediction results columns to be unnested
+    true_pred_col <- 'y'  # true response column
+    est_pred_col <- 'predictions'  # predicted response column
+    prob_pred_cols <- '1'  # predicted probability columns
     
-    nested_feature_data <- 'support_df'
-    feature_col <- 'feature'
-    true_feature_col <- 'true_support'
-    feature_imp_col <- 'imp'
-    feature_sel_col <- 'selected'
+    nested_feature_data <- 'support_df'  # feature importance columns to be unnested
+    feature_col <- 'feature'  # feature names column
+    true_feature_col <- 'true_support'  # true feature support column
+    feature_imp_col <- 'imp'  # feature importance column
+    feature_sel_col <- 'selected'  # estimated feature support column
     
     pred_err <- create_evaluator(
       eval_fun = summarize_pred_err,
@@ -808,11 +808,11 @@
       name = 'RF'
     ) 
     
-    nested_feature_data <- 'support_df'
-    feature_col <- 'feature'
-    true_feature_col <- 'true_support'
-    feature_imp_col <- 'imp'
-    feature_sel_col <- 'selected'
+    nested_feature_data <- 'support_df'  # feature importance columns to be unnested
+    feature_col <- 'feature'  # feature names column
+    true_feature_col <- 'true_support'  # true feature support column
+    feature_imp_col <- 'imp'  # feature importance column
+    feature_sel_col <- 'selected'  # estimated feature support column
     
     fi <- create_evaluator(
       eval_fun = summarize_feature_importance,
@@ -989,10 +989,10 @@
       name = 'OLS'
     ) 
     
-    nested_feature_data <- 'support_df'
-    feature_col <- 'feature'
-    true_feature_col <- 'true_support'
-    pval_col <- 'pval'
+    nested_feature_data <- 'support_df'  # feature importance columns to be unnested
+    feature_col <- 'feature'  # feature names column
+    true_feature_col <- 'true_support'  # true feature support column
+    pval_col <- 'pval'  # p-values column
     
     inf_err <- create_evaluator(
       eval_fun = summarize_testing_err,
