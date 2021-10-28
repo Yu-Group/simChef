@@ -86,6 +86,13 @@ create_experiment <- function(name = "experiment",
 #' @name run_experiment
 #'
 #' @inheritParams shared_experiment_helpers_args
+#' @param return_all_cached_reps Logical. If \code{FALSE} (default), returns
+#'   only the fit results for the requested \code{n_reps}. If \code{TRUE},
+#'   returns fit results for the requested \code{n_reps} plus any additional
+#'   cached replicates from the (\code{DGP}, \code{Method}) combinations in the 
+#'   \code{Experiment}. Note that even if \code{return_all_cached_reps = TRUE}, 
+#'   only the \code{n_reps} replicates are used when evaluating and visualizing 
+#'   the \code{Experiment}.
 #'
 #' @return A list of results from the simulation experiment.
 #' \describe{
@@ -105,8 +112,9 @@ create_experiment <- function(name = "experiment",
 run_experiment <- function(experiment, n_reps = 1,
                            parallel_strategy = c("reps"), future.globals = NULL,
                            future.packages = NULL, future.seed = TRUE,
-                           use_cached = FALSE, save = FALSE,
-                           checkpoint_n_reps = 0, verbose = 1, ...) {
+                           use_cached = FALSE, return_all_cached_reps = FALSE,
+                           save = FALSE, checkpoint_n_reps = 0, verbose = 1, 
+                           ...) {
   return(experiment$run(n_reps = n_reps,
                         parallel_strategy = parallel_strategy,
                         future.globals = future.globals,
@@ -145,6 +153,11 @@ generate_data <- function(experiment, n_reps=1, ...) {
 #'   \code{DGPs} for \code{n_reps} repetitions and return results from fits.
 #'
 #' @inheritParams shared_experiment_helpers_args
+#' @param return_all_cached_reps Logical. If \code{FALSE} (default), returns
+#'   only the fit results for the requested \code{n_reps}. If \code{TRUE},
+#'   returns fit results for the requested \code{n_reps} plus any additional
+#'   cached replicates from the (\code{DGP}, \code{Method}) combinations in the 
+#'   \code{Experiment}.
 #'
 #' @return A tibble containing the results from fitting all \code{Methods}
 #'   across all \code{DGPs} for \code{n_reps} repetitions. In addition to
@@ -154,7 +167,8 @@ generate_data <- function(experiment, n_reps=1, ...) {
 #' @export
 fit_experiment <- function(experiment, n_reps=1, parallel_strategy = c("reps"),
                            future.globals = NULL, future.packages = NULL,
-                           future.seed = TRUE, use_cached = FALSE, save = FALSE,
+                           future.seed = TRUE, use_cached = FALSE, 
+                           return_all_cached_reps = FALSE, save = FALSE,
                            checkpoint_n_reps = 0, verbose = 1, ...) {
   return(experiment$fit(n_reps = n_reps,
                         parallel_strategy = parallel_strategy,

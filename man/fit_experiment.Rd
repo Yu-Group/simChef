@@ -12,6 +12,7 @@ fit_experiment(
   future.packages = NULL,
   future.seed = TRUE,
   use_cached = FALSE,
+  return_all_cached_reps = FALSE,
   save = FALSE,
   checkpoint_n_reps = 0,
   verbose = 1,
@@ -43,6 +44,12 @@ runs of the experiment, use the same argument during initialization.}
 \item{use_cached}{Logical. If \code{TRUE}, find and return previously saved
 results. If cached results cannot be found, continue as if
 \code{use_cached} was \code{FALSE}.}
+
+\item{return_all_cached_reps}{Logical. If \code{FALSE} (default), returns
+only the fit results for the requested \code{n_reps}. If \code{TRUE},
+returns fit results for the requested \code{n_reps} plus any additional
+cached replicates from the (\code{DGP}, \code{Method}) combinations in the
+\code{Experiment}.}
 
 \item{save}{If \code{TRUE}, save outputs to disk.}
 
