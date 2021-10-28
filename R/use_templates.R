@@ -67,17 +67,36 @@ use_prediction_template <- function(experiment_name = "Prediction Experiment",
     feature_sel_col <- NULL
   }
   if (include_method_example) {
-    create_assign_str(nested_pred_data, 
-                      "c('y', 'predictions', 'prob_predictions')")
-    create_assign_str(true_pred_col, "'y'")
-    create_assign_str(est_pred_col, "'predictions'")
-    create_assign_str(prob_pred_cols, "'1'")
+    create_assign_str(
+      nested_pred_data, 
+      "c('y', 'predictions', 'prob_predictions')  # prediction results columns to be unnested"
+    )
+    create_assign_str(
+      true_pred_col, "'y'  # true response column"
+    )
+    create_assign_str(
+      est_pred_col, "'predictions'  # predicted response column"
+    )
+    create_assign_str(
+      prob_pred_cols, "'1'  # predicted probability columns"
+    )
     cat("\n")
-    create_assign_str(nested_feature_data, "'support_df'")
-    create_assign_str(feature_col, "'feature'")
-    create_assign_str(true_feature_col, "'true_support'")
-    create_assign_str(feature_imp_col, "'imp'")
-    create_assign_str(feature_sel_col, "'selected'")
+    create_assign_str(
+      nested_feature_data, 
+      "'support_df'  # feature importance columns to be unnested"
+    )
+    create_assign_str(
+      feature_col, "'feature'  # feature names column"
+    )
+    create_assign_str(
+      true_feature_col, "'true_support'  # true feature support column"
+    )
+    create_assign_str(
+      feature_imp_col, "'imp'  # feature importance column"
+    )
+    create_assign_str(
+      feature_sel_col, "'selected'  # estimated feature support column"
+    )
     cat("\n")
   } else {
     create_assign_str(nested_pred_data, 
@@ -168,11 +187,22 @@ use_feature_selection_template <- function(experiment_name =
   feature_imp_col <- "feature_imp_col"
   feature_sel_col <- "feature_sel_col"
   if (include_method_example) {
-    create_assign_str(nested_feature_data, "'support_df'")
-    create_assign_str(feature_col, "'feature'")
-    create_assign_str(true_feature_col, "'true_support'")
-    create_assign_str(feature_imp_col, "'imp'")
-    create_assign_str(feature_sel_col, "'selected'")
+    create_assign_str(
+      nested_feature_data, 
+      "'support_df'  # feature importance columns to be unnested"
+    )
+    create_assign_str(
+      feature_col, "'feature'  # feature names column"
+    )
+    create_assign_str(
+      true_feature_col, "'true_support'  # true feature support column"
+    )
+    create_assign_str(
+      feature_imp_col, "'imp'  # feature importance column"
+    )
+    create_assign_str(
+      feature_sel_col, "'selected'  # estimated feature support column"
+    )
     cat("\n")
   } else {
     create_assign_str(nested_feature_data, 
@@ -241,10 +271,20 @@ use_inference_template <- function(experiment_name = "Inference Experiment",
   true_feature_col <- "true_feature_col"
   pval_col <- "pval_col"
   if (include_method_example) {
-    create_assign_str(nested_feature_data, "'support_df'")
-    create_assign_str(feature_col, "'feature'")
-    create_assign_str(true_feature_col, "'true_support'")
-    create_assign_str(pval_col, "'pval'")
+    
+    create_assign_str(
+      nested_feature_data, 
+      "'support_df'  # feature importance columns to be unnested"
+    )
+    create_assign_str(
+      feature_col, "'feature'  # feature names column"
+    )
+    create_assign_str(
+      true_feature_col, "'true_support'  # true feature support column"
+    )
+    create_assign_str(
+      pval_col, "'pval'  # p-values column"
+    )
     cat("\n")
   } else {
     create_assign_str(nested_feature_data, 
