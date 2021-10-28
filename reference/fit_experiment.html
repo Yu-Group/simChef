@@ -137,6 +137,7 @@ DGPs for n_reps repetitions and return results from fits." />
   future.packages <span class='op'>=</span> <span class='cn'>NULL</span>,
   future.seed <span class='op'>=</span> <span class='cn'>TRUE</span>,
   use_cached <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  return_all_cached_reps <span class='op'>=</span> <span class='cn'>FALSE</span>,
   save <span class='op'>=</span> <span class='cn'>FALSE</span>,
   checkpoint_n_reps <span class='op'>=</span> <span class='fl'>0</span>,
   verbose <span class='op'>=</span> <span class='fl'>1</span>,
@@ -184,6 +185,14 @@ runs of the experiment, use the same argument during initialization.</p></td>
       <td><p>Logical. If <code>TRUE</code>, find and return previously saved
 results. If cached results cannot be found, continue as if
 <code>use_cached</code> was <code>FALSE</code>.</p></td>
+    </tr>
+    <tr>
+      <th>return_all_cached_reps</th>
+      <td><p>Logical. If <code>FALSE</code> (default), returns
+only the fit results for the requested <code>n_reps</code>. If <code>TRUE</code>,
+returns fit results for the requested <code>n_reps</code> plus any additional
+cached replicates from the (<code>DGP</code>, <code>Method</code>) combinations in the
+<code>Experiment</code>.</p></td>
     </tr>
     <tr>
       <th>save</th>
