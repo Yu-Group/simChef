@@ -29,7 +29,7 @@ summarize_testing_err(
   na_rm = FALSE,
   summary_funs = c("mean", "median", "min", "max", "sd", "raw"),
   custom_summary_funs = NULL,
-  eval_id = NULL
+  eval_id = "testing_err"
 )
 }
 \arguments{

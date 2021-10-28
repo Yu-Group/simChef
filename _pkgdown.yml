@@ -62,6 +62,8 @@ reference:
       - xy_dgp_constructor
       - linear_gaussian_dgp
       - correlated_linear_gaussian_dgp
+      - logistic_gaussian_dgp
+      - correlated_logstic_gaussian_dgp
       - lss_gaussian_dgp
       - correlated_lss_gaussian_dgp
       - rwd_dgp
@@ -76,6 +78,7 @@ reference:
       A library of common functions for generating data for y in a DGP.
     contents:
       - generate_y_linear
+      - generate_y_logistic
       - generate_y_lss
   - subtitle: "DGP Library: Errors"
     desc: >
@@ -142,6 +145,11 @@ reference:
       - pretty_ggplot_theme
       - pretty_ggplot_color_fill_themes
       - blank_ggplot_themes
+  - subtitle: "Boilerplate Templates"
+    desc: >
+      A library of minimalistic templates for running common types of simulation experiments.
+    contents:
+      - library_templates
   - subtitle: "Developer Functions"
     desc: >
       Helper functions for developers to create their own simulation experiment components.
