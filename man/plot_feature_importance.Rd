@@ -6,7 +6,7 @@
 \usage{
 plot_feature_importance(
   fit_results,
-  eval_results,
+  eval_results = NULL,
   evaluator_name = NULL,
   vary_params = NULL,
   feature_col,
@@ -51,6 +51,55 @@ a \code{ggplot} object if \code{plot_by} is \code{NULL} and a list of
 \description{
 Plot the raw or summarized feature importances as a boxplot,
 scatter plot, line plot, or bar plot with or without 1 SD error bars.
+}
+\examples{
+# generate example fit_results data
+fit_results <- tibble::tibble(
+  .rep = rep(1:2, times = 2),
+  .dgp_name = c("DGP1", "DGP1", "DGP2", "DGP2"),
+  .method_name = c("Method"),
+  feature_info = lapply(
+    1:4,
+    FUN = function(i) {
+      tibble::tibble(
+        # feature names
+        feature = c("featureA", "featureB", "featureC"),
+        # estimated feature importance scores
+        est_importance = c(10, runif(2, min = -2, max = 2))  
+      )
+    }
+  )
+)
+
+# generate example eval_results data
+eval_results <- list(
+  `Feature Importance` = summarize_feature_importance(
+    fit_results,
+    nested_data = "feature_info",
+    feature_col = "feature",
+    imp_col = "est_importance"
+  )
+)
+
+# create bar plot using pre-computed evaluation results
+plt <- plot_feature_importance(fit_results = fit_results,
+                               eval_results = eval_results,
+                               evaluator_name = "Feature Importance",
+                               feature_col = "feature")
+# or alternatively, create the same plot without pre-computing evaluation results
+plt <- plot_feature_importance(fit_results,
+                               nested_data = "feature_info",
+                               feature_col = "feature",
+                               imp_col = "est_importance")
+
+# can customize plot (see plot_eval_summary() for possible arguments)
+plt <- plot_feature_importance(fit_results = fit_results,
+                               eval_results = eval_results,
+                               evaluator_name = "Feature Importance",
+                               feature_col = "feature",
+                               errorbar_args = list(width = .5, position = "dodge"),
+                               bar_args = list(width = .5))
+
 }
 \seealso{
 Other feature_selection_funs: 

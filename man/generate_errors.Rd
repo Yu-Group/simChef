@@ -27,3 +27,25 @@ passed arguments.
 The function \code{err} must accept an argument named \code{n}
 (i.e., the sample size).
 }
+\examples{
+# generate standard Gaussian error vector of length 150
+errs <- generate_errors(err = rnorm, n = 150)
+# or alternatively,
+errs <- generate_errors(err = rnorm, X = iris)
+
+# generate Gaussian error vector with mean 0 and sd 2
+errs <- generate_errors(err = rnorm, n = 150, sd = 2)
+
+# generate error vector of all 0s
+errs <- generate_errors(err = NULL, n = 150)
+
+# generate error vector from custom error function
+err_fun <- function(n, rho) {
+  # simulate correlated errors from a autoregressive-1 Gaussian process
+  row1 <- rho^(0:(n - 1))
+  Sigma <- stats::toeplitz(row1)
+  return(MASS::mvrnorm(1, mu = rep(0, n), Sigma = Sigma))
+} 
+errs <- generate_errors(err = err_fun, n = 100, rho = 0.75)
+
+}

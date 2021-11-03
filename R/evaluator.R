@@ -123,6 +123,41 @@ Evaluator <- R6::R6Class(
 #'   varying parameter.
 #'
 #' @return A new \code{Evaluator} object.
+#' 
+#' @examples
+#' # create an example Evaluator function
+#' reject_prob_fun <- function(fit_results, vary_params = NULL, alpha = 0.05) {
+#'   group_vars <- c(".dgp_name", ".method_name", vary_params)
+#'   eval_out <- fit_results %>%
+#'     dplyr::group_by(across({{group_vars}})) %>%
+#'     dplyr::summarise(
+#'       `X1 Reject Prob.` = mean(`X1 p-value` < alpha),
+#'       `X2 Reject Prob.` = mean(`X2 p-value` < alpha)
+#'     )
+#'   return(eval_out)
+#' }
+#' 
+#' # create Evaluator using the default arguments (i.e., alpha = 0.05)
+#' reject_prob_eval <- create_evaluator(eval_fun = reject_prob_fun, 
+#'                                      name = "Rejection Prob (alpha = 0.05)")
+#' # create Evaluator using non-default arguments (here, alpha = 0.1)
+#' reject_prob_eval2 <- create_evaluator(eval_fun = reject_prob_fun,
+#'                                       name = "Rejection Prob (alpha = 0.1)",
+#'                                       # additional named parameters to pass to reject_prob_fun(),
+#'                                       alpha = 0.1)
+#' 
+#' # create Evaluator from a function in the built-in Evaluator library
+#' pred_err_eval <- create_evaluator(eval_fun = summarize_pred_err,
+#'                                   name = "Prediction Error", 
+#'                                   # additional named parameters to pass to summarize_pred_err()
+#'                                   truth_col = "y", estimate_col = "predictions")
+#'                                   
+#' # set rmd options for displaying Evaluator in Rmd report to show 3 decimal points
+#' pred_err_eval <- create_evaluator(eval_fun = summarize_pred_err,
+#'                                   name = "Prediction Error", 
+#'                                   rmd_options = list(digits = 3),
+#'                                   # additional named parameters to pass to summarize_pred_err()
+#'                                   truth_col = "y", estimate_col = "predictions")
 #'
 #' @export
 create_evaluator <- function(eval_fun, name = NULL, rmd_options = list(),

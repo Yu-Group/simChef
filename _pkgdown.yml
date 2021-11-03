@@ -63,7 +63,7 @@ reference:
       - linear_gaussian_dgp
       - correlated_linear_gaussian_dgp
       - logistic_gaussian_dgp
-      - correlated_logstic_gaussian_dgp
+      - correlated_logistic_gaussian_dgp
       - lss_gaussian_dgp
       - correlated_lss_gaussian_dgp
       - rwd_dgp

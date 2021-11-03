@@ -112,6 +112,86 @@ metrics for each experimental replicate separately.
 \code{summarize_testing_err()} summarizes the various testing error metrics
 across experimental replicates.
 }
+\examples{
+# generate example fit_results data for an inference problem
+fit_results <- tibble::tibble(
+  .rep = rep(1:2, times = 2),
+  .dgp_name = c("DGP1", "DGP1", "DGP2", "DGP2"),
+  .method_name = c("Method"),
+  feature_info = lapply(
+    1:4,
+    FUN = function(i) {
+      tibble::tibble(
+        # feature names
+        feature = c("featureA", "featureB", "featureC"),
+        # true feature support
+        true_support = c(TRUE, FALSE, TRUE),
+        # estimated p-values
+        pval = 10^(sample(-3:0, 3, replace = TRUE))
+      )
+    }
+  )
+)
+
+# evaluate feature selection (using all default metrics and alpha = 0.05) for each replicate
+eval_results <- eval_testing_err(
+  fit_results,
+  nested_data = "feature_info",
+  truth_col = "true_support",
+  pval_col = "pval"
+)
+# summarize feature selection error (using all default metric and alpha = 0.05) across replicates
+eval_results_summary <- summarize_testing_err(
+  fit_results,
+  nested_data = "feature_info",
+  truth_col = "true_support",
+  pval_col = "pval"
+)
+
+# evaluate/summarize feature selection (at alpha = 0.05) using specific yardstick metrics
+metrics <- yardstick::metric_set(yardstick::sens, yardstick::spec)
+eval_results <- eval_testing_err(
+  fit_results,
+  nested_data = "feature_info",
+  truth_col = "true_support",
+  pval_col = "pval",
+  metrics = metrics
+)
+eval_results_summary <- summarize_testing_err(
+  fit_results,
+  nested_data = "feature_info",
+  truth_col = "true_support",
+  pval_col = "pval",
+  metrics = metrics
+)
+
+# can evaluate/summarize feature selection at multiple values of alpha
+eval_results <- eval_testing_err(
+  fit_results,
+  nested_data = "feature_info",
+  truth_col = "true_support",
+  pval_col = "pval",
+  alphas = c(0.05, 0.1)
+)
+eval_results_summary <- summarize_testing_err(
+  fit_results,
+  nested_data = "feature_info",
+  truth_col = "true_support",
+  pval_col = "pval",
+  alphas = c(0.05, 0.1)
+)
+
+# summarize feature selection (at alpha = 0.05) using specific summary metric
+range_fun <- function(x) return(max(x) - min(x))
+eval_results_summary <- summarize_testing_err(
+  fit_results,
+  nested_data = "feature_info",
+  truth_col = "true_support",
+  pval_col = "pval",
+  custom_summary_funs = list(range_testing_err = range_fun)
+)
+
+}
 \seealso{
 Other inference_funs: 
 \code{\link{eval_reject_prob}()},

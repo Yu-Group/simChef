@@ -14,5 +14,10 @@ A vector of simulated errors with length \code{n}.
 }
 \description{
 Generate independent Gaussian errors with variance based on norm
-of row observations in the data matrix X.
+of row observations in the data matrix X. That is,
+epsilon_i ~ N(0, ||x_i||_2^2).
+}
+\examples{
+errs <- norm_errors(X = iris \%>\% dplyr::select(-Species))
+
 }

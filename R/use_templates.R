@@ -20,6 +20,31 @@
 #' @name library_templates
 #' @rdname library_templates
 #' 
+#' @examples
+#' # prediction templates
+#' use_prediction_template(type = "regression")
+#' use_prediction_template(type = "classification")
+#' 
+#' # prediction templates with example DGP and Method
+#' use_prediction_template(type = "regression", 
+#'                         include_dgp_example = TRUE,
+#'                         include_method_example = TRUE)
+#' use_prediction_template(type = "classification", 
+#'                         include_dgp_example = TRUE,
+#'                         include_method_example = TRUE)
+#'
+#' # feature selection template
+#' use_feature_selection_template()
+#' # feature selection template with example DGP and Method
+#' use_feature_selection_template(include_dgp_example = TRUE, 
+#'                                include_method_example = TRUE)
+#' 
+#' # inference template
+#' use_inference_template()
+#' # inference template with example DGP and Method
+#' use_inference_template(include_dgp_example = TRUE,
+#'                        include_method_example = TRUE)
+#' 
 NULL
 
 #' @rdname library_templates

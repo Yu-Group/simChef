@@ -13,6 +13,7 @@
 #'   indices of the support are used.
 #' @param return_values Character vector indicating what objects to return in 
 #'   list. Elements in vector must be one of "X", "y", "support".
+#' @param support Vector of feature indices in the true support of the DGP.
 #' @param train_prop Proportion of data in training set if 
 #'   \code{data_split = TRUE}.
 #' @param X Data matrix or data frame.
@@ -31,9 +32,17 @@ NULL
 #'   function.
 #'   
 #' @inheritParams shared_dgp_lib_args
-#' @param support Vector of feature indices in the true support of the DGP.
 #' 
 #' @inherit shared_dgp_lib_args return
+#' 
+#' @examples 
+#' # Return training/test splits using iris data and completely dense support 
+#' dgp_out <- return_DGP_output(X = iris %>% dplyr::select(-Species),
+#'                              y = iris$Species,
+#'                              support = 1:4,
+#'                              data_split = TRUE,
+#'                              train_prop = 0.5,
+#'                              return_values = c("X", "y", "support"))
 #' 
 #' @export
 return_DGP_output <- function(X, y, support, data_split, train_prop,

@@ -15,9 +15,57 @@
 #' 
 #' @family feature_selection_funs
 #' 
+#' @examples
+#' # generate example fit_results data
+#' fit_results <- tibble::tibble(
+#'   .rep = rep(1:2, times = 2),
+#'   .dgp_name = c("DGP1", "DGP1", "DGP2", "DGP2"),
+#'   .method_name = c("Method"),
+#'   feature_info = lapply(
+#'     1:4,
+#'     FUN = function(i) {
+#'       tibble::tibble(
+#'         # feature names
+#'         feature = c("featureA", "featureB", "featureC"),
+#'         # estimated feature importance scores
+#'         est_importance = c(10, runif(2, min = -2, max = 2))  
+#'       )
+#'     }
+#'   )
+#' )
+#' 
+#' # generate example eval_results data
+#' eval_results <- list(
+#'   `Feature Importance` = summarize_feature_importance(
+#'     fit_results,
+#'     nested_data = "feature_info",
+#'     feature_col = "feature",
+#'     imp_col = "est_importance"
+#'   )
+#' )
+#' 
+#' # create bar plot using pre-computed evaluation results
+#' plt <- plot_feature_importance(fit_results = fit_results,
+#'                                eval_results = eval_results,
+#'                                evaluator_name = "Feature Importance",
+#'                                feature_col = "feature")
+#' # or alternatively, create the same plot without pre-computing evaluation results
+#' plt <- plot_feature_importance(fit_results,
+#'                                nested_data = "feature_info",
+#'                                feature_col = "feature",
+#'                                imp_col = "est_importance")
+#' 
+#' # can customize plot (see plot_eval_summary() for possible arguments)
+#' plt <- plot_feature_importance(fit_results = fit_results,
+#'                                eval_results = eval_results,
+#'                                evaluator_name = "Feature Importance",
+#'                                feature_col = "feature",
+#'                                errorbar_args = list(width = .5, position = "dodge"),
+#'                                bar_args = list(width = .5))
+#' 
 #' @importFrom rlang .data
 #' @export
-plot_feature_importance <- function(fit_results, eval_results, 
+plot_feature_importance <- function(fit_results, eval_results = NULL, 
                                     evaluator_name = NULL, vary_params = NULL,
                                     feature_col, show_max_features = NULL, 
                                     show = c("errorbar", "bar"), ...) {
@@ -86,8 +134,63 @@ plot_feature_importance <- function(fit_results, eval_results,
 #' 
 #' @family feature_selection_funs
 #' 
+#' @examples
+#' # generate example fit_results data
+#' fit_results <- tibble::tibble(
+#'   .rep = rep(1:2, times = 2),
+#'   .dgp_name = c("DGP1", "DGP1", "DGP2", "DGP2"),
+#'   .method_name = c("Method"),
+#'   feature_info = lapply(
+#'     1:4,
+#'     FUN = function(i) {
+#'       tibble::tibble(
+#'         # feature names
+#'         feature = c("featureA", "featureB", "featureC"),  
+#'         # true feature support
+#'         true_support = c(TRUE, FALSE, TRUE),  
+#'         # estimated feature support
+#'         est_support = c(TRUE, FALSE, FALSE),  
+#'         # estimated feature importance scores
+#'         est_importance = c(10, runif(2, min = -2, max = 2))  
+#'       )
+#'     }
+#'   )
+#' )
+#' 
+#' # generate example eval_results data
+#' eval_results <- list(
+#'   `Feature Selection Errors` = summarize_feature_selection_err(
+#'     fit_results, 
+#'     nested_data = "feature_info",
+#'     truth_col = "true_support", 
+#'     estimate_col = "est_support",
+#'     imp_col = "est_importance"
+#'   )
+#' )
+#' 
+#' # create bar plot using pre-computed evaluation results
+#' plt <- plot_feature_selection_err(fit_results = fit_results, 
+#'                                   eval_results = eval_results,
+#'                                   evaluator_name = "Feature Selection Errors",
+#'                                   show = c("bar"))
+#' # or alternatively, create the same plot without pre-computing evaluation results
+#' plt <- plot_feature_selection_err(fit_results,
+#'                                   show = c("bar"),
+#'                                   nested_data = "feature_info",
+#'                                   truth_col = "true_support",
+#'                                   estimate_col = "est_support",
+#'                                   imp_col = "est_importance")
+#' 
+#' # can customize plot (see plot_eval_summary() for possible arguments)
+#' plt <- plot_feature_selection_err(fit_results = fit_results, 
+#'                                   eval_results = eval_results,
+#'                                   evaluator_name = "Feature Selection Errors",
+#'                                   show = c("bar"),
+#'                                   color_str = ".dgp_name",
+#'                                   interactive = TRUE)
+#' 
 #' @export
-plot_feature_selection_err <- function(fit_results, eval_results, 
+plot_feature_selection_err <- function(fit_results, eval_results = NULL, 
                                        evaluator_name = NULL, 
                                        vary_params = NULL, metrics = NULL, 
                                        show = c("point", "line", "errorbar"),
@@ -121,8 +224,77 @@ plot_feature_selection_err <- function(fit_results, eval_results,
 #' 
 #' @family feature_selection_funs
 #' 
+#' @examples
+#' # generate example fit_results data
+#' fit_results <- tibble::tibble(
+#'   .rep = rep(1:2, times = 2),
+#'   .dgp_name = c("DGP1", "DGP1", "DGP2", "DGP2"),
+#'   .method_name = c("Method"),
+#'   feature_info = lapply(
+#'     1:4,
+#'     FUN = function(i) {
+#'       tibble::tibble(
+#'         # feature names
+#'         feature = c("featureA", "featureB", "featureC"),  
+#'         # true feature support
+#'         true_support = c(TRUE, FALSE, TRUE),  
+#'         # estimated feature support
+#'         est_support = c(TRUE, FALSE, FALSE),  
+#'         # estimated feature importance scores
+#'         est_importance = c(10, runif(2, min = -2, max = 2))  
+#'       )
+#'     }
+#'   )
+#' )
+#' 
+#' # generate example eval_results data
+#' eval_results <- list(
+#'   ROC = summarize_feature_selection_curve(
+#'     fit_results, 
+#'     curve = "ROC",
+#'     nested_data = "feature_info",
+#'     truth_col = "true_support", 
+#'     imp_col = "est_importance"
+#'   ),
+#'   PR = summarize_feature_selection_curve(
+#'     fit_results, 
+#'     curve = "PR",
+#'     nested_data = "feature_info",
+#'     truth_col = "true_support", 
+#'     imp_col = "est_importance"
+#'   )
+#' )
+#' 
+#' # create summary ROC/PR plots using pre-computed evaluation results
+#' roc_plt <- plot_feature_selection_curve(fit_results = fit_results, 
+#'                                         eval_results = eval_results,
+#'                                         evaluator_name = "ROC", curve = "ROC",
+#'                                         show = c("line", "ribbon"))
+#' pr_plt <- plot_feature_selection_curve(fit_results = fit_results, 
+#'                                        eval_results = eval_results,
+#'                                        evaluator_name = "PR", curve = "PR",
+#'                                        show = c("line", "ribbon"))
+#' # or alternatively, create the same plots without pre-computing evaluation results
+#' roc_plt <- plot_feature_selection_curve(fit_results, show = c("line", "ribbon"),
+#'                                         nested_data = "feature_info",
+#'                                         truth_col = "true_support",
+#'                                         imp_col = "est_importance",
+#'                                         curve = "ROC")
+#' pr_plt <- plot_feature_selection_curve(fit_results, show = c("line", "ribbon"),
+#'                                        nested_data = "feature_info",
+#'                                        truth_col = "true_support",
+#'                                        imp_col = "est_importance",
+#'                                        curve = "PR")
+#' 
+#' # can customize plot (see plot_eval_summary() for possible arguments)
+#' roc_plt <- plot_feature_selection_curve(fit_results = fit_results, 
+#'                                         eval_results = eval_results,
+#'                                         evaluator_name = "ROC", curve = "ROC",
+#'                                         show = c("line", "ribbon"),
+#'                                         plot_by = ".dgp_name")
+#' 
 #' @export
-plot_feature_selection_curve <- function(fit_results, eval_results,
+plot_feature_selection_curve <- function(fit_results, eval_results = NULL,
                                          evaluator_name = NULL,
                                          vary_params = NULL, 
                                          curve = c("ROC", "PR"),

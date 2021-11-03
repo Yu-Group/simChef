@@ -29,3 +29,12 @@ A matrix of size n x p.
 Generate a design matrix X by sampling from a real-world data
 matrix under the specified sampling scheme.
 }
+\examples{
+# get bootstrap samples from iris data set
+X <- generate_X_rwd(X = iris, replace = TRUE)
+
+# leave one batch out from iris data set
+batch_ids <- rep(1:3, length.out = nrow(iris))
+X <- generate_X_rwd(X = iris, n = 2, clusters = batch_ids)
+
+}

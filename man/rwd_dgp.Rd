@@ -4,12 +4,21 @@
 \alias{rwd_dgp}
 \title{Read in real world data from X and y.}
 \usage{
-rwd_dgp(X, y, data_split, train_prop = 0.5, return_values = c("X", "y"))
+rwd_dgp(
+  X,
+  y,
+  support = NULL,
+  data_split = FALSE,
+  train_prop = 0.5,
+  return_values = c("X", "y")
+)
 }
 \arguments{
 \item{X}{Data matrix or data frame.}
 
 \item{y}{Response vector.}
+
+\item{support}{Vector of feature indices in the true support of the DGP.}
 
 \item{data_split}{Logical; if \code{TRUE}, splits data into training and test
 sets according to \code{train_prop}.}
@@ -28,4 +37,9 @@ are in \code{return_values}, then the returned list also contains slots for
 }
 \description{
 Read in real world data from X and y.
+}
+\examples{
+# read in iris data
+iris_data <- rwd_dgp(X = iris \%>\% dplyr::select(-Species), y = iris$Species)
+
 }

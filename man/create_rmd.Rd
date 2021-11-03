@@ -73,3 +73,12 @@ taken to be that specified by \code{save_dir}. Note that
 \code{create_rmd()} will process and include results from all
 \code{Experiments} found \emph{under} the root directory.
 }
+\examples{
+\dontrun{
+# create basic Rmd from an experiment (of class `Experiment`)
+create_rmd(experiment)
+
+# or alternatively, create basic Rmd from a specific directory
+create_rmd(save_dir = experiment$get_save_dir())}
+
+}

@@ -16,6 +16,21 @@
 #'   
 #' @return A normal random matrix of size n x p.
 #' 
+#' @examples
+#' 
+#' # Returns 100 x 10 random Gaussian matrix with X_ij ~ N(0, 1)
+#' X <- generate_X_gaussian(n = 100, p = 10)
+#' 
+#' # Returns 100 x 10 random Gaussian matrix with E(X_i) = 0 for all i,
+#' # Var(X_i) = 4 for all i, and Cor(X_i, X_j) = 0.7 for all i != j
+#' X <- generate_X_gaussian(n = 100, p = 10, sd = 2, corr = 0.7)
+#' 
+#' # Returns 100 x 2 random Gaussian matrix: X ~ N(0, Sigma), where
+#' # Sigma = [3, .5; .5, 1]
+#' X <- generate_X_gaussian(
+#'   n = 100, p = 2, Sigma = matrix(c(3, .5, .5, 1), nrow = 2, byrow = TRUE)
+#' )
+#' 
 #' @export
 generate_X_gaussian <- function(n, p, mean = 0, 
                                 sd = 1, corr = 0, Sigma = NULL) {
@@ -60,6 +75,14 @@ generate_X_gaussian <- function(n, p, mean = 0,
 #'   FALSE, sample observations without replacement
 #'   
 #' @return A matrix of size n x p.
+#' 
+#' @examples
+#' # get bootstrap samples from iris data set
+#' X <- generate_X_rwd(X = iris, replace = TRUE)
+#' 
+#' # leave one batch out from iris data set
+#' batch_ids <- rep(1:3, length.out = nrow(iris))
+#' X <- generate_X_rwd(X = iris, n = 2, clusters = batch_ids)
 #' 
 #' @export
 generate_X_rwd <- function(X, n = nrow(X), p = ncol(X), 

@@ -120,6 +120,77 @@ metrics for each experimental replicate separately..
 \code{summarize_feature_selection_err()} summarizes the various feature
 selection metrics across experimental replicates.
 }
+\examples{
+# generate example fit_results data for a feature selection problem
+fit_results <- tibble::tibble(
+  .rep = rep(1:2, times = 2),
+  .dgp_name = c("DGP1", "DGP1", "DGP2", "DGP2"),
+  .method_name = c("Method"),
+  feature_info = lapply(
+    1:4,
+    FUN = function(i) {
+      tibble::tibble(
+        # feature names
+        feature = c("featureA", "featureB", "featureC"),  
+        # true feature support
+        true_support = c(TRUE, FALSE, TRUE),  
+        # estimated feature support
+        est_support = c(TRUE, FALSE, FALSE),  
+        # estimated feature importance scores
+        est_importance = c(10, runif(2, min = -2, max = 2))  
+      )
+    }
+  )
+)
+
+# evaluate feature selection (using all default metrics) for each replicate
+eval_results <- eval_feature_selection_err(
+  fit_results,
+  nested_data = "feature_info",
+  truth_col = "true_support",
+  estimate_col = "est_support",
+  imp_col = "est_importance"
+)
+# summarize feature selection error (using all default metric) across replicates
+eval_results_summary <- summarize_feature_selection_err(
+  fit_results,
+  nested_data = "feature_info",
+  truth_col = "true_support",
+  estimate_col = "est_support",
+  imp_col = "est_importance"
+)
+
+# evaluate/summarize feature selection errors using specific yardstick metrics
+metrics <- yardstick::metric_set(yardstick::sens, yardstick::spec)
+eval_results <- eval_feature_selection_err(
+  fit_results,
+  nested_data = "feature_info",
+  truth_col = "true_support",
+  estimate_col = "est_support",
+  imp_col = "est_importance",
+  metrics = metrics
+)
+eval_results_summary <- summarize_feature_selection_err(
+  fit_results,
+  nested_data = "feature_info",
+  truth_col = "true_support",
+  estimate_col = "est_support",
+  imp_col = "est_importance",
+  metrics = metrics
+)
+
+# summarize feature selection errors using specific summary metric
+range_fun <- function(x) return(max(x) - min(x))
+eval_results_summary <- summarize_feature_selection_err(
+  fit_results,
+  nested_data = "feature_info",
+  truth_col = "true_support",
+  estimate_col = "est_support",
+  imp_col = "est_importance",
+  custom_summary_funs = list(range_feature_selection = range_fun)
+)
+
+}
 \seealso{
 Other feature_selection_funs: 
 \code{\link{eval_feature_importance_funs}},

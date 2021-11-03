@@ -49,3 +49,15 @@ are in \code{return_values}, then the returned list also contains slots for
 Generate independent normally-distributed covariates and
 logistic response data.
 }
+\details{
+Data is generated via: \deqn{log(p / (1 - p)) = betas \%*\% X,} where
+p = P(y = 1 | X), X is a standard Gaussian random matrix, and the true
+underlying support of this data is the first s features in X (unless
+specified otherwise by \code{betas}).
+}
+\examples{
+# generate data from: log(p / (1 - p)) = betas_1 * x_1 + betas_2 * x_2, where
+# betas_1, betas_2 ~ N(0, 1) and X ~ N(0, I_10)
+sim_data <- logistic_gaussian_dgp(n = 100, p = 10, s = 2, betas_sd = 1)
+  
+}

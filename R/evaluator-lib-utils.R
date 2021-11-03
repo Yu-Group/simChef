@@ -52,6 +52,29 @@ NULL
 #'   also retained in the returned \code{tibble}.
 #' 
 #' @importFrom rlang .data
+#' 
+#' @examples
+#' # create example eval_data to summarize
+#' eval_data <- tibble::tibble(.rep = rep(1:2, times = 2), 
+#'                             .dgp_name = c("DGP1", "DGP1", "DGP2", "DGP2"),
+#'                             .method_name = "Method",
+#'                             result = 1:4) %>%
+#'   dplyr::group_by(.dgp_name, .method_name)
+#'   
+#' # summarize `result` column in eval_data
+#' results <- summarize_eval_results(eval_data = eval_data, eval_id = "res",
+#'                                   value_col = "result")
+#'                                   
+#' # only compute mean and sd of `result` column in eval_data over given groups
+#' results <- summarize_eval_results(eval_data = eval_data, eval_id = "res",
+#'                                   value_col = "result",
+#'                                   summary_funs = c("mean", "sd"))
+#'                                   
+#' # summarize `results` column using custom summary function
+#' range_fun <- function(x) return(max(x) - min(x))
+#' results <- summarize_eval_results(eval_data = eval_data, value_col = "result",
+#'                                   custom_summary_funs = list(range = range_fun))
+#'                                   
 #' @export
 summarize_eval_results <- function(eval_data, eval_id = NULL, value_col,
                                    summary_funs = c("mean", "median", "min",
@@ -110,11 +133,11 @@ summarize_eval_results <- function(eval_data, eval_id = NULL, value_col,
       }
     ) %>%
       purrr::reduce(dplyr::left_join, by = group_ids)
-    eval_out <- dplyr::left_join(eval_out, custom_eval_out, by = group_ids) %>%
-      dplyr::group_by(dplyr::across({{group_ids}}))
+    eval_out <- dplyr::left_join(eval_out, custom_eval_out, by = group_ids)
   }
   
-  return(tibble::tibble(eval_out))
+  return(tibble::tibble(eval_out) %>% 
+           dplyr::group_by(dplyr::across({{group_ids}})))
 }
 
 #----------------------------- Yardstick Helpers -------------------------------

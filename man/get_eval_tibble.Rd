@@ -41,7 +41,8 @@ been computed in \code{eval_tib}.}
 construct.}
 
 \item{y_str}{(Optional) Name of column in \code{eval_tib} to plot on the
-y-axis if \code{show} is anything but "boxplot".}
+y-axis if \code{show} is anything but "boxplot". Default "auto" chooses
+what to plot on the y-axis automatically.}
 
 \item{...}{Additional arguments to pass to \code{eval_fun()}. This is only
 used if necessary results have not already been computed in
@@ -56,4 +57,58 @@ Helper function to get the summarized evaluation results
 evaluation results if they have not been computed previously. Otherwise,
 it will read in the previously computed results and compute and append any
 new results necessary to construct the specified plot.
+}
+\examples{
+# generate example fit results data
+fit_results <- tibble::tibble(
+  .rep = rep(1:2, times = 2),
+  .dgp_name = c("DGP1", "DGP1", "DGP2", "DGP2"),
+  .method_name = c("Method"),
+  # true response
+  y = lapply(1:4, FUN = function(x) rnorm(100)),
+  # predicted response
+  predictions = lapply(1:4, FUN = function(x) rnorm(100))
+)
+
+# compute (from scratch) the evaluation results that are necessary for plotting
+eval_tib <- get_eval_tibble(fit_results = fit_results, 
+                            eval_tib = NULL,
+                            eval_id = "pred_err",
+                            eval_fun = "summarize_pred_err", 
+                            show = c("point", "errorbar"),
+                            y_str = NULL,  # or equivalently, "mean_pred_err"
+                            # arguments to pass to `eval_fun`
+                            truth_col = "y",
+                            estimate_col = "predictions")
+# this is equivalent to:
+eval_tib2 <- summarize_pred_err(
+  fit_results = fit_results, 
+  truth_col = "y",
+  estimate_col = "predictions",
+  summary_funs = c("mean", "sd")
+)
+all.equal(eval_tib, eval_tib2)
+
+# read in pre-computed evaluation results since it has everything needed for plotting
+eval_tib <- get_eval_tibble(fit_results = fit_results,
+                            eval_tib = eval_tib, 
+                            eval_id = "pred_err",
+                            eval_fun = "summarize_pred_err", 
+                            show = c("point", "errorbar"),
+                            y_str = NULL)  # or equivalently, "mean_pred_err"
+all.equal(eval_tib, eval_tib2)
+
+# if columns that are needed for plotting are missing in `eval_tib`, then
+# `get_eval_tibble` will call the `eval_fun` and compute the necessary results
+eval_tib <- get_eval_tibble(fit_results = fit_results, 
+                            eval_tib = eval_tib \%>\% dplyr::select(-mean_pred_err),
+                            eval_id = "pred_err",
+                            eval_fun = "summarize_pred_err", 
+                            show = c("point", "errorbar"),
+                            y_str = NULL,  # or equivalently, "mean_pred_err"
+                            # arguments to pass to `eval_fun`
+                            truth_col = "y",
+                            estimate_col = "predictions")
+all.equal(eval_tib, eval_tib2)
+  
 }

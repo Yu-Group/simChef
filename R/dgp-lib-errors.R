@@ -13,6 +13,27 @@
 #' @details The function \code{err} must accept an argument named \code{n} 
 #'   (i.e., the sample size).
 #' 
+#' @examples
+#' # generate standard Gaussian error vector of length 150
+#' errs <- generate_errors(err = rnorm, n = 150)
+#' # or alternatively,
+#' errs <- generate_errors(err = rnorm, X = iris)
+#' 
+#' # generate Gaussian error vector with mean 0 and sd 2
+#' errs <- generate_errors(err = rnorm, n = 150, sd = 2)
+#' 
+#' # generate error vector of all 0s
+#' errs <- generate_errors(err = NULL, n = 150)
+#' 
+#' # generate error vector from custom error function
+#' err_fun <- function(n, rho) {
+#'   # simulate correlated errors from a autoregressive-1 Gaussian process
+#'   row1 <- rho^(0:(n - 1))
+#'   Sigma <- stats::toeplitz(row1)
+#'   return(MASS::mvrnorm(1, mu = rep(0, n), Sigma = Sigma))
+#' } 
+#' errs <- generate_errors(err = err_fun, n = 100, rho = 0.75)
+#' 
 #' @export
 generate_errors <- function(err = NULL, n, X, ...) {
   if (missing(n) && missing(X)) {
@@ -21,7 +42,7 @@ generate_errors <- function(err = NULL, n, X, ...) {
     n <- nrow(X)
   }
   if (is.null(err)) {
-    eps <- matrix(0, nrow = n, ncol = 1)
+    eps <- rep(0, n)
   } else if (is.function(err)) {
     eps <- R.utils::doCall(err, n = n, ...)
   } else {
@@ -42,6 +63,9 @@ generate_errors <- function(err = NULL, n, X, ...) {
 #' 
 #' @inherit generate_errors return
 #' 
+#' @examples
+#' errs <- ar1_errors(n = 100, rho = 0.7)
+#' 
 #' @export
 ar1_errors <- function(n, rho) {
   row1 <- rho^(0:(n - 1))
@@ -59,6 +83,9 @@ ar1_errors <- function(n, rho) {
 #' 
 #' @inherit generate_errors return
 #' 
+#' @examples
+#' errs <- block_errors(n = 100, rho = 0.7)
+#' 
 #' @export
 block_errors <- function(n, rho = 0.8) {
   Sigma_block <- matrix(0, nrow = n, ncol = n)
@@ -73,11 +100,15 @@ block_errors <- function(n, rho = 0.8) {
 #' Generate heteroskedastic Gaussian errors based on the norm of X.
 #' 
 #' @description Generate independent Gaussian errors with variance based on norm
-#'   of row observations in the data matrix X.
+#'   of row observations in the data matrix X. That is,
+#'   epsilon_i ~ N(0, ||x_i||_2^2).
 #'
 #' @inheritParams shared_dgp_lib_args
 #' 
 #' @inherit generate_errors return
+#' 
+#' @examples
+#' errs <- norm_errors(X = iris %>% dplyr::select(-Species))
 #' 
 #' @export
 norm_errors <- function(X) {

@@ -70,6 +70,21 @@ potentially omitted variables) and linear response data with a specified
 error distribution.
 }
 \details{
-TODO: Support is the first s_obs and s_unobs features in the
-generated X and U data.
+Data is generated via: \deqn{y = betas \%\emph{\% X +
+betas_unobs \%}\% U + err(...),} where X, U are standard Gaussian random
+matrices and the true underlying support of this data is the first s_obs and
+s_unobs features in X and U respectively.
+}
+\examples{
+# generate data from: y = betas_1 * x_1 + betas_2 * x_2 + N(0, 0.5), where
+# betas_1, betas_2 ~ N(0, 1) and X ~ N(0, I_10)
+sim_data <- linear_gaussian_dgp(n = 100, p_obs = 10, s_obs = 2, betas_sd = 1,
+                                err = rnorm, sd = .5)
+
+# generate data from y = betas \%*\% X - u_1 + t(df = 1), where
+# betas ~ N(0, .5), betas_unobs = [-1, 0], X ~ N(0, I_10), U ~ N(0, I_2)
+sim_data <- linear_gaussian_dgp(n = 100, p_obs = 10, p_unobs = 2,
+                                betas_sd = .5, betas_unobs = c(-1, 0),
+                                err = rt, df = 1)
+  
 }

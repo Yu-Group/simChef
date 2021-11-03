@@ -82,3 +82,41 @@ are in \code{return_values}, then the returned list also contains slots for
 Generate normally-distributed covariates that are potentially
 correlated and LSS response data with a specified error distribution.
 }
+\details{
+Data is generated via: \deqn{y = intercept + sum_{i = 1}^{s} beta_i prod_{j = 1}^{k}1(X_{S_j} lessgtr thresholds_ij) + err(...),} where
+X = [X_uncorr, X_corr], X_uncorr is an (uncorrelated) standard Gaussian
+random matrix, and X_corr is a correlated Gaussian random matrix with
+variance 1 and Cor(X_corr_i, X_corr_j) = corr for all i, j. If
+\code{overlap = TRUE}, then the true interaction support is randomly chosen
+from the (p_uncorr + p_corr) features in \code{X}. If \code{overlap = FALSE},
+then the true interaction support is sequentially taken from the first
+\code{s_uncorr*k} features in X_uncorr and the first
+\code{s_corr*k} features in X_corr.
+
+For more details on the LSS model, see Behr, Merle, et al. "Provable Boolean Interaction Recovery from Tree Ensemble obtained via Random Forests." arXiv preprint arXiv:2102.11800 (2021).
+}
+\examples{
+# generate data from: y = 1(X_1 > 0, X_2 > 0) + 1(X_3 > 0, X_4 > 0), where
+# X is a 100 x 10 correlated Gaussian random matrix with 
+# Var(X_i) = 1 for all i and Cor(X_i, X_j) = 0.7 for all i != j
+sim_data <- correlated_lss_gaussian_dgp(n = 100, p_uncorr = 0, p_corr = 10, 
+                                        k = 2, s_corr = 2, corr = 0.7,
+                                        thresholds = 0, signs = 1, betas = 1)
+
+# generate data from: y = 3 * 1(X_1 > 0, X_2 > 0) - 1(X_11 > 0, X_12 > 0) + N(0, 1), 
+# where X = [Z, U], Z is a 100 x 10 standard Gaussian random matrix, 
+# U is a 100 x 10 Gaussian random matrix with Var(U_i) = 1 and Cor(U_i, U_j) = 0.7
+sim_data <- correlated_lss_gaussian_dgp(n = 100, p_uncorr = 10, p_corr = 10,
+                                        s_uncorr = 1, s_corr = 1, corr = 0.7,
+                                        k = 2, betas = c(3, -1), err = rnorm)
+
+# generate data from: y = \sum_{i = 1}^{4} \prod_{j = 1}^{2} 1(X_{s_j} > 0), 
+# where s_j \in {1:4, 11:14} are randomly selected indiceds, X = [Z, U], 
+# Z is a 100 x 10 standard Gaussian random matrix, U is a 100 x 10 Gaussian 
+# random matrix with Var(U_i) = 1 and Cor(U_i, U_j) = 0.7
+# i.e., interactions may consist of both correlated and uncorrelated features
+sim_data <- correlated_lss_gaussian_dgp(n = 100, p_uncorr = 10, p_corr = 10, 
+                                        s_uncorr = 2, s_corr = 2, k = 2, 
+                                        corr = 0.7, mixed_int = TRUE)
+
+}

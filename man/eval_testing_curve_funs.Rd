@@ -120,6 +120,59 @@ evaluates the ROC or PR curve for each experimental replicate separately.
 \code{summarize_testing_curve()} summarizes the ROC or PR curve across
 experimental replicates.
 }
+\examples{
+# generate example fit_results data for a feature selection problem
+fit_results <- tibble::tibble(
+  .rep = rep(1:2, times = 2),
+  .dgp_name = c("DGP1", "DGP1", "DGP2", "DGP2"),
+  .method_name = c("Method"),
+  feature_info = lapply(
+    1:4,
+    FUN = function(i) {
+      tibble::tibble(
+        # feature names
+        feature = c("featureA", "featureB", "featureC"),
+        # true feature support
+        true_support = c(TRUE, FALSE, TRUE),
+        # estimated p-values
+        pval = 10^(sample(-3:0, 3, replace = TRUE))
+      )
+    }
+  )
+)
+
+# evaluate feature selection ROC/PR curves for each replicate
+roc_results <- eval_testing_curve(
+  fit_results,
+  curve = "ROC",
+  nested_data = "feature_info",
+  truth_col = "true_support",
+  pval_col = "pval"
+)
+pr_results <- eval_testing_curve(
+  fit_results,
+  curve = "PR",
+  nested_data = "feature_info",
+  truth_col = "true_support",
+  pval_col = "pval"
+)
+# summarize feature selection ROC/PR curves across replicates
+roc_summary <- summarize_testing_curve(
+  fit_results,
+  curve = "ROC",
+  nested_data = "feature_info",
+  truth_col = "true_support",
+  pval_col = "pval"
+)
+pr_summary <- summarize_testing_curve(
+  fit_results,
+  curve = "PR",
+  nested_data = "feature_info",
+  truth_col = "true_support",
+  pval_col = "pval"
+)
+
+}
 \seealso{
 Other inference_funs: 
 \code{\link{eval_reject_prob}()},

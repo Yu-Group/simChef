@@ -32,3 +32,13 @@ are in \code{return_values}, then the returned list also contains slots for
 Helper function that returns a consistent output for any DGP
 function.
 }
+\examples{
+# Return training/test splits using iris data and completely dense support 
+dgp_out <- return_DGP_output(X = iris \%>\% dplyr::select(-Species),
+                             y = iris$Species,
+                             support = 1:4,
+                             data_split = TRUE,
+                             train_prop = 0.5,
+                             return_values = c("X", "y", "support"))
+
+}

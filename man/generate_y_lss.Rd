@@ -64,3 +64,25 @@ If \code{return_support = FALSE}, returns only the response vector \code{y}.
 Generate LSS response data with a specified error
 distribution given the observed data matrices.
 }
+\details{
+Here, data is generated from the following LSS model:
+\deqn{E(Y|X) = intercept + sum_{i = 1}^{s} beta_i prod_{j = 1}^{k}1(X_{S_j} 	lessgtr thresholds_ij)}
+
+For more details on the LSS model, see Behr, Merle, et al. "Provable Boolean Interaction Recovery from Tree Ensemble obtained via Random Forests." arXiv preprint arXiv:2102.11800 (2021).
+}
+\examples{
+X <- generate_X_gaussian(n = 100, p = 10)
+
+# generate data from: y = 1(X_1 > 0, X_2 > 0) + 1(X_3 > 0, X_4 > 0)
+y <- generate_y_lss(X = X, k = 2, s = matrix(1:4, nrow = 2, byrow = TRUE),
+                    thresholds = 0, signs = 1, betas = 1)
+
+# generate data from: y = 3 * 1(X_1 < 0) - 1(X_2 > 1) + N(0, 1)
+y <- generate_y_lss(X = X, k = 1, 
+                    s = matrix(1:2, nrow = 2),
+                    thresholds = matrix(0:1, nrow = 2), 
+                    signs = matrix(c(-1, 1), nrow = 2),
+                    betas = c(3, -1),
+                    err = rnorm)
+
+}

@@ -63,6 +63,76 @@
 #' 
 #' @family feature_selection_funs
 #' 
+#' @examples
+#' # generate example fit_results data for a feature selection problem
+#' fit_results <- tibble::tibble(
+#'   .rep = rep(1:2, times = 2),
+#'   .dgp_name = c("DGP1", "DGP1", "DGP2", "DGP2"),
+#'   .method_name = c("Method"),
+#'   feature_info = lapply(
+#'     1:4,
+#'     FUN = function(i) {
+#'       tibble::tibble(
+#'         # feature names
+#'         feature = c("featureA", "featureB", "featureC"),  
+#'         # true feature support
+#'         true_support = c(TRUE, FALSE, TRUE),  
+#'         # estimated feature support
+#'         est_support = c(TRUE, FALSE, FALSE),  
+#'         # estimated feature importance scores
+#'         est_importance = c(10, runif(2, min = -2, max = 2))  
+#'       )
+#'     }
+#'   )
+#' )
+#' 
+#' # evaluate feature selection (using all default metrics) for each replicate
+#' eval_results <- eval_feature_selection_err(
+#'   fit_results,
+#'   nested_data = "feature_info",
+#'   truth_col = "true_support",
+#'   estimate_col = "est_support",
+#'   imp_col = "est_importance"
+#' )
+#' # summarize feature selection error (using all default metric) across replicates
+#' eval_results_summary <- summarize_feature_selection_err(
+#'   fit_results,
+#'   nested_data = "feature_info",
+#'   truth_col = "true_support",
+#'   estimate_col = "est_support",
+#'   imp_col = "est_importance"
+#' )
+#' 
+#' # evaluate/summarize feature selection errors using specific yardstick metrics
+#' metrics <- yardstick::metric_set(yardstick::sens, yardstick::spec)
+#' eval_results <- eval_feature_selection_err(
+#'   fit_results,
+#'   nested_data = "feature_info",
+#'   truth_col = "true_support",
+#'   estimate_col = "est_support",
+#'   imp_col = "est_importance",
+#'   metrics = metrics
+#' )
+#' eval_results_summary <- summarize_feature_selection_err(
+#'   fit_results,
+#'   nested_data = "feature_info",
+#'   truth_col = "true_support",
+#'   estimate_col = "est_support",
+#'   imp_col = "est_importance",
+#'   metrics = metrics
+#' )
+#' 
+#' # summarize feature selection errors using specific summary metric
+#' range_fun <- function(x) return(max(x) - min(x))
+#' eval_results_summary <- summarize_feature_selection_err(
+#'   fit_results,
+#'   nested_data = "feature_info",
+#'   truth_col = "true_support",
+#'   estimate_col = "est_support",
+#'   imp_col = "est_importance",
+#'   custom_summary_funs = list(range_feature_selection = range_fun)
+#' )
+#' 
 NULL
 
 #' @rdname eval_feature_selection_err_funs
@@ -200,6 +270,58 @@ summarize_feature_selection_err <- function(fit_results, vary_params = NULL,
 #' 
 #' @family feature_selection_funs
 #' 
+#' @examples
+#' # generate example fit_results data for a feature selection problem
+#' fit_results <- tibble::tibble(
+#'   .rep = rep(1:2, times = 2),
+#'   .dgp_name = c("DGP1", "DGP1", "DGP2", "DGP2"),
+#'   .method_name = c("Method"),
+#'   feature_info = lapply(
+#'     1:4,
+#'     FUN = function(i) {
+#'       tibble::tibble(
+#'         # feature names
+#'         feature = c("featureA", "featureB", "featureC"),
+#'         # true feature support
+#'         true_support = c(TRUE, FALSE, TRUE),
+#'         # estimated feature importance scores
+#'         est_importance = c(10, runif(2, min = -2, max = 2))
+#'       )
+#'     }
+#'   )
+#' )
+#' 
+#' # evaluate feature selection ROC/PR curves for each replicate
+#' roc_results <- eval_feature_selection_curve(
+#'   fit_results, 
+#'   curve = "ROC",
+#'   nested_data = "feature_info",
+#'   truth_col = "true_support",
+#'   imp_col = "est_importance"
+#' )
+#' pr_results <- eval_feature_selection_curve(
+#'   fit_results, 
+#'   curve = "PR",
+#'   nested_data = "feature_info",
+#'   truth_col = "true_support",
+#'   imp_col = "est_importance"
+#' )
+#' # summarize feature selection ROC/PR curves across replicates
+#' roc_summary <- summarize_feature_selection_curve(
+#'   fit_results, 
+#'   curve = "ROC",
+#'   nested_data = "feature_info",
+#'   truth_col = "true_support",
+#'   imp_col = "est_importance"
+#' )
+#' pr_summary <- summarize_feature_selection_curve(
+#'   fit_results, 
+#'   curve = "PR",
+#'   nested_data = "feature_info",
+#'   truth_col = "true_support",
+#'   imp_col = "est_importance"
+#' )
+#' 
 NULL
 
 #' @rdname eval_feature_selection_curve_funs
@@ -308,9 +430,9 @@ summarize_feature_selection_curve <- function(fit_results, vary_params = NULL,
 #' 
 #' @returns
 #' The output of \code{eval_feature_importance()} is a \code{tibble} with 
-#' the columns \code{.rep}, \code{.dgp_name}, and \code{.method_name} in addition 
-#' to the columns specified by \code{vary_params}, \code{feature_col}, and
-#' \code{imp_col}.
+#' the columns \code{.rep}, \code{.dgp_name}, and \code{.method_name} in 
+#' addition to the columns specified by \code{vary_params}, \code{feature_col}, 
+#' and \code{imp_col}.
 #' 
 #' The output of \code{summarize_feature_importance()} is a grouped 
 #' \code{tibble} containing both identifying information and the feature 
@@ -323,6 +445,40 @@ summarize_feature_selection_curve <- function(fit_results, vary_params = NULL,
 #' "_feature_importance".
 #' 
 #' @family feature_selection_funs
+#' 
+#' @examples 
+#' # generate example fit_results data for a feature selection problem
+#' fit_results <- tibble::tibble(
+#'   .rep = rep(1:2, times = 2),
+#'   .dgp_name = c("DGP1", "DGP1", "DGP2", "DGP2"),
+#'   .method_name = c("Method"),
+#'   feature_info = lapply(
+#'     1:4,
+#'     FUN = function(i) {
+#'       tibble::tibble(
+#'         # feature names
+#'         feature = c("featureA", "featureB", "featureC"),
+#'         # estimated feature importance scores
+#'         est_importance = c(10, runif(2, min = -2, max = 2))
+#'       )
+#'     }
+#'   )
+#' )
+#' 
+#' # evaluate feature importances (using all default metrics) for each replicate
+#' eval_results <- eval_feature_importance(
+#'   fit_results,
+#'   nested_data = "feature_info",
+#'   feature_col = "feature",
+#'   imp_col = "est_importance"
+#' )
+#' # summarize feature importances (using all default metric) across replicates
+#' eval_results_summary <- summarize_feature_importance(
+#'   fit_results,
+#'   nested_data = "feature_info",
+#'   feature_col = "feature",
+#'   imp_col = "est_importance"
+#' )
 #' 
 NULL
 

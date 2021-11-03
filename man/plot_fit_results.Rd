@@ -45,3 +45,34 @@ functions that plot results from particular replicate(s) in the
 row in the \code{Experiment}'s \code{fit_results} from the specified
 replicates.
 }
+\examples{
+# generate example fit results data
+fit_results <- tibble::tibble(
+  .rep = rep(1:2, times = 2),
+  .dgp_name = c("DGP1", "DGP1", "DGP2", "DGP2"),
+  .method_name = c("Method"),
+  # true response
+  y = lapply(1:4, FUN = function(x) rnorm(100)),
+  # predicted response
+  predictions = lapply(1:4, FUN = function(x) rnorm(100))
+)
+
+# function to plot scatter plot of y vs predictions
+plot_fun <- function(fit_results, vary_params = NULL) {
+  plt <- fit_results \%>\%
+    tidyr::unnest(c("y", "predictions")) \%>\%
+    ggplot2::ggplot() +
+    ggplot2::aes(x = y, y = predictions) +
+    ggplot2::geom_point() +
+    ggplot2::labs(title = sprintf("DGP: \%s | Method: \%s | Rep: \%s", 
+                                  fit_results$.dgp_name,
+                                  fit_results$.method_name,
+                                  fit_results$.rep)) +
+    pretty_ggplot_theme()
+  return(plt)
+}
+
+# returns the scatter plot for each (DGP, Method) combination from rep 1
+plt <- plot_fit_results(fit_results, reps = 1, plot_fun = plot_fun)
+  
+}

@@ -130,6 +130,56 @@ Visualizer <- R6::R6Class(
 #'
 #' @return A new instance of \code{Visualizer}.
 #'
+#' @examples
+#' # create an example Visualizer function
+#' power_plot_fun <- function(fit_results, vary_params = NULL, col = "X1") {
+#'   
+#'   if (!is.null(vary_params)) {
+#'     # deal with the case when we vary across a parameter that is vector-valued
+#'     if (is.list(fit_results[[vary_params]])) {
+#'       fit_results[[vary_params]] <- list_col_to_chr(fit_results[[vary_params]],
+#'                                                     name = vary_params,
+#'                                                     verbatim = TRUE)
+#'     }
+#'   }
+#'   
+#'   plt <- ggplot2::ggplot(fit_results) +
+#'     ggplot2::aes(x = .data[[paste(col, "p-value")]],
+#'                  color = as.factor(.method_name)) +
+#'     ggplot2::geom_abline(slope = 1, intercept = 0, 
+#'                          color = "darkgray", linetype = "solid", size = 1) +
+#'     ggplot2::stat_ecdf(size = 1) +
+#'     ggplot2::scale_x_continuous(limits = c(0, 1)) +
+#'     ggplot2::labs(x = "t", y = "P( p-value \u2264 t )", 
+#'                   linetype = "", color = "Method")
+#'   if (!is.null(vary_params)) {
+#'     plt <- plt + ggplot2::facet_wrap(~ .data[[vary_params]])
+#'   }
+#'   return(plt)
+#' }
+#' 
+#' # create Visualizer using the default arguments (i.e., col = "X1")
+#' power_plot1 <- create_visualizer(viz_fun = power_plot_fun, 
+#'                                  name = "Power Plot (X1)")
+#' # create Visualizer using non-default arguments (i.e., col = "X2")
+#' power_plot2 <- create_visualizer(viz_fun = power_plot_fun,
+#'                                  name = "Power Plot (X2)",
+#'                                  # additional named parameters to pass to power_plot_fun()
+#'                                  col = "X2")
+#' 
+#' # create Visualizer from a function in the built-in Visualizer library
+#' pred_err_plot <- create_visualizer(viz_fun = plot_pred_err,
+#'                                    name = "Prediction Error Plot",
+#'                                    # additional named parameters to pass to plot_pred_err()
+#'                                    truth_col = "y", estimate_col = "predictions")
+#'                                   
+#' # change figure height/width when displaying Visualizer in Rmd report
+#' pred_err_plot <- create_visualizer(viz_fun = plot_pred_err,
+#'                                    name = "Prediction Error Plot",
+#'                                    rmd_options = list(height = 8, width = 12),
+#'                                    # additional named parameters to pass to plot_pred_err()
+#'                                    truth_col = "y", estimate_col = "predictions")
+#'
 #' @export
 create_visualizer <- function(viz_fun, name = NULL,
                               rmd_options = list(), show = TRUE, ...) {

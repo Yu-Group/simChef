@@ -21,3 +21,30 @@ A new instance of \code{DGP}.
 \description{
 Create a new \code{DGP} (data-generating process).
 }
+\examples{
+# create an example DGP function
+dgp_fun <- function(n, beta, rho, sigma) {
+  cov_mat <- matrix(c(1, rho, rho, 1), byrow = T, nrow = 2, ncol = 2)
+  X <- MASS::mvrnorm(n = n, mu = rep(0, 2), Sigma = cov_mat)
+  y <- X \%*\% beta + rnorm(n, sd = sigma)
+  return(list(X = X, y = y))
+}
+
+# create DGP (with uncorrelated features)
+dgp_uncorr <- create_dgp(dgp_fun = dgp_fun, 
+                         name = "Uncorrelated Linear Gaussian DGP",
+                         # additional named parameters to pass to dgp_fun()
+                         n = 200, beta = c(1, 0), rho = 0, sigma = 1)
+# create DGP (with correlated features)
+dgp_corr <- create_dgp(dgp_fun = dgp_fun, 
+                       name = "Correlated Linear Gaussian DGP",
+                       # additional named parameters to pass to dgp_fun()
+                       n = 200, beta = c(1, 0), rho = 0.7, sigma = 1)
+
+# create DGP from a function in the built-in DGP library
+dgp <- create_dgp(dgp_fun = linear_gaussian_dgp, 
+                  name = "Linear Gaussian DGP",
+                  # additional named parameters to pass to linear_gaussian_dgp()
+                  n = 100, p_obs = 10, err = rnorm)
+
+}

@@ -89,6 +89,23 @@ Method <- R6::R6Class(
 #'
 #' @return A new instance of \code{Method}.
 #'
+#' @examples 
+#' # create an example Method function
+#' lm_fun <- function(X, y, cols = c("X1", "X2")) {
+#'   lm_fit <- lm(y ~ X)
+#'   pvals <- summary(lm_fit)$coefficients[cols, "Pr(>|t|)"] %>%
+#'     setNames(paste(names(.), "p-value"))
+#'   return(pvals)
+#' }
+#' 
+#' # create Method with default arguments
+#' lm_method <- create_method(method_fun = lm_fun, name = "OLS")
+#' 
+#' # create Method with non-default arguments
+#' lm_method_x1 <- create_method(method_fun = lm_fun, name = "OLS X1",
+#'                               # additional named parameters to pass to lm_fun()
+#'                               cols = "X1")
+#'                   
 #' @export
 create_method <- function(method_fun, name = NULL, ...) {
   args_list <- make_initialize_arg_list(method_fun, name = name, ...)

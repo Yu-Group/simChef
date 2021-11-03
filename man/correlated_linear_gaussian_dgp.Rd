@@ -71,3 +71,28 @@ are in \code{return_values}, then the returned list also contains slots for
 Generate normally-distributed covariates that are potentially
 correlated and linear response data with a specified error distribution.
 }
+\details{
+Data is generated via: \deqn{y = betas_uncorr \%\emph{\% X_uncorr +
+betas_corr \%}\% X_corr + err(...),} where X_uncorr is an (uncorrelated)
+standard Gaussian random matrix and X_corr is a correlated Gaussian random
+matrix with variance 1 and Cor(X_corr_i, X_corr_j) = corr for all i, j. The
+true underlying support of this data is the first s_uncorr and
+s_corr features in X_uncorr and X_corr respectively.
+}
+\examples{
+# generate data from: y = betas_corr_1 * x_corr_1 + betas_corr_2 * x_corr_2 + N(0, 0.5), 
+# where betas_corr_1, betas_corr_2 ~ N(0, 1), 
+# Var(X_corr_i) = 1, Cor(X_corr_i, X_corr_j) = 0.7 for all i, j = 1, ..., 10
+sim_data <- correlated_linear_gaussian_dgp(n = 100, p_uncorr = 0, p_corr = 10,
+                                           s_corr = 2, corr = 0.7, 
+                                           err = rnorm, sd = .5)
+
+# generate data from y = betas_uncorr \%*\% X_uncorr - X_corr_1 + t(df = 1), where
+# betas_uncorr ~ N(0, .5), betas_corr = [-1, 0], X_uncorr ~ N(0, I_10), 
+# X_corr ~ N(0, Sigma), Sigma has 1s on diagonals and 0.7 elsewhere.
+sim_data <- correlated_linear_gaussian_dgp(n = 100, p_uncorr = 10, p_corr = 2,
+                                           corr = 0.7, betas_uncorr_sd = 1,
+                                           betas_corr = c(-1, 0), 
+                                           err = rt, df = 1)
+
+}

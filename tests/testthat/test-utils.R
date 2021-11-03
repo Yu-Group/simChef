@@ -1,38 +1,3 @@
-test_that("list_col_to_chr works properly", {
-  expect_error(list_col_to_chr())
-  
-  ls1 <- list(3, 2, 1)
-  ls2 <- list(c(1:2), c(3:4), c(5:7), c(3:4), c(1:3))
-  ls3 <- list(matrix(1:4, nrow = 2),
-              matrix(1:6, nrow = 2),
-              matrix(1:6, nrow = 3),
-              matrix(1:6, nrow = 2))
-  ls4 <- list(tibble::tibble(a = 1:3, b = c(4, 5, 6)), "abc")
-  name <- "name"
-  
-  expect_equal(list_col_to_chr(ls1, name = name, verbatim = TRUE),
-               paste0(name, 3:1))
-  expect_equal(list_col_to_chr(ls1, name = NULL, verbatim = TRUE),
-               paste0(3:1))
-  expect_equal(list_col_to_chr(ls1, name = name, verbatim = FALSE),
-               paste0(name, 1:3))
-  
-  expect_equal(list_col_to_chr(ls2, name = name, verbatim = TRUE),
-               paste0(name, c("1_2", "3_4", "5_6_7", "3_4", "1_2_3")))
-  expect_equal(list_col_to_chr(ls2, name = name, verbatim = FALSE),
-               paste0(name, c(1, 2, 3, 2, 4)))
-  
-  expect_equal(list_col_to_chr(ls3, name = NULL, verbatim = TRUE),
-               c("1_2_3_4", "1_2_3_4_5_6", "1_2_3_4_5_6", "1_2_3_4_5_6"))
-  expect_equal(list_col_to_chr(ls3, name = name, verbatim = FALSE),
-               paste0(name, c(1, 2, 3, 2)))
-  
-  expect_equal(list_col_to_chr(ls4, name = NULL, verbatim = TRUE),
-               c("1:3_c(4, 5, 6)", "abc"))
-  expect_equal(list_col_to_chr(ls4, name = name, verbatim = FALSE),
-               paste0(name, c(1, 2)))
-})
-
 test_that("check_equal works properly", {
   expect_error(check_equal())
   

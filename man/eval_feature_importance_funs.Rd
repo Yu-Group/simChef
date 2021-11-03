@@ -65,9 +65,9 @@ columns. Default \code{NULL} does not add any ID to the column names.}
 }
 \value{
 The output of \code{eval_feature_importance()} is a \code{tibble} with
-the columns \code{.rep}, \code{.dgp_name}, and \code{.method_name} in addition
-to the columns specified by \code{vary_params}, \code{feature_col}, and
-\code{imp_col}.
+the columns \code{.rep}, \code{.dgp_name}, and \code{.method_name} in
+addition to the columns specified by \code{vary_params}, \code{feature_col},
+and \code{imp_col}.
 
 The output of \code{summarize_feature_importance()} is a grouped
 \code{tibble} containing both identifying information and the feature
@@ -85,6 +85,41 @@ true feature support. \code{eval_feature_importance} evaluates the
 feature importances for each experimental replicate separately.
 \code{summarize_feature_importance} summarizes the feature importances
 across experimental replicates.
+}
+\examples{
+# generate example fit_results data for a feature selection problem
+fit_results <- tibble::tibble(
+  .rep = rep(1:2, times = 2),
+  .dgp_name = c("DGP1", "DGP1", "DGP2", "DGP2"),
+  .method_name = c("Method"),
+  feature_info = lapply(
+    1:4,
+    FUN = function(i) {
+      tibble::tibble(
+        # feature names
+        feature = c("featureA", "featureB", "featureC"),
+        # estimated feature importance scores
+        est_importance = c(10, runif(2, min = -2, max = 2))
+      )
+    }
+  )
+)
+
+# evaluate feature importances (using all default metrics) for each replicate
+eval_results <- eval_feature_importance(
+  fit_results,
+  nested_data = "feature_info",
+  feature_col = "feature",
+  imp_col = "est_importance"
+)
+# summarize feature importances (using all default metric) across replicates
+eval_results_summary <- summarize_feature_importance(
+  fit_results,
+  nested_data = "feature_info",
+  feature_col = "feature",
+  imp_col = "est_importance"
+)
+
 }
 \seealso{
 Other feature_selection_funs: 

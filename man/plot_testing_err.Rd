@@ -6,7 +6,7 @@
 \usage{
 plot_testing_err(
   fit_results,
-  eval_results,
+  eval_results = NULL,
   evaluator_name = NULL,
   vary_params = NULL,
   metrics = NULL,
@@ -50,6 +50,57 @@ a \code{ggplot} object if \code{plot_by} is \code{NULL} and a list of
 Plot the raw or summarized testing errors as a
 boxplot, scatter plot, line plot, or bar plot with or without 1 SD error
 bars.
+}
+\examples{
+# generate example fit_results data
+fit_results <- tibble::tibble(
+  .rep = rep(1:2, times = 2),
+  .dgp_name = c("DGP1", "DGP1", "DGP2", "DGP2"),
+  .method_name = c("Method"),
+  feature_info = lapply(
+    1:4,
+    FUN = function(i) {
+      tibble::tibble(
+        # feature names
+        feature = c("featureA", "featureB", "featureC"),  
+        # true feature support
+        true_support = c(TRUE, FALSE, TRUE),  
+        # estimated p-values
+        pval = 10^(sample(-3:0, 3, replace = TRUE))
+      )
+    }
+  )
+)
+
+# generate example eval_results data
+eval_results <- list(
+  `Testing Errors` = summarize_testing_err(
+    fit_results, 
+    nested_data = "feature_info",
+    truth_col = "true_support", 
+    pval_col = "pval"
+  )
+)
+
+# create bar plot using pre-computed evaluation results
+plt <- plot_testing_err(fit_results = fit_results,
+                        eval_results = eval_results,
+                        evaluator_name = "Testing Errors",
+                        show = c("bar", "errorbar"))
+# or alternatively, create the same plot without pre-computing evaluation results
+plt <- plot_testing_err(fit_results, 
+                        show = c("bar", "errorbar"),
+                        nested_data = "feature_info",
+                        truth_col = "true_support",
+                        pval_col = "pval")
+
+# can customize plot (see plot_eval_summary() for possible arguments)
+plt <- plot_testing_err(fit_results = fit_results,
+                        eval_results = eval_results,
+                        evaluator_name = "Testing Errors",
+                        show = c("bar", "errorbar"),
+                        plot_by = ".alpha")
+
 }
 \seealso{
 Other inference_funs: 
