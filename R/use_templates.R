@@ -178,7 +178,7 @@ use_prediction_template <- function(experiment_name = "Prediction Experiment",
                           method_names = method_names,
                           eval_names = eval_names,
                           viz_names = viz_names)
-  # use_doc_template()
+  use_doc_template()
   use_run_template()
   use_rmd_template()
   
@@ -264,7 +264,7 @@ use_feature_selection_template <- function(experiment_name =
                           method_names = method_names,
                           eval_names = eval_names,
                           viz_names = viz_names)
-  # use_doc_template()
+  use_doc_template()
   use_run_template()
   use_rmd_template()
   
@@ -344,7 +344,7 @@ use_inference_template <- function(experiment_name = "Inference Experiment",
                           method_names = method_names,
                           eval_names = eval_names,
                           viz_names = viz_names)
-  # use_doc_template()
+  use_doc_template()
   use_run_template()
   use_rmd_template()
   

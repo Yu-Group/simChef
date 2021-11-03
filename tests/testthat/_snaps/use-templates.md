@@ -37,6 +37,8 @@
       add_evaluator(pred_err) %>% 
       add_visualizer(pred_err_plot) 
     
+    create_doc_template(experiment)  #> fill out documentation before proceeding!
+    
     results <- run_experiment(
       experiment = experiment,
       n_reps = stop('Add number of replicates here.'),
@@ -106,6 +108,8 @@
       add_visualizer(pred_err_plot) %>% 
       add_visualizer(roc_plot) %>% 
       add_visualizer(pr_plot) 
+    
+    create_doc_template(experiment)  #> fill out documentation before proceeding!
     
     results <- run_experiment(
       experiment = experiment,
@@ -213,6 +217,8 @@
       add_visualizer(feature_sel_plot) %>% 
       add_visualizer(feature_roc_plot) %>% 
       add_visualizer(feature_pr_plot) 
+    
+    create_doc_template(experiment)  #> fill out documentation before proceeding!
     
     results <- run_experiment(
       experiment = experiment,
@@ -342,6 +348,8 @@
       add_visualizer(feature_sel_plot) %>% 
       add_visualizer(feature_roc_plot) %>% 
       add_visualizer(feature_pr_plot) 
+    
+    create_doc_template(experiment)  #> fill out documentation before proceeding!
     
     results <- run_experiment(
       experiment = experiment,
@@ -496,6 +504,8 @@
       add_visualizer(feature_sel_plot) %>% 
       add_visualizer(feature_roc_plot) %>% 
       add_visualizer(feature_pr_plot) 
+    
+    create_doc_template(experiment)  #> fill out documentation before proceeding!
     
     results <- run_experiment(
       experiment = experiment,
@@ -671,6 +681,8 @@
       add_visualizer(feature_roc_plot) %>% 
       add_visualizer(feature_pr_plot) 
     
+    create_doc_template(experiment)  #> fill out documentation before proceeding!
+    
     results <- run_experiment(
       experiment = experiment,
       n_reps = stop('Add number of replicates here.'),
@@ -737,6 +749,8 @@
       add_evaluator(feature_sel) %>% 
       add_visualizer(fi_plot) %>% 
       add_visualizer(feature_sel_plot) 
+    
+    create_doc_template(experiment)  #> fill out documentation before proceeding!
     
     results <- run_experiment(
       experiment = experiment,
@@ -852,6 +866,8 @@
       add_visualizer(fi_plot) %>% 
       add_visualizer(feature_sel_plot) 
     
+    create_doc_template(experiment)  #> fill out documentation before proceeding!
+    
     results <- run_experiment(
       experiment = experiment,
       n_reps = stop('Add number of replicates here.'),
@@ -938,6 +954,8 @@
       add_visualizer(inf_roc_plot) %>% 
       add_visualizer(inf_pr_plot) %>% 
       add_visualizer(reject_prob_plot) 
+    
+    create_doc_template(experiment)  #> fill out documentation before proceeding!
     
     results <- run_experiment(
       experiment = experiment,
@@ -1052,6 +1070,8 @@
       add_visualizer(inf_roc_plot) %>% 
       add_visualizer(inf_pr_plot) %>% 
       add_visualizer(reject_prob_plot) 
+    
+    create_doc_template(experiment)  #> fill out documentation before proceeding!
     
     results <- run_experiment(
       experiment = experiment,
