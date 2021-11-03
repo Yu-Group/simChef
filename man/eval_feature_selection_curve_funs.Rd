@@ -121,6 +121,59 @@ curve for each experimental replicate separately.
 \code{summarize_feature_selection_curve()} summarizes the ROC or PR curve
 across experimental replicates.
 }
+\examples{
+# generate example fit_results data for a feature selection problem
+fit_results <- tibble::tibble(
+  .rep = rep(1:2, times = 2),
+  .dgp_name = c("DGP1", "DGP1", "DGP2", "DGP2"),
+  .method_name = c("Method"),
+  feature_info = lapply(
+    1:4,
+    FUN = function(i) {
+      tibble::tibble(
+        # feature names
+        feature = c("featureA", "featureB", "featureC"),
+        # true feature support
+        true_support = c(TRUE, FALSE, TRUE),
+        # estimated feature importance scores
+        est_importance = c(10, runif(2, min = -2, max = 2))
+      )
+    }
+  )
+)
+
+# evaluate feature selection ROC/PR curves for each replicate
+roc_results <- eval_feature_selection_curve(
+  fit_results, 
+  curve = "ROC",
+  nested_data = "feature_info",
+  truth_col = "true_support",
+  imp_col = "est_importance"
+)
+pr_results <- eval_feature_selection_curve(
+  fit_results, 
+  curve = "PR",
+  nested_data = "feature_info",
+  truth_col = "true_support",
+  imp_col = "est_importance"
+)
+# summarize feature selection ROC/PR curves across replicates
+roc_summary <- summarize_feature_selection_curve(
+  fit_results, 
+  curve = "ROC",
+  nested_data = "feature_info",
+  truth_col = "true_support",
+  imp_col = "est_importance"
+)
+pr_summary <- summarize_feature_selection_curve(
+  fit_results, 
+  curve = "PR",
+  nested_data = "feature_info",
+  truth_col = "true_support",
+  imp_col = "est_importance"
+)
+
+}
 \seealso{
 Other feature_selection_funs: 
 \code{\link{eval_feature_importance_funs}},

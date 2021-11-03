@@ -21,6 +21,8 @@ indices of the support are used.}
 \item{return_values}{Character vector indicating what objects to return in
 list. Elements in vector must be one of "X", "y", "support".}
 
+\item{support}{Vector of feature indices in the true support of the DGP.}
+
 \item{train_prop}{Proportion of data in training set if
 \code{data_split = TRUE}.}
 

@@ -31,3 +31,19 @@ A normal random matrix of size n x p.
 Generate an n x p normal random matrix with the specified mean
 and covariance structure.
 }
+\examples{
+
+# Returns 100 x 10 random Gaussian matrix with X_ij ~ N(0, 1)
+X <- generate_X_gaussian(n = 100, p = 10)
+
+# Returns 100 x 10 random Gaussian matrix with E(X_i) = 0 for all i,
+# Var(X_i) = 4 for all i, and Cor(X_i, X_j) = 0.7 for all i != j
+X <- generate_X_gaussian(n = 100, p = 10, sd = 2, corr = 0.7)
+
+# Returns 100 x 2 random Gaussian matrix: X ~ N(0, Sigma), where
+# Sigma = [3, .5; .5, 1]
+X <- generate_X_gaussian(
+  n = 100, p = 2, Sigma = matrix(c(3, .5, .5, 1), nrow = 2, byrow = TRUE)
+)
+
+}

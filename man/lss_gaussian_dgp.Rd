@@ -41,7 +41,7 @@ in the LSS model.}
 \item{intercept}{Scalar intercept term.}
 
 \item{overlap}{If TRUE, simulate support indices with replacement; if FALSE,
-simualte support indices without replacement (so no overlap).}
+simulate support indices without replacement (so no overlap).}
 
 \item{err}{Function from which to generate simulate error vector. Default
 is \code{NULL} which adds no error to the DGP.}
@@ -66,4 +66,28 @@ are in \code{return_values}, then the returned list also contains slots for
 \description{
 Generate independent normally-distributed covariates and LSS
 response data with a specified error distribution.
+}
+\details{
+Data is generated via: \deqn{y = intercept + sum_{i = 1}^{s} beta_i prod_{j = 1}^{k}1(X_{S_j} lessgtr thresholds_ij) + err(...),} where X is a
+standard Gaussian random matrix. If \code{overlap = TRUE}, then the true
+interaction support is randomly chosen from the p features in \code{X}. If
+\code{overlap = FALSE}, then the true interaction support is sequentially
+taken from the first \code{s*k} features in \code{X}.
+
+For more details on the LSS model, see Behr, Merle, et al. "Provable Boolean Interaction Recovery from Tree Ensemble obtained via Random Forests." arXiv preprint arXiv:2102.11800 (2021).
+}
+\examples{
+# generate data from: y = 1(X_1 > 0, X_2 > 0) + 1(X_3 > 0, X_4 > 0), where
+# X is a 100 x 10 standard Gaussian random matrix
+sim_data <- lss_gaussian_dgp(n = 100, p = 10, k = 2, s = 2,
+                             thresholds = 0, signs = 1, betas = 1)
+
+# generate data from: y = 3 * 1(X_1 < 0) - 1(X_2 > 1) + N(0, 1), where
+# X is a 100 x 10 standard Gaussian random matrix
+sim_data <- lss_gaussian_dgp(n = 100, p = 10, k = 1, s = 2, 
+                             thresholds = matrix(0:1, nrow = 2),
+                             signs = matrix(c(-1, 1), nrow = 2),
+                             betas = c(3, -1),
+                             err = rnorm)
+
 }

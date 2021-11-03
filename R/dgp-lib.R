@@ -14,15 +14,20 @@
 #' 
 #' @inherit shared_dgp_lib_args return
 #'   
-#' @details TODO: explain how to write x_fun, y_fun, err_fun. Required args +
-#'   optional args + other caveats.
-#'   Model: y = y_fun(X) + err_fun(X, y_fun(X)), where X = x_fun(...)
+#' @details Data is generated from the following additive model: 
+#' \deqn{y = y_fun(X, ...) + err_fun(X, y_fun(X), ...), where X = x_fun(...).}
+#' 
+#' If x_fun, y_fun, and err_fun have arguments of the same name, then use the
+#' prefix ".x_", ".y_", ".err_" in front of the argument name (passed via ...) 
+#' to differentiate it for use in x_fun, y_fun, or err_fun, respectively. 
+#' See the examples.
 #'
 #' @examples 
-#' data_out <- xy_dgp_constructor(x_fun = MASS::mvrnorm, 
+#' # generate X = 100 x 10 standard Gaussian, y = linear regression model
+#' sim_data <- xy_dgp_constructor(x_fun = MASS::mvrnorm, 
 #'                                y_fun = generate_y_linear,
 #'                                err_fun = rnorm, data_split = TRUE,
-#'                                # dgp arguments
+#'                                # shared dgp arguments
 #'                                n = 100,
 #'                                # arguments specifically for x_fun
 #'                                .x_mu = rep(0, 10), .x_Sigma = diag(10),
@@ -30,10 +35,12 @@
 #'                                .y_betas = rnorm(10), .y_return_support = TRUE,
 #'                                # arguments specifically for err_fun
 #'                                .err_sd = 1)
-#' data_out <- xy_dgp_constructor(x_fun = MASS::mvrnorm, 
+#' # or alternatively, (since arguments of x_fun, y_fun, err_fun are unique, 
+#' # with the exception of `n`)
+#' sim_data <- xy_dgp_constructor(x_fun = MASS::mvrnorm, 
 #'                                y_fun = generate_y_linear,
 #'                                err_fun = rnorm, data_split = TRUE,
-#'                                # dgp arguments
+#'                                # shared dgp arguments
 #'                                n = 100,
 #'                                # arguments specifically for x_fun
 #'                                mu = rep(0, 10), Sigma = diag(10),
@@ -136,8 +143,22 @@ xy_dgp_constructor <- function(x_fun, y_fun, err_fun = NULL,
 #' 
 #' @inherit shared_dgp_lib_args return
 #' 
-#' @details TODO: Support is the first s_obs and s_unobs features in the
-#'   generated X and U data.
+#' @details Data is generated via: \deqn{y = betas %*% X + 
+#' betas_unobs %*% U + err(...),} where X, U are standard Gaussian random 
+#' matrices and the true underlying support of this data is the first s_obs and 
+#' s_unobs features in X and U respectively.
+#' 
+#' @examples
+#' # generate data from: y = betas_1 * x_1 + betas_2 * x_2 + N(0, 0.5), where
+#' # betas_1, betas_2 ~ N(0, 1) and X ~ N(0, I_10)
+#' sim_data <- linear_gaussian_dgp(n = 100, p_obs = 10, s_obs = 2, betas_sd = 1,
+#'                                 err = rnorm, sd = .5)
+#' 
+#' # generate data from y = betas %*% X - u_1 + t(df = 1), where
+#' # betas ~ N(0, .5), betas_unobs = [-1, 0], X ~ N(0, I_10), U ~ N(0, I_2)
+#' sim_data <- linear_gaussian_dgp(n = 100, p_obs = 10, p_unobs = 2,
+#'                                 betas_sd = .5, betas_unobs = c(-1, 0),
+#'                                 err = rt, df = 1)
 #'   
 #' @export
 linear_gaussian_dgp <- function(n, p_obs = 0, p_unobs = 0, 
@@ -220,6 +241,29 @@ linear_gaussian_dgp <- function(n, p_obs = 0, p_unobs = 0,
 #'   
 #' @inherit shared_dgp_lib_args return
 #' 
+#' @details Data is generated via: \deqn{y = betas_uncorr %*% X_uncorr + 
+#' betas_corr %*% X_corr + err(...),} where X_uncorr is an (uncorrelated)
+#' standard Gaussian random matrix and X_corr is a correlated Gaussian random
+#' matrix with variance 1 and Cor(X_corr_i, X_corr_j) = corr for all i, j. The 
+#' true underlying support of this data is the first s_uncorr and 
+#' s_corr features in X_uncorr and X_corr respectively.
+#' 
+#' @examples
+#' # generate data from: y = betas_corr_1 * x_corr_1 + betas_corr_2 * x_corr_2 + N(0, 0.5), 
+#' # where betas_corr_1, betas_corr_2 ~ N(0, 1), 
+#' # Var(X_corr_i) = 1, Cor(X_corr_i, X_corr_j) = 0.7 for all i, j = 1, ..., 10
+#' sim_data <- correlated_linear_gaussian_dgp(n = 100, p_uncorr = 0, p_corr = 10,
+#'                                            s_corr = 2, corr = 0.7, 
+#'                                            err = rnorm, sd = .5)
+#' 
+#' # generate data from y = betas_uncorr %*% X_uncorr - X_corr_1 + t(df = 1), where
+#' # betas_uncorr ~ N(0, .5), betas_corr = [-1, 0], X_uncorr ~ N(0, I_10), 
+#' # X_corr ~ N(0, Sigma), Sigma has 1s on diagonals and 0.7 elsewhere.
+#' sim_data <- correlated_linear_gaussian_dgp(n = 100, p_uncorr = 10, p_corr = 2,
+#'                                            corr = 0.7, betas_uncorr_sd = 1,
+#'                                            betas_corr = c(-1, 0), 
+#'                                            err = rt, df = 1)
+#' 
 #' @export
 correlated_linear_gaussian_dgp <- function(n, p_uncorr, p_corr, 
                                            s_uncorr = p_uncorr, s_corr = p_corr,
@@ -292,6 +336,16 @@ correlated_linear_gaussian_dgp <- function(n, p_uncorr, p_corr,
 #' 
 #' @inherit shared_dgp_lib_args return
 #'   
+#' @details Data is generated via: \deqn{log(p / (1 - p)) = betas %*% X,} where 
+#' p = P(y = 1 | X), X is a standard Gaussian random matrix, and the true 
+#' underlying support of this data is the first s features in X (unless 
+#' specified otherwise by `betas`).
+#' 
+#' @examples
+#' # generate data from: log(p / (1 - p)) = betas_1 * x_1 + betas_2 * x_2, where
+#' # betas_1, betas_2 ~ N(0, 1) and X ~ N(0, I_10)
+#' sim_data <- logistic_gaussian_dgp(n = 100, p = 10, s = 2, betas_sd = 1)
+#'   
 #' @export
 logistic_gaussian_dgp <- function(n, p, s = p, betas = NULL, betas_sd = 1,
                                   data_split = FALSE, train_prop = 0.5,
@@ -345,24 +399,46 @@ logistic_gaussian_dgp <- function(n, p, s = p, betas = NULL, betas_sd = 1,
 #' @param betas_corr_sd (Optional) SD of normal distribution from which to draw 
 #'   \code{betas_corr}. Only used if \code{betas_corr} argument is 
 #'   \code{NULL}.
+#' @param ... Not used.
 #'   
 #' @inherit shared_dgp_lib_args return
 #' 
+#' @details Data is generated via: 
+#' \deqn{log(p / (1 - p)) = betas_uncorr %*% X_uncorr + 
+#' betas_corr %*% X_corr,} where p = P(y = 1 | X), X_uncorr is an 
+#' (uncorrelated) standard Gaussian random matrix, and X_corr is a correlated 
+#' Gaussian random matrix with variance 1 and Cor(X_corr_i, X_corr_j) = corr for 
+#' all i, j. The true underlying support of this data is the first s_uncorr and 
+#' s_corr features in X_uncorr and X_corr respectively.
+#' 
+#' @examples
+#' # generate data from: log(p / (1 - p)) = betas_corr_1 * x_corr_1 + betas_corr_2 * x_corr_2, 
+#' # where betas_corr_1, betas_corr_2 ~ N(0, 1), 
+#' # Var(X_corr_i) = 1, Cor(X_corr_i, X_corr_j) = 0.7 for all i, j = 1, ..., 10
+#' sim_data <- correlated_logistic_gaussian_dgp(n = 100, p_uncorr = 0, p_corr = 10,
+#'                                              s_corr = 2, corr = 0.7)
+#' 
+#' # generate data from: log(p / (1 - p)) = betas_uncorr %*% X_uncorr - X_corr_1,
+#' # where betas_uncorr ~ N(0, .5), betas_corr = [-1, 0], X_uncorr ~ N(0, I_10), 
+#' # X_corr ~ N(0, Sigma), Sigma has 1s on diagonals and 0.7 elsewhere.
+#' sim_data <- correlated_logistic_gaussian_dgp(n = 100, p_uncorr = 10, p_corr = 2,
+#'                                              corr = 0.7, betas_uncorr_sd = 1,
+#'                                              betas_corr = c(-1, 0))
+#' 
 #' @export
-correlated_logstic_gaussian_dgp <- function(n, p_uncorr, p_corr, 
-                                            s_uncorr = p_uncorr, 
-                                            s_corr = p_corr,
-                                            corr, 
-                                            betas_uncorr = NULL, 
-                                            betas_corr = NULL,
-                                            betas_uncorr_sd = 1,
-                                            betas_corr_sd = 1,
-                                            err = NULL,
-                                            data_split = FALSE, 
-                                            train_prop = 0.5,
-                                            return_values = c("X", "y", 
-                                                              "support"), 
-                                            ...) {
+correlated_logistic_gaussian_dgp <- function(n, p_uncorr, p_corr, 
+                                             s_uncorr = p_uncorr, 
+                                             s_corr = p_corr,
+                                             corr, 
+                                             betas_uncorr = NULL, 
+                                             betas_corr = NULL,
+                                             betas_uncorr_sd = 1,
+                                             betas_corr_sd = 1,
+                                             data_split = FALSE, 
+                                             train_prop = 0.5,
+                                             return_values = c("X", "y", 
+                                                               "support"), 
+                                             ...) {
   # simulate correlated covariates
   X_corr <- NULL
   if (p_corr != 0) {
@@ -423,9 +499,31 @@ correlated_logstic_gaussian_dgp <- function(n, p_uncorr, p_corr,
 #' @param betas Scalar or parameter vector for interaction terms.
 #' @param intercept Scalar intercept term.
 #' @param overlap If TRUE, simulate support indices with replacement; if FALSE,
-#'   simualte support indices without replacement (so no overlap).
+#'   simulate support indices without replacement (so no overlap).
 #'   
 #' @inherit shared_dgp_lib_args return
+#' 
+#' @details Data is generated via: \deqn{y = intercept + sum_{i = 1}^{s} beta_i prod_{j = 1}^{k}1(X_{S_j} lessgtr thresholds_ij) + err(...),} where X is a 
+#' standard Gaussian random matrix. If \code{overlap = TRUE}, then the true 
+#' interaction support is randomly chosen from the p features in \code{X}. If
+#' \code{overlap = FALSE}, then the true interaction support is sequentially 
+#' taken from the first \code{s*k} features in \code{X}. 
+#' 
+#' For more details on the LSS model, see Behr, Merle, et al. "Provable Boolean Interaction Recovery from Tree Ensemble obtained via Random Forests." arXiv preprint arXiv:2102.11800 (2021).
+#' 
+#' @examples
+#' # generate data from: y = 1(X_1 > 0, X_2 > 0) + 1(X_3 > 0, X_4 > 0), where
+#' # X is a 100 x 10 standard Gaussian random matrix
+#' sim_data <- lss_gaussian_dgp(n = 100, p = 10, k = 2, s = 2,
+#'                              thresholds = 0, signs = 1, betas = 1)
+#' 
+#' # generate data from: y = 3 * 1(X_1 < 0) - 1(X_2 > 1) + N(0, 1), where
+#' # X is a 100 x 10 standard Gaussian random matrix
+#' sim_data <- lss_gaussian_dgp(n = 100, p = 10, k = 1, s = 2, 
+#'                              thresholds = matrix(0:1, nrow = 2),
+#'                              signs = matrix(c(-1, 1), nrow = 2),
+#'                              betas = c(3, -1),
+#'                              err = rnorm)
 #' 
 #' @export
 lss_gaussian_dgp <- function(n, p, k, s, thresholds = 0, signs = 1, betas = 1,
@@ -481,6 +579,42 @@ lss_gaussian_dgp <- function(n, p, k, s, thresholds = 0, signs = 1, betas = 1,
 #'   variables or only uncorrelated variables.
 #'   
 #' @inherit shared_dgp_lib_args return
+#' 
+#' @details Data is generated via: \deqn{y = intercept + sum_{i = 1}^{s} beta_i prod_{j = 1}^{k}1(X_{S_j} lessgtr thresholds_ij) + err(...),} where 
+#' X = \[X_uncorr, X_corr\], X_uncorr is an (uncorrelated) standard Gaussian 
+#' random matrix, and X_corr is a correlated Gaussian random matrix with 
+#' variance 1 and Cor(X_corr_i, X_corr_j) = corr for all i, j. If 
+#' \code{overlap = TRUE}, then the true interaction support is randomly chosen 
+#' from the (p_uncorr + p_corr) features in \code{X}. If \code{overlap = FALSE}, 
+#' then the true interaction support is sequentially taken from the first 
+#' \code{s_uncorr*k} features in X_uncorr and the first 
+#' \code{s_corr*k} features in X_corr.
+#' 
+#' For more details on the LSS model, see Behr, Merle, et al. "Provable Boolean Interaction Recovery from Tree Ensemble obtained via Random Forests." arXiv preprint arXiv:2102.11800 (2021).
+#' 
+#' @examples
+#' # generate data from: y = 1(X_1 > 0, X_2 > 0) + 1(X_3 > 0, X_4 > 0), where
+#' # X is a 100 x 10 correlated Gaussian random matrix with 
+#' # Var(X_i) = 1 for all i and Cor(X_i, X_j) = 0.7 for all i != j
+#' sim_data <- correlated_lss_gaussian_dgp(n = 100, p_uncorr = 0, p_corr = 10, 
+#'                                         k = 2, s_corr = 2, corr = 0.7,
+#'                                         thresholds = 0, signs = 1, betas = 1)
+#' 
+#' # generate data from: y = 3 * 1(X_1 > 0, X_2 > 0) - 1(X_11 > 0, X_12 > 0) + N(0, 1), 
+#' # where X = [Z, U], Z is a 100 x 10 standard Gaussian random matrix, 
+#' # U is a 100 x 10 Gaussian random matrix with Var(U_i) = 1 and Cor(U_i, U_j) = 0.7
+#' sim_data <- correlated_lss_gaussian_dgp(n = 100, p_uncorr = 10, p_corr = 10,
+#'                                         s_uncorr = 1, s_corr = 1, corr = 0.7,
+#'                                         k = 2, betas = c(3, -1), err = rnorm)
+#' 
+#' # generate data from: y = \sum_{i = 1}^{4} \prod_{j = 1}^{2} 1(X_{s_j} > 0), 
+#' # where s_j \in {1:4, 11:14} are randomly selected indiceds, X = [Z, U], 
+#' # Z is a 100 x 10 standard Gaussian random matrix, U is a 100 x 10 Gaussian 
+#' # random matrix with Var(U_i) = 1 and Cor(U_i, U_j) = 0.7
+#' # i.e., interactions may consist of both correlated and uncorrelated features
+#' sim_data <- correlated_lss_gaussian_dgp(n = 100, p_uncorr = 10, p_corr = 10, 
+#'                                         s_uncorr = 2, s_corr = 2, k = 2, 
+#'                                         corr = 0.7, mixed_int = TRUE)
 #' 
 #' @export
 correlated_lss_gaussian_dgp <- function(n, p_uncorr, p_corr, 
@@ -539,12 +673,16 @@ correlated_lss_gaussian_dgp <- function(n, p_uncorr, p_corr,
 #' @inheritParams shared_dgp_lib_args
 #' @inherit shared_dgp_lib_args return
 #' 
+#' @examples
+#' # read in iris data
+#' iris_data <- rwd_dgp(X = iris %>% dplyr::select(-Species), y = iris$Species)
+#' 
 #' @export
-rwd_dgp <- function(X, y, data_split, train_prop = 0.5, 
+rwd_dgp <- function(X, y, support = NULL, data_split = FALSE, train_prop = 0.5, 
                     return_values = c("X", "y")) {
   return_values <- match.arg(return_values, choices = c("X", "y", "support"),
                              several.ok = TRUE)
-  out <- return_DGP_output(X = X, y = y, support = NULL,
+  out <- return_DGP_output(X = X, y = y, support = support,
                            data_split = data_split, train_prop = train_prop,
                            return_values = return_values)
   return(out)

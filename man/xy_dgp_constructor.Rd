@@ -46,15 +46,20 @@ for any supervised learning DGP, provided the functions for simulating X,
 y, and the additive error term.
 }
 \details{
-TODO: explain how to write x_fun, y_fun, err_fun. Required args +
-optional args + other caveats.
-Model: y = y_fun(X) + err_fun(X, y_fun(X)), where X = x_fun(...)
+Data is generated from the following additive model:
+\deqn{y = y_fun(X, ...) + err_fun(X, y_fun(X), ...), where X = x_fun(...).}
+
+If x_fun, y_fun, and err_fun have arguments of the same name, then use the
+prefix ".x_", ".y_", ".err_" in front of the argument name (passed via ...)
+to differentiate it for use in x_fun, y_fun, or err_fun, respectively.
+See the examples.
 }
 \examples{
-data_out <- xy_dgp_constructor(x_fun = MASS::mvrnorm, 
+# generate X = 100 x 10 standard Gaussian, y = linear regression model
+sim_data <- xy_dgp_constructor(x_fun = MASS::mvrnorm, 
                                y_fun = generate_y_linear,
                                err_fun = rnorm, data_split = TRUE,
-                               # dgp arguments
+                               # shared dgp arguments
                                n = 100,
                                # arguments specifically for x_fun
                                .x_mu = rep(0, 10), .x_Sigma = diag(10),
@@ -62,10 +67,12 @@ data_out <- xy_dgp_constructor(x_fun = MASS::mvrnorm,
                                .y_betas = rnorm(10), .y_return_support = TRUE,
                                # arguments specifically for err_fun
                                .err_sd = 1)
-data_out <- xy_dgp_constructor(x_fun = MASS::mvrnorm, 
+# or alternatively, (since arguments of x_fun, y_fun, err_fun are unique, 
+# with the exception of `n`)
+sim_data <- xy_dgp_constructor(x_fun = MASS::mvrnorm, 
                                y_fun = generate_y_linear,
                                err_fun = rnorm, data_split = TRUE,
-                               # dgp arguments
+                               # shared dgp arguments
                                n = 100,
                                # arguments specifically for x_fun
                                mu = rep(0, 10), Sigma = diag(10),

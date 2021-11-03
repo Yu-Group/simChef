@@ -26,3 +26,12 @@ results directory (see \code{Experiment$get_save_dir()}) under docs/.
 Otherwise, the documentation files can be found in the specified
 \code{save_dir} directory under docs/.
 }
+\examples{
+\dontrun{
+# create documentation template from an experiment (of class `Experiment`)
+create_doc_template(experiment)
+
+# or alternatively, create documentation template from a specific directory
+create_doc_template(save_dir = experiment$get_save_dir())}
+
+}

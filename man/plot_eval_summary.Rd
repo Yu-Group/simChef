@@ -11,14 +11,14 @@ plot_eval_summary(
   eval_fun = paste0("summarize_", eval_id),
   vary_params = NULL,
   show = c("boxplot", "point", "line", "bar", "errorbar", "ribbon"),
-  x_str = NULL,
-  y_str = NULL,
-  err_sd_str = NULL,
-  color_str = NULL,
-  linetype_str = NULL,
-  facet_wrap_formula = NULL,
-  facet_grid_formula = NULL,
-  plot_by = NULL,
+  x_str = "auto",
+  y_str = "auto",
+  err_sd_str = "auto",
+  color_str = "auto",
+  linetype_str = "auto",
+  facet_formula = NULL,
+  facet_type = c("grid", "wrap"),
+  plot_by = "auto",
   add_ggplot_layers = NULL,
   boxplot_args = NULL,
   point_args = NULL,
@@ -57,29 +57,37 @@ been computed in \code{eval_tib}.}
 construct.}
 
 \item{x_str}{(Optional) Name of column in \code{eval_tib} to plot on the
-x-axis.}
+x-axis. Default "auto" chooses what to plot on the x-axis automatically.}
 
 \item{y_str}{(Optional) Name of column in \code{eval_tib} to plot on the
-y-axis if \code{show} is anything but "boxplot".}
+y-axis if \code{show} is anything but "boxplot". Default "auto" chooses
+what to plot on the y-axis automatically.}
 
 \item{err_sd_str}{(Optional) Name of column in \code{eval_tib} containing the
 standard deviations of \code{y_str}. Used for plotting the errorbar and
-ribbon ggplot layers.}
+ribbon ggplot layers. Default "auto" chooses what column to use for the
+standard deviations automatically.}
 
 \item{color_str}{(Optional) Name of column in \code{eval_tib} to use for the
-color and fill aesthetics when plotting.}
+color and fill aesthetics when plotting. Default "auto" chooses what to
+use for the color and fill aesthetics automatically. Use \code{NULL} to
+avoid adding any color and fill aesthetic.}
 
 \item{linetype_str}{(Optional) Name of column in \code{eval_tib} to use for
-the linetype aesthetic when plotting. Used only when \code{show = "line"}.}
+the linetype aesthetic when plotting. Used only when \code{show = "line"}.
+Default "auto" chooses what to use for the linetype aesthetic
+automatically. Use \code{NULL} to avoid adding any linetype aesthetic.}
 
-\item{facet_wrap_formula}{(Optional) Formula for \code{ggplot2::facet_wrap()}
-if need be.}
+\item{facet_formula}{(Optional) Formula for \code{ggplot2::facet_wrap()} or
+\code{ggplot2::facet_grid()} if need be.}
 
-\item{facet_grid_formula}{(Optional) Formula for \code{ggplot2::facet_grid()}
-if need be.}
+\item{facet_type}{One of "grid" or "wrap" specifying whether to use
+\code{ggplot2::facet_wrap()} or \code{ggplot2::facet_grid()} if need be.}
 
 \item{plot_by}{(Optional) Name of column in \code{eval_tib} to use for
-subsetting data and creating different plots for each unique value.}
+subsetting data and creating different plots for each unique value. Default
+"auto" chooses what column to use for the subsetting automatically. Use
+\code{NULL} to avoid creating multiple plots.}
 
 \item{add_ggplot_layers}{Additional layers to add to a ggplot object via
 \code{+}.}
@@ -127,4 +135,61 @@ bars/ribbons. This function accepts either (1) a pre-computed tibble
 containing the summarized evaluation results or (2) the Evaluator function
 and its corresponding function arguments for computing the evaluation
 results within this function call.
+}
+\examples{
+# generate example fit results data
+fit_results <- tibble::tibble(
+  .rep = rep(1:2, times = 2),
+  .dgp_name = c("DGP1", "DGP1", "DGP2", "DGP2"),
+  .method_name = c("Method"),
+  # true response
+  y = lapply(1:4, FUN = function(x) rnorm(100)),
+  # predicted response
+  predictions = lapply(1:4, FUN = function(x) rnorm(100))
+)
+
+# generate example evaluation results data
+eval_results <- list(
+  `Prediction Errors` = summarize_pred_err(
+    fit_results = fit_results, 
+    truth_col = "y", 
+    estimate_col = "predictions", 
+    eval_id = "pred_err"
+  )
+)
+
+# create plot using pre-computed evaluation results
+plt <- plot_eval_summary(fit_results = fit_results, 
+                         eval_tib = eval_results[["Prediction Errors"]],
+                         eval_id = "pred_err",
+                         show = c("point", "errorbar"),
+                         facet_formula = ~ .metric)
+# can customize plots using additional arguments or ggplot2::`+`
+plt <- plot_eval_summary(fit_results = fit_results, 
+                         eval_tib = eval_results[["Prediction Errors"]],
+                         eval_id = "pred_err",
+                         show = c("point", "errorbar"),
+                         facet_formula = ~ .metric,
+                         facet_type = "wrap",
+                         errorbar_args = list(width = 0.5),
+                         facet_args = list(scales = "free")) +
+  ggplot2::labs(y = "Mean Prediction Error")
+# can return interactive plotly plot
+plt <- plot_eval_summary(fit_results = fit_results, 
+                         eval_tib = eval_results[["Prediction Errors"]],
+                         eval_id = "pred_err",
+                         show = c("point", "errorbar"),
+                         facet_formula = ~ .metric,
+                         interactive = TRUE)
+
+# create plot without pre-computing evaluation results; instead, need to 
+# pass in summarize_* function and its arguments
+plt <- plot_eval_summary(fit_results = fit_results,
+                         eval_id = "pred_err",
+                         eval_fun = "summarize_pred_err",
+                         truth_col = "y", 
+                         estimate_col = "predictions",
+                         show = c("point", "errorbar"),
+                         facet_formula = ~ .metric)
+
 }

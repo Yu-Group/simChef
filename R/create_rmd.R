@@ -17,6 +17,14 @@
 #' @returns The original \code{Experiment} object if provided. Otherwise, 
 #'   returns \code{NULL}.
 #'
+#' @examples
+#' \dontrun{
+#' # create documentation template from an experiment (of class `Experiment`)
+#' create_doc_template(experiment)
+#'
+#' # or alternatively, create documentation template from a specific directory
+#' create_doc_template(save_dir = experiment$get_save_dir())}
+#'
 #' @export
 create_doc_template <- function(experiment, save_dir) {
   if (missing(experiment) && missing(save_dir)) {
@@ -52,19 +60,21 @@ create_doc_template <- function(experiment, save_dir) {
   descendants[sapply(descendants, is.null)] <- NULL
   
   fields <- c("dgp", "method", "evaluator", "visualizer")
-  for (field in fields) {
-    obj_names <- purrr::map(descendants,
-                            ~names(.x[[paste0("get_", field, "s")]]())) %>%
-      purrr::reduce(c) %>%
-      unique()
-    for (obj_name in obj_names) {
-      fname <- file.path(save_dir, "docs", paste0(field, "s"),
-                         paste0(obj_name, ".md"))
-      if (!file.exists(fname)) {
-        if (!dir.exists(dirname(fname))) {
-          dir.create(dirname(fname), recursive = TRUE)
+  if (!identical(descendants, list())) {
+    for (field in fields) {
+      obj_names <- purrr::map(descendants,
+                              ~names(.x[[paste0("get_", field, "s")]]())) %>%
+        purrr::reduce(c) %>%
+        unique()
+      for (obj_name in obj_names) {
+        fname <- file.path(save_dir, "docs", paste0(field, "s"),
+                           paste0(obj_name, ".md"))
+        if (!file.exists(fname)) {
+          if (!dir.exists(dirname(fname))) {
+            dir.create(dirname(fname), recursive = TRUE)
+          }
+          utils::write.csv(NULL, file = fname, quote = F)
         }
-        utils::write.csv(NULL, file = fname, quote = F)
       }
     }
   }
@@ -114,6 +124,14 @@ create_doc_template <- function(experiment, save_dir) {
 #'
 #' @returns The original \code{Experiment} object if provided. Otherwise, 
 #'   returns \code{NULL}.
+#'
+#' @examples
+#' \dontrun{
+#' # create basic Rmd from an experiment (of class `Experiment`)
+#' create_rmd(experiment)
+#'
+#' # or alternatively, create basic Rmd from a specific directory
+#' create_rmd(save_dir = experiment$get_save_dir())}
 #'
 #' @export
 create_rmd <- function(experiment, save_dir, open = TRUE, title = NULL,

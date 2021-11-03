@@ -18,3 +18,7 @@ A vector of simulated errors with length \code{n}.
 Generate correlated Gaussian errors based on a block-dependence
 covariance structure (with 3 blocks).
 }
+\examples{
+errs <- block_errors(n = 100, rho = 0.7)
+
+}

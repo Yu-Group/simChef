@@ -51,16 +51,16 @@
 #' }
 #' 
 #' @examples
-#' ## Show iris data table
+#' # Show iris data table
 #' pretty_kable(iris, align = "c", caption = "Iris Data Table")
 #' 
-#' ## Bold max value of each numeric column of Iris data in red
+#' # Bold max value of each numeric column of Iris data in red
 #' pretty_kable(iris, caption = "Iris Data Table", scroll = TRUE,
 #'             bold_function = ". == max(.)", bold_margin = 2,
 #'             bold_scheme = c(TRUE, TRUE, TRUE, TRUE, FALSE), 
 #'             bold_color = "red")
 #'             
-#' ## Bold min value of each row in Iris data
+#' # Bold min value of each row in Iris data
 #' pretty_kable(iris %>% dplyr::select(-Species), sigfig = TRUE, 
 #'             caption = "Iris Data Table", format = "latex", 
 #'             scroll = TRUE, na_disp = "NA",
@@ -259,15 +259,15 @@ pretty_kable <- function(X, digits = 3, sigfig = T, align = "c", caption = "",
 #' }
 #' 
 #' @examples
-#' ## Show iris data table
+#' # Show iris data table
 #' pretty_DT(iris, caption = "Iris Data Table")
 #' 
-#' ## Bold max value of each numeric column of Iris data in red
+#' # Bold max value of each numeric column of Iris data in red
 #' pretty_DT(iris, caption = "Iris Data Table",
 #'          bold_function = ". == max(.)", bold_margin = 2,
 #'          bold_scheme = c(TRUE, TRUE, TRUE, TRUE, FALSE), bold_color = "red")
 #'             
-#' ## Bold min value of each row in Iris data
+#' # Bold min value of each row in Iris data
 #' pretty_DT(iris %>% dplyr::select(-Species), 
 #'          sigfig = TRUE, caption = "Iris Data Table",
 #'          na_disp = "NA", bold_function = ". == min(.)", bold_margin = 1,

@@ -21,3 +21,8 @@ Helper function to merge default and user-specified dot (...)
 arguments such that default arguments are overwritten by the user-specified
 arguments.
 }
+\examples{
+arg_list <- get_dot_args(user_args = list(a = 1, b = 2, c = 3), 
+                         default_args = list(a = "a", d = "d"))
+
+}

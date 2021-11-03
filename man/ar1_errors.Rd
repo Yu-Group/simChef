@@ -18,3 +18,7 @@ A vector of simulated errors with length \code{n}.
 Generate correlated Gaussian errors based on an
 autoregressive(1) covariance structure.
 }
+\examples{
+errs <- ar1_errors(n = 100, rho = 0.7)
+
+}

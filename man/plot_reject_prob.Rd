@@ -6,7 +6,7 @@
 \usage{
 plot_reject_prob(
   fit_results,
-  eval_results,
+  eval_results = NULL,
   evaluator_name = NULL,
   vary_params = NULL,
   feature_col = NULL,
@@ -48,6 +48,54 @@ a \code{ggplot} object if \code{plot_by} is \code{NULL} and a list of
 \description{
 Plot the probability of rejecting the null hypothesis
 across various levels of significance.
+}
+\examples{
+# generate example fit_results data
+fit_results <- tibble::tibble(
+  .rep = rep(1:2, times = 2),
+  .dgp_name = c("DGP1", "DGP1", "DGP2", "DGP2"),
+  .method_name = c("Method"),
+  feature_info = lapply(
+    1:4,
+    FUN = function(i) {
+      tibble::tibble(
+        # feature names
+        feature = c("featureA", "featureB", "featureC"),  
+        # estimated p-values
+        pval = 10^(sample(-3:0, 3, replace = TRUE))
+      )
+    }
+  )
+)
+
+# generate example eval_results data
+eval_results <- list(
+  `Reject Prob.` = eval_reject_prob(
+    fit_results, 
+    nested_data = "feature_info",
+    feature_col = "feature", 
+    pval_col = "pval"
+  )
+)
+
+# create bar plot using pre-computed evaluation results
+plt <- plot_reject_prob(fit_results = fit_results,
+                        eval_results = eval_results,
+                        evaluator_name = "Reject Prob.",
+                        feature_col = "feature")
+# or alternatively, create the same plot without pre-computing evaluation results
+plt <- plot_reject_prob(fit_results, 
+                        nested_data = "feature_info",
+                        feature_col = "feature",
+                        pval_col = "pval")
+
+# can customize plot (see plot_eval_summary() for possible arguments)
+plt <- plot_reject_prob(fit_results = fit_results,
+                        eval_results = eval_results,
+                        evaluator_name = "Reject Prob.",
+                        facet_formula = NULL,
+                        plot_by = "feature")
+
 }
 \seealso{
 Other inference_funs: 

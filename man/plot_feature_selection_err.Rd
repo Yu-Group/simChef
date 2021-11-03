@@ -6,7 +6,7 @@
 \usage{
 plot_feature_selection_err(
   fit_results,
-  eval_results,
+  eval_results = NULL,
   evaluator_name = NULL,
   vary_params = NULL,
   metrics = NULL,
@@ -50,6 +50,62 @@ a \code{ggplot} object if \code{plot_by} is \code{NULL} and a list of
 Plot the raw or summarized feature selection errors as a
 boxplot, scatter plot, line plot, or bar plot with or without 1 SD error
 bars.
+}
+\examples{
+# generate example fit_results data
+fit_results <- tibble::tibble(
+  .rep = rep(1:2, times = 2),
+  .dgp_name = c("DGP1", "DGP1", "DGP2", "DGP2"),
+  .method_name = c("Method"),
+  feature_info = lapply(
+    1:4,
+    FUN = function(i) {
+      tibble::tibble(
+        # feature names
+        feature = c("featureA", "featureB", "featureC"),  
+        # true feature support
+        true_support = c(TRUE, FALSE, TRUE),  
+        # estimated feature support
+        est_support = c(TRUE, FALSE, FALSE),  
+        # estimated feature importance scores
+        est_importance = c(10, runif(2, min = -2, max = 2))  
+      )
+    }
+  )
+)
+
+# generate example eval_results data
+eval_results <- list(
+  `Feature Selection Errors` = summarize_feature_selection_err(
+    fit_results, 
+    nested_data = "feature_info",
+    truth_col = "true_support", 
+    estimate_col = "est_support",
+    imp_col = "est_importance"
+  )
+)
+
+# create bar plot using pre-computed evaluation results
+plt <- plot_feature_selection_err(fit_results = fit_results, 
+                                  eval_results = eval_results,
+                                  evaluator_name = "Feature Selection Errors",
+                                  show = c("bar"))
+# or alternatively, create the same plot without pre-computing evaluation results
+plt <- plot_feature_selection_err(fit_results,
+                                  show = c("bar"),
+                                  nested_data = "feature_info",
+                                  truth_col = "true_support",
+                                  estimate_col = "est_support",
+                                  imp_col = "est_importance")
+
+# can customize plot (see plot_eval_summary() for possible arguments)
+plt <- plot_feature_selection_err(fit_results = fit_results, 
+                                  eval_results = eval_results,
+                                  evaluator_name = "Feature Selection Errors",
+                                  show = c("bar"),
+                                  color_str = ".dgp_name",
+                                  interactive = TRUE)
+
 }
 \seealso{
 Other feature_selection_funs: 

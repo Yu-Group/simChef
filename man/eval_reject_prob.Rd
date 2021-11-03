@@ -57,6 +57,45 @@ Evaluate the probability of rejecting the null hypothesis
 across various levels of significance (possibly for multiple hypothesis
 tests, one for each feature).
 }
+\examples{
+# generate example fit_results data for a feature selection problem
+fit_results <- tibble::tibble(
+  .rep = rep(1:2, times = 2),
+  .dgp_name = c("DGP1", "DGP1", "DGP2", "DGP2"),
+  .method_name = c("Method"),
+  feature_info = lapply(
+    1:4,
+    FUN = function(i) {
+      tibble::tibble(
+        # feature names
+        feature = c("featureA", "featureB", "featureC"),
+        # true feature support
+        true_support = c(TRUE, FALSE, TRUE),
+        # estimated p-values
+        pval = 10^(sample(-3:0, 3, replace = TRUE))
+      )
+    }
+  )
+)
+
+# evaluate rejection probabilities for each feature across all possible values of alpha
+eval_results <- eval_reject_prob(
+  fit_results,
+  nested_data = "feature_info",
+  feature_col = "feature",
+  pval_col = "pval"
+)
+
+# evaluate rejection probability for each feature at specific values of alpha
+eval_results <- eval_reject_prob(
+  fit_results,
+  nested_data = "feature_info",
+  feature_col = "feature",
+  pval_col = "pval",
+  alphas = c(0.05, 0.1)
+)
+
+}
 \seealso{
 Other inference_funs: 
 \code{\link{eval_testing_curve_funs}},
