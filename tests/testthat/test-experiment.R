@@ -1106,12 +1106,16 @@ test_that("Printing Experiment works properly", {
 test_that("Various parallel strategies in experiment work properly", {
   dgp_fun1 <- function(y = "") return(x = list(paste0("data1", y)))
   dgp_fun2 <- function() return(x = list("data2"))
+  dgp_fun3 <- function() { stop("Uh oh!") }
   dgp1 <- create_dgp(dgp_fun1)
   dgp2 <- create_dgp(dgp_fun2)
+  dgp3 <- create_dgp(dgp_fun3)
   method_fun1 <- function(x, y = "") return(list(result = paste0(x, "+method1", y)))
   method_fun2 <- function(x) return(list(result = paste0(x, "+method2")))
+  method_fun3 <- function(x) { stop("Uh oh!") }
   method1 <- create_method(method_fun1)
   method2 <- create_method(method_fun2)
+  method3 <- create_method(method_fun3)
   experiment <- create_experiment(
     dgp_list = list(dgp1, dgp2),
     method_list = list(method1, method2)
@@ -1139,12 +1143,49 @@ test_that("Various parallel strategies in experiment work properly", {
     expect_true(length(results_tally$result) == 4)
     expect_true(all(expected_results %in% results_tally$result))
     expect_equal(results_tally$n, rep(2, 4))
+
+    experiment$add_dgp(dgp3)
+    err <- expect_error(
+      experiment$fit(n_reps=2, parallel_strategy=strat, verbose=0)
+    )
+    expect_false(is.null(err$partial_results))
+    expect_true("simChefError" %in% class(err))
+    expect_true(".err" %in% colnames(err$partial_results))
+    inner_err <- err$partial_results$.err[[nrow(err$partial_results)]]
+    expect_true("simChefError" %in% class(inner_err))
+    expect_true(all(c("name", "params", "pid") %in% names(inner_err$data)))
+    expect_equal(inner_err$data$name, "dgp3")
+    experiment$remove_dgp("dgp3")
+
+    experiment$add_method(method3)
+    err <- expect_error(
+      experiment$fit(n_reps=2, parallel_strategy=strat, verbose=0)
+    )
+    expect_false(is.null(err$partial_results))
+    expect_true("simChefError" %in% class(err))
+    expect_true(".err" %in% colnames(err$partial_results))
+    inner_err <- err$partial_results$.err[[nrow(err$partial_results)]]
+    expect_true("simChefError" %in% class(inner_err))
+    expect_true(all(c("name", "params", "pid") %in% names(inner_err$data)))
+    expect_equal(inner_err$data$name, "method3")
+    experiment$remove_method("method3")
   }
 
   # add vary_across
   experiment %>%
     add_vary_across(dgp = dgp1, y = c("a", "b", "c")) %>%
     add_vary_across(method = method1, y = c("a", "b", "c"))
+
+  dgp_fun3 <- function(y = "") {
+    if (y == "b") stop("Why b?!")
+    return(x = list(paste0("data3", y)))
+  }
+  dgp3 <- create_dgp(dgp_fun3)
+  method_fun3 <- function(x, y = "") {
+    if (y == "c") stop("Why c?!")
+    return(list(result = paste0(x, "+method3", y)))
+  }
+  method3 <- create_method(method_fun3)
 
   expected_results <- c("data1a+method1a", "data1a+method1b", "data1a+method1c",
                         "data1b+method1a", "data1b+method1b", "data1b+method1c",
@@ -1154,21 +1195,51 @@ test_that("Various parallel strategies in experiment work properly", {
                         "data2+method2")
 
   for (strat in strategies) {
-    results <- experiment$fit(n_reps = 2, parallel_strategy = strat, 
+    results <- experiment$fit(n_reps = 2, parallel_strategy = strat,
                               verbose = 0)
-    
+
     expect_true(
       all(c(".rep", ".dgp_name", ".method_name", "y_dgp", "y_method", "result")
           %in% names(results))
     )
-    
+
     results_tally <- results %>%
       dplyr::group_by(result) %>%
       dplyr::tally()
-    
+
     expect_true(length(results_tally$result) == 16)
     expect_true(all(expected_results %in% results_tally$result))
     expect_equal(results_tally$n, rep(2, 16))
+
+    experiment$add_dgp(dgp3)
+    experiment %>%
+      add_vary_across(dgp = dgp3, y = c("a", "b", "c"))
+    err <- expect_error(
+      experiment$fit(n_reps=2, parallel_strategy=strat, verbose=0)
+    )
+    expect_false(is.null(err$partial_results))
+    expect_true("simChefError" %in% class(err))
+    expect_true(".err" %in% colnames(err$partial_results))
+    inner_err <- err$partial_results$.err[[nrow(err$partial_results)]]
+    expect_true("simChefError" %in% class(inner_err))
+    expect_true(all(c("name", "params", "pid") %in% names(inner_err$data)))
+    expect_equal(inner_err$data$name, "dgp3")
+    experiment$remove_dgp("dgp3")
+
+    experiment$add_method(method3)
+    experiment %>%
+      add_vary_across(method = method3, y = c("a", "b", "c"))
+    err <- expect_error(
+      experiment$fit(n_reps=2, parallel_strategy=strat, verbose=0)
+    )
+    expect_false(is.null(err$partial_results))
+    expect_true("simChefError" %in% class(err))
+    expect_true(".err" %in% colnames(err$partial_results))
+    inner_err <- err$partial_results$.err[[nrow(err$partial_results)]]
+    expect_true("simChefError" %in% class(inner_err))
+    expect_true(all(c("name", "params", "pid") %in% names(inner_err$data)))
+    expect_equal(inner_err$data$name, "method3")
+    experiment$remove_method("method3")
   }
 
   # return error if duplicate column names
