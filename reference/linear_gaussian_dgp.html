@@ -225,9 +225,24 @@ are in <code>return_values</code>, then the returned list also contains slots fo
 "Xtest" and "ytest".</p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>TODO: Support is the first s_obs and s_unobs features in the
-generated X and U data.</p>
+    <p>Data is generated via: $$y = betas \%\emph{\% X +
+betas_unobs \%}\% U + err(...),$$ where X, U are standard Gaussian random
+matrices and the true underlying support of this data is the first s_obs and
+s_unobs features in X and U respectively.</p>
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><span class='r-in'><span class='co'># generate data from: y = betas_1 * x_1 + betas_2 * x_2 + N(0, 0.5), where</span></span>
+<span class='r-in'><span class='co'># betas_1, betas_2 ~ N(0, 1) and X ~ N(0, I_10)</span></span>
+<span class='r-in'><span class='va'>sim_data</span> <span class='op'>&lt;-</span> <span class='fu'>linear_gaussian_dgp</span><span class='op'>(</span>n <span class='op'>=</span> <span class='fl'>100</span>, p_obs <span class='op'>=</span> <span class='fl'>10</span>, s_obs <span class='op'>=</span> <span class='fl'>2</span>, betas_sd <span class='op'>=</span> <span class='fl'>1</span>,</span>
+<span class='r-in'>                                err <span class='op'>=</span> <span class='va'>rnorm</span>, sd <span class='op'>=</span> <span class='fl'>.5</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># generate data from y = betas %*% X - u_1 + t(df = 1), where</span></span>
+<span class='r-in'><span class='co'># betas ~ N(0, .5), betas_unobs = [-1, 0], X ~ N(0, I_10), U ~ N(0, I_2)</span></span>
+<span class='r-in'><span class='va'>sim_data</span> <span class='op'>&lt;-</span> <span class='fu'>linear_gaussian_dgp</span><span class='op'>(</span>n <span class='op'>=</span> <span class='fl'>100</span>, p_obs <span class='op'>=</span> <span class='fl'>10</span>, p_unobs <span class='op'>=</span> <span class='fl'>2</span>,</span>
+<span class='r-in'>                                betas_sd <span class='op'>=</span> <span class='fl'>.5</span>, betas_unobs <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='op'>-</span><span class='fl'>1</span>, <span class='fl'>0</span><span class='op'>)</span>,</span>
+<span class='r-in'>                                err <span class='op'>=</span> <span class='va'>rt</span>, df <span class='op'>=</span> <span class='fl'>1</span><span class='op'>)</span></span>
+<span class='r-in'>  </span>
+</pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

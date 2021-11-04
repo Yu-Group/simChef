@@ -186,6 +186,734 @@ Method example, rather than a fill-in-the-blank template.</p></td>
 
     <p>Invisible <code>NULL</code> but code is printed to the console.</p>
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><span class='r-in'><span class='co'># prediction templates</span></span>
+<span class='r-in'><span class='fu'>use_prediction_template</span><span class='op'>(</span>type <span class='op'>=</span> <span class='st'>"regression"</span><span class='op'>)</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> dgp &lt;- create_dgp(</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   dgp_fun = stop('Add DGP function here.'),</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   name = stop('Add name of DGP here.'),</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   stop('Add additional arguments (if necessary) to pass to DGP here.')</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> ) </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> method &lt;- create_method(</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   method_fun = stop('Add Method function here.'),</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   name = stop('Add name of Method here.'),</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   stop('Add additional arguments (if necessary) to pass to Method here.')</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> ) </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> nested_pred_data &lt;- stop('(Optional) Add name of column in `fit_results` with prediction result columns to be unnested.')</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> true_pred_col &lt;- stop('Add name of column in `fit_results` with true responses here.')</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> est_pred_col &lt;- stop('Add name of column in `fit_results` with the predicted responses here.')</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> pred_err &lt;- create_evaluator(</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   eval_fun = summarize_pred_err,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   name = 'Prediction Accuracy',</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   nested_data = nested_pred_data,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   truth_col = true_pred_col,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   estimate_col = est_pred_col</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> ) </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> pred_err_plot &lt;- create_visualizer(</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   viz_fun = plot_pred_err,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   name = 'Prediction Accuracy Plot',</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   evaluator_name = 'Prediction Accuracy'</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> ) </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> experiment &lt;- create_experiment(name = 'Prediction Experiment') %&gt;% </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   add_dgp(dgp) %&gt;% </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   add_method(method) %&gt;% </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   add_evaluator(pred_err) %&gt;% </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   add_visualizer(pred_err_plot) </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> create_doc_template(experiment)  #&gt; fill out documentation before proceeding!</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> results &lt;- run_experiment(</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   experiment = experiment,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   n_reps = stop('Add number of replicates here.'),</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   save = TRUE</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> ) </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> create_rmd(experiment)</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-in'><span class='fu'>use_prediction_template</span><span class='op'>(</span>type <span class='op'>=</span> <span class='st'>"classification"</span><span class='op'>)</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> dgp &lt;- create_dgp(</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   dgp_fun = stop('Add DGP function here.'),</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   name = stop('Add name of DGP here.'),</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   stop('Add additional arguments (if necessary) to pass to DGP here.')</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> ) </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> method &lt;- create_method(</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   method_fun = stop('Add Method function here.'),</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   name = stop('Add name of Method here.'),</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   stop('Add additional arguments (if necessary) to pass to Method here.')</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> ) </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> nested_pred_data &lt;- stop('(Optional) Add name of column in `fit_results` with prediction result columns to be unnested.')</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> true_pred_col &lt;- stop('Add name of column in `fit_results` with true responses here.')</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> est_pred_col &lt;- stop('Add name of column in `fit_results` with the predicted responses here.')</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> prob_pred_cols &lt;- stop('Add name of column(s) in `fit_results` with the predicted probabilities here.')</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> pred_err &lt;- create_evaluator(</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   eval_fun = summarize_pred_err,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   name = 'Prediction Accuracy',</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   nested_data = nested_pred_data,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   truth_col = true_pred_col,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   estimate_col = est_pred_col,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   prob_cols = prob_pred_cols</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> ) </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> pred_err_plot &lt;- create_visualizer(</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   viz_fun = plot_pred_err,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   name = 'Prediction Accuracy Plot',</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   evaluator_name = 'Prediction Accuracy'</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> ) </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> roc_plot &lt;- create_visualizer(</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   viz_fun = plot_pred_curve,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   name = 'ROC Plot',</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   curve = 'ROC',</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   nested_data = nested_pred_data,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   truth_col = true_pred_col,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   prob_cols = prob_pred_cols</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> ) </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> pr_plot &lt;- create_visualizer(</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   viz_fun = plot_pred_curve,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   name = 'PR Plot',</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   curve = 'PR',</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   nested_data = nested_pred_data,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   truth_col = true_pred_col,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   prob_cols = prob_pred_cols</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> ) </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> experiment &lt;- create_experiment(name = 'Prediction Experiment') %&gt;% </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   add_dgp(dgp) %&gt;% </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   add_method(method) %&gt;% </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   add_evaluator(pred_err) %&gt;% </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   add_visualizer(pred_err_plot) %&gt;% </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   add_visualizer(roc_plot) %&gt;% </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   add_visualizer(pr_plot) </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> create_doc_template(experiment)  #&gt; fill out documentation before proceeding!</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> results &lt;- run_experiment(</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   experiment = experiment,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   n_reps = stop('Add number of replicates here.'),</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   save = TRUE</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> ) </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> create_rmd(experiment)</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># prediction templates with example DGP and Method</span></span>
+<span class='r-in'><span class='fu'>use_prediction_template</span><span class='op'>(</span>type <span class='op'>=</span> <span class='st'>"regression"</span>, </span>
+<span class='r-in'>                        include_dgp_example <span class='op'>=</span> <span class='cn'>TRUE</span>,</span>
+<span class='r-in'>                        include_method_example <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> dgp &lt;- create_dgp(</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   dgp_fun = xy_dgp_constructor,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   name = 'Example DGP (Uncorrelated Gaussian Linear DGP)',</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   x_fun = generate_X_gaussian,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   y_fun = generate_y_linear,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   err_fun = rnorm,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   n = 200,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   p = 10,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   betas = c(rep(1, 5), rep(0, 5)),</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   .err_sd = 1,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   data_split = TRUE,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   train_prop = 0.5,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   return_support = TRUE</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> ) </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> rf_method &lt;-function (X, y, Xtest, ytest, support, ...) </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> {</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>     data &lt;- as.data.frame(X) %&gt;% cbind(.y = y)</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>     if (is.factor(y)) {</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>         mtry &lt;- round(sqrt(ncol(X)))</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>     }</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>     else {</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>         mtry &lt;- round(ncol(X)/3)</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>     }</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>     fit &lt;- ranger::ranger(data = data, dependent.variable.name = ".y", </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>         importance = "impurity", mtry = mtry, num.threads = 1, </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>         ...)</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>     preds &lt;- stats::predict(fit, as.data.frame(Xtest))$predictions</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>     if (is.factor(y)) {</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>         k &lt;- nlevels(y)</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>         prob_preds &lt;- stats::predict(fit, as.data.frame(Xtest), </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>             predict.all = TRUE, num.threads = 1)$predictions</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>         prob_preds &lt;- purrr::map_dfr(1:nrow(prob_preds), function(i) {</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>             x &lt;- factor(prob_preds[i, ], levels = 1:k)</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>             c(prop.table(table(x)))</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>         }) %&gt;% stats::setNames(levels(y)) %&gt;% dplyr::select(-1)</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>     }</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>     else {</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>         prob_preds &lt;- NULL</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>     }</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>     p &lt;- ncol(X)</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>     if (is.null(colnames(X))) {</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>         features &lt;- 1:p</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>     }</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>     else {</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>         features &lt;- colnames(X)</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>     }</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>     out &lt;- list(y = y, predictions = preds, prob_predictions = prob_preds, </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>         support_df = data.frame(feature = features, true_support = 1:p %in% </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>             support, imp = fit$variable.importance, selected = fit$variable.importance &gt; </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>             mean(fit$variable.importance)))</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>     return(out)</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> } </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> method &lt;- create_method(</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   method_fun = rf_method,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   name = 'RF'</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> ) </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> nested_pred_data &lt;- c('y', 'predictions', 'prob_predictions')  # prediction results columns to be unnested</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> true_pred_col &lt;- 'y'  # true response column</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> est_pred_col &lt;- 'predictions'  # predicted response column</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> pred_err &lt;- create_evaluator(</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   eval_fun = summarize_pred_err,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   name = 'Prediction Accuracy',</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   nested_data = nested_pred_data,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   truth_col = true_pred_col,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   estimate_col = est_pred_col</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> ) </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> pred_err_plot &lt;- create_visualizer(</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   viz_fun = plot_pred_err,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   name = 'Prediction Accuracy Plot',</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   evaluator_name = 'Prediction Accuracy'</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> ) </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> experiment &lt;- create_experiment(name = 'Prediction Experiment') %&gt;% </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   add_dgp(dgp) %&gt;% </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   add_method(method) %&gt;% </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   add_evaluator(pred_err) %&gt;% </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   add_visualizer(pred_err_plot) </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> create_doc_template(experiment)  #&gt; fill out documentation before proceeding!</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> results &lt;- run_experiment(</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   experiment = experiment,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   n_reps = stop('Add number of replicates here.'),</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   save = TRUE</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> ) </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> create_rmd(experiment)</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-in'><span class='fu'>use_prediction_template</span><span class='op'>(</span>type <span class='op'>=</span> <span class='st'>"classification"</span>, </span>
+<span class='r-in'>                        include_dgp_example <span class='op'>=</span> <span class='cn'>TRUE</span>,</span>
+<span class='r-in'>                        include_method_example <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> dgp &lt;- create_dgp(</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   dgp_fun = xy_dgp_constructor,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   name = 'Example DGP (Uncorrelated Gaussian Logistic DGP)',</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   x_fun = generate_X_gaussian,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   y_fun = generate_y_logistic,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   n = 200,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   p = 10,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   betas = c(rep(1, 5), rep(0, 5)),</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   data_split = TRUE,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   train_prop = 0.5,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   return_support = TRUE</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> ) </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> rf_method &lt;-function (X, y, Xtest, ytest, support, ...) </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> {</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>     data &lt;- as.data.frame(X) %&gt;% cbind(.y = y)</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>     if (is.factor(y)) {</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>         mtry &lt;- round(sqrt(ncol(X)))</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>     }</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>     else {</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>         mtry &lt;- round(ncol(X)/3)</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>     }</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>     fit &lt;- ranger::ranger(data = data, dependent.variable.name = ".y", </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>         importance = "impurity", mtry = mtry, num.threads = 1, </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>         ...)</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>     preds &lt;- stats::predict(fit, as.data.frame(Xtest))$predictions</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>     if (is.factor(y)) {</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>         k &lt;- nlevels(y)</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>         prob_preds &lt;- stats::predict(fit, as.data.frame(Xtest), </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>             predict.all = TRUE, num.threads = 1)$predictions</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>         prob_preds &lt;- purrr::map_dfr(1:nrow(prob_preds), function(i) {</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>             x &lt;- factor(prob_preds[i, ], levels = 1:k)</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>             c(prop.table(table(x)))</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>         }) %&gt;% stats::setNames(levels(y)) %&gt;% dplyr::select(-1)</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>     }</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>     else {</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>         prob_preds &lt;- NULL</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>     }</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>     p &lt;- ncol(X)</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>     if (is.null(colnames(X))) {</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>         features &lt;- 1:p</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>     }</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>     else {</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>         features &lt;- colnames(X)</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>     }</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>     out &lt;- list(y = y, predictions = preds, prob_predictions = prob_preds, </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>         support_df = data.frame(feature = features, true_support = 1:p %in% </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>             support, imp = fit$variable.importance, selected = fit$variable.importance &gt; </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>             mean(fit$variable.importance)))</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>     return(out)</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> } </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> method &lt;- create_method(</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   method_fun = rf_method,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   name = 'RF'</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> ) </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> nested_pred_data &lt;- c('y', 'predictions', 'prob_predictions')  # prediction results columns to be unnested</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> true_pred_col &lt;- 'y'  # true response column</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> est_pred_col &lt;- 'predictions'  # predicted response column</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> prob_pred_cols &lt;- '1'  # predicted probability columns</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> pred_err &lt;- create_evaluator(</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   eval_fun = summarize_pred_err,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   name = 'Prediction Accuracy',</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   nested_data = nested_pred_data,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   truth_col = true_pred_col,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   estimate_col = est_pred_col,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   prob_cols = prob_pred_cols</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> ) </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> pred_err_plot &lt;- create_visualizer(</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   viz_fun = plot_pred_err,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   name = 'Prediction Accuracy Plot',</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   evaluator_name = 'Prediction Accuracy'</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> ) </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> roc_plot &lt;- create_visualizer(</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   viz_fun = plot_pred_curve,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   name = 'ROC Plot',</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   curve = 'ROC',</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   nested_data = nested_pred_data,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   truth_col = true_pred_col,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   prob_cols = prob_pred_cols</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> ) </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> pr_plot &lt;- create_visualizer(</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   viz_fun = plot_pred_curve,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   name = 'PR Plot',</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   curve = 'PR',</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   nested_data = nested_pred_data,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   truth_col = true_pred_col,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   prob_cols = prob_pred_cols</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> ) </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> experiment &lt;- create_experiment(name = 'Prediction Experiment') %&gt;% </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   add_dgp(dgp) %&gt;% </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   add_method(method) %&gt;% </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   add_evaluator(pred_err) %&gt;% </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   add_visualizer(pred_err_plot) %&gt;% </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   add_visualizer(roc_plot) %&gt;% </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   add_visualizer(pr_plot) </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> create_doc_template(experiment)  #&gt; fill out documentation before proceeding!</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> results &lt;- run_experiment(</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   experiment = experiment,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   n_reps = stop('Add number of replicates here.'),</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   save = TRUE</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> ) </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> create_rmd(experiment)</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># feature selection template</span></span>
+<span class='r-in'><span class='fu'>use_feature_selection_template</span><span class='op'>(</span><span class='op'>)</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> dgp &lt;- create_dgp(</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   dgp_fun = stop('Add DGP function here.'),</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   name = stop('Add name of DGP here.'),</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   stop('Add additional arguments (if necessary) to pass to DGP here.')</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> ) </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> method &lt;- create_method(</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   method_fun = stop('Add Method function here.'),</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   name = stop('Add name of Method here.'),</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   stop('Add additional arguments (if necessary) to pass to Method here.')</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> ) </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> nested_feature_data &lt;- stop('(Optional) Add name of column in `fit_results` with feature importance columns to be unnested here.')</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> feature_col &lt;- stop('Add name of column in `fit_results` containing the feature names here.')</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> true_feature_col &lt;- stop('Add name of column in `fit_results` containing the true feature support here.')</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> feature_imp_col &lt;- stop('Add name of column in `fit_results` containing the feature importances here.')</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> feature_sel_col &lt;- stop('(Optional) Add name of column in `fit_results` containing the (estimated) selected features here.')</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> fi &lt;- create_evaluator(</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   eval_fun = summarize_feature_importance,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   name = 'Feature Importances',</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   nested_data = nested_feature_data,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   feature_col = feature_col,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   imp_col = feature_imp_col</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> ) </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> feature_sel &lt;- create_evaluator(</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   eval_fun = summarize_feature_selection_err,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   name = 'Feature Selection Error',</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   nested_data = nested_feature_data,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   truth_col = true_feature_col,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   estimate_col = feature_sel_col,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   imp_col = feature_imp_col</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> ) </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> fi_plot &lt;- create_visualizer(</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   viz_fun = plot_feature_importance,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   name = 'Feature Importances Plot',</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   evaluator_name = 'Feature Importances',</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   feature_col = feature_col</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> ) </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> feature_sel_plot &lt;- create_visualizer(</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   viz_fun = plot_feature_selection_err,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   name = 'Feature Selection Error Plot',</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   evaluator_name = 'Feature Selection Error'</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> ) </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> experiment &lt;- create_experiment(name = 'Feature Selection Experiment') %&gt;% </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   add_dgp(dgp) %&gt;% </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   add_method(method) %&gt;% </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   add_evaluator(fi) %&gt;% </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   add_evaluator(feature_sel) %&gt;% </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   add_visualizer(fi_plot) %&gt;% </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   add_visualizer(feature_sel_plot) </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> create_doc_template(experiment)  #&gt; fill out documentation before proceeding!</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> results &lt;- run_experiment(</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   experiment = experiment,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   n_reps = stop('Add number of replicates here.'),</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   save = TRUE</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> ) </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> create_rmd(experiment)</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-in'><span class='co'># feature selection template with example DGP and Method</span></span>
+<span class='r-in'><span class='fu'>use_feature_selection_template</span><span class='op'>(</span>include_dgp_example <span class='op'>=</span> <span class='cn'>TRUE</span>, </span>
+<span class='r-in'>                               include_method_example <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> dgp &lt;- create_dgp(</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   dgp_fun = xy_dgp_constructor,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   name = 'Example DGP (Uncorrelated Gaussian Linear DGP)',</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   x_fun = generate_X_gaussian,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   y_fun = generate_y_linear,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   err_fun = rnorm,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   n = 200,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   p = 10,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   betas = c(rep(1, 5), rep(0, 5)),</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   .err_sd = 1,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   data_split = TRUE,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   train_prop = 0.5,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   return_support = TRUE</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> ) </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> rf_method &lt;-function (X, y, Xtest, ytest, support, ...) </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> {</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>     data &lt;- as.data.frame(X) %&gt;% cbind(.y = y)</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>     if (is.factor(y)) {</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>         mtry &lt;- round(sqrt(ncol(X)))</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>     }</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>     else {</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>         mtry &lt;- round(ncol(X)/3)</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>     }</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>     fit &lt;- ranger::ranger(data = data, dependent.variable.name = ".y", </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>         importance = "impurity", mtry = mtry, num.threads = 1, </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>         ...)</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>     preds &lt;- stats::predict(fit, as.data.frame(Xtest))$predictions</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>     if (is.factor(y)) {</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>         k &lt;- nlevels(y)</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>         prob_preds &lt;- stats::predict(fit, as.data.frame(Xtest), </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>             predict.all = TRUE, num.threads = 1)$predictions</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>         prob_preds &lt;- purrr::map_dfr(1:nrow(prob_preds), function(i) {</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>             x &lt;- factor(prob_preds[i, ], levels = 1:k)</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>             c(prop.table(table(x)))</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>         }) %&gt;% stats::setNames(levels(y)) %&gt;% dplyr::select(-1)</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>     }</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>     else {</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>         prob_preds &lt;- NULL</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>     }</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>     p &lt;- ncol(X)</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>     if (is.null(colnames(X))) {</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>         features &lt;- 1:p</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>     }</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>     else {</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>         features &lt;- colnames(X)</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>     }</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>     out &lt;- list(y = y, predictions = preds, prob_predictions = prob_preds, </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>         support_df = data.frame(feature = features, true_support = 1:p %in% </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>             support, imp = fit$variable.importance, selected = fit$variable.importance &gt; </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>             mean(fit$variable.importance)))</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>     return(out)</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> } </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> method &lt;- create_method(</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   method_fun = rf_method,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   name = 'RF'</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> ) </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> nested_feature_data &lt;- 'support_df'  # feature importance columns to be unnested</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> feature_col &lt;- 'feature'  # feature names column</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> true_feature_col &lt;- 'true_support'  # true feature support column</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> feature_imp_col &lt;- 'imp'  # feature importance column</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> feature_sel_col &lt;- 'selected'  # estimated feature support column</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> fi &lt;- create_evaluator(</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   eval_fun = summarize_feature_importance,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   name = 'Feature Importances',</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   nested_data = nested_feature_data,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   feature_col = feature_col,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   imp_col = feature_imp_col</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> ) </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> feature_sel &lt;- create_evaluator(</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   eval_fun = summarize_feature_selection_err,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   name = 'Feature Selection Error',</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   nested_data = nested_feature_data,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   truth_col = true_feature_col,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   estimate_col = feature_sel_col,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   imp_col = feature_imp_col</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> ) </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> fi_plot &lt;- create_visualizer(</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   viz_fun = plot_feature_importance,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   name = 'Feature Importances Plot',</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   evaluator_name = 'Feature Importances',</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   feature_col = feature_col</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> ) </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> feature_sel_plot &lt;- create_visualizer(</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   viz_fun = plot_feature_selection_err,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   name = 'Feature Selection Error Plot',</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   evaluator_name = 'Feature Selection Error'</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> ) </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> experiment &lt;- create_experiment(name = 'Feature Selection Experiment') %&gt;% </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   add_dgp(dgp) %&gt;% </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   add_method(method) %&gt;% </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   add_evaluator(fi) %&gt;% </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   add_evaluator(feature_sel) %&gt;% </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   add_visualizer(fi_plot) %&gt;% </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   add_visualizer(feature_sel_plot) </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> create_doc_template(experiment)  #&gt; fill out documentation before proceeding!</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> results &lt;- run_experiment(</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   experiment = experiment,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   n_reps = stop('Add number of replicates here.'),</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   save = TRUE</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> ) </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> create_rmd(experiment)</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># inference template</span></span>
+<span class='r-in'><span class='fu'>use_inference_template</span><span class='op'>(</span><span class='op'>)</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> dgp &lt;- create_dgp(</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   dgp_fun = stop('Add DGP function here.'),</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   name = stop('Add name of DGP here.'),</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   stop('Add additional arguments (if necessary) to pass to DGP here.')</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> ) </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> method &lt;- create_method(</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   method_fun = stop('Add Method function here.'),</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   name = stop('Add name of Method here.'),</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   stop('Add additional arguments (if necessary) to pass to Method here.')</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> ) </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> nested_feature_data &lt;- stop('(Optional) Add name of column in `fit_results` with feature importance columns to be unnested here.')</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> feature_col &lt;- stop('Add name of column in `fit_results` containing the feature names here.')</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> true_feature_col &lt;- stop('Add name of column in `fit_results` containing the true feature support here.')</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> pval_col &lt;- stop('Add name of column in `fit_results` containing the p-values here.')</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> inf_err &lt;- create_evaluator(</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   eval_fun = summarize_testing_err,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   name = 'Hypothesis Testing Error',</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   nested_data = nested_feature_data,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   truth_col = true_feature_col,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   pval_col = pval_col</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> ) </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> fi_pval &lt;- create_evaluator(</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   eval_fun = summarize_feature_importance,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   eval_id = 'pval',</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   name = 'P-value Summary Statistics',</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   nested_data = nested_feature_data,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   feature_col = feature_col,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   imp_col = pval_col</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> ) </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> inf_err_plot &lt;- create_visualizer(</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   viz_fun = plot_testing_err,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   name = 'Hypothesis Testing Error Plot',</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   evaluator_name = 'Hypothesis Testing Error'</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> ) </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> inf_roc_plot &lt;- create_visualizer(</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   viz_fun = plot_testing_curve,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   name = 'Feature ROC Plot',</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   curve = 'ROC',</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   nested_data = nested_feature_data,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   truth_col = true_feature_col,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   pval_col = pval_col</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> ) </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> inf_pr_plot &lt;- create_visualizer(</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   viz_fun = plot_testing_curve,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   name = 'Feature Selection PR Plot',</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   curve = 'PR',</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   nested_data = nested_feature_data,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   truth_col = true_feature_col,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   pval_col = pval_col</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> ) </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> reject_prob_plot &lt;- create_visualizer(</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   viz_fun = plot_reject_prob,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   name = 'Rejection Probability Curve',</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   nested_data = nested_feature_data,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   feature_col = feature_col,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   pval_col = pval_col</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> ) </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> experiment &lt;- create_experiment(name = 'Inference Experiment') %&gt;% </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   add_dgp(dgp) %&gt;% </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   add_method(method) %&gt;% </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   add_evaluator(inf_err) %&gt;% </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   add_evaluator(fi_pval) %&gt;% </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   add_visualizer(inf_err_plot) %&gt;% </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   add_visualizer(inf_roc_plot) %&gt;% </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   add_visualizer(inf_pr_plot) %&gt;% </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   add_visualizer(reject_prob_plot) </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> create_doc_template(experiment)  #&gt; fill out documentation before proceeding!</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> results &lt;- run_experiment(</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   experiment = experiment,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   n_reps = stop('Add number of replicates here.'),</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   save = TRUE</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> ) </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> create_rmd(experiment)</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-in'><span class='co'># inference template with example DGP and Method</span></span>
+<span class='r-in'><span class='fu'>use_inference_template</span><span class='op'>(</span>include_dgp_example <span class='op'>=</span> <span class='cn'>TRUE</span>,</span>
+<span class='r-in'>                       include_method_example <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> dgp &lt;- create_dgp(</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   dgp_fun = xy_dgp_constructor,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   name = 'Example DGP (Uncorrelated Gaussian Linear DGP)',</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   x_fun = generate_X_gaussian,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   y_fun = generate_y_linear,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   err_fun = rnorm,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   n = 200,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   p = 10,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   betas = c(rep(1, 5), rep(0, 5)),</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   .err_sd = 1,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   data_split = TRUE,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   train_prop = 0.5,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   return_support = TRUE</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> ) </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> ols_method &lt;-function (X, y, Xtest, ytest, support, ...) </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> {</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>     data &lt;- as.data.frame(X) %&gt;% cbind(.y = y)</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>     if (is.factor(y)) {</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>         stop("OLS cannot be applied to a factor response.")</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>     }</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>     fit &lt;- stats::lm(.y ~ ., data = data)</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>     p &lt;- ncol(X)</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>     if (is.null(colnames(X))) {</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>         features &lt;- 1:p</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>     }</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>     else {</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>         features &lt;- colnames(X)</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>     }</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>     out &lt;- list(support_df = data.frame(feature = features, true_support = 1:p %in% </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>         support, pval = broom::tidy(fit)$p.value[-1]))</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>     return(out)</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> } </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> method &lt;- create_method(</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   method_fun = ols_method,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   name = 'OLS'</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> ) </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> nested_feature_data &lt;- 'support_df'  # feature importance columns to be unnested</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> feature_col &lt;- 'feature'  # feature names column</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> true_feature_col &lt;- 'true_support'  # true feature support column</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> pval_col &lt;- 'pval'  # p-values column</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> inf_err &lt;- create_evaluator(</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   eval_fun = summarize_testing_err,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   name = 'Hypothesis Testing Error',</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   nested_data = nested_feature_data,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   truth_col = true_feature_col,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   pval_col = pval_col</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> ) </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> fi_pval &lt;- create_evaluator(</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   eval_fun = summarize_feature_importance,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   eval_id = 'pval',</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   name = 'P-value Summary Statistics',</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   nested_data = nested_feature_data,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   feature_col = feature_col,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   imp_col = pval_col</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> ) </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> inf_err_plot &lt;- create_visualizer(</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   viz_fun = plot_testing_err,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   name = 'Hypothesis Testing Error Plot',</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   evaluator_name = 'Hypothesis Testing Error'</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> ) </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> inf_roc_plot &lt;- create_visualizer(</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   viz_fun = plot_testing_curve,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   name = 'Feature ROC Plot',</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   curve = 'ROC',</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   nested_data = nested_feature_data,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   truth_col = true_feature_col,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   pval_col = pval_col</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> ) </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> inf_pr_plot &lt;- create_visualizer(</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   viz_fun = plot_testing_curve,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   name = 'Feature Selection PR Plot',</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   curve = 'PR',</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   nested_data = nested_feature_data,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   truth_col = true_feature_col,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   pval_col = pval_col</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> ) </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> reject_prob_plot &lt;- create_visualizer(</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   viz_fun = plot_reject_prob,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   name = 'Rejection Probability Curve',</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   nested_data = nested_feature_data,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   feature_col = feature_col,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   pval_col = pval_col</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> ) </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> experiment &lt;- create_experiment(name = 'Inference Experiment') %&gt;% </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   add_dgp(dgp) %&gt;% </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   add_method(method) %&gt;% </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   add_evaluator(inf_err) %&gt;% </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   add_evaluator(fi_pval) %&gt;% </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   add_visualizer(inf_err_plot) %&gt;% </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   add_visualizer(inf_roc_plot) %&gt;% </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   add_visualizer(inf_pr_plot) %&gt;% </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   add_visualizer(reject_prob_plot) </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> create_doc_template(experiment)  #&gt; fill out documentation before proceeding!</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> results &lt;- run_experiment(</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   experiment = experiment,</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   n_reps = stop('Add number of replicates here.'),</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   save = TRUE</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> ) </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> create_rmd(experiment)</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-in'></span>
+</pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

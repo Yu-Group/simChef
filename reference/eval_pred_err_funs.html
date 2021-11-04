@@ -281,6 +281,152 @@ columns corresponding to the requested statistics in <code>summary_funs</code> a
 <code><a href='plot_pred_curve.html'>plot_pred_curve</a>()</code>,
 <code><a href='plot_pred_err.html'>plot_pred_err</a>()</code></p></div>
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><span class='r-in'><span class='co'>############################</span></span>
+<span class='r-in'><span class='co'>#### Regression Problem ####</span></span>
+<span class='r-in'><span class='co'>############################</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># generate example fit_results data for a regression problem</span></span>
+<span class='r-in'><span class='va'>fit_results</span> <span class='op'>&lt;-</span> <span class='fu'>tibble</span><span class='fu'>::</span><span class='fu'><a href='https://tibble.tidyverse.org/reference/tibble.html'>tibble</a></span><span class='op'>(</span></span>
+<span class='r-in'>  .rep <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span><span class='op'>(</span><span class='fl'>1</span><span class='op'>:</span><span class='fl'>2</span>, times <span class='op'>=</span> <span class='fl'>2</span><span class='op'>)</span>,</span>
+<span class='r-in'>  .dgp_name <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"DGP1"</span>, <span class='st'>"DGP1"</span>, <span class='st'>"DGP2"</span>, <span class='st'>"DGP2"</span><span class='op'>)</span>,</span>
+<span class='r-in'>  .method_name <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"Method"</span><span class='op'>)</span>,</span>
+<span class='r-in'>  <span class='co'># true response</span></span>
+<span class='r-in'>  y <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/lapply.html'>lapply</a></span><span class='op'>(</span><span class='fl'>1</span><span class='op'>:</span><span class='fl'>4</span>, FUN <span class='op'>=</span> <span class='kw'>function</span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span> <span class='fu'><a href='https://rdrr.io/r/stats/Normal.html'>rnorm</a></span><span class='op'>(</span><span class='fl'>100</span><span class='op'>)</span><span class='op'>)</span>,</span>
+<span class='r-in'>  <span class='co'># predicted response</span></span>
+<span class='r-in'>  predictions <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/lapply.html'>lapply</a></span><span class='op'>(</span><span class='fl'>1</span><span class='op'>:</span><span class='fl'>4</span>, FUN <span class='op'>=</span> <span class='kw'>function</span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span> <span class='fu'><a href='https://rdrr.io/r/stats/Normal.html'>rnorm</a></span><span class='op'>(</span><span class='fl'>100</span><span class='op'>)</span><span class='op'>)</span></span>
+<span class='r-in'><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># evaluate prediction error (using all default metrics) for each replicate</span></span>
+<span class='r-in'><span class='va'>eval_results</span> <span class='op'>&lt;-</span> <span class='fu'>eval_pred_err</span><span class='op'>(</span><span class='va'>fit_results</span>, </span>
+<span class='r-in'>                              truth_col <span class='op'>=</span> <span class='st'>"y"</span>, </span>
+<span class='r-in'>                              estimate_col <span class='op'>=</span> <span class='st'>"predictions"</span><span class='op'>)</span></span>
+<span class='r-in'><span class='co'># summarize prediction error (using all default metric) across replicates</span></span>
+<span class='r-in'><span class='va'>eval_results_summary</span> <span class='op'>&lt;-</span> <span class='fu'>summarize_pred_err</span><span class='op'>(</span><span class='va'>fit_results</span>, </span>
+<span class='r-in'>                                           truth_col <span class='op'>=</span> <span class='st'>"y"</span>,</span>
+<span class='r-in'>                                           estimate_col <span class='op'>=</span> <span class='st'>"predictions"</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># evaluate/summarize prediction error within subgroups</span></span>
+<span class='r-in'><span class='va'>group_ids</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"a"</span>, <span class='st'>"b"</span><span class='op'>)</span>, length.out <span class='op'>=</span> <span class='fl'>100</span><span class='op'>)</span></span>
+<span class='r-in'><span class='va'>eval_results</span> <span class='op'>&lt;-</span> <span class='fu'>eval_pred_err</span><span class='op'>(</span><span class='va'>fit_results</span>, </span>
+<span class='r-in'>                              truth_col <span class='op'>=</span> <span class='st'>"y"</span>, </span>
+<span class='r-in'>                              estimate_col <span class='op'>=</span> <span class='st'>"predictions"</span>,</span>
+<span class='r-in'>                              groups <span class='op'>=</span> <span class='va'>group_ids</span><span class='op'>)</span></span>
+<span class='r-in'><span class='va'>eval_results_summary</span> <span class='op'>&lt;-</span> <span class='fu'>summarize_pred_err</span><span class='op'>(</span><span class='va'>fit_results</span>, </span>
+<span class='r-in'>                                           truth_col <span class='op'>=</span> <span class='st'>"y"</span>,</span>
+<span class='r-in'>                                           estimate_col <span class='op'>=</span> <span class='st'>"predictions"</span>,</span>
+<span class='r-in'>                                           groups <span class='op'>=</span> <span class='va'>group_ids</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># evaluate/summarize prediction errors using specific yardstick metrics</span></span>
+<span class='r-in'><span class='va'>metrics</span> <span class='op'>&lt;-</span> <span class='fu'>yardstick</span><span class='fu'>::</span><span class='fu'><a href='https://yardstick.tidymodels.org/reference/metric_set.html'>metric_set</a></span><span class='op'>(</span><span class='fu'>yardstick</span><span class='fu'>::</span><span class='va'><a href='https://yardstick.tidymodels.org/reference/rmse.html'>rmse</a></span>, <span class='fu'>yardstick</span><span class='fu'>::</span><span class='va'><a href='https://yardstick.tidymodels.org/reference/rsq.html'>rsq</a></span><span class='op'>)</span></span>
+<span class='r-in'><span class='va'>eval_results</span> <span class='op'>&lt;-</span> <span class='fu'>eval_pred_err</span><span class='op'>(</span><span class='va'>fit_results</span>,</span>
+<span class='r-in'>                              truth_col <span class='op'>=</span> <span class='st'>"y"</span>,</span>
+<span class='r-in'>                              estimate_col <span class='op'>=</span> <span class='st'>"predictions"</span>,</span>
+<span class='r-in'>                              metrics <span class='op'>=</span> <span class='va'>metrics</span><span class='op'>)</span></span>
+<span class='r-in'><span class='va'>eval_results_summary</span> <span class='op'>&lt;-</span> <span class='fu'>summarize_pred_err</span><span class='op'>(</span><span class='va'>fit_results</span>,</span>
+<span class='r-in'>                                           truth_col <span class='op'>=</span> <span class='st'>"y"</span>,</span>
+<span class='r-in'>                                           estimate_col <span class='op'>=</span> <span class='st'>"predictions"</span>,</span>
+<span class='r-in'>                                           metrics <span class='op'>=</span> <span class='va'>metrics</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># summarize prediction errors using specific summary metric</span></span>
+<span class='r-in'><span class='va'>range_fun</span> <span class='op'>&lt;-</span> <span class='kw'>function</span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span> <span class='kw'><a href='https://rdrr.io/r/base/function.html'>return</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/Extremes.html'>max</a></span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span> <span class='op'>-</span> <span class='fu'><a href='https://rdrr.io/r/base/Extremes.html'>min</a></span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span><span class='op'>)</span></span>
+<span class='r-in'><span class='va'>eval_results_summary</span> <span class='op'>&lt;-</span> <span class='fu'>summarize_pred_err</span><span class='op'>(</span></span>
+<span class='r-in'>  <span class='va'>fit_results</span>,</span>
+<span class='r-in'>  truth_col <span class='op'>=</span> <span class='st'>"y"</span>,</span>
+<span class='r-in'>  estimate_col <span class='op'>=</span> <span class='st'>"predictions"</span>,</span>
+<span class='r-in'>  custom_summary_funs <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span>range_pred_err <span class='op'>=</span> <span class='va'>range_fun</span><span class='op'>)</span></span>
+<span class='r-in'><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'>#######################################</span></span>
+<span class='r-in'><span class='co'>#### Binary Classification Problem ####</span></span>
+<span class='r-in'><span class='co'>#######################################</span></span>
+<span class='r-in'><span class='co'># generate example fit_results data for a binary classification problem</span></span>
+<span class='r-in'><span class='va'>fit_results</span> <span class='op'>&lt;-</span> <span class='fu'>tibble</span><span class='fu'>::</span><span class='fu'><a href='https://tibble.tidyverse.org/reference/tibble.html'>tibble</a></span><span class='op'>(</span></span>
+<span class='r-in'>  .rep <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span><span class='op'>(</span><span class='fl'>1</span><span class='op'>:</span><span class='fl'>2</span>, times <span class='op'>=</span> <span class='fl'>2</span><span class='op'>)</span>,</span>
+<span class='r-in'>  .dgp_name <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"DGP1"</span>, <span class='st'>"DGP1"</span>, <span class='st'>"DGP2"</span>, <span class='st'>"DGP2"</span><span class='op'>)</span>,</span>
+<span class='r-in'>  .method_name <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"Method"</span><span class='op'>)</span>,</span>
+<span class='r-in'>  <span class='co'># true response</span></span>
+<span class='r-in'>  y <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/lapply.html'>lapply</a></span><span class='op'>(</span><span class='fl'>1</span><span class='op'>:</span><span class='fl'>4</span>,</span>
+<span class='r-in'>             FUN <span class='op'>=</span> <span class='kw'>function</span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span> <span class='op'>{</span></span>
+<span class='r-in'>               <span class='fu'><a href='https://rdrr.io/r/base/factor.html'>as.factor</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/sample.html'>sample</a></span><span class='op'>(</span><span class='fl'>0</span><span class='op'>:</span><span class='fl'>1</span>, size <span class='op'>=</span> <span class='fl'>100</span>, replace <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span><span class='op'>)</span></span>
+<span class='r-in'>             <span class='op'>}</span><span class='op'>)</span>,</span>
+<span class='r-in'>  <span class='co'># predicted class probabilities </span></span>
+<span class='r-in'>  class_probs <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/lapply.html'>lapply</a></span><span class='op'>(</span><span class='fl'>1</span><span class='op'>:</span><span class='fl'>4</span>, FUN <span class='op'>=</span> <span class='kw'>function</span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span> <span class='fu'><a href='https://rdrr.io/r/stats/Uniform.html'>runif</a></span><span class='op'>(</span>n <span class='op'>=</span> <span class='fl'>100</span>, min <span class='op'>=</span> <span class='fl'>0</span>, max <span class='op'>=</span> <span class='fl'>1</span><span class='op'>)</span><span class='op'>)</span>,</span>
+<span class='r-in'>  <span class='co'># predicted class responses</span></span>
+<span class='r-in'>  predictions <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/lapply.html'>lapply</a></span><span class='op'>(</span><span class='va'>class_probs</span>, </span>
+<span class='r-in'>                       FUN <span class='op'>=</span> <span class='kw'>function</span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span> <span class='fu'><a href='https://rdrr.io/r/base/factor.html'>as.factor</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/ifelse.html'>ifelse</a></span><span class='op'>(</span><span class='va'>x</span> <span class='op'>&gt;</span> <span class='fl'>0.5</span>, <span class='fl'>1</span>, <span class='fl'>0</span><span class='op'>)</span><span class='op'>)</span><span class='op'>)</span></span>
+<span class='r-in'><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># evaluate prediction error (using all default metrics) for each replicate</span></span>
+<span class='r-in'><span class='va'>eval_results</span> <span class='op'>&lt;-</span> <span class='fu'>eval_pred_err</span><span class='op'>(</span><span class='va'>fit_results</span>,</span>
+<span class='r-in'>                              truth_col <span class='op'>=</span> <span class='st'>"y"</span>,</span>
+<span class='r-in'>                              estimate_col <span class='op'>=</span> <span class='st'>"predictions"</span>, </span>
+<span class='r-in'>                              prob_cols <span class='op'>=</span> <span class='st'>"class_probs"</span><span class='op'>)</span></span>
+<span class='r-in'><span class='co'># summarize prediction error (using all default metric) across replicates</span></span>
+<span class='r-in'><span class='va'>eval_results_summary</span> <span class='op'>&lt;-</span> <span class='fu'>summarize_pred_err</span><span class='op'>(</span><span class='va'>fit_results</span>,</span>
+<span class='r-in'>                                           truth_col <span class='op'>=</span> <span class='st'>"y"</span>,</span>
+<span class='r-in'>                                           estimate_col <span class='op'>=</span> <span class='st'>"predictions"</span>,</span>
+<span class='r-in'>                                           prob_cols <span class='op'>=</span> <span class='st'>"class_probs"</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># can also evaluate results using only class predictions (without class probs.)</span></span>
+<span class='r-in'><span class='va'>eval_results</span> <span class='op'>&lt;-</span> <span class='fu'>eval_pred_err</span><span class='op'>(</span><span class='va'>fit_results</span>,</span>
+<span class='r-in'>                              truth_col <span class='op'>=</span> <span class='st'>"y"</span>,</span>
+<span class='r-in'>                              estimate_col <span class='op'>=</span> <span class='st'>"predictions"</span><span class='op'>)</span></span>
+<span class='r-in'><span class='va'>eval_results_summary</span> <span class='op'>&lt;-</span> <span class='fu'>summarize_pred_err</span><span class='op'>(</span><span class='va'>fit_results</span>,</span>
+<span class='r-in'>                                           truth_col <span class='op'>=</span> <span class='st'>"y"</span>,</span>
+<span class='r-in'>                                           estimate_col <span class='op'>=</span> <span class='st'>"predictions"</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'>############################################</span></span>
+<span class='r-in'><span class='co'>#### Multi-class Classification Problem ####</span></span>
+<span class='r-in'><span class='co'>############################################</span></span>
+<span class='r-in'><span class='co'># generate example fit_results data for a multi-class classification problem</span></span>
+<span class='r-in'><span class='va'>fit_results</span> <span class='op'>&lt;-</span> <span class='fu'>tibble</span><span class='fu'>::</span><span class='fu'><a href='https://tibble.tidyverse.org/reference/tibble.html'>tibble</a></span><span class='op'>(</span></span>
+<span class='r-in'>  .rep <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span><span class='op'>(</span><span class='fl'>1</span><span class='op'>:</span><span class='fl'>2</span>, times <span class='op'>=</span> <span class='fl'>2</span><span class='op'>)</span>,</span>
+<span class='r-in'>  .dgp_name <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"DGP1"</span>, <span class='st'>"DGP1"</span>, <span class='st'>"DGP2"</span>, <span class='st'>"DGP2"</span><span class='op'>)</span>,</span>
+<span class='r-in'>  .method_name <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"Method"</span><span class='op'>)</span>,</span>
+<span class='r-in'>  <span class='co'># true response</span></span>
+<span class='r-in'>  y <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/lapply.html'>lapply</a></span><span class='op'>(</span><span class='fl'>1</span><span class='op'>:</span><span class='fl'>4</span>, </span>
+<span class='r-in'>             FUN <span class='op'>=</span> <span class='kw'>function</span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span> <span class='op'>{</span></span>
+<span class='r-in'>               <span class='fu'><a href='https://rdrr.io/r/base/factor.html'>as.factor</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/sample.html'>sample</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"a"</span>, <span class='st'>"b"</span>, <span class='st'>"c"</span><span class='op'>)</span>, size <span class='op'>=</span> <span class='fl'>100</span>, replace <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span><span class='op'>)</span></span>
+<span class='r-in'>             <span class='op'>}</span><span class='op'>)</span>,</span>
+<span class='r-in'>  <span class='co'># predicted class probabilities</span></span>
+<span class='r-in'>  class_probs <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/lapply.html'>lapply</a></span><span class='op'>(</span><span class='fl'>1</span><span class='op'>:</span><span class='fl'>4</span>, </span>
+<span class='r-in'>                       FUN <span class='op'>=</span> <span class='kw'>function</span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span> <span class='op'>{</span></span>
+<span class='r-in'>                         <span class='fu'>tibble</span><span class='fu'>::</span><span class='fu'><a href='https://tibble.tidyverse.org/reference/tibble.html'>tibble</a></span><span class='op'>(</span>a <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/stats/Uniform.html'>runif</a></span><span class='op'>(</span>n <span class='op'>=</span> <span class='fl'>100</span>, min <span class='op'>=</span> <span class='fl'>0</span>, max <span class='op'>=</span> <span class='fl'>0.5</span><span class='op'>)</span>,</span>
+<span class='r-in'>                                        b <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/stats/Uniform.html'>runif</a></span><span class='op'>(</span>n <span class='op'>=</span> <span class='fl'>100</span>, min <span class='op'>=</span> <span class='fl'>0</span>, max <span class='op'>=</span> <span class='fl'>0.5</span><span class='op'>)</span>,</span>
+<span class='r-in'>                                        c <span class='op'>=</span> <span class='fl'>1</span> <span class='op'>-</span> <span class='va'>a</span> <span class='op'>-</span> <span class='va'>b</span><span class='op'>)</span></span>
+<span class='r-in'>                       <span class='op'>}</span><span class='op'>)</span>,</span>
+<span class='r-in'>  <span class='co'># predicted class responses</span></span>
+<span class='r-in'>  predictions <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/lapply.html'>lapply</a></span><span class='op'>(</span><span class='va'>class_probs</span>,</span>
+<span class='r-in'>                       FUN <span class='op'>=</span> <span class='kw'>function</span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span> <span class='op'>{</span></span>
+<span class='r-in'>                         <span class='va'>yhat</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/apply.html'>apply</a></span><span class='op'>(</span><span class='va'>x</span>, <span class='fl'>1</span>, </span>
+<span class='r-in'>                                       FUN <span class='op'>=</span> <span class='kw'>function</span><span class='op'>(</span><span class='va'>xi</span><span class='op'>)</span> <span class='fu'><a href='https://rdrr.io/r/base/names.html'>names</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/which.min.html'>which.max</a></span><span class='op'>(</span><span class='va'>xi</span><span class='op'>)</span><span class='op'>)</span><span class='op'>)</span></span>
+<span class='r-in'>                         <span class='kw'><a href='https://rdrr.io/r/base/function.html'>return</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/factor.html'>as.factor</a></span><span class='op'>(</span><span class='va'>yhat</span><span class='op'>)</span><span class='op'>)</span></span>
+<span class='r-in'>                       <span class='op'>}</span><span class='op'>)</span></span>
+<span class='r-in'><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># evaluate prediction error (using all default metrics) for each replicate</span></span>
+<span class='r-in'><span class='va'>eval_results</span> <span class='op'>&lt;-</span> <span class='fu'>eval_pred_err</span><span class='op'>(</span><span class='va'>fit_results</span>,</span>
+<span class='r-in'>                              truth_col <span class='op'>=</span> <span class='st'>"y"</span>,</span>
+<span class='r-in'>                              estimate_col <span class='op'>=</span> <span class='st'>"predictions"</span>, </span>
+<span class='r-in'>                              prob_cols <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"a"</span>, <span class='st'>"b"</span>, <span class='st'>"c"</span><span class='op'>)</span>, </span>
+<span class='r-in'>                              nested_data <span class='op'>=</span> <span class='st'>"class_probs"</span><span class='op'>)</span></span>
+<span class='r-in'><span class='co'>#' summarize prediction error (using all default metric) across replicates</span></span>
+<span class='r-in'><span class='va'>eval_results_summary</span> <span class='op'>&lt;-</span> <span class='fu'>summarize_pred_err</span><span class='op'>(</span><span class='va'>fit_results</span>,</span>
+<span class='r-in'>                                           truth_col <span class='op'>=</span> <span class='st'>"y"</span>,</span>
+<span class='r-in'>                                           estimate_col <span class='op'>=</span> <span class='st'>"predictions"</span>,</span>
+<span class='r-in'>                                           prob_cols <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"a"</span>, <span class='st'>"b"</span>, <span class='st'>"c"</span><span class='op'>)</span>, </span>
+<span class='r-in'>                                           nested_data <span class='op'>=</span> <span class='st'>"class_probs"</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># can also evaluate results using only class predictions (without class probs.)</span></span>
+<span class='r-in'><span class='va'>eval_results</span> <span class='op'>&lt;-</span> <span class='fu'>eval_pred_err</span><span class='op'>(</span><span class='va'>fit_results</span>,</span>
+<span class='r-in'>                              truth_col <span class='op'>=</span> <span class='st'>"y"</span>,</span>
+<span class='r-in'>                              estimate_col <span class='op'>=</span> <span class='st'>"predictions"</span><span class='op'>)</span></span>
+<span class='r-in'><span class='va'>eval_results_summary</span> <span class='op'>&lt;-</span> <span class='fu'>summarize_pred_err</span><span class='op'>(</span><span class='va'>fit_results</span>,</span>
+<span class='r-in'>                                           truth_col <span class='op'>=</span> <span class='st'>"y"</span>,</span>
+<span class='r-in'>                                           estimate_col <span class='op'>=</span> <span class='st'>"predictions"</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+</pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

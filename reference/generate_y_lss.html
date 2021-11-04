@@ -202,7 +202,7 @@ indices of the support are used.</p></td>
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>If <code>return_support = TRUE</code>, returns a list of two:</p><dl>
-<dt>y</dt><dd><p>A response vector of length <code><a href='https://rdrr.io/r/base/nrow.html'>nrow(X)</a></code>.</p></dd>
+<dt>y</dt><dd><p>A response vector of length <code>nrow(X)</code>.</p></dd>
 <dt>support</dt><dd><p>A vector of signed feature indices in the true (interaction)
 support of the DGP. For example, "1+_2-" means that the interaction
 between high values of feature 1 and low values of feature 2 appears in the
@@ -211,7 +211,28 @@ underlying DGP.</p></dd>
 </dl>
 
 <p>If <code>return_support = FALSE</code>, returns only the response vector <code>y</code>.</p>
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
+    <p>Here, data is generated from the following LSS model:
+$$E(Y|X) = intercept + sum_{i = 1}^{s} beta_i prod_{j = 1}^{k}1(X_{S_j} 	lessgtr thresholds_ij)$$</p>
+<p>For more details on the LSS model, see Behr, Merle, et al. "Provable Boolean Interaction Recovery from Tree Ensemble obtained via Random Forests." arXiv preprint arXiv:2102.11800 (2021).</p>
+
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><span class='r-in'><span class='va'>X</span> <span class='op'>&lt;-</span> <span class='fu'><a href='generate_X_gaussian.html'>generate_X_gaussian</a></span><span class='op'>(</span>n <span class='op'>=</span> <span class='fl'>100</span>, p <span class='op'>=</span> <span class='fl'>10</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># generate data from: y = 1(X_1 &gt; 0, X_2 &gt; 0) + 1(X_3 &gt; 0, X_4 &gt; 0)</span></span>
+<span class='r-in'><span class='va'>y</span> <span class='op'>&lt;-</span> <span class='fu'>generate_y_lss</span><span class='op'>(</span>X <span class='op'>=</span> <span class='va'>X</span>, k <span class='op'>=</span> <span class='fl'>2</span>, s <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></span><span class='op'>(</span><span class='fl'>1</span><span class='op'>:</span><span class='fl'>4</span>, nrow <span class='op'>=</span> <span class='fl'>2</span>, byrow <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>,</span>
+<span class='r-in'>                    thresholds <span class='op'>=</span> <span class='fl'>0</span>, signs <span class='op'>=</span> <span class='fl'>1</span>, betas <span class='op'>=</span> <span class='fl'>1</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># generate data from: y = 3 * 1(X_1 &lt; 0) - 1(X_2 &gt; 1) + N(0, 1)</span></span>
+<span class='r-in'><span class='va'>y</span> <span class='op'>&lt;-</span> <span class='fu'>generate_y_lss</span><span class='op'>(</span>X <span class='op'>=</span> <span class='va'>X</span>, k <span class='op'>=</span> <span class='fl'>1</span>, </span>
+<span class='r-in'>                    s <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></span><span class='op'>(</span><span class='fl'>1</span><span class='op'>:</span><span class='fl'>2</span>, nrow <span class='op'>=</span> <span class='fl'>2</span><span class='op'>)</span>,</span>
+<span class='r-in'>                    thresholds <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></span><span class='op'>(</span><span class='fl'>0</span><span class='op'>:</span><span class='fl'>1</span>, nrow <span class='op'>=</span> <span class='fl'>2</span><span class='op'>)</span>, </span>
+<span class='r-in'>                    signs <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='op'>-</span><span class='fl'>1</span>, <span class='fl'>1</span><span class='op'>)</span>, nrow <span class='op'>=</span> <span class='fl'>2</span><span class='op'>)</span>,</span>
+<span class='r-in'>                    betas <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>3</span>, <span class='op'>-</span><span class='fl'>1</span><span class='op'>)</span>,</span>
+<span class='r-in'>                    err <span class='op'>=</span> <span class='va'>rnorm</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+</pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

@@ -155,6 +155,30 @@ vector. If <code>FALSE</code> (default), map items in list to unique identifiers
 
     <p>A character vector of the same length as <code>list_col</code>.</p>
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><span class='r-in'><span class='co'># create example tibble with list columns to convert</span></span>
+<span class='r-in'><span class='va'>plot_tib</span> <span class='op'>&lt;-</span> <span class='fu'>tibble</span><span class='fu'>::</span><span class='fu'><a href='https://tibble.tidyverse.org/reference/tibble.html'>tibble</a></span><span class='op'>(</span>a <span class='op'>=</span> <span class='fl'>1</span><span class='op'>:</span><span class='fl'>3</span>,</span>
+<span class='r-in'>                           b <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span><span class='fl'>1</span>, <span class='fl'>2</span>, <span class='fl'>3</span><span class='op'>)</span>,</span>
+<span class='r-in'>                           c <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span><span class='fl'>1</span><span class='op'>:</span><span class='fl'>2</span>, <span class='fl'>3</span><span class='op'>:</span><span class='fl'>4</span>, <span class='fl'>5</span><span class='op'>:</span><span class='fl'>6</span><span class='op'>)</span>,</span>
+<span class='r-in'>                           d <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span><span class='fu'>tibble</span><span class='fu'>::</span><span class='fu'><a href='https://tibble.tidyverse.org/reference/tibble.html'>tibble</a></span><span class='op'>(</span>a <span class='op'>=</span> <span class='fl'>1</span><span class='op'>:</span><span class='fl'>3</span>, </span>
+<span class='r-in'>                                                   b <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>4</span>, <span class='fl'>5</span>, <span class='fl'>6</span><span class='op'>)</span><span class='op'>)</span>,</span>
+<span class='r-in'>                                    <span class='st'>"abc"</span>,</span>
+<span class='r-in'>                                    <span class='fl'>123</span><span class='op'>)</span><span class='op'>)</span></span>
+<span class='r-in'><span class='co'># verbatim = TRUE pastes lists together verbatim</span></span>
+<span class='r-in'><span class='va'>plot_tib_chr_verbatim</span> <span class='op'>&lt;-</span> <span class='va'>plot_tib</span> <span class='op'><a href='%>%.html'>%&gt;%</a></span></span>
+<span class='r-in'>  <span class='fu'>dplyr</span><span class='fu'>::</span><span class='fu'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='op'>(</span><span class='fu'>dplyr</span><span class='fu'>::</span><span class='fu'><a href='https://dplyr.tidyverse.org/reference/across.html'>across</a></span><span class='op'>(</span><span class='fu'>tidyselect</span><span class='fu'>::</span><span class='fu'><a href='https://tidyselect.r-lib.org/reference/everything.html'>everything</a></span><span class='op'>(</span><span class='op'>)</span>,</span>
+<span class='r-in'>                              <span class='op'>~</span><span class='fu'>list_col_to_chr</span><span class='op'>(</span><span class='va'>.x</span>, </span>
+<span class='r-in'>                                               name <span class='op'>=</span> <span class='fu'>dplyr</span><span class='fu'>::</span><span class='fu'><a href='https://dplyr.tidyverse.org/reference/context.html'>cur_column</a></span><span class='op'>(</span><span class='op'>)</span>,</span>
+<span class='r-in'>                                               verbatim <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span><span class='op'>)</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># verbatim = FALSE maps items in list to unique ids (i.e., 1, 2, 3, ...)</span></span>
+<span class='r-in'><span class='va'>plot_tib_chr</span> <span class='op'>&lt;-</span> <span class='va'>plot_tib</span> <span class='op'><a href='%>%.html'>%&gt;%</a></span></span>
+<span class='r-in'>  <span class='fu'>dplyr</span><span class='fu'>::</span><span class='fu'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='op'>(</span><span class='fu'>dplyr</span><span class='fu'>::</span><span class='fu'><a href='https://dplyr.tidyverse.org/reference/across.html'>across</a></span><span class='op'>(</span><span class='fu'>tidyselect</span><span class='fu'>::</span><span class='fu'><a href='https://tidyselect.r-lib.org/reference/everything.html'>everything</a></span><span class='op'>(</span><span class='op'>)</span>,</span>
+<span class='r-in'>                              <span class='op'>~</span><span class='fu'>list_col_to_chr</span><span class='op'>(</span><span class='va'>.x</span>, </span>
+<span class='r-in'>                                               name <span class='op'>=</span> <span class='fu'>dplyr</span><span class='fu'>::</span><span class='fu'><a href='https://dplyr.tidyverse.org/reference/context.html'>cur_column</a></span><span class='op'>(</span><span class='op'>)</span>,</span>
+<span class='r-in'>                                               verbatim <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span><span class='op'>)</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+</pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

@@ -188,6 +188,37 @@ Methods to plot. If <code>interactive = FALSE</code>, returns a <code>ggplot</co
 object or list of <code>ggplot</code> objects if there are multiple replicates,
 DGPs, or Methods to plot.</p>
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><span class='r-in'><span class='co'># generate example fit results data</span></span>
+<span class='r-in'><span class='va'>fit_results</span> <span class='op'>&lt;-</span> <span class='fu'>tibble</span><span class='fu'>::</span><span class='fu'><a href='https://tibble.tidyverse.org/reference/tibble.html'>tibble</a></span><span class='op'>(</span></span>
+<span class='r-in'>  .rep <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span><span class='op'>(</span><span class='fl'>1</span><span class='op'>:</span><span class='fl'>2</span>, times <span class='op'>=</span> <span class='fl'>2</span><span class='op'>)</span>,</span>
+<span class='r-in'>  .dgp_name <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"DGP1"</span>, <span class='st'>"DGP1"</span>, <span class='st'>"DGP2"</span>, <span class='st'>"DGP2"</span><span class='op'>)</span>,</span>
+<span class='r-in'>  .method_name <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"Method"</span><span class='op'>)</span>,</span>
+<span class='r-in'>  <span class='co'># true response</span></span>
+<span class='r-in'>  y <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/lapply.html'>lapply</a></span><span class='op'>(</span><span class='fl'>1</span><span class='op'>:</span><span class='fl'>4</span>, FUN <span class='op'>=</span> <span class='kw'>function</span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span> <span class='fu'><a href='https://rdrr.io/r/stats/Normal.html'>rnorm</a></span><span class='op'>(</span><span class='fl'>100</span><span class='op'>)</span><span class='op'>)</span>,</span>
+<span class='r-in'>  <span class='co'># predicted response</span></span>
+<span class='r-in'>  predictions <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/lapply.html'>lapply</a></span><span class='op'>(</span><span class='fl'>1</span><span class='op'>:</span><span class='fl'>4</span>, FUN <span class='op'>=</span> <span class='kw'>function</span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span> <span class='fu'><a href='https://rdrr.io/r/stats/Normal.html'>rnorm</a></span><span class='op'>(</span><span class='fl'>100</span><span class='op'>)</span><span class='op'>)</span></span>
+<span class='r-in'><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># function to plot scatter plot of y vs predictions</span></span>
+<span class='r-in'><span class='va'>plot_fun</span> <span class='op'>&lt;-</span> <span class='kw'>function</span><span class='op'>(</span><span class='va'>fit_results</span>, <span class='va'>vary_params</span> <span class='op'>=</span> <span class='cn'>NULL</span><span class='op'>)</span> <span class='op'>{</span></span>
+<span class='r-in'>  <span class='va'>plt</span> <span class='op'>&lt;-</span> <span class='va'>fit_results</span> <span class='op'><a href='%>%.html'>%&gt;%</a></span></span>
+<span class='r-in'>    <span class='fu'>tidyr</span><span class='fu'>::</span><span class='fu'><a href='https://tidyr.tidyverse.org/reference/nest.html'>unnest</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"y"</span>, <span class='st'>"predictions"</span><span class='op'>)</span><span class='op'>)</span> <span class='op'><a href='%>%.html'>%&gt;%</a></span></span>
+<span class='r-in'>    <span class='fu'>ggplot2</span><span class='fu'>::</span><span class='fu'><a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot</a></span><span class='op'>(</span><span class='op'>)</span> <span class='op'>+</span></span>
+<span class='r-in'>    <span class='fu'>ggplot2</span><span class='fu'>::</span><span class='fu'><a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes</a></span><span class='op'>(</span>x <span class='op'>=</span> <span class='va'>y</span>, y <span class='op'>=</span> <span class='va'>predictions</span><span class='op'>)</span> <span class='op'>+</span></span>
+<span class='r-in'>    <span class='fu'>ggplot2</span><span class='fu'>::</span><span class='fu'><a href='https://ggplot2.tidyverse.org/reference/geom_point.html'>geom_point</a></span><span class='op'>(</span><span class='op'>)</span> <span class='op'>+</span></span>
+<span class='r-in'>    <span class='fu'>ggplot2</span><span class='fu'>::</span><span class='fu'><a href='https://ggplot2.tidyverse.org/reference/labs.html'>labs</a></span><span class='op'>(</span>title <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/sprintf.html'>sprintf</a></span><span class='op'>(</span><span class='st'>"DGP: %s | Method: %s | Rep: %s"</span>, </span>
+<span class='r-in'>                                  <span class='va'>fit_results</span><span class='op'>$</span><span class='va'>.dgp_name</span>,</span>
+<span class='r-in'>                                  <span class='va'>fit_results</span><span class='op'>$</span><span class='va'>.method_name</span>,</span>
+<span class='r-in'>                                  <span class='va'>fit_results</span><span class='op'>$</span><span class='va'>.rep</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>+</span></span>
+<span class='r-in'>    <span class='fu'><a href='pretty_ggplot_theme.html'>pretty_ggplot_theme</a></span><span class='op'>(</span><span class='op'>)</span></span>
+<span class='r-in'>  <span class='kw'><a href='https://rdrr.io/r/base/function.html'>return</a></span><span class='op'>(</span><span class='va'>plt</span><span class='op'>)</span></span>
+<span class='r-in'><span class='op'>}</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># returns the scatter plot for each (DGP, Method) combination from rep 1</span></span>
+<span class='r-in'><span class='va'>plt</span> <span class='op'>&lt;-</span> <span class='fu'>plot_fit_results</span><span class='op'>(</span><span class='va'>fit_results</span>, reps <span class='op'>=</span> <span class='fl'>1</span>, plot_fun <span class='op'>=</span> <span class='va'>plot_fun</span><span class='op'>)</span></span>
+<span class='r-in'>  </span>
+</pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

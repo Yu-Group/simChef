@@ -146,14 +146,14 @@ results within this function call.</p>
   eval_fun <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/paste.html'>paste0</a></span><span class='op'>(</span><span class='st'>"summarize_"</span>, <span class='va'>eval_id</span><span class='op'>)</span>,
   vary_params <span class='op'>=</span> <span class='cn'>NULL</span>,
   show <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"boxplot"</span>, <span class='st'>"point"</span>, <span class='st'>"line"</span>, <span class='st'>"bar"</span>, <span class='st'>"errorbar"</span>, <span class='st'>"ribbon"</span><span class='op'>)</span>,
-  x_str <span class='op'>=</span> <span class='cn'>NULL</span>,
-  y_str <span class='op'>=</span> <span class='cn'>NULL</span>,
-  err_sd_str <span class='op'>=</span> <span class='cn'>NULL</span>,
-  color_str <span class='op'>=</span> <span class='cn'>NULL</span>,
-  linetype_str <span class='op'>=</span> <span class='cn'>NULL</span>,
-  facet_wrap_formula <span class='op'>=</span> <span class='cn'>NULL</span>,
-  facet_grid_formula <span class='op'>=</span> <span class='cn'>NULL</span>,
-  plot_by <span class='op'>=</span> <span class='cn'>NULL</span>,
+  x_str <span class='op'>=</span> <span class='st'>"auto"</span>,
+  y_str <span class='op'>=</span> <span class='st'>"auto"</span>,
+  err_sd_str <span class='op'>=</span> <span class='st'>"auto"</span>,
+  color_str <span class='op'>=</span> <span class='st'>"auto"</span>,
+  linetype_str <span class='op'>=</span> <span class='st'>"auto"</span>,
+  facet_formula <span class='op'>=</span> <span class='cn'>NULL</span>,
+  facet_type <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"grid"</span>, <span class='st'>"wrap"</span><span class='op'>)</span>,
+  plot_by <span class='op'>=</span> <span class='st'>"auto"</span>,
   add_ggplot_layers <span class='op'>=</span> <span class='cn'>NULL</span>,
   boxplot_args <span class='op'>=</span> <span class='cn'>NULL</span>,
   point_args <span class='op'>=</span> <span class='cn'>NULL</span>,
@@ -208,48 +208,56 @@ construct.</p></td>
     <tr>
       <th>x_str</th>
       <td><p>(Optional) Name of column in <code>eval_tib</code> to plot on the
-x-axis.</p></td>
+x-axis. Default "auto" chooses what to plot on the x-axis automatically.</p></td>
     </tr>
     <tr>
       <th>y_str</th>
       <td><p>(Optional) Name of column in <code>eval_tib</code> to plot on the
-y-axis if <code>show</code> is anything but "boxplot".</p></td>
+y-axis if <code>show</code> is anything but "boxplot". Default "auto" chooses
+what to plot on the y-axis automatically.</p></td>
     </tr>
     <tr>
       <th>err_sd_str</th>
       <td><p>(Optional) Name of column in <code>eval_tib</code> containing the
 standard deviations of <code>y_str</code>. Used for plotting the errorbar and
-ribbon ggplot layers.</p></td>
+ribbon ggplot layers. Default "auto" chooses what column to use for the
+standard deviations automatically.</p></td>
     </tr>
     <tr>
       <th>color_str</th>
       <td><p>(Optional) Name of column in <code>eval_tib</code> to use for the
-color and fill aesthetics when plotting.</p></td>
+color and fill aesthetics when plotting. Default "auto" chooses what to
+use for the color and fill aesthetics automatically. Use <code>NULL</code> to
+avoid adding any color and fill aesthetic.</p></td>
     </tr>
     <tr>
       <th>linetype_str</th>
       <td><p>(Optional) Name of column in <code>eval_tib</code> to use for
-the linetype aesthetic when plotting. Used only when <code>show = "line"</code>.</p></td>
+the linetype aesthetic when plotting. Used only when <code>show = "line"</code>.
+Default "auto" chooses what to use for the linetype aesthetic
+automatically. Use <code>NULL</code> to avoid adding any linetype aesthetic.</p></td>
     </tr>
     <tr>
-      <th>facet_wrap_formula</th>
-      <td><p>(Optional) Formula for <code><a href='https://ggplot2.tidyverse.org/reference/facet_wrap.html'>ggplot2::facet_wrap()</a></code>
-if need be.</p></td>
+      <th>facet_formula</th>
+      <td><p>(Optional) Formula for <code><a href='https://ggplot2.tidyverse.org/reference/facet_wrap.html'>ggplot2::facet_wrap()</a></code> or
+<code><a href='https://ggplot2.tidyverse.org/reference/facet_grid.html'>ggplot2::facet_grid()</a></code> if need be.</p></td>
     </tr>
     <tr>
-      <th>facet_grid_formula</th>
-      <td><p>(Optional) Formula for <code><a href='https://ggplot2.tidyverse.org/reference/facet_grid.html'>ggplot2::facet_grid()</a></code>
-if need be.</p></td>
+      <th>facet_type</th>
+      <td><p>One of "grid" or "wrap" specifying whether to use
+<code><a href='https://ggplot2.tidyverse.org/reference/facet_wrap.html'>ggplot2::facet_wrap()</a></code> or <code><a href='https://ggplot2.tidyverse.org/reference/facet_grid.html'>ggplot2::facet_grid()</a></code> if need be.</p></td>
     </tr>
     <tr>
       <th>plot_by</th>
       <td><p>(Optional) Name of column in <code>eval_tib</code> to use for
-subsetting data and creating different plots for each unique value.</p></td>
+subsetting data and creating different plots for each unique value. Default
+"auto" chooses what column to use for the subsetting automatically. Use
+<code>NULL</code> to avoid creating multiple plots.</p></td>
     </tr>
     <tr>
       <th>add_ggplot_layers</th>
       <td><p>Additional layers to add to a ggplot object via
-<code><a href='https://rdrr.io/r/base/Arithmetic.html'>+</a></code>.</p></td>
+<code>+</code>.</p></td>
     </tr>
     <tr>
       <th>boxplot_args</th>
@@ -307,6 +315,63 @@ used if necessary results have not already been computed in
 a <code>ggplot</code> object if <code>plot_by</code> is <code>NULL</code> and a list of
 <code>ggplot</code> objects if <code>plot_by</code> is not <code>NULL</code>.</p>
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><span class='r-in'><span class='co'># generate example fit results data</span></span>
+<span class='r-in'><span class='va'>fit_results</span> <span class='op'>&lt;-</span> <span class='fu'>tibble</span><span class='fu'>::</span><span class='fu'><a href='https://tibble.tidyverse.org/reference/tibble.html'>tibble</a></span><span class='op'>(</span></span>
+<span class='r-in'>  .rep <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span><span class='op'>(</span><span class='fl'>1</span><span class='op'>:</span><span class='fl'>2</span>, times <span class='op'>=</span> <span class='fl'>2</span><span class='op'>)</span>,</span>
+<span class='r-in'>  .dgp_name <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"DGP1"</span>, <span class='st'>"DGP1"</span>, <span class='st'>"DGP2"</span>, <span class='st'>"DGP2"</span><span class='op'>)</span>,</span>
+<span class='r-in'>  .method_name <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"Method"</span><span class='op'>)</span>,</span>
+<span class='r-in'>  <span class='co'># true response</span></span>
+<span class='r-in'>  y <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/lapply.html'>lapply</a></span><span class='op'>(</span><span class='fl'>1</span><span class='op'>:</span><span class='fl'>4</span>, FUN <span class='op'>=</span> <span class='kw'>function</span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span> <span class='fu'><a href='https://rdrr.io/r/stats/Normal.html'>rnorm</a></span><span class='op'>(</span><span class='fl'>100</span><span class='op'>)</span><span class='op'>)</span>,</span>
+<span class='r-in'>  <span class='co'># predicted response</span></span>
+<span class='r-in'>  predictions <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/lapply.html'>lapply</a></span><span class='op'>(</span><span class='fl'>1</span><span class='op'>:</span><span class='fl'>4</span>, FUN <span class='op'>=</span> <span class='kw'>function</span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span> <span class='fu'><a href='https://rdrr.io/r/stats/Normal.html'>rnorm</a></span><span class='op'>(</span><span class='fl'>100</span><span class='op'>)</span><span class='op'>)</span></span>
+<span class='r-in'><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># generate example evaluation results data</span></span>
+<span class='r-in'><span class='va'>eval_results</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span></span>
+<span class='r-in'>  `Prediction Errors` <span class='op'>=</span> <span class='fu'><a href='eval_pred_err_funs.html'>summarize_pred_err</a></span><span class='op'>(</span></span>
+<span class='r-in'>    fit_results <span class='op'>=</span> <span class='va'>fit_results</span>, </span>
+<span class='r-in'>    truth_col <span class='op'>=</span> <span class='st'>"y"</span>, </span>
+<span class='r-in'>    estimate_col <span class='op'>=</span> <span class='st'>"predictions"</span>, </span>
+<span class='r-in'>    eval_id <span class='op'>=</span> <span class='st'>"pred_err"</span></span>
+<span class='r-in'>  <span class='op'>)</span></span>
+<span class='r-in'><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># create plot using pre-computed evaluation results</span></span>
+<span class='r-in'><span class='va'>plt</span> <span class='op'>&lt;-</span> <span class='fu'>plot_eval_summary</span><span class='op'>(</span>fit_results <span class='op'>=</span> <span class='va'>fit_results</span>, </span>
+<span class='r-in'>                         eval_tib <span class='op'>=</span> <span class='va'>eval_results</span><span class='op'>[[</span><span class='st'>"Prediction Errors"</span><span class='op'>]</span><span class='op'>]</span>,</span>
+<span class='r-in'>                         eval_id <span class='op'>=</span> <span class='st'>"pred_err"</span>,</span>
+<span class='r-in'>                         show <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"point"</span>, <span class='st'>"errorbar"</span><span class='op'>)</span>,</span>
+<span class='r-in'>                         facet_formula <span class='op'>=</span> <span class='op'>~</span> <span class='va'>.metric</span><span class='op'>)</span></span>
+<span class='r-in'><span class='co'># can customize plots using additional arguments or ggplot2::`+`</span></span>
+<span class='r-in'><span class='va'>plt</span> <span class='op'>&lt;-</span> <span class='fu'>plot_eval_summary</span><span class='op'>(</span>fit_results <span class='op'>=</span> <span class='va'>fit_results</span>, </span>
+<span class='r-in'>                         eval_tib <span class='op'>=</span> <span class='va'>eval_results</span><span class='op'>[[</span><span class='st'>"Prediction Errors"</span><span class='op'>]</span><span class='op'>]</span>,</span>
+<span class='r-in'>                         eval_id <span class='op'>=</span> <span class='st'>"pred_err"</span>,</span>
+<span class='r-in'>                         show <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"point"</span>, <span class='st'>"errorbar"</span><span class='op'>)</span>,</span>
+<span class='r-in'>                         facet_formula <span class='op'>=</span> <span class='op'>~</span> <span class='va'>.metric</span>,</span>
+<span class='r-in'>                         facet_type <span class='op'>=</span> <span class='st'>"wrap"</span>,</span>
+<span class='r-in'>                         errorbar_args <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span>width <span class='op'>=</span> <span class='fl'>0.5</span><span class='op'>)</span>,</span>
+<span class='r-in'>                         facet_args <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span>scales <span class='op'>=</span> <span class='st'>"free"</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>+</span></span>
+<span class='r-in'>  <span class='fu'>ggplot2</span><span class='fu'>::</span><span class='fu'><a href='https://ggplot2.tidyverse.org/reference/labs.html'>labs</a></span><span class='op'>(</span>y <span class='op'>=</span> <span class='st'>"Mean Prediction Error"</span><span class='op'>)</span></span>
+<span class='r-in'><span class='co'># can return interactive plotly plot</span></span>
+<span class='r-in'><span class='va'>plt</span> <span class='op'>&lt;-</span> <span class='fu'>plot_eval_summary</span><span class='op'>(</span>fit_results <span class='op'>=</span> <span class='va'>fit_results</span>, </span>
+<span class='r-in'>                         eval_tib <span class='op'>=</span> <span class='va'>eval_results</span><span class='op'>[[</span><span class='st'>"Prediction Errors"</span><span class='op'>]</span><span class='op'>]</span>,</span>
+<span class='r-in'>                         eval_id <span class='op'>=</span> <span class='st'>"pred_err"</span>,</span>
+<span class='r-in'>                         show <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"point"</span>, <span class='st'>"errorbar"</span><span class='op'>)</span>,</span>
+<span class='r-in'>                         facet_formula <span class='op'>=</span> <span class='op'>~</span> <span class='va'>.metric</span>,</span>
+<span class='r-in'>                         interactive <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># create plot without pre-computing evaluation results; instead, need to </span></span>
+<span class='r-in'><span class='co'># pass in summarize_* function and its arguments</span></span>
+<span class='r-in'><span class='va'>plt</span> <span class='op'>&lt;-</span> <span class='fu'>plot_eval_summary</span><span class='op'>(</span>fit_results <span class='op'>=</span> <span class='va'>fit_results</span>,</span>
+<span class='r-in'>                         eval_id <span class='op'>=</span> <span class='st'>"pred_err"</span>,</span>
+<span class='r-in'>                         eval_fun <span class='op'>=</span> <span class='st'>"summarize_pred_err"</span>,</span>
+<span class='r-in'>                         truth_col <span class='op'>=</span> <span class='st'>"y"</span>, </span>
+<span class='r-in'>                         estimate_col <span class='op'>=</span> <span class='st'>"predictions"</span>,</span>
+<span class='r-in'>                         show <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"point"</span>, <span class='st'>"errorbar"</span><span class='op'>)</span>,</span>
+<span class='r-in'>                         facet_formula <span class='op'>=</span> <span class='op'>~</span> <span class='va'>.metric</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+</pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

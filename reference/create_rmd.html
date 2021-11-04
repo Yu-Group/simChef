@@ -163,14 +163,18 @@ taken to be that specified by <code>save_dir</code>. Note that
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>experiment</th>
-      <td><p>An <code>Experiment</code> object. If provided,
-<code>experiment$get_save_dir()</code> is used to find previously saved results.
-If not provided, then <code>save_dir</code> is used instead.</p></td>
+      <td><p>An <code>Experiment</code> object. If provided, documentation is
+created for all previously saved <code>Experiments</code> that are found in the
+directory given by <code>experiment$get_save_dir()</code>. If no
+<code>Experiments</code> have been previously saved under this directory, then
+the current <code>experiment</code> is saved to disk and used to create the
+documentation template.</p></td>
     </tr>
     <tr>
       <th>save_dir</th>
-      <td><p>An optional directory in which to find saved results. Not
-used if <code>experiment</code> provided.</p></td>
+      <td><p>An optional directory in which to find previously saved
+<code>Experiment</code> objects. Documentation is created for these found
+<code>Experiments</code>. Not used if <code>experiment</code> is provided.</p></td>
     </tr>
     <tr>
       <th>open</th>
@@ -229,6 +233,15 @@ for applying a custom R Markdown output theme.</p></td>
     <p>The original <code>Experiment</code> object if provided. Otherwise,
 returns <code>NULL</code>.</p>
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><span class='r-in'><span class='kw'>if</span> <span class='op'>(</span><span class='cn'>FALSE</span><span class='op'>)</span> <span class='op'>{</span></span>
+<span class='r-in'><span class='co'># create basic Rmd from an experiment (of class `Experiment`)</span></span>
+<span class='r-in'><span class='fu'>create_rmd</span><span class='op'>(</span><span class='va'>experiment</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># or alternatively, create basic Rmd from a specific directory</span></span>
+<span class='r-in'><span class='fu'>create_rmd</span><span class='op'>(</span>save_dir <span class='op'>=</span> <span class='va'>experiment</span><span class='op'>$</span><span class='fu'>get_save_dir</span><span class='op'>(</span><span class='op'>)</span><span class='op'>)</span><span class='op'>}</span></span>
+<span class='r-in'></span>
+</pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

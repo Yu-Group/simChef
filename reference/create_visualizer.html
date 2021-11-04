@@ -184,6 +184,57 @@ is used for <code>Experiments</code> with varying parameters,
 <code>vary_params</code> should be used as a stand in for the name of this
 varying parameter.</p>
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><span class='r-in'><span class='co'># create an example Visualizer function</span></span>
+<span class='r-in'><span class='va'>power_plot_fun</span> <span class='op'>&lt;-</span> <span class='kw'>function</span><span class='op'>(</span><span class='va'>fit_results</span>, <span class='va'>vary_params</span> <span class='op'>=</span> <span class='cn'>NULL</span>, <span class='va'>col</span> <span class='op'>=</span> <span class='st'>"X1"</span><span class='op'>)</span> <span class='op'>{</span></span>
+<span class='r-in'>  </span>
+<span class='r-in'>  <span class='kw'>if</span> <span class='op'>(</span><span class='op'>!</span><span class='fu'><a href='https://rdrr.io/r/base/NULL.html'>is.null</a></span><span class='op'>(</span><span class='va'>vary_params</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>{</span></span>
+<span class='r-in'>    <span class='co'># deal with the case when we vary across a parameter that is vector-valued</span></span>
+<span class='r-in'>    <span class='kw'>if</span> <span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/list.html'>is.list</a></span><span class='op'>(</span><span class='va'>fit_results</span><span class='op'>[[</span><span class='va'>vary_params</span><span class='op'>]</span><span class='op'>]</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>{</span></span>
+<span class='r-in'>      <span class='va'>fit_results</span><span class='op'>[[</span><span class='va'>vary_params</span><span class='op'>]</span><span class='op'>]</span> <span class='op'>&lt;-</span> <span class='fu'><a href='list_col_to_chr.html'>list_col_to_chr</a></span><span class='op'>(</span><span class='va'>fit_results</span><span class='op'>[[</span><span class='va'>vary_params</span><span class='op'>]</span><span class='op'>]</span>,</span>
+<span class='r-in'>                                                    name <span class='op'>=</span> <span class='va'>vary_params</span>,</span>
+<span class='r-in'>                                                    verbatim <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span></span>
+<span class='r-in'>    <span class='op'>}</span></span>
+<span class='r-in'>  <span class='op'>}</span></span>
+<span class='r-in'>  </span>
+<span class='r-in'>  <span class='va'>plt</span> <span class='op'>&lt;-</span> <span class='fu'>ggplot2</span><span class='fu'>::</span><span class='fu'><a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot</a></span><span class='op'>(</span><span class='va'>fit_results</span><span class='op'>)</span> <span class='op'>+</span></span>
+<span class='r-in'>    <span class='fu'>ggplot2</span><span class='fu'>::</span><span class='fu'><a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes</a></span><span class='op'>(</span>x <span class='op'>=</span> <span class='va'>.data</span><span class='op'>[[</span><span class='fu'><a href='https://rdrr.io/r/base/paste.html'>paste</a></span><span class='op'>(</span><span class='va'>col</span>, <span class='st'>"p-value"</span><span class='op'>)</span><span class='op'>]</span><span class='op'>]</span>,</span>
+<span class='r-in'>                 color <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/factor.html'>as.factor</a></span><span class='op'>(</span><span class='va'>.method_name</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>+</span></span>
+<span class='r-in'>    <span class='fu'>ggplot2</span><span class='fu'>::</span><span class='fu'><a href='https://ggplot2.tidyverse.org/reference/geom_abline.html'>geom_abline</a></span><span class='op'>(</span>slope <span class='op'>=</span> <span class='fl'>1</span>, intercept <span class='op'>=</span> <span class='fl'>0</span>, </span>
+<span class='r-in'>                         color <span class='op'>=</span> <span class='st'>"darkgray"</span>, linetype <span class='op'>=</span> <span class='st'>"solid"</span>, size <span class='op'>=</span> <span class='fl'>1</span><span class='op'>)</span> <span class='op'>+</span></span>
+<span class='r-in'>    <span class='fu'>ggplot2</span><span class='fu'>::</span><span class='fu'><a href='https://ggplot2.tidyverse.org/reference/stat_ecdf.html'>stat_ecdf</a></span><span class='op'>(</span>size <span class='op'>=</span> <span class='fl'>1</span><span class='op'>)</span> <span class='op'>+</span></span>
+<span class='r-in'>    <span class='fu'>ggplot2</span><span class='fu'>::</span><span class='fu'><a href='https://ggplot2.tidyverse.org/reference/scale_continuous.html'>scale_x_continuous</a></span><span class='op'>(</span>limits <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>0</span>, <span class='fl'>1</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>+</span></span>
+<span class='r-in'>    <span class='fu'>ggplot2</span><span class='fu'>::</span><span class='fu'><a href='https://ggplot2.tidyverse.org/reference/labs.html'>labs</a></span><span class='op'>(</span>x <span class='op'>=</span> <span class='st'>"t"</span>, y <span class='op'>=</span> <span class='st'>"P( p-value \u2264 t )"</span>, </span>
+<span class='r-in'>                  linetype <span class='op'>=</span> <span class='st'>""</span>, color <span class='op'>=</span> <span class='st'>"Method"</span><span class='op'>)</span></span>
+<span class='r-in'>  <span class='kw'>if</span> <span class='op'>(</span><span class='op'>!</span><span class='fu'><a href='https://rdrr.io/r/base/NULL.html'>is.null</a></span><span class='op'>(</span><span class='va'>vary_params</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>{</span></span>
+<span class='r-in'>    <span class='va'>plt</span> <span class='op'>&lt;-</span> <span class='va'>plt</span> <span class='op'>+</span> <span class='fu'>ggplot2</span><span class='fu'>::</span><span class='fu'><a href='https://ggplot2.tidyverse.org/reference/facet_wrap.html'>facet_wrap</a></span><span class='op'>(</span><span class='op'>~</span> <span class='va'>.data</span><span class='op'>[[</span><span class='va'>vary_params</span><span class='op'>]</span><span class='op'>]</span><span class='op'>)</span></span>
+<span class='r-in'>  <span class='op'>}</span></span>
+<span class='r-in'>  <span class='kw'><a href='https://rdrr.io/r/base/function.html'>return</a></span><span class='op'>(</span><span class='va'>plt</span><span class='op'>)</span></span>
+<span class='r-in'><span class='op'>}</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># create Visualizer using the default arguments (i.e., col = "X1")</span></span>
+<span class='r-in'><span class='va'>power_plot1</span> <span class='op'>&lt;-</span> <span class='fu'>create_visualizer</span><span class='op'>(</span>viz_fun <span class='op'>=</span> <span class='va'>power_plot_fun</span>, </span>
+<span class='r-in'>                                 name <span class='op'>=</span> <span class='st'>"Power Plot (X1)"</span><span class='op'>)</span></span>
+<span class='r-in'><span class='co'># create Visualizer using non-default arguments (i.e., col = "X2")</span></span>
+<span class='r-in'><span class='va'>power_plot2</span> <span class='op'>&lt;-</span> <span class='fu'>create_visualizer</span><span class='op'>(</span>viz_fun <span class='op'>=</span> <span class='va'>power_plot_fun</span>,</span>
+<span class='r-in'>                                 name <span class='op'>=</span> <span class='st'>"Power Plot (X2)"</span>,</span>
+<span class='r-in'>                                 <span class='co'># additional named parameters to pass to power_plot_fun()</span></span>
+<span class='r-in'>                                 col <span class='op'>=</span> <span class='st'>"X2"</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># create Visualizer from a function in the built-in Visualizer library</span></span>
+<span class='r-in'><span class='va'>pred_err_plot</span> <span class='op'>&lt;-</span> <span class='fu'>create_visualizer</span><span class='op'>(</span>viz_fun <span class='op'>=</span> <span class='va'>plot_pred_err</span>,</span>
+<span class='r-in'>                                   name <span class='op'>=</span> <span class='st'>"Prediction Error Plot"</span>,</span>
+<span class='r-in'>                                   <span class='co'># additional named parameters to pass to plot_pred_err()</span></span>
+<span class='r-in'>                                   truth_col <span class='op'>=</span> <span class='st'>"y"</span>, estimate_col <span class='op'>=</span> <span class='st'>"predictions"</span><span class='op'>)</span></span>
+<span class='r-in'>                                  </span>
+<span class='r-in'><span class='co'># change figure height/width when displaying Visualizer in Rmd report</span></span>
+<span class='r-in'><span class='va'>pred_err_plot</span> <span class='op'>&lt;-</span> <span class='fu'>create_visualizer</span><span class='op'>(</span>viz_fun <span class='op'>=</span> <span class='va'>plot_pred_err</span>,</span>
+<span class='r-in'>                                   name <span class='op'>=</span> <span class='st'>"Prediction Error Plot"</span>,</span>
+<span class='r-in'>                                   rmd_options <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span>height <span class='op'>=</span> <span class='fl'>8</span>, width <span class='op'>=</span> <span class='fl'>12</span><span class='op'>)</span>,</span>
+<span class='r-in'>                                   <span class='co'># additional named parameters to pass to plot_pred_err()</span></span>
+<span class='r-in'>                                   truth_col <span class='op'>=</span> <span class='st'>"y"</span>, estimate_col <span class='op'>=</span> <span class='st'>"predictions"</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+</pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

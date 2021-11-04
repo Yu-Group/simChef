@@ -243,7 +243,44 @@ list. Elements in vector must be one of "X", "y", "support".</p></td>
 <code>return_values</code>. Note that if <code>data_split = TRUE</code> and "X", "y"
 are in <code>return_values</code>, then the returned list also contains slots for
 "Xtest" and "ytest".</p>
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
+    <p>Data is generated via: $$y = intercept + sum_{i = 1}^{s} beta_i prod_{j = 1}^{k}1(X_{S_j} lessgtr thresholds_ij) + err(...),$$ where
+X = [X_uncorr, X_corr], X_uncorr is an (uncorrelated) standard Gaussian
+random matrix, and X_corr is a correlated Gaussian random matrix with
+variance 1 and Cor(X_corr_i, X_corr_j) = corr for all i, j. If
+<code>overlap = TRUE</code>, then the true interaction support is randomly chosen
+from the (p_uncorr + p_corr) features in <code>X</code>. If <code>overlap = FALSE</code>,
+then the true interaction support is sequentially taken from the first
+<code>s_uncorr*k</code> features in X_uncorr and the first
+<code>s_corr*k</code> features in X_corr.</p>
+<p>For more details on the LSS model, see Behr, Merle, et al. "Provable Boolean Interaction Recovery from Tree Ensemble obtained via Random Forests." arXiv preprint arXiv:2102.11800 (2021).</p>
+
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><span class='r-in'><span class='co'># generate data from: y = 1(X_1 &gt; 0, X_2 &gt; 0) + 1(X_3 &gt; 0, X_4 &gt; 0), where</span></span>
+<span class='r-in'><span class='co'># X is a 100 x 10 correlated Gaussian random matrix with </span></span>
+<span class='r-in'><span class='co'># Var(X_i) = 1 for all i and Cor(X_i, X_j) = 0.7 for all i != j</span></span>
+<span class='r-in'><span class='va'>sim_data</span> <span class='op'>&lt;-</span> <span class='fu'>correlated_lss_gaussian_dgp</span><span class='op'>(</span>n <span class='op'>=</span> <span class='fl'>100</span>, p_uncorr <span class='op'>=</span> <span class='fl'>0</span>, p_corr <span class='op'>=</span> <span class='fl'>10</span>, </span>
+<span class='r-in'>                                        k <span class='op'>=</span> <span class='fl'>2</span>, s_corr <span class='op'>=</span> <span class='fl'>2</span>, corr <span class='op'>=</span> <span class='fl'>0.7</span>,</span>
+<span class='r-in'>                                        thresholds <span class='op'>=</span> <span class='fl'>0</span>, signs <span class='op'>=</span> <span class='fl'>1</span>, betas <span class='op'>=</span> <span class='fl'>1</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># generate data from: y = 3 * 1(X_1 &gt; 0, X_2 &gt; 0) - 1(X_11 &gt; 0, X_12 &gt; 0) + N(0, 1), </span></span>
+<span class='r-in'><span class='co'># where X = [Z, U], Z is a 100 x 10 standard Gaussian random matrix, </span></span>
+<span class='r-in'><span class='co'># U is a 100 x 10 Gaussian random matrix with Var(U_i) = 1 and Cor(U_i, U_j) = 0.7</span></span>
+<span class='r-in'><span class='va'>sim_data</span> <span class='op'>&lt;-</span> <span class='fu'>correlated_lss_gaussian_dgp</span><span class='op'>(</span>n <span class='op'>=</span> <span class='fl'>100</span>, p_uncorr <span class='op'>=</span> <span class='fl'>10</span>, p_corr <span class='op'>=</span> <span class='fl'>10</span>,</span>
+<span class='r-in'>                                        s_uncorr <span class='op'>=</span> <span class='fl'>1</span>, s_corr <span class='op'>=</span> <span class='fl'>1</span>, corr <span class='op'>=</span> <span class='fl'>0.7</span>,</span>
+<span class='r-in'>                                        k <span class='op'>=</span> <span class='fl'>2</span>, betas <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>3</span>, <span class='op'>-</span><span class='fl'>1</span><span class='op'>)</span>, err <span class='op'>=</span> <span class='va'>rnorm</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># generate data from: y = \sum_{i = 1}^{4} \prod_{j = 1}^{2} 1(X_{s_j} &gt; 0), </span></span>
+<span class='r-in'><span class='co'># where s_j \in {1:4, 11:14} are randomly selected indiceds, X = [Z, U], </span></span>
+<span class='r-in'><span class='co'># Z is a 100 x 10 standard Gaussian random matrix, U is a 100 x 10 Gaussian </span></span>
+<span class='r-in'><span class='co'># random matrix with Var(U_i) = 1 and Cor(U_i, U_j) = 0.7</span></span>
+<span class='r-in'><span class='co'># i.e., interactions may consist of both correlated and uncorrelated features</span></span>
+<span class='r-in'><span class='va'>sim_data</span> <span class='op'>&lt;-</span> <span class='fu'>correlated_lss_gaussian_dgp</span><span class='op'>(</span>n <span class='op'>=</span> <span class='fl'>100</span>, p_uncorr <span class='op'>=</span> <span class='fl'>10</span>, p_corr <span class='op'>=</span> <span class='fl'>10</span>, </span>
+<span class='r-in'>                                        s_uncorr <span class='op'>=</span> <span class='fl'>2</span>, s_corr <span class='op'>=</span> <span class='fl'>2</span>, k <span class='op'>=</span> <span class='fl'>2</span>, </span>
+<span class='r-in'>                                        corr <span class='op'>=</span> <span class='fl'>0.7</span>, mixed_int <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+</pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

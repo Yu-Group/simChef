@@ -131,7 +131,7 @@ replicates.</p>
 
     <pre class="usage"><span class='fu'>plot_pred_curve</span><span class='op'>(</span>
   <span class='va'>fit_results</span>,
-  <span class='va'>eval_results</span>,
+  eval_results <span class='op'>=</span> <span class='cn'>NULL</span>,
   evaluator_name <span class='op'>=</span> <span class='cn'>NULL</span>,
   vary_params <span class='op'>=</span> <span class='cn'>NULL</span>,
   curve <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"ROC"</span>, <span class='st'>"PR"</span><span class='op'>)</span>,
@@ -195,6 +195,53 @@ a <code>ggplot</code> object if <code>plot_by</code> is <code>NULL</code> and a 
 <code><a href='eval_pred_err_funs.html'>eval_pred_err_funs</a></code>,
 <code><a href='plot_pred_err.html'>plot_pred_err</a>()</code></p></div>
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><span class='r-in'><span class='co'># generate example fit_results data</span></span>
+<span class='r-in'><span class='va'>fit_results</span> <span class='op'>&lt;-</span> <span class='fu'>tibble</span><span class='fu'>::</span><span class='fu'><a href='https://tibble.tidyverse.org/reference/tibble.html'>tibble</a></span><span class='op'>(</span></span>
+<span class='r-in'>  .rep <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span><span class='op'>(</span><span class='fl'>1</span><span class='op'>:</span><span class='fl'>2</span>, times <span class='op'>=</span> <span class='fl'>2</span><span class='op'>)</span>,</span>
+<span class='r-in'>  .dgp_name <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"DGP1"</span>, <span class='st'>"DGP1"</span>, <span class='st'>"DGP2"</span>, <span class='st'>"DGP2"</span><span class='op'>)</span>,</span>
+<span class='r-in'>  .method_name <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"Method"</span><span class='op'>)</span>,</span>
+<span class='r-in'>  <span class='co'># true response</span></span>
+<span class='r-in'>  y <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/lapply.html'>lapply</a></span><span class='op'>(</span><span class='fl'>1</span><span class='op'>:</span><span class='fl'>4</span>,</span>
+<span class='r-in'>             FUN <span class='op'>=</span> <span class='kw'>function</span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span> <span class='op'>{</span></span>
+<span class='r-in'>               <span class='fu'><a href='https://rdrr.io/r/base/factor.html'>as.factor</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/sample.html'>sample</a></span><span class='op'>(</span><span class='fl'>0</span><span class='op'>:</span><span class='fl'>1</span>, size <span class='op'>=</span> <span class='fl'>100</span>, replace <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span><span class='op'>)</span></span>
+<span class='r-in'>             <span class='op'>}</span><span class='op'>)</span>,</span>
+<span class='r-in'>  <span class='co'># predicted class probabilities </span></span>
+<span class='r-in'>  class_probs <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/lapply.html'>lapply</a></span><span class='op'>(</span><span class='fl'>1</span><span class='op'>:</span><span class='fl'>4</span>, FUN <span class='op'>=</span> <span class='kw'>function</span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span> <span class='fu'><a href='https://rdrr.io/r/stats/Uniform.html'>runif</a></span><span class='op'>(</span>n <span class='op'>=</span> <span class='fl'>100</span>, min <span class='op'>=</span> <span class='fl'>0</span>, max <span class='op'>=</span> <span class='fl'>1</span><span class='op'>)</span><span class='op'>)</span></span>
+<span class='r-in'><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># generate example eval_results data</span></span>
+<span class='r-in'><span class='va'>eval_results</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span></span>
+<span class='r-in'>  ROC <span class='op'>=</span> <span class='fu'><a href='eval_pred_curve_funs.html'>summarize_pred_curve</a></span><span class='op'>(</span></span>
+<span class='r-in'>    <span class='va'>fit_results</span>, truth_col <span class='op'>=</span> <span class='st'>"y"</span>, prob_cols <span class='op'>=</span> <span class='st'>"class_probs"</span>, curve <span class='op'>=</span> <span class='st'>"ROC"</span></span>
+<span class='r-in'>  <span class='op'>)</span>,</span>
+<span class='r-in'>  PR <span class='op'>=</span> <span class='fu'><a href='eval_pred_curve_funs.html'>summarize_pred_curve</a></span><span class='op'>(</span></span>
+<span class='r-in'>    <span class='va'>fit_results</span>, truth_col <span class='op'>=</span> <span class='st'>"y"</span>, prob_cols <span class='op'>=</span> <span class='st'>"class_probs"</span>, curve <span class='op'>=</span> <span class='st'>"PR"</span></span>
+<span class='r-in'>  <span class='op'>)</span></span>
+<span class='r-in'><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># create summary ROC/PR plots using pre-computed evaluation results</span></span>
+<span class='r-in'><span class='va'>roc_plt</span> <span class='op'>&lt;-</span> <span class='fu'>plot_pred_curve</span><span class='op'>(</span>fit_results <span class='op'>=</span> <span class='va'>fit_results</span>, eval_results <span class='op'>=</span> <span class='va'>eval_results</span>,</span>
+<span class='r-in'>                           evaluator_name <span class='op'>=</span> <span class='st'>"ROC"</span>, curve <span class='op'>=</span> <span class='st'>"ROC"</span>,</span>
+<span class='r-in'>                           show <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"line"</span>, <span class='st'>"ribbon"</span><span class='op'>)</span><span class='op'>)</span></span>
+<span class='r-in'><span class='va'>pr_plt</span> <span class='op'>&lt;-</span> <span class='fu'>plot_pred_curve</span><span class='op'>(</span>fit_results <span class='op'>=</span> <span class='va'>fit_results</span>, eval_results <span class='op'>=</span> <span class='va'>eval_results</span>,</span>
+<span class='r-in'>                          evaluator_name <span class='op'>=</span> <span class='st'>"PR"</span>, curve <span class='op'>=</span> <span class='st'>"PR"</span>,</span>
+<span class='r-in'>                          show <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"line"</span>, <span class='st'>"ribbon"</span><span class='op'>)</span><span class='op'>)</span></span>
+<span class='r-in'><span class='co'># or alternatively, create the same plots without pre-computing evaluation results</span></span>
+<span class='r-in'><span class='va'>roc_plt</span> <span class='op'>&lt;-</span> <span class='fu'>plot_pred_curve</span><span class='op'>(</span><span class='va'>fit_results</span>, show <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"line"</span>, <span class='st'>"ribbon"</span><span class='op'>)</span>,</span>
+<span class='r-in'>                           truth_col <span class='op'>=</span> <span class='st'>"y"</span>, prob_cols <span class='op'>=</span> <span class='st'>"class_probs"</span>, </span>
+<span class='r-in'>                           curve <span class='op'>=</span> <span class='st'>"ROC"</span><span class='op'>)</span></span>
+<span class='r-in'><span class='va'>pr_plt</span> <span class='op'>&lt;-</span> <span class='fu'>plot_pred_curve</span><span class='op'>(</span><span class='va'>fit_results</span>, show <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"line"</span>, <span class='st'>"ribbon"</span><span class='op'>)</span>,</span>
+<span class='r-in'>                          truth_col <span class='op'>=</span> <span class='st'>"y"</span>, prob_cols <span class='op'>=</span> <span class='st'>"class_probs"</span>, </span>
+<span class='r-in'>                          curve <span class='op'>=</span> <span class='st'>"PR"</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># can customize plot (see plot_eval_summary() for possible arguments)</span></span>
+<span class='r-in'><span class='va'>roc_plt</span> <span class='op'>&lt;-</span> <span class='fu'>plot_pred_curve</span><span class='op'>(</span>fit_results <span class='op'>=</span> <span class='va'>fit_results</span>, eval_results <span class='op'>=</span> <span class='va'>eval_results</span>,</span>
+<span class='r-in'>                           evaluator_name <span class='op'>=</span> <span class='st'>"ROC"</span>, curve <span class='op'>=</span> <span class='st'>"ROC"</span>,</span>
+<span class='r-in'>                           show <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"line"</span>, <span class='st'>"ribbon"</span><span class='op'>)</span>,</span>
+<span class='r-in'>                           plot_by <span class='op'>=</span> <span class='st'>".dgp_name"</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+</pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

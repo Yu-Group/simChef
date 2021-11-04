@@ -41,7 +41,8 @@
 
 <meta property="og:title" content="Generate heteroskedastic Gaussian errors based on the norm of X. — norm_errors" />
 <meta property="og:description" content="Generate independent Gaussian errors with variance based on norm
-of row observations in the data matrix X." />
+of row observations in the data matrix X. That is,
+epsilon_i ~ N(0, ||x_i||_2^2)." />
 
 
 
@@ -126,7 +127,8 @@ of row observations in the data matrix X." />
 
     <div class="ref-description">
     <p>Generate independent Gaussian errors with variance based on norm
-of row observations in the data matrix X.</p>
+of row observations in the data matrix X. That is,
+epsilon_i ~ N(0, ||x_i||_2^2).</p>
     </div>
 
     <pre class="usage"><span class='fu'>norm_errors</span><span class='op'>(</span><span class='va'>X</span><span class='op'>)</span></pre>
@@ -144,6 +146,10 @@ of row observations in the data matrix X.</p>
 
     <p>A vector of simulated errors with length <code>n</code>.</p>
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><span class='r-in'><span class='va'>errs</span> <span class='op'>&lt;-</span> <span class='fu'>norm_errors</span><span class='op'>(</span>X <span class='op'>=</span> <span class='va'>iris</span> <span class='op'><a href='%>%.html'>%&gt;%</a></span> <span class='fu'>dplyr</span><span class='fu'>::</span><span class='fu'><a href='https://dplyr.tidyverse.org/reference/select.html'>select</a></span><span class='op'>(</span><span class='op'>-</span><span class='va'>Species</span><span class='op'>)</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+</pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

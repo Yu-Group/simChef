@@ -188,7 +188,8 @@ construct.</p></td>
     <tr>
       <th>y_str</th>
       <td><p>(Optional) Name of column in <code>eval_tib</code> to plot on the
-y-axis if <code>show</code> is anything but "boxplot".</p></td>
+y-axis if <code>show</code> is anything but "boxplot". Default "auto" chooses
+what to plot on the y-axis automatically.</p></td>
     </tr>
     <tr>
       <th>...</th>
@@ -202,6 +203,63 @@ used if necessary results have not already been computed in
 
     <p>A <code>tibble</code> with the summarized evaluation results.</p>
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><span class='r-in'><span class='co'># generate example fit results data</span></span>
+<span class='r-in'><span class='va'>fit_results</span> <span class='op'>&lt;-</span> <span class='fu'>tibble</span><span class='fu'>::</span><span class='fu'><a href='https://tibble.tidyverse.org/reference/tibble.html'>tibble</a></span><span class='op'>(</span></span>
+<span class='r-in'>  .rep <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span><span class='op'>(</span><span class='fl'>1</span><span class='op'>:</span><span class='fl'>2</span>, times <span class='op'>=</span> <span class='fl'>2</span><span class='op'>)</span>,</span>
+<span class='r-in'>  .dgp_name <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"DGP1"</span>, <span class='st'>"DGP1"</span>, <span class='st'>"DGP2"</span>, <span class='st'>"DGP2"</span><span class='op'>)</span>,</span>
+<span class='r-in'>  .method_name <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"Method"</span><span class='op'>)</span>,</span>
+<span class='r-in'>  <span class='co'># true response</span></span>
+<span class='r-in'>  y <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/lapply.html'>lapply</a></span><span class='op'>(</span><span class='fl'>1</span><span class='op'>:</span><span class='fl'>4</span>, FUN <span class='op'>=</span> <span class='kw'>function</span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span> <span class='fu'><a href='https://rdrr.io/r/stats/Normal.html'>rnorm</a></span><span class='op'>(</span><span class='fl'>100</span><span class='op'>)</span><span class='op'>)</span>,</span>
+<span class='r-in'>  <span class='co'># predicted response</span></span>
+<span class='r-in'>  predictions <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/lapply.html'>lapply</a></span><span class='op'>(</span><span class='fl'>1</span><span class='op'>:</span><span class='fl'>4</span>, FUN <span class='op'>=</span> <span class='kw'>function</span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span> <span class='fu'><a href='https://rdrr.io/r/stats/Normal.html'>rnorm</a></span><span class='op'>(</span><span class='fl'>100</span><span class='op'>)</span><span class='op'>)</span></span>
+<span class='r-in'><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># compute (from scratch) the evaluation results that are necessary for plotting</span></span>
+<span class='r-in'><span class='va'>eval_tib</span> <span class='op'>&lt;-</span> <span class='fu'>get_eval_tibble</span><span class='op'>(</span>fit_results <span class='op'>=</span> <span class='va'>fit_results</span>, </span>
+<span class='r-in'>                            eval_tib <span class='op'>=</span> <span class='cn'>NULL</span>,</span>
+<span class='r-in'>                            eval_id <span class='op'>=</span> <span class='st'>"pred_err"</span>,</span>
+<span class='r-in'>                            eval_fun <span class='op'>=</span> <span class='st'>"summarize_pred_err"</span>, </span>
+<span class='r-in'>                            show <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"point"</span>, <span class='st'>"errorbar"</span><span class='op'>)</span>,</span>
+<span class='r-in'>                            y_str <span class='op'>=</span> <span class='cn'>NULL</span>,  <span class='co'># or equivalently, "mean_pred_err"</span></span>
+<span class='r-in'>                            <span class='co'># arguments to pass to `eval_fun`</span></span>
+<span class='r-in'>                            truth_col <span class='op'>=</span> <span class='st'>"y"</span>,</span>
+<span class='r-in'>                            estimate_col <span class='op'>=</span> <span class='st'>"predictions"</span><span class='op'>)</span></span>
+<span class='r-in'><span class='co'># this is equivalent to:</span></span>
+<span class='r-in'><span class='va'>eval_tib2</span> <span class='op'>&lt;-</span> <span class='fu'><a href='eval_pred_err_funs.html'>summarize_pred_err</a></span><span class='op'>(</span></span>
+<span class='r-in'>  fit_results <span class='op'>=</span> <span class='va'>fit_results</span>, </span>
+<span class='r-in'>  truth_col <span class='op'>=</span> <span class='st'>"y"</span>,</span>
+<span class='r-in'>  estimate_col <span class='op'>=</span> <span class='st'>"predictions"</span>,</span>
+<span class='r-in'>  summary_funs <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"mean"</span>, <span class='st'>"sd"</span><span class='op'>)</span></span>
+<span class='r-in'><span class='op'>)</span></span>
+<span class='r-in'><span class='fu'><a href='https://rdrr.io/r/base/all.equal.html'>all.equal</a></span><span class='op'>(</span><span class='va'>eval_tib</span>, <span class='va'>eval_tib2</span><span class='op'>)</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> [1] TRUE</span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># read in pre-computed evaluation results since it has everything needed for plotting</span></span>
+<span class='r-in'><span class='va'>eval_tib</span> <span class='op'>&lt;-</span> <span class='fu'>get_eval_tibble</span><span class='op'>(</span>fit_results <span class='op'>=</span> <span class='va'>fit_results</span>,</span>
+<span class='r-in'>                            eval_tib <span class='op'>=</span> <span class='va'>eval_tib</span>, </span>
+<span class='r-in'>                            eval_id <span class='op'>=</span> <span class='st'>"pred_err"</span>,</span>
+<span class='r-in'>                            eval_fun <span class='op'>=</span> <span class='st'>"summarize_pred_err"</span>, </span>
+<span class='r-in'>                            show <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"point"</span>, <span class='st'>"errorbar"</span><span class='op'>)</span>,</span>
+<span class='r-in'>                            y_str <span class='op'>=</span> <span class='cn'>NULL</span><span class='op'>)</span>  <span class='co'># or equivalently, "mean_pred_err"</span></span>
+<span class='r-in'><span class='fu'><a href='https://rdrr.io/r/base/all.equal.html'>all.equal</a></span><span class='op'>(</span><span class='va'>eval_tib</span>, <span class='va'>eval_tib2</span><span class='op'>)</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> [1] TRUE</span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># if columns that are needed for plotting are missing in `eval_tib`, then</span></span>
+<span class='r-in'><span class='co'># `get_eval_tibble` will call the `eval_fun` and compute the necessary results</span></span>
+<span class='r-in'><span class='va'>eval_tib</span> <span class='op'>&lt;-</span> <span class='fu'>get_eval_tibble</span><span class='op'>(</span>fit_results <span class='op'>=</span> <span class='va'>fit_results</span>, </span>
+<span class='r-in'>                            eval_tib <span class='op'>=</span> <span class='va'>eval_tib</span> <span class='op'><a href='%>%.html'>%&gt;%</a></span> <span class='fu'>dplyr</span><span class='fu'>::</span><span class='fu'><a href='https://dplyr.tidyverse.org/reference/select.html'>select</a></span><span class='op'>(</span><span class='op'>-</span><span class='va'>mean_pred_err</span><span class='op'>)</span>,</span>
+<span class='r-in'>                            eval_id <span class='op'>=</span> <span class='st'>"pred_err"</span>,</span>
+<span class='r-in'>                            eval_fun <span class='op'>=</span> <span class='st'>"summarize_pred_err"</span>, </span>
+<span class='r-in'>                            show <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"point"</span>, <span class='st'>"errorbar"</span><span class='op'>)</span>,</span>
+<span class='r-in'>                            y_str <span class='op'>=</span> <span class='cn'>NULL</span>,  <span class='co'># or equivalently, "mean_pred_err"</span></span>
+<span class='r-in'>                            <span class='co'># arguments to pass to `eval_fun`</span></span>
+<span class='r-in'>                            truth_col <span class='op'>=</span> <span class='st'>"y"</span>,</span>
+<span class='r-in'>                            estimate_col <span class='op'>=</span> <span class='st'>"predictions"</span><span class='op'>)</span></span>
+<span class='r-in'><span class='fu'><a href='https://rdrr.io/r/base/all.equal.html'>all.equal</a></span><span class='op'>(</span><span class='va'>eval_tib</span>, <span class='va'>eval_tib2</span><span class='op'>)</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> [1] TRUE</span>
+<span class='r-in'>  </span>
+</pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

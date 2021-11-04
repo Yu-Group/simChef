@@ -182,6 +182,42 @@ is used for <code>Experiments</code> with varying parameters,
 <code>vary_params</code> should be used as a stand in for the name of this
 varying parameter.</p>
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><span class='r-in'><span class='co'># create an example Evaluator function</span></span>
+<span class='r-in'><span class='va'>reject_prob_fun</span> <span class='op'>&lt;-</span> <span class='kw'>function</span><span class='op'>(</span><span class='va'>fit_results</span>, <span class='va'>vary_params</span> <span class='op'>=</span> <span class='cn'>NULL</span>, <span class='va'>alpha</span> <span class='op'>=</span> <span class='fl'>0.05</span><span class='op'>)</span> <span class='op'>{</span></span>
+<span class='r-in'>  <span class='va'>group_vars</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>".dgp_name"</span>, <span class='st'>".method_name"</span>, <span class='va'>vary_params</span><span class='op'>)</span></span>
+<span class='r-in'>  <span class='va'>eval_out</span> <span class='op'>&lt;-</span> <span class='va'>fit_results</span> <span class='op'><a href='%>%.html'>%&gt;%</a></span></span>
+<span class='r-in'>    <span class='fu'>dplyr</span><span class='fu'>::</span><span class='fu'><a href='https://dplyr.tidyverse.org/reference/group_by.html'>group_by</a></span><span class='op'>(</span><span class='fu'>across</span><span class='op'>(</span><span class='op'>{</span><span class='op'>{</span><span class='va'>group_vars</span><span class='op'>}</span><span class='op'>}</span><span class='op'>)</span><span class='op'>)</span> <span class='op'><a href='%>%.html'>%&gt;%</a></span></span>
+<span class='r-in'>    <span class='fu'>dplyr</span><span class='fu'>::</span><span class='fu'><a href='https://dplyr.tidyverse.org/reference/summarise.html'>summarise</a></span><span class='op'>(</span></span>
+<span class='r-in'>      `X1 Reject Prob.` <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/mean.html'>mean</a></span><span class='op'>(</span><span class='va'>`X1 p-value`</span> <span class='op'>&lt;</span> <span class='va'>alpha</span><span class='op'>)</span>,</span>
+<span class='r-in'>      `X2 Reject Prob.` <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/mean.html'>mean</a></span><span class='op'>(</span><span class='va'>`X2 p-value`</span> <span class='op'>&lt;</span> <span class='va'>alpha</span><span class='op'>)</span></span>
+<span class='r-in'>    <span class='op'>)</span></span>
+<span class='r-in'>  <span class='kw'><a href='https://rdrr.io/r/base/function.html'>return</a></span><span class='op'>(</span><span class='va'>eval_out</span><span class='op'>)</span></span>
+<span class='r-in'><span class='op'>}</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># create Evaluator using the default arguments (i.e., alpha = 0.05)</span></span>
+<span class='r-in'><span class='va'>reject_prob_eval</span> <span class='op'>&lt;-</span> <span class='fu'>create_evaluator</span><span class='op'>(</span>eval_fun <span class='op'>=</span> <span class='va'>reject_prob_fun</span>, </span>
+<span class='r-in'>                                     name <span class='op'>=</span> <span class='st'>"Rejection Prob (alpha = 0.05)"</span><span class='op'>)</span></span>
+<span class='r-in'><span class='co'># create Evaluator using non-default arguments (here, alpha = 0.1)</span></span>
+<span class='r-in'><span class='va'>reject_prob_eval2</span> <span class='op'>&lt;-</span> <span class='fu'>create_evaluator</span><span class='op'>(</span>eval_fun <span class='op'>=</span> <span class='va'>reject_prob_fun</span>,</span>
+<span class='r-in'>                                      name <span class='op'>=</span> <span class='st'>"Rejection Prob (alpha = 0.1)"</span>,</span>
+<span class='r-in'>                                      <span class='co'># additional named parameters to pass to reject_prob_fun(),</span></span>
+<span class='r-in'>                                      alpha <span class='op'>=</span> <span class='fl'>0.1</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># create Evaluator from a function in the built-in Evaluator library</span></span>
+<span class='r-in'><span class='va'>pred_err_eval</span> <span class='op'>&lt;-</span> <span class='fu'>create_evaluator</span><span class='op'>(</span>eval_fun <span class='op'>=</span> <span class='va'>summarize_pred_err</span>,</span>
+<span class='r-in'>                                  name <span class='op'>=</span> <span class='st'>"Prediction Error"</span>, </span>
+<span class='r-in'>                                  <span class='co'># additional named parameters to pass to summarize_pred_err()</span></span>
+<span class='r-in'>                                  truth_col <span class='op'>=</span> <span class='st'>"y"</span>, estimate_col <span class='op'>=</span> <span class='st'>"predictions"</span><span class='op'>)</span></span>
+<span class='r-in'>                                  </span>
+<span class='r-in'><span class='co'># set rmd options for displaying Evaluator in Rmd report to show 3 decimal points</span></span>
+<span class='r-in'><span class='va'>pred_err_eval</span> <span class='op'>&lt;-</span> <span class='fu'>create_evaluator</span><span class='op'>(</span>eval_fun <span class='op'>=</span> <span class='va'>summarize_pred_err</span>,</span>
+<span class='r-in'>                                  name <span class='op'>=</span> <span class='st'>"Prediction Error"</span>, </span>
+<span class='r-in'>                                  rmd_options <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span>digits <span class='op'>=</span> <span class='fl'>3</span><span class='op'>)</span>,</span>
+<span class='r-in'>                                  <span class='co'># additional named parameters to pass to summarize_pred_err()</span></span>
+<span class='r-in'>                                  truth_col <span class='op'>=</span> <span class='st'>"y"</span>, estimate_col <span class='op'>=</span> <span class='st'>"predictions"</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+</pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

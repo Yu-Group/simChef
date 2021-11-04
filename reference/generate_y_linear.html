@@ -178,13 +178,24 @@ indices of the support are used.</p></td>
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>If <code>return_support = TRUE</code>, returns a list of two:</p><dl>
-<dt>y</dt><dd><p>A response vector of length <code><a href='https://rdrr.io/r/base/nrow.html'>nrow(X)</a></code>.</p></dd>
+<dt>y</dt><dd><p>A response vector of length <code>nrow(X)</code>.</p></dd>
 <dt>support</dt><dd><p>A vector of feature indices in the true support of the DGP.</p></dd>
 
 </dl>
 
 <p>If <code>return_support = FALSE</code>, returns only the response vector <code>y</code>.</p>
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><span class='r-in'><span class='va'>X</span> <span class='op'>&lt;-</span> <span class='fu'><a href='generate_X_gaussian.html'>generate_X_gaussian</a></span><span class='op'>(</span>n <span class='op'>=</span> <span class='fl'>100</span>, p <span class='op'>=</span> <span class='fl'>2</span><span class='op'>)</span></span>
+<span class='r-in'><span class='va'>U</span> <span class='op'>&lt;-</span> <span class='fu'><a href='generate_X_gaussian.html'>generate_X_gaussian</a></span><span class='op'>(</span>n <span class='op'>=</span> <span class='fl'>100</span>, p <span class='op'>=</span> <span class='fl'>2</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># generate the response from: y = 3*x_1 - x_2 + N(0, 1) errors</span></span>
+<span class='r-in'><span class='va'>y</span> <span class='op'>&lt;-</span> <span class='fu'>generate_y_linear</span><span class='op'>(</span>X <span class='op'>=</span> <span class='va'>X</span>, betas <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>3</span>, <span class='op'>-</span><span class='fl'>1</span><span class='op'>)</span>, err <span class='op'>=</span> <span class='va'>rnorm</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># generate the response from: y = 3*x_1 - x_2 + u_1 + 2*u_2</span></span>
+<span class='r-in'><span class='va'>y</span> <span class='op'>&lt;-</span> <span class='fu'>generate_y_linear</span><span class='op'>(</span>X <span class='op'>=</span> <span class='va'>X</span>, U <span class='op'>=</span> <span class='va'>U</span>, betas <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>3</span>, <span class='op'>-</span><span class='fl'>1</span><span class='op'>)</span>, betas_unobs <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>1</span>, <span class='fl'>2</span><span class='op'>)</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+</pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
