@@ -1458,6 +1458,14 @@ Experiment <- R6::R6Class(
       invisible(self)
     },
     remove_dgp = function(name = NULL, ...) {
+      if (is.null(name)) {
+        private$.vary_across_list[["dgp"]] <- list()
+      } else {
+        vary_across_sublist <- private$.vary_across_list[["dgp"]][[name]]
+        if (!is.null(vary_across_sublist)) {
+          self$remove_vary_across(dgp = name)
+        }
+      }
       private$.remove_obj("dgp", name)
       invisible(self)
     },
@@ -1475,6 +1483,14 @@ Experiment <- R6::R6Class(
       invisible(self)
     },
     remove_method = function(name = NULL, ...) {
+      if (is.null(name)) {
+        private$.vary_across_list[["method"]] <- list()
+      } else {
+        vary_across_sublist <- private$.vary_across_list[["method"]][[name]]
+        if (!is.null(vary_across_sublist)) {
+          self$remove_vary_across(method = name)
+        }
+      }
       private$.remove_obj("method", name)
       invisible(self)
     },
