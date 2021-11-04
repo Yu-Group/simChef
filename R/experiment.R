@@ -631,6 +631,21 @@ Experiment <- R6::R6Class(
                         difftime(Sys.time(), start_time, units = "secs")))
       }
     },
+    .in_error_state = FALSE,
+    .do_call_handler = function(name, fun, params = list(), verbose = 1) {
+      # the goal of this function is to catch and return errors from
+      # do_call_handler() and to set .in_error_state to TRUE for the worker's
+      # copy of this Experiment, which will be checked prior to costly
+      # computation in Experiment$fit
+      result <- tryCatch(
+        error = identity,
+        do_call_handler(name, fun, params, verbose)
+      )
+      if ("simChefError" %in% class(result)) {
+        private$.in_error_state <- TRUE
+      }
+      return(result)
+    },
     deep_clone = function(name, value) {
       if (is.list(value) && length(value) > 0 && inherits(value[[1]], "R6")) {
         lapply(value, function(v) v$clone(deep = TRUE))
@@ -866,7 +881,13 @@ Experiment <- R6::R6Class(
             p <- progressr::progressor(steps = n_reps)
             results <- future.apply::future_replicate(n_reps, {
               p()
+              if (private$.in_error_state) {
+                return(NULL)
+              }
               purrr::map(dgp_params_list, function(dgp_params) {
+                if (private$.in_error_state) {
+                  return(NULL)
+                }
                 if (check_cache) {
                   method_params_list <- private$.get_new_method_params(
                     dgp_params, new_fit_params
@@ -874,10 +895,16 @@ Experiment <- R6::R6Class(
                 }
                 dgp_name <- dgp_params$.dgp_name
                 dgp_params$.dgp_name <- NULL
-                data_list <- do_call_handler(
+                data_list <- private$.do_call_handler(
                   dgp_name, dgp_list[[dgp_name]]$generate, dgp_params, verbose
                 )
+                if ("simChefError" %in% class(data_list)) {
+                  return(tibble::tibble(.err = list(data_list)))
+                }
                 purrr::map(method_params_list, function(method_params) {
+                  if (private$.in_error_state) {
+                    return(NULL)
+                  }
                   method_name <- method_params$.method_name
                   param_df <- fix_duplicate_param_names(
                     dgp_params = c(.dgp_name = dgp_name, dgp_params),
@@ -888,9 +915,12 @@ Experiment <- R6::R6Class(
                     simplify_tibble()
                   method_params$.method_name <- NULL
                   method_params$data_list <- data_list
-                  result <- do_call_handler(
+                  result <- private$.do_call_handler(
                     method_name, method_list[[method_name]]$fit, method_params, verbose
                   )
+                  if ("simChefError" %in% class(result)) {
+                    return(tibble::tibble(.err = list(result)))
+                  }
                   result <- result %>%
                     tibble::add_column(
                       param_df, .before = 1,
@@ -900,19 +930,22 @@ Experiment <- R6::R6Class(
                 }) %>%
                   data.table::rbindlist(fill = TRUE)
               }) %>%
-                data.table::rbindlist(fill = TRUE) %>%
-                tibble::as_tibble()
+                data.table::rbindlist(fill = TRUE)
             },
             simplify = FALSE,
             future.globals = future.globals,
             future.packages = future.packages,
-            future.seed = future.seed)
-            dplyr::bind_rows(results, .id = ".rep")
+            future.seed = future.seed) %>%
+              dplyr::bind_rows(.id = ".rep") %>%
+              tibble::as_tibble()
           },
           "dgps" = {
             p <- progressr::progressor(steps = length(dgp_params_list)*n_reps)
             results <- future.apply::future_lapply(
               dgp_params_list, function(dgp_params) {
+                if (private$.in_error_state) {
+                  return(NULL)
+                }
                 if (check_cache) {
                   method_params_list <- private$.get_new_method_params(
                     dgp_params, new_fit_params
@@ -920,12 +953,21 @@ Experiment <- R6::R6Class(
                 }
                 reps <- replicate(n_reps, {
                   p()
+                  if (private$.in_error_state) {
+                    return(NULL)
+                  }
                   dgp_name <- dgp_params$.dgp_name
                   dgp_params$.dgp_name <- NULL
-                  data_list <- do_call_handler(
+                  data_list <- private$.do_call_handler(
                     dgp_name, dgp_list[[dgp_name]]$generate, dgp_params, verbose
                   )
+                  if ("simChefError" %in% class(data_list)) {
+                    return(tibble::tibble(.err = list(data_list)))
+                  }
                   purrr::map(method_params_list, function(method_params) {
+                    if (private$.in_error_state) {
+                      return(NULL)
+                    }
                     method_name <- method_params$.method_name
                     param_df <- fix_duplicate_param_names(
                       dgp_params = c(.dgp_name = dgp_name, dgp_params),
@@ -936,10 +978,13 @@ Experiment <- R6::R6Class(
                       simplify_tibble()
                     method_params$.method_name <- NULL
                     method_params$data_list <- data_list
-                    result <- do_call_handler(
+                    result <- private$.do_call_handler(
                       method_name, method_list[[method_name]]$fit, method_params,
                       verbose
                     )
+                    if ("simChefError" %in% class(result)) {
+                      return(tibble::tibble(.err = list(result)))
+                    }
                     result <- result %>%
                       tibble::add_column(
                         param_df, .before = 1,
@@ -961,6 +1006,9 @@ Experiment <- R6::R6Class(
             p <- progressr::progressor(steps = length(method_params_list)*n_reps)
             results <- future.apply::future_lapply(
               method_params_list, function(method_params) {
+                if (private$.in_error_state) {
+                  return(NULL)
+                }
                 if (check_cache) {
                   dgp_params_list <- private$.get_new_dgp_params(
                     method_params, new_fit_params
@@ -969,11 +1017,17 @@ Experiment <- R6::R6Class(
                 reps <- replicate(n_reps, {
                   p()
                   purrr::map(dgp_params_list, function(dgp_params) {
+                    if (private$.in_error_state) {
+                      return(NULL)
+                    }
                     dgp_name <- dgp_params$.dgp_name
                     dgp_params$.dgp_name <- NULL
-                    data_list <- do_call_handler(
+                    data_list <- private$.do_call_handler(
                       dgp_name, dgp_list[[dgp_name]]$generate, dgp_params, verbose
                     )
+                    if ("simChefError" %in% class(data_list)) {
+                      return(tibble::tibble(.err = list(data_list)))
+                    }
                     method_name <- method_params$.method_name
                     param_df <- fix_duplicate_param_names(
                       dgp_params = c(.dgp_name = dgp_name, dgp_params),
@@ -984,10 +1038,13 @@ Experiment <- R6::R6Class(
                       simplify_tibble()
                     method_params$.method_name <- NULL
                     method_params$data_list <- data_list
-                    result <- do_call_handler(
+                    result <- private$.do_call_handler(
                       method_name, method_list[[method_name]]$fit, method_params,
                       verbose
                     )
+                    if ("simChefError" %in% class(result)) {
+                      return(tibble::tibble(.err = list(result)))
+                    }
                     result <- result %>%
                       tibble::add_column(
                         param_df, .before = 1,
@@ -1013,6 +1070,9 @@ Experiment <- R6::R6Class(
               dgp_params_list,
               function(dgp_params) {
                 p()
+                if (private$.in_error_state) {
+                  return(NULL)
+                }
                 if (check_cache) {
                   method_params_list <- private$.get_new_method_params(
                     dgp_params, new_fit_params
@@ -1020,10 +1080,16 @@ Experiment <- R6::R6Class(
                 }
                 dgp_name <- dgp_params$.dgp_name
                 dgp_params$.dgp_name <- NULL
-                data_list <- do_call_handler(
+                data_list <- private$.do_call_handler(
                   dgp_name, dgp_list[[dgp_name]]$generate, dgp_params, verbose
                 )
+                if ("simChefError" %in% class(data_list)) {
+                  return(tibble::tibble(.err = list(data_list)))
+                }
                 purrr::map(method_params_list, function(method_params) {
+                  if (private$.in_error_state) {
+                    return(NULL)
+                  }
                   method_name <- method_params$.method_name
                   param_df <- fix_duplicate_param_names(
                     dgp_params = c(.dgp_name = dgp_name, dgp_params),
@@ -1034,10 +1100,13 @@ Experiment <- R6::R6Class(
                     simplify_tibble()
                   method_params$.method_name <- NULL
                   method_params$data_list <- data_list
-                  result <- do_call_handler(
+                  result <- private$.do_call_handler(
                     method_name, method_list[[method_name]]$fit, method_params,
                     verbose
                   )
+                  if ("simChefError" %in% class(result)) {
+                    return(tibble::tibble(.err = list(result)))
+                  }
                   result <- result %>%
                     tibble::add_column(
                       param_df, .before = 1,
@@ -1070,17 +1139,26 @@ Experiment <- R6::R6Class(
               method_params_list,
               function(method_params) {
                 p()
+                if (private$.in_error_state) {
+                  return(NULL)
+                }
                 if (check_cache) {
                   dgp_params_list <- private$.get_new_dgp_params(
                     method_params, new_fit_params
                   )
                 }
                 purrr::map(dgp_params_list, function(dgp_params) {
+                  if (private$.in_error_state) {
+                    return(NULL)
+                  }
                   dgp_name <- dgp_params$.dgp_name
                   dgp_params$.dgp_name <- NULL
-                  data_list <- do_call_handler(
+                  data_list <- private$.do_call_handler(
                     dgp_name, dgp_list[[dgp_name]]$generate, dgp_params, verbose
                   )
+                  if ("simChefError" %in% class(data_list)) {
+                    return(tibble::tibble(.err = list(data_list)))
+                  }
                   method_name <- method_params$.method_name
                   param_df <- fix_duplicate_param_names(
                     dgp_params = c(.dgp_name = dgp_name, dgp_params),
@@ -1091,10 +1169,13 @@ Experiment <- R6::R6Class(
                     simplify_tibble()
                   method_params$.method_name <- NULL
                   method_params$data_list <- data_list
-                  result <- do_call_handler(
+                  result <- private$.do_call_handler(
                     method_name, method_list[[method_name]]$fit, method_params,
                     verbose
                   )
+                  if ("simChefError" %in% class(result)) {
+                    return(tibble::tibble(.err = list(result)))
+                  }
                   result <- result %>%
                     tibble::add_column(
                       param_df, .before = 1,
@@ -1136,13 +1217,22 @@ Experiment <- R6::R6Class(
             p <- progressr::progressor(steps = length(dgp_mapply_args)*n_reps)
             results <- future.apply::future_mapply(
               function(dgp_params, method_params) {
+                if (private$.in_error_state) {
+                  return(NULL)
+                }
                 reps <- replicate(n_reps, {
                   p()
+                  if (private$.in_error_state) {
+                    return(NULL)
+                  }
                   dgp_name <- dgp_params$.dgp_name
                   dgp_params$.dgp_name <- NULL
-                  data_list <- do_call_handler(
+                  data_list <- private$.do_call_handler(
                     dgp_name, dgp_list[[dgp_name]]$generate, dgp_params, verbose
                   )
+                  if ("simChefError" %in% class(data_list)) {
+                    return(tibble::tibble(.err = list(data_list)))
+                  }
                   method_name <- method_params$.method_name
                   param_df <- fix_duplicate_param_names(
                     dgp_params = c(.dgp_name = dgp_name, dgp_params),
@@ -1153,10 +1243,13 @@ Experiment <- R6::R6Class(
                     simplify_tibble()
                   method_params$.method_name <- NULL
                   method_params$data_list <- data_list
-                  result <- do_call_handler(
+                  result <- private$.do_call_handler(
                     method_name, method_list[[method_name]]$fit, method_params,
                     verbose
                   )
+                  if ("simChefError" %in% class(result)) {
+                    return(tibble::tibble(.err = list(result)))
+                  }
                   result <- result %>%
                     tibble::add_column(
                       param_df, .before = 1,
@@ -1199,11 +1292,17 @@ Experiment <- R6::R6Class(
             results <- future.apply::future_mapply(
               function(dgp_params, method_params) {
                 p()
+                if (private$.in_error_state) {
+                  return(NULL)
+                }
                 dgp_name <- dgp_params$.dgp_name
                 dgp_params$.dgp_name <- NULL
-                data_list <- do_call_handler(
+                data_list <- private$.do_call_handler(
                   dgp_name, dgp_list[[dgp_name]]$generate, dgp_params, verbose
                 )
+                if ("simChefError" %in% class(data_list)) {
+                  return(tibble::tibble(.err = list(data_list)))
+                }
                 method_name <- method_params$.method_name
                 param_df <- fix_duplicate_param_names(
                   dgp_params = c(.dgp_name = dgp_name, dgp_params),
@@ -1214,10 +1313,13 @@ Experiment <- R6::R6Class(
                   simplify_tibble()
                 method_params$.method_name <- NULL
                 method_params$data_list <- data_list
-                result <- do_call_handler(
+                result <- private$.do_call_handler(
                   method_name, method_list[[method_name]]$fit, method_params,
                   verbose
                 )
+                if ("simChefError" %in% class(result)) {
+                  return(tibble::tibble(.err = list(result)))
+                }
                 result <- result %>%
                   tibble::add_column(
                     param_df, .before = 1,
@@ -1230,13 +1332,42 @@ Experiment <- R6::R6Class(
               future.globals = future.globals,
               future.packages = future.packages
             )
+            result_non_null <- !sapply(results, is.null)
             results <- data.table::rbindlist(results, fill = TRUE) %>%
               tibble::as_tibble() %>%
-              dplyr::mutate(.rep = reps)
+              dplyr::mutate(.rep = reps[result_non_null])
             results
           }
         ) %>%
           dplyr::mutate(.rep = as.numeric(.rep) + n_reps_cached)
+
+        if (".err" %in% colnames(new_fit_results)) {
+          private$.in_error_state <- FALSE
+          if (save) {
+            # TODO: save to disk
+          }
+          is_err <- sapply(new_fit_results$.err, function(err) {
+            "simChefError" %in% class(err)
+          })
+          # get one of the errors
+          err <- new_fit_results$.err[is_err][[1]]
+          # filter out empty rows
+          if (".dgp_name" %in% colnames(new_fit_results)) {
+            not_err <- !sapply(new_fit_results$.dgp_name, is.na)
+            new_fit_results <- new_fit_results[is_err | not_err, ]
+          } else {
+            new_fit_results <- new_fit_results[is_err, ]
+          }
+          # end the simulation with an error
+          rlang::abort(
+            paste0(
+              "Error(s) encountered while running the simulation, ",
+              "including:\n\n", err$message,
+              "\n\nUse `rlang::last_error()$partial_results` to return partial results."
+            ),
+            class = "simChefError", partial_results=new_fit_results
+          )
+        }
 
         n_reps_cached <- n_reps_cached + n_reps
 
@@ -1287,7 +1418,7 @@ Experiment <- R6::R6Class(
       if (verbose >= 1) {
         message("==============================")
       }
-      
+
       if (use_cached && return_all_cached_reps) {
         return(fit_results)
       } else {

@@ -344,25 +344,44 @@ do_call_handler <- function(name, fun, params = list(), verbose = 1) {
   handler <- function(condition = "Error") {
     function(c) {
       if (length(params) == 0) {
-        params_str <- ""
+        params_str <- " (params empty)."
       } else {
         params_str <- paste0(
           utils::capture.output(tibble::glimpse(params))[-1], collapse="\n"
         )
-        params_str <- paste0(" with params:\n", params_str)
+        params_str <- paste0(" with the following params:\n", params_str)
       }
-      msg <- paste0(" occured while processing *", name, "*", params_str)
-      condition <- match.arg(condition, choices = c("Error", "Warning", "Message"))
-      condition_str <- paste0("\n", condition)
-      cat(paste0(condition_str, msg))
-      cat(paste0("\nThe ", tolower(condition), ": "))
-      cat(c$message)
-      cat("\n")
+      condition <- match.arg(
+        condition, choices = c("Error", "Warning", "Message")
+      )
+      msg_start <- if (condition == "Message") {
+        paste0("The message below")
+      } else {
+        paste0(c$message, "\nThe above ", tolower(condition))
+      }
+      msg <- paste0(
+        msg_start, " occurred while processing \"", name, "\"", params_str
+      )
+      metadata <- list(name = name, params = params, pid = Sys.getpid())
+      if (condition == "Error") {
+        rlang::abort(
+          msg, parent = c, class = "simChefError",
+          data = metadata
+        )
+      } else if (condition == "Warning") {
+        rlang::warn(
+          msg, class = "simChefWarning", data = metadata
+        )
+      } else {
+        rlang::inform(
+          msg, class = "simChefMessage", data = metadata
+        )
+      }
     }
   }
-  # As opposed to tryCatch, this registers a local handler in the context of the
-  # call that generated the error, warning, or message and continues from where
-  # the code left off when the condition was generated.
+  # As opposed to tryCatch, withCallingHandlers registers a local handler in the
+  # context of the call that generated the error, warning, or message and
+  # continues from where the code left off when the condition was generated.
   if (verbose > 1) {
     # catch and process warnings and messages in addition to errors
     withCallingHandlers(
