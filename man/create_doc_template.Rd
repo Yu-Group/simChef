@@ -7,12 +7,16 @@
 create_doc_template(experiment, save_dir)
 }
 \arguments{
-\item{experiment}{An \code{Experiment} object. If provided,
-\code{experiment$get_save_dir()} is used to find previously saved results.
-If not provided, then \code{save_dir} is used instead.}
+\item{experiment}{An \code{Experiment} object. If provided, documentation is
+created for all previously saved \code{Experiments} that are found in the
+directory given by \code{experiment$get_save_dir()}. If no
+\code{Experiments} have been previously saved under this directory, then
+the current \code{experiment} is saved to disk and used to create the
+documentation template.}
 
-\item{save_dir}{An optional directory in which to find saved results. Not
-used if \code{experiment} provided.}
+\item{save_dir}{An optional directory in which to find previously saved
+\code{Experiment} objects. Documentation is created for these found
+\code{Experiments}. Not used if \code{experiment} is provided.}
 }
 \value{
 The original \code{Experiment} object if provided. Otherwise,
@@ -24,7 +28,10 @@ fill out for the R Markdown results report. If the \code{experiment} is
 provided, the documentation files can be found in the \code{Experiment}'s
 results directory (see \code{Experiment$get_save_dir()}) under docs/.
 Otherwise, the documentation files can be found in the specified
-\code{save_dir} directory under docs/.
+\code{save_dir} directory under docs/. The documentation files generated
+include objectives.md and .md files corresponding to \code{DGPs},
+\code{Methods}, \code{Evaluators}, and \code{Visualizers} in the
+\code{Experiment}.
 }
 \examples{
 \dontrun{

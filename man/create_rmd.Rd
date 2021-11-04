@@ -20,12 +20,16 @@ create_rmd(
 )
 }
 \arguments{
-\item{experiment}{An \code{Experiment} object. If provided,
-\code{experiment$get_save_dir()} is used to find previously saved results.
-If not provided, then \code{save_dir} is used instead.}
+\item{experiment}{An \code{Experiment} object. If provided, documentation is
+created for all previously saved \code{Experiments} that are found in the
+directory given by \code{experiment$get_save_dir()}. If no
+\code{Experiments} have been previously saved under this directory, then
+the current \code{experiment} is saved to disk and used to create the
+documentation template.}
 
-\item{save_dir}{An optional directory in which to find saved results. Not
-used if \code{experiment} provided.}
+\item{save_dir}{An optional directory in which to find previously saved
+\code{Experiment} objects. Documentation is created for these found
+\code{Experiments}. Not used if \code{experiment} is provided.}
 
 \item{open}{If \code{TRUE}, open the R Markdown-generated html file in a
 web browser.}

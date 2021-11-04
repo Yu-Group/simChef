@@ -7,15 +7,28 @@
 #' @inheritParams shared_dgp_lib_args
 #' @param x_fun Function to generate X data.
 #' @param y_fun Function to generate y data.
-#' @param err_fun Function to generate error/noise data.
-#' @param ... Additional arguments to pass to \code{x_fun}, \code{y_fun},
-#'   and \code{err_fun}. If argument does not exist in \code{x_fun}, 
-#'   \code{y_fun}, or \code{err_fun}, argument is ignored.
+#' @param err_fun Function to generate error/noise data. Default \code{NULL} 
+#'   adds no error to the output of \code{y_fun()}.
+#' @param add_err Logical. If \code{TRUE} (default), add result of 
+#'   \code{err_fun()} to result of \code{y_fun()} to obtain the simulated 
+#'   response vector. If \code{FALSE}, return \code{err_fun(y_fun(...), ...)} as 
+#'   the simulated response vector. Note that \code{add_err = TRUE} will return 
+#'   an error for categorical responses \code{y}.
+#' @param ... Additional arguments to pass to \code{x_fun()}, \code{y_fun()},
+#'   and \code{err_fun()}. If argument does not exist in \code{x_fun()}, 
+#'   \code{y_fun()}, or \code{err_fun()}, argument is ignored.
 #' 
 #' @inherit shared_dgp_lib_args return
 #'   
-#' @details Data is generated from the following additive model: 
+#' @details If \code{add_err = TRUE}, data is generated from the following 
+#' additive model: 
 #' \deqn{y = y_fun(X, ...) + err_fun(X, y_fun(X), ...), where X = x_fun(...).}
+#' 
+#' If \code{add_err = FALSE}, data is generated via:
+#' \deqn{y = err_fun(X, y_fun(X, ...), ...), where X = x_fun(...).}
+#' 
+#' Note that while \code{err_fun()} is allowed to depend on both X and y, it is
+#' not necessary that \code{err_fun()} depend on X or y.
 #' 
 #' If x_fun, y_fun, and err_fun have arguments of the same name, then use the
 #' prefix ".x_", ".y_", ".err_" in front of the argument name (passed via ...) 
@@ -50,7 +63,7 @@
 #'                                sd = 1)
 #'
 #' @export
-xy_dgp_constructor <- function(x_fun, y_fun, err_fun = NULL, 
+xy_dgp_constructor <- function(x_fun, y_fun, err_fun = NULL, add_err = TRUE,
                                data_split = FALSE, train_prop = 0.5,
                                return_values = c("X", "y", "support"),
                                ...) {
@@ -108,9 +121,20 @@ xy_dgp_constructor <- function(x_fun, y_fun, err_fun = NULL,
     y_true_out <- list(y = y_true_out)
   }
   if (!is.null(err_fun)) {
-    err_out <- R.utils::doCall(err_fun, args = c(X_out, y_true_out, args_list),
-                               alwaysArgs = err_args_list)
-    y <- y_true_out$y + err_out
+    if (add_err) {
+      if (is.factor(y_true_out$y)) {
+        stop("Cannot add error term to factor response y: ",
+             "'+' not meaningful for factors. Try add_err = FALSE instead.")
+      }
+      err_out <- R.utils::doCall(err_fun,
+                                 args = c(X_out, y_true_out, args_list),
+                                 alwaysArgs = err_args_list)
+      y <- y_true_out$y + err_out
+    } else {
+      y <- R.utils::doCall(err_fun, 
+                           args = c(X_out, y_true_out, args_list),
+                           alwaysArgs = err_args_list)
+    }
   } else {
     y <- y_true_out$y
   }

@@ -8,6 +8,7 @@ xy_dgp_constructor(
   x_fun,
   y_fun,
   err_fun = NULL,
+  add_err = TRUE,
   data_split = FALSE,
   train_prop = 0.5,
   return_values = c("X", "y", "support"),
@@ -19,7 +20,14 @@ xy_dgp_constructor(
 
 \item{y_fun}{Function to generate y data.}
 
-\item{err_fun}{Function to generate error/noise data.}
+\item{err_fun}{Function to generate error/noise data. Default \code{NULL}
+adds no error to the output of \code{y_fun()}.}
+
+\item{add_err}{Logical. If \code{TRUE} (default), add result of
+\code{err_fun()} to result of \code{y_fun()} to obtain the simulated
+response vector. If \code{FALSE}, return \code{err_fun(y_fun(...), ...)} as
+the simulated response vector. Note that \code{add_err = TRUE} will return
+an error for categorical responses \code{y}.}
 
 \item{data_split}{Logical; if \code{TRUE}, splits data into training and test
 sets according to \code{train_prop}.}
@@ -30,9 +38,9 @@ sets according to \code{train_prop}.}
 \item{return_values}{Character vector indicating what objects to return in
 list. Elements in vector must be one of "X", "y", "support".}
 
-\item{...}{Additional arguments to pass to \code{x_fun}, \code{y_fun},
-and \code{err_fun}. If argument does not exist in \code{x_fun},
-\code{y_fun}, or \code{err_fun}, argument is ignored.}
+\item{...}{Additional arguments to pass to \code{x_fun()}, \code{y_fun()},
+and \code{err_fun()}. If argument does not exist in \code{x_fun()},
+\code{y_fun()}, or \code{err_fun()}, argument is ignored.}
 }
 \value{
 A list of the named objects that were requested in
@@ -46,8 +54,15 @@ for any supervised learning DGP, provided the functions for simulating X,
 y, and the additive error term.
 }
 \details{
-Data is generated from the following additive model:
+If \code{add_err = TRUE}, data is generated from the following
+additive model:
 \deqn{y = y_fun(X, ...) + err_fun(X, y_fun(X), ...), where X = x_fun(...).}
+
+If \code{add_err = FALSE}, data is generated via:
+\deqn{y = err_fun(X, y_fun(X, ...), ...), where X = x_fun(...).}
+
+Note that while \code{err_fun()} is allowed to depend on both X and y, it is
+not necessary that \code{err_fun()} depend on X or y.
 
 If x_fun, y_fun, and err_fun have arguments of the same name, then use the
 prefix ".x_", ".y_", ".err_" in front of the argument name (passed via ...)
