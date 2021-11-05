@@ -45,12 +45,16 @@ experiment <- create_experiment(name = "Experiment") %>%
   add_evaluator(evaluator, name = "Evaluator1") %>%
   add_visualizer(visualizer, name = "Visualizer1")
 ```
-3. Run the experiment
+3. Document and describe the simulation experiment in text
+```{r eval = FALSE}
+create_doc_template(experiment)
+```
+4. Run the experiment
 ```{r eval = FALSE}
 results <- experiment$run(n_reps = 100, save = T)  
 # or alternatively, `run_experiment(experiment, n_reps = 100, save = T)`
 ```
-4. Document simulation experiment recipe and visualize summary of results via R Markdown
+5. Visualize results via an automated R Markdown report
 ```{r eval = FALSE}
 create_rmd(experiment)
 ```
@@ -206,10 +210,19 @@ print(experiment)
 
 Once a DGP, Method, Evaluator, or Visualizer has been added to the simulation experiment recipe, the component can be updated using `update_dgp()`, `update_method()`, `update_evaluator()`, or `update_visualizer()` and removed using `remove_dgp()`, `remove_method()`, `remove_evaluator()`, or `remove_visualizer()`.
 
+# Document the experiment
+
+A crucial component when running veridical simulations is **documentation**. We highly encourage practitioners to document the purpose or objective of the simulation experiment, what DGPs, Methods, Evaluators, and Visualizers were used, and why these DGPs, Methods, Evaluators, and Visualizers were chosen. This can and should be done before even running the simulation experiment. To facilitate this tedious but important process, we can easily create a documentation template to fill out using
+
+```{r}
+create_doc_template(experiment)
+```
+
+This creates a series of blank .md files for the user to fill out with descriptions of the simulation experiment and its recipe components. These blank .md files can be found in the experiment's root results directory under docs/. To find the experiment's root results directory, use `experiment$get_save_dir()`.
 
 # Run the experiment
 
-Thus far, we have only created the simulation experiment recipe and have not generated any results from the experiment. That is, we have only given the simulation experiment instructions on what to do. To run the experiment, say over 100 replicates, we can do so via
+Thus far, we have created and documented the simulation experiment recipe, but we have not generated any results from the experiment. That is, we have only given the simulation experiment instructions on what to do. To run the experiment, say over 100 replicates, we can do so via
 
 ```{r}
 results <- experiment$run(n_reps = 100, save = TRUE)
@@ -240,7 +253,7 @@ By default, the results are not saved to disk. However, to generate the R Markdo
 
 The experiment can also be run in parallel. For a more detailed walkthrough on how to parallelize the experiment, please see `vignette("parallel")`.
 
-# Document and visualize results
+# Visualize results
 
 Finally, we can easily visualize all results from the simulation experiment in an html file (generated using R Markdown) or browser.
 
@@ -250,7 +263,40 @@ create_rmd(experiment, open = FALSE)
 
 The results can be found [here](linear_regression_base_output.html).
 
-Note that in the first run of `create_rmd(experiment)`, a documentation template (i.e., a series of blank .md files) is created for the user to fill out with descriptions of the simulation experiment and its recipe components. These blank .md files can be found in the experiment's root results directory under docs/. To find the experiment's root results directory, use `experiment$get_save_dir()`.
+Note that if the documentation template has not yet been created for `experiment` (e.g., via `create_doc_template(experiment)`), then `create_rmd()` will automatically create the documentation template for the user to fill out. Again, we highly encourage practitioners to document their simulation experiments in the spirit of transparency and reproducibility.
+
+# Simulation Experiment Library
+
+In addition to the simple grammar, `simChef` provides a built-in library of functions to create commonly used DGPs, Evaluators, and Visualizers for simulation experiments. The full library of functions can be viewed [here](https://yu-group.github.io/simChef/reference/index.html#section-simulation-experiment-library).
+
+## Simulation Experiment Templates
+
+We have also provided boilerplate code templates for running common *types* of simulation experiments, namely, those focused on prediction (regression and classification), feature selection, or inference. These templates both (1) provide a quick starting point with Evaluators and Visualizers that are commonly used for the specified type of simulation experiment and (2) provide a concrete example of how to get started using functions from the `simChef` library.
+
+Currently, we have implemented the following templates:
+
+- `use_prediction_template(type = "regression")`
+- `use_prediction_template(type = "classification")`
+- `use_feature_selection_template()`
+- `use_inference_template()`
+
+These functions will print out code to the console that can be easily copied and/or run. For example,
+
+```{r}
+use_prediction_template(type = "regression")
+```
+
+For more guidance, we can also include concrete examples of a DGP and Method via:
+
+```{r}
+use_prediction_template(type = "regression",
+                        include_dgp_example = TRUE,
+                        include_method_example = TRUE)
+```
+
+## Developer Functions
+
+TODO: using the developer functions in the library to create custom functions
 
 # Advanced usage
 
@@ -445,6 +491,20 @@ vary_experiment
 experiment
 ```
 
+## Using cached results from an experiment
+
+```{r eval = FALSE}
+results <- experiment$run(n_reps = 20, use_cached = TRUE, save = TRUE)
+get_cached_results(experiment)
+```
+
+
+## Using checkpoints within an experiment
+
+TODO: James
+
+Checkpoint simulations to avoid losing progress in the case of unexpected problems, e.g. node failure.
+
 ## Additional R Markdown notes and options
 
 When generating the R Markdown report summary for an `Experiment`, the R Markdown will compile results (both evaluation and visualization results) from all saved `Experiments` under the root results directory `experiment$get_save_dir()`. Since the results from the many `vary_across` runs above are all saved under the original `experiment`'s results directory, then the following will include all of these results in a single document.
@@ -461,9 +521,9 @@ create_rmd(save_dir = experiment$get_save_dir(), open = FALSE)
 
 The results can be found [here](linear_regression_output.html). 
 
-In addition to showing all results under the root results directory, `create_rmd()` will automatically generate a blank documentation template for every `DGP()`, `Method()`, `Evaluator()`, and `Plot()` found in any one of the `Experiments` under the root results directory. If one would like to generate the documentation template but not create the R Markdown report, see `create_doc_template()`.
+In addition to showing all results under the root results directory, `create_rmd()` will automatically generate a blank documentation template for every `DGP()`, `Method()`, `Evaluator()`, and `Visualizer()` found in any one of the `Experiments` under the root results directory. If one would like to generate the documentation template but not create the R Markdown report, see `create_doc_template()`.
 
-There are also several customizable options regarding the aesthetics of the R Markdown output. These can be modified using the `rmd_options` argument in `create_evaluator()` and `create_visualizer()`. For example, we can customize the height and width of the Power plot via
+There are also several customizable options regarding the aesthetics of Evaluators and Visualizers displayed in the Rmd report. These can be modified using the `rmd_options` argument in `create_evaluator()` and `create_visualizer()`. For example, we can customize the height and width of the Power plot via
 ```{r}
 power_plot <- create_visualizer(viz_fun = power_plot_fun, 
                                 rmd_options = list(height = 10, width = 8))
@@ -486,8 +546,19 @@ experiment <- experiment %>%
                   height = 10, width = 8)
 ```
 
-To hide the output of an `Evaluator()` or `Visualizer()` in the R Markdown report, set `show = FALSE` in `set_rmd_options()` or `create_*`.
+To hide the output of an `Evaluator()` or `Visualizer()` in the R Markdown report, set `show = FALSE` in `set_rmd_options()` or `create_*`. 
 
+There are additional customization options that can be set in `create_rmd()` including the order in which results of Evaluators and Visualizers are displayed (via the `eval_order` and `viz_order` arguments) and the Rmd output type or theme. For example,
+
+```{r eval = FALSE}
+# use html_document instead of rmdformats::material (default)
+create_rmd(experiment, open = FALSE, pretty = FALSE,
+           output_format = rmarkdown::html_document())
+
+# add custom css style
+create_rmd(experiment, open = FALSE, pretty = FALSE,
+           output_options = list(css = "<path/to/file.css>"))
+```
 
 ## Saving results
 
@@ -554,4 +625,55 @@ get_save_dir(experiment)     # or `experiment$get_save_dir`
 #> [1] "./results/Linear Regression Experiment"
 ```
 
+## Error debugging
+
+In the event of an error, `simChef` makes it possible to both retrieve results from completed replicates (before the error occurred) and to gracefully debug errors  in user-defined functions. For the sake of demonstration, let us create an artificial example.
+
+```{r error = TRUE}
+# create experiment
+dgp_fun <- function() return("data")
+dgp_fun_err <- function() { stop("Uh oh!") }
+dgp <- create_dgp(dgp_fun)
+dgp_err <- create_dgp(dgp_fun_err)
+method_fun <- function(x) return("result")
+method <- create_method(method_fun)
+experiment <- create_experiment(
+  dgp_list = list("Working DGP" = dgp, "Buggy DGP" = dgp_err),
+  method_list = list("Method" = method)
+)
+
+# run experiment though it should return an error
+results <- run_experiment(experiment, n_reps = 2)
+```
+
+If working interactively, the error can be inspected using the usual call to `rlang::last_error()`, and results that were run and completed before the error can be inspected via `rlang::last_error()$partial_results`. 
+
+Alternatively, we can wrap the call that ran the error (in this case, `run_experiment()`) in `tryCatch()` as follows:
+```{r error = TRUE}
+results <- tryCatch(run_experiment(experiment, n_reps = 2),
+                    error = identity)
+results
+```
+
+From this, we can view the results that were completed before we ran into the error via
+```{r}
+results$partial_results
+```
+and extract the error object(s) via 
+```{r}
+# find index where error occurred
+err_idx <- which(!sapply(results$partial_results$.err, is.null))
+# extract the error object
+err <- results$partial_results$.err[[err_idx]]
+err
+```
+
+Note that the error object contains the name of the component (e.g., DGP, Method) that ran the error (i.e., `err$data$name`) and the input parameters for the function call (i.e., `err$data$params`). Using this, we can easily reproduce the error and if desired, work directly with the user-specified function that raised the error, e.g.,
+
+```{r error = TRUE}
+# get dgp that ran the error
+err_fun <- experiment$get_dgps()[[err$data$name]]$dgp_fun
+# reproduce error via a direct call to the DGP function that raised the error
+do.call(err_fun, args = err$data$params)
+```
 
