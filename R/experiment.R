@@ -333,7 +333,7 @@ Experiment <- R6::R6Class(
         evaluator_list <- private$.get_obj_list("evaluator")
         evaluate_params <- tibble::tibble(
           .eval_name = names(evaluator_list),
-          .eval_fun = purrr::map(evaluator_list, "eval_fun"),
+          .eval_fun = purrr::map(evaluator_list, ~deparse(.x$eval_fun)),
           .eval_params = purrr::map(evaluator_list, "eval_params")
         )
         cached_idxs <- dplyr::bind_rows(evaluate_params,
@@ -346,7 +346,7 @@ Experiment <- R6::R6Class(
         visualizer_list <- private$.get_obj_list("visualizer")
         visualize_params <- tibble::tibble(
           .viz_name = names(visualizer_list),
-          .viz_fun = purrr::map(visualizer_list, "viz_fun"),
+          .viz_fun = purrr::map(visualizer_list, ~deparse(.x$viz_fun)),
           .viz_params = purrr::map(visualizer_list, "viz_params")
         )
         cached_idxs <- dplyr::bind_rows(visualize_params,
@@ -417,7 +417,7 @@ Experiment <- R6::R6Class(
       evaluator_list <- private$.get_obj_list("evaluator")
       evaluate_params <- tibble::tibble(
         .eval_name = names(evaluator_list),
-        .eval_fun = purrr::map(evaluator_list, "eval_fun"),
+        .eval_fun = purrr::map(evaluator_list, ~deparse(.x$eval_fun)),
         .eval_params = purrr::map(evaluator_list, "eval_params")
       )
       eval_cached <- compare_tibble_rows(evaluate_params,
@@ -432,7 +432,7 @@ Experiment <- R6::R6Class(
       visualizer_list <- private$.get_obj_list("visualizer")
       visualize_params <- tibble::tibble(
         .viz_name = names(visualizer_list),
-        .viz_fun = purrr::map(visualizer_list, "viz_fun"),
+        .viz_fun = purrr::map(visualizer_list, ~deparse(.x$viz_fun)),
         .viz_params = purrr::map(visualizer_list, "viz_params")
       )
       visualize_cached <- compare_tibble_rows(visualize_params,
@@ -561,7 +561,7 @@ Experiment <- R6::R6Class(
       evaluator_list <- private$.get_obj_list("evaluator")
       cached_params$evaluate <- tibble::tibble(
         .eval_name = names(evaluator_list),
-        .eval_fun = purrr::map(evaluator_list, "eval_fun"),
+        .eval_fun = purrr::map(evaluator_list, ~deparse(.x$eval_fun)),
         .eval_params = purrr::map(evaluator_list, "eval_params")
       )
       if (identical(results_type, "eval")) {
@@ -572,7 +572,7 @@ Experiment <- R6::R6Class(
       visualizer_list <- private$.get_obj_list("visualizer")
       cached_params$visualize <- tibble::tibble(
         .viz_name = names(visualizer_list),
-        .viz_fun = purrr::map(visualizer_list, "viz_fun"),
+        .viz_fun = purrr::map(visualizer_list, ~deparse(.x$viz_fun)),
         .viz_params = purrr::map(visualizer_list, "viz_params")
       )
       cached_params_all$visualize <- cached_params
