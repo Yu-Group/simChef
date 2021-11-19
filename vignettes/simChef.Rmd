@@ -1,5 +1,5 @@
 ---
-title: "simChef Vignette"
+title: "Getting started with simChef"
 output: 
   prettydoc::html_pretty:
     theme: architect
@@ -575,10 +575,54 @@ clear_cache(experiment)
 
 ## Using checkpoints within an experiment
 
-TODO: James
+A checkpoint is a periodic snapshot of the simulation results, saved to disk.
+Checkpoints help guard against lost progress in the case of unexpected problems,
+such as node failures when running on a cluster, at the cost of longer
+simulation running times. Checkpoints are most useful for long-running
+simulations where the cost of creating the checkpoints is small relative to the
+total cost of the simulation. As a result, users should be careful not to create
+checkpoints more often than necessary.
 
-Checkpoint simulations to avoid losing progress in the case of unexpected problems, e.g. node failure.
+To enable checkpointing, use a positive value for the argument
+`checkpoint_n_reps` passed to `Experiment$run()` or `Experiment$fit()`. Below is
+an example simulation run in which we use checkpointing and encounter errors as
+the simulation progresses past the first checkpoint:
 
+```{r, eval=FALSE}
+# create a new experiment
+experiment <- create_experiment(name = "checkpoint-exper") %>%
+  ... # add dgps, methods, etc.
+
+# run 100 reps of the experiment, checkpointing every 25 reps
+experiment$fit(n_reps = 100, checkpoint_n_reps = 25)
+#> Fitting checkpoint-exper...
+#> 25 reps completed (totals: 25/100) | time taken: 0.060645 minutes
+#> Saving fit results checkpoint...
+#> Fit results saved | time taken: 0.080968 seconds
+
+# the simulation fails here!
+```
+
+Since a full 25 replicates completed before the simulation failed, the first
+checkpoint was successful. You can use `get_cached_results(experiment, "fit")`
+to examine the completed replicates, or simply continue the simulation using the
+same code you already ran:
+
+```{r, eval=FALSE}
+experiment$fit(n_reps = 100, checkpoint_n_reps = 25)
+#> Reading in cached fit results...
+#> Fitting checkpoint-exper...
+#> 25 reps completed (totals: 50/100) | time taken: 0.066513 minutes
+#> Saving fit results checkpoint...
+#> Fit results saved | time taken: 0.133003 seconds
+#> 25 reps completed (totals: 75/100) | time taken: 0.125143 minutes
+#> Saving fit results checkpoint...
+#> Fit results saved | time taken: 0.107203 seconds
+#> 25 reps completed (totals: 100/100) | time taken: 0.184656 minutes
+#> Saving fit results...
+#> Fit results saved | time taken: 0.124632 seconds
+#> ==============================
+```
 ## Additional R Markdown notes and options
 
 There are several customizable options regarding the aesthetics of Evaluators and Visualizers displayed in the Rmd report. These can be modified using the `rmd_options` argument in `create_evaluator()` and `create_visualizer()`. For example, we can customize the height and width of the Power plot via
