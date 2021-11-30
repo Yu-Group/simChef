@@ -168,7 +168,7 @@ Implement an abstract API to allow for a grammar of simulation experiments.</li>
 Run simulation experiments in parallel and agnostic to computational backend via the R package <code>future</code>.</li>
 <li>
 <input type="checkbox" disabled checked>
-Output an R Markdown report summarizing the results of an Experiment.</li>
+Output an automated R Markdown report summarizing the results of an Experiment.</li>
 <li>
 <input type="checkbox" disabled checked>
 Allow for varying simulation experiments across arbitrary parameters of DGPs and Methods.</li>
@@ -182,29 +182,23 @@ Cache results to avoid re-running already computed components of an Experiment.<
 <input type="checkbox" disabled checked>
 Gracefully handle errors from user-defined functions and returns error information for user to inspect upon completion.</li>
 <li>
-<input type="checkbox" disabled>
+<input type="checkbox" disabled checked>
 Checkpoint simulations to avoid losing progress in the case of unexpected problems, e.g. node failure.</li>
 <li>
 <input type="checkbox" disabled checked>
 Incorporate <code>progressr</code> for simulation progress updates.</li>
 <li>
 <input type="checkbox" disabled checked>
-Include a set of off-the-shelf DGPs and Methods to allow users to quickly run their methods in a number of realistic scenarios compared against a number of high-quality methodologies for those scenarios.</li>
+Include a set of off-the-shelf DGPs, Evaluators, and Visualizers to allow users to quickly run their methods in a number of common types of simulations.</li>
 <li>
 <input type="checkbox" disabled checked>
-Include a set of off-the-shelf Evaluators and Visualizers that respectively calculate common evaluation metrics from simulation results and output plots, tables, and other snippets that can be included in the output R Markdown report.</li>
-<li>
-<input type="checkbox" disabled checked>
-Provide settings to effectively organize Visualizers in the final R Markdown report.</li>
+Allow for user customization of the final R Markdown report (e.g. a customized R Markdown template/theme, order of Evaluator and Visualizer displays).</li>
 <li>
 <input type="checkbox" disabled>
 Enable nested parallelization, e.g. one may paralellize across DGPs using multiple nodes on a cluster and parallelize across simulation replicates using the CPU cores within each node.</li>
 <li>
 <input type="checkbox" disabled>
 Initialize a new simulation experiment interactively via a helper function, incorporating best practice nudges derived from the PCS simulation guidelines.</li>
-<li>
-<input type="checkbox" disabled checked>
-Let user incorporate their own R Markdown report template.</li>
 <li>
 <input type="checkbox" disabled>
 Publish to CRAN.</li>
