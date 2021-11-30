@@ -138,7 +138,7 @@ create_rmd(experiment)
       experiments.
 - [x] Run simulation experiments in parallel and agnostic to computational
       backend via the R package `future`.
-- [x] Output an R Markdown report summarizing the results of an Experiment.
+- [x] Output an automated R Markdown report summarizing the results of an Experiment.
 - [x] Allow for varying simulation experiments across arbitrary parameters of
       DGPs and Methods.
 - [x] Give user the ability to choose which tasks are distributed to parallel
@@ -148,25 +148,19 @@ create_rmd(experiment)
       Experiment.
 - [x] Gracefully handle errors from user-defined functions and returns error
       information for user to inspect upon completion.
-- [ ] Checkpoint simulations to avoid losing progress in the case of unexpected
+- [x] Checkpoint simulations to avoid losing progress in the case of unexpected
       problems, e.g. node failure.
 - [x] Incorporate `progressr` for simulation progress updates.
-- [x] Include a set of off-the-shelf DGPs and Methods to allow users to quickly
-      run their methods in a number of realistic scenarios compared against a
-      number of high-quality methodologies for those scenarios.
-- [x] Include a set of off-the-shelf Evaluators and Visualizers that
-      respectively calculate common evaluation metrics from simulation results
-      and output plots, tables, and other snippets that can be included in the
-      output R Markdown report.
-- [x] Provide settings to effectively organize Visualizers in the final R
-      Markdown report.
+- [x] Include a set of off-the-shelf DGPs, Evaluators, and Visualizers to allow users
+      to quickly run their methods in a number of common types of simulations.
+- [x] Allow for user customization of the final R Markdown report (e.g. a customized
+      R Markdown template/theme, order of Evaluator and Visualizer displays).
 - [ ] Enable nested parallelization, e.g. one may paralellize across DGPs using
       multiple nodes on a cluster and parallelize across simulation replicates
       using the CPU cores within each node.
 - [ ] Initialize a new simulation experiment interactively via a helper
       function, incorporating best practice nudges derived from the PCS
       simulation guidelines.
-- [x] Let user incorporate their own R Markdown report template.
 - [ ] Publish to CRAN.
 
 ## Related R packages
