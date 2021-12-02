@@ -154,11 +154,20 @@ xy_dgp_constructor <- function(x_fun, y_fun, err_fun = NULL, add_err = TRUE,
 #' @inheritParams shared_dgp_lib_args
 #' @param p_obs Number of observed features.
 #' @param p_unobs Number of unobserved (omitted) features.
-#' @param s_obs Number of observed features with non-zero coefficients.
-#' @param s_unobs Number of unobserved (omitted) features with non-zero
-#'   coefficients.
-#' @param betas Coefficient vector for observed design matrix.
-#' @param betas_unobs Coefficient vector for unobserved design matrix.
+#' @param s_obs Sparsity level of observed features. Coefficients corresponding
+#'   to features after the \code{s_obs} position (i.e., positions i = 
+#'   \code{s_obs} + 1, ..., \code{p_obs}) are set to 0.
+#' @param s_unobs Sparsity level of unobserved (omitted) features. Coefficients
+#'   corresponding to features after the \code{s_unobs} position (i.e., 
+#'   positions i = \code{s_unobs} + 1, ..., \code{p_unobs}) are set to 0.
+#' @param betas Coefficient vector for observed design matrix. If a scalar is
+#'   provided, the coefficient vector is a constant vector. If \code{NULL} 
+#'   (default), entries in the coefficient vector are drawn iid from 
+#'   N(0, \code{betas_sd}^2).
+#' @param betas_unobs Coefficient vector for unobserved design matrix. If a 
+#'   scalar is provided, the coefficient vector is a constant vector. If 
+#'   \code{NULL} (default), entries in the coefficient vector are drawn iid from 
+#'   N(0, \code{betas_unobs_sd}^2).
 #' @param betas_sd (Optional) SD of normal distribution from which to draw 
 #'   \code{betas}. Only used if \code{betas} argument is \code{NULL}.
 #' @param betas_unobs_sd (Optional) SD of normal distribution from which to draw 
@@ -167,7 +176,7 @@ xy_dgp_constructor <- function(x_fun, y_fun, err_fun = NULL, add_err = TRUE,
 #' 
 #' @inherit shared_dgp_lib_args return
 #' 
-#' @details Data is generated via: \deqn{y = betas %*% X + 
+#' @details Data is generated via: \deqn{y = intercept + betas %*% X + 
 #' betas_unobs %*% U + err(...),} where X, U are standard Gaussian random 
 #' matrices and the true underlying support of this data is the first s_obs and 
 #' s_unobs features in X and U respectively.
@@ -188,7 +197,8 @@ xy_dgp_constructor <- function(x_fun, y_fun, err_fun = NULL, add_err = TRUE,
 linear_gaussian_dgp <- function(n, p_obs = 0, p_unobs = 0, 
                                 s_obs = p_obs, s_unobs = p_unobs,
                                 betas = NULL, betas_unobs = NULL,
-                                betas_sd = 1, betas_unobs_sd = 1, err = NULL, 
+                                betas_sd = 1, betas_unobs_sd = 1, 
+                                intercept = 0, err = NULL, 
                                 data_split = FALSE, train_prop = 0.5,
                                 return_values = c("X", "y", "support"),
                                 ...) {
@@ -197,6 +207,7 @@ linear_gaussian_dgp <- function(n, p_obs = 0, p_unobs = 0,
   # simulate observed covariates
   if (p_obs != 0) {
     X <- generate_X_gaussian(n = n, p = p_obs)
+    betas <- generate_coef(betas = betas, p = p_obs, s = s_obs, sd = betas_sd)
   } else {
     X <- matrix(0, nrow = n, ncol = 1)
     betas <- 0
@@ -205,30 +216,18 @@ linear_gaussian_dgp <- function(n, p_obs = 0, p_unobs = 0,
   # simulate unobserved covariates
   if (p_unobs != 0) {
     U <- generate_X_gaussian(n = n, p = p_unobs)
+    betas_unobs <- generate_coef(betas = betas_unobs, 
+                                 p = p_unobs, s = s_unobs, sd = betas_unobs_sd,
+                                 betas_name = "betas_unobs")
   } else {
     U <- matrix(0, nrow = n, ncol = 1)
     betas_unobs <- 0
   }
   
-  # simulate betas from gaussian
-  if (is.null(betas)) {
-    betas <- stats::rnorm(p_obs, mean = 0, sd = betas_sd)
-    if (s_obs != p_obs) {
-      betas[(s_obs + 1):length(betas)] <- 0
-    }
-  }
-  
-  # simulate unobserved betas from gaussian
-  if (is.null(betas_unobs)) {
-    betas_unobs <- stats::rnorm(p_unobs, mean = 0, sd = betas_unobs_sd)
-    if (s_unobs != p_unobs) {
-      betas_unobs[(s_unobs + 1):length(betas_unobs)] <- 0
-    }
-  }
-  
   # simulate linear y
   y <- generate_y_linear(
-    X = X, U = U, betas = betas, betas_unobs = betas_unobs, err = err,
+    X = X, U = U, betas = betas, betas_unobs = betas_unobs, 
+    intercept = intercept, err = err,
     return_support = "support" %in% return_values, ...
   )
   
@@ -251,11 +250,22 @@ linear_gaussian_dgp <- function(n, p_obs = 0, p_unobs = 0,
 #' @inheritParams shared_dgp_lib_args
 #' @param p_uncorr Number of uncorrelated features.
 #' @param p_corr Number of features in correlated group.
-#' @param s_uncorr Number of features in uncorrelated group with non-zero coef.
-#' @param s_corr Number of features in correlated group with non-zero coef.
+#' @param s_uncorr Sparsity level of features in uncorrelated group. 
+#'   Coefficients corresponding to features after the \code{s_uncorr} position 
+#'   (i.e., positions i = \code{s_uncorr} + 1, ..., \code{p_uncorr}) are set to 
+#'   0.
+#' @param s_corr Sparsity level of features in correlated group. Coefficients
+#'   corresponding to features after the \code{s_corr} position (i.e., 
+#'   positions i = \code{s_corr} + 1, ..., \code{p_corr}) are set to 0.
 #' @param corr Correlation between features in correlated group.
-#' @param betas_uncorr Coefficient vector for uncorrelated features.
-#' @param betas_corr Coefficient vector for correlated features.
+#' @param betas_uncorr Coefficient vector for uncorrelated features. If a 
+#'   scalar is provided, the coefficient vector is a constant vector. If 
+#'   \code{NULL} (default), entries in the coefficient vector are drawn iid from 
+#'   N(0, \code{betas_uncorr_sd}^2).
+#' @param betas_corr Coefficient vector for correlated features. If a 
+#'   scalar is provided, the coefficient vector is a constant vector. If 
+#'   \code{NULL} (default), entries in the coefficient vector are drawn iid from 
+#'   N(0, \code{betas_corr_sd}^2).
 #' @param betas_uncorr_sd (Optional) SD of normal distribution from which to 
 #'   draw \code{betas_uncorr}. Only used if \code{betas_uncorr} argument is 
 #'   \code{NULL}.
@@ -265,7 +275,8 @@ linear_gaussian_dgp <- function(n, p_obs = 0, p_unobs = 0,
 #'   
 #' @inherit shared_dgp_lib_args return
 #' 
-#' @details Data is generated via: \deqn{y = betas_uncorr %*% X_uncorr + 
+#' @details Data is generated via: \deqn{y = intercept + 
+#' betas_uncorr %*% X_uncorr + 
 #' betas_corr %*% X_corr + err(...),} where X_uncorr is an (uncorrelated)
 #' standard Gaussian random matrix and X_corr is a correlated Gaussian random
 #' matrix with variance 1 and Cor(X_corr_i, X_corr_j) = corr for all i, j. The 
@@ -296,6 +307,7 @@ correlated_linear_gaussian_dgp <- function(n, p_uncorr, p_corr,
                                            betas_corr = NULL,
                                            betas_uncorr_sd = 1,
                                            betas_corr_sd = 1,
+                                           intercept = 0,
                                            err = NULL,
                                            data_split = FALSE, train_prop = 0.5,
                                            return_values = c("X", "y", 
@@ -313,27 +325,18 @@ correlated_linear_gaussian_dgp <- function(n, p_uncorr, p_corr,
     X_uncorr <- generate_X_gaussian(n = n, p = p_uncorr, corr = 0)
   }
   
-  # simulate betas_corr from gaussian
-  if (is.null(betas_corr)) {
-    betas_corr <- stats::rnorm(p_corr, mean = 0, sd = betas_corr_sd)
-    if ((s_corr != p_corr) && (p_corr > 0)) {
-      betas_corr[(s_corr + 1):length(betas_corr)] <- 0
-    }
-  }
-  
-  # simulate betas_uncorr from gaussian
-  if (is.null(betas_uncorr)) {
-    betas_uncorr <- stats::rnorm(p_uncorr, mean = 0, sd = betas_uncorr_sd)
-    if ((s_uncorr != p_uncorr) && (p_uncorr > 0)) {
-      betas_uncorr[(s_uncorr + 1):length(betas_uncorr)] <- 0
-    }
-  }
+  # simulate betas_corr and betas_uncorr
+  betas_corr <- generate_coef(betas = betas_corr, p = p_corr, s = s_corr,
+                              sd = betas_corr_sd, betas_name = "betas_corr")
+  betas_uncorr <- generate_coef(betas = betas_uncorr, p = p_uncorr, 
+                                s = s_uncorr, sd = betas_uncorr_sd, 
+                                betas_name = "betas_uncorr")
   
   X <- cbind(X_uncorr, X_corr)
   betas <- c(betas_uncorr, betas_corr)
   
   # simulate linear y
-  y <- generate_y_linear(X = X, betas = betas, err = err, 
+  y <- generate_y_linear(X = X, betas = betas, intercept = intercept, err = err, 
                          return_support = "support" %in% return_values, ...)
   
   if ("support" %in% return_values) {
@@ -352,18 +355,23 @@ correlated_linear_gaussian_dgp <- function(n, p_uncorr, p_corr,
 #'   logistic response data.
 #'
 #' @inheritParams shared_dgp_lib_args
-#' @param s Number of features with non-zero coefficients.
-#' @param betas Coefficient vector for observed design matrix.
+#' @param s Sparsity level of features. Coefficients corresponding to features
+#'   after the \code{s} position (i.e., positions i = \code{s} + 1, ..., 
+#'   \code{p}) are set to 0.
+#' @param betas Coefficient vector for observed design matrix. If a 
+#'   scalar is provided, the coefficient vector is a constant vector. If 
+#'   \code{NULL} (default), entries in the coefficient vector are drawn iid from 
+#'   N(0, \code{betas_sd}^2).
 #' @param betas_sd (Optional) SD of normal distribution from which to draw 
 #'   \code{betas}. Only used if \code{betas} argument is \code{NULL}.
 #' @param ... Not used.
 #' 
 #' @inherit shared_dgp_lib_args return
 #'   
-#' @details Data is generated via: \deqn{log(p / (1 - p)) = betas %*% X,} where 
-#' p = P(y = 1 | X), X is a standard Gaussian random matrix, and the true 
-#' underlying support of this data is the first s features in X (unless 
-#' specified otherwise by `betas`).
+#' @details Data is generated via: \deqn{log(p / (1 - p)) = intercept + 
+#' betas %*% X,} where p = P(y = 1 | X), X is a standard Gaussian random matrix,
+#' and the true underlying support of this data is the first s features in X 
+#' (unless specified otherwise by `betas`).
 #' 
 #' @examples
 #' # generate data from: log(p / (1 - p)) = betas_1 * x_1 + betas_2 * x_2, where
@@ -372,6 +380,7 @@ correlated_linear_gaussian_dgp <- function(n, p_uncorr, p_corr,
 #'   
 #' @export
 logistic_gaussian_dgp <- function(n, p, s = p, betas = NULL, betas_sd = 1,
+                                  intercept = 0,
                                   data_split = FALSE, train_prop = 0.5,
                                   return_values = c("X", "y", "support"),
                                   ...) {
@@ -380,17 +389,13 @@ logistic_gaussian_dgp <- function(n, p, s = p, betas = NULL, betas_sd = 1,
   # simulate observed covariates
   X <- generate_X_gaussian(n = n, p = p)
   
-  # simulate betas from gaussian
-  if (is.null(betas)) {
-    betas <- stats::rnorm(p, mean = 0, sd = betas_sd)
-    if (s != p) {
-      betas[(s + 1):length(betas)] <- 0
-    }
-  }
+  # simulate betas
+  betas <- generate_coef(betas = betas, p = p, s = s, sd = betas_sd)
   
   # simulate linear y
   y <- generate_y_logistic(
-    X = X, betas = betas, return_support = "support" %in% return_values, ...
+    X = X, betas = betas, intercept = intercept,
+    return_support = "support" %in% return_values, ...
   )
   
   if ("support" %in% return_values) {
@@ -410,25 +415,13 @@ logistic_gaussian_dgp <- function(n, p, s = p, betas = NULL, betas_sd = 1,
 #'   correlated and (binary) logistic response data.
 #'
 #' @inheritParams shared_dgp_lib_args
-#' @param p_uncorr Number of uncorrelated features.
-#' @param p_corr Number of features in correlated group.
-#' @param s_uncorr Number of features in uncorrelated group with non-zero coef.
-#' @param s_corr Number of features in correlated group with non-zero coef.
-#' @param corr Correlation between features in correlated group.
-#' @param betas_uncorr Coefficient vector for uncorrelated features.
-#' @param betas_corr Coefficient vector for correlated features.
-#' @param betas_uncorr_sd (Optional) SD of normal distribution from which to 
-#'   draw \code{betas_uncorr}. Only used if \code{betas_uncorr} argument is 
-#'   \code{NULL}.
-#' @param betas_corr_sd (Optional) SD of normal distribution from which to draw 
-#'   \code{betas_corr}. Only used if \code{betas_corr} argument is 
-#'   \code{NULL}.
+#' @inheritParams correlated_linear_gaussian_dgp
 #' @param ... Not used.
 #'   
 #' @inherit shared_dgp_lib_args return
 #' 
 #' @details Data is generated via: 
-#' \deqn{log(p / (1 - p)) = betas_uncorr %*% X_uncorr + 
+#' \deqn{log(p / (1 - p)) = intercept + betas_uncorr %*% X_uncorr + 
 #' betas_corr %*% X_corr,} where p = P(y = 1 | X), X_uncorr is an 
 #' (uncorrelated) standard Gaussian random matrix, and X_corr is a correlated 
 #' Gaussian random matrix with variance 1 and Cor(X_corr_i, X_corr_j) = corr for 
@@ -458,6 +451,7 @@ correlated_logistic_gaussian_dgp <- function(n, p_uncorr, p_corr,
                                              betas_corr = NULL,
                                              betas_uncorr_sd = 1,
                                              betas_corr_sd = 1,
+                                             intercept = 0,
                                              data_split = FALSE, 
                                              train_prop = 0.5,
                                              return_values = c("X", "y", 
@@ -475,27 +469,18 @@ correlated_logistic_gaussian_dgp <- function(n, p_uncorr, p_corr,
     X_uncorr <- generate_X_gaussian(n = n, p = p_uncorr, corr = 0)
   }
   
-  # simulate betas_corr from gaussian
-  if (is.null(betas_corr)) {
-    betas_corr <- stats::rnorm(p_corr, mean = 0, sd = betas_corr_sd)
-    if ((s_corr != p_corr) && (p_corr > 0)) {
-      betas_corr[(s_corr + 1):length(betas_corr)] <- 0
-    }
-  }
-  
-  # simulate betas_uncorr from gaussian
-  if (is.null(betas_uncorr)) {
-    betas_uncorr <- stats::rnorm(p_uncorr, mean = 0, sd = betas_uncorr_sd)
-    if ((s_uncorr != p_uncorr) && (p_uncorr > 0)) {
-      betas_uncorr[(s_uncorr + 1):length(betas_uncorr)] <- 0
-    }
-  }
+  # simulate betas_corr and betas_uncorr
+  betas_corr <- generate_coef(betas = betas_corr, p = p_corr, s = s_corr,
+                              sd = betas_corr_sd, betas_name = "betas_corr")
+  betas_uncorr <- generate_coef(betas = betas_uncorr, p = p_uncorr, 
+                                s = s_uncorr, sd = betas_uncorr_sd, 
+                                betas_name = "betas_uncorr")
   
   X <- cbind(X_uncorr, X_corr)
   betas <- c(betas_uncorr, betas_corr)
   
   # simulate linear y
-  y <- generate_y_logistic(X = X, betas = betas,
+  y <- generate_y_logistic(X = X, betas = betas, intercept = intercept,
                            return_support = "support" %in% return_values, ...)
   
   if ("support" %in% return_values) {
@@ -514,16 +499,7 @@ correlated_logistic_gaussian_dgp <- function(n, p_uncorr, p_corr,
 #'   response data with a specified error distribution.
 #'   
 #' @inheritParams shared_dgp_lib_args
-#' @param k Order of the interactions.
-#' @param s Number of interactions in the LSS model.
-#' @param thresholds A scalar or a s x k matrix of the thresholds for each term 
-#'   in the LSS model.
-#' @param signs A scalar or a s x k matrix of the sign of each interaction 
-#'   (1 means > while -1 means <).
-#' @param betas Scalar or parameter vector for interaction terms.
-#' @param intercept Scalar intercept term.
-#' @param overlap If TRUE, simulate support indices with replacement; if FALSE,
-#'   simulate support indices without replacement (so no overlap).
+#' @inheritParams generate_y_lss
 #'   
 #' @inherit shared_dgp_lib_args return
 #' 
@@ -583,20 +559,12 @@ lss_gaussian_dgp <- function(n, p, k, s, thresholds = 0, signs = 1, betas = 1,
 #'   correlated and LSS response data with a specified error distribution.
 #'
 #' @inheritParams shared_dgp_lib_args
+#' @inheritParams generate_y_lss
 #' @param p_uncorr Number of uncorrelated features.
 #' @param p_corr Number of features in correlated group.
 #' @param s_uncorr Number of interactions from features in uncorrelated group.
 #' @param s_corr Number of interactions from features in correlated group.
 #' @param corr Correlation between features in correlated group.
-#' @param k Order of the interactions.
-#' @param thresholds A scalar or a s x k matrix of the thresholds for each term 
-#'   in the LSS model.
-#' @param signs A scalar or a s x k matrix of the sign of each interaction 
-#'   (1 means > while -1 means <).
-#' @param betas Scalar or parameter vector for interaction terms.
-#' @param intercept Scalar intercept term.
-#' @param overlap If \code{TRUE}, simulate support indices with replacement; if
-#'   \code{FALSE}, simualte support indices without replacement (so no overlap).
 #' @param mixed_int If \code{TRUE}, correlated and uncorrelated variables are
 #'   mixed together when constructing an interaction of order-k. If 
 #'   \code{FALSE}, each interaction of order-k is composed of only correlated

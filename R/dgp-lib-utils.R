@@ -6,6 +6,7 @@
 #'   sets according to \code{train_prop}.
 #' @param err Function from which to generate simulate error vector. Default
 #'   is \code{NULL} which adds no error to the DGP.
+#' @param intercept Scalar intercept term.
 #' @param n Number of samples.
 #' @param p Number of features.
 #' @param return_support Logical specifying whether or not to return a vector
@@ -25,6 +26,40 @@
 #'   are in \code{return_values}, then the returned list also contains slots for
 #'   "Xtest" and "ytest".
 NULL
+
+#' Helper function to generate a coefficient vector.
+#' 
+#' @inheritParams shared_dgp_lib_args
+#' @param betas Coefficient vector. If a scalar is provided, the coefficient 
+#'   vector is a constant vector. If \code{NULL} (default), entries in the 
+#'   coefficient vector are drawn iid from N(0, \code{sd}^2).
+#' @param s Sparsity level. Coefficients corresponding to features after the 
+#'   \code{s}th position (i.e., positions i = \code{s} + 1, ..., \code{p}) are 
+#'   set to 0.
+#' @param sd (Optional) SD of normal distribution from which to draw 
+#'   \code{betas}. Only used if \code{betas} argument is \code{NULL}.
+#' @param betas_name Name of coefficient variable to use in error message.
+#' 
+#' @returns A vector of length \code{p}.
+#' 
+#' @keywords internal
+generate_coef <- function(betas = NULL, p, s = p, sd = 1, 
+                          betas_name = "betas") {
+  if (is.null(betas)) {
+    # simulate betas from gaussian by default
+    betas <- stats::rnorm(p, mean = 0, sd = sd)
+  } else {
+    if (length(betas) == 1) {
+      betas <- rep(betas, length.out = p)
+    } else if (length(betas) != p) {
+      stop(sprintf("%s must have length 1 or %s.", betas_name, p))
+    }
+  }
+  if (s != p) {
+    betas[(s + 1):length(betas)] <- 0
+  }
+  return(betas)
+}
 
 #' Developer function to return consistent outputs in DGP.
 #' 
