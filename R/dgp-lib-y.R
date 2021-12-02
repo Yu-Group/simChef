@@ -14,7 +14,8 @@
 #' @returns If \code{return_support = TRUE}, returns a list of two:
 #' \describe{
 #' \item{y}{A response vector of length \code{nrow(X)}.}
-#' \item{support}{A vector of feature indices in the true support of the DGP.}
+#' \item{support}{A vector of feature indices indicating all features used in
+#'   the true support of the DGP.}
 #' }
 #' 
 #' If \code{return_support = FALSE}, returns only the response vector \code{y}.
@@ -65,13 +66,7 @@ generate_y_linear <- function(X, U, betas = 0, betas_unobs = 0, intercept = 0,
 #' @param betas Coefficient vector for observed design matrix.
 #' @param ... Not used.
 #' 
-#' @returns If \code{return_support = TRUE}, returns a list of two:
-#' \describe{
-#' \item{y}{A response vector of length \code{nrow(X)}.}
-#' \item{support}{A vector of feature indices in the true support of the DGP.}
-#' }
-#' 
-#' If \code{return_support = FALSE}, returns only the response vector \code{y}.
+#' @inherit generate_y_linear return
 #' 
 #' @examples
 #' X <- generate_X_gaussian(n = 100, p = 2)

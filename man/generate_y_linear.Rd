@@ -41,7 +41,8 @@ indices of the support are used.}
 If \code{return_support = TRUE}, returns a list of two:
 \describe{
 \item{y}{A response vector of length \code{nrow(X)}.}
-\item{support}{A vector of feature indices in the true support of the DGP.}
+\item{support}{A vector of feature indices indicating all features used in
+the true support of the DGP.}
 }
 
 If \code{return_support = FALSE}, returns only the response vector \code{y}.

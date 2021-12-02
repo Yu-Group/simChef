@@ -503,7 +503,21 @@ correlated_logistic_gaussian_dgp <- function(n, p_uncorr, p_corr,
 #' @param return_values Character vector indicating what objects to return in 
 #'   list. Elements in vector must be one of "X", "y", "support", "int_support".
 #'   
-#' @inherit shared_dgp_lib_args return
+#' @returns A list of the named objects that were requested in
+#'   \code{return_values}. See brief descriptions below.
+#' \describe{
+#' \item{X}{A \code{data.frame}.}
+#' \item{y}{A response vector of length \code{nrow(X)}.}
+#' \item{support}{A vector of feature indices indicating all features used in
+#'   the true support of the DGP.}
+#' \item{int_support}{A vector of signed feature indices in the true 
+#'   (interaction) support of the DGP. For example, "1+_2-" means that the 
+#'   interaction between high values of feature 1 and low values of feature 2 
+#'   appears in the underlying DGP.}
+#' }
+#' Note that if \code{data_split = TRUE} and "X", "y" 
+#'   are in \code{return_values}, then the returned list also contains slots for
+#'   "Xtest" and "ytest".
 #' 
 #' @details Data is generated via: \deqn{y = intercept + sum_{i = 1}^{s} beta_i prod_{j = 1}^{k}1(X_{S_j} lessgtr thresholds_ij) + err(...),} where X is a 
 #' standard Gaussian random matrix. If \code{overlap = TRUE}, then the true 
@@ -583,7 +597,7 @@ lss_gaussian_dgp <- function(n, p, k, s, thresholds = 0, signs = 1, betas = 1,
 #' @param return_values Character vector indicating what objects to return in 
 #'   list. Elements in vector must be one of "X", "y", "support", "int_support".
 #'   
-#' @inherit shared_dgp_lib_args return
+#' @inherit lss_gaussian_dgp return
 #' 
 #' @details Data is generated via: \deqn{y = intercept + sum_{i = 1}^{s} beta_i prod_{j = 1}^{k}1(X_{S_j} lessgtr thresholds_ij) + err(...),} where 
 #' X = \[X_uncorr, X_corr\], X_uncorr is an (uncorrelated) standard Gaussian 

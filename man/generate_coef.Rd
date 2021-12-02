@@ -4,7 +4,7 @@
 \alias{generate_coef}
 \title{Helper function to generate a coefficient vector.}
 \usage{
-generate_coef(betas = NULL, p, s = p, sd = 1, betas_name = "betas")
+generate_coef(betas = NULL, p = 1, s = p, sd = 1, betas_name = "betas")
 }
 \arguments{
 \item{betas}{Coefficient vector. If a scalar is provided, the coefficient
@@ -26,6 +26,17 @@ set to 0.}
 A vector of length \code{p}.
 }
 \description{
-Helper function to generate a coefficient vector.
+Generate a coefficient vector with the specified dimensions and
+sparsity level.
 }
-\keyword{internal}
+\examples{
+# generate beta ~ N(0, 1) of dimension 10
+beta <- generate_coef(p = 10)
+
+# generate beta = [1, 1, 0, 0, 0]
+beta <- generate_coef(betas = 1, p = 5, s = 2)
+
+# generate beta = [1, 2, 3]
+beta <- generate_coef(betas = 1:3, p = 3)
+
+}
