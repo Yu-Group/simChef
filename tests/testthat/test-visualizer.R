@@ -13,15 +13,15 @@ test_that("Visualizer initialization works properly", {
                                  rmd_options = list(height = 8, width = 8))
   visualizer1f <- Visualizer$new(viz_fun = viz_fun1,
                                  a = 5, b = 1:5, c = data.frame(d = 1:2))
-  visualizer1g <- Visualizer$new(viz_fun = viz_fun1, show = FALSE)
+  visualizer1g <- Visualizer$new(viz_fun = viz_fun1, rmd_show = FALSE)
   visualizer1h <- Visualizer$new(viz_fun1, n = 100)
   visualizer1i <- Visualizer$new(n = 100, func = func, viz_fun1)
   visualizer1j <- Visualizer$new(n = 100, viz_fun1, "Visualizer")
   visualizer1k <- Visualizer$new(viz_fun1, "Visualizer",
-                                 list(width = 8), rm = TRUE, n = 100)
-  visualizer1l <- Visualizer$new(viz_fun1, "Visualizer", n = 100, rm = TRUE)
+                                 list(width = 8), rmd_o = TRUE, n = 100)
+  visualizer1l <- Visualizer$new(viz_fun1, "Visualizer", n = 100, rmd_o = TRUE)
   visualizer1m <- Visualizer$new(viz_fun1, a = 5, "Visualizer",
-                                 list(width = 8), rm = TRUE)
+                                 list(width = 8), rmd_o = TRUE)
 
   named_list <- list()
   names(named_list) <- character(0)
@@ -37,7 +37,7 @@ test_that("Visualizer initialization works properly", {
   expect_equal(visualizer1$viz_fun, viz_fun1)
   expect_equal(visualizer1$viz_params, named_list)
   expect_equal(visualizer1$rmd_options, list(height = 6, width = 10))
-  expect_equal(visualizer1$show, TRUE)
+  expect_equal(visualizer1$rmd_show, TRUE)
 
   # basic initialization with name
   expect_equal(visualizer1b$name, "Visualizer")
@@ -58,7 +58,7 @@ test_that("Visualizer initialization works properly", {
   expect_equal(visualizer1f$rmd_options, list(height = 6, width = 10))
 
   # show rmd input
-  expect_equal(visualizer1g$show, FALSE)
+  expect_equal(visualizer1g$rmd_show, FALSE)
 
   # preventing viz_fun arg partial matching
   expect_equal(visualizer1h$viz_params, list(n = 100))
@@ -79,19 +79,19 @@ test_that("Visualizer initialization works properly", {
   expect_equal(visualizer1j$rmd_options, list(height = 6, width = 10))
 
   # both formals by position, two user args partial matching
-  expect_equal(visualizer1k$viz_params, list(n = 100, rm = TRUE))
+  expect_equal(visualizer1k$viz_params, list(n = 100, rmd_o = TRUE))
   expect_equal(visualizer1k$viz_fun, viz_fun1)
   expect_equal(visualizer1k$name, "Visualizer")
   expect_equal(visualizer1k$rmd_options, list(height = 6, width = 8))
 
   # one formal by position, two user args partial matching
-  expect_equal(visualizer1l$viz_params, list(n = 100, rm = TRUE))
+  expect_equal(visualizer1l$viz_params, list(n = 100, rmd_o = TRUE))
   expect_equal(visualizer1l$viz_fun, viz_fun1)
   expect_equal(visualizer1l$name, "Visualizer")
   expect_equal(visualizer1l$rmd_options, list(height = 6, width = 10))
 
   # both formals by shifted position, one user arg partial matching
-  expect_equal(visualizer1m$viz_params, list(rm = TRUE, a = 5))
+  expect_equal(visualizer1m$viz_params, list(rmd_o = TRUE, a = 5))
   expect_equal(visualizer1m$viz_fun, viz_fun1)
   expect_equal(visualizer1m$name, "Visualizer")
   expect_equal(visualizer1m$rmd_options, list(height = 6, width = 8))
@@ -108,15 +108,15 @@ test_that("Visualizer initialization works properly", {
                               rmd_options = list(height = 8, width = 8))
   visualizer2f <- create_visualizer(viz_fun = viz_fun1,
                                     a = 5, b = 1:5, c = data.frame(d = 1:2))
-  visualizer2g <- create_visualizer(viz_fun = viz_fun1, show = F)
+  visualizer2g <- create_visualizer(viz_fun = viz_fun1, rmd_show = F)
   visualizer2h <- create_visualizer(viz_fun1, n = 100)
   visualizer2i <- create_visualizer(n = 100, func = func, viz_fun1)
   visualizer2j <- create_visualizer(n = 100, viz_fun1, "Visualizer")
   visualizer2k <- create_visualizer(viz_fun1, "Visualizer",
-                                    list(width = 8), rm = TRUE, n = 100)
-  visualizer2l <- create_visualizer(viz_fun1, "Visualizer", n = 100, rm = TRUE)
+                                    list(width = 8), rmd_o = TRUE, n = 100)
+  visualizer2l <- create_visualizer(viz_fun1, "Visualizer", n = 100, rmd_o = TRUE)
   visualizer2m <- create_visualizer(viz_fun1, a = 5, "Visualizer",
-                                    list(width = 8), rm = TRUE)
+                                    list(width = 8), rmd_o = TRUE)
 
   expect_error(create_visualizer())
   expect_error(create_visualizer(name = "Visualizer"))
