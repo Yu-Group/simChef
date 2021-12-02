@@ -531,9 +531,12 @@ correlated_logistic_gaussian_dgp <- function(n, p_uncorr, p_corr,
 lss_gaussian_dgp <- function(n, p, k, s, thresholds = 0, signs = 1, betas = 1,
                              intercept = 0, overlap = FALSE, err = NULL,
                              data_split = FALSE, train_prop = 0.5,
-                             return_values = c("X", "y", "support",
-                                               "int_support"),
+                             return_values = c("X", "y", "support"),
                              ...) {
+  return_values <- match.arg(return_values, 
+                             choices = c("X", "y", "support", "int_support"), 
+                             several.ok = TRUE)
+  
   X <- generate_X_gaussian(n = n, p = p)
   if (overlap) {
     s_mat <- matrix(sample(1:p, s * k, replace = TRUE),
@@ -626,9 +629,11 @@ correlated_lss_gaussian_dgp <- function(n, p_uncorr, p_corr,
                                         overlap = FALSE, mixed_int = FALSE,
                                         err = NULL, data_split = FALSE,
                                         train_prop = 0.5,
-                                        return_values = c("X", "y", "support",
-                                                          "int_support"),
+                                        return_values = c("X", "y", "support"),
                                         ...) {
+  return_values <- match.arg(return_values, 
+                             choices = c("X", "y", "support", "int_support"), 
+                             several.ok = TRUE)
   
   X_corr <- generate_X_gaussian(n = n, p = p_corr, corr = corr)
   X_uncorr <- generate_X_gaussian(n = n, p = p_uncorr, corr = 0)
