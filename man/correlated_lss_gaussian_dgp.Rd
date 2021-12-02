@@ -21,7 +21,7 @@ correlated_lss_gaussian_dgp(
   err = NULL,
   data_split = FALSE,
   train_prop = 0.5,
-  return_values = c("X", "y", "support", "int_support"),
+  return_values = c("X", "y", "support"),
   ...
 )
 }
