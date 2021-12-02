@@ -500,6 +500,8 @@ correlated_logistic_gaussian_dgp <- function(n, p_uncorr, p_corr,
 #'   
 #' @inheritParams shared_dgp_lib_args
 #' @inheritParams generate_y_lss
+#' @param return_values Character vector indicating what objects to return in 
+#'   list. Elements in vector must be one of "X", "y", "support", "int_support".
 #'   
 #' @inherit shared_dgp_lib_args return
 #' 
@@ -529,7 +531,9 @@ correlated_logistic_gaussian_dgp <- function(n, p_uncorr, p_corr,
 lss_gaussian_dgp <- function(n, p, k, s, thresholds = 0, signs = 1, betas = 1,
                              intercept = 0, overlap = FALSE, err = NULL,
                              data_split = FALSE, train_prop = 0.5,
-                             return_values = c("X", "y", "support"), ...) {
+                             return_values = c("X", "y", "support",
+                                               "int_support"),
+                             ...) {
   X <- generate_X_gaussian(n = n, p = p)
   if (overlap) {
     s_mat <- matrix(sample(1:p, s * k, replace = TRUE),
@@ -545,11 +549,15 @@ lss_gaussian_dgp <- function(n, p, k, s, thresholds = 0, signs = 1, betas = 1,
   
   if ("support" %in% return_values) {
     support <- y$support
+    int_support <- y$int_support
     y <- y$y
   }
   out <- return_DGP_output(X = X, y = y, support = support,
                            data_split = data_split, train_prop = train_prop,
                            return_values = return_values)
+  if ("int_support" %in% return_values) {
+    out$int_support <- int_support
+  }
   return(out)
 }
 
@@ -569,6 +577,8 @@ lss_gaussian_dgp <- function(n, p, k, s, thresholds = 0, signs = 1, betas = 1,
 #'   mixed together when constructing an interaction of order-k. If 
 #'   \code{FALSE}, each interaction of order-k is composed of only correlated
 #'   variables or only uncorrelated variables.
+#' @param return_values Character vector indicating what objects to return in 
+#'   list. Elements in vector must be one of "X", "y", "support", "int_support".
 #'   
 #' @inherit shared_dgp_lib_args return
 #' 
@@ -616,7 +626,8 @@ correlated_lss_gaussian_dgp <- function(n, p_uncorr, p_corr,
                                         overlap = FALSE, mixed_int = FALSE,
                                         err = NULL, data_split = FALSE,
                                         train_prop = 0.5,
-                                        return_values = c("X", "y", "support"),
+                                        return_values = c("X", "y", "support",
+                                                          "int_support"),
                                         ...) {
   
   X_corr <- generate_X_gaussian(n = n, p = p_corr, corr = corr)
@@ -652,11 +663,15 @@ correlated_lss_gaussian_dgp <- function(n, p_uncorr, p_corr,
   
   if ("support" %in% return_values) {
     support <- y$support
+    int_support <- y$int_support
     y <- y$y
   }
   out <- return_DGP_output(X = X, y = y, support = support,
                            data_split = data_split, train_prop = train_prop,
                            return_values = return_values)
+  if ("int_support" %in% return_values) {
+    out$int_support <- int_support
+  }
   return(out)
 }
 
