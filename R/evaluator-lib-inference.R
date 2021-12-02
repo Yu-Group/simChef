@@ -157,9 +157,10 @@ eval_testing_err <- function(fit_results, vary_params = NULL,
     
     data <- data %>%
       dplyr::mutate(
-        .pval_imp = -log10(.data[[pval_col]]),
         {{truth_col}} := factor(as.integer(as.numeric(.data[[truth_col]]) != 0), 
-                                levels = 0:1)
+                                levels = 0:1),
+        # temporarily invert p-value for *_auc computation
+        .pval_imp = -.data[[pval_col]]
       )
     
     if (is.null(alphas)) {
@@ -186,6 +187,12 @@ eval_testing_err <- function(fit_results, vary_params = NULL,
                        na_rm = na_rm, event_level = "second") %>%
           dplyr::mutate(.alpha = !!alpha) %>%
           dplyr::select(.alpha, .metric, .estimate)
+        if (na_rm) {
+          res <- res %>%
+            dplyr::add_row(.alpha = !!alpha, 
+                           .metric = "num_na", 
+                           .estimate = sum(is.na(data_alpha[[pval_col]])))
+        }
         return(res)
       }
     )
@@ -338,14 +345,15 @@ eval_testing_curve <- function(fit_results, vary_params = NULL,
                                nested_data = NULL, truth_col, pval_col,
                                curve = c("ROC", "PR"), options = list(), 
                                na_rm = FALSE) {
+  curve_estimate <- NULL  # to fix no visible binding for global variable error
   if (is.null(nested_data) | (pval_col %in% names(fit_results))) {
     fit_results <- fit_results %>%
       dplyr::rowwise() %>%
-      dplyr::mutate({{pval_col}} := -log10(.data[[pval_col]]))
+      dplyr::mutate({{pval_col}} := -.data[[pval_col]])
   } else {
     fit_results[[nested_data]] <- purrr::map(
       fit_results[[nested_data]],
-      ~.x %>% dplyr::mutate({{pval_col}} := -log10(.data[[pval_col]]))
+      ~.x %>% dplyr::mutate({{pval_col}} := -.data[[pval_col]])
     )
   }
   
@@ -353,7 +361,13 @@ eval_testing_curve <- function(fit_results, vary_params = NULL,
     fit_results = fit_results, vary_params = vary_params,
     nested_data = nested_data, truth_col = truth_col, imp_col = pval_col,
     curve = curve, options = options, na_rm = na_rm
-  )
+  ) %>%
+    dplyr::mutate(
+      curve_estimate = purrr::map(
+        curve_estimate, 
+        ~.x %>% dplyr::mutate(.threshold = -.threshold)
+      )
+    )
   return(eval_tib)
 }
 
@@ -380,25 +394,16 @@ summarize_testing_curve <- function(fit_results, vary_params = NULL,
   }
   group_vars <- c(".dgp_name", ".method_name", vary_params, xvar)
   
-  rescale_curve <- function(curve_data) {
-    # map curves onto same x-axis scale
-    curve_data = data.frame(
-      .x_coord = x_grid,
-      .y_coord = purrr::map_dbl(
-        x_grid, ~max(curve_data[curve_data[[xvar]] <= .x, yvar])
-      )
-    ) %>%
-      stats::setNames(c(xvar, yvar))
-    return(curve_data)
-  }
-  
   eval_tib <- eval_testing_curve(
     fit_results = fit_results, vary_params = vary_params,
     nested_data = nested_data, truth_col = truth_col, pval_col = pval_col, 
     curve = curve, options = options, na_rm = na_rm
   ) %>%
     dplyr::rowwise() %>%
-    dplyr::mutate(curve_estimate = list(rescale_curve(curve_estimate))) %>%
+    dplyr::mutate(curve_estimate = list(rescale_curve(curve_estimate,
+                                                      x_grid = x_grid,
+                                                      xvar = xvar,
+                                                      yvar = yvar))) %>%
     tidyr::unnest(curve_estimate) %>%
     dplyr::group_by(dplyr::across({{group_vars}})) 
   
