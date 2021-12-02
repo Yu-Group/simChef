@@ -88,6 +88,11 @@ reference:
       - ar1_errors
       - block_errors
       - norm_errors
+  - subtitle: "DGP Library: Miscellaneous"
+    desc: >
+      Other utility functions for generating DGPs.
+    contents:
+      - generate_coef
   - subtitle: "Evaluator Library: Prediction"
     desc: >
       A library of common functions for evaluating prediction-focused simulation experiments.
