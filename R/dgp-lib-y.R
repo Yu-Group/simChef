@@ -6,8 +6,10 @@
 #' @inheritParams shared_dgp_lib_args
 #' @param X Design data matrix of observed variables.
 #' @param U Design data matrix of unobserved (omitted) variables.
-#' @param betas Coefficient vector for observed design matrix.
-#' @param betas_unobs Coefficient vector for unobserved design matrix.
+#' @param betas Scalar or vector of coefficients corresponding to features
+#'   in observed design matrix.
+#' @param betas_unobs Scalar or vector of coefficients corresponding to features
+#'   in unobserved design matrix.
 #' 
 #' @returns If \code{return_support = TRUE}, returns a list of two:
 #' \describe{
@@ -28,21 +30,22 @@
 #' y <- generate_y_linear(X = X, U = U, betas = c(3, -1), betas_unobs = c(1, 2))
 #' 
 #' @export
-generate_y_linear <- function(X, U, betas, betas_unobs, err = NULL,
-                              return_support = FALSE, ...) {
+generate_y_linear <- function(X, U, betas = 0, betas_unobs = 0, intercept = 0,
+                              err = NULL, return_support = FALSE, ...) {
   n <- nrow(X)
   p <- ncol(X)
   
   if (missing(U)) {
     U <- matrix(0, nrow = n, ncol = 1)
   }
-  if (missing(betas_unobs)) {
-    betas_unobs <- 0
-  }
   
-  eps <- generate_errors(err = err, n = n, ...)
+  betas <- generate_coef(betas = betas, p = p)
+  betas_unobs <- generate_coef(betas = betas_unobs, p = ncol(U),
+                               betas_name = "betas_unobs")
   
-  y <- c(as.matrix(U) %*% betas_unobs + as.matrix(X) %*% betas + eps)
+  eps <- generate_errors(err = err, n = n, X = X, ...)
+  
+  y <- intercept + c(as.matrix(U) %*% betas_unobs + as.matrix(X) %*% betas + eps)
   
   if (return_support) {
     support <- which(betas != 0)
@@ -78,11 +81,14 @@ generate_y_linear <- function(X, U, betas, betas_unobs, err = NULL,
 #' y <- generate_y_logistic(X = X, betas = c(3, -1))
 #' 
 #' @export
-generate_y_logistic <- function(X, betas, return_support = FALSE, ...) {
+generate_y_logistic <- function(X, betas = 0, intercept = 0, 
+                                return_support = FALSE, ...) {
   n <- nrow(X)
   p <- ncol(X)
   
-  probs <- 1 / (1 + exp(-(as.matrix(X) %*% betas)))
+  betas <- generate_coef(betas = betas, p = p)
+  
+  probs <- 1 / (1 + exp(-(intercept + as.matrix(X) %*% betas)))
   y <- as.factor(
     ifelse(stats::runif(n = n, min = 0, max = 1) > probs, "0", "1")
   )
@@ -108,18 +114,20 @@ generate_y_logistic <- function(X, betas, return_support = FALSE, ...) {
 #'   in the LSS model.
 #' @param signs A scalar or a s x k matrix of the sign of each interaction 
 #'   (1 means > while -1 means <).
-#' @param betas Scalar or parameter vector for interaction terms.
-#' @param intercept Scalar intercept term.
+#' @param betas Scalar or vector of coefficients corresponding to interaction 
+#'   terms.
 #' @param overlap If TRUE, simulate support indices with replacement; if FALSE,
 #'   simulate support indices without replacement (so no overlap)
 #' 
-#' @returns If \code{return_support = TRUE}, returns a list of two:
+#' @returns If \code{return_support = TRUE}, returns a list of three:
 #' \describe{
 #' \item{y}{A response vector of length \code{nrow(X)}.}
-#' \item{support}{A vector of signed feature indices in the true (interaction)
-#'   support of the DGP. For example, "1+_2-" means that the interaction
-#'   between high values of feature 1 and low values of feature 2 appears in the
-#'   underlying DGP.}
+#' \item{support}{A vector of feature indices indicating all features used in
+#'   the true support of the DGP.}
+#' \item{int_support}{A vector of signed feature indices in the true 
+#'   (interaction) support of the DGP. For example, "1+_2-" means that the 
+#'   interaction between high values of feature 1 and low values of feature 2 
+#'   appears in the underlying DGP.}
 #' }
 #' 
 #' If \code{return_support = FALSE}, returns only the response vector \code{y}.
@@ -160,17 +168,15 @@ generate_y_lss <- function(X, k, s, thresholds = 1, signs = 1,
     }
   }
   
+  betas <- generate_coef(betas = betas, p = s)
   if (!is.matrix(thresholds)) {
     thresholds <- matrix(thresholds, nrow = s, ncol = k)
   }
   if (!is.matrix(signs)) {
     signs <- matrix(signs, nrow = s, ncol = k)
   }
-  if (length(betas) == 1) {
-    betas <- rep(betas, s)
-  }
   
-  eps <- generate_errors(err = err, n = nrow(X), ...)
+  eps <- generate_errors(err = err, n = nrow(X), X = X, ...)
   add_terms <- purrr::map(1:s,
                           function(i) {
                             indicator(X[, support_idx[i, ], drop = F], 
@@ -182,14 +188,15 @@ generate_y_lss <- function(X, k, s, thresholds = 1, signs = 1,
   y <- intercept + add_terms + eps
   
   if (return_support) {
-    support <- purrr::map_chr(
+    support <- unique(c(support_idx))
+    int_support <- purrr::map_chr(
       1:s,
       function(i) {
         paste(support_idx[i, ], ifelse(signs[i, ] == 1, "+", "-"),
               sep = "", collapse = "_")
       }
     )
-    return(list(y = y, support = support))
+    return(list(y = y, support = support, int_support = int_support))
   } else {
     return(y)
   }

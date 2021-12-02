@@ -10,8 +10,10 @@
 #' 
 #' @return A vector of simulated errors with length \code{n}.
 #' 
-#' @details The function \code{err} must accept an argument named \code{n} 
-#'   (i.e., the sample size).
+#' @details The arguments \code{n} and \code{X} (if provided) are automatically
+#'   passed to the function \code{err} under arguments of the same name.
+#'   Note however that they may be unused arguments if \code{err} does not take 
+#'   in arguments named \code{n} and/or \code{X} as input.
 #' 
 #' @examples
 #' # generate standard Gaussian error vector of length 150
@@ -44,7 +46,11 @@ generate_errors <- function(err = NULL, n, X, ...) {
   if (is.null(err)) {
     eps <- rep(0, n)
   } else if (is.function(err)) {
-    eps <- R.utils::doCall(err, n = n, ...)
+    if (!missing(X)) {
+      eps <- R.utils::doCall(err, n = n, X = X, ...)
+    } else {
+      eps <- R.utils::doCall(err, n = n, ...)
+    }
   } else {
     stop("The argument err must either be NULL or a function.", 
          call. = FALSE)
@@ -76,34 +82,49 @@ ar1_errors <- function(n, rho) {
 #' Generate block-correlated Gaussian errors.
 #' 
 #' @description Generate correlated Gaussian errors based on a block-dependence
-#'   covariance structure (with 3 blocks).
+#'   covariance structure with k (approximately) equally-sized blocks.
 #'
 #' @inheritParams shared_dgp_lib_args
-#' @param rho Correlation.
+#' @param k Number of blocks.
+#' @param rho Correlation. Must be a scalar or vector of length \code{k}.
 #' 
 #' @inherit generate_errors return
 #' 
 #' @examples
-#' errs <- block_errors(n = 100, rho = 0.7)
+#' errs <- block_errors(n = 100, k = 3, rho = 0.7)
 #' 
 #' @export
-block_errors <- function(n, rho = 0.8) {
+block_errors <- function(n, k = 3, rho = 0.8) {
   Sigma_block <- matrix(0, nrow = n, ncol = n)
-  k <- n %/% 3
-  Sigma_block[1:k, 1:k] <-
-    Sigma_block[(k+1):(2*k), (k+1):(2*k)] <-
-    Sigma_block[(2*k+1):n, (2*k+1):n] <- rho
+  block_size <- n %/% k
+  
+  if (length(rho) == 1) {
+    rho <- rep(rho, k)
+  } else if (length(rho) != k) {
+    stop("rho must have length 1 or k.")
+  }
+  
+  for (i in 1:k) {
+    start <- (i - 1) * block_size + 1
+    if (i * block_size < n && i == k) {
+      end <- n
+    } else {
+      end <- min(i * block_size, n)
+    }
+    Sigma_block[start:end, start:end] <- rho[i]
+  }
   diag(Sigma_block) <- 1
   return(MASS::mvrnorm(1, mu = rep(0, n), Sigma = Sigma_block))
 }
 
 #' Generate heteroskedastic Gaussian errors based on the norm of X.
 #' 
-#' @description Generate independent Gaussian errors with variance based on norm
-#'   of row observations in the data matrix X. That is,
-#'   epsilon_i ~ N(0, ||x_i||_2^2).
+#' @description Generate independent Gaussian errors with variance proportional 
+#'   to norm of row observations in the data matrix X. That is,
+#'   epsilon_i ~ N(0, scale * ||x_i||_2^2).
 #'
 #' @inheritParams shared_dgp_lib_args
+#' @param scale Multiplicative scale factor.
 #' 
 #' @inherit generate_errors return
 #' 
@@ -111,8 +132,8 @@ block_errors <- function(n, rho = 0.8) {
 #' errs <- norm_errors(X = iris %>% dplyr::select(-Species))
 #' 
 #' @export
-norm_errors <- function(X) {
+norm_errors <- function(X, scale = 1) {
   norm_obs <- apply(X, 1, function(x) sum(x^2))
-  Sigma <- diag(norm_obs)
+  Sigma <- diag(norm_obs) * scale
   return(MASS::mvrnorm(1, mu = rep(0, nrow(X)), Sigma = Sigma))
 }
