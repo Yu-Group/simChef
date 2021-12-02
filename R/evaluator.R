@@ -16,16 +16,17 @@ Evaluator <- R6::R6Class(
     eval_params = NULL,
     rmd_options = list(digits = 2, sigfig = FALSE,
                        options = list(scrollX = TRUE, scrollCollapse = TRUE)),
-    show = TRUE,
+    rmd_show = TRUE,
     initialize = function(eval_fun, name = NULL, rmd_options = list(),
-                          show = TRUE, ...) {
+                          rmd_show = TRUE, ...) {
       dots_list <- list(...)
       if (".args_list" %in% names(dots_list)) {
         args_list <- dots_list[[".args_list"]]
       } else {
         args_list <- make_initialize_arg_list(eval_fun, name = name,
                                               rmd_options = rmd_options,
-                                              show = show, ..., which = -2)
+                                              rmd_show = rmd_show, ..., 
+                                              which = -2)
       }
       self$eval_fun <- args_list$eval_fun
       self$name <- args_list$name
@@ -33,10 +34,10 @@ Evaluator <- R6::R6Class(
       for (opt in names(rmd_options)) {
         self$rmd_options[[opt]] <- rmd_options[[opt]]
       }
-      self$show <- args_list$show
+      self$rmd_show <- args_list$rmd_show
       args_list$name <- NULL
       args_list$eval_fun <- NULL
-      args_list$show <- NULL
+      args_list$rmd_show <- NULL
       args_list$rmd_options <- NULL
       self$eval_params <- args_list
     },
@@ -83,7 +84,7 @@ Evaluator <- R6::R6Class(
       cat("   R Markdown Options: ")
       cat(str(self$rmd_options,
               indent.str = "     ", no.list = F))
-      cat("   Show in R Markdown:", self$show)
+      cat("   Show in R Markdown:", self$rmd_show)
       invisible(self)
     }
   )
@@ -102,7 +103,7 @@ Evaluator <- R6::R6Class(
 #'   report. See [pretty_DT()] for possible options. The argument must be
 #'   specified by position or typed out in whole; no partial matching is allowed
 #'   for this argument.
-#' @param show If \code{TRUE} (default), show \code{Evaluator}'s results as
+#' @param rmd_show If \code{TRUE} (default), show \code{Evaluator}'s results as
 #'   a table in the R Markdown report; if \code{FALSE}, hide output in the
 #'   R Markdown report.
 #' @param ... Arguments to pass into \code{eval_fun()}.
@@ -161,9 +162,10 @@ Evaluator <- R6::R6Class(
 #'
 #' @export
 create_evaluator <- function(eval_fun, name = NULL, rmd_options = list(),
-                             show = TRUE, ...) {
+                             rmd_show = TRUE, ...) {
   args_list <- make_initialize_arg_list(eval_fun, name = name,
-                                        rmd_options = rmd_options, show = show,
+                                        rmd_options = rmd_options, 
+                                        rmd_show = rmd_show,
                                         ...)
   do.call(Evaluator$new, list(".args_list" = args_list))
 }

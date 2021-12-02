@@ -277,7 +277,7 @@ showResults <- function(dir_name, depth, base = FALSE, show_header = TRUE,
         message(rep(" ", depth + 1), eval_name)
       }
       evaluator <- exp$get_evaluators()[[eval_name]]
-      if (evaluator$show) {
+      if (evaluator$rmd_show) {
         cat(sprintf(figname_template, eval_name))
         do.call(pretty_DT,
                 c(list(eval_results[[eval_name]]), evaluator$rmd_options)) %>%
@@ -296,7 +296,7 @@ showResults <- function(dir_name, depth, base = FALSE, show_header = TRUE,
         message(rep(" ", depth + 1), viz_name)
       }
       visualizer <- exp$get_visualizers()[[viz_name]]
-      if (visualizer$show) {
+      if (visualizer$rmd_show) {
         cat(invisible_header)
         cat(sprintf(figname_template, viz_name))
         plts <- viz_results[[viz_name]]
