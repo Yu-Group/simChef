@@ -14,6 +14,7 @@ linear_gaussian_dgp(
   betas_unobs = NULL,
   betas_sd = 1,
   betas_unobs_sd = 1,
+  intercept = 0,
   err = NULL,
   data_split = FALSE,
   train_prop = 0.5,
@@ -28,14 +29,23 @@ linear_gaussian_dgp(
 
 \item{p_unobs}{Number of unobserved (omitted) features.}
 
-\item{s_obs}{Number of observed features with non-zero coefficients.}
+\item{s_obs}{Sparsity level of observed features. Coefficients corresponding
+to features after the \code{s_obs} position (i.e., positions i =
+\code{s_obs} + 1, ..., \code{p_obs}) are set to 0.}
 
-\item{s_unobs}{Number of unobserved (omitted) features with non-zero
-coefficients.}
+\item{s_unobs}{Sparsity level of unobserved (omitted) features. Coefficients
+corresponding to features after the \code{s_unobs} position (i.e.,
+positions i = \code{s_unobs} + 1, ..., \code{p_unobs}) are set to 0.}
 
-\item{betas}{Coefficient vector for observed design matrix.}
+\item{betas}{Coefficient vector for observed design matrix. If a scalar is
+provided, the coefficient vector is a constant vector. If \code{NULL}
+(default), entries in the coefficient vector are drawn iid from
+N(0, \code{betas_sd}^2).}
 
-\item{betas_unobs}{Coefficient vector for unobserved design matrix.}
+\item{betas_unobs}{Coefficient vector for unobserved design matrix. If a
+scalar is provided, the coefficient vector is a constant vector. If
+\code{NULL} (default), entries in the coefficient vector are drawn iid from
+N(0, \code{betas_unobs_sd}^2).}
 
 \item{betas_sd}{(Optional) SD of normal distribution from which to draw
 \code{betas}. Only used if \code{betas} argument is \code{NULL}.}
@@ -43,6 +53,8 @@ coefficients.}
 \item{betas_unobs_sd}{(Optional) SD of normal distribution from which to draw
 \code{betas_unobs}. Only used if \code{betas_unobs} argument is
 \code{NULL}.}
+
+\item{intercept}{Scalar intercept term.}
 
 \item{err}{Function from which to generate simulate error vector. Default
 is \code{NULL} which adds no error to the DGP.}
@@ -70,7 +82,7 @@ potentially omitted variables) and linear response data with a specified
 error distribution.
 }
 \details{
-Data is generated via: \deqn{y = betas \%\emph{\% X +
+Data is generated via: \deqn{y = intercept + betas \%\emph{\% X +
 betas_unobs \%}\% U + err(...),} where X, U are standard Gaussian random
 matrices and the true underlying support of this data is the first s_obs and
 s_unobs features in X and U respectively.

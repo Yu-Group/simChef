@@ -4,12 +4,14 @@
 \alias{generate_y_logistic}
 \title{Simulate (binary) logistic response data.}
 \usage{
-generate_y_logistic(X, betas, return_support = FALSE, ...)
+generate_y_logistic(X, betas = 0, intercept = 0, return_support = FALSE, ...)
 }
 \arguments{
 \item{X}{Design data matrix of observed variables.}
 
 \item{betas}{Coefficient vector for observed design matrix.}
+
+\item{intercept}{Scalar intercept term.}
 
 \item{return_support}{Logical specifying whether or not to return a vector
 of the support column names. If \code{X} has no column names, then the

@@ -10,6 +10,8 @@ sets according to \code{train_prop}.}
 \item{err}{Function from which to generate simulate error vector. Default
 is \code{NULL} which adds no error to the DGP.}
 
+\item{intercept}{Scalar intercept term.}
+
 \item{n}{Number of samples.}
 
 \item{p}{Number of features.}

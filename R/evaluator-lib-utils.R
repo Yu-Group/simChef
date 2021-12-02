@@ -146,7 +146,6 @@ summarize_eval_results <- function(eval_data, eval_id = NULL, value_col,
 #'   coordinates given in a data.frame onto a new set of x-axis values (i.e., 
 #'   FPR for an ROC curve and recall for a PR curve).
 #'
-#' @inheritParams shared_eval_lib_args
 #' @param curve_data A \code{data.frame} containing the x- and y-coordinates
 #'   that define the ROC/PR curve.
 #' @param x_grid Vector of x-coordinates at which to evaluate ROC/PR curve

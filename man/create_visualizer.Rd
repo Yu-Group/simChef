@@ -4,7 +4,13 @@
 \alias{create_visualizer}
 \title{Create a new \code{Visualizer}.}
 \usage{
-create_visualizer(viz_fun, name = NULL, rmd_options = list(), show = TRUE, ...)
+create_visualizer(
+  viz_fun,
+  name = NULL,
+  rmd_options = list(),
+  rmd_show = TRUE,
+  ...
+)
 }
 \arguments{
 \item{viz_fun}{The visualization function.}
@@ -19,8 +25,9 @@ Currently, possible options are "height" and "width" (in inches). The
 argument must be specified by position or typed out in whole; no partial
 matching is allowed for this argument.}
 
-\item{show}{If \code{TRUE} (default), show the resulting visualization in the R
-Markdown report; if \code{FALSE}, hide output in the R Markdown report.}
+\item{rmd_show}{If \code{TRUE} (default), show the resulting visualization in
+the R Markdown report; if \code{FALSE}, hide output in the R Markdown
+report.}
 
 \item{...}{Arguments to pass into \code{viz_fun()}.}
 }

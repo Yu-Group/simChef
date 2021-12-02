@@ -24,8 +24,10 @@ Generate simulated errors from the specified error function and
 passed arguments.
 }
 \details{
-The function \code{err} must accept an argument named \code{n}
-(i.e., the sample size).
+The arguments \code{n} and \code{X} (if provided) are automatically
+passed to the function \code{err} under arguments of the same name.
+Note however that they may be unused arguments if \code{err} does not take
+in arguments named \code{n} and/or \code{X} as input.
 }
 \examples{
 # generate standard Gaussian error vector of length 150

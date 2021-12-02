@@ -4,7 +4,13 @@
 \alias{create_evaluator}
 \title{Create a new \code{Evaluator}.}
 \usage{
-create_evaluator(eval_fun, name = NULL, rmd_options = list(), show = TRUE, ...)
+create_evaluator(
+  eval_fun,
+  name = NULL,
+  rmd_options = list(),
+  rmd_show = TRUE,
+  ...
+)
 }
 \arguments{
 \item{eval_fun}{The evaluation function.}
@@ -19,7 +25,7 @@ report. See \code{\link[=pretty_DT]{pretty_DT()}} for possible options. The argu
 specified by position or typed out in whole; no partial matching is allowed
 for this argument.}
 
-\item{show}{If \code{TRUE} (default), show \code{Evaluator}'s results as
+\item{rmd_show}{If \code{TRUE} (default), show \code{Evaluator}'s results as
 a table in the R Markdown report; if \code{FALSE}, hide output in the
 R Markdown report.}
 

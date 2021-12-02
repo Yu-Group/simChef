@@ -4,21 +4,23 @@
 \alias{block_errors}
 \title{Generate block-correlated Gaussian errors.}
 \usage{
-block_errors(n, rho = 0.8)
+block_errors(n, k = 3, rho = 0.8)
 }
 \arguments{
 \item{n}{Number of samples.}
 
-\item{rho}{Correlation.}
+\item{k}{Number of blocks.}
+
+\item{rho}{Correlation. Must be a scalar or vector of length \code{k}.}
 }
 \value{
 A vector of simulated errors with length \code{n}.
 }
 \description{
 Generate correlated Gaussian errors based on a block-dependence
-covariance structure (with 3 blocks).
+covariance structure with k (approximately) equally-sized blocks.
 }
 \examples{
-errs <- block_errors(n = 100, rho = 0.7)
+errs <- block_errors(n = 100, k = 3, rho = 0.7)
 
 }
