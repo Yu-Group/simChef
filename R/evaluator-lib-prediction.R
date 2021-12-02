@@ -205,6 +205,7 @@ NULL
 
 #' @rdname eval_pred_err_funs
 #' 
+#' @importFrom rlang .data
 #' @export
 eval_pred_err <- function(fit_results, vary_params = NULL, nested_data = NULL,
                           truth_col, estimate_col, prob_cols = NULL,
@@ -254,6 +255,13 @@ eval_pred_err <- function(fit_results, vary_params = NULL, nested_data = NULL,
           data, truth = !!truth_col, estimate = !!estimate_col, na_rm = na_rm
         )
       }
+    }
+    if (na_rm) {
+      na_counts <- data %>%
+        dplyr::summarise(.estimate = sum(is.na(.data[[estimate_col]]))) %>%
+        dplyr::mutate(.metric = "num_na")
+      res <- res %>%
+        dplyr::bind_rows(na_counts)
     }
     return(res %>% dplyr::select(-.estimator))
   }
@@ -504,25 +512,16 @@ summarize_pred_curve <- function(fit_results, vary_params = NULL,
     group_vars <- c(".dgp_name", ".method_name", vary_params, xvar)
   }
   
-  rescale_curve <- function(curve_data) {
-    # map curves onto same x-axis scale
-    curve_data = data.frame(
-      .x_coord = x_grid,
-      .y_coord = purrr::map_dbl(
-        x_grid, ~max(curve_data[curve_data[[xvar]] <= .x, yvar])
-      )
-    ) %>%
-      stats::setNames(c(xvar, yvar))
-    return(curve_data)
-  }
-  
   eval_tib <- eval_pred_curve(
     fit_results = fit_results, vary_params = vary_params,
     nested_data = nested_data, truth_col = truth_col, prob_cols = prob_cols, 
     curve = curve, groups = groups, options = options, na_rm = na_rm
   ) %>%
     dplyr::rowwise() %>%
-    dplyr::mutate(curve_estimate = list(rescale_curve(curve_estimate))) %>%
+    dplyr::mutate(curve_estimate = list(rescale_curve(curve_estimate,
+                                                      x_grid = x_grid,
+                                                      xvar = xvar,
+                                                      yvar = yvar))) %>%
     tidyr::unnest(curve_estimate) %>%
     dplyr::group_by(dplyr::across({{group_vars}})) 
   

@@ -38,7 +38,8 @@
 #'   (\code{spec}), positive predictive value (\code{ppv}), number of features
 #'   in the estimated support (\code{pos}), number of features not in the 
 #'   estimated support (\code{neg}), AUROC (\code{roc_auc}), and AUPRC 
-#'   (\code{pr_auc}).
+#'   (\code{pr_auc}). If \code{na_rm = TRUE}, the number of NA values 
+#'   (\code{num_na}) is also computed.
 #' 
 #' @returns 
 #' The output of \code{eval_feature_selection_err()} is a \code{tibble} with the
@@ -183,6 +184,11 @@ eval_feature_selection_err <- function(fit_results, vary_params = NULL,
                    tidyselect::all_of(".imp_est"), na_rm = na_rm, 
                    event_level = "second") %>%
       dplyr::select(-.estimator)
+    if (na_rm) {
+      res <- res %>%
+        dplyr::add_row(.metric = "num_na", 
+                       .estimate = sum(is.na(data[[estimate_col]])))
+    }
     return(res)
   }
   
@@ -386,25 +392,16 @@ summarize_feature_selection_curve <- function(fit_results, vary_params = NULL,
   }
   group_vars <- c(".dgp_name", ".method_name", vary_params, xvar)
   
-  rescale_curve <- function(curve_data) {
-    # map curves onto same x-axis scale
-    curve_data = data.frame(
-      .x_coord = x_grid,
-      .y_coord = purrr::map_dbl(
-        x_grid, ~max(curve_data[curve_data[[xvar]] <= .x, yvar])
-      )
-    ) %>%
-      stats::setNames(c(xvar, yvar))
-    return(curve_data)
-  }
-  
   eval_tib <- eval_feature_selection_curve(
     fit_results = fit_results, vary_params = vary_params,
     nested_data = nested_data, truth_col = truth_col, imp_col = imp_col, 
     curve = curve, options = options, na_rm = na_rm
   ) %>%
     dplyr::rowwise() %>%
-    dplyr::mutate(curve_estimate = list(rescale_curve(curve_estimate))) %>%
+    dplyr::mutate(curve_estimate = list(rescale_curve(curve_estimate,
+                                                      x_grid = x_grid,
+                                                      xvar = xvar,
+                                                      yvar = yvar))) %>%
     tidyr::unnest(curve_estimate) %>%
     dplyr::group_by(dplyr::across({{group_vars}})) 
   

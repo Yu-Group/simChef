@@ -140,6 +140,75 @@ summarize_eval_results <- function(eval_data, eval_id = NULL, value_col,
            dplyr::group_by(dplyr::across({{group_ids}})))
 }
 
+#' Rescale ROC/PR curves onto the same x-axis grid
+#' 
+#' @description A helper function to map a ROC/PR curve with unique 
+#'   coordinates given in a data.frame onto a new set of x-axis values (i.e., 
+#'   FPR for an ROC curve and recall for a PR curve).
+#'
+#' @inheritParams shared_eval_lib_args
+#' @param curve_data A \code{data.frame} containing the x- and y-coordinates
+#'   that define the ROC/PR curve.
+#' @param x_grid Vector of x-coordinates at which to evaluate ROC/PR curve
+#' @param xvar Name of column in \code{curve_data} with the FPR values for an 
+#'   ROC curve or the recall values for a PR curve.
+#' @param yvar Name of column in \code{curve_data} with the TPR values for an 
+#'   ROC curve or the precision values for a PR curve.
+#' 
+#' @return A \code{data.frame} with the coordinates of the ROC/PR curve using
+#'   the new x-axis scale. This \code{data.frame} has two columns with names  
+#'   given by those specified in \code{xvar} and \code{yvar}.
+#' 
+#' @keywords internal
+rescale_curve <- function(curve_data, x_grid, xvar, yvar) {
+  # map curves onto same x-axis scale
+  x_vals <- sort(unique(curve_data[[xvar]]))
+  if (length(x_vals) <= length(x_grid)) {
+    y_vals <- rep(NA, length(x_grid))
+    y_cur <- max(curve_data[curve_data[[xvar]] == x_vals[1], yvar])
+    y_vals[x_grid <= x_vals[1]] <- y_cur
+    for (i in 2:length(x_vals)) {
+      cur_window <- (x_grid < x_vals[i]) & is.na(y_vals)
+      if (any(cur_window)) {
+        y_vals[cur_window] <- y_cur
+      }
+      y_next <- curve_data[curve_data[[xvar]] == x_vals[i], yvar]
+      if (xvar == "FPR") {
+        y_vals[which(is.na(y_vals))[1]] <- min(y_next)
+        y_cur <- max(y_next)
+      } else if (xvar == "recall") {
+        y_vals[which(is.na(y_vals))[1]] <- max(y_next)
+        y_cur <- min(y_next)
+      }
+    }
+  } else {
+    y_vals <- c(max(curve_data[curve_data[[xvar]] <= x_grid[1], yvar]),
+                rep(NA, length(x_grid) - 1))
+    y_cur <- y_vals[1]
+    for (i in 2:length(x_grid)) {
+      x0 <- x_grid[i - 1]
+      x1 <- x_grid[i]
+      cur_window <- (curve_data[[xvar]] > x0) & (curve_data[[xvar]] <= x1)
+      if (any(cur_window)) {
+        if (xvar == "FPR") {
+          y_vals[i] <- min(curve_data[cur_window, yvar])
+          y_cur <- max(curve_data[cur_window, yvar])
+        } else if (xvar == "recall") {
+          y_vals[i] <- max(curve_data[cur_window, yvar])
+          y_cur <- min(curve_data[cur_window, yvar])
+        }
+      } else {
+        y_vals[i] <- y_cur
+      }
+    }
+  }
+  curve_data <- data.frame(
+    .x_coord = x_grid,
+    .y_coord = y_vals
+  )
+  return(curve_data %>% stats::setNames(c(xvar, yvar)))
+}
+
 #----------------------------- Yardstick Helpers -------------------------------
 #' Logic for \code{event_level} in custom \code{yardstick} metrics.
 #' 
