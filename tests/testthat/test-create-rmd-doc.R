@@ -190,12 +190,12 @@ test_that("R Markdown options work properly", {
 
   expect_error(create_rmd(experiment, open = FALSE, verbose = 0), NA)
 
-  expect_equal(purrr::map_lgl(experiment$get_evaluators(), "show"),
+  expect_equal(purrr::map_lgl(experiment$get_evaluators(), "rmd_show"),
                c(T, T, T, F) %>% setNames(names(experiment$get_evaluators())))
   expect_equal(purrr::map_dbl(experiment$get_evaluators(),
                               ~.x$rmd_options$digits),
                c(2, 3, 4, 2) %>% setNames(names(experiment$get_evaluators())))
-  expect_equal(purrr::map_lgl(experiment$get_visualizers(), "show"),
+  expect_equal(purrr::map_lgl(experiment$get_visualizers(), "rmd_show"),
                c(T, T, T, F) %>% setNames(names(experiment$get_visualizers())))
   expect_equal(purrr::map_dbl(experiment$get_visualizers(),
                               ~.x$rmd_options$height),

@@ -278,12 +278,12 @@
      1 DGP1      Method        0        0          0       0       0         0
      2 DGP1      Method        0.01     0          0       0       0         0
      3 DGP1      Method        0.02     0          0       0       0         0
-     4 DGP1      Method        0.03     0.02       0.02    0.02    0.02      0
+     4 DGP1      Method        0.03     0          0       0       0         0
      5 DGP1      Method        0.04     0.02       0.02    0.02    0.02      0
-     6 DGP1      Method        0.05     0.04       0.04    0.04    0.04      0
+     6 DGP1      Method        0.05     0.02       0.02    0.02    0.02      0
      7 DGP1      Method        0.06     0.04       0.04    0.04    0.04      0
-     8 DGP1      Method        0.07     0.06       0.06    0.06    0.06      0
-     9 DGP1      Method        0.08     0.08       0.08    0.08    0.08      0
+     8 DGP1      Method        0.07     0.04       0.04    0.04    0.04      0
+     9 DGP1      Method        0.08     0.06       0.06    0.06    0.06      0
     10 DGP1      Method        0.09     0.08       0.08    0.08    0.08      0
     # ... with 192 more rows, and 1 more variable: raw_TPR <list>
 
@@ -293,16 +293,16 @@
     # Groups:   .dgp_name, .method_name, recall [202]
        .dgp_name .method_name recall mean_precision median_precision min_precision
        <chr>     <chr>         <dbl>          <dbl>            <dbl>         <dbl>
-     1 DGP1      Method         0                 1                1             1
-     2 DGP1      Method         0.01              1                1             1
-     3 DGP1      Method         0.02              1                1             1
-     4 DGP1      Method         0.03              1                1             1
-     5 DGP1      Method         0.04              1                1             1
-     6 DGP1      Method         0.05              1                1             1
-     7 DGP1      Method         0.06              1                1             1
-     8 DGP1      Method         0.07              1                1             1
-     9 DGP1      Method         0.08              1                1             1
-    10 DGP1      Method         0.09              1                1             1
+     1 DGP1      Method         0             1                1             1    
+     2 DGP1      Method         0.01          1                1             1    
+     3 DGP1      Method         0.02          0.5              0.5           0.5  
+     4 DGP1      Method         0.03          0.333            0.333         0.333
+     5 DGP1      Method         0.04          0.5              0.5           0.5  
+     6 DGP1      Method         0.05          0.4              0.4           0.4  
+     7 DGP1      Method         0.06          0.5              0.5           0.5  
+     8 DGP1      Method         0.07          0.429            0.429         0.429
+     9 DGP1      Method         0.08          0.5              0.5           0.5  
+    10 DGP1      Method         0.09          0.444            0.444         0.444
     # ... with 192 more rows, and 3 more variables: max_precision <dbl>,
     #   sd_precision <dbl>, raw_precision <list>
 

@@ -14,15 +14,15 @@ test_that("Evaluator initialization works properly", {
                                                   caption = "caption"))
   evaluator1f <- Evaluator$new(eval_fun = eval_fun1,
                                a = 5, b = 1:5, c = data.frame(d = 1:2))
-  evaluator1g <- Evaluator$new(eval_fun = eval_fun1, show = FALSE)
+  evaluator1g <- Evaluator$new(eval_fun = eval_fun1, rmd_show = FALSE)
   evaluator1h <- Evaluator$new(eval_fun1, n = 100)
   evaluator1i <- Evaluator$new(n = 100, func = func, eval_fun1)
   evaluator1j <- Evaluator$new(eval_fun1, n = 100, "Evaluator")
   evaluator1k <- Evaluator$new(eval_fun1, "Evaluator",
-                               list(caption = "caption"), rm = TRUE, n = 100)
-  evaluator1l <- Evaluator$new(eval_fun1, "Evaluator", n = 100, rm = TRUE)
+                               list(caption = "caption"), rmd_o = TRUE, n = 100)
+  evaluator1l <- Evaluator$new(eval_fun1, "Evaluator", n = 100, rmd_o = TRUE)
   evaluator1m <- Evaluator$new(eval_fun1, a = 5, "Evaluator",
-                               list(caption = "caption"), rm = TRUE)
+                               list(caption = "caption"), rmd_o = TRUE)
 
   named_list <- list()
   names(named_list) <- character(0)
@@ -40,7 +40,7 @@ test_that("Evaluator initialization works properly", {
   expect_equal(evaluator1$rmd_options,
                list(digits = 2, sigfig = FALSE,
                     options = list(scrollX = TRUE, scrollCollapse = TRUE)))
-  expect_equal(evaluator1$show, TRUE)
+  expect_equal(evaluator1$rmd_show, TRUE)
 
   # basic initialization with name
   expect_equal(evaluator1b$name, "Evaluator")
@@ -68,7 +68,7 @@ test_that("Evaluator initialization works properly", {
   expect_equal(evaluator1f$eval_fun, evaluator1$eval_fun)
 
   # show rmd input
-  expect_equal(evaluator1g$show, FALSE)
+  expect_equal(evaluator1g$rmd_show, FALSE)
 
   # preventing eval_fun arg partial matching
   expect_equal(evaluator1h$eval_params, list(n = 100))
@@ -86,7 +86,7 @@ test_that("Evaluator initialization works properly", {
   expect_equal(evaluator1j$name, "Evaluator")
 
   # both formals by position, two user args partial matching
-  expect_equal(evaluator1k$eval_params, list(n = 100, rm = TRUE))
+  expect_equal(evaluator1k$eval_params, list(n = 100, rmd_o = TRUE))
   expect_equal(evaluator1k$eval_fun, eval_fun1)
   expect_equal(evaluator1k$name, "Evaluator")
   expect_equal(evaluator1k$rmd_options,
@@ -95,7 +95,7 @@ test_that("Evaluator initialization works properly", {
                     caption = "caption"))
 
   # one formal by position, two user args partial matching
-  expect_equal(evaluator1l$eval_params, list(n = 100, rm = TRUE))
+  expect_equal(evaluator1l$eval_params, list(n = 100, rmd_o = TRUE))
   expect_equal(evaluator1l$eval_fun, eval_fun1)
   expect_equal(evaluator1l$name, "Evaluator")
   expect_equal(evaluator1l$rmd_options,
@@ -103,7 +103,7 @@ test_that("Evaluator initialization works properly", {
                     options = list(scrollX = TRUE, scrollCollapse = TRUE)))
 
   # both formals by shifted position, one user arg partial matching
-  expect_equal(evaluator1m$eval_params, list(rm = TRUE, a = 5))
+  expect_equal(evaluator1m$eval_params, list(rmd_o = TRUE, a = 5))
   expect_equal(evaluator1m$eval_fun, eval_fun1)
   expect_equal(evaluator1m$name, "Evaluator")
   expect_equal(evaluator1m$rmd_options,
@@ -123,15 +123,16 @@ test_that("Evaluator initialization works properly", {
                                                      caption = "caption"))
   evaluator2f <- create_evaluator(eval_fun = eval_fun1,
                                   a = 5, b = 1:5, c = data.frame(d = 1:2))
-  evaluator2g <- create_evaluator(eval_fun = eval_fun1, show = FALSE)
+  evaluator2g <- create_evaluator(eval_fun = eval_fun1, rmd_show = FALSE)
   evaluator2h <- create_evaluator(eval_fun1, n = 100)
   evaluator2i <- create_evaluator(n = 100, func = func, eval_fun1)
   evaluator2j <- create_evaluator(eval_fun1, n = 100, "Evaluator")
   evaluator2k <- create_evaluator(eval_fun1, "Evaluator",
-                                  list(caption = "caption"), rm = TRUE, n = 100)
-  evaluator2l <- create_evaluator(eval_fun1, "Evaluator", n = 100, rm = TRUE)
+                                  list(caption = "caption"), rmd_o = TRUE, n = 100)
+  evaluator2l <- create_evaluator(eval_fun1, "Evaluator", n = 100, rmd_o = TRUE)
   evaluator2m <- create_evaluator(eval_fun1, a = 5, "Evaluator",
-                                  list(caption = "caption"), rm = TRUE)
+                                  list(caption = "caption"), rmd_o = TRUE)
+  expect_error(create_evaluator(eval_fun1, "Evaluator", rm = TRUE))
 
   expect_error(create_evaluator())
   expect_error(create_evaluator(name = "Evaluator"))

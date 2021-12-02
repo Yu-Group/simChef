@@ -88,8 +88,9 @@ test_that("Functions in the DGP library work properly", {
   ## lss_gaussian_dgp
   sim_data <- lss_gaussian_dgp(n = 100, p = 10, k = 2, s = 2,
                                thresholds = 0, signs = 1, betas = 1)
-  expect_equal(names(sim_data), c("X", "y", "support"))
-  expect_equal(sim_data$support, c("1+_2+", "3+_4+"))
+  expect_equal(names(sim_data), c("X", "y", "support", "int_support"))
+  expect_true(setequal(sim_data$support, 1:4))
+  expect_equal(sim_data$int_support, c("1+_2+", "3+_4+"))
   expect_equal(dim(sim_data$X), c(100, 10))
   expect_equal(length(sim_data$y), 100)
 
@@ -98,8 +99,9 @@ test_that("Functions in the DGP library work properly", {
                                signs = matrix(c(-1, 1), nrow = 2),
                                betas = c(3, -1),
                                err = rnorm)
-  expect_equal(names(sim_data), c("X", "y", "support"))
-  expect_equal(sim_data$support, c("1-", "2+"))
+  expect_equal(names(sim_data), c("X", "y", "support", "int_support"))
+  expect_true(setequal(sim_data$support, 1:2))
+  expect_equal(sim_data$int_support, c("1-", "2+"))
   expect_equal(dim(sim_data$X), c(100, 10))
   expect_equal(length(sim_data$y), 100)
   
@@ -107,24 +109,27 @@ test_that("Functions in the DGP library work properly", {
   sim_data <- correlated_lss_gaussian_dgp(n = 100, p_uncorr = 0, p_corr = 10,
                                           k = 2, s_corr = 2, corr = 0.7,
                                           thresholds = 0, signs = 1, betas = 1)
-  expect_equal(names(sim_data), c("X", "y", "support"))
-  expect_equal(sim_data$support, c("1+_2+", "3+_4+"))
+  expect_equal(names(sim_data), c("X", "y", "support", "int_support"))
+  expect_true(setequal(sim_data$support, 1:4))
+  expect_equal(sim_data$int_support, c("1+_2+", "3+_4+"))
   expect_equal(dim(sim_data$X), c(100, 10))
   expect_equal(length(sim_data$y), 100)
 
   sim_data <- correlated_lss_gaussian_dgp(n = 100, p_uncorr = 10, p_corr = 10,
                                           s_uncorr = 1, s_corr = 1, corr = 0.7,
                                           k = 2, betas = c(3, -1), err = rnorm)
-  expect_equal(names(sim_data), c("X", "y", "support"))
-  expect_equal(sim_data$support, c("1+_2+", "11+_12+"))
+  expect_equal(names(sim_data), c("X", "y", "support", "int_support"))
+  expect_true(setequal(sim_data$support, c(1:2, 11:12)))
+  expect_equal(sim_data$int_support, c("1+_2+", "11+_12+"))
   expect_equal(dim(sim_data$X), c(100, 20))
   expect_equal(length(sim_data$y), 100)
 
   sim_data <- correlated_lss_gaussian_dgp(n = 100, p_uncorr = 10, p_corr = 10,
                                           s_uncorr = 2, s_corr = 2, k = 2,
                                           corr = 0.7, mixed_int = TRUE)
-  expect_equal(names(sim_data), c("X", "y", "support"))
-  expect_equal(length(sim_data$support), 4)
+  expect_equal(names(sim_data), c("X", "y", "support", "int_support"))
+  expect_equal(length(sim_data$support), 8)
+  expect_equal(length(sim_data$int_support), 4)
   expect_equal(dim(sim_data$X), c(100, 20))
   expect_equal(length(sim_data$y), 100)
 })
