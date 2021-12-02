@@ -246,15 +246,18 @@ plot_eval_summary <- function(fit_results, eval_tib = NULL, eval_id = NULL,
                   as.character(facet_formula))
     if ((n_dgps > 1) && !(".dgp_name" %in% plt_args)) {
       plot_by <- ".dgp_name"
+      plot_by_id <- plot_by
     } else if ((length(vary_params) == 1) && !(vary_params %in% plt_args)) {
       plot_by <- vary_params
+      plot_by_id <- plot_by
     } else if ((length(vary_params) > 1) && !(".vary_params" %in% plt_args)) {
       plot_by <- ".vary_params"
+      plot_by_id <- paste(vary_params, collapse = "_")
     } else {
       plot_by <- NULL
+      plot_by_id <- plot_by
     }
-    plt_df <- plt_df %>% dplyr::ungroup()
-    plot_by_id <- "id"
+    plt_df <- plt_df %>% dplyr::group_by(dplyr::across({{plot_by}}))
   } else {
     plt_df <- plt_df %>% dplyr::group_by(dplyr::across({{plot_by}}))
     if (identical(plot_by, ".vary_params")) {

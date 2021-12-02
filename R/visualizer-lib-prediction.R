@@ -166,11 +166,13 @@ plot_pred_curve <- function(fit_results, eval_results = NULL,
   }
   arg_list <- get_dot_args(
     user_args = list(...), 
-    default_args = list(eval_id = eval_id,
-                        eval_fun = "summarize_pred_curve",
-                        x_str = x_str,
-                        ribbon_args = list(alpha = 0.2),
-                        add_ggplot_layers = ggplot2::ylim(c(0, 1)))
+    default_args = list(
+      eval_id = eval_id,
+      eval_fun = "summarize_pred_curve",
+      x_str = x_str,
+      ribbon_args = list(alpha = 0.2),
+      add_ggplot_layers = ggplot2::coord_cartesian(ylim = c(0, 1))
+    )
   )
   
   eval_tib <- NULL
