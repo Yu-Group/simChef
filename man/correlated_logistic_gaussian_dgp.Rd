@@ -73,7 +73,14 @@ list. Elements in vector must be one of "X", "y", "support".}
 }
 \value{
 A list of the named objects that were requested in
-\code{return_values}. Note that if \code{data_split = TRUE} and "X", "y"
+\code{return_values}. See brief descriptions below.
+\describe{
+\item{X}{A \code{data.frame}.}
+\item{y}{A response vector of length \code{nrow(X)}.}
+\item{support}{A vector of feature indices indicating all features used in
+the true support of the DGP.}
+}
+Note that if \code{data_split = TRUE} and "X", "y"
 are in \code{return_values}, then the returned list also contains slots for
 "Xtest" and "ytest".
 }

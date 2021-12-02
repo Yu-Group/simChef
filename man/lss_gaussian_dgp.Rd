@@ -61,7 +61,18 @@ list. Elements in vector must be one of "X", "y", "support", "int_support".}
 }
 \value{
 A list of the named objects that were requested in
-\code{return_values}. Note that if \code{data_split = TRUE} and "X", "y"
+\code{return_values}. See brief descriptions below.
+\describe{
+\item{X}{A \code{data.frame}.}
+\item{y}{A response vector of length \code{nrow(X)}.}
+\item{support}{A vector of feature indices indicating all features used in
+the true support of the DGP.}
+\item{int_support}{A vector of signed feature indices in the true
+(interaction) support of the DGP. For example, "1+_2-" means that the
+interaction between high values of feature 1 and low values of feature 2
+appears in the underlying DGP.}
+}
+Note that if \code{data_split = TRUE} and "X", "y"
 are in \code{return_values}, then the returned list also contains slots for
 "Xtest" and "ytest".
 }

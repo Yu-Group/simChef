@@ -22,12 +22,22 @@
 #' @param ... Other arguments to pass to err() to generate the error vector.
 #'   
 #' @returns A list of the named objects that were requested in
-#'   \code{return_values}. Note that if \code{data_split = TRUE} and "X", "y" 
+#'   \code{return_values}. See brief descriptions below.
+#' \describe{
+#' \item{X}{A \code{data.frame}.}
+#' \item{y}{A response vector of length \code{nrow(X)}.}
+#' \item{support}{A vector of feature indices indicating all features used in
+#'   the true support of the DGP.}
+#' }
+#' Note that if \code{data_split = TRUE} and "X", "y" 
 #'   are in \code{return_values}, then the returned list also contains slots for
 #'   "Xtest" and "ytest".
 NULL
 
 #' Helper function to generate a coefficient vector.
+#' 
+#' @description Generate a coefficient vector with the specified dimensions and
+#'   sparsity level.
 #' 
 #' @inheritParams shared_dgp_lib_args
 #' @param betas Coefficient vector. If a scalar is provided, the coefficient 
@@ -42,8 +52,18 @@ NULL
 #' 
 #' @returns A vector of length \code{p}.
 #' 
-#' @keywords internal
-generate_coef <- function(betas = NULL, p, s = p, sd = 1, 
+#' @examples
+#' # generate beta ~ N(0, 1) of dimension 10
+#' beta <- generate_coef(p = 10)
+#' 
+#' # generate beta = [1, 1, 0, 0, 0]
+#' beta <- generate_coef(betas = 1, p = 5, s = 2)
+#' 
+#' # generate beta = [1, 2, 3]
+#' beta <- generate_coef(betas = 1:3, p = 3)
+#' 
+#' @export
+generate_coef <- function(betas = NULL, p = 1, s = p, sd = 1, 
                           betas_name = "betas") {
   if (is.null(betas)) {
     # simulate betas from gaussian by default
