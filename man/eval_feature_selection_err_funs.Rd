@@ -73,7 +73,8 @@ false positives (\code{fp}), sensitivity (\code{sens}), specificity
 (\code{spec}), positive predictive value (\code{ppv}), number of features
 in the estimated support (\code{pos}), number of features not in the
 estimated support (\code{neg}), AUROC (\code{roc_auc}), and AUPRC
-(\code{pr_auc}).}
+(\code{pr_auc}). If \code{na_rm = TRUE}, the number of NA values
+(\code{num_na}) is also computed.}
 
 \item{na_rm}{A \code{logical} value indicating whether \code{NA} values
 should be stripped before the computation proceeds.}

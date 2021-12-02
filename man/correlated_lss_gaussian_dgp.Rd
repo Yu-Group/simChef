@@ -21,7 +21,7 @@ correlated_lss_gaussian_dgp(
   err = NULL,
   data_split = FALSE,
   train_prop = 0.5,
-  return_values = c("X", "y", "support"),
+  return_values = c("X", "y", "support", "int_support"),
   ...
 )
 }
@@ -46,12 +46,13 @@ in the LSS model.}
 \item{signs}{A scalar or a s x k matrix of the sign of each interaction
 (1 means > while -1 means <).}
 
-\item{betas}{Scalar or parameter vector for interaction terms.}
+\item{betas}{Scalar or vector of coefficients corresponding to interaction
+terms.}
 
 \item{intercept}{Scalar intercept term.}
 
-\item{overlap}{If \code{TRUE}, simulate support indices with replacement; if
-\code{FALSE}, simualte support indices without replacement (so no overlap).}
+\item{overlap}{If TRUE, simulate support indices with replacement; if FALSE,
+simulate support indices without replacement (so no overlap)}
 
 \item{mixed_int}{If \code{TRUE}, correlated and uncorrelated variables are
 mixed together when constructing an interaction of order-k. If
@@ -68,7 +69,7 @@ sets according to \code{train_prop}.}
 \code{data_split = TRUE}.}
 
 \item{return_values}{Character vector indicating what objects to return in
-list. Elements in vector must be one of "X", "y", "support".}
+list. Elements in vector must be one of "X", "y", "support", "int_support".}
 
 \item{...}{Other arguments to pass to err() to generate the error vector.}
 }

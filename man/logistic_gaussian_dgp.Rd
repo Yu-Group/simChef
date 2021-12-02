@@ -10,6 +10,7 @@ logistic_gaussian_dgp(
   s = p,
   betas = NULL,
   betas_sd = 1,
+  intercept = 0,
   data_split = FALSE,
   train_prop = 0.5,
   return_values = c("X", "y", "support"),
@@ -21,12 +22,19 @@ logistic_gaussian_dgp(
 
 \item{p}{Number of features.}
 
-\item{s}{Number of features with non-zero coefficients.}
+\item{s}{Sparsity level of features. Coefficients corresponding to features
+after the \code{s} position (i.e., positions i = \code{s} + 1, ...,
+\code{p}) are set to 0.}
 
-\item{betas}{Coefficient vector for observed design matrix.}
+\item{betas}{Coefficient vector for observed design matrix. If a
+scalar is provided, the coefficient vector is a constant vector. If
+\code{NULL} (default), entries in the coefficient vector are drawn iid from
+N(0, \code{betas_sd}^2).}
 
 \item{betas_sd}{(Optional) SD of normal distribution from which to draw
 \code{betas}. Only used if \code{betas} argument is \code{NULL}.}
+
+\item{intercept}{Scalar intercept term.}
 
 \item{data_split}{Logical; if \code{TRUE}, splits data into training and test
 sets according to \code{train_prop}.}
@@ -50,10 +58,10 @@ Generate independent normally-distributed covariates and
 logistic response data.
 }
 \details{
-Data is generated via: \deqn{log(p / (1 - p)) = betas \%*\% X,} where
-p = P(y = 1 | X), X is a standard Gaussian random matrix, and the true
-underlying support of this data is the first s features in X (unless
-specified otherwise by \code{betas}).
+Data is generated via: \deqn{log(p / (1 - p)) = intercept +
+betas \%*\% X,} where p = P(y = 1 | X), X is a standard Gaussian random matrix,
+and the true underlying support of this data is the first s features in X
+(unless specified otherwise by \code{betas}).
 }
 \examples{
 # generate data from: log(p / (1 - p)) = betas_1 * x_1 + betas_2 * x_2, where

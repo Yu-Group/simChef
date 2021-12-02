@@ -4,18 +4,20 @@
 \alias{norm_errors}
 \title{Generate heteroskedastic Gaussian errors based on the norm of X.}
 \usage{
-norm_errors(X)
+norm_errors(X, scale = 1)
 }
 \arguments{
 \item{X}{Data matrix or data frame.}
+
+\item{scale}{Multiplicative scale factor.}
 }
 \value{
 A vector of simulated errors with length \code{n}.
 }
 \description{
-Generate independent Gaussian errors with variance based on norm
-of row observations in the data matrix X. That is,
-epsilon_i ~ N(0, ||x_i||_2^2).
+Generate independent Gaussian errors with variance proportional
+to norm of row observations in the data matrix X. That is,
+epsilon_i ~ N(0, scale * ||x_i||_2^2).
 }
 \examples{
 errs <- norm_errors(X = iris \%>\% dplyr::select(-Species))

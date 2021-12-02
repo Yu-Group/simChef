@@ -18,7 +18,7 @@ methods and/or its evaluation metrics from the \code{Experiment} run.
 \item{\code{rmd_options}}{List of options to control the aesthetics of the
 displayed \code{Visualizer}'s visualizations in the knitted R Markdown
 report. Currently, possible options are "height" and "width" (in inches).}
-\item{\code{}}{If \code{TRUE} (default), show the resulting visualization
+\item{\code{rmd_show}}{If \code{TRUE} (default), show the resulting visualization
 in the R Markdown report; if \code{FALSE}, hide output in the
 R Markdown report.}
 }

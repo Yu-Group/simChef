@@ -32,7 +32,8 @@ in the LSS model.}
 \item{signs}{A scalar or a s x k matrix of the sign of each interaction
 (1 means > while -1 means <).}
 
-\item{betas}{Scalar or parameter vector for interaction terms.}
+\item{betas}{Scalar or vector of coefficients corresponding to interaction
+terms.}
 
 \item{intercept}{Scalar intercept term.}
 
@@ -49,13 +50,15 @@ indices of the support are used.}
 \item{...}{Other arguments to pass to err() to generate the error vector.}
 }
 \value{
-If \code{return_support = TRUE}, returns a list of two:
+If \code{return_support = TRUE}, returns a list of three:
 \describe{
 \item{y}{A response vector of length \code{nrow(X)}.}
-\item{support}{A vector of signed feature indices in the true (interaction)
-support of the DGP. For example, "1+_2-" means that the interaction
-between high values of feature 1 and low values of feature 2 appears in the
-underlying DGP.}
+\item{support}{A vector of feature indices indicating all features used in
+the true support of the DGP.}
+\item{int_support}{A vector of signed feature indices in the true
+(interaction) support of the DGP. For example, "1+_2-" means that the
+interaction between high values of feature 1 and low values of feature 2
+appears in the underlying DGP.}
 }
 
 If \code{return_support = FALSE}, returns only the response vector \code{y}.

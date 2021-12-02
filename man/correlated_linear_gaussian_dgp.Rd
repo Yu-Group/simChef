@@ -15,6 +15,7 @@ correlated_linear_gaussian_dgp(
   betas_corr = NULL,
   betas_uncorr_sd = 1,
   betas_corr_sd = 1,
+  intercept = 0,
   err = NULL,
   data_split = FALSE,
   train_prop = 0.5,
@@ -29,15 +30,26 @@ correlated_linear_gaussian_dgp(
 
 \item{p_corr}{Number of features in correlated group.}
 
-\item{s_uncorr}{Number of features in uncorrelated group with non-zero coef.}
+\item{s_uncorr}{Sparsity level of features in uncorrelated group.
+Coefficients corresponding to features after the \code{s_uncorr} position
+(i.e., positions i = \code{s_uncorr} + 1, ..., \code{p_uncorr}) are set to
+0.}
 
-\item{s_corr}{Number of features in correlated group with non-zero coef.}
+\item{s_corr}{Sparsity level of features in correlated group. Coefficients
+corresponding to features after the \code{s_corr} position (i.e.,
+positions i = \code{s_corr} + 1, ..., \code{p_corr}) are set to 0.}
 
 \item{corr}{Correlation between features in correlated group.}
 
-\item{betas_uncorr}{Coefficient vector for uncorrelated features.}
+\item{betas_uncorr}{Coefficient vector for uncorrelated features. If a
+scalar is provided, the coefficient vector is a constant vector. If
+\code{NULL} (default), entries in the coefficient vector are drawn iid from
+N(0, \code{betas_uncorr_sd}^2).}
 
-\item{betas_corr}{Coefficient vector for correlated features.}
+\item{betas_corr}{Coefficient vector for correlated features. If a
+scalar is provided, the coefficient vector is a constant vector. If
+\code{NULL} (default), entries in the coefficient vector are drawn iid from
+N(0, \code{betas_corr_sd}^2).}
 
 \item{betas_uncorr_sd}{(Optional) SD of normal distribution from which to
 draw \code{betas_uncorr}. Only used if \code{betas_uncorr} argument is
@@ -46,6 +58,8 @@ draw \code{betas_uncorr}. Only used if \code{betas_uncorr} argument is
 \item{betas_corr_sd}{(Optional) SD of normal distribution from which to draw
 \code{betas_corr}. Only used if \code{betas_corr} argument is
 \code{NULL}.}
+
+\item{intercept}{Scalar intercept term.}
 
 \item{err}{Function from which to generate simulate error vector. Default
 is \code{NULL} which adds no error to the DGP.}
@@ -72,7 +86,8 @@ Generate normally-distributed covariates that are potentially
 correlated and linear response data with a specified error distribution.
 }
 \details{
-Data is generated via: \deqn{y = betas_uncorr \%\emph{\% X_uncorr +
+Data is generated via: \deqn{y = intercept +
+betas_uncorr \%\emph{\% X_uncorr +
 betas_corr \%}\% X_corr + err(...),} where X_uncorr is an (uncorrelated)
 standard Gaussian random matrix and X_corr is a correlated Gaussian random
 matrix with variance 1 and Cor(X_corr_i, X_corr_j) = corr for all i, j. The

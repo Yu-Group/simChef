@@ -7,8 +7,9 @@
 generate_y_linear(
   X,
   U,
-  betas,
-  betas_unobs,
+  betas = 0,
+  betas_unobs = 0,
+  intercept = 0,
   err = NULL,
   return_support = FALSE,
   ...
@@ -19,9 +20,13 @@ generate_y_linear(
 
 \item{U}{Design data matrix of unobserved (omitted) variables.}
 
-\item{betas}{Coefficient vector for observed design matrix.}
+\item{betas}{Scalar or vector of coefficients corresponding to features
+in observed design matrix.}
 
-\item{betas_unobs}{Coefficient vector for unobserved design matrix.}
+\item{betas_unobs}{Scalar or vector of coefficients corresponding to features
+in unobserved design matrix.}
+
+\item{intercept}{Scalar intercept term.}
 
 \item{err}{Function from which to generate simulate error vector. Default
 is \code{NULL} which adds no error to the DGP.}
