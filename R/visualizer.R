@@ -15,16 +15,17 @@ Visualizer <- R6::R6Class(
     viz_fun = NULL,
     viz_params = NULL,
     rmd_options = list(height = 6, width = 10),
-    show = TRUE,
+    rmd_show = TRUE,
     initialize = function(viz_fun, name = NULL, rmd_options = list(),
-                          show = TRUE, ...) {
+                          rmd_show = TRUE, ...) {
       dots_list <- list(...)
       if (".args_list" %in% names(dots_list)) {
         args_list <- dots_list[[".args_list"]]
       } else {
         args_list <- make_initialize_arg_list(viz_fun, name = name,
                                               rmd_options = rmd_options,
-                                              show = show, ..., which = -2)
+                                              rmd_show = rmd_show, ..., 
+                                              which = -2)
       }
       self$viz_fun <- args_list$viz_fun
       self$name <- args_list$name
@@ -32,11 +33,11 @@ Visualizer <- R6::R6Class(
       for (opt in names(rmd_options)) {
         self$rmd_options[[opt]] <- rmd_options[[opt]]
       }
-      self$show <- args_list$show
+      self$rmd_show <- args_list$rmd_show
       args_list$viz_fun <- NULL
       args_list$name <- NULL
       args_list$rmd_options <- NULL
-      args_list$show <- NULL
+      args_list$rmd_show <- NULL
       self$viz_params <- args_list
     },
     # @description Visualize the performance of methods and/or their evaluation
@@ -87,7 +88,7 @@ Visualizer <- R6::R6Class(
       cat("   R Markdown Options: ")
       cat(str(self$rmd_options,
               indent.str = "     ", no.list = F))
-      cat("   Show in R Markdown:", self$show)
+      cat("   Show in R Markdown:", self$rmd_show)
       invisible(self)
     }
   )
@@ -106,8 +107,9 @@ Visualizer <- R6::R6Class(
 #'   Currently, possible options are "height" and "width" (in inches). The
 #'   argument must be specified by position or typed out in whole; no partial
 #'   matching is allowed for this argument.
-#' @param show If \code{TRUE} (default), show the resulting visualization in the R
-#'   Markdown report; if \code{FALSE}, hide output in the R Markdown report.
+#' @param rmd_show If \code{TRUE} (default), show the resulting visualization in 
+#'   the R Markdown report; if \code{FALSE}, hide output in the R Markdown 
+#'   report.
 #' @param ... Arguments to pass into \code{viz_fun()}.
 #'
 #' @details When visualizing or running the \code{Experiment} (see
@@ -182,9 +184,10 @@ Visualizer <- R6::R6Class(
 #'
 #' @export
 create_visualizer <- function(viz_fun, name = NULL,
-                              rmd_options = list(), show = TRUE, ...) {
+                              rmd_options = list(), rmd_show = TRUE, ...) {
   args_list <- make_initialize_arg_list(viz_fun, name = name,
-                                        rmd_options = rmd_options, show = show,
+                                        rmd_options = rmd_options, 
+                                        rmd_show = rmd_show,
                                         ...)
   do.call(Visualizer$new, list(.args_list = args_list))
 }

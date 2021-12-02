@@ -1803,7 +1803,7 @@ Experiment <- R6::R6Class(
       }
       list_name <- paste0(".", field_name, "_list")
       if (!is.null(show)) {
-        private[[list_name]][[name]]$show <- show
+        private[[list_name]][[name]]$rmd_show <- show
       }
       rmd_options <- list(...)
       if (length(rmd_options) > 0) {
