@@ -166,4 +166,9 @@ reference:
       - plot_eval_summary
       - plot_fit_results
       - list_col_to_chr
-      
+  - title: internal
+    contents:
+      - shared_dgp_lib_args
+      - shared_eval_lib_args
+      - shared_experiment_helpers_args
+      - shared_viz_lib_args
