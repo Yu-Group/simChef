@@ -19,6 +19,8 @@
 <![endif]-->
 </head>
 <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-article">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -31,18 +33,12 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">simChef</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.0.1</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
-<li>
-  <a href="../index.html">
-    <span class="fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
 <li>
   <a href="../articles/simChef.html">Get started</a>
 </li>
@@ -86,7 +82,7 @@
 
     
     
-<p>Given the large amount of computation that simulation experiments require, <code>simChef</code> uses the R package <a href="https://future.futureverse.org/"><code>future</code></a> to distribute computation across available resources. Users must decide upon two aspects of the distributed computation in order to effectively parallelize the simulations: <em>what</em> resources to use and <em>how</em> to use them.</p>
+<p>Given the large amount of computation that simulation experiments require, <code>simChef</code> uses the R package <a href="https://future.futureverse.org/" class="external-link"><code>future</code></a> to distribute computation across available resources. Users must decide upon two aspects of the distributed computation in order to effectively parallelize the simulations: <em>what</em> resources to use and <em>how</em> to use them.</p>
 <p><code>simChef</code> is entirely agnostic to the answer to the <em>what</em> question; any resource that <code>future</code> supports is also supported. For example, to run your simulation experiments on your local Linux, macOS, or Windows machine using all but one of the cores, you might run:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">n_workers</span> <span class="op">&lt;-</span> <span class="fu">availableCores</span><span class="op">(</span><span class="op">)</span> <span class="op">-</span> <span class="fl">1</span>
@@ -94,7 +90,7 @@
 <p>Once a <code>future</code> plan has been set, <code>simChef</code> will execute computation according to the plan specified. To answer the <em>how</em> question, consider <code>n</code> computational “tasks” to be distributed across <code>p</code> parallel workers. Assuming each task takes approximately the same amount of time to complete regardless of the worker assigned to the task, then with <code>n=100</code> and <code>p=4</code> each worker should complete around 25 of the tasks. In the ideal setting, the total time to complete the 100 tasks should be around 4 times lower than the time it takes one worker to complete them, on average.</p>
 <p>In more realistic scenarios, and especially in simulation experiments where heterogeneous methods are compared in various diverse problem settings, tasks are often much less uniform and different parallel strategies can have profound implications for the overall running time. Therefore, it’s important to carefully decide how to package your tasks in order to take greatest advantage of the available parallelism.</p>
 <p>By default, <code>simChef</code> distributes computation across the available resources by splitting up the simulation’s replicates evenly across available workers, answering the <em>how</em> question. However, <code>simChef</code> gives the user more fine-grained control over how computation is split across available resources by setting the parallel strategy when calling <code>Experiment$fit()</code> or <code>Experiment$run()</code> via the <code>parallel_strategy</code> argument. The possible values and implications of <code>parallel_strategy</code> are listed in the table below:</p>
-<table class="table">
+<table style="width:100%;" class="table">
 <colgroup>
 <col width="36%">
 <col width="31%">
@@ -150,14 +146,14 @@
 </tbody>
 </table>
 <p>The best parallel strategy is entirely dependent on the details of your particular simulation experiment. In general, one should not have fewer tasks than workers and should avoid <code>n&gt;&gt;p</code> very small tasks as the overhead of distributing computation to workers may outweigh the benefits of parallelism.</p>
-<div id="an-example-of-parallel-execution" class="section level2">
-<h2 class="hasAnchor">
-<a href="#an-example-of-parallel-execution" class="anchor"></a>An example of parallel execution</h2>
+<div class="section level2">
+<h2 id="an-example-of-parallel-execution">An example of parallel execution<a class="anchor" aria-label="anchor" href="#an-example-of-parallel-execution"></a>
+</h2>
 <p>Practically speaking, parallelization in <code>simChef</code> works without modification to your code other than using <code>future</code> to set a parallel backend and choosing your parallelization strategy when running or fitting your experiment. In the example below, we choose the <code>multicore</code> backend (not available on Windows) to create forked R processes using all but one of the available cores. We parallelize across combinations of replicates and data-generating processes by using <code>parallel_strategy = c("reps", "dgps")</code>. Since we vary across parameters of our second <code>DGP</code>, those parameter combinations are included in the parallelization across data-generating processing. As far as the parallelization is concerned, it’s as if we added 17 total <code>DGP</code> objects to the experiment (1 for <code>dgp1</code> and 16 for the combinations of parameters to <code>dgp2</code>), though in actuality we only added two.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">simChef</span><span class="op">)</span>
-<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://future.futureverse.org">future</a></span><span class="op">)</span>
-<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org">dplyr</a></span><span class="op">)</span>
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">simChef</span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://future.futureverse.org" class="external-link">future</a></span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; Attaching package: 'dplyr'</span>
 <span class="co">#&gt; The following objects are masked from 'package:stats':</span>
@@ -167,93 +163,93 @@
 <span class="co">#&gt; </span>
 <span class="co">#&gt;     intersect, setdiff, setequal, union</span>
 
-<span class="va">n_workers</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://future.futureverse.org/reference/re-exports.html">availableCores</a></span><span class="op">(</span><span class="op">)</span> <span class="op">-</span> <span class="fl">1</span>
-<span class="fu"><a href="https://future.futureverse.org/reference/plan.html">plan</a></span><span class="op">(</span><span class="va">multicore</span>, workers <span class="op">=</span> <span class="va">n_workers</span><span class="op">)</span>
+<span class="va">n_workers</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://future.futureverse.org/reference/re-exports.html" class="external-link">availableCores</a></span><span class="op">(</span><span class="op">)</span> <span class="op">-</span> <span class="fl">1</span>
+<span class="fu"><a href="https://future.futureverse.org/reference/plan.html" class="external-link">plan</a></span><span class="op">(</span><span class="va">multicore</span>, workers <span class="op">=</span> <span class="va">n_workers</span><span class="op">)</span>
 
 <span class="va">dgp_fun1</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">n</span><span class="op">=</span><span class="fl">100</span>, <span class="va">rho</span><span class="op">=</span><span class="fl">0.5</span>, <span class="va">noise_level</span><span class="op">=</span><span class="fl">1</span><span class="op">)</span> <span class="op">{</span>
-  <span class="va">cov_mat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/diag.html">diag</a></span><span class="op">(</span>nrow <span class="op">=</span> <span class="fl">5</span><span class="op">)</span>
+  <span class="va">cov_mat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span>nrow <span class="op">=</span> <span class="fl">5</span><span class="op">)</span>
   <span class="va">cov_mat</span><span class="op">[</span><span class="va">cov_mat</span> <span class="op">==</span> <span class="fl">0</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">rho</span>
-  <span class="va">X</span> <span class="op">&lt;-</span> <span class="fu">MASS</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/MASS/man/mvrnorm.html">mvrnorm</a></span><span class="op">(</span>n <span class="op">=</span> <span class="va">n</span>, mu <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">5</span><span class="op">)</span>, Sigma <span class="op">=</span> <span class="va">cov_mat</span><span class="op">)</span>
-  <span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html">cbind</a></span><span class="op">(</span><span class="fl">1</span>, <span class="va">X</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/r/base/matmult.html">%*%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">8</span>, <span class="fl">3</span>, <span class="op">-</span><span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html">rnorm</a></span><span class="op">(</span><span class="va">n</span>, sd <span class="op">=</span> <span class="va">noise_level</span><span class="op">)</span>
-  <span class="kw"><a href="https://rdrr.io/r/base/function.html">return</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>X <span class="op">=</span> <span class="va">X</span>, y <span class="op">=</span> <span class="va">y</span><span class="op">)</span><span class="op">)</span>
+  <span class="va">X</span> <span class="op">&lt;-</span> <span class="fu">MASS</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/MASS/man/mvrnorm.html" class="external-link">mvrnorm</a></span><span class="op">(</span>n <span class="op">=</span> <span class="va">n</span>, mu <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">5</span><span class="op">)</span>, Sigma <span class="op">=</span> <span class="va">cov_mat</span><span class="op">)</span>
+  <span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="fl">1</span>, <span class="va">X</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/r/base/matmult.html" class="external-link">%*%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">8</span>, <span class="fl">3</span>, <span class="op">-</span><span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span>, sd <span class="op">=</span> <span class="va">noise_level</span><span class="op">)</span>
+  <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>X <span class="op">=</span> <span class="va">X</span>, y <span class="op">=</span> <span class="va">y</span><span class="op">)</span><span class="op">)</span>
 <span class="op">}</span>
 
 <span class="va">dgp_fun2</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">n</span><span class="op">=</span><span class="fl">100</span>, <span class="va">p</span><span class="op">=</span><span class="fl">100</span>, <span class="va">rho</span><span class="op">=</span><span class="fl">0.5</span>, <span class="va">sparsity</span><span class="op">=</span><span class="fl">0.5</span>, <span class="va">noise_level</span><span class="op">=</span><span class="fl">1</span>,
-                     <span class="va">nonzero_coeff</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">3</span>, <span class="op">-</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span>
-  <span class="va">cov_mat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/diag.html">diag</a></span><span class="op">(</span>nrow <span class="op">=</span> <span class="va">p</span><span class="op">)</span>
+                     <span class="va">nonzero_coeff</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">3</span>, <span class="op">-</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span>
+  <span class="va">cov_mat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span>nrow <span class="op">=</span> <span class="va">p</span><span class="op">)</span>
   <span class="va">cov_mat</span><span class="op">[</span><span class="va">cov_mat</span> <span class="op">==</span> <span class="fl">0</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">rho</span>
-  <span class="va">X</span> <span class="op">&lt;-</span> <span class="fu">MASS</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/MASS/man/mvrnorm.html">mvrnorm</a></span><span class="op">(</span>n <span class="op">=</span> <span class="va">n</span>, mu <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span><span class="op">(</span><span class="fl">0</span>, <span class="va">p</span><span class="op">)</span>, Sigma <span class="op">=</span> <span class="va">cov_mat</span><span class="op">)</span>
-  <span class="va">coeff_prob</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="va">sparsity</span>, <span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span><span class="op">(</span><span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="va">sparsity</span><span class="op">)</span> <span class="op">/</span> <span class="fl">4</span>, times <span class="op">=</span> <span class="fl">4</span><span class="op">)</span><span class="op">)</span>
-  <span class="va">coeff</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>
+  <span class="va">X</span> <span class="op">&lt;-</span> <span class="fu">MASS</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/MASS/man/mvrnorm.html" class="external-link">mvrnorm</a></span><span class="op">(</span>n <span class="op">=</span> <span class="va">n</span>, mu <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0</span>, <span class="va">p</span><span class="op">)</span>, Sigma <span class="op">=</span> <span class="va">cov_mat</span><span class="op">)</span>
+  <span class="va">coeff_prob</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">sparsity</span>, <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="va">sparsity</span><span class="op">)</span> <span class="op">/</span> <span class="fl">4</span>, times <span class="op">=</span> <span class="fl">4</span><span class="op">)</span><span class="op">)</span>
+  <span class="va">coeff</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>
     <span class="op">-</span><span class="fl">8</span>, <span class="co"># intercept</span>
-    <span class="fu"><a href="https://rdrr.io/r/base/sample.html">sample</a></span><span class="op">(</span>
-      <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="va">nonzero_coeff</span><span class="op">)</span>, size <span class="op">=</span> <span class="va">p</span>, replace <span class="op">=</span> <span class="cn">TRUE</span>,
+    <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span>
+      <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="va">nonzero_coeff</span><span class="op">)</span>, size <span class="op">=</span> <span class="va">p</span>, replace <span class="op">=</span> <span class="cn">TRUE</span>,
       prob <span class="op">=</span> <span class="va">coeff_prob</span>
     <span class="op">)</span>
   <span class="op">)</span>
-  <span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html">cbind</a></span><span class="op">(</span><span class="fl">1</span>, <span class="va">X</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/r/base/matmult.html">%*%</a></span> <span class="va">coeff</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html">rnorm</a></span><span class="op">(</span><span class="va">n</span>, sd <span class="op">=</span> <span class="va">noise_level</span><span class="op">)</span>
-  <span class="kw"><a href="https://rdrr.io/r/base/function.html">return</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>X <span class="op">=</span> <span class="va">X</span>, y <span class="op">=</span> <span class="va">y</span><span class="op">)</span><span class="op">)</span>
+  <span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="fl">1</span>, <span class="va">X</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/r/base/matmult.html" class="external-link">%*%</a></span> <span class="va">coeff</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span>, sd <span class="op">=</span> <span class="va">noise_level</span><span class="op">)</span>
+  <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>X <span class="op">=</span> <span class="va">X</span>, y <span class="op">=</span> <span class="va">y</span><span class="op">)</span><span class="op">)</span>
 <span class="op">}</span>
 
 <span class="va">dgp1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/create_dgp.html">create_dgp</a></span><span class="op">(</span><span class="va">dgp_fun1</span>, name <span class="op">=</span> <span class="st">"dense_dgp"</span><span class="op">)</span>
 <span class="va">dgp2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/create_dgp.html">create_dgp</a></span><span class="op">(</span><span class="va">dgp_fun2</span>, name <span class="op">=</span> <span class="st">"sparse_dgp"</span><span class="op">)</span>
 
 <span class="va">ols</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">X</span>, <span class="va">y</span><span class="op">)</span> <span class="op">{</span>
-  <span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/lm.html">lm</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">X</span><span class="op">)</span> <span class="op"><a href="../reference/%&gt;%.html">%&gt;%</a></span> <span class="fu">broom</span><span class="fu">::</span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html">tidy</a></span><span class="op">(</span><span class="op">)</span>
-  <span class="kw"><a href="https://rdrr.io/r/base/function.html">return</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span>
+  <span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/lm.html" class="external-link">lm</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">X</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu">broom</span><span class="fu">::</span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="op">)</span>
+  <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span>
 <span class="op">}</span>
 
 <span class="va">elnet</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">X</span>, <span class="va">y</span>, <span class="va">alpha</span><span class="op">=</span><span class="fl">1</span><span class="op">)</span> <span class="op">{</span>
-  <span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">glmnet</span><span class="fu">::</span><span class="fu"><a href="https://glmnet.stanford.edu/reference/glmnet.html">glmnet</a></span><span class="op">(</span>
+  <span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">glmnet</span><span class="fu">::</span><span class="fu"><a href="https://glmnet.stanford.edu/reference/glmnet.html" class="external-link">glmnet</a></span><span class="op">(</span>
     x <span class="op">=</span> <span class="va">X</span>, y <span class="op">=</span> <span class="va">y</span>, family <span class="op">=</span> <span class="st">"gaussian"</span>, alpha <span class="op">=</span> <span class="va">alpha</span>
-  <span class="op">)</span> <span class="op"><a href="../reference/%&gt;%.html">%&gt;%</a></span> <span class="fu">broom</span><span class="fu">::</span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html">tidy</a></span><span class="op">(</span><span class="op">)</span>
-  <span class="kw"><a href="https://rdrr.io/r/base/function.html">return</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span>
+  <span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu">broom</span><span class="fu">::</span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="op">)</span>
+  <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span>
 <span class="op">}</span>
 
 <span class="va">method1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/create_method.html">create_method</a></span><span class="op">(</span><span class="va">ols</span>, name <span class="op">=</span> <span class="st">"ols"</span><span class="op">)</span>
 <span class="va">method2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/create_method.html">create_method</a></span><span class="op">(</span><span class="va">elnet</span>, name <span class="op">=</span> <span class="st">"elnet"</span><span class="op">)</span>
 
 <span class="va">experiment</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/create_experiment.html">create_experiment</a></span><span class="op">(</span>
-  name <span class="op">=</span> <span class="st">"base"</span>, future.packages <span class="op">=</span> <span class="st">"dplyr"</span><span class="op">)</span> <span class="op"><a href="../reference/%&gt;%.html">%&gt;%</a></span>
-  <span class="fu"><a href="../reference/add_funs.html">add_dgp</a></span><span class="op">(</span><span class="va">dgp1</span><span class="op">)</span> <span class="op"><a href="../reference/%&gt;%.html">%&gt;%</a></span>
-  <span class="fu"><a href="../reference/add_funs.html">add_dgp</a></span><span class="op">(</span><span class="va">dgp2</span><span class="op">)</span> <span class="op"><a href="../reference/%&gt;%.html">%&gt;%</a></span>
-  <span class="fu"><a href="../reference/add_funs.html">add_method</a></span><span class="op">(</span><span class="va">method1</span><span class="op">)</span> <span class="op"><a href="../reference/%&gt;%.html">%&gt;%</a></span>
-  <span class="fu"><a href="../reference/add_funs.html">add_method</a></span><span class="op">(</span><span class="va">method2</span><span class="op">)</span> <span class="op"><a href="../reference/%&gt;%.html">%&gt;%</a></span>
+  name <span class="op">=</span> <span class="st">"base"</span>, future.packages <span class="op">=</span> <span class="st">"dplyr"</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span>
+  <span class="fu"><a href="../reference/add_funs.html">add_dgp</a></span><span class="op">(</span><span class="va">dgp1</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span>
+  <span class="fu"><a href="../reference/add_funs.html">add_dgp</a></span><span class="op">(</span><span class="va">dgp2</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span>
+  <span class="fu"><a href="../reference/add_funs.html">add_method</a></span><span class="op">(</span><span class="va">method1</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span>
+  <span class="fu"><a href="../reference/add_funs.html">add_method</a></span><span class="op">(</span><span class="va">method2</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span>
   <span class="fu"><a href="../reference/vary_across.html">add_vary_across</a></span><span class="op">(</span>
     dgp <span class="op">=</span> <span class="st">"sparse_dgp"</span>,
-    p <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">100</span>, <span class="fl">1000</span><span class="op">)</span>,
-    rho <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0.2</span>, <span class="fl">0.9</span><span class="op">)</span>,
-    sparsity <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fl">0.9</span><span class="op">)</span>,
-    nonzero_coeff <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">3</span>, <span class="op">-</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">3</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">0.3</span>, <span class="op">-</span><span class="fl">0.1</span>, <span class="fl">0.1</span>, <span class="fl">0.3</span><span class="op">)</span><span class="op">)</span>
-  <span class="op">)</span> <span class="op"><a href="../reference/%&gt;%.html">%&gt;%</a></span>
+    p <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">100</span>, <span class="fl">1000</span><span class="op">)</span>,
+    rho <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.2</span>, <span class="fl">0.9</span><span class="op">)</span>,
+    sparsity <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fl">0.9</span><span class="op">)</span>,
+    nonzero_coeff <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">3</span>, <span class="op">-</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">3</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">0.3</span>, <span class="op">-</span><span class="fl">0.1</span>, <span class="fl">0.1</span>, <span class="fl">0.3</span><span class="op">)</span><span class="op">)</span>
+  <span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span>
   <span class="fu"><a href="../reference/vary_across.html">add_vary_across</a></span><span class="op">(</span>
-    method <span class="op">=</span> <span class="st">"elnet"</span>, alpha <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0.5</span>, <span class="fl">1</span><span class="op">)</span>
+    method <span class="op">=</span> <span class="st">"elnet"</span>, alpha <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0.5</span>, <span class="fl">1</span><span class="op">)</span>
   <span class="op">)</span>
 
-<span class="fu"><a href="https://rdrr.io/r/base/warning.html">suppressWarnings</a></span><span class="op">(</span>
+<span class="fu"><a href="https://rdrr.io/r/base/warning.html" class="external-link">suppressWarnings</a></span><span class="op">(</span>
   <span class="va">experiment</span><span class="op">$</span><span class="fu">fit</span><span class="op">(</span>
-    n_reps <span class="op">=</span> <span class="fl">2</span>, parallel_strategy <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"reps"</span>, <span class="st">"dgps"</span><span class="op">)</span>
+    n_reps <span class="op">=</span> <span class="fl">2</span>, parallel_strategy <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"reps"</span>, <span class="st">"dgps"</span><span class="op">)</span>
   <span class="op">)</span>
 <span class="op">)</span>
 <span class="co">#&gt; Fitting base...</span>
-<span class="co">#&gt; 2 reps completed (totals: 2/2) | time taken: 0.894625 minutes</span>
+<span class="co">#&gt; 2 reps completed (totals: 2/2) | time taken: 0.868701 minutes</span>
 <span class="co">#&gt; ==============================</span>
-<span class="co">#&gt; # A tibble: 136 × 16</span>
+<span class="co">#&gt; <span style="color: #949494;"># A tibble: 136 × 16</span></span>
 <span class="co">#&gt;    .rep  .dgp_name  .method_name     p   rho sparsity nonzero_coeff alpha term  </span>
-<span class="co">#&gt;    &lt;chr&gt; &lt;chr&gt;      &lt;chr&gt;        &lt;dbl&gt; &lt;dbl&gt;    &lt;dbl&gt; &lt;list&gt;        &lt;dbl&gt; &lt;list&gt;</span>
-<span class="co">#&gt;  1 1     dense_dgp  elnet           NA  NA       NA   &lt;NULL&gt;          0   &lt;chr …</span>
-<span class="co">#&gt;  2 1     dense_dgp  elnet           NA  NA       NA   &lt;NULL&gt;          0.5 &lt;chr …</span>
-<span class="co">#&gt;  3 1     dense_dgp  elnet           NA  NA       NA   &lt;NULL&gt;          1   &lt;chr …</span>
-<span class="co">#&gt;  4 1     dense_dgp  ols             NA  NA       NA   &lt;NULL&gt;         NA   &lt;chr …</span>
-<span class="co">#&gt;  5 1     sparse_dgp elnet          100   0.2      0.5 &lt;dbl [4]&gt;       0   &lt;chr …</span>
-<span class="co">#&gt;  6 1     sparse_dgp elnet          100   0.2      0.5 &lt;dbl [4]&gt;       0.5 &lt;chr …</span>
-<span class="co">#&gt;  7 1     sparse_dgp elnet          100   0.2      0.5 &lt;dbl [4]&gt;       1   &lt;chr …</span>
-<span class="co">#&gt;  8 1     sparse_dgp elnet         1000   0.2      0.5 &lt;dbl [4]&gt;       0   &lt;chr …</span>
-<span class="co">#&gt;  9 1     sparse_dgp elnet         1000   0.2      0.5 &lt;dbl [4]&gt;       0.5 &lt;chr …</span>
-<span class="co">#&gt; 10 1     sparse_dgp elnet         1000   0.2      0.5 &lt;dbl [4]&gt;       1   &lt;chr …</span>
-<span class="co">#&gt; # … with 126 more rows, and 7 more variables: estimate &lt;list&gt;,</span>
-<span class="co">#&gt; #   std.error &lt;list&gt;, statistic &lt;list&gt;, p.value &lt;list&gt;, step &lt;list&gt;,</span>
-<span class="co">#&gt; #   lambda &lt;list&gt;, dev.ratio &lt;list&gt;</span></code></pre></div>
+<span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;list&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;list&gt;</span></span>
+<span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> 1     dense_dgp  elnet           <span style="color: #BB0000;">NA</span>  <span style="color: #BB0000;">NA</span>       <span style="color: #BB0000;">NA</span>   <span style="color: #949494;">&lt;NULL&gt;</span>          0   <span style="color: #949494;">&lt;chr </span>…</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> 1     dense_dgp  elnet           <span style="color: #BB0000;">NA</span>  <span style="color: #BB0000;">NA</span>       <span style="color: #BB0000;">NA</span>   <span style="color: #949494;">&lt;NULL&gt;</span>          0.5 <span style="color: #949494;">&lt;chr </span>…</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> 1     dense_dgp  elnet           <span style="color: #BB0000;">NA</span>  <span style="color: #BB0000;">NA</span>       <span style="color: #BB0000;">NA</span>   <span style="color: #949494;">&lt;NULL&gt;</span>          1   <span style="color: #949494;">&lt;chr </span>…</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> 1     dense_dgp  ols             <span style="color: #BB0000;">NA</span>  <span style="color: #BB0000;">NA</span>       <span style="color: #BB0000;">NA</span>   <span style="color: #949494;">&lt;NULL&gt;</span>         <span style="color: #BB0000;">NA</span>   <span style="color: #949494;">&lt;chr </span>…</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> 1     sparse_dgp elnet          100   0.2      0.5 <span style="color: #949494;">&lt;dbl [4]&gt;</span>       0   <span style="color: #949494;">&lt;chr </span>…</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> 1     sparse_dgp elnet          100   0.2      0.5 <span style="color: #949494;">&lt;dbl [4]&gt;</span>       0.5 <span style="color: #949494;">&lt;chr </span>…</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> 1     sparse_dgp elnet          100   0.2      0.5 <span style="color: #949494;">&lt;dbl [4]&gt;</span>       1   <span style="color: #949494;">&lt;chr </span>…</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> 1     sparse_dgp elnet         <span style="text-decoration: underline;">1</span>000   0.2      0.5 <span style="color: #949494;">&lt;dbl [4]&gt;</span>       0   <span style="color: #949494;">&lt;chr </span>…</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> 1     sparse_dgp elnet         <span style="text-decoration: underline;">1</span>000   0.2      0.5 <span style="color: #949494;">&lt;dbl [4]&gt;</span>       0.5 <span style="color: #949494;">&lt;chr </span>…</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">10</span> 1     sparse_dgp elnet         <span style="text-decoration: underline;">1</span>000   0.2      0.5 <span style="color: #949494;">&lt;dbl [4]&gt;</span>       1   <span style="color: #949494;">&lt;chr </span>…</span>
+<span class="co">#&gt; <span style="color: #949494;"># … with 126 more rows, and 7 more variables: estimate &lt;list&gt;,</span></span>
+<span class="co">#&gt; <span style="color: #949494;">#   std.error &lt;list&gt;, statistic &lt;list&gt;, p.value &lt;list&gt;, step &lt;list&gt;,</span></span>
+<span class="co">#&gt; <span style="color: #949494;">#   lambda &lt;list&gt;, dev.ratio &lt;list&gt;</span></span></code></pre></div>
 </div>
   </div>
 
@@ -268,11 +264,13 @@
 
 
       <footer><div class="copyright">
-  <p>Developed by James Duncan, Tiffany Tang.</p>
+  <p></p>
+<p>Developed by James Duncan, Tiffany Tang.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+  <p></p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.1.</p>
 </div>
 
       </footer>
@@ -280,6 +278,8 @@
 
   
 
+
+  
 
   </body>
 </html>
