@@ -4,16 +4,14 @@
 \alias{create_dgp}
 \title{Create a new \code{DGP} (data-generating process).}
 \usage{
-create_dgp(dgp_fun, name = NULL, ...)
+create_dgp(.dgp_fun, .name = NULL, ...)
 }
 \arguments{
-\item{dgp_fun}{The data-generating process function.}
+\item{.dgp_fun}{The data-generating process function.}
 
-\item{name}{(Optional) The name of the \code{DGP}. The argument must be
-specified by position or typed out in whole; no partial matching is
-allowed.}
+\item{.name}{(Optional) The name of the \code{DGP}.}
 
-\item{...}{Arguments to pass into \code{dgp_fun()}.}
+\item{...}{Arguments to pass into \code{.dgp_fun()}.}
 }
 \value{
 A new instance of \code{DGP}.
@@ -31,19 +29,19 @@ dgp_fun <- function(n, beta, rho, sigma) {
 }
 
 # create DGP (with uncorrelated features)
-dgp_uncorr <- create_dgp(dgp_fun = dgp_fun, 
-                         name = "Uncorrelated Linear Gaussian DGP",
+dgp_uncorr <- create_dgp(.dgp_fun = dgp_fun, 
+                         .name = "Uncorrelated Linear Gaussian DGP",
                          # additional named parameters to pass to dgp_fun()
                          n = 200, beta = c(1, 0), rho = 0, sigma = 1)
 # create DGP (with correlated features)
-dgp_corr <- create_dgp(dgp_fun = dgp_fun, 
-                       name = "Correlated Linear Gaussian DGP",
+dgp_corr <- create_dgp(.dgp_fun = dgp_fun, 
+                       .name = "Correlated Linear Gaussian DGP",
                        # additional named parameters to pass to dgp_fun()
                        n = 200, beta = c(1, 0), rho = 0.7, sigma = 1)
 
 # create DGP from a function in the built-in DGP library
-dgp <- create_dgp(dgp_fun = linear_gaussian_dgp, 
-                  name = "Linear Gaussian DGP",
+dgp <- create_dgp(.dgp_fun = linear_gaussian_dgp, 
+                  .name = "Linear Gaussian DGP",
                   # additional named parameters to pass to linear_gaussian_dgp()
                   n = 100, p_obs = 10, err = rnorm)
 

@@ -5,31 +5,29 @@
 \title{Create a new \code{Visualizer}.}
 \usage{
 create_visualizer(
-  viz_fun,
-  name = NULL,
-  rmd_options = list(),
-  rmd_show = TRUE,
+  .viz_fun,
+  .name = NULL,
+  .rmd_options = list(),
+  .rmd_show = TRUE,
   ...
 )
 }
 \arguments{
-\item{viz_fun}{The visualization function.}
+\item{.viz_fun}{The visualization function.}
 
-\item{name}{(Optional) The name of the \code{Visualizer}. The argument must
-be specified by position or typed out in whole; no partial matching is
-allowed for this argument.}
+\item{.name}{(Optional) The name of the \code{Visualizer}.}
 
-\item{rmd_options}{(Optional) List of options to control the aesthetics of
+\item{.rmd_options}{(Optional) List of options to control the aesthetics of
 the \code{Visualizer}'s visualization in the knitted R Markdown report.
 Currently, possible options are "height" and "width" (in inches). The
 argument must be specified by position or typed out in whole; no partial
 matching is allowed for this argument.}
 
-\item{rmd_show}{If \code{TRUE} (default), show the resulting visualization in
+\item{.rmd_show}{If \code{TRUE} (default), show the resulting visualization in
 the R Markdown report; if \code{FALSE}, hide output in the R Markdown
 report.}
 
-\item{...}{Arguments to pass into \code{viz_fun()}.}
+\item{...}{Arguments to pass into \code{.viz_fun()}.}
 }
 \value{
 A new instance of \code{Visualizer}.
@@ -42,11 +40,11 @@ When visualizing or running the \code{Experiment} (see
 \code{Experiment$visualize()} or \code{Experiment$run()}), the named
 arguments \code{fit_results}, \code{eval_results}, and
 \code{vary_params} are automatically passed into the \code{Visualizer}
-function \code{viz_fun()} and serve as placeholders for the
+function \code{.viz_fun()} and serve as placeholders for the
 \code{Experiment$fit()} results, the \code{Experiment$evaluate()}
 results, and the name of the varying parameter, respectively.
 To visualize the performance of a method(s) fit and/or its evaluation
-metrics then, the \code{Visualizer} function \code{viz_fun()} should
+metrics then, the \code{Visualizer} function \code{.viz_fun()} should
 take in the named arguments \code{fit_results} and/or
 \code{eval_results}. See \code{Experiment$fit()} or
 \code{fit_experiment()} for details on the format of \code{fit_results}.
@@ -85,24 +83,24 @@ power_plot_fun <- function(fit_results, vary_params = NULL, col = "X1") {
 }
 
 # create Visualizer using the default arguments (i.e., col = "X1")
-power_plot1 <- create_visualizer(viz_fun = power_plot_fun, 
-                                 name = "Power Plot (X1)")
+power_plot1 <- create_visualizer(.viz_fun = power_plot_fun, 
+                                 .name = "Power Plot (X1)")
 # create Visualizer using non-default arguments (i.e., col = "X2")
-power_plot2 <- create_visualizer(viz_fun = power_plot_fun,
-                                 name = "Power Plot (X2)",
+power_plot2 <- create_visualizer(.viz_fun = power_plot_fun,
+                                 .name = "Power Plot (X2)",
                                  # additional named parameters to pass to power_plot_fun()
                                  col = "X2")
 
 # create Visualizer from a function in the built-in Visualizer library
-pred_err_plot <- create_visualizer(viz_fun = plot_pred_err,
-                                   name = "Prediction Error Plot",
+pred_err_plot <- create_visualizer(.viz_fun = plot_pred_err,
+                                   .name = "Prediction Error Plot",
                                    # additional named parameters to pass to plot_pred_err()
                                    truth_col = "y", estimate_col = "predictions")
                                   
 # change figure height/width when displaying Visualizer in Rmd report
-pred_err_plot <- create_visualizer(viz_fun = plot_pred_err,
-                                   name = "Prediction Error Plot",
-                                   rmd_options = list(height = 8, width = 12),
+pred_err_plot <- create_visualizer(.viz_fun = plot_pred_err,
+                                   .name = "Prediction Error Plot",
+                                   .rmd_options = list(height = 8, width = 12),
                                    # additional named parameters to pass to plot_pred_err()
                                    truth_col = "y", estimate_col = "predictions")
 

@@ -5,31 +5,31 @@
 \title{Create a new \code{Evaluator}.}
 \usage{
 create_evaluator(
-  eval_fun,
-  name = NULL,
-  rmd_options = list(),
-  rmd_show = TRUE,
+  .eval_fun,
+  .name = NULL,
+  .rmd_options = list(),
+  .rmd_show = TRUE,
   ...
 )
 }
 \arguments{
-\item{eval_fun}{The evaluation function.}
+\item{.eval_fun}{The evaluation function.}
 
-\item{name}{(Optional) The name of the \code{Evaluator}. The argument must be
+\item{.name}{(Optional) The name of the \code{Evaluator}. The argument must be
 specified by position or typed out in whole; no partial matching is allowed
 for this argument.}
 
-\item{rmd_options}{(Optional) List of options to control the aesthetics of
+\item{.rmd_options}{(Optional) List of options to control the aesthetics of
 the displayed \code{Evaluator}'s results table in the knitted R Markdown
 report. See \code{\link[=pretty_DT]{pretty_DT()}} for possible options. The argument must be
 specified by position or typed out in whole; no partial matching is allowed
 for this argument.}
 
-\item{rmd_show}{If \code{TRUE} (default), show \code{Evaluator}'s results as
+\item{.rmd_show}{If \code{TRUE} (default), show \code{Evaluator}'s results as
 a table in the R Markdown report; if \code{FALSE}, hide output in the
 R Markdown report.}
 
-\item{...}{Arguments to pass into \code{eval_fun()}.}
+\item{...}{Arguments to pass into \code{.eval_fun()}.}
 }
 \value{
 A new \code{Evaluator} object.
@@ -41,11 +41,11 @@ Create a new \code{Evaluator}.
 When evaluating or running the \code{Experiment} (see
 \code{evaluate_experiment()} or \code{run_experiment()}), the named
 arguments \code{fit_results} and \code{vary_params} are automatically
-passed into the \code{Evaluator} function \code{eval_fun()} and serve
+passed into the \code{Evaluator} function \code{.eval_fun()} and serve
 as placeholders for the \code{fit_experiment()} results (i.e., the
 results from the method fits) and the name of the varying parameter,
 respectively. To evaluate the performance of a method(s) fit then,
-the \code{Evaluator} function \code{eval_fun()} should almost always
+the \code{Evaluator} function \code{.eval_fun()} should almost always
 take in the named argument \code{fit_results}. See
 \code{Experiment$fit()} or \code{fit_experiment()} for details on the
 format of \code{fit_results}. If the \code{Evaluator}
@@ -67,24 +67,24 @@ reject_prob_fun <- function(fit_results, vary_params = NULL, alpha = 0.05) {
 }
 
 # create Evaluator using the default arguments (i.e., alpha = 0.05)
-reject_prob_eval <- create_evaluator(eval_fun = reject_prob_fun, 
-                                     name = "Rejection Prob (alpha = 0.05)")
+reject_prob_eval <- create_evaluator(.eval_fun = reject_prob_fun, 
+                                     .name = "Rejection Prob (alpha = 0.05)")
 # create Evaluator using non-default arguments (here, alpha = 0.1)
-reject_prob_eval2 <- create_evaluator(eval_fun = reject_prob_fun,
-                                      name = "Rejection Prob (alpha = 0.1)",
+reject_prob_eval2 <- create_evaluator(.eval_fun = reject_prob_fun,
+                                      .name = "Rejection Prob (alpha = 0.1)",
                                       # additional named parameters to pass to reject_prob_fun(),
                                       alpha = 0.1)
 
 # create Evaluator from a function in the built-in Evaluator library
-pred_err_eval <- create_evaluator(eval_fun = summarize_pred_err,
-                                  name = "Prediction Error", 
+pred_err_eval <- create_evaluator(.eval_fun = summarize_pred_err,
+                                  .name = "Prediction Error", 
                                   # additional named parameters to pass to summarize_pred_err()
                                   truth_col = "y", estimate_col = "predictions")
                                   
 # set rmd options for displaying Evaluator in Rmd report to show 3 decimal points
-pred_err_eval <- create_evaluator(eval_fun = summarize_pred_err,
-                                  name = "Prediction Error", 
-                                  rmd_options = list(digits = 3),
+pred_err_eval <- create_evaluator(.eval_fun = summarize_pred_err,
+                                  .name = "Prediction Error", 
+                                  .rmd_options = list(digits = 3),
                                   # additional named parameters to pass to summarize_pred_err()
                                   truth_col = "y", estimate_col = "predictions")
 

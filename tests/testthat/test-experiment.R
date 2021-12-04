@@ -189,17 +189,17 @@ test_that("Running experiment works properly", {
   method_fun1 <- function(x, y = NULL) x * 1
   method1 <- Method$new(method_fun1)
   method_fun2 <- function(x, idx = 1) list(x_idx = x[idx])
-  method2 <- create_method(method_fun = method_fun2)
+  method2 <- create_method(.method_fun = method_fun2)
 
   fit_results_fun <- function(fit_results) fit_results
-  fit_results_eval <- create_evaluator(eval_fun = fit_results_fun)
+  fit_results_eval <- create_evaluator(.eval_fun = fit_results_fun)
   vary_params_fun <- function(vary_params = NULL) vary_params
-  vary_params_eval <- create_evaluator(eval_fun = vary_params_fun)
+  vary_params_eval <- create_evaluator(.eval_fun = vary_params_fun)
 
   fit_plot_fun <- function(fit_results) fit_results
-  fit_plot <- create_visualizer(viz_fun = fit_plot_fun)
+  fit_plot <- create_visualizer(.viz_fun = fit_plot_fun)
   eval_plot_fun <- function(eval_results) eval_results
-  eval_plot <- create_visualizer(viz_fun = eval_plot_fun)
+  eval_plot <- create_visualizer(.viz_fun = eval_plot_fun)
 
   experiment <- create_experiment(name = "test-run")
   expect_error(experiment$run(verbose = 0))
@@ -297,7 +297,7 @@ test_that("Generate data from Experiment works properly", {
                     DGP2 = list(list(3), list(3))))
 
   # varying across one dgp
-  experiment %>% add_vary_across(dgp = "DGP1", x = c(1, 2))
+  experiment %>% add_vary_across(.dgp = "DGP1", x = c(1, 2))
   expect_equal(length(generate_data(experiment)), 2)
   expect_snapshot_output(generate_data(experiment))
   expect_equal(length(unlist(generate_data(experiment, n_reps = 3))), 9)
@@ -305,7 +305,7 @@ test_that("Generate data from Experiment works properly", {
   expect_snapshot_output(generate_data(experiment, n_reps = 3))
 
   # varying across two dgp
-  experiment %>% add_vary_across(dgp = "DGP2", x = c(1, 2, 3))
+  experiment %>% add_vary_across(.dgp = "DGP2", x = c(1, 2, 3))
   expect_equal(length(generate_data(experiment)), 2)
   expect_snapshot_output(generate_data(experiment))
   data_out <- generate_data(experiment, n_reps = 3)
@@ -316,12 +316,12 @@ test_that("Generate data from Experiment works properly", {
   # adding method does not affect data output
   experiment %>%
     add_method(method1, "Method1") %>%
-    add_vary_across(method = "Method1", y = c(1, 2))
+    add_vary_across(.method = "Method1", y = c(1, 2))
   expect_equal(experiment$generate_data(n_reps = 3), data_out)
 
   # varying across two parameters in dgp
   experiment %>%
-    add_vary_across(dgp = "DGP1", y = c(1, 2))
+    add_vary_across(.dgp = "DGP1", y = c(1, 2))
   expect_snapshot_output(generate_data(experiment))
   expect_equal(length(unlist(generate_data(experiment))), 7)
   expect_equal(length(unlist(generate_data(experiment)$DGP1)), 4)
@@ -346,7 +346,7 @@ test_that("Fitting experiment works properly", {
          matrix = matrix(1:8, nrow = 4),
          tibble = tibble::tibble(a = 1:3, b = 2:4))
   }
-  method2 <- create_method(method_fun = method_fun2)
+  method2 <- create_method(.method_fun = method_fun2)
 
   experiment <- create_experiment(name = "test-fit")
   expect_error(experiment$fit(verbose = 0))
@@ -388,9 +388,9 @@ test_that("Evaluating experiment works properly", {
   method_fun <- function(x, y = NULL) x * 1
   method <- Method$new(method_fun)
   fit_results_fun <- function(fit_results) fit_results
-  fit_results_eval <- create_evaluator(eval_fun = fit_results_fun)
+  fit_results_eval <- create_evaluator(.eval_fun = fit_results_fun)
   vary_params_fun <- function(vary_params = NULL) vary_params
-  vary_params_eval <- create_evaluator(eval_fun = vary_params_fun)
+  vary_params_eval <- create_evaluator(.eval_fun = vary_params_fun)
 
   experiment <- create_experiment(name = "test-evaluate") %>%
     add_dgp(dgp, "DGP") %>%
@@ -447,11 +447,11 @@ test_that("Plotting experiment works properly", {
   method_fun <- function(x, y = NULL) x * 1
   method <- Method$new(method_fun)
   fit_results_fun <- function(fit_results) fit_results
-  fit_results_eval <- create_evaluator(eval_fun = fit_results_fun)
+  fit_results_eval <- create_evaluator(.eval_fun = fit_results_fun)
   fit_plot_fun <- function(fit_results) fit_results
-  fit_plot <- create_visualizer(viz_fun = fit_plot_fun)
+  fit_plot <- create_visualizer(.viz_fun = fit_plot_fun)
   eval_plot_fun <- function(eval_results) eval_results
-  eval_plot <- create_visualizer(viz_fun = eval_plot_fun)
+  eval_plot <- create_visualizer(.viz_fun = eval_plot_fun)
 
   experiment <- create_experiment(name = "test-evaluate") %>%
     add_dgp(dgp, "DGP") %>%
@@ -499,10 +499,10 @@ test_that("Plotting experiment works properly", {
 
 test_that("Add/update/remove vary across works properly", {
   dgp_fun <- function(x, y = NULL) list(x = x)
-  dgp <- create_dgp(dgp_fun = dgp_fun, x = 1:10)
+  dgp <- create_dgp(.dgp_fun = dgp_fun, x = 1:10)
 
   method_fun <- function(x, idx = 1) list(x_idx = x[idx])
-  method <- create_method(method_fun = method_fun)
+  method <- create_method(.method_fun = method_fun)
 
   experiment <- create_experiment(name = "test-vary-across-dgp") %>%
     add_dgp(dgp, name = "DGP") %>%
@@ -512,21 +512,21 @@ test_that("Add/update/remove vary across works properly", {
 
   expect_equal(experiment$get_vary_across(), no_vary_list)
 
-  expect_error(experiment %>% add_vary_across(dgp = "DGP", z = 1:3))
-  expect_error(experiment %>% add_vary_across(method = "Method", z = 1:3))
-  expect_error(experiment %>% add_vary_across(dgp = "Method", idx = 1:3))
-  expect_error(experiment %>% add_vary_across(method = "DGP", x = 1:3))
+  expect_error(experiment %>% add_vary_across(.dgp = "DGP", z = 1:3))
+  expect_error(experiment %>% add_vary_across(.method = "Method", z = 1:3))
+  expect_error(experiment %>% add_vary_across(.dgp = "Method", idx = 1:3))
+  expect_error(experiment %>% add_vary_across(.method = "DGP", x = 1:3))
 
   # adding/updating DGP vary across params
-  experiment %>% add_vary_across(dgp = "DGP", x = 1:3)
+  experiment %>% add_vary_across(.dgp = "DGP", x = 1:3)
   expect_equal(experiment$get_vary_across(),
                list(dgp = list(DGP = list(x = 1:3)), method = list()))
-  experiment %>% update_vary_across(dgp = "DGP", x = list(1:3, 2:4))
+  experiment %>% update_vary_across(.dgp = "DGP", x = list(1:3, 2:4))
   expect_equal(experiment$get_vary_across(),
                list(dgp = list(DGP = list(x = list(1:3, 2:4))),
                     method = list()))
-  expect_error(experiment %>% add_vary_across(dgp = "DGP", x = 1:3))
-  experiment %>% add_vary_across(dgp = "DGP", y = c("a", "b"))
+  expect_error(experiment %>% add_vary_across(.dgp = "DGP", x = 1:3))
+  experiment %>% add_vary_across(.dgp = "DGP", y = c("a", "b"))
   expect_equal(experiment$get_vary_across(),
                list(dgp = list(DGP = list(x = list(1:3, 2:4),
                                           y = c("a", "b"))),
@@ -541,10 +541,10 @@ test_that("Add/update/remove vary across works properly", {
   expect_equal(experiment$get_vary_across()$dgp, list())
 
   # adding/updating/removing Method vary across params
-  experiment %>% add_vary_across(method = "Method", idx = 1:3)
+  experiment %>% add_vary_across(.method = "Method", idx = 1:3)
   expect_equal(experiment$get_vary_across(),
                list(dgp = list(), method = list(Method = list(idx = 1:3))))
-  experiment %>% update_vary_across(method = "Method", idx = list(1:2, 3:4))
+  experiment %>% update_vary_across(.method = "Method", idx = list(1:2, 3:4))
   expect_equal(experiment$get_vary_across(),
                list(dgp = list(),
                     method = list(Method = list(idx = list(1:2, 3:4)))))
@@ -555,7 +555,7 @@ test_that("Add/update/remove vary across works properly", {
   expect_equal(experiment$get_vary_across(), get_vary_across(experiment))
 
   # adding/removing multiple vary across params in single DGP/Method
-  experiment %>% add_vary_across(dgp = "DGP", x = 1:3, y = c("a", "b"))
+  experiment %>% add_vary_across(.dgp = "DGP", x = 1:3, y = c("a", "b"))
   expect_true(all(c("x", "y") %in% names(experiment$get_vary_across()$dgp$DGP)))
   experiment %>% remove_vary_across(dgp = "DGP")
   expect_equal(experiment$get_vary_across(), no_vary_list)
@@ -563,23 +563,23 @@ test_that("Add/update/remove vary across works properly", {
   # removing all vary across params in experiment
   expect_error(experiment %>% remove_vary_across())
   experiment %>%
-    add_vary_across(dgp = "DGP", x = 1:3, y = c("a", "b")) %>%
-    add_vary_across(metho = "Method", idx = 1:3)
+    add_vary_across(.dgp = "DGP", x = 1:3, y = c("a", "b")) %>%
+    add_vary_across(.metho = "Method", idx = 1:3)
   experiment %>% remove_vary_across()
   expect_equal(experiment$get_vary_across(), no_vary_list)
 })
 
 test_that("Vary across in Experiment runs properly", {
   dgp_fun <- function(x, y = NULL) list(x = x)
-  dgp <- create_dgp(dgp_fun = dgp_fun, x = 1:10)
+  dgp <- create_dgp(.dgp_fun = dgp_fun, x = 1:10)
 
   method_fun <- function(x, idx = 1) list(x_idx = x[idx])
-  method <- create_method(method_fun = method_fun)
+  method <- create_method(.method_fun = method_fun)
 
   fit_results_fun <- function(fit_results) fit_results
-  fit_results_eval <- create_evaluator(eval_fun = fit_results_fun)
+  fit_results_eval <- create_evaluator(.eval_fun = fit_results_fun)
   vary_params_fun <- function(vary_params = NULL) vary_params
-  vary_params_eval <- create_evaluator(eval_fun = vary_params_fun)
+  vary_params_eval <- create_evaluator(.eval_fun = vary_params_fun)
 
   experiment <- create_experiment(name = "test-vary-across-dgp") %>%
     add_dgp(dgp, name = "DGP") %>%
@@ -590,7 +590,7 @@ test_that("Vary across in Experiment runs properly", {
   # test scalar dgp vary across case
   x <- 1:3
   experiment <- experiment %>%
-    add_vary_across(dgp = "DGP", x = x)
+    add_vary_across(.dgp = "DGP", x = x)
   fit_results <- fit_experiment(experiment, save = FALSE, verbose = 0)
   expect_equal(
     fit_results,
@@ -608,7 +608,7 @@ test_that("Vary across in Experiment runs properly", {
   # test list-type dgp vary across case
   x <- list(1:2, 3:5, 8:11)
   experiment <- experiment %>%
-    update_vary_across(dgp = "DGP", x = x)
+    update_vary_across(.dgp = "DGP", x = x)
   fit_results <- fit_experiment(experiment, save = FALSE, verbose = 0)
   expect_equal(
     fit_results,
@@ -627,7 +627,7 @@ test_that("Vary across in Experiment runs properly", {
   idx <- 1:3
   experiment <- experiment %>%
     remove_vary_across(dgp = "DGP") %>%
-    add_vary_across(method = "Method", idx = idx)
+    add_vary_across(.method = "Method", idx = idx)
   fit_results <- fit_experiment(experiment, save = FALSE, verbose = 0)
   expect_equal(
     fit_results,
@@ -646,7 +646,7 @@ test_that("Vary across in Experiment runs properly", {
   x <- list(1, 3:5)
   experiment <- experiment %>%
     remove_vary_across() %>%
-    add_vary_across(dgp = "DGP", x = x)
+    add_vary_across(.dgp = "DGP", x = x)
   fit_results <- fit_experiment(experiment, save = FALSE, verbose = 0)
   expect_equal(
     fit_results, 
@@ -665,7 +665,7 @@ test_that("Vary across in Experiment runs properly", {
   idx <- list(1:2, 3:5, 7:10)
   experiment <- experiment %>%
     remove_vary_across() %>%
-    add_vary_across(method = "Method", idx = idx)
+    add_vary_across(.method = "Method", idx = idx)
   fit_results <- fit_experiment(experiment, save = FALSE, verbose = 0)
   expect_equal(
     fit_results,
@@ -684,8 +684,8 @@ test_that("Vary across in Experiment runs properly", {
   n_reps <- 5
   experiment <- experiment %>%
     remove_vary_across(method = "Method") %>%
-    add_vary_across(dgp = "DGP", x = list(1:4, 1:5, 1:6), y = 1:2) %>%
-    add_vary_across(method = "Method", idx = 1:3)
+    add_vary_across(.dgp = "DGP", x = list(1:4, 1:5, 1:6), y = 1:2) %>%
+    add_vary_across(.method = "Method", idx = 1:3)
   fit_results <- fit_experiment(experiment, n_reps = n_reps,
                                 save = FALSE, verbose = 0)
   expect_equal(nrow(fit_results), 3 * 3 * 2 * n_reps)
@@ -701,8 +701,8 @@ test_that("Vary across in Experiment runs properly", {
   x <- list(1, 3:5)
   experiment <- experiment %>%
     remove_vary_across() %>%
-    add_vary_across(dgp = "DGP", x = x) %>%
-    add_vary_across(method = "Method", idx = list(1, 1:2))
+    add_vary_across(.dgp = "DGP", x = x) %>%
+    add_vary_across(.method = "Method", idx = list(1, 1:2))
   fit_results <- fit_experiment(experiment, save = FALSE, verbose = 0)
   expect_equal(
     fit_results, 
@@ -744,17 +744,17 @@ test_that("Caching in Experiment runs properly", {
   method_fun1 <- function(x, y = NULL) x * 1
   method1 <- Method$new(method_fun1)
   method_fun2 <- function(x, idx = 1) list(x_idx = x[idx])
-  method2 <- create_method(method_fun = method_fun2)
+  method2 <- create_method(.method_fun = method_fun2)
   
   fit_results_fun <- function(fit_results) fit_results
-  fit_results_eval <- create_evaluator(eval_fun = fit_results_fun)
+  fit_results_eval <- create_evaluator(.eval_fun = fit_results_fun)
   vary_params_fun <- function(vary_params = NULL) vary_params
-  vary_params_eval <- create_evaluator(eval_fun = vary_params_fun)
+  vary_params_eval <- create_evaluator(.eval_fun = vary_params_fun)
   
   fit_plot_fun <- function(fit_results) fit_results
-  fit_plot <- create_visualizer(viz_fun = fit_plot_fun)
+  fit_plot <- create_visualizer(.viz_fun = fit_plot_fun)
   eval_plot_fun <- function(eval_results) eval_results
-  eval_plot <- create_visualizer(viz_fun = eval_plot_fun)
+  eval_plot <- create_visualizer(.viz_fun = eval_plot_fun)
   
   experiment <- create_experiment(name = "test-cache") %>%
     add_dgp(dgp1, name = "DGP1") %>%
@@ -872,11 +872,11 @@ test_that("Caching in Experiment runs properly", {
   expect_equal(results15$viz_results, results14$viz_results[1])
   
   # caching when vary across
-  experiment %>% add_vary_across(dgp = "DGP1", x = c(0, 1))
+  experiment %>% add_vary_across(.dgp = "DGP1", x = c(0, 1))
   results1 <- experiment$run(n_reps = 10, use_cached = TRUE, save = TRUE,
                              verbose = verbose)
   expect_equal(nrow(results1$fit_results), 10 * 2)
-  experiment %>% add_vary_across(method = "Method1", y = c(0, 1))
+  experiment %>% add_vary_across(.method = "Method1", y = c(0, 1))
   results2 <- experiment$run(n_reps = 10, use_cached = TRUE, save = TRUE,
                              verbose = verbose)
   expect_equal(nrow(results2$fit_results), 10 * 2 * 2)
@@ -885,17 +885,17 @@ test_that("Caching in Experiment runs properly", {
                              verbose = verbose)
   expect_equal(nrow(results3$fit_results), 10 * 2)
   expect_true(identical(results1$fit_results, results3$fit_results))
-  experiment %>% update_vary_across(dgp = "DGP1", x = c(0, 2))
+  experiment %>% update_vary_across(.dgp = "DGP1", x = c(0, 2))
   results4 <- experiment$run(n_reps = 10, use_cached = TRUE, save = TRUE,
                              verbose = verbose)
   expect_equal(results3$fit_results %>% dplyr::filter(x == 0),
                results4$fit_results %>% dplyr::filter(x == 0))
-  experiment %>% update_vary_across(dgp = "DGP1", x = list(0, 2, 4))
+  experiment %>% update_vary_across(.dgp = "DGP1", x = list(0, 2, 4))
   results5 <- experiment$run(n_reps = 10, use_cached = TRUE, save = TRUE,
                              verbose = verbose)
   expect_equal(results4$fit_results %>% dplyr::filter(x %in% c(0, 2)),
                results5$fit_results %>% dplyr::filter(x %in% c(0, 2)))
-  experiment %>% add_vary_across(method = "Method1", y = list("a", "b"))
+  experiment %>% add_vary_across(.method = "Method1", y = list("a", "b"))
   results6 <- experiment$run(n_reps = 10, use_cached = TRUE, save = TRUE,
                              verbose = verbose)
   expect_equal(nrow(results6$fit_results), 10 * 3 * 2)
@@ -960,7 +960,7 @@ test_that("Caching in Experiment runs properly", {
     parallel_strategy <- parallel_strategies[[i]]
     experiment %>%
       update_dgp(dgp2, "DGP3") %>%
-      update_vary_across(method = method1, y = c("a", letters[i+2]))
+      update_vary_across(.method = method1, y = c("a", letters[i+2]))
     results9 <- experiment$run(
       n_reps = 10, use_cached = TRUE, save = TRUE, verbose = verbose, 
       parallel_strategy = parallel_strategy
@@ -1084,22 +1084,22 @@ test_that("Printing Experiment works properly", {
 
   # check vary across prints properly
   experiment %>%
-    add_vary_across(dgp = "DGP1", x = 1:3)
+    add_vary_across(.dgp = "DGP1", x = 1:3)
   expect_snapshot_output(print(experiment))
 
   experiment %>%
     remove_vary_across(dgp = "DGP1") %>%
-    add_vary_across(method = "Method1", x = 1:3)
+    add_vary_across(.method = "Method1", x = 1:3)
   expect_snapshot_output(print(experiment))
 
   experiment %>%
-    add_vary_across(dgp = "DGP1", x = 1:3) %>%
-    add_vary_across(dgp = "DGP2", x = 2:4)
+    add_vary_across(.dgp = "DGP1", x = 1:3) %>%
+    add_vary_across(.dgp = "DGP2", x = 2:4)
   expect_snapshot_output(print(experiment))
 
   experiment %>%
-    update_vary_across(dgp = "DGP1", x = list(1:3)) %>%
-    update_vary_across(dgp = "DGP2", x = list(2:4))
+    update_vary_across(.dgp = "DGP1", x = list(1:3)) %>%
+    update_vary_across(.dgp = "DGP2", x = list(2:4))
   expect_snapshot_output(print(experiment))
 })
 
@@ -1173,8 +1173,8 @@ test_that("Various parallel strategies in experiment work properly", {
 
   # add vary_across
   experiment %>%
-    add_vary_across(dgp = dgp1, y = c("a", "b", "c")) %>%
-    add_vary_across(method = method1, y = c("a", "b", "c"))
+    add_vary_across(.dgp = dgp1, y = c("a", "b", "c")) %>%
+    add_vary_across(.method = method1, y = c("a", "b", "c"))
 
   dgp_fun3 <- function(y = "") {
     if (y == "b") stop("Why b?!")
@@ -1213,7 +1213,7 @@ test_that("Various parallel strategies in experiment work properly", {
 
     experiment$add_dgp(dgp3)
     experiment %>%
-      add_vary_across(dgp = dgp3, y = c("a", "b", "c"))
+      add_vary_across(.dgp = dgp3, y = c("a", "b", "c"))
     err <- expect_error(
       experiment$fit(n_reps=2, parallel_strategy=strat, verbose=0)
     )
@@ -1228,7 +1228,7 @@ test_that("Various parallel strategies in experiment work properly", {
 
     experiment$add_method(method3)
     experiment %>%
-      add_vary_across(method = method3, y = c("a", "b", "c"))
+      add_vary_across(.method = method3, y = c("a", "b", "c"))
     err <- expect_error(
       experiment$fit(n_reps=2, parallel_strategy=strat, verbose=0)
     )
@@ -1249,7 +1249,7 @@ test_that("Various parallel strategies in experiment work properly", {
   method1 <- create_method(method_fun1)
   experiment <- create_experiment(dgp_list = list(dgp1), 
                                   method_list = list(method1)) %>%
-    add_vary_across(dgp = dgp1, y = c("a", "b", "c"))
+    add_vary_across(.dgp = dgp1, y = c("a", "b", "c"))
   expected_results <- c("data1a+method1", "data1b+method1", "data1c+method1", 
                         "data1a+method1", "data1b+method1", "data1c+method1")
   for (strat in strategies) {
@@ -1306,20 +1306,20 @@ test_that("Capturing errors, warnings, and messages from user-defined functions 
 
   experiment <- create_experiment(name = "error-tracking") %>%
     add_dgp(create_dgp(dgp_fun, n = 10)) %>%
-    add_dgp(create_dgp(dgp_fun, name = "dgp_test", n = 10)) %>%
+    add_dgp(create_dgp(dgp_fun, .name = "dgp_test", n = 10)) %>%
     add_method(create_method(method_fun), name="method_test") %>%
     add_vary_across(
-      dgp = "dgp1",
+      .dgp = "dgp1",
       rho = c(0.2),
       noise_level = c(1, 2)
     ) %>%
     add_vary_across(
-      dgp = "dgp_test",
+      .dgp = "dgp_test",
       rho = c(0.2, 0.9),
       noise_level = c(1, 2)
     ) %>%
     add_vary_across(
-      method = "method_test",
+      .method = "method_test",
       param2 = c(2, 4),
       vec = list(c(2,3,4), 4:7)
     ) %>%
@@ -1392,7 +1392,7 @@ test_that("Experiment checkpointing works as expected", {
     add_dgp(create_dgp(dgp_fun, n = 10)) %>%
     add_method(create_method(method_fun)) %>%
     add_vary_across(
-      method = "method1",
+      .method = "method1",
       param1 = c(1, 2),
       param2 = c(3, 4),
       vec = list(c(1,3,4), 2:7)

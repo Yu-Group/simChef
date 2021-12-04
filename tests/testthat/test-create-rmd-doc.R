@@ -154,7 +154,7 @@ test_that("R Markdown options work properly", {
   method <- create_method(method_fun)
   eval_fun <- function() iris
   evaluator1 <- create_evaluator(eval_fun)
-  evaluator2 <- create_evaluator(eval_fun, rmd_options = list(digits = 3))
+  evaluator2 <- create_evaluator(eval_fun, .rmd_options = list(digits = 3))
   evaluator3 <- create_evaluator(eval_fun)
   evaluator4 <- create_evaluator(eval_fun)
   viz_fun <- function() {
@@ -163,7 +163,7 @@ test_that("R Markdown options work properly", {
       ggplot2::geom_point()
   }
   visualizer1 <- create_visualizer(viz_fun)
-  visualizer2 <- create_visualizer(viz_fun, rmd_options = list(height = 3))
+  visualizer2 <- create_visualizer(viz_fun, .rmd_options = list(height = 3))
   visualizer3 <- create_visualizer(viz_fun)
   visualizer4 <- create_visualizer(viz_fun)
 

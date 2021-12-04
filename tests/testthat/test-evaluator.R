@@ -3,18 +3,18 @@ test_that("Evaluator initialization works properly", {
 
   func <- function(x) x^2
   eval_fun1 <- function(x, ...) x + 1
-  evaluator1 <- Evaluator$new(eval_fun = eval_fun1)
-  evaluator1b <- Evaluator$new(eval_fun = eval_fun1, name = "Evaluator")
-  evaluator1c <- Evaluator$new(eval_fun = eval_fun1,
-                               rmd_options = list(digits = 3))
-  evaluator1d <- Evaluator$new(eval_fun = eval_fun1,
-                               rmd_options = list(caption = "caption"))
-  evaluator1e <- Evaluator$new(eval_fun = eval_fun1,
-                               rmd_options = list(digits = 3,
+  evaluator1 <- Evaluator$new(.eval_fun = eval_fun1)
+  evaluator1b <- Evaluator$new(.eval_fun = eval_fun1, .name = "Evaluator")
+  evaluator1c <- Evaluator$new(.eval_fun = eval_fun1,
+                               .rmd_options = list(digits = 3))
+  evaluator1d <- Evaluator$new(.eval_fun = eval_fun1,
+                               .rmd_options = list(caption = "caption"))
+  evaluator1e <- Evaluator$new(.eval_fun = eval_fun1,
+                               .rmd_options = list(digits = 3,
                                                   caption = "caption"))
-  evaluator1f <- Evaluator$new(eval_fun = eval_fun1,
+  evaluator1f <- Evaluator$new(.eval_fun = eval_fun1,
                                a = 5, b = 1:5, c = data.frame(d = 1:2))
-  evaluator1g <- Evaluator$new(eval_fun = eval_fun1, rmd_show = FALSE)
+  evaluator1g <- Evaluator$new(.eval_fun = eval_fun1, .rmd_show = FALSE)
   evaluator1h <- Evaluator$new(eval_fun1, n = 100)
   evaluator1i <- Evaluator$new(n = 100, func = func, eval_fun1)
   evaluator1j <- Evaluator$new(eval_fun1, n = 100, "Evaluator")
@@ -23,9 +23,6 @@ test_that("Evaluator initialization works properly", {
   evaluator1l <- Evaluator$new(eval_fun1, "Evaluator", n = 100, rmd_o = TRUE)
   evaluator1m <- Evaluator$new(eval_fun1, a = 5, "Evaluator",
                                list(caption = "caption"), rmd_o = TRUE)
-
-  named_list <- list()
-  names(named_list) <- character(0)
 
   # print statements
   expect_snapshot_output(evaluator1)
@@ -36,7 +33,7 @@ test_that("Evaluator initialization works properly", {
   # basic initialization
   expect_equal(evaluator1$name, NULL)
   expect_equal(evaluator1$eval_fun, eval_fun1)
-  expect_equal(evaluator1$eval_params, named_list)
+  expect_equal(evaluator1$eval_params, list())
   expect_equal(evaluator1$rmd_options,
                list(digits = 2, sigfig = FALSE,
                     options = list(scrollX = TRUE, scrollCollapse = TRUE)))
@@ -44,23 +41,23 @@ test_that("Evaluator initialization works properly", {
 
   # basic initialization with name
   expect_equal(evaluator1b$name, "Evaluator")
-  expect_equal(evaluator1b$eval_params, named_list)
+  expect_equal(evaluator1b$eval_params, list())
 
   # rmd options input
   expect_equal(evaluator1c$rmd_options,
                list(digits = 3, sigfig = FALSE,
                     options = list(scrollX = TRUE, scrollCollapse = TRUE)))
-  expect_equal(evaluator1c$eval_params, named_list)
+  expect_equal(evaluator1c$eval_params, list())
   expect_equal(evaluator1d$rmd_options,
                list(digits = 2, sigfig = FALSE,
                     options = list(scrollX = TRUE, scrollCollapse = TRUE),
                     caption = "caption"))
-  expect_equal(evaluator1d$eval_params, named_list)
+  expect_equal(evaluator1d$eval_params, list())
   expect_equal(evaluator1e$rmd_options,
                list(digits = 3, sigfig = FALSE,
                     options = list(scrollX = TRUE, scrollCollapse = TRUE),
                     caption = "caption"))
-  expect_equal(evaluator1e$eval_params, named_list)
+  expect_equal(evaluator1e$eval_params, list())
 
   # eval_fun arguments
   expect_equal(evaluator1f$eval_params,
@@ -86,7 +83,7 @@ test_that("Evaluator initialization works properly", {
   expect_equal(evaluator1j$name, "Evaluator")
 
   # both formals by position, two user args partial matching
-  expect_equal(evaluator1k$eval_params, list(n = 100, rmd_o = TRUE))
+  expect_equal(evaluator1k$eval_params, list(rmd_o = TRUE, n = 100))
   expect_equal(evaluator1k$eval_fun, eval_fun1)
   expect_equal(evaluator1k$name, "Evaluator")
   expect_equal(evaluator1k$rmd_options,
@@ -103,7 +100,7 @@ test_that("Evaluator initialization works properly", {
                     options = list(scrollX = TRUE, scrollCollapse = TRUE)))
 
   # both formals by shifted position, one user arg partial matching
-  expect_equal(evaluator1m$eval_params, list(rmd_o = TRUE, a = 5))
+  expect_equal(evaluator1m$eval_params, list(a = 5, rmd_o = TRUE))
   expect_equal(evaluator1m$eval_fun, eval_fun1)
   expect_equal(evaluator1m$name, "Evaluator")
   expect_equal(evaluator1m$rmd_options,
@@ -112,18 +109,18 @@ test_that("Evaluator initialization works properly", {
                                    caption = "caption"))
 
   # initialize with create_evaluator
-  evaluator2 <- create_evaluator(eval_fun = eval_fun1)
-  evaluator2b <- create_evaluator(eval_fun = eval_fun1, name = "Evaluator")
-  evaluator2c <- create_evaluator(eval_fun = eval_fun1,
-                                  rmd_options = list(digits = 3))
-  evaluator2d <- create_evaluator(eval_fun = eval_fun1,
-                                  rmd_options = list(caption = "caption"))
-  evaluator2e <- create_evaluator(eval_fun = eval_fun1,
-                                  rmd_options = list(digits = 3,
+  evaluator2 <- create_evaluator(.eval_fun = eval_fun1)
+  evaluator2b <- create_evaluator(.eval_fun = eval_fun1, .name = "Evaluator")
+  evaluator2c <- create_evaluator(.eval_fun = eval_fun1,
+                                  .rmd_options = list(digits = 3))
+  evaluator2d <- create_evaluator(.eval_fun = eval_fun1,
+                                  .rmd_options = list(caption = "caption"))
+  evaluator2e <- create_evaluator(.eval_fun = eval_fun1,
+                                  .rmd_options = list(digits = 3,
                                                      caption = "caption"))
-  evaluator2f <- create_evaluator(eval_fun = eval_fun1,
+  evaluator2f <- create_evaluator(.eval_fun = eval_fun1,
                                   a = 5, b = 1:5, c = data.frame(d = 1:2))
-  evaluator2g <- create_evaluator(eval_fun = eval_fun1, rmd_show = FALSE)
+  evaluator2g <- create_evaluator(.eval_fun = eval_fun1, .rmd_show = FALSE)
   evaluator2h <- create_evaluator(eval_fun1, n = 100)
   evaluator2i <- create_evaluator(n = 100, func = func, eval_fun1)
   evaluator2j <- create_evaluator(eval_fun1, n = 100, "Evaluator")
@@ -132,10 +129,10 @@ test_that("Evaluator initialization works properly", {
   evaluator2l <- create_evaluator(eval_fun1, "Evaluator", n = 100, rmd_o = TRUE)
   evaluator2m <- create_evaluator(eval_fun1, a = 5, "Evaluator",
                                   list(caption = "caption"), rmd_o = TRUE)
-  expect_error(create_evaluator(eval_fun1, "Evaluator", rm = TRUE))
+  expect_error(create_evaluator(eval_fun1, "Evaluator", .rm = TRUE))
 
   expect_error(create_evaluator())
-  expect_error(create_evaluator(name = "Evaluator"))
+  expect_error(create_evaluator(.name = "Evaluator"))
   expect_equal(evaluator1, evaluator2)
   expect_equal(evaluator1b, evaluator2b)
   expect_equal(evaluator1c, evaluator2c)
@@ -154,25 +151,25 @@ test_that("Evaluator initialization works properly", {
 test_that("Evaluator$evaluate() works properly", {
 
   eval_fun1 <- function(x) x + 1
-  evaluator1 <- create_evaluator(eval_fun = eval_fun1)
-  evaluator1b <- create_evaluator(eval_fun = eval_fun1, x = 2)
-  evaluator1c <- create_evaluator(eval_fun = eval_fun1, x = 2, y = 1)
+  evaluator1 <- create_evaluator(.eval_fun = eval_fun1)
+  evaluator1b <- create_evaluator(.eval_fun = eval_fun1, x = 2)
+  evaluator1c <- create_evaluator(.eval_fun = eval_fun1, x = 2, y = 1)
 
   eval_fun2 <- function(...) list(...)
-  evaluator2 <- create_evaluator(eval_fun = eval_fun2)
-  evaluator2b <- create_evaluator(eval_fun = eval_fun2, a = 2)
+  evaluator2 <- create_evaluator(.eval_fun = eval_fun2)
+  evaluator2b <- create_evaluator(.eval_fun = eval_fun2, a = 2)
 
   eval_fun3 <- function(fit_results = NULL, vary_params = NULL) {
     res <- list(fit_results = fit_results, vary_params = vary_params)
     return(res)
   }
-  evaluator3 <- create_evaluator(eval_fun = eval_fun3)
-  evaluator3b <- create_evaluator(eval_fun = eval_fun3, fit_results = "fit")
+  evaluator3 <- create_evaluator(.eval_fun = eval_fun3)
+  evaluator3b <- create_evaluator(.eval_fun = eval_fun3, fit_results = "fit")
 
   eval_fun4 <- function() tibble::tibble(a = 1, b = 2)
-  evaluator4 <- create_evaluator(eval_fun = eval_fun4)
+  evaluator4 <- create_evaluator(.eval_fun = eval_fun4)
   eval_fun5 <- function() list(a = 1, b = 2)
-  evaluator5 <- create_evaluator(eval_fun = eval_fun5)
+  evaluator5 <- create_evaluator(.eval_fun = eval_fun5)
 
   # basic evaluate method
   expect_error(evaluator1$evaluate())

@@ -14,19 +14,10 @@ DGP <- R6::R6Class(
     name = NULL,
     dgp_fun = NULL,
     dgp_params = NULL,
-    initialize = function(dgp_fun, name = NULL, ...) {
-      dots_list <- list(...)
-      if (".args_list" %in% names(dots_list)) {
-        args_list <- dots_list[[".args_list"]]
-      } else {
-        args_list <- make_initialize_arg_list(dgp_fun, name = name, ...,
-                                              which = -2)
-      }
-      self$dgp_fun <- args_list$dgp_fun
-      self$name <- args_list$name
-      args_list$dgp_fun <- NULL
-      args_list$name <- NULL
-      self$dgp_params <- args_list
+    initialize = function(.dgp_fun, .name = NULL, ...) {
+      self$dgp_fun <- .dgp_fun
+      self$name <- .name
+      self$dgp_params <- rlang::list2(...)
     },
     # @description Generate data from a \code{DGP} with the provided \code{DGP}
     #   parameters.
@@ -39,7 +30,7 @@ DGP <- R6::R6Class(
     # @return Result of \code{dgp_fun()}.
     generate = function(...) {
       dgp_params <- self$dgp_params
-      new_dgp_params <- list(...)
+      new_dgp_params <- rlang::list2(...)
       if (length(new_dgp_params) > 0) {
         for (i in 1:length(new_dgp_params)) {
           dgp_params[[names(new_dgp_params)[i]]] <- new_dgp_params[[i]]
@@ -83,11 +74,9 @@ DGP <- R6::R6Class(
 #'
 #' @name create_dgp
 #'
-#' @param dgp_fun The data-generating process function.
-#' @param name (Optional) The name of the \code{DGP}. The argument must be
-#'   specified by position or typed out in whole; no partial matching is
-#'   allowed.
-#' @param ... Arguments to pass into \code{dgp_fun()}.
+#' @param .dgp_fun The data-generating process function.
+#' @param .name (Optional) The name of the \code{DGP}.
+#' @param ... Arguments to pass into \code{.dgp_fun()}.
 #'
 #' @return A new instance of \code{DGP}.
 #'
@@ -101,24 +90,23 @@ DGP <- R6::R6Class(
 #' }
 #' 
 #' # create DGP (with uncorrelated features)
-#' dgp_uncorr <- create_dgp(dgp_fun = dgp_fun, 
-#'                          name = "Uncorrelated Linear Gaussian DGP",
+#' dgp_uncorr <- create_dgp(.dgp_fun = dgp_fun, 
+#'                          .name = "Uncorrelated Linear Gaussian DGP",
 #'                          # additional named parameters to pass to dgp_fun()
 #'                          n = 200, beta = c(1, 0), rho = 0, sigma = 1)
 #' # create DGP (with correlated features)
-#' dgp_corr <- create_dgp(dgp_fun = dgp_fun, 
-#'                        name = "Correlated Linear Gaussian DGP",
+#' dgp_corr <- create_dgp(.dgp_fun = dgp_fun, 
+#'                        .name = "Correlated Linear Gaussian DGP",
 #'                        # additional named parameters to pass to dgp_fun()
 #'                        n = 200, beta = c(1, 0), rho = 0.7, sigma = 1)
 #' 
 #' # create DGP from a function in the built-in DGP library
-#' dgp <- create_dgp(dgp_fun = linear_gaussian_dgp, 
-#'                   name = "Linear Gaussian DGP",
+#' dgp <- create_dgp(.dgp_fun = linear_gaussian_dgp, 
+#'                   .name = "Linear Gaussian DGP",
 #'                   # additional named parameters to pass to linear_gaussian_dgp()
 #'                   n = 100, p_obs = 10, err = rnorm)
 #'
 #' @export
-create_dgp <- function(dgp_fun, name = NULL, ...) {
-  args_list <- make_initialize_arg_list(dgp_fun, name = name, ...)
-  do.call(DGP$new, list(.args_list = args_list))
+create_dgp <- function(.dgp_fun, .name = NULL, ...) {
+  DGP$new(.dgp_fun, .name, ...)
 }

@@ -100,7 +100,7 @@ dgp_fun <- function(n, beta, rho, sigma) {
 We can create an object of class `DGP()` from this function via
 
 ```{r}
-dgp <- create_dgp(dgp_fun = dgp_fun, name = "Linear Gaussian DGP",
+dgp <- create_dgp(.dgp_fun = dgp_fun, .name = "Linear Gaussian DGP",
                   # additional named parameters to pass to dgp_fun()
                   n = 200, beta = c(1, 0), rho = 0, sigma = 1)
 ```
@@ -123,7 +123,7 @@ lm_fun <- function(X, y, cols = c("X1", "X2")) {
 We can create an object of class `Method()` from this function via
 
 ```{r}
-lm_method <- create_method(method_fun = lm_fun)
+lm_method <- create_method(.method_fun = lm_fun)
 ```
 
 A couple notes here:
@@ -151,7 +151,7 @@ reject_prob_fun <- function(fit_results, alpha = 0.05) {
 We can create an object of class `Evaluator()` from this function via
 
 ```{r}
-reject_prob_eval <- create_evaluator(eval_fun = reject_prob_fun, alpha = 0.1)
+reject_prob_eval <- create_evaluator(.eval_fun = reject_prob_fun, alpha = 0.1)
 ```
 
 There are a few key points to keep in mind when writing a custom Evaluator function such as `reject_prob_fun()`.
@@ -183,7 +183,7 @@ power_plot_fun <- function(fit_results, col = "X1") {
 We can create an object of class `Visualizer()` from this function via
 
 ```{r}
-power_plot <- create_visualizer(viz_fun = power_plot_fun)
+power_plot <- create_visualizer(.viz_fun = power_plot_fun)
 ```
 
 Like the custom `Evaluator` functions, custom `Visualizer` functions such as `power_plot_fun()` can take in the argument `fit_results` if we want to construct a plot from the method fit outputs. If we want to construct a visualization using the output of our `Evaluators` (e.g., the output from `reject_prob_fun()`), the `Visualizer` function can also take the argument `eval_results` as input. Note again that the arguments must be exactly named `fit_results` and `eval_results` in order to work properly. Beyond creating plots, `Visualizers` can return tables and more generally, any R Markdown snippet containing results.
@@ -273,7 +273,7 @@ Now, going slightly beyond the most basic usage of `simChef`, it is often helpfu
 Using the simple grammar of `simChef`, we can investigate this question by adding a "vary across" component to the simulation experiment.
 ```{r}
 experiment <- experiment %>%
-  add_vary_across(dgp = "Linear Gaussian DGP", sigma = c(1, 2, 4, 8))
+  add_vary_across(.dgp = "Linear Gaussian DGP", sigma = c(1, 2, 4, 8))
 ```
 
 ```{r}
@@ -303,7 +303,7 @@ reject_prob_fun <- function(fit_results, vary_params = NULL, alpha = 0.05) {
     )
   return(eval_out)
 }
-reject_prob_eval <- create_evaluator(eval_fun = reject_prob_fun, alpha = 0.1)
+reject_prob_eval <- create_evaluator(.eval_fun = reject_prob_fun, alpha = 0.1)
 ```
 
 Similarly in `power_plot_fun`, we need to add a `vary_params` argument to plot the results across different values of `sigma`.
@@ -334,7 +334,7 @@ power_plot_fun <- function(fit_results, vary_params = NULL, col = "X1") {
   }
   return(plt)
 }
-power_plot <- create_visualizer(viz_fun = power_plot_fun)
+power_plot <- create_visualizer(.viz_fun = power_plot_fun)
 
 ```
 
@@ -383,7 +383,7 @@ reject_prob_plot_fun <- function(eval_results, vary_params = NULL,
   }
   return(plotly::ggplotly(plt))
 }
-reject_prob_plot <- create_visualizer(viz_fun = reject_prob_plot_fun, alpha = 0.1)
+reject_prob_plot <- create_visualizer(.viz_fun = reject_prob_plot_fun, alpha = 0.1)
 
 experiment <- experiment %>%
   add_visualizer(reject_prob_plot, name = "Rejection Prob. (alpha = 0.1) Plot")
@@ -391,7 +391,7 @@ experiment <- experiment %>%
 # run experiment across values of beta_2
 vary_beta2_results <- experiment %>%
   remove_vary_across(dgp = "Linear Gaussian DGP") %>%
-  add_vary_across(dgp = "Linear Gaussian DGP",
+  add_vary_across(.dgp = "Linear Gaussian DGP",
                   beta = list(c(1, 0),
                               c(1, 0.5),
                               c(1, 1),
@@ -402,7 +402,7 @@ vary_beta2_results <- experiment %>%
 # run experiment across values of rho (correlation)
 vary_cor_results <- experiment %>%
   remove_vary_across(dgp = "Linear Gaussian DGP") %>%
-  add_vary_across(dgp = "Linear Gaussian DGP", 
+  add_vary_across(.dgp = "Linear Gaussian DGP", 
                   rho = c(0, 0.2, 0.5, 0.9)) %>%
   run_experiment(n_reps = 100, save = TRUE)
 ```
@@ -466,7 +466,7 @@ experiment <- experiment %>%
   remove_vary_across(dgp = "Linear Gaussian DGP")
 experiment
 vary_experiment <- experiment %>%
-  add_vary_across(dgp = "Linear Gaussian DGP", sigma = c(1, 2, 4, 8))
+  add_vary_across(.dgp = "Linear Gaussian DGP", sigma = c(1, 2, 4, 8))
 all.equal(vary_experiment, experiment)
 data.table::address(experiment) == data.table::address(vary_experiment)
 experiment
@@ -491,14 +491,14 @@ When creating an `Experiment` from a clone, we are making a deep clone of the pa
 ```{r}
 # this works without an error
 vary_experiment <- vary_experiment %>%
-  add_vary_across(dgp = "Linear Gaussian DGP", sigma = c(1, 2, 4, 8))
+  add_vary_across(.dgp = "Linear Gaussian DGP", sigma = c(1, 2, 4, 8))
 ```
 
 We can also add/update DGPs, Methods, Evaluators, and Visualizers to the cloned experiment without modifying the parent `experiment`.
 
 ```{r}
 # add DGP
-dgp_new <- create_dgp(dgp_fun = dgp_fun, name = "Linear Gaussian DGP (large n)",
+dgp_new <- create_dgp(.dgp_fun = dgp_fun, .name = "Linear Gaussian DGP (large n)",
                       n = 500, beta = c(1, 0), rho = 0, sigma = 1)
 vary_experiment <- vary_experiment %>%
   add_dgp(dgp_new, "Linear Gaussian DGP (large n)")
@@ -627,16 +627,16 @@ experiment$fit(n_reps = 100, checkpoint_n_reps = 25)
 
 There are several customizable options regarding the aesthetics of Evaluators and Visualizers displayed in the Rmd report. These can be modified using the `rmd_options` argument in `create_evaluator()` and `create_visualizer()`. For example, we can customize the height and width of the Power plot via
 ```{r}
-power_plot <- create_visualizer(viz_fun = power_plot_fun, 
-                                rmd_options = list(height = 10, width = 8))
+power_plot <- create_visualizer(.viz_fun = power_plot_fun, 
+                                .rmd_options = list(height = 10, width = 8))
 experiment <- experiment %>%
   update_visualizer(power_plot, "Power")
 ```
 
 and the number of digits in the evaluation table outputs via
 ```{r}
-reject_prob_eval <- create_evaluator(eval_fun = reject_prob_fun, alpha = 0.1,
-                                     rmd_options = list(digits = 3))
+reject_prob_eval <- create_evaluator(.eval_fun = reject_prob_fun, alpha = 0.1,
+                                     .rmd_options = list(digits = 3))
 experiment <- experiment %>%
   update_evaluator(reject_prob_eval, "Rejection Prob. (alpha = 0.1)")
 ```

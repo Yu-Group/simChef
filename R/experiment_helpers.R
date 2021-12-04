@@ -402,10 +402,10 @@ get_visualizers <- function(experiment, ...) {
 #'   parameter in the \code{DGP} or \code{Method} while all other parameters are
 #'   held constant at their baseline value.
 #'
-#' @inheritParams shared_experiment_helpers_args
-#' @param dgp Name of \code{DGP} to vary in the \code{Experiment}. Can also be a
+#' @param .experiment,experiment An \code{Experiment} object.
+#' @param .dgp,dgp Name of \code{DGP} to vary in the \code{Experiment}. Can also be a
 #'   \code{DGP} object that matches one in the \code{Experiment}.
-#' @param method Name of \code{Method} to vary in the \code{Experiment}. Can
+#' @param .method,method Name of \code{Method} to vary in the \code{Experiment}. Can
 #'   also be a \code{Method} object that matches one in the \code{Experiment}.
 #' @param param_names A character vector of parameter names to remove. If
 #'   not provided, the entire set of \code{vary_across} parameters will be
@@ -414,14 +414,16 @@ get_visualizers <- function(experiment, ...) {
 #'   user-specified \code{DGP} or \code{Method} function and values are vectors
 #'   (for scalar parameters) or lists (for arbitrary parameters).
 #'
-#' @details One of the \code{dgp} or \code{method} arguments (but not both) must
+#' @details One of the \code{.dgp} or \code{.method} arguments (but not both) must
 #'   be provided when using \code{add_vary_across()} and
 #'   \code{update_vary_across}. For \code{remove_vary_across()}, if both the
 #'   \code{dgp} and \code{method} arguments are not provided, then all
 #'   \code{vary_across} parameters from the experiment are removed.
 #'
-#' @return The original \code{Experiment} object passed to
-#'   \code{*_vary_across()}.
+#' @return In the case of \code{get_vary_across}, a nested list with entries
+#'   "dgp" and "method" that contains the parameters to vary across for each
+#'   \code{DGP] and \code{Method] in the \code{Experiment}. Otherwise, the
+#'   original \code{Experiment} object passed to \code{*_vary_across()}.
 #'
 #' @name vary_across
 #' @rdname vary_across
@@ -431,23 +433,22 @@ NULL
 #' @rdname vary_across
 #'
 #' @export
-add_vary_across <- function(experiment, dgp, method, ...) {
-  experiment$add_vary_across(dgp = dgp, method = method, ...)
+add_vary_across <- function(.experiment, .dgp, .method, ...) {
+  .experiment$add_vary_across(.dgp, .method, ...)
 }
 
 #' @rdname vary_across
 #'
 #' @export
-update_vary_across <- function(experiment, dgp, method, ...) {
-  experiment$update_vary_across(dgp = dgp, method = method, ...)
+update_vary_across <- function(.experiment, .dgp, .method, ...) {
+  .experiment$update_vary_across(.dgp, .method, ...)
 }
 
 #' @rdname vary_across
 #'
 #' @export
 remove_vary_across <- function(experiment, dgp, method, param_names = NULL) {
-  experiment$remove_vary_across(dgp = dgp, method = method,
-                                param_names = param_names)
+  experiment$remove_vary_across(dgp, method, param_names)
 }
 
 #' @rdname vary_across

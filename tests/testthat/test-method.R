@@ -3,16 +3,13 @@ test_that("Method initialization works properly", {
 
   func <- function(x) x^2
   method_fun1 <- function(x, ...) x + 1
-  method1 <- Method$new(method_fun = method_fun1)
-  method1b <- Method$new(method_fun = method_fun1, name = "Method")
-  method1c <- Method$new(method_fun = method_fun1,
+  method1 <- Method$new(.method_fun = method_fun1)
+  method1b <- Method$new(.method_fun = method_fun1, .name = "Method")
+  method1c <- Method$new(.method_fun = method_fun1,
                          a = 5, b = 1:5, c = data.frame(d = 1:2))
   method1d <- Method$new(method_fun1, n = 100)
   method1e <- Method$new(n = 100, func = func, method_fun1)
   method1f <- Method$new(n = 100, method_fun1, "Method")
-
-  named_list <- list()
-  names(named_list) <- character(0)
 
   # print statements
   expect_snapshot_output(method1)
@@ -22,11 +19,11 @@ test_that("Method initialization works properly", {
   # basic initialization
   expect_equal(method1$name, NULL)
   expect_equal(method1$method_fun, method_fun1)
-  expect_equal(method1$method_params, named_list)
+  expect_equal(method1$method_params, list())
 
   # basic initialization with name
   expect_equal(method1b$name, "Method")
-  expect_equal(method1b$method_params, named_list)
+  expect_equal(method1b$method_params, list())
 
   # method_fun arguments
   expect_equal(method1c$method_params,
@@ -49,16 +46,16 @@ test_that("Method initialization works properly", {
   expect_equal(method1f$name, "Method")
 
   # initialize with create_method
-  method2 <- create_method(method_fun = method_fun1)
-  method2b <- create_method(method_fun = method_fun1, name = "Method")
-  method2c <- create_method(method_fun = method_fun1,
+  method2 <- create_method(.method_fun = method_fun1)
+  method2b <- create_method(.method_fun = method_fun1, .name = "Method")
+  method2c <- create_method(.method_fun = method_fun1,
                             a = 5, b = 1:5, c = data.frame(d = 1:2))
   method2d <- create_method(method_fun1, n = 100)
   method2e <- create_method(n = 100, func = func, method_fun1)
   method2f <- create_method(n = 100, method_fun1, "Method")
 
   expect_error(create_method())
-  expect_error(create_method(name = "Method"))
+  expect_error(create_method(.name = "Method"))
   expect_equal(method1, method2)
   expect_equal(method1b, method2b)
   expect_equal(method1c, method2c)
@@ -70,18 +67,18 @@ test_that("Method initialization works properly", {
 test_that("Method$fit() works properly", {
 
   method_fun1 <- function(x) x + 1
-  method1 <- create_method(method_fun = method_fun1)
-  method1b <- create_method(method_fun = method_fun1, x = 2)
-  method1c <- create_method(method_fun = method_fun1, y = 1)
+  method1 <- create_method(.method_fun = method_fun1)
+  method1b <- create_method(.method_fun = method_fun1, x = 2)
+  method1c <- create_method(.method_fun = method_fun1, y = 1)
 
   method_fun2 <- function(...) list(...)
-  method2 <- create_method(method_fun = method_fun2)
-  method2b <- create_method(method_fun = method_fun2, a = 2)
+  method2 <- create_method(.method_fun = method_fun2)
+  method2b <- create_method(.method_fun = method_fun2, a = 2)
 
   method_fun3 <- function(x) tibble::tibble(a = x, b = x)
-  method3 <- create_method(method_fun = method_fun3)
+  method3 <- create_method(.method_fun = method_fun3)
   method_fun4 <- function(x, y) list(a = x, b = rep(y, 3))
-  method4 <- create_method(method_fun = method_fun4)
+  method4 <- create_method(.method_fun = method_fun4)
 
   # basic fit method
   expect_error(method1$fit())

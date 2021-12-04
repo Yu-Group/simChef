@@ -3,18 +3,15 @@ test_that("DGP initialization works properly", {
 
   fun <- function(x) x^2
   dgp_fun1 <- function(x, ...) x + 1
-  dgp1 <- DGP$new(dgp_fun = dgp_fun1)
-  dgp1b <- DGP$new(dgp_fun = dgp_fun1, name = "DGP")
-  dgp1c <- DGP$new(dgp_fun = dgp_fun1,
+  dgp1 <- DGP$new(.dgp_fun = dgp_fun1)
+  dgp1b <- DGP$new(.dgp_fun = dgp_fun1, .name = "DGP")
+  dgp1c <- DGP$new(.dgp_fun = dgp_fun1,
                    a = 5, b = 1:5, c = data.frame(d = 1:2))
   dgp1d <- DGP$new(dgp_fun1, n = 100)
   dgp1e <- DGP$new(n = 100, fun = fun, dgp_fun1)
   dgp1f <- DGP$new(n = 100, dgp_fun1, "DGP")
   # TODO: add expect_* statements for dgp1g
   dgp1g <- DGP$new(dgp_fun1, "DGP", n = 100) # *
-
-  named_list <- list()
-  names(named_list) <- character(0)
 
   # print statements
   expect_snapshot_output(dgp1)
@@ -24,11 +21,11 @@ test_that("DGP initialization works properly", {
   # basic initialization
   expect_equal(dgp1$name, NULL)
   expect_equal(dgp1$dgp_fun, dgp_fun1)
-  expect_equal(dgp1$dgp_params, named_list)
+  expect_equal(dgp1$dgp_params, list())
 
   # basic initialization with name
   expect_equal(dgp1b$name, "DGP")
-  expect_equal(dgp1b$dgp_params, named_list)
+  expect_equal(dgp1b$dgp_params, list())
 
   # dgp_fun arguments
   expect_equal(dgp1c$dgp_params,
@@ -51,16 +48,16 @@ test_that("DGP initialization works properly", {
   expect_equal(dgp1f$name, "DGP")
 
   # initialize with create_dgp
-  dgp2 <- create_dgp(dgp_fun = dgp_fun1)
-  dgp2b <- create_dgp(dgp_fun = dgp_fun1, name = "DGP")
-  dgp2c <- create_dgp(dgp_fun = dgp_fun1,
+  dgp2 <- create_dgp(.dgp_fun = dgp_fun1)
+  dgp2b <- create_dgp(.dgp_fun = dgp_fun1, .name = "DGP")
+  dgp2c <- create_dgp(.dgp_fun = dgp_fun1,
                       a = 5, b = 1:5, c = data.frame(d = 1:2))
   dgp2d <- create_dgp(dgp_fun1, n = 100)
   dgp2e <- create_dgp(n = 100, fun = fun, dgp_fun1)
   dgp2f <- create_dgp(n = 100, dgp_fun1, "DGP")
 
   expect_error(create_dgp())
-  expect_error(create_dgp(name = "DGP"))
+  expect_error(create_dgp(.name = "DGP"))
   expect_equal(dgp1, dgp2)
   expect_equal(dgp1b, dgp2b)
   expect_equal(dgp1c, dgp2c)
@@ -72,18 +69,18 @@ test_that("DGP initialization works properly", {
 test_that("DGP$generate() works properly", {
 
   dgp_fun1 <- function(x) x + 1
-  dgp1 <- create_dgp(dgp_fun = dgp_fun1)
-  dgp1b <- create_dgp(dgp_fun = dgp_fun1, x = 2)
-  dgp1c <- create_dgp(dgp_fun = dgp_fun1, y = 1)
+  dgp1 <- create_dgp(.dgp_fun = dgp_fun1)
+  dgp1b <- create_dgp(.dgp_fun = dgp_fun1, x = 2)
+  dgp1c <- create_dgp(.dgp_fun = dgp_fun1, y = 1)
 
   dgp_fun2 <- function(...) list(...)
-  dgp2 <- create_dgp(dgp_fun = dgp_fun2)
-  dgp2b <- create_dgp(dgp_fun = dgp_fun2, a = 2)
+  dgp2 <- create_dgp(.dgp_fun = dgp_fun2)
+  dgp2b <- create_dgp(.dgp_fun = dgp_fun2, a = 2)
 
   dgp_fun3 <- function(x) tibble::tibble(a = x, b = x)
-  dgp3 <- create_dgp(dgp_fun = dgp_fun3)
+  dgp3 <- create_dgp(.dgp_fun = dgp_fun3)
   dgp_fun4 <- function(x, y) list(a = x, b = rep(y, 3))
-  dgp4 <- create_dgp(dgp_fun = dgp_fun4)
+  dgp4 <- create_dgp(.dgp_fun = dgp_fun4)
 
   # basic generate dgp
   expect_error(dgp1$generate())
