@@ -50,3 +50,4 @@ are in \code{return_values}, then the returned list also contains slots for
 \description{
 Arguments that are shared by multiple \code{DGP} library functions.
 }
+\keyword{internal}

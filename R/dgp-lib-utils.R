@@ -32,6 +32,8 @@
 #' Note that if \code{data_split = TRUE} and "X", "y" 
 #'   are in \code{return_values}, then the returned list also contains slots for
 #'   "Xtest" and "ytest".
+#'
+#' @keywords internal
 NULL
 
 #' Helper function to generate a coefficient vector.

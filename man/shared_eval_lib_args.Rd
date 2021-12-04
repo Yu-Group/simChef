@@ -44,3 +44,4 @@ the values are the recall values at which to evaluate the precision.}
 \description{
 Arguments that are shared by multiple \code{Evaluator} library functions.
 }
+\keyword{internal}

@@ -12,7 +12,8 @@
 #' @param show Character vector with elements being one of "boxplot", "point",
 #'   "line", "bar", "errorbar", "ribbon" indicating what plot layer(s) to
 #'   construct.
-#'   
+#'
+#' @keywords internal
 NULL
 
 #' Developer function for plotting summary of evaluation results.

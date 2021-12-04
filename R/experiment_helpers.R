@@ -39,6 +39,8 @@
 #'   other than user-defined function error debugging information.
 #' @param visualizer A \code{Visualizer} object.
 #' @param ... Not used.
+#'
+#' @keywords internal
 NULL
 
 #' Create a new \code{Experiment}.

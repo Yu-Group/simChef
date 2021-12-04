@@ -62,3 +62,4 @@ other than user-defined function error debugging information.}
 \description{
 Arguments that are shared by multiple Experiment helper funs.
 }
+\keyword{internal}

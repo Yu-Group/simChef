@@ -30,7 +30,8 @@
 #'   or PR curve. If \code{curve = "ROC"}, the provided vector of values are
 #'   the FPR values at which to evaluate the TPR, and if \code{curve = "PR"},
 #'   the values are the recall values at which to evaluate the precision.
-#'   
+#'
+#' @keywords internal
 NULL
 
 #' Developer function for summarizing evaluation results.

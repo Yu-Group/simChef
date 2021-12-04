@@ -21,3 +21,4 @@ construct.}
 \description{
 Arguments that are shared by multiple \code{Visualizer} library functions.
 }
+\keyword{internal}
