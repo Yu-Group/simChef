@@ -82,31 +82,32 @@ ar1_errors <- function(n, rho) {
 #' Generate block-correlated Gaussian errors.
 #' 
 #' @description Generate correlated Gaussian errors based on a block-dependence
-#'   covariance structure with k (approximately) equally-sized blocks.
+#'   covariance structure with \code{n_blocks} (approximately) equally-sized 
+#'   blocks.
 #'
 #' @inheritParams shared_dgp_lib_args
-#' @param k Number of blocks.
+#' @param n_blocks Number of blocks.
 #' @param rho Correlation. Must be a scalar or vector of length \code{k}.
 #' 
 #' @inherit generate_errors return
 #' 
 #' @examples
-#' errs <- block_errors(n = 100, k = 3, rho = 0.7)
+#' errs <- block_errors(n = 100, n_blocks = 3, rho = 0.7)
 #' 
 #' @export
-block_errors <- function(n, k = 3, rho = 0.8) {
+block_errors <- function(n, n_blocks = 3, rho = 0.8) {
   Sigma_block <- matrix(0, nrow = n, ncol = n)
-  block_size <- n %/% k
+  block_size <- n %/% n_blocks
   
   if (length(rho) == 1) {
-    rho <- rep(rho, k)
-  } else if (length(rho) != k) {
-    stop("rho must have length 1 or k.")
+    rho <- rep(rho, n_blocks)
+  } else if (length(rho) != n_blocks) {
+    stop(sprintf("rho must have length 1 or n_blocks = %s.", n_blocks))
   }
   
-  for (i in 1:k) {
+  for (i in 1:n_blocks) {
     start <- (i - 1) * block_size + 1
-    if (i * block_size < n && i == k) {
+    if (i * block_size < n && i == n_blocks) {
       end <- n
     } else {
       end <- min(i * block_size, n)

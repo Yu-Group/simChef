@@ -74,8 +74,8 @@ To begin, we first need to create the individual parts of the simulation experim
 
 To create a `DGP()`, `Method()`, `Evaluator()`, or `Visualizer()`, we can respectively use the `create_dgp()`, `create_method()`, `create_evaluator()`, or `create_visualizer()` functions. Each `create_*()` function follows the same syntax and takes in the inputs:
 
-- `*_fun`: the first input is a function from which to simulate data, fit the method, evaluate the metrics, or create a visualization (depending on `*`).
-- `name`: (optional) name of the component. Can be specified either here in `create_*()` or when creating the experiment as we will see later.
+- `.*_fun`: the first input is a function from which to simulate data, fit the method, evaluate the metrics, or create a visualization (depending on `*`).
+- `.name`: (optional) name of the component. Can be specified either here in `create_*()` or when creating the experiment as we will see later.
 - `...`: additional arguments get passed into the `*_fun` above.
 
 ### Create data-generating process (DGP)
@@ -105,7 +105,7 @@ dgp <- create_dgp(.dgp_fun = dgp_fun, .name = "Linear Gaussian DGP",
                   n = 200, beta = c(1, 0), rho = 0, sigma = 1)
 ```
 
-Note that the additional arguments in `create_dgp()` must be named arguments that match those in `dgp_fun`. 
+Note that the additional arguments in `create_dgp()` must be named arguments that match those in `dgp_fun()`. 
 
 ### Create method
 
@@ -128,7 +128,7 @@ lm_method <- create_method(.method_fun = lm_fun)
 
 A couple notes here:
 
-- The inputs into the method function `lm_fun` should include the named outputs from the DGP function `dgp_fun` (in this case, `X` and `y`), as the data generated from the DGP will be automatically passed into the Method.
+- The inputs into the method function `lm_fun()` should include the named outputs from the DGP function `dgp_fun()` (in this case, `X` and `y`), as the data generated from the DGP will be automatically passed into the Method.
 - Additional arguments can be passed into `create_method()` as was done previously in `create_dgp()`. However, this is not necessary in this case if we are happy with the default argument for `cols` in `lm_fun()`.
 
 ### Create evaluator
