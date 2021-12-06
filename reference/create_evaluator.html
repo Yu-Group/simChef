@@ -58,34 +58,34 @@
 
     <div id="ref-usage">
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">create_evaluator</span><span class="op">(</span>
-  <span class="va">eval_fun</span>,
-  name <span class="op">=</span> <span class="cn">NULL</span>,
-  rmd_options <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,
-  rmd_show <span class="op">=</span> <span class="cn">TRUE</span>,
+  <span class="va">.eval_fun</span>,
+  .name <span class="op">=</span> <span class="cn">NULL</span>,
+  .rmd_options <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,
+  .rmd_show <span class="op">=</span> <span class="cn">TRUE</span>,
   <span class="va">...</span>
 <span class="op">)</span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
-    <dl><dt>eval_fun</dt>
+    <dl><dt>.eval_fun</dt>
 <dd><p>The evaluation function.</p></dd>
-<dt>name</dt>
+<dt>.name</dt>
 <dd><p>(Optional) The name of the <code>Evaluator</code>. The argument must be
 specified by position or typed out in whole; no partial matching is allowed
 for this argument.</p></dd>
-<dt>rmd_options</dt>
+<dt>.rmd_options</dt>
 <dd><p>(Optional) List of options to control the aesthetics of
 the displayed <code>Evaluator</code>'s results table in the knitted R Markdown
 report. See <code><a href="pretty_DT.html">pretty_DT()</a></code> for possible options. The argument must be
 specified by position or typed out in whole; no partial matching is allowed
 for this argument.</p></dd>
-<dt>rmd_show</dt>
+<dt>.rmd_show</dt>
 <dd><p>If <code>TRUE</code> (default), show <code>Evaluator</code>'s results as
 a table in the R Markdown report; if <code>FALSE</code>, hide output in the
 R Markdown report.</p></dd>
 <dt>...</dt>
-<dd><p>Arguments to pass into <code>eval_fun()</code>.</p></dd>
+<dd><p>Arguments to pass into <code>.eval_fun()</code>.</p></dd>
 </dl></div>
     <div id="value">
     <h2>Value</h2>
@@ -96,11 +96,11 @@ R Markdown report.</p></dd>
     <p>When evaluating or running the <code>Experiment</code> (see
 <code><a href="evaluate_experiment.html">evaluate_experiment()</a></code> or <code><a href="run_experiment.html">run_experiment()</a></code>), the named
 arguments <code>fit_results</code> and <code>vary_params</code> are automatically
-passed into the <code>Evaluator</code> function <code>eval_fun()</code> and serve
+passed into the <code>Evaluator</code> function <code>.eval_fun()</code> and serve
 as placeholders for the <code><a href="fit_experiment.html">fit_experiment()</a></code> results (i.e., the
 results from the method fits) and the name of the varying parameter,
 respectively. To evaluate the performance of a method(s) fit then,
-the <code>Evaluator</code> function <code>eval_fun()</code> should almost always
+the <code>Evaluator</code> function <code>.eval_fun()</code> should almost always
 take in the named argument <code>fit_results</code>. See
 <code>Experiment$fit()</code> or <code><a href="fit_experiment.html">fit_experiment()</a></code> for details on the
 format of <code>fit_results</code>. If the <code>Evaluator</code>
@@ -124,24 +124,24 @@ varying parameter.</p>
 <span class="r-in"><span class="op">}</span></span>
 <span class="r-in"></span>
 <span class="r-in"><span class="co"># create Evaluator using the default arguments (i.e., alpha = 0.05)</span></span>
-<span class="r-in"><span class="va">reject_prob_eval</span> <span class="op">&lt;-</span> <span class="fu">create_evaluator</span><span class="op">(</span>eval_fun <span class="op">=</span> <span class="va">reject_prob_fun</span>, </span>
-<span class="r-in">                                     name <span class="op">=</span> <span class="st">"Rejection Prob (alpha = 0.05)"</span><span class="op">)</span></span>
+<span class="r-in"><span class="va">reject_prob_eval</span> <span class="op">&lt;-</span> <span class="fu">create_evaluator</span><span class="op">(</span>.eval_fun <span class="op">=</span> <span class="va">reject_prob_fun</span>, </span>
+<span class="r-in">                                     .name <span class="op">=</span> <span class="st">"Rejection Prob (alpha = 0.05)"</span><span class="op">)</span></span>
 <span class="r-in"><span class="co"># create Evaluator using non-default arguments (here, alpha = 0.1)</span></span>
-<span class="r-in"><span class="va">reject_prob_eval2</span> <span class="op">&lt;-</span> <span class="fu">create_evaluator</span><span class="op">(</span>eval_fun <span class="op">=</span> <span class="va">reject_prob_fun</span>,</span>
-<span class="r-in">                                      name <span class="op">=</span> <span class="st">"Rejection Prob (alpha = 0.1)"</span>,</span>
+<span class="r-in"><span class="va">reject_prob_eval2</span> <span class="op">&lt;-</span> <span class="fu">create_evaluator</span><span class="op">(</span>.eval_fun <span class="op">=</span> <span class="va">reject_prob_fun</span>,</span>
+<span class="r-in">                                      .name <span class="op">=</span> <span class="st">"Rejection Prob (alpha = 0.1)"</span>,</span>
 <span class="r-in">                                      <span class="co"># additional named parameters to pass to reject_prob_fun(),</span></span>
 <span class="r-in">                                      alpha <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span></span>
 <span class="r-in"></span>
 <span class="r-in"><span class="co"># create Evaluator from a function in the built-in Evaluator library</span></span>
-<span class="r-in"><span class="va">pred_err_eval</span> <span class="op">&lt;-</span> <span class="fu">create_evaluator</span><span class="op">(</span>eval_fun <span class="op">=</span> <span class="va">summarize_pred_err</span>,</span>
-<span class="r-in">                                  name <span class="op">=</span> <span class="st">"Prediction Error"</span>, </span>
+<span class="r-in"><span class="va">pred_err_eval</span> <span class="op">&lt;-</span> <span class="fu">create_evaluator</span><span class="op">(</span>.eval_fun <span class="op">=</span> <span class="va">summarize_pred_err</span>,</span>
+<span class="r-in">                                  .name <span class="op">=</span> <span class="st">"Prediction Error"</span>, </span>
 <span class="r-in">                                  <span class="co"># additional named parameters to pass to summarize_pred_err()</span></span>
 <span class="r-in">                                  truth_col <span class="op">=</span> <span class="st">"y"</span>, estimate_col <span class="op">=</span> <span class="st">"predictions"</span><span class="op">)</span></span>
 <span class="r-in">                                  </span>
 <span class="r-in"><span class="co"># set rmd options for displaying Evaluator in Rmd report to show 3 decimal points</span></span>
-<span class="r-in"><span class="va">pred_err_eval</span> <span class="op">&lt;-</span> <span class="fu">create_evaluator</span><span class="op">(</span>eval_fun <span class="op">=</span> <span class="va">summarize_pred_err</span>,</span>
-<span class="r-in">                                  name <span class="op">=</span> <span class="st">"Prediction Error"</span>, </span>
-<span class="r-in">                                  rmd_options <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>digits <span class="op">=</span> <span class="fl">3</span><span class="op">)</span>,</span>
+<span class="r-in"><span class="va">pred_err_eval</span> <span class="op">&lt;-</span> <span class="fu">create_evaluator</span><span class="op">(</span>.eval_fun <span class="op">=</span> <span class="va">summarize_pred_err</span>,</span>
+<span class="r-in">                                  .name <span class="op">=</span> <span class="st">"Prediction Error"</span>, </span>
+<span class="r-in">                                  .rmd_options <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>digits <span class="op">=</span> <span class="fl">3</span><span class="op">)</span>,</span>
 <span class="r-in">                                  <span class="co"># additional named parameters to pass to summarize_pred_err()</span></span>
 <span class="r-in">                                  truth_col <span class="op">=</span> <span class="st">"y"</span>, estimate_col <span class="op">=</span> <span class="st">"predictions"</span><span class="op">)</span></span>
 <span class="r-in"></span>

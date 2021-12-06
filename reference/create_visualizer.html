@@ -58,34 +58,32 @@
 
     <div id="ref-usage">
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">create_visualizer</span><span class="op">(</span>
-  <span class="va">viz_fun</span>,
-  name <span class="op">=</span> <span class="cn">NULL</span>,
-  rmd_options <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,
-  rmd_show <span class="op">=</span> <span class="cn">TRUE</span>,
+  <span class="va">.viz_fun</span>,
+  .name <span class="op">=</span> <span class="cn">NULL</span>,
+  .rmd_options <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,
+  .rmd_show <span class="op">=</span> <span class="cn">TRUE</span>,
   <span class="va">...</span>
 <span class="op">)</span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
-    <dl><dt>viz_fun</dt>
+    <dl><dt>.viz_fun</dt>
 <dd><p>The visualization function.</p></dd>
-<dt>name</dt>
-<dd><p>(Optional) The name of the <code>Visualizer</code>. The argument must
-be specified by position or typed out in whole; no partial matching is
-allowed for this argument.</p></dd>
-<dt>rmd_options</dt>
+<dt>.name</dt>
+<dd><p>(Optional) The name of the <code>Visualizer</code>.</p></dd>
+<dt>.rmd_options</dt>
 <dd><p>(Optional) List of options to control the aesthetics of
 the <code>Visualizer</code>'s visualization in the knitted R Markdown report.
 Currently, possible options are "height" and "width" (in inches). The
 argument must be specified by position or typed out in whole; no partial
 matching is allowed for this argument.</p></dd>
-<dt>rmd_show</dt>
+<dt>.rmd_show</dt>
 <dd><p>If <code>TRUE</code> (default), show the resulting visualization in
 the R Markdown report; if <code>FALSE</code>, hide output in the R Markdown
 report.</p></dd>
 <dt>...</dt>
-<dd><p>Arguments to pass into <code>viz_fun()</code>.</p></dd>
+<dd><p>Arguments to pass into <code>.viz_fun()</code>.</p></dd>
 </dl></div>
     <div id="value">
     <h2>Value</h2>
@@ -97,11 +95,11 @@ report.</p></dd>
 <code>Experiment$visualize()</code> or <code>Experiment$run()</code>), the named
 arguments <code>fit_results</code>, <code>eval_results</code>, and
 <code>vary_params</code> are automatically passed into the <code>Visualizer</code>
-function <code>viz_fun()</code> and serve as placeholders for the
+function <code>.viz_fun()</code> and serve as placeholders for the
 <code>Experiment$fit()</code> results, the <code>Experiment$evaluate()</code>
 results, and the name of the varying parameter, respectively.
 To visualize the performance of a method(s) fit and/or its evaluation
-metrics then, the <code>Visualizer</code> function <code>viz_fun()</code> should
+metrics then, the <code>Visualizer</code> function <code>.viz_fun()</code> should
 take in the named arguments <code>fit_results</code> and/or
 <code>eval_results</code>. See <code>Experiment$fit()</code> or
 <code><a href="fit_experiment.html">fit_experiment()</a></code> for details on the format of <code>fit_results</code>.
@@ -142,24 +140,24 @@ varying parameter.</p>
 <span class="r-in"><span class="op">}</span></span>
 <span class="r-in"></span>
 <span class="r-in"><span class="co"># create Visualizer using the default arguments (i.e., col = "X1")</span></span>
-<span class="r-in"><span class="va">power_plot1</span> <span class="op">&lt;-</span> <span class="fu">create_visualizer</span><span class="op">(</span>viz_fun <span class="op">=</span> <span class="va">power_plot_fun</span>, </span>
-<span class="r-in">                                 name <span class="op">=</span> <span class="st">"Power Plot (X1)"</span><span class="op">)</span></span>
+<span class="r-in"><span class="va">power_plot1</span> <span class="op">&lt;-</span> <span class="fu">create_visualizer</span><span class="op">(</span>.viz_fun <span class="op">=</span> <span class="va">power_plot_fun</span>, </span>
+<span class="r-in">                                 .name <span class="op">=</span> <span class="st">"Power Plot (X1)"</span><span class="op">)</span></span>
 <span class="r-in"><span class="co"># create Visualizer using non-default arguments (i.e., col = "X2")</span></span>
-<span class="r-in"><span class="va">power_plot2</span> <span class="op">&lt;-</span> <span class="fu">create_visualizer</span><span class="op">(</span>viz_fun <span class="op">=</span> <span class="va">power_plot_fun</span>,</span>
-<span class="r-in">                                 name <span class="op">=</span> <span class="st">"Power Plot (X2)"</span>,</span>
+<span class="r-in"><span class="va">power_plot2</span> <span class="op">&lt;-</span> <span class="fu">create_visualizer</span><span class="op">(</span>.viz_fun <span class="op">=</span> <span class="va">power_plot_fun</span>,</span>
+<span class="r-in">                                 .name <span class="op">=</span> <span class="st">"Power Plot (X2)"</span>,</span>
 <span class="r-in">                                 <span class="co"># additional named parameters to pass to power_plot_fun()</span></span>
 <span class="r-in">                                 col <span class="op">=</span> <span class="st">"X2"</span><span class="op">)</span></span>
 <span class="r-in"></span>
 <span class="r-in"><span class="co"># create Visualizer from a function in the built-in Visualizer library</span></span>
-<span class="r-in"><span class="va">pred_err_plot</span> <span class="op">&lt;-</span> <span class="fu">create_visualizer</span><span class="op">(</span>viz_fun <span class="op">=</span> <span class="va">plot_pred_err</span>,</span>
-<span class="r-in">                                   name <span class="op">=</span> <span class="st">"Prediction Error Plot"</span>,</span>
+<span class="r-in"><span class="va">pred_err_plot</span> <span class="op">&lt;-</span> <span class="fu">create_visualizer</span><span class="op">(</span>.viz_fun <span class="op">=</span> <span class="va">plot_pred_err</span>,</span>
+<span class="r-in">                                   .name <span class="op">=</span> <span class="st">"Prediction Error Plot"</span>,</span>
 <span class="r-in">                                   <span class="co"># additional named parameters to pass to plot_pred_err()</span></span>
 <span class="r-in">                                   truth_col <span class="op">=</span> <span class="st">"y"</span>, estimate_col <span class="op">=</span> <span class="st">"predictions"</span><span class="op">)</span></span>
 <span class="r-in">                                  </span>
 <span class="r-in"><span class="co"># change figure height/width when displaying Visualizer in Rmd report</span></span>
-<span class="r-in"><span class="va">pred_err_plot</span> <span class="op">&lt;-</span> <span class="fu">create_visualizer</span><span class="op">(</span>viz_fun <span class="op">=</span> <span class="va">plot_pred_err</span>,</span>
-<span class="r-in">                                   name <span class="op">=</span> <span class="st">"Prediction Error Plot"</span>,</span>
-<span class="r-in">                                   rmd_options <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>height <span class="op">=</span> <span class="fl">8</span>, width <span class="op">=</span> <span class="fl">12</span><span class="op">)</span>,</span>
+<span class="r-in"><span class="va">pred_err_plot</span> <span class="op">&lt;-</span> <span class="fu">create_visualizer</span><span class="op">(</span>.viz_fun <span class="op">=</span> <span class="va">plot_pred_err</span>,</span>
+<span class="r-in">                                   .name <span class="op">=</span> <span class="st">"Prediction Error Plot"</span>,</span>
+<span class="r-in">                                   .rmd_options <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>height <span class="op">=</span> <span class="fl">8</span>, width <span class="op">=</span> <span class="fl">12</span><span class="op">)</span>,</span>
 <span class="r-in">                                   <span class="co"># additional named parameters to pass to plot_pred_err()</span></span>
 <span class="r-in">                                   truth_col <span class="op">=</span> <span class="st">"y"</span>, estimate_col <span class="op">=</span> <span class="st">"predictions"</span><span class="op">)</span></span>
 <span class="r-in"></span>

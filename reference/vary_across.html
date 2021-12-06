@@ -67,9 +67,9 @@ held constant at their baseline value.</p>
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">add_vary_across</span><span class="op">(</span><span class="va">experiment</span>, <span class="va">dgp</span>, <span class="va">method</span>, <span class="va">...</span><span class="op">)</span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">add_vary_across</span><span class="op">(</span><span class="va">.experiment</span>, <span class="va">.dgp</span>, <span class="va">.method</span>, <span class="va">...</span><span class="op">)</span>
 
-<span class="fu">update_vary_across</span><span class="op">(</span><span class="va">experiment</span>, <span class="va">dgp</span>, <span class="va">method</span>, <span class="va">...</span><span class="op">)</span>
+<span class="fu">update_vary_across</span><span class="op">(</span><span class="va">.experiment</span>, <span class="va">.dgp</span>, <span class="va">.method</span>, <span class="va">...</span><span class="op">)</span>
 
 <span class="fu">remove_vary_across</span><span class="op">(</span><span class="va">experiment</span>, <span class="va">dgp</span>, <span class="va">method</span>, param_names <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span>
 
@@ -78,12 +78,12 @@ held constant at their baseline value.</p>
 
     <div id="arguments">
     <h2>Arguments</h2>
-    <dl><dt>experiment</dt>
+    <dl><dt>.experiment, experiment</dt>
 <dd><p>An <code>Experiment</code> object.</p></dd>
-<dt>dgp</dt>
+<dt>.dgp, dgp</dt>
 <dd><p>Name of <code>DGP</code> to vary in the <code>Experiment</code>. Can also be a
 <code>DGP</code> object that matches one in the <code>Experiment</code>.</p></dd>
-<dt>method</dt>
+<dt>.method, method</dt>
 <dd><p>Name of <code>Method</code> to vary in the <code>Experiment</code>. Can
 also be a <code>Method</code> object that matches one in the <code>Experiment</code>.</p></dd>
 <dt>...</dt>
@@ -97,12 +97,14 @@ removed for the specified <code>DGP</code>/<code>Method</code>.</p></dd>
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>The original <code>Experiment</code> object passed to
-<code>*_vary_across()</code>.</p>
+    <p>In the case of <code>get_vary_across</code>, a nested list with entries
+"dgp" and "method" that contains the parameters to vary across for each
+<code>DGP</code> and <code>Method</code> in the <code>Experiment</code>. Otherwise, the
+original <code>Experiment</code> object passed to <code>*_vary_across()</code>.</p>
     </div>
     <div id="details">
     <h2>Details</h2>
-    <p>One of the <code>dgp</code> or <code>method</code> arguments (but not both) must
+    <p>One of the <code>.dgp</code> or <code>.method</code> arguments (but not both) must
 be provided when using <code>add_vary_across()</code> and
 <code>update_vary_across</code>. For <code>remove_vary_across()</code>, if both the
 <code>dgp</code> and <code>method</code> arguments are not provided, then all

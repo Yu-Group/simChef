@@ -191,8 +191,8 @@
   <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>X <span class="op">=</span> <span class="va">X</span>, y <span class="op">=</span> <span class="va">y</span><span class="op">)</span><span class="op">)</span>
 <span class="op">}</span>
 
-<span class="va">dgp1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/create_dgp.html">create_dgp</a></span><span class="op">(</span><span class="va">dgp_fun1</span>, name <span class="op">=</span> <span class="st">"dense_dgp"</span><span class="op">)</span>
-<span class="va">dgp2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/create_dgp.html">create_dgp</a></span><span class="op">(</span><span class="va">dgp_fun2</span>, name <span class="op">=</span> <span class="st">"sparse_dgp"</span><span class="op">)</span>
+<span class="va">dgp1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/create_dgp.html">create_dgp</a></span><span class="op">(</span><span class="va">dgp_fun1</span>, .name <span class="op">=</span> <span class="st">"dense_dgp"</span><span class="op">)</span>
+<span class="va">dgp2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/create_dgp.html">create_dgp</a></span><span class="op">(</span><span class="va">dgp_fun2</span>, .name <span class="op">=</span> <span class="st">"sparse_dgp"</span><span class="op">)</span>
 
 <span class="va">ols</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">X</span>, <span class="va">y</span><span class="op">)</span> <span class="op">{</span>
   <span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/lm.html" class="external-link">lm</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">X</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu">broom</span><span class="fu">::</span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="op">)</span>
@@ -206,8 +206,8 @@
   <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span>
 <span class="op">}</span>
 
-<span class="va">method1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/create_method.html">create_method</a></span><span class="op">(</span><span class="va">ols</span>, name <span class="op">=</span> <span class="st">"ols"</span><span class="op">)</span>
-<span class="va">method2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/create_method.html">create_method</a></span><span class="op">(</span><span class="va">elnet</span>, name <span class="op">=</span> <span class="st">"elnet"</span><span class="op">)</span>
+<span class="va">method1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/create_method.html">create_method</a></span><span class="op">(</span><span class="va">ols</span>, .name <span class="op">=</span> <span class="st">"ols"</span><span class="op">)</span>
+<span class="va">method2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/create_method.html">create_method</a></span><span class="op">(</span><span class="va">elnet</span>, .name <span class="op">=</span> <span class="st">"elnet"</span><span class="op">)</span>
 
 <span class="va">experiment</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/create_experiment.html">create_experiment</a></span><span class="op">(</span>
   name <span class="op">=</span> <span class="st">"base"</span>, future.packages <span class="op">=</span> <span class="st">"dplyr"</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span>
@@ -216,14 +216,14 @@
   <span class="fu"><a href="../reference/add_funs.html">add_method</a></span><span class="op">(</span><span class="va">method1</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span>
   <span class="fu"><a href="../reference/add_funs.html">add_method</a></span><span class="op">(</span><span class="va">method2</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span>
   <span class="fu"><a href="../reference/vary_across.html">add_vary_across</a></span><span class="op">(</span>
-    dgp <span class="op">=</span> <span class="st">"sparse_dgp"</span>,
+    .dgp <span class="op">=</span> <span class="st">"sparse_dgp"</span>,
     p <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">100</span>, <span class="fl">1000</span><span class="op">)</span>,
     rho <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.2</span>, <span class="fl">0.9</span><span class="op">)</span>,
     sparsity <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fl">0.9</span><span class="op">)</span>,
     nonzero_coeff <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">3</span>, <span class="op">-</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">3</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">0.3</span>, <span class="op">-</span><span class="fl">0.1</span>, <span class="fl">0.1</span>, <span class="fl">0.3</span><span class="op">)</span><span class="op">)</span>
   <span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span>
   <span class="fu"><a href="../reference/vary_across.html">add_vary_across</a></span><span class="op">(</span>
-    method <span class="op">=</span> <span class="st">"elnet"</span>, alpha <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0.5</span>, <span class="fl">1</span><span class="op">)</span>
+    .method <span class="op">=</span> <span class="st">"elnet"</span>, alpha <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0.5</span>, <span class="fl">1</span><span class="op">)</span>
   <span class="op">)</span>
 
 <span class="fu"><a href="https://rdrr.io/r/base/warning.html" class="external-link">suppressWarnings</a></span><span class="op">(</span>
@@ -232,7 +232,7 @@
   <span class="op">)</span>
 <span class="op">)</span>
 <span class="co">#&gt; Fitting base...</span>
-<span class="co">#&gt; 2 reps completed (totals: 2/2) | time taken: 0.868701 minutes</span>
+<span class="co">#&gt; 2 reps completed (totals: 2/2) | time taken: 0.866321 minutes</span>
 <span class="co">#&gt; ==============================</span>
 <span class="co">#&gt; <span style="color: #949494;"># A tibble: 136 × 16</span></span>
 <span class="co">#&gt;    .rep  .dgp_name  .method_name     p   rho sparsity nonzero_coeff alpha term  </span>
