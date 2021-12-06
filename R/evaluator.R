@@ -17,29 +17,15 @@ Evaluator <- R6::R6Class(
     rmd_options = list(digits = 2, sigfig = FALSE,
                        options = list(scrollX = TRUE, scrollCollapse = TRUE)),
     rmd_show = TRUE,
-    initialize = function(eval_fun, name = NULL, rmd_options = list(),
-                          rmd_show = TRUE, ...) {
-      dots_list <- list(...)
-      if (".args_list" %in% names(dots_list)) {
-        args_list <- dots_list[[".args_list"]]
-      } else {
-        args_list <- make_initialize_arg_list(eval_fun, name = name,
-                                              rmd_options = rmd_options,
-                                              rmd_show = rmd_show, ..., 
-                                              which = -2)
+    initialize = function(.eval_fun, .name = NULL, .rmd_options = list(),
+                          .rmd_show = TRUE, ...) {
+      self$eval_fun <- .eval_fun
+      self$name <- .name
+      for (opt in names(.rmd_options)) {
+        self$rmd_options[[opt]] <- .rmd_options[[opt]]
       }
-      self$eval_fun <- args_list$eval_fun
-      self$name <- args_list$name
-      rmd_options <- args_list$rmd_options
-      for (opt in names(rmd_options)) {
-        self$rmd_options[[opt]] <- rmd_options[[opt]]
-      }
-      self$rmd_show <- args_list$rmd_show
-      args_list$name <- NULL
-      args_list$eval_fun <- NULL
-      args_list$rmd_show <- NULL
-      args_list$rmd_options <- NULL
-      self$eval_params <- args_list
+      self$rmd_show <- .rmd_show
+      self$eval_params <- rlang::list2(...)
     },
     # @description Evaluate the performance of method(s) in the
     #   \code{Experiment} using the \code{Evaluator} and its given parameters.
@@ -94,28 +80,28 @@ Evaluator <- R6::R6Class(
 #'
 #' @name create_evaluator
 #'
-#' @param eval_fun The evaluation function.
-#' @param name (Optional) The name of the \code{Evaluator}. The argument must be
+#' @param .eval_fun The evaluation function.
+#' @param .name (Optional) The name of the \code{Evaluator}. The argument must be
 #'   specified by position or typed out in whole; no partial matching is allowed
 #'   for this argument.
-#' @param rmd_options (Optional) List of options to control the aesthetics of
+#' @param .rmd_options (Optional) List of options to control the aesthetics of
 #'   the displayed \code{Evaluator}'s results table in the knitted R Markdown
 #'   report. See [pretty_DT()] for possible options. The argument must be
 #'   specified by position or typed out in whole; no partial matching is allowed
 #'   for this argument.
-#' @param rmd_show If \code{TRUE} (default), show \code{Evaluator}'s results as
+#' @param .rmd_show If \code{TRUE} (default), show \code{Evaluator}'s results as
 #'   a table in the R Markdown report; if \code{FALSE}, hide output in the
 #'   R Markdown report.
-#' @param ... Arguments to pass into \code{eval_fun()}.
+#' @param ... Arguments to pass into \code{.eval_fun()}.
 #'
 #' @details When evaluating or running the \code{Experiment} (see
 #'   \code{evaluate_experiment()} or \code{run_experiment()}), the named
 #'   arguments \code{fit_results} and \code{vary_params} are automatically
-#'   passed into the \code{Evaluator} function \code{eval_fun()} and serve
+#'   passed into the \code{Evaluator} function \code{.eval_fun()} and serve
 #'   as placeholders for the \code{fit_experiment()} results (i.e., the
 #'   results from the method fits) and the name of the varying parameter,
 #'   respectively. To evaluate the performance of a method(s) fit then,
-#'   the \code{Evaluator} function \code{eval_fun()} should almost always
+#'   the \code{Evaluator} function \code{.eval_fun()} should almost always
 #'   take in the named argument \code{fit_results}. See
 #'   \code{Experiment$fit()} or \code{fit_experiment()} for details on the
 #'   format of \code{fit_results}. If the \code{Evaluator}
@@ -139,33 +125,29 @@ Evaluator <- R6::R6Class(
 #' }
 #' 
 #' # create Evaluator using the default arguments (i.e., alpha = 0.05)
-#' reject_prob_eval <- create_evaluator(eval_fun = reject_prob_fun, 
-#'                                      name = "Rejection Prob (alpha = 0.05)")
+#' reject_prob_eval <- create_evaluator(.eval_fun = reject_prob_fun, 
+#'                                      .name = "Rejection Prob (alpha = 0.05)")
 #' # create Evaluator using non-default arguments (here, alpha = 0.1)
-#' reject_prob_eval2 <- create_evaluator(eval_fun = reject_prob_fun,
-#'                                       name = "Rejection Prob (alpha = 0.1)",
+#' reject_prob_eval2 <- create_evaluator(.eval_fun = reject_prob_fun,
+#'                                       .name = "Rejection Prob (alpha = 0.1)",
 #'                                       # additional named parameters to pass to reject_prob_fun(),
 #'                                       alpha = 0.1)
 #' 
 #' # create Evaluator from a function in the built-in Evaluator library
-#' pred_err_eval <- create_evaluator(eval_fun = summarize_pred_err,
-#'                                   name = "Prediction Error", 
+#' pred_err_eval <- create_evaluator(.eval_fun = summarize_pred_err,
+#'                                   .name = "Prediction Error", 
 #'                                   # additional named parameters to pass to summarize_pred_err()
 #'                                   truth_col = "y", estimate_col = "predictions")
 #'                                   
 #' # set rmd options for displaying Evaluator in Rmd report to show 3 decimal points
-#' pred_err_eval <- create_evaluator(eval_fun = summarize_pred_err,
-#'                                   name = "Prediction Error", 
-#'                                   rmd_options = list(digits = 3),
+#' pred_err_eval <- create_evaluator(.eval_fun = summarize_pred_err,
+#'                                   .name = "Prediction Error", 
+#'                                   .rmd_options = list(digits = 3),
 #'                                   # additional named parameters to pass to summarize_pred_err()
 #'                                   truth_col = "y", estimate_col = "predictions")
 #'
 #' @export
-create_evaluator <- function(eval_fun, name = NULL, rmd_options = list(),
-                             rmd_show = TRUE, ...) {
-  args_list <- make_initialize_arg_list(eval_fun, name = name,
-                                        rmd_options = rmd_options, 
-                                        rmd_show = rmd_show,
-                                        ...)
-  do.call(Evaluator$new, list(".args_list" = args_list))
+create_evaluator <- function(.eval_fun, .name = NULL, .rmd_options = list(),
+                             .rmd_show = TRUE, ...) {
+  Evaluator$new(.eval_fun, .name, .rmd_options, .rmd_show, ...)
 }

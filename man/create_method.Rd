@@ -4,16 +4,14 @@
 \alias{create_method}
 \title{Create a new \code{Method}.}
 \usage{
-create_method(method_fun, name = NULL, ...)
+create_method(.method_fun, .name = NULL, ...)
 }
 \arguments{
-\item{method_fun}{The method function.}
+\item{.method_fun}{The method function.}
 
-\item{name}{(Optional) The name of the \code{Method}. The argument must be
-specified by position or typed out in whole; no partial matching is allowed
-for this argument.}
+\item{.name}{(Optional) The name of the \code{Method}.}
 
-\item{...}{Arguments to pass into \code{method_fun()}.}
+\item{...}{Arguments to pass into \code{.method_fun()}.}
 }
 \value{
 A new instance of \code{Method}.
@@ -31,10 +29,10 @@ lm_fun <- function(X, y, cols = c("X1", "X2")) {
 }
 
 # create Method with default arguments
-lm_method <- create_method(method_fun = lm_fun, name = "OLS")
+lm_method <- create_method(.method_fun = lm_fun, .name = "OLS")
 
 # create Method with non-default arguments
-lm_method_x1 <- create_method(method_fun = lm_fun, name = "OLS X1",
+lm_method_x1 <- create_method(.method_fun = lm_fun, .name = "OLS X1",
                               # additional named parameters to pass to lm_fun()
                               cols = "X1")
                   

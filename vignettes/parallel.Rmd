@@ -117,8 +117,8 @@ dgp_fun2 <- function(n=100, p=100, rho=0.5, sparsity=0.5, noise_level=1,
   return(list(X = X, y = y))
 }
 
-dgp1 <- create_dgp(dgp_fun1, name = "dense_dgp")
-dgp2 <- create_dgp(dgp_fun2, name = "sparse_dgp")
+dgp1 <- create_dgp(dgp_fun1, .name = "dense_dgp")
+dgp2 <- create_dgp(dgp_fun2, .name = "sparse_dgp")
 
 ols <- function(X, y) {
   fit <- lm(y ~ X) %>% broom::tidy()
@@ -132,8 +132,8 @@ elnet <- function(X, y, alpha=1) {
   return(fit)
 }
 
-method1 <- create_method(ols, name = "ols")
-method2 <- create_method(elnet, name = "elnet")
+method1 <- create_method(ols, .name = "ols")
+method2 <- create_method(elnet, .name = "elnet")
 
 experiment <- create_experiment(
   name = "base", future.packages = "dplyr") %>%
@@ -142,14 +142,14 @@ experiment <- create_experiment(
   add_method(method1) %>%
   add_method(method2) %>%
   add_vary_across(
-    dgp = "sparse_dgp",
+    .dgp = "sparse_dgp",
     p = c(100, 1000),
     rho = c(0.2, 0.9),
     sparsity = c(0.5, 0.9),
     nonzero_coeff = list(c(-3, -1, 1, 3), c(-0.3, -0.1, 0.1, 0.3))
   ) %>%
   add_vary_across(
-    method = "elnet", alpha = c(0, 0.5, 1)
+    .method = "elnet", alpha = c(0, 0.5, 1)
   )
 
 suppressWarnings(

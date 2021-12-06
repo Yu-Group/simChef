@@ -13,19 +13,10 @@ Method <- R6::R6Class(
     name = NULL,
     method_fun = NULL,
     method_params = NULL,
-    initialize = function(method_fun, name = NULL, ...) {
-      dots_list <- list(...)
-      if (".args_list" %in% names(dots_list)) {
-        args_list <- dots_list[[".args_list"]]
-      } else {
-        args_list <- make_initialize_arg_list(method_fun, name = name, ...,
-                                              which = -2)
-      }
-      self$method_fun <- args_list$method_fun
-      self$name <- args_list$name
-      args_list$method_fun <- NULL
-      args_list$name <- NULL
-      self$method_params <- args_list
+    initialize = function(.method_fun, .name = NULL, ...) {
+      self$method_fun <- .method_fun
+      self$name <- .name
+      self$method_params <- rlang::list2(...)
     },
     # @description Fit a \code{Method} on data using the provided \code{Method}
     #   parameters.
@@ -40,7 +31,7 @@ Method <- R6::R6Class(
     # @return Result of \code{method_fun()}, coerced into a single tibble row.
     fit = function(data_list, ...) {
       method_params <- self$method_params
-      new_method_params <- list(...)
+      new_method_params <- rlang::list2(...)
       if (length(new_method_params) > 0) {
         for (i in 1:length(new_method_params)) {
           method_params[[names(new_method_params)[i]]] <- new_method_params[[i]]
@@ -81,15 +72,13 @@ Method <- R6::R6Class(
 #'
 #' @name create_method
 #'
-#' @param method_fun The method function.
-#' @param name (Optional) The name of the \code{Method}. The argument must be
-#'   specified by position or typed out in whole; no partial matching is allowed
-#'   for this argument.
-#' @param ... Arguments to pass into \code{method_fun()}.
+#' @param .method_fun The method function.
+#' @param .name (Optional) The name of the \code{Method}.
+#' @param ... Arguments to pass into \code{.method_fun()}.
 #'
 #' @return A new instance of \code{Method}.
 #'
-#' @examples 
+#' @examples
 #' # create an example Method function
 #' lm_fun <- function(X, y, cols = c("X1", "X2")) {
 #'   lm_fit <- lm(y ~ X)
@@ -99,15 +88,14 @@ Method <- R6::R6Class(
 #' }
 #' 
 #' # create Method with default arguments
-#' lm_method <- create_method(method_fun = lm_fun, name = "OLS")
+#' lm_method <- create_method(.method_fun = lm_fun, .name = "OLS")
 #' 
 #' # create Method with non-default arguments
-#' lm_method_x1 <- create_method(method_fun = lm_fun, name = "OLS X1",
+#' lm_method_x1 <- create_method(.method_fun = lm_fun, .name = "OLS X1",
 #'                               # additional named parameters to pass to lm_fun()
 #'                               cols = "X1")
 #'                   
 #' @export
-create_method <- function(method_fun, name = NULL, ...) {
-  args_list <- make_initialize_arg_list(method_fun, name = name, ...)
-  do.call(Method$new, list(.args_list = args_list))
+create_method <- function(.method_fun, .name = NULL, ...) {
+  Method$new(.method_fun, .name, ...)
 }

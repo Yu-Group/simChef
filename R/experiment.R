@@ -128,18 +128,18 @@ Experiment <- R6::R6Class(
         private[[paste0(".", tolower(expected_class), "_list")]] <- obj_list
       }
     },
-    .check_vary_across = function(dgp, method, ...) {
-      dots_list <- list(...)
-      if (missing(dgp) && missing(method)) {
+    .check_vary_across = function(.dgp, .method, ...) {
+      dots_list <- rlang::list2(...)
+      if (missing(.dgp) && missing(.method)) {
         stop("Must specify either dgp or method.")
-      } else if ((!missing(dgp)) + (!missing(method)) != 1) {
+      } else if ((!missing(.dgp)) + (!missing(.method)) != 1) {
         stop("Must specify one of dgp or method, but not both")
-      } else if (!missing(dgp)) {
-        obj <- dgp
+      } else if (!missing(.dgp)) {
+        obj <- .dgp
         field_name <- "dgp"
         class_name <- "DGP"
-      } else if (!missing(method)) {
-        obj <- method
+      } else if (!missing(.method)) {
+        obj <- .method
         field_name <- "method"
         class_name <- "Method"
       }
@@ -1662,8 +1662,8 @@ Experiment <- R6::R6Class(
     get_visualizers = function() {
       return(private$.get_obj_list("visualizer"))
     },
-    add_vary_across = function(dgp, method, ...) {
-      temp <- private$.check_vary_across(dgp, method, ...)
+    add_vary_across = function(.dgp, .method, ...) {
+      temp <- private$.check_vary_across(.dgp, .method, ...)
       dots_list <- temp$dots_list
       field_name <- temp$field_name
       obj_name <- temp$obj_name
@@ -1689,8 +1689,8 @@ Experiment <- R6::R6Class(
       private$.vary_across_list[[field_name]][[obj_name]] <- vary_across_sublist
       invisible(self)
     },
-    update_vary_across = function(dgp, method, ...) {
-      temp <- private$.check_vary_across(dgp, method, ...)
+    update_vary_across = function(.dgp, .method, ...) {
+      temp <- private$.check_vary_across(.dgp, .method, ...)
       dots_list <- temp$dots_list
       field_name <- temp$field_name
       obj_name <- temp$obj_name

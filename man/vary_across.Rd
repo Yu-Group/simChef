@@ -8,21 +8,21 @@
 \alias{get_vary_across}
 \title{Varying across parameters in an \code{Experiment}.}
 \usage{
-add_vary_across(experiment, dgp, method, ...)
+add_vary_across(.experiment, .dgp, .method, ...)
 
-update_vary_across(experiment, dgp, method, ...)
+update_vary_across(.experiment, .dgp, .method, ...)
 
 remove_vary_across(experiment, dgp, method, param_names = NULL)
 
 get_vary_across(experiment)
 }
 \arguments{
-\item{experiment}{An \code{Experiment} object.}
+\item{.experiment, experiment}{An \code{Experiment} object.}
 
-\item{dgp}{Name of \code{DGP} to vary in the \code{Experiment}. Can also be a
+\item{.dgp, dgp}{Name of \code{DGP} to vary in the \code{Experiment}. Can also be a
 \code{DGP} object that matches one in the \code{Experiment}.}
 
-\item{method}{Name of \code{Method} to vary in the \code{Experiment}. Can
+\item{.method, method}{Name of \code{Method} to vary in the \code{Experiment}. Can
 also be a \code{Method} object that matches one in the \code{Experiment}.}
 
 \item{...}{Any number of named arguments where names match an argument in the
@@ -34,8 +34,10 @@ not provided, the entire set of \code{vary_across} parameters will be
 removed for the specified \code{DGP}/\code{Method}.}
 }
 \value{
-The original \code{Experiment} object passed to
-\code{*_vary_across()}.
+In the case of \code{get_vary_across}, a nested list with entries
+"dgp" and "method" that contains the parameters to vary across for each
+\code{DGP} and \code{Method} in the \code{Experiment}. Otherwise, the
+original \code{Experiment} object passed to \code{*_vary_across()}.
 }
 \description{
 Helper functions for adding, updating, removing, or getting a
@@ -46,7 +48,7 @@ parameter in the \code{DGP} or \code{Method} while all other parameters are
 held constant at their baseline value.
 }
 \details{
-One of the \code{dgp} or \code{method} arguments (but not both) must
+One of the \code{.dgp} or \code{.method} arguments (but not both) must
 be provided when using \code{add_vary_across()} and
 \code{update_vary_across}. For \code{remove_vary_across()}, if both the
 \code{dgp} and \code{method} arguments are not provided, then all
