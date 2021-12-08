@@ -62,7 +62,8 @@ kable (across rows, columns, or the entire table).</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">pretty_kable</span><span class="op">(</span>
   <span class="va">X</span>,
   digits <span class="op">=</span> <span class="fl">3</span>,
-  sigfig <span class="op">=</span> <span class="cn">T</span>,
+  sigfig <span class="op">=</span> <span class="cn">TRUE</span>,
+  escape <span class="op">=</span> <span class="cn">FALSE</span>,
   align <span class="op">=</span> <span class="st">"c"</span>,
   caption <span class="op">=</span> <span class="st">""</span>,
   format <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"html"</span>, <span class="st">"latex"</span><span class="op">)</span>,
@@ -93,6 +94,10 @@ kable (across rows, columns, or the entire table).</p>
 <dd><p>Logical. If <code>TRUE</code>, <code>digits</code> refers to the number of
 significant figures. If <code>FALSE</code>, <code>digits</code> refers to the number of
 decimal places.</p></dd>
+<dt>escape</dt>
+<dd><p>Boolean; whether to escape special characters when producing
+HTML or LaTeX tables. When escape = FALSE, you have to make sure that
+special characters will not trigger syntax errors in LaTeX or HTML.</p></dd>
 <dt>align</dt>
 <dd><p>A character vector indicating the column alignment, e.g., 'c'.
 For further details, see <code><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">knitr::kable()</a></code>.</p></dd>
