@@ -8,6 +8,9 @@
 #' @param sigfig Logical. If \code{TRUE}, \code{digits} refers to the number of
 #'   significant figures. If \code{FALSE}, \code{digits} refers to the number of
 #'   decimal places.
+#' @param escape Boolean; whether to escape special characters when producing 
+#'   HTML or LaTeX tables. When escape = FALSE, you have to make sure that 
+#'   special characters will not trigger syntax errors in LaTeX or HTML.
 #' @param align A character vector indicating the column alignment, e.g., 'c'. 
 #'   For further details, see [knitr::kable()].
 #' @param caption The table caption.
@@ -67,14 +70,15 @@
 #'             bold_function = ". == min(.)", bold_margin = 1,
 #'             bold_scheme = TRUE, bold_color = "black")
 #' @export
-pretty_kable <- function(X, digits = 3, sigfig = T, align = "c", caption = "",
-                        format = c("html", "latex"), na_disp = "NA",
-                        bold_function = NULL, bold_margin = NULL, 
-                        bold_scheme = T, bold_color = NULL,
-                        full_width = NULL, position = "center",
-                        font_size = NULL, fixed_thead = F,
-                        scroll = F, scroll_width = NULL, scroll_height = NULL,
-                        return_df = FALSE, ...) {
+pretty_kable <- function(X, digits = 3, sigfig = TRUE, escape = FALSE, 
+                         align = "c", caption = "",
+                         format = c("html", "latex"), na_disp = "NA",
+                         bold_function = NULL, bold_margin = NULL, 
+                         bold_scheme = T, bold_color = NULL,
+                         full_width = NULL, position = "center",
+                         font_size = NULL, fixed_thead = F,
+                         scroll = F, scroll_width = NULL, scroll_height = NULL,
+                         return_df = FALSE, ...) {
   if (sigfig) {
     dig_format <- "g"
   } else {
@@ -202,7 +206,7 @@ pretty_kable <- function(X, digits = 3, sigfig = T, align = "c", caption = "",
   # make kable
   kable_out <- knitr::kable(kable_df, align = align, booktabs = T, 
                             format = format, linesep = "", caption = caption,
-                            escape = F, ...) %>%
+                            escape = escape, ...) %>%
     kableExtra::kable_styling(latex_options = c("HOLD_position", "striped"),
                               bootstrap_options = c("striped", "hover"),
                               full_width = full_width,
