@@ -9,6 +9,7 @@ header-includes:
 output:
   rmdformats::material:
     fig_caption: true
+    code_download: true
 css: css/general_rmd_theme_addons.css
 params:
   author: 
