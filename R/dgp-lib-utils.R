@@ -54,6 +54,8 @@ NULL
 #' @param sd (Optional) SD of normal distribution from which to draw
 #'   \code{betas}. Only used if \code{betas} argument is \code{NULL}.
 #' @param betas_name Name of coefficient variable to use in error message.
+#' @param ... Additional user arguments to pass to \code{betas} when
+#'   \code{betas} is a function.
 #' 
 #' @returns A vector of length \code{p}.
 #' 

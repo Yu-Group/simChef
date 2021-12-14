@@ -4,12 +4,15 @@
 \alias{generate_coef}
 \title{Helper function to generate a coefficient vector.}
 \usage{
-generate_coef(betas = NULL, p = 1, s = p, sd = 1, betas_name = "betas")
+generate_coef(betas = NULL, p = 1, s = p, sd = 1, betas_name = "betas", ...)
 }
 \arguments{
-\item{betas}{Coefficient vector. If a scalar is provided, the coefficient
-vector is a constant vector. If \code{NULL} (default), entries in the
-coefficient vector are drawn iid from N(0, \code{sd}^2).}
+\item{betas}{Coefficient vector or function to generate the coefficients. If
+a scalar is provided, the coefficient vector is a constant vector. If
+\code{NULL} (default), entries in the coefficient vector are drawn iid from
+N(0, \code{sd}^2). If a function, must take the integer arguments \code{p}
+and \code{s} (and optionally \code{sd}, \code{betas_name}, and other
+user-defined args from \code{...}) and return a numeric vector.}
 
 \item{p}{Number of features.}
 
@@ -21,6 +24,9 @@ set to 0.}
 \code{betas}. Only used if \code{betas} argument is \code{NULL}.}
 
 \item{betas_name}{Name of coefficient variable to use in error message.}
+
+\item{...}{Additional user arguments to pass to \code{betas} when
+\code{betas} is a function.}
 }
 \value{
 A vector of length \code{p}.
