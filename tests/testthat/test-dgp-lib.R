@@ -251,3 +251,55 @@ test_that("Functions in the DGP utilities library work properly", {
   expect_equal(names(dgp_out), c("X", "y", "support"))
   expect_equal(dgp_out$support, NULL)
 })
+
+test_that("generate_coef works as expected", {
+
+  expect_equal(generate_coef(1, p = 5, s = 2),
+               c(1, 1, 0, 0, 0))
+  expect_equal(generate_coef(1:3, p = 3),
+               c(1, 2, 3))
+
+  set.seed(123)
+  betas1 <- stats::rnorm(n=10)
+  set.seed(123)
+  betas2 <- stats::rnorm(n=10, sd=2)
+  set.seed(123)
+  expect_equal(generate_coef(p=10), betas1)
+  set.seed(123)
+  expect_equal(generate_coef(p=10, sd=2), betas2)
+  set.seed(123)
+  expect_equal(generate_coef(p=10, s=5), c(betas1[1:5], rep(0, 5)))
+  set.seed(123)
+  expect_equal(generate_coef(p=10, s=5, sd=2), c(betas2[1:5], rep(0, 5)))
+
+  betas_fun1 <- function(p, s) {
+    return(c(stats::rnorm(s), rep(0, p - s)))
+  }
+  betas_fun2 <- function(p, s, sd) {
+    return(c(stats::rnorm(s, sd=sd), rep(0, p - s)))
+  }
+  betas_fun3 <- function(p, s, shift) {
+    return(c(shift + stats::rnorm(s), rep(0, p - s)))
+  }
+
+  set.seed(123)
+  expect_equal(generate_coef(betas_fun1, p=10), betas1)
+  set.seed(123)
+  expect_equal(generate_coef(betas_fun1, p=10, s=5),
+               c(betas1[1:5], rep(0, 5)))
+  set.seed(123)
+  expect_equal(generate_coef(betas_fun2, p=10, s=5),
+               c(betas1[1:5], rep(0, 5)))
+  set.seed(123)
+  expect_equal(generate_coef(betas_fun2, p=10, s=5, sd=2),
+               c(betas2[1:5], rep(0, 5)))
+  set.seed(123)
+  expect_equal(generate_coef(betas_fun3, p=10, s=5, shift=3),
+               c(3 + betas1[1:5], rep(0, 5)))
+
+  expect_error(generate_coef(p = 1, s = 2))
+  expect_error(generate_coef(function(p) { return(p) }))
+  expect_error(generate_coef(function(p, s) return("nope")))
+  expect_error(generate_coef(function(p, s) return(rep(0, s)), p=3, s=2))
+  expect_error(generate_coef(betas=TRUE))
+})

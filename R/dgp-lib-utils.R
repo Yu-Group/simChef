@@ -42,13 +42,16 @@ NULL
 #'   sparsity level.
 #' 
 #' @inheritParams shared_dgp_lib_args
-#' @param betas Coefficient vector. If a scalar is provided, the coefficient 
-#'   vector is a constant vector. If \code{NULL} (default), entries in the 
-#'   coefficient vector are drawn iid from N(0, \code{sd}^2).
-#' @param s Sparsity level. Coefficients corresponding to features after the 
-#'   \code{s}th position (i.e., positions i = \code{s} + 1, ..., \code{p}) are 
+#' @param betas Coefficient vector or function to generate the coefficients. If
+#'   a scalar is provided, the coefficient vector is a constant vector. If
+#'   \code{NULL} (default), entries in the coefficient vector are drawn iid from
+#'   N(0, \code{sd}^2). If a function, must take the integer arguments \code{p}
+#'   and \code{s} (and optionally \code{sd}, \code{betas_name}, and other
+#'   user-defined args from \code{...}) and return a numeric vector.
+#' @param s Sparsity level. Coefficients corresponding to features after the
+#'   \code{s}th position (i.e., positions i = \code{s} + 1, ..., \code{p}) are
 #'   set to 0.
-#' @param sd (Optional) SD of normal distribution from which to draw 
+#' @param sd (Optional) SD of normal distribution from which to draw
 #'   \code{betas}. Only used if \code{betas} argument is \code{NULL}.
 #' @param betas_name Name of coefficient variable to use in error message.
 #' 
@@ -66,19 +69,42 @@ NULL
 #' 
 #' @export
 generate_coef <- function(betas = NULL, p = 1, s = p, sd = 1, 
-                          betas_name = "betas") {
-  if (is.null(betas)) {
-    # simulate betas from gaussian by default
-    betas <- stats::rnorm(p, mean = 0, sd = sd)
-  } else {
-    if (length(betas) == 1) {
-      betas <- rep(betas, length.out = p)
+                          betas_name = "betas", ...) {
+  if (s > p) {
+    stop(sprintf("Got s=%s, but should be less than or equal to p=%s.", s, p))
+  }
+  if (is.function(betas)) {
+    betas <- R.utils::doCall(betas, ...,
+                             args = list(sd=sd, betas_name=betas_name),
+                             alwaysArgs = list(p=p, s=s))
+    if (!is.numeric(betas)) {
+      msg <- sprintf(
+        paste("%s is a function but didn't return a numeric vector.",
+              "Instead, returned object with class(es): %s."),
+        betas_name, paste0(class(betas), collapse=", ")
+      )
+      stop(msg)
+    }
+  }
+  if (is.numeric(betas)) {
+    if (length(betas) == 1 && p > 1) {
+      betas <- rep(betas, length.out = min(s, p))
     } else if (length(betas) != p) {
       stop(sprintf("%s must have length 1 or %s.", betas_name, p))
     }
+  } else if (!is.null(betas)) {
+    msg <- sprintf(
+      paste("%s must be NULL, a function that returns a numeric vector,",
+            "or a fixed numeric vector, but instead had class: %s."),
+      betas_name, paste0(class(betas), collapse=", ")
+    )
+    stop(msg)
+  } else {
+    # simulate betas from gaussian by default
+    betas <- stats::rnorm(min(s, p), mean = 0, sd = sd)
   }
-  if (s != p) {
-    betas[(s + 1):length(betas)] <- 0
+  if (length(betas) != p) {
+      betas <- c(betas, rep(0, p - length(betas)))
   }
   return(betas)
 }
