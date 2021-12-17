@@ -61,14 +61,14 @@ draw \code{betas_uncorr}. Only used if \code{betas_uncorr} argument is
 
 \item{intercept}{Scalar intercept term.}
 
-\item{err}{Function from which to generate simulate error vector. Default
-is \code{NULL} which adds no error to the DGP.}
+\item{err}{Function from which to generate simulated error vector. Default is
+\code{NULL} which adds no error to the DGP.}
 
 \item{data_split}{Logical; if \code{TRUE}, splits data into training and test
 sets according to \code{train_prop}.}
 
-\item{train_prop}{Proportion of data in training set if
-\code{data_split = TRUE}.}
+\item{train_prop}{Proportion of data in training set if \code{data_split =
+TRUE}.}
 
 \item{return_values}{Character vector indicating what objects to return in
 list. Elements in vector must be one of "X", "y", "support".}

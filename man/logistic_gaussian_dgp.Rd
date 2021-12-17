@@ -26,21 +26,17 @@ logistic_gaussian_dgp(
 after the \code{s} position (i.e., positions i = \code{s} + 1, ...,
 \code{p}) are set to 0.}
 
-\item{betas}{Coefficient vector for observed design matrix. If a
-scalar is provided, the coefficient vector is a constant vector. If
-\code{NULL} (default), entries in the coefficient vector are drawn iid from
-N(0, \code{betas_sd}^2).}
+\item{betas}{Coefficient vector for observed design matrix. If a scalar is provided, the coefficient vector is a constant vector. If \code{NULL} (default), entries in the coefficient vector are drawn iid from N(0, \code{betas_sd}^2). Can also be a function that generates the coefficient vector; see \code{generate_coef()}.}
 
-\item{betas_sd}{(Optional) SD of normal distribution from which to draw
-\code{betas}. Only used if \code{betas} argument is \code{NULL}.}
+\item{betas_sd}{(Optional) SD of normal distribution from which to draw \code{betas}. Only used if \code{betas} argument is \code{NULL} or is a function in which case \code{betas_sd} is optionally passed to the function as \code{sd}; see \code{generate_coef()}.}
 
 \item{intercept}{Scalar intercept term.}
 
 \item{data_split}{Logical; if \code{TRUE}, splits data into training and test
 sets according to \code{train_prop}.}
 
-\item{train_prop}{Proportion of data in training set if
-\code{data_split = TRUE}.}
+\item{train_prop}{Proportion of data in training set if \code{data_split =
+TRUE}.}
 
 \item{return_values}{Character vector indicating what objects to return in
 list. Elements in vector must be one of "X", "y", "support".}

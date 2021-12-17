@@ -13,9 +13,9 @@ generate_y_logistic(X, betas = 0, intercept = 0, return_support = FALSE, ...)
 
 \item{intercept}{Scalar intercept term.}
 
-\item{return_support}{Logical specifying whether or not to return a vector
-of the support column names. If \code{X} has no column names, then the
-indices of the support are used.}
+\item{return_support}{Logical specifying whether or not to return a vector of
+the support column names. If \code{X} has no column names, then the indices
+of the support are used.}
 
 \item{...}{Not used.}
 }

@@ -155,24 +155,11 @@ xy_dgp_constructor <- function(x_fun, y_fun, err_fun = NULL, add_err = TRUE,
 #' @param p_obs Number of observed features.
 #' @param p_unobs Number of unobserved (omitted) features.
 #' @param s_obs Sparsity level of observed features. Coefficients corresponding
-#'   to features after the \code{s_obs} position (i.e., positions i = 
+#'   to features after the \code{s_obs} position (i.e., positions i =
 #'   \code{s_obs} + 1, ..., \code{p_obs}) are set to 0.
 #' @param s_unobs Sparsity level of unobserved (omitted) features. Coefficients
-#'   corresponding to features after the \code{s_unobs} position (i.e., 
+#'   corresponding to features after the \code{s_unobs} position (i.e.,
 #'   positions i = \code{s_unobs} + 1, ..., \code{p_unobs}) are set to 0.
-#' @param betas Coefficient vector for observed design matrix. If a scalar is
-#'   provided, the coefficient vector is a constant vector. If \code{NULL} 
-#'   (default), entries in the coefficient vector are drawn iid from 
-#'   N(0, \code{betas_sd}^2).
-#' @param betas_unobs Coefficient vector for unobserved design matrix. If a 
-#'   scalar is provided, the coefficient vector is a constant vector. If 
-#'   \code{NULL} (default), entries in the coefficient vector are drawn iid from 
-#'   N(0, \code{betas_unobs_sd}^2).
-#' @param betas_sd (Optional) SD of normal distribution from which to draw 
-#'   \code{betas}. Only used if \code{betas} argument is \code{NULL}.
-#' @param betas_unobs_sd (Optional) SD of normal distribution from which to draw 
-#'   \code{betas_unobs}. Only used if \code{betas_unobs} argument is 
-#'   \code{NULL}.
 #' 
 #' @inherit shared_dgp_lib_args return
 #' 
@@ -358,12 +345,6 @@ correlated_linear_gaussian_dgp <- function(n, p_uncorr, p_corr,
 #' @param s Sparsity level of features. Coefficients corresponding to features
 #'   after the \code{s} position (i.e., positions i = \code{s} + 1, ..., 
 #'   \code{p}) are set to 0.
-#' @param betas Coefficient vector for observed design matrix. If a 
-#'   scalar is provided, the coefficient vector is a constant vector. If 
-#'   \code{NULL} (default), entries in the coefficient vector are drawn iid from 
-#'   N(0, \code{betas_sd}^2).
-#' @param betas_sd (Optional) SD of normal distribution from which to draw 
-#'   \code{betas}. Only used if \code{betas} argument is \code{NULL}.
 #' @param ... Not used.
 #' 
 #' @inherit shared_dgp_lib_args return
@@ -498,8 +479,9 @@ correlated_logistic_gaussian_dgp <- function(n, p_uncorr, p_corr,
 #' @description Generate independent normally-distributed covariates and LSS
 #'   response data with a specified error distribution.
 #'   
-#' @inheritParams shared_dgp_lib_args
+#' @inheritParams correlated_linear_gaussian_dgp
 #' @inheritParams generate_y_lss
+#' @param p Number of features.
 #' @param return_values Character vector indicating what objects to return in 
 #'   list. Elements in vector must be one of "X", "y", "support", "int_support".
 #'   
@@ -583,7 +565,7 @@ lss_gaussian_dgp <- function(n, p, k, s, thresholds = 0, signs = 1, betas = 1,
 #' @description Generate normally-distributed covariates that are potentially
 #'   correlated and LSS response data with a specified error distribution.
 #'
-#' @inheritParams shared_dgp_lib_args
+#' @inheritParams correlated_linear_gaussian_dgp
 #' @inheritParams generate_y_lss
 #' @param p_uncorr Number of uncorrelated features.
 #' @param p_corr Number of features in correlated group.
@@ -594,6 +576,8 @@ lss_gaussian_dgp <- function(n, p, k, s, thresholds = 0, signs = 1, betas = 1,
 #'   mixed together when constructing an interaction of order-k. If 
 #'   \code{FALSE}, each interaction of order-k is composed of only correlated
 #'   variables or only uncorrelated variables.
+#' @param train_prop Proportion of data in training set if \code{data_split =
+#'   TRUE}.
 #' @param return_values Character vector indicating what objects to return in 
 #'   list. Elements in vector must be one of "X", "y", "support", "int_support".
 #'   

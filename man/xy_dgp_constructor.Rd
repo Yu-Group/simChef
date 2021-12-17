@@ -32,8 +32,8 @@ an error for categorical responses \code{y}.}
 \item{data_split}{Logical; if \code{TRUE}, splits data into training and test
 sets according to \code{train_prop}.}
 
-\item{train_prop}{Proportion of data in training set if
-\code{data_split = TRUE}.}
+\item{train_prop}{Proportion of data in training set if \code{data_split =
+TRUE}.}
 
 \item{return_values}{Character vector indicating what objects to return in
 list. Elements in vector must be one of "X", "y", "support".}

@@ -40,12 +40,12 @@ terms.}
 \item{overlap}{If TRUE, simulate support indices with replacement; if FALSE,
 simulate support indices without replacement (so no overlap)}
 
-\item{err}{Function from which to generate simulate error vector. Default
-is \code{NULL} which adds no error to the DGP.}
+\item{err}{Function from which to generate simulated error vector. Default is
+\code{NULL} which adds no error to the DGP.}
 
-\item{return_support}{Logical specifying whether or not to return a vector
-of the support column names. If \code{X} has no column names, then the
-indices of the support are used.}
+\item{return_support}{Logical specifying whether or not to return a vector of
+the support column names. If \code{X} has no column names, then the indices
+of the support are used.}
 
 \item{...}{Other arguments to pass to err() to generate the error vector.}
 }

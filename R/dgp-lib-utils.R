@@ -1,22 +1,51 @@
+betas_params_doc <- function(type = c("obs", "unobs", "corr", "uncorr")) {
+  type <- match.arg(type)
+  descr_suffix <- switch(
+    type,
+    "obs" = c("observed design matrix", ""),
+    "unobs" = c("unobserved design matrix", "_unobs"),
+    "corr" = c("correlated features", "_corr"),
+    "uncorr" = c("uncorrelated features", "_uncorr")
+  )
+  sprintf(c(
+    paste(
+      "@param betas%2$s Coefficient vector for %1$s. If a",
+      "scalar is provided, the coefficient vector is a constant vector. If",
+      "\\code{NULL} (default), entries in the coefficient vector are drawn iid from",
+      "N(0, \\code{betas%2$s_sd}^2). Can also be a function that generates the",
+      "coefficient vector; see \\code{generate_coef()}."),
+    paste(
+      "@param betas%2$s_sd (Optional) SD of normal distribution from which to draw",
+      "\\code{betas%2$s}. Only used if \\code{betas%2$s} argument is \\code{NULL} or",
+      "is a function in which case \\code{betas%2$s_sd} is optionally passed to the",
+      "function as \\code{sd}; see \\code{generate_coef()}."
+    )
+  ), descr_suffix[1], descr_suffix[2])
+}
+
 #' Arguments that are shared by multiple \code{DGP} library functions.
 #'
 #' @name shared_dgp_lib_args
 #'
+#' @eval betas_params_doc()
+#' @eval betas_params_doc("unobs")
+#' @eval betas_params_doc("corr")
+#' @eval betas_params_doc("uncorr")
 #' @param data_split Logical; if \code{TRUE}, splits data into training and test
 #'   sets according to \code{train_prop}.
-#' @param err Function from which to generate simulate error vector. Default
-#'   is \code{NULL} which adds no error to the DGP.
+#' @param err Function from which to generate simulated error vector. Default is
+#'   \code{NULL} which adds no error to the DGP.
 #' @param intercept Scalar intercept term.
 #' @param n Number of samples.
 #' @param p Number of features.
-#' @param return_support Logical specifying whether or not to return a vector
-#'   of the support column names. If \code{X} has no column names, then the
-#'   indices of the support are used.
-#' @param return_values Character vector indicating what objects to return in 
+#' @param return_support Logical specifying whether or not to return a vector of
+#'   the support column names. If \code{X} has no column names, then the indices
+#'   of the support are used.
+#' @param return_values Character vector indicating what objects to return in
 #'   list. Elements in vector must be one of "X", "y", "support".
 #' @param support Vector of feature indices in the true support of the DGP.
-#' @param train_prop Proportion of data in training set if 
-#'   \code{data_split = TRUE}.
+#' @param train_prop Proportion of data in training set if \code{data_split =
+#'   TRUE}.
 #' @param X Data matrix or data frame.
 #' @param y Response vector.
 #' @param ... Other arguments to pass to err() to generate the error vector.
@@ -70,7 +99,7 @@ NULL
 #' beta <- generate_coef(betas = 1:3, p = 3)
 #' 
 #' @export
-generate_coef <- function(betas = NULL, p = 1, s = p, sd = 1, 
+generate_coef <- function(betas = NULL, p = 1, s = p, sd = 1,
                           betas_name = "betas", ...) {
   if (s > p) {
     stop(sprintf("Got s=%s, but should be less than or equal to p=%s.", s, p))

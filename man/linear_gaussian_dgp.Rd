@@ -37,33 +37,24 @@ to features after the \code{s_obs} position (i.e., positions i =
 corresponding to features after the \code{s_unobs} position (i.e.,
 positions i = \code{s_unobs} + 1, ..., \code{p_unobs}) are set to 0.}
 
-\item{betas}{Coefficient vector for observed design matrix. If a scalar is
-provided, the coefficient vector is a constant vector. If \code{NULL}
-(default), entries in the coefficient vector are drawn iid from
-N(0, \code{betas_sd}^2).}
+\item{betas}{Coefficient vector for observed design matrix. If a scalar is provided, the coefficient vector is a constant vector. If \code{NULL} (default), entries in the coefficient vector are drawn iid from N(0, \code{betas_sd}^2). Can also be a function that generates the coefficient vector; see \code{generate_coef()}.}
 
-\item{betas_unobs}{Coefficient vector for unobserved design matrix. If a
-scalar is provided, the coefficient vector is a constant vector. If
-\code{NULL} (default), entries in the coefficient vector are drawn iid from
-N(0, \code{betas_unobs_sd}^2).}
+\item{betas_unobs}{Coefficient vector for unobserved design matrix. If a scalar is provided, the coefficient vector is a constant vector. If \code{NULL} (default), entries in the coefficient vector are drawn iid from N(0, \code{betas_unobs_sd}^2). Can also be a function that generates the coefficient vector; see \code{generate_coef()}.}
 
-\item{betas_sd}{(Optional) SD of normal distribution from which to draw
-\code{betas}. Only used if \code{betas} argument is \code{NULL}.}
+\item{betas_sd}{(Optional) SD of normal distribution from which to draw \code{betas}. Only used if \code{betas} argument is \code{NULL} or is a function in which case \code{betas_sd} is optionally passed to the function as \code{sd}; see \code{generate_coef()}.}
 
-\item{betas_unobs_sd}{(Optional) SD of normal distribution from which to draw
-\code{betas_unobs}. Only used if \code{betas_unobs} argument is
-\code{NULL}.}
+\item{betas_unobs_sd}{(Optional) SD of normal distribution from which to draw \code{betas_unobs}. Only used if \code{betas_unobs} argument is \code{NULL} or is a function in which case \code{betas_unobs_sd} is optionally passed to the function as \code{sd}; see \code{generate_coef()}.}
 
 \item{intercept}{Scalar intercept term.}
 
-\item{err}{Function from which to generate simulate error vector. Default
-is \code{NULL} which adds no error to the DGP.}
+\item{err}{Function from which to generate simulated error vector. Default is
+\code{NULL} which adds no error to the DGP.}
 
 \item{data_split}{Logical; if \code{TRUE}, splits data into training and test
 sets according to \code{train_prop}.}
 
-\item{train_prop}{Proportion of data in training set if
-\code{data_split = TRUE}.}
+\item{train_prop}{Proportion of data in training set if \code{data_split =
+TRUE}.}
 
 \item{return_values}{Character vector indicating what objects to return in
 list. Elements in vector must be one of "X", "y", "support".}
