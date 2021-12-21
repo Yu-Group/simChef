@@ -258,6 +258,9 @@ test_that("generate_coef works as expected", {
                c(1, 1, 0, 0, 0))
   expect_equal(generate_coef(1:3, p = 3),
                c(1, 2, 3))
+  expect_equal(generate_coef(function(p) { p }), 1)
+  expect_equal(generate_coef(function(p) { p }, p=2), c(2, 2))
+  expect_equal(generate_coef(function(p) { p }, p=2, s=1), c(2, 0))
 
   set.seed(123)
   betas1 <- stats::rnorm(n=10)
@@ -298,7 +301,6 @@ test_that("generate_coef works as expected", {
                c(3 + betas1[1:5], rep(0, 5)))
 
   expect_error(generate_coef(p = 1, s = 2))
-  expect_error(generate_coef(function(p) { return(p) }))
   expect_error(generate_coef(function(p, s) return("nope")))
   expect_error(generate_coef(function(p, s) return(rep(0, s)), p=3, s=2))
   expect_error(generate_coef(betas=TRUE))
