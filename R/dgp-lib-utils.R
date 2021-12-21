@@ -74,8 +74,8 @@ NULL
 #' @param betas Coefficient vector or function to generate the coefficients. If
 #'   a scalar is provided, the coefficient vector is a constant vector. If
 #'   \code{NULL} (default), entries in the coefficient vector are drawn iid from
-#'   N(0, \code{sd}^2). If a function, must take the integer arguments \code{p}
-#'   and \code{s} (and optionally \code{sd}, \code{betas_name}, and other
+#'   N(0, \code{sd}^2). If a function, must take the integer argument \code{p}
+#'   (and optionally \code{s}, \code{sd}, \code{betas_name}, and other
 #'   user-defined args from \code{...}) and return a numeric vector.
 #' @param s Sparsity level. Coefficients corresponding to features after the
 #'   \code{s}th position (i.e., positions i = \code{s} + 1, ..., \code{p}) are
@@ -106,8 +106,8 @@ generate_coef <- function(betas = NULL, p = 1, s = p, sd = 1,
   }
   if (is.function(betas)) {
     betas <- R.utils::doCall(betas, ...,
-                             args = list(sd=sd, betas_name=betas_name),
-                             alwaysArgs = list(p=p, s=s))
+                             args = list(s=s, sd=sd, betas_name=betas_name),
+                             alwaysArgs = list(p=p))
     if (!is.numeric(betas)) {
       msg <- sprintf(
         paste("%s is a function but didn't return a numeric vector.",
