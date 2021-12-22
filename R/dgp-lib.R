@@ -68,49 +68,13 @@ xy_dgp_constructor <- function(x_fun, y_fun, err_fun = NULL, add_err = TRUE,
                                return_values = c("X", "y", "support"),
                                ...) {
   return_values <- match.arg(return_values, several.ok = TRUE)
-  
-  args_list <- list(...)
-  if (identical(args_list, list())) {
-    args_list <- NULL
-    X_args_list <- NULL
-    y_args_list <- NULL
-    err_args_list <- NULL
-  } else {
-    if (is.null(names(args_list)) | any(names(args_list) == "")) {
-      stop("Additional arguments passed to xy_dgp_wrapper() must be named.")
-    }
-    X_args_list <- list()
-    y_args_list <- list()
-    err_args_list <- list()
-    for (arg_name in names(args_list)) {
-      if (startsWith(arg_name, ".x_")) {
-        root_arg_name <- substr(arg_name, 4, nchar(arg_name))
-        X_args_list[[root_arg_name]] <- args_list[[arg_name]]
-        args_list[[arg_name]] <- NULL
-      } else if (startsWith(arg_name, ".y_")) {
-        root_arg_name <- substr(arg_name, 4, nchar(arg_name))
-        y_args_list[[root_arg_name]] <- args_list[[arg_name]]
-        args_list[[arg_name]] <- NULL
-      } else if (startsWith(arg_name, ".err_")) {
-        root_arg_name <- substr(arg_name, 6, nchar(arg_name))
-        err_args_list[[root_arg_name]] <- args_list[[arg_name]]
-        args_list[[arg_name]] <- NULL
-      }
-    }
-    if (identical(X_args_list, list())) {
-      X_args_list <- NULL
-    }
-    if (identical(y_args_list, list())) {
-      y_args_list <- NULL
-    }
-    if (identical(err_args_list, list())) {
-      err_args_list <- NULL
-    }
-    if (length(args_list) == 0) {
-      args_list <- NULL
-    }
-  }
-  
+
+  fun_args <- dots_to_fun_args(fun_prefix = c("x", "y", "err"), ...)
+  X_args_list <- fun_args$.x_args
+  y_args_list <- fun_args$.y_args
+  err_args_list <- fun_args$.err_args
+  args_list <- fun_args$.optional_args
+
   X_out <- R.utils::doCall(x_fun, args = args_list, alwaysArgs = X_args_list)
   if (!is.list(X_out)) {
     X_out <- list(X = X_out)

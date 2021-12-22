@@ -217,3 +217,57 @@ indicator <- function(X, thresh, sgn) {
   return(as.integer(indic))
 }
 
+#' Helper function to process ... args to pass to multiple functions.
+#'
+#' @param prefix Character vector of prefixes for the \code{*_fun} functions
+#'   used by the function that calls \code{dots_to_fun_args()}; e.g., if
+#'   \code{x_fun} is one of the functions, then this vector should include
+#'   \code{"x"}. Then, this function will look for an argument with name
+#'   prefixed by \code{".x_"} in \code{...}.
+#' @param ... Named arguments to process.
+#'
+#' @return A list with some or all of the following:
+#' \describe{
+#' \item{.x_args}{Args to pass to \code{x_fun}.}
+#' \item{.y_args}{Args to pass to \code{y_fun}.}
+#' \item{.err_args}{Args to pass to \code{err_fun}.}
+#' \item{.betas_args}{Args to pass to \code{betas}.}
+#' \item{.optional_args}{Args to pass optionally.}
+#' }
+#'
+#' @keywords internal
+dots_to_fun_args <- function(fun_prefix = c("x", "y", "err", "betas"), ...) {
+  fun_prefix <- match.arg(fun_prefix, several.ok = TRUE)
+  prefixes <- paste0(".", fun_prefix, "_")
+  out_list <- vector(mode = "list", length = length(prefixes) + 1)
+  names(out_list) <- c(paste0(prefixes, "args"), ".optional_args")
+  args_list <- rlang::list2(...)
+  if (!identical(args_list, list())) {
+    caller_name <- as.character(sys.call(1))[1]
+    if (is.null(names(args_list)) ||
+          any(names(args_list) %in% c("", prefixes))) {
+      stop(sprintf(
+        "Additional arguments passed to %s() must be named.",
+        caller_name
+      ))
+    }
+    for (arg_name in names(args_list)) {
+      if (!startsWith(arg_name, ".")) {
+        next
+      }
+      for (prefix in prefixes) {
+        if (startsWith(arg_name, prefix)) {
+          out_list_name <- paste0(prefix, "args")
+          root_arg_name <- substr(arg_name, nchar(prefix) + 1, nchar(arg_name))
+          out_list[[out_list_name]][[root_arg_name]] <- args_list[[arg_name]]
+          args_list[[arg_name]] <- NULL
+          break
+        }
+      }
+    }
+    if (length(args_list) > 0) {
+      out_list[[".optional_args"]] <- args_list
+    }
+  }
+  return(out_list)
+}

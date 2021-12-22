@@ -27,6 +27,10 @@ test_that("Functions in the DGP library work properly", {
   expect_equal(length(sim_data$y), 50)
   expect_equal(dim(sim_data$Xtest), c(50, 10))
   expect_equal(length(sim_data$ytest), 50)
+
+  expect_error(xy_dgp_constructor(
+    x_fun = MASS::mvrnorm, y_fun = generate_y_linear, .y_ = "bad"
+  ))
   
   ## linear_gaussian_dgp
   sim_data <- linear_gaussian_dgp(n = 100, p_obs = 10, s_obs = 2, betas_sd = 1,
@@ -304,4 +308,69 @@ test_that("generate_coef works as expected", {
   expect_error(generate_coef(function(p, s) return("nope")))
   expect_error(generate_coef(function(p, s) return(rep(0, s)), p=3, s=2))
   expect_error(generate_coef(betas=TRUE))
+})
+
+test_that("dots_to_fun_args works as expected", {
+  expect_equal(dots_to_fun_args(),
+               list(
+                 .x_args = NULL,
+                 .y_args = NULL,
+                 .err_args = NULL,
+                 .betas_args = NULL,
+                 .optional_args = NULL
+               ))
+
+  expect_equal(dots_to_fun_args(c("x", "y")),
+               list(
+                 .x_args = NULL,
+                 .y_args = NULL,
+                 .optional_args = NULL
+               ))
+
+  expect_equal(dots_to_fun_args(c("x", "y"), arg1 = "arg1"),
+               list(
+                 .x_args = NULL,
+                 .y_args = NULL,
+                 .optional_args = list(arg1 = "arg1")
+               ))
+
+  expect_equal(dots_to_fun_args(c("x", "y"),
+                                .y_arg1 = "y1",
+                                .betas_ = "betas1"),
+               list(
+                 .x_args = NULL,
+                 .y_args = list(arg1 = "y1"),
+                 .optional_args = list(.betas_ = "betas1")
+               ))
+
+  expect_equal(
+    dots_to_fun_args(
+      .x_arg1 = "x1", .x_arg2 = "x2", .err_arg1 = c("err11", "err12"),
+      .betas_arg1 = list(betas11 = c("betas", "11"))
+    ),
+    list(
+      .x_args = list(arg1 = "x1", arg2 = "x2"),
+      .y_args = NULL,
+      .err_args = list(arg1 = c("err11", "err12")),
+      .betas_args = list(arg1 = list(betas11 = c("betas", "11"))),
+      .optional_args = NULL
+    )
+  )
+
+  expect_equal(
+    dots_to_fun_args(
+      .x_arg1 = "x1", .x_arg2 = "x2", .err_arg1 = c("err11", "err12"),
+      .betas_arg1 = list(betas11 = c("betas", "11")), arg1 = "arg1"
+    ),
+    list(
+      .x_args = list(arg1 = "x1", arg2 = "x2"),
+      .y_args = NULL,
+      .err_args = list(arg1 = c("err11", "err12")),
+      .betas_args = list(arg1 = list(betas11 = c("betas", "11"))),
+      .optional_args = list(arg1 = "arg1")
+    )
+  )
+
+  expect_error(dots_to_fun_args(c("x", "y"), "arg1"))
+  expect_error(dots_to_fun_args(c("x", "y"), .y_ = "y1"))
 })

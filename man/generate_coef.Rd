@@ -10,8 +10,8 @@ generate_coef(betas = NULL, p = 1, s = p, sd = 1, betas_name = "betas", ...)
 \item{betas}{Coefficient vector or function to generate the coefficients. If
 a scalar is provided, the coefficient vector is a constant vector. If
 \code{NULL} (default), entries in the coefficient vector are drawn iid from
-N(0, \code{sd}^2). If a function, must take the integer arguments \code{p}
-and \code{s} (and optionally \code{sd}, \code{betas_name}, and other
+N(0, \code{sd}^2). If a function, must take the integer argument \code{p}
+(and optionally \code{s}, \code{sd}, \code{betas_name}, and other
 user-defined args from \code{...}) and return a numeric vector.}
 
 \item{p}{Number of features.}
