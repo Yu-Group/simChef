@@ -34,11 +34,11 @@ indices with each interaction taking a row in this matrix and ncol = k.}
 \item{thresholds}{A scalar or a s x k matrix of the thresholds for each term
 in the LSS model.}
 
-\item{signs}{A scalar or a s x k matrix of the sign of each interaction
-(1 means > while -1 means <).}
+\item{signs}{A scalar or a s x k matrix of the sign of each interaction (1
+means > while -1 means <).}
 
-\item{betas}{Scalar or vector of coefficients corresponding to interaction
-terms.}
+\item{betas}{Scalar, vector, or function to generate coefficients
+corresponding to interaction terms. See \\code{generate_coef()}.}
 
 \item{intercept}{Scalar intercept term.}
 

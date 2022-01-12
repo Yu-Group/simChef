@@ -4,19 +4,19 @@
 \alias{shared_dgp_lib_args}
 \title{Arguments that are shared by multiple \code{DGP} library functions.}
 \arguments{
-\item{betas}{Coefficient vector for observed design matrix. If a scalar is provided, the coefficient vector is a constant vector. If \code{NULL} (default), entries in the coefficient vector are drawn iid from N(0, \code{betas_sd}^2). Can also be a function that generates the coefficient vector; see \code{generate_coef()}.}
+\item{betas}{Coefficient vector for observed design matrix. If a scalar is provided, the coefficient vector is constant. If \code{NULL} (default), entries in the coefficient vector are drawn iid from N(0, \code{betas_sd}^2). Can also be a function that generates the coefficient vector; see \code{generate_coef()}.}
 
 \item{betas_sd}{(Optional) SD of normal distribution from which to draw \code{betas}. Only used if \code{betas} argument is \code{NULL} or is a function in which case \code{betas_sd} is optionally passed to the function as \code{sd}; see \code{generate_coef()}.}
 
-\item{betas_unobs}{Coefficient vector for unobserved design matrix. If a scalar is provided, the coefficient vector is a constant vector. If \code{NULL} (default), entries in the coefficient vector are drawn iid from N(0, \code{betas_unobs_sd}^2). Can also be a function that generates the coefficient vector; see \code{generate_coef()}.}
+\item{betas_unobs}{Coefficient vector for unobserved design matrix. If a scalar is provided, the coefficient vector is constant. If \code{NULL} (default), entries in the coefficient vector are drawn iid from N(0, \code{betas_unobs_sd}^2). Can also be a function that generates the coefficient vector; see \code{generate_coef()}.}
 
 \item{betas_unobs_sd}{(Optional) SD of normal distribution from which to draw \code{betas_unobs}. Only used if \code{betas_unobs} argument is \code{NULL} or is a function in which case \code{betas_unobs_sd} is optionally passed to the function as \code{sd}; see \code{generate_coef()}.}
 
-\item{betas_corr}{Coefficient vector for correlated features. If a scalar is provided, the coefficient vector is a constant vector. If \code{NULL} (default), entries in the coefficient vector are drawn iid from N(0, \code{betas_corr_sd}^2). Can also be a function that generates the coefficient vector; see \code{generate_coef()}.}
+\item{betas_corr}{Coefficient vector for correlated features. If a scalar is provided, the coefficient vector is constant. If \code{NULL} (default), entries in the coefficient vector are drawn iid from N(0, \code{betas_corr_sd}^2). Can also be a function that generates the coefficient vector; see \code{generate_coef()}.}
 
 \item{betas_corr_sd}{(Optional) SD of normal distribution from which to draw \code{betas_corr}. Only used if \code{betas_corr} argument is \code{NULL} or is a function in which case \code{betas_corr_sd} is optionally passed to the function as \code{sd}; see \code{generate_coef()}.}
 
-\item{betas_uncorr}{Coefficient vector for uncorrelated features. If a scalar is provided, the coefficient vector is a constant vector. If \code{NULL} (default), entries in the coefficient vector are drawn iid from N(0, \code{betas_uncorr_sd}^2). Can also be a function that generates the coefficient vector; see \code{generate_coef()}.}
+\item{betas_uncorr}{Coefficient vector for uncorrelated features. If a scalar is provided, the coefficient vector is constant. If \code{NULL} (default), entries in the coefficient vector are drawn iid from N(0, \code{betas_uncorr_sd}^2). Can also be a function that generates the coefficient vector; see \code{generate_coef()}.}
 
 \item{betas_uncorr_sd}{(Optional) SD of normal distribution from which to draw \code{betas_uncorr}. Only used if \code{betas_uncorr} argument is \code{NULL} or is a function in which case \code{betas_uncorr_sd} is optionally passed to the function as \code{sd}; see \code{generate_coef()}.}
 

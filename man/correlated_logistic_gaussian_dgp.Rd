@@ -40,9 +40,9 @@ positions i = \code{s_corr} + 1, ..., \code{p_corr}) are set to 0.}
 
 \item{corr}{Correlation between features in correlated group.}
 
-\item{betas_uncorr}{Coefficient vector for uncorrelated features. If a scalar is provided, the coefficient vector is a constant vector. If \code{NULL} (default), entries in the coefficient vector are drawn iid from N(0, \code{betas_uncorr_sd}^2). Can also be a function that generates the coefficient vector; see \code{generate_coef()}.}
+\item{betas_uncorr}{Coefficient vector for uncorrelated features. If a scalar is provided, the coefficient vector is constant. If \code{NULL} (default), entries in the coefficient vector are drawn iid from N(0, \code{betas_uncorr_sd}^2). Can also be a function that generates the coefficient vector; see \code{generate_coef()}.}
 
-\item{betas_corr}{Coefficient vector for correlated features. If a scalar is provided, the coefficient vector is a constant vector. If \code{NULL} (default), entries in the coefficient vector are drawn iid from N(0, \code{betas_corr_sd}^2). Can also be a function that generates the coefficient vector; see \code{generate_coef()}.}
+\item{betas_corr}{Coefficient vector for correlated features. If a scalar is provided, the coefficient vector is constant. If \code{NULL} (default), entries in the coefficient vector are drawn iid from N(0, \code{betas_corr_sd}^2). Can also be a function that generates the coefficient vector; see \code{generate_coef()}.}
 
 \item{betas_uncorr_sd}{(Optional) SD of normal distribution from which to draw \code{betas_uncorr}. Only used if \code{betas_uncorr} argument is \code{NULL} or is a function in which case \code{betas_uncorr_sd} is optionally passed to the function as \code{sd}; see \code{generate_coef()}.}
 

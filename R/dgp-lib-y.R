@@ -6,10 +6,6 @@
 #' @inheritParams shared_dgp_lib_args
 #' @param X Design data matrix of observed variables.
 #' @param U Design data matrix of unobserved (omitted) variables.
-#' @param betas Scalar or vector of coefficients corresponding to features
-#'   in observed design matrix.
-#' @param betas_unobs Scalar or vector of coefficients corresponding to features
-#'   in unobserved design matrix.
 #' 
 #' @returns If \code{return_support = TRUE}, returns a list of two:
 #' \describe{
@@ -31,8 +27,9 @@
 #' y <- generate_y_linear(X = X, U = U, betas = c(3, -1), betas_unobs = c(1, 2))
 #' 
 #' @export
-generate_y_linear <- function(X, U, betas = 0, betas_unobs = 0, intercept = 0,
-                              err = NULL, return_support = FALSE, ...) {
+generate_y_linear <- function(X, U, betas = NULL, betas_unobs = NULL,
+                              intercept = 0, err = NULL, return_support = FALSE,
+                              ...) {
   n <- nrow(X)
   p <- ncol(X)
   
@@ -63,7 +60,6 @@ generate_y_linear <- function(X, U, betas = 0, betas_unobs = 0, intercept = 0,
 #' 
 #' @inheritParams shared_dgp_lib_args
 #' @param X Design data matrix of observed variables.
-#' @param betas Coefficient vector for observed design matrix.
 #' @param ... Not used.
 #' 
 #' @inherit generate_y_linear return
@@ -105,12 +101,12 @@ generate_y_logistic <- function(X, betas = 0, intercept = 0,
 #' @param k Order of the interactions.
 #' @param s Number of interactions in the LSS model or a matrix of the support
 #'   indices with each interaction taking a row in this matrix and ncol = k.
-#' @param thresholds A scalar or a s x k matrix of the thresholds for each term 
+#' @param thresholds A scalar or a s x k matrix of the thresholds for each term
 #'   in the LSS model.
-#' @param signs A scalar or a s x k matrix of the sign of each interaction 
-#'   (1 means > while -1 means <).
-#' @param betas Scalar or vector of coefficients corresponding to interaction 
-#'   terms.
+#' @param signs A scalar or a s x k matrix of the sign of each interaction (1
+#'   means > while -1 means <).
+#' @param betas Scalar, vector, or function to generate coefficients
+#'   corresponding to interaction terms. See \\code{generate_coef()}.
 #' @param overlap If TRUE, simulate support indices with replacement; if FALSE,
 #'   simulate support indices without replacement (so no overlap)
 #' 

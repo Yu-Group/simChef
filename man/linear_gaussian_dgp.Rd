@@ -37,9 +37,9 @@ to features after the \code{s_obs} position (i.e., positions i =
 corresponding to features after the \code{s_unobs} position (i.e.,
 positions i = \code{s_unobs} + 1, ..., \code{p_unobs}) are set to 0.}
 
-\item{betas}{Coefficient vector for observed design matrix. If a scalar is provided, the coefficient vector is a constant vector. If \code{NULL} (default), entries in the coefficient vector are drawn iid from N(0, \code{betas_sd}^2). Can also be a function that generates the coefficient vector; see \code{generate_coef()}.}
+\item{betas}{Coefficient vector for observed design matrix. If a scalar is provided, the coefficient vector is constant. If \code{NULL} (default), entries in the coefficient vector are drawn iid from N(0, \code{betas_sd}^2). Can also be a function that generates the coefficient vector; see \code{generate_coef()}.}
 
-\item{betas_unobs}{Coefficient vector for unobserved design matrix. If a scalar is provided, the coefficient vector is a constant vector. If \code{NULL} (default), entries in the coefficient vector are drawn iid from N(0, \code{betas_unobs_sd}^2). Can also be a function that generates the coefficient vector; see \code{generate_coef()}.}
+\item{betas_unobs}{Coefficient vector for unobserved design matrix. If a scalar is provided, the coefficient vector is constant. If \code{NULL} (default), entries in the coefficient vector are drawn iid from N(0, \code{betas_unobs_sd}^2). Can also be a function that generates the coefficient vector; see \code{generate_coef()}.}
 
 \item{betas_sd}{(Optional) SD of normal distribution from which to draw \code{betas}. Only used if \code{betas} argument is \code{NULL} or is a function in which case \code{betas_sd} is optionally passed to the function as \code{sd}; see \code{generate_coef()}.}
 

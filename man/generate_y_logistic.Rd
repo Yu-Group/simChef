@@ -9,7 +9,7 @@ generate_y_logistic(X, betas = 0, intercept = 0, return_support = FALSE, ...)
 \arguments{
 \item{X}{Design data matrix of observed variables.}
 
-\item{betas}{Coefficient vector for observed design matrix.}
+\item{betas}{Coefficient vector for observed design matrix. If a scalar is provided, the coefficient vector is constant. If \code{NULL} (default), entries in the coefficient vector are drawn iid from N(0, \code{betas_sd}^2). Can also be a function that generates the coefficient vector; see \code{generate_coef()}.}
 
 \item{intercept}{Scalar intercept term.}
 

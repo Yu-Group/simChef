@@ -10,7 +10,7 @@ betas_params_doc <- function(type = c("obs", "unobs", "corr", "uncorr")) {
   sprintf(c(
     paste(
       "@param betas%2$s Coefficient vector for %1$s. If a",
-      "scalar is provided, the coefficient vector is a constant vector. If",
+      "scalar is provided, the coefficient vector is constant. If",
       "\\code{NULL} (default), entries in the coefficient vector are drawn iid from",
       "N(0, \\code{betas%2$s_sd}^2). Can also be a function that generates the",
       "coefficient vector; see \\code{generate_coef()}."),

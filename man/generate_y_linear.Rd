@@ -7,8 +7,8 @@
 generate_y_linear(
   X,
   U,
-  betas = 0,
-  betas_unobs = 0,
+  betas = NULL,
+  betas_unobs = NULL,
   intercept = 0,
   err = NULL,
   return_support = FALSE,
@@ -20,11 +20,9 @@ generate_y_linear(
 
 \item{U}{Design data matrix of unobserved (omitted) variables.}
 
-\item{betas}{Scalar or vector of coefficients corresponding to features
-in observed design matrix.}
+\item{betas}{Coefficient vector for observed design matrix. If a scalar is provided, the coefficient vector is constant. If \code{NULL} (default), entries in the coefficient vector are drawn iid from N(0, \code{betas_sd}^2). Can also be a function that generates the coefficient vector; see \code{generate_coef()}.}
 
-\item{betas_unobs}{Scalar or vector of coefficients corresponding to features
-in unobserved design matrix.}
+\item{betas_unobs}{Coefficient vector for unobserved design matrix. If a scalar is provided, the coefficient vector is constant. If \code{NULL} (default), entries in the coefficient vector are drawn iid from N(0, \code{betas_unobs_sd}^2). Can also be a function that generates the coefficient vector; see \code{generate_coef()}.}
 
 \item{intercept}{Scalar intercept term.}
 
