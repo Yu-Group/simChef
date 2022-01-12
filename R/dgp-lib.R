@@ -5,7 +5,7 @@
 #'   y, and the additive error term.
 #'
 #' @inheritParams shared_dgp_lib_args
-#' @param x_fun Function to generate X data.
+#' @param X_fun Function to generate X data.
 #' @param y_fun Function to generate y data.
 #' @param err_fun Function to generate error/noise data. Default \code{NULL} 
 #'   adds no error to the output of \code{y_fun()}.
@@ -14,48 +14,41 @@
 #'   response vector. If \code{FALSE}, return \code{err_fun(y_fun(...), ...)} as 
 #'   the simulated response vector. Note that \code{add_err = TRUE} will return 
 #'   an error for categorical responses \code{y}.
-#' @param ... Additional arguments to pass to \code{x_fun()}, \code{y_fun()},
-#'   and \code{err_fun()}. If argument does not exist in \code{x_fun()}, 
-#'   \code{y_fun()}, or \code{err_fun()}, argument is ignored.
+#' @eval dots_doc(prefix = c("X", "y", "err"))
 #' 
 #' @inherit shared_dgp_lib_args return
 #'   
 #' @details If \code{add_err = TRUE}, data is generated from the following 
 #' additive model: 
-#' \deqn{y = y_fun(X, ...) + err_fun(X, y_fun(X), ...), where X = x_fun(...).}
+#' \deqn{y = y_fun(X, ...) + err_fun(X, y_fun(X), ...), where X = X_fun(...).}
 #' 
 #' If \code{add_err = FALSE}, data is generated via:
-#' \deqn{y = err_fun(X, y_fun(X, ...), ...), where X = x_fun(...).}
+#' \deqn{y = err_fun(X, y_fun(X, ...), ...), where X = X_fun(...).}
 #' 
 #' Note that while \code{err_fun()} is allowed to depend on both X and y, it is
 #' not necessary that \code{err_fun()} depend on X or y.
 #' 
-#' If x_fun, y_fun, and err_fun have arguments of the same name, then use the
-#' prefix ".x_", ".y_", ".err_" in front of the argument name (passed via ...) 
-#' to differentiate it for use in x_fun, y_fun, or err_fun, respectively. 
-#' See the examples.
-#'
 #' @examples 
 #' # generate X = 100 x 10 standard Gaussian, y = linear regression model
-#' sim_data <- xy_dgp_constructor(x_fun = MASS::mvrnorm, 
+#' sim_data <- xy_dgp_constructor(X_fun = MASS::mvrnorm, 
 #'                                y_fun = generate_y_linear,
 #'                                err_fun = rnorm, data_split = TRUE,
 #'                                # shared dgp arguments
 #'                                n = 100,
-#'                                # arguments specifically for x_fun
+#'                                # arguments specifically for X_fun
 #'                                .x_mu = rep(0, 10), .x_Sigma = diag(10),
 #'                                # arguments specifically for y_fun
 #'                                .y_betas = rnorm(10), .y_return_support = TRUE,
 #'                                # arguments specifically for err_fun
 #'                                .err_sd = 1)
-#' # or alternatively, (since arguments of x_fun, y_fun, err_fun are unique, 
+#' # or alternatively, (since arguments of X_fun, y_fun, err_fun are unique, 
 #' # with the exception of `n`)
-#' sim_data <- xy_dgp_constructor(x_fun = MASS::mvrnorm, 
+#' sim_data <- xy_dgp_constructor(X_fun = MASS::mvrnorm, 
 #'                                y_fun = generate_y_linear,
 #'                                err_fun = rnorm, data_split = TRUE,
 #'                                # shared dgp arguments
 #'                                n = 100,
-#'                                # arguments specifically for x_fun
+#'                                # arguments specifically for X_fun
 #'                                mu = rep(0, 10), Sigma = diag(10),
 #'                                # arguments specifically for y_fun
 #'                                betas = rnorm(10), return_support = TRUE,
@@ -63,19 +56,19 @@
 #'                                sd = 1)
 #'
 #' @export
-xy_dgp_constructor <- function(x_fun, y_fun, err_fun = NULL, add_err = TRUE,
+xy_dgp_constructor <- function(X_fun, y_fun, err_fun = NULL, add_err = TRUE,
                                data_split = FALSE, train_prop = 0.5,
                                return_values = c("X", "y", "support"),
                                ...) {
   return_values <- match.arg(return_values, several.ok = TRUE)
 
-  fun_args <- dots_to_fun_args(fun_prefix = c("x", "y", "err"), ...)
-  X_args_list <- fun_args$.x_args
+  fun_args <- dots_to_fun_args(fun_prefix = c("X", "y", "err"), ...)
+  X_args_list <- fun_args$.X_args
   y_args_list <- fun_args$.y_args
   err_args_list <- fun_args$.err_args
   args_list <- fun_args$.optional_args
 
-  X_out <- R.utils::doCall(x_fun, args = args_list, alwaysArgs = X_args_list)
+  X_out <- R.utils::doCall(X_fun, args = args_list, alwaysArgs = X_args_list)
   if (!is.list(X_out)) {
     X_out <- list(X = X_out)
   }

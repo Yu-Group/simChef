@@ -23,6 +23,56 @@ betas_params_doc <- function(type = c("obs", "unobs", "corr", "uncorr")) {
   ), descr_suffix[1], descr_suffix[2])
 }
 
+#' @keywords internal
+dots_doc <- function(prefix = c("X", "y", "err", "betas",
+                                "betas_unobs", "betas_corr",
+                                "betas_uncorr"),
+                     see_also = NULL) {
+  prefix <- match.arg(prefix, several.ok = TRUE)
+  n_objs <- length(prefix)
+  if (n_objs > 2) {
+    objs <- paste(
+      paste0(prefix[-n_objs], collapse = ", "),
+      ", and", prefix[n_objs]
+    )
+    prefixes <- paste(
+      paste0(".", prefix[-n_objs], "_", collapse = ", "),
+      paste0(", or .", prefix[n_objs], "_")
+    )
+  } else {
+    objs <- paste0(prefix, collapse = " and ")
+    prefixes <- paste0(".", prefix, "_", collapse = " or ")
+  }
+  param_string <- sprintf(
+    paste(
+      "@param ...",
+      "Additional arguments to pass to functions that generate %1$s.",
+      "If the argument doesn't exist in one of the functions it is ignored.",
+      "If two or more of the functions have an argument of the same name but",
+      "with different values, then use one of the following prefixes in front",
+      "of the argument name (passed via ...) to differentiate it: %2$s."
+    ), objs, prefixes
+  )
+  if (!is.null(see_also)) {
+    n_funs <- length(see_also)
+    if (n_funs > 2) {
+      see_also_string <- paste(
+        paste0("\\code{", see_also[-n_funs], "}", collapse = ", "),
+        paste0(", and \\code{", see_also[n_funs], "}")
+      )
+    } else {
+      see_also_string <- paste0(
+        "\\code{", see_also, "}", collapse = " and "
+      )
+    }
+    param_string <- paste(
+      param_string,
+      sprintf("For additional details, see %s", see_also_string)
+    )
+  }
+  return(param_string)
+}
+
 #' Arguments that are shared by multiple \code{DGP} library functions.
 #'
 #' @name shared_dgp_lib_args
@@ -221,24 +271,28 @@ indicator <- function(X, thresh, sgn) {
 #'
 #' @param prefix Character vector of prefixes for the \code{*_fun} functions
 #'   used by the function that calls \code{dots_to_fun_args()}; e.g., if
-#'   \code{x_fun} is one of the functions, then this vector should include
+#'   \code{X_fun} is one of the functions, then this vector should include
 #'   \code{"x"}. Then, this function will look for an argument with name
 #'   prefixed by \code{".x_"} in \code{...}.
 #' @param ... Named arguments to process.
 #'
 #' @return A list with some or all of the following:
 #' \describe{
-#' \item{.x_args}{Args to pass to \code{x_fun}.}
+#' \item{.X_args}{Args to pass to \code{X_fun}.}
 #' \item{.y_args}{Args to pass to \code{y_fun}.}
 #' \item{.err_args}{Args to pass to \code{err_fun}.}
 #' \item{.betas_args}{Args to pass to \code{betas}.}
+#' \item{.betas_args}{Args to pass to \code{betas_unobs}.}
+#' \item{.betas_args}{Args to pass to \code{betas_corr}.}
+#' \item{.betas_args}{Args to pass to \code{betas_uncorr}.}
 #' \item{.optional_args}{Args to pass optionally.}
 #' }
 #'
 #' @keywords internal
-dots_to_fun_args <- function(fun_prefix = c("x", "y", "err", "betas"), ...) {
-  fun_prefix <- match.arg(fun_prefix, several.ok = TRUE)
-  prefixes <- paste0(".", fun_prefix, "_")
+dots_to_fun_args <- function(prefix = c("X", "y", "err", "betas",
+                                        "betas_unobs", "betas_corr",
+                                        "betas_uncorr"), ...) {
+  prefixes <- paste0(".", match.arg(prefix, several.ok = TRUE), "_")
   out_list <- vector(mode = "list", length = length(prefixes) + 1)
   names(out_list) <- c(paste0(prefixes, "args"), ".optional_args")
   args_list <- rlang::list2(...)
