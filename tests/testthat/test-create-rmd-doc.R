@@ -72,7 +72,7 @@ test_that("Automated R Markdown documentation works properly", {
   expect_error(
     create_rmd(
       base_experiment, open = FALSE, verbose = 0, pretty = FALSE, 
-      output_options = list(css = "css/pretty_rmd_theme_addons.css")
+      output_options = list(css = "css/simchef.css")
     ),
     NA
   )
@@ -128,7 +128,7 @@ test_that("Visualizations in R Markdown documentation render correctly", {
       ggplot2::geom_point()
   }
   visualizer <- create_visualizer(viz_fun)
-  tab_fun <- function() pretty_DT(iris)
+  tab_fun <- function() vdocs::pretty_DT(iris)
   tabler <- create_visualizer(tab_fun)
   text_fun <- function() "Hello world!"
   texter <- create_visualizer(text_fun)

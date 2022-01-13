@@ -17,7 +17,7 @@ performance of methods in the \code{Experiment}.
 \item{\code{eval_params}}{(Named) list of parameters to input into the evaluation function.}
 \item{\code{rmd_options}}{List of options to control the aesthetics of the
 displayed \code{Evaluator}'s results table in the knitted R Markdown
-report. See \code{\link[=pretty_DT]{pretty_DT()}} for possible options.}
+report. See \code{\link[vdocs:pretty_DT]{vdocs::pretty_DT()}} for possible options.}
 \item{\code{rmd_show}}{If \code{TRUE} (default), show \code{Evaluator}'s results as
 a table in the R Markdown report; if \code{FALSE}, hide output in the
 R Markdown report.}

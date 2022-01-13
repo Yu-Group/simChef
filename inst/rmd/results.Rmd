@@ -164,11 +164,11 @@ showRecipePart <- function(field_name = c("dgp", "method",
                            ~isTRUE(check_equal(.x, keep_objs[[1]]))))) {
       obj <- keep_objs[[1]]
       cat("<b>Function</b>")
-      subchunkify(obj[[paste0(func_name, "_fun")]],
+      vdocs::subchunkify(obj[[paste0(func_name, "_fun")]],
                   chunk_idx, other_args = "max.height='200px'")
       chunk_idx <<- chunk_idx + 1
       cat("<b>Input Parameters</b>")
-      subchunkify(obj[[paste0(func_name, "_params")]],
+      vdocs::subchunkify(obj[[paste0(func_name, "_params")]],
                   chunk_idx, other_args = "max.height='200px'")
       chunk_idx <<- chunk_idx + 1
     } else {
@@ -179,11 +179,11 @@ showRecipePart <- function(field_name = c("dgp", "method",
         }
         cat(sprintf(exp_header, exp))
         cat("<b>Function</b>")
-        subchunkify(obj[[paste0(func_name, "_fun")]],
+        vdocs::subchunkify(obj[[paste0(func_name, "_fun")]],
                     chunk_idx, other_args = "max.height='200px'")
         chunk_idx <<- chunk_idx + 1
         cat("<b>Input Parameters</b>")
-        subchunkify(obj[[paste0(func_name, "_params")]],
+        vdocs::subchunkify(obj[[paste0(func_name, "_params")]],
                     chunk_idx, other_args = "max.height='200px'")
         chunk_idx <<- chunk_idx + 1
       }
@@ -277,9 +277,9 @@ showResults <- function(dir_name, depth, base = FALSE, show_header = TRUE,
       evaluator <- exp$get_evaluators()[[eval_name]]
       if (evaluator$rmd_show) {
         cat(sprintf(figname_template, eval_name))
-        do.call(pretty_DT,
+        do.call(vdocs::pretty_DT,
                 c(list(eval_results[[eval_name]]), evaluator$rmd_options)) %>%
-          subchunkify(i = chunk_idx)
+          vdocs::subchunkify(i = chunk_idx)
         chunk_idx <<- chunk_idx + 1
       }
     }
@@ -309,7 +309,7 @@ showResults <- function(dir_name, depth, base = FALSE, show_header = TRUE,
             cat(sprintf(plt_template, plt_name))
           }
           plt <- plts[[plt_name]]
-          subchunkify(plt, i = chunk_idx,
+          vdocs::subchunkify(plt, i = chunk_idx,
                       fig_height = visualizer$rmd_options$height,
                       fig_width = visualizer$rmd_options$width,
                       other_args = "out.width = '100%'")
@@ -324,7 +324,7 @@ showResults <- function(dir_name, depth, base = FALSE, show_header = TRUE,
         (length(exp$get_vary_across()$method) != 0)) {
       cat(sprintf(showtype_template, fontawesome::fa("code")))
       cat("<b>Parameter Values</b>")
-      subchunkify(exp$get_vary_across(),
+      vdocs::subchunkify(exp$get_vary_across(),
                   chunk_idx, other_args = "max.height='200px'")
       chunk_idx <<- chunk_idx + 1
     }
