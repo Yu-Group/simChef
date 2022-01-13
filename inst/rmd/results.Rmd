@@ -8,9 +8,8 @@ header-includes:
     - \usepackage{gensymb}
 output:
   rmdformats::material:
-    fig_caption: true
     code_download: true
-css: css/general_rmd_theme_addons.css
+css: css/simchef.css
 params:
   author: 
     label: "Author:"
@@ -140,7 +139,7 @@ showRecipePart <- function(field_name = c("dgp", "method",
 
   obj_header <- "<p style='font-weight: bold; font-size: 20px'> %s </p>"
   invis_header <- "\n\n### %s {.tabset .tabset-pills .tabset-fade .tabset-circle}\n\n"
-  showtype_header <- "\n\n#### %s {.tabset .tabset-pills .tabset-fade .tabset-square}\n\n"
+  showtype_header <- "\n\n#### %s {.tabset .tabset-pills .tabset-fade}\n\n"
   exp_header <- "\n\n##### %s \n\n"
 
   if (all(sapply(objs, length) == 0)) {
@@ -226,7 +225,7 @@ showResults <- function(dir_name, depth, base = FALSE, show_header = TRUE,
     header_template <- "\n\n%s %s {.tabset .tabset-pills .tabset-fade}\n\n"
   } else {
     if (base | !experimentExists(dir_name)) {
-      header_template <- "\n\n%s %s {.tabset .tabset-pills .tabset-fade .tabset-square}"
+      header_template <- "\n\n%s %s {.tabset .tabset-pills .tabset-fade}"
     } else {
       header_template <- "\n\n%s %s {.tabset .tabset-pills .tabset-fade .tabset-circle}"
     }
@@ -252,7 +251,7 @@ showResults <- function(dir_name, depth, base = FALSE, show_header = TRUE,
   figname_template <- "<h3 style='font-weight: bold'> %s </h3>"
   invisible_header <- paste0(
     "\n\n", paste(rep("#", depth + 2), collapse = ""),
-    " {.tabset .tabset-pills .tabset-fade .tabset-square}\n\n"
+    " {.tabset .tabset-pills .tabset-fade}\n\n"
   )
   plt_template <- paste0(
     "\n\n", paste(rep("#", depth + 3), collapse = ""), " %s\n\n"

@@ -7,10 +7,8 @@ header-includes:
     - \usepackage{amsmath}
     - \usepackage{gensymb}
 output:
-  rmdformats::material:
-    fig_caption: true
-    code_download: true
-css: css/pretty_rmd_theme_addons.css
+  vdocs::veridical:
+css: css/simchef.css
 params:
   author: 
     label: "Author:"
@@ -32,7 +30,7 @@ params:
     value: 2
 ---
 
-<script src="js/customNavClass.js"></script>
+<script src="js/simchefNavClass.js"></script>
 
 ```{r setup, include=FALSE}
 options(width = 10000)
@@ -142,7 +140,7 @@ showRecipePart <- function(field_name = c("dgp", "method",
 
   obj_header <- "<p style='font-weight: bold; font-size: 20px'> %s </p>"
   invis_header <- "\n\n### %s {.tabset .tabset-pills .tabset-fade .tabset-recipe}\n\n"
-  showtype_header <- "\n\n#### %s {.tabset .tabset-pills .tabset-fade .tabset-square}\n\n"
+  showtype_header <- "\n\n#### %s {.tabset .tabset-pills .tabset-fade}\n\n"
   exp_header <- "\n\n##### %s \n\n"
 
   if (all(sapply(objs, length) == 0)) {
@@ -228,7 +226,7 @@ showResults <- function(dir_name, depth, base = FALSE, show_header = TRUE,
     header_template <- "\n\n%s %s {.tabset .tabset-pills .tabset-fade}\n\n"
   } else {
     if (base | !experimentExists(dir_name)) {
-      header_template <- "\n\n%s %s {.tabset .tabset-pills .tabset-fade .tabset-square}"
+      header_template <- "\n\n%s %s {.tabset .tabset-pills .tabset-fade}"
     } else {
       header_template <- "\n\n%s %s {.tabset .tabset-pills .tabset-fade .tabset-circle}"
     }
@@ -254,7 +252,7 @@ showResults <- function(dir_name, depth, base = FALSE, show_header = TRUE,
   figname_template <- "<h3 style='font-weight: bold'> %s </h3>"
   invisible_header <- paste0(
     "\n\n", paste(rep("#", depth + 2), collapse = ""),
-    " {.tabset .tabset-pills .tabset-fade .tabset-square}\n\n"
+    " {.tabset .tabset-pills .tabset-fade}\n\n"
   )
   plt_template <- paste0(
     "\n\n", paste(rep("#", depth + 3), collapse = ""), " %s\n\n"
@@ -370,7 +368,7 @@ showDescendantResults <- function(dir_name, depth = 1, ...) {
 
 ```
 
-# Simulation Experiment Recipe {.tabset .tabset-fade}
+# Simulation Experiment Recipe {.tabset .custom-tabs}
 
 ## Objectives {.panel .panel-default .padded-panel}
 
