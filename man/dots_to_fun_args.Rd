@@ -4,25 +4,42 @@
 \alias{dots_to_fun_args}
 \title{Helper function to process ... args to pass to multiple functions.}
 \usage{
-dots_to_fun_args(fun_prefix = c("x", "y", "err", "betas"), ...)
+dots_to_fun_args(
+  prefix = c("X", "U", "y", "err", "betas", "betas_unobs", "betas_corr",
+    "betas_uncorr"),
+  ...
+)
 }
 \arguments{
-\item{...}{Named arguments to process.}
+\item{prefix}{Character vector of arbitrary prefixes to use in splitting
+entries of \code{...}. For example, if \code{.X_p} and \code{.U_p} are in
+\code{...}, then this vector should include \code{"X"} and \code{"U"}
+so that this function will look for arguments with name prefixed by
+\code{".X_"} and \code{".U_"}.}
 
-\item{prefix}{Character vector of prefixes for the \code{*_fun} functions
-used by the function that calls \code{dots_to_fun_args()}; e.g., if
-\code{x_fun} is one of the functions, then this vector should include
-\code{"x"}. Then, this function will look for an argument with name
-prefixed by \code{".x_"} in \code{...}.}
+\item{...}{Named arguments to process.}
 }
 \value{
-A list with some or all of the following:
+A list with ".optional_args" as well as entries named like
+\code{".X_args"}. For example, when \code{"X"} is one of the elements of
+the input character vector \code{prefix} and \code{.X_p = 1} and \code{.X_s
+  = 2} are both passed via \code{...}, the \code{".X_args"} entry of the
+output list will be code{list(p = 1, s = 2)}. With the default value of
+\code{prefix}, the output list will the following have entries:
+
 \describe{
-\item{.x_args}{Args to pass to \code{x_fun}.}
-\item{.y_args}{Args to pass to \code{y_fun}.}
-\item{.err_args}{Args to pass to \code{err_fun}.}
-\item{.betas_args}{Args to pass to \code{betas}.}
-\item{.optional_args}{Args to pass optionally.}
+\item{.X_args}{Args to pass to function that generates {X}.}
+\item{.U_args}{Args to pass to function that generates {U}.}
+\item{.y_args}{Args to pass to function that generates {y}.}
+\item{.err_args}{Args to pass to function that generates \code{err}.}
+\item{.betas_args}{Args to pass to function that generates \code{betas}.}
+\item{.betas_unobs_args}{Args to pass to function that generates
+\code{betas_unobs}.}
+\item{.betas_corr_args}{Args to pass to function that generates
+\code{betas_corr}.}
+\item{.betas_uncorr_args}{Args to pass to function that generates
+\code{betas_uncorr}.}
+\item{.optional_args}{Args to pass optionally to all functions.}
 }
 }
 \description{

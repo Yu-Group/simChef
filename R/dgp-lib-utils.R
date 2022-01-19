@@ -24,18 +24,17 @@ betas_params_doc <- function(type = c("obs", "unobs", "corr", "uncorr")) {
 }
 
 #' @keywords internal
-dots_doc <- function(prefix = c("X", "y", "err", "betas",
+dots_doc <- function(prefix = c("X", "U", "y", "err", "betas",
                                 "betas_unobs", "betas_corr",
                                 "betas_uncorr"),
                      see_also = NULL) {
-  prefix <- match.arg(prefix, several.ok = TRUE)
   n_objs <- length(prefix)
   if (n_objs > 2) {
-    objs <- paste(
+    objs <- paste0(
       paste0(prefix[-n_objs], collapse = ", "),
-      ", and", prefix[n_objs]
+      ", and ", prefix[n_objs]
     )
-    prefixes <- paste(
+    prefixes <- paste0(
       paste0(".", prefix[-n_objs], "_", collapse = ", "),
       paste0(", or .", prefix[n_objs], "_")
     )
@@ -50,19 +49,19 @@ dots_doc <- function(prefix = c("X", "y", "err", "betas",
       "If the argument doesn't exist in one of the functions it is ignored.",
       "If two or more of the functions have an argument of the same name but",
       "with different values, then use one of the following prefixes in front",
-      "of the argument name (passed via ...) to differentiate it: %2$s."
+      "of the argument name (passed via \\code{...}) to differentiate it: %2$s."
     ), objs, prefixes
   )
   if (!is.null(see_also)) {
     n_funs <- length(see_also)
     if (n_funs > 2) {
-      see_also_string <- paste(
-        paste0("\\code{", see_also[-n_funs], "}", collapse = ", "),
-        paste0(", and \\code{", see_also[n_funs], "}")
+      see_also_string <- paste0(
+        paste0("\\code{", see_also[-n_funs], "()}", collapse = ", "),
+        paste0(", and \\code{", see_also[n_funs], "()}")
       )
     } else {
       see_also_string <- paste0(
-        "\\code{", see_also, "}", collapse = " and "
+        "\\code{", see_also, "()}", collapse = " and "
       )
     }
     param_string <- paste(
@@ -251,11 +250,11 @@ split_data <- function(X, y, train_prop = 0.5) {
 }
 
 #' Helper function to compute indicator function in LSS model.
-#' 
+#'
 #' @inheritParams shared_dgp_lib_args
 #' @param thresh thresholds
 #' @param sgn sign of the interaction
-#' 
+#'
 #' @keywords internal
 indicator <- function(X, thresh, sgn) {
   if (any(sgn == -1)) {
@@ -269,30 +268,40 @@ indicator <- function(X, thresh, sgn) {
 
 #' Helper function to process ... args to pass to multiple functions.
 #'
-#' @param prefix Character vector of prefixes for the \code{*_fun} functions
-#'   used by the function that calls \code{dots_to_fun_args()}; e.g., if
-#'   \code{X_fun} is one of the functions, then this vector should include
-#'   \code{"x"}. Then, this function will look for an argument with name
-#'   prefixed by \code{".x_"} in \code{...}.
+#' @param prefix Character vector of arbitrary prefixes to use in splitting
+#'   entries of \code{...}. For example, if \code{.X_p} and \code{.U_p} are in
+#'   \code{...}, then this vector should include \code{"X"} and \code{"U"}
+#'   so that this function will look for arguments with name prefixed by
+#'   \code{".X_"} and \code{".U_"}.
 #' @param ... Named arguments to process.
 #'
-#' @return A list with some or all of the following:
+#' @return A list with ".optional_args" as well as entries named like
+#'   \code{".X_args"}. For example, when \code{"X"} is one of the elements of
+#'   the input character vector \code{prefix} and \code{.X_p = 1} and \code{.X_s
+#'   = 2} are both passed via \code{...}, the \code{".X_args"} entry of the
+#'   output list will be code{list(p = 1, s = 2)}. With the default value of
+#'   \code{prefix}, the output list will the following have entries:
+#'
 #' \describe{
-#' \item{.X_args}{Args to pass to \code{X_fun}.}
-#' \item{.y_args}{Args to pass to \code{y_fun}.}
-#' \item{.err_args}{Args to pass to \code{err_fun}.}
-#' \item{.betas_args}{Args to pass to \code{betas}.}
-#' \item{.betas_args}{Args to pass to \code{betas_unobs}.}
-#' \item{.betas_args}{Args to pass to \code{betas_corr}.}
-#' \item{.betas_args}{Args to pass to \code{betas_uncorr}.}
-#' \item{.optional_args}{Args to pass optionally.}
+#' \item{.X_args}{Args to pass to function that generates {X}.}
+#' \item{.U_args}{Args to pass to function that generates {U}.}
+#' \item{.y_args}{Args to pass to function that generates {y}.}
+#' \item{.err_args}{Args to pass to function that generates \code{err}.}
+#' \item{.betas_args}{Args to pass to function that generates \code{betas}.}
+#' \item{.betas_unobs_args}{Args to pass to function that generates
+#'   \code{betas_unobs}.}
+#' \item{.betas_corr_args}{Args to pass to function that generates
+#'   \code{betas_corr}.}
+#' \item{.betas_uncorr_args}{Args to pass to function that generates
+#'   \code{betas_uncorr}.}
+#' \item{.optional_args}{Args to pass optionally to all functions.}
 #' }
 #'
 #' @keywords internal
-dots_to_fun_args <- function(prefix = c("X", "y", "err", "betas",
+dots_to_fun_args <- function(prefix = c("X", "U", "y", "err", "betas",
                                         "betas_unobs", "betas_corr",
                                         "betas_uncorr"), ...) {
-  prefixes <- paste0(".", match.arg(prefix, several.ok = TRUE), "_")
+  prefixes <- paste0(".", prefix, "_")
   out_list <- vector(mode = "list", length = length(prefixes) + 1)
   names(out_list) <- c(paste0(prefixes, "args"), ".optional_args")
   args_list <- rlang::list2(...)

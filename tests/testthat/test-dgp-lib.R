@@ -313,10 +313,14 @@ test_that("generate_coef works as expected", {
 test_that("dots_to_fun_args works as expected", {
   expect_equal(dots_to_fun_args(),
                list(
-                 .x_args = NULL,
+                 .X_args = NULL,
+                 .U_args = NULL,
                  .y_args = NULL,
                  .err_args = NULL,
                  .betas_args = NULL,
+                 .betas_unobs_args = NULL,
+                 .betas_corr_args = NULL,
+                 .betas_uncorr_args = NULL,
                  .optional_args = NULL
                ))
 
@@ -345,28 +349,36 @@ test_that("dots_to_fun_args works as expected", {
 
   expect_equal(
     dots_to_fun_args(
-      .x_arg1 = "x1", .x_arg2 = "x2", .err_arg1 = c("err11", "err12"),
+      .X_arg1 = "x1", .X_arg2 = "x2", .err_arg1 = c("err11", "err12"),
       .betas_arg1 = list(betas11 = c("betas", "11"))
     ),
     list(
-      .x_args = list(arg1 = "x1", arg2 = "x2"),
+      .X_args = list(arg1 = "x1", arg2 = "x2"),
+      .U_args = NULL,
       .y_args = NULL,
       .err_args = list(arg1 = c("err11", "err12")),
       .betas_args = list(arg1 = list(betas11 = c("betas", "11"))),
+      .betas_unobs_args = NULL,
+      .betas_corr_args = NULL,
+      .betas_uncorr_args = NULL,
       .optional_args = NULL
     )
   )
 
   expect_equal(
     dots_to_fun_args(
-      .x_arg1 = "x1", .x_arg2 = "x2", .err_arg1 = c("err11", "err12"),
+      .X_arg1 = "x1", .X_arg2 = "x2", .err_arg1 = c("err11", "err12"),
       .betas_arg1 = list(betas11 = c("betas", "11")), arg1 = "arg1"
     ),
     list(
-      .x_args = list(arg1 = "x1", arg2 = "x2"),
+      .X_args = list(arg1 = "x1", arg2 = "x2"),
+      .U_args = NULL,
       .y_args = NULL,
       .err_args = list(arg1 = c("err11", "err12")),
       .betas_args = list(arg1 = list(betas11 = c("betas", "11"))),
+      .betas_unobs_args = NULL,
+      .betas_corr_args = NULL,
+      .betas_uncorr_args = NULL,
       .optional_args = list(arg1 = "arg1")
     )
   )
