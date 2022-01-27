@@ -4,32 +4,31 @@
 \alias{generate_coef}
 \title{Helper function to generate a coefficient vector.}
 \usage{
-generate_coef(betas = NULL, p = 1, s = p, sd = 1, betas_name = "betas", ...)
+generate_coef(.betas = NULL, .p = 1, .s = .p, .betas_name = "betas", ...)
 }
 \arguments{
-\item{betas}{Coefficient vector or function to generate the coefficients. If
+\item{.betas}{Coefficient vector or function to generate the coefficients. If
 a scalar is provided, the coefficient vector is a constant vector. If
-\code{NULL} (default), entries in the coefficient vector are drawn iid from
-N(0, \code{sd}^2). If a function, must take the integer argument \code{p}
-(and optionally \code{s}, \code{sd}, \code{betas_name}, and other
-user-defined args from \code{...}) and return a numeric vector.}
+\code{NULL} (default), \code{.s} non-zero entries in the coefficient vector
+are drawn iid N(\code{mean}, \code{sd}), where \code{mean} and \code{sd}
+can optionally be specified via \code{...} (default 0 and 1). If a
+function, must take the integer argument \code{.s} (and optionally
+\code{.p}, \code{.betas_name}, and other user-defined args from \code{...})
+and return a numeric vector of length 1, \code{.s}, or \code{.p}.}
 
-\item{p}{Number of features.}
+\item{.p}{Number of features.}
 
-\item{s}{Sparsity level. Coefficients corresponding to features after the
+\item{.s}{Sparsity level. Coefficients corresponding to features after the
 \code{s}th position (i.e., positions i = \code{s} + 1, ..., \code{p}) are
 set to 0.}
 
-\item{sd}{(Optional) SD of normal distribution from which to draw
-\code{betas}. Only used if \code{betas} argument is \code{NULL}.}
+\item{.betas_name}{Name of coefficient variable to use in error message.}
 
-\item{betas_name}{Name of coefficient variable to use in error message.}
-
-\item{...}{Additional user arguments to pass to \code{betas} when
-\code{betas} is a function.}
+\item{...}{Additional user arguments to pass to \code{.betas} when
+\code{.betas} is a function.}
 }
 \value{
-A vector of length \code{p}.
+A vector of length \code{.p}.
 }
 \description{
 Generate a coefficient vector with the specified dimensions and
@@ -37,12 +36,15 @@ sparsity level.
 }
 \examples{
 # generate beta ~ N(0, 1) of dimension 10
-beta <- generate_coef(p = 10)
+beta <- generate_coef(.p = 10)
+
+# generate beta ~ N(1, 2) of dimension 10
+beta <- generate_coef(.p = 10, mean = 1, sd = 2)
 
 # generate beta = [1, 1, 0, 0, 0]
-beta <- generate_coef(betas = 1, p = 5, s = 2)
+beta <- generate_coef(.betas = 1, .p = 5, .s = 2)
 
 # generate beta = [1, 2, 3]
-beta <- generate_coef(betas = 1:3, p = 3)
+beta <- generate_coef(.betas = 1:3, .p = 3)
 
 }

@@ -5,7 +5,7 @@
 \title{General DGP constructor function to generate X and y data.}
 \usage{
 xy_dgp_constructor(
-  x_fun,
+  X_fun,
   y_fun,
   err_fun = NULL,
   add_err = TRUE,
@@ -16,7 +16,7 @@ xy_dgp_constructor(
 )
 }
 \arguments{
-\item{x_fun}{Function to generate X data.}
+\item{X_fun}{Function to generate X data.}
 
 \item{y_fun}{Function to generate y data.}
 
@@ -38,9 +38,7 @@ TRUE}.}
 \item{return_values}{Character vector indicating what objects to return in
 list. Elements in vector must be one of "X", "y", "support".}
 
-\item{...}{Additional arguments to pass to \code{x_fun()}, \code{y_fun()},
-and \code{err_fun()}. If argument does not exist in \code{x_fun()},
-\code{y_fun()}, or \code{err_fun()}, argument is ignored.}
+\item{...}{Additional arguments to pass to functions that generate X, y, and err. If the argument doesn't exist in one of the functions it is ignored. If two or more of the functions have an argument of the same name but with different values, then use one of the following prefixes in front of the argument name (passed via \code{...}) to differentiate it: .X_, .y_, or .err_.}
 }
 \value{
 A list of the named objects that were requested in
@@ -63,40 +61,35 @@ y, and the additive error term.
 \details{
 If \code{add_err = TRUE}, data is generated from the following
 additive model:
-\deqn{y = y_fun(X, ...) + err_fun(X, y_fun(X), ...), where X = x_fun(...).}
+\deqn{y = y_fun(X, ...) + err_fun(X, y_fun(X), ...), where X = X_fun(...).}
 
 If \code{add_err = FALSE}, data is generated via:
-\deqn{y = err_fun(X, y_fun(X, ...), ...), where X = x_fun(...).}
+\deqn{y = err_fun(X, y_fun(X, ...), ...), where X = X_fun(...).}
 
 Note that while \code{err_fun()} is allowed to depend on both X and y, it is
 not necessary that \code{err_fun()} depend on X or y.
-
-If x_fun, y_fun, and err_fun have arguments of the same name, then use the
-prefix ".x_", ".y_", ".err_" in front of the argument name (passed via ...)
-to differentiate it for use in x_fun, y_fun, or err_fun, respectively.
-See the examples.
 }
 \examples{
 # generate X = 100 x 10 standard Gaussian, y = linear regression model
-sim_data <- xy_dgp_constructor(x_fun = MASS::mvrnorm, 
+sim_data <- xy_dgp_constructor(X_fun = MASS::mvrnorm, 
                                y_fun = generate_y_linear,
                                err_fun = rnorm, data_split = TRUE,
                                # shared dgp arguments
                                n = 100,
-                               # arguments specifically for x_fun
+                               # arguments specifically for X_fun
                                .x_mu = rep(0, 10), .x_Sigma = diag(10),
                                # arguments specifically for y_fun
                                .y_betas = rnorm(10), .y_return_support = TRUE,
                                # arguments specifically for err_fun
                                .err_sd = 1)
-# or alternatively, (since arguments of x_fun, y_fun, err_fun are unique, 
+# or alternatively, (since arguments of X_fun, y_fun, err_fun are unique, 
 # with the exception of `n`)
-sim_data <- xy_dgp_constructor(x_fun = MASS::mvrnorm, 
+sim_data <- xy_dgp_constructor(X_fun = MASS::mvrnorm, 
                                y_fun = generate_y_linear,
                                err_fun = rnorm, data_split = TRUE,
                                # shared dgp arguments
                                n = 100,
-                               # arguments specifically for x_fun
+                               # arguments specifically for X_fun
                                mu = rep(0, 10), Sigma = diag(10),
                                # arguments specifically for y_fun
                                betas = rnorm(10), return_support = TRUE,

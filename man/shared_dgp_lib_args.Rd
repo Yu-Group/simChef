@@ -30,7 +30,7 @@ sets according to \code{train_prop}.}
 
 \item{n}{Number of samples.}
 
-\item{p}{Number of features.}
+\item{p, .p}{Number of features.}
 
 \item{return_support}{Logical specifying whether or not to return a vector of
 the support column names. If \code{X} has no column names, then the indices

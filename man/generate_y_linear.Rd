@@ -33,7 +33,7 @@ generate_y_linear(
 the support column names. If \code{X} has no column names, then the indices
 of the support are used.}
 
-\item{...}{Other arguments to pass to err() to generate the error vector.}
+\item{...}{Additional arguments to pass to functions that generate betas, betas_unobs, and err. If the argument doesn't exist in one of the functions it is ignored. If two or more of the functions have an argument of the same name but with different values, then use one of the following prefixes in front of the argument name (passed via \code{...}) to differentiate it: .betas_, .betas_unobs_, or .err_. For additional details, see \code{generate_coef()} and \code{generate_errors()}}
 }
 \value{
 If \code{return_support = TRUE}, returns a list of two:

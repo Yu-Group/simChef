@@ -12,8 +12,6 @@ linear_gaussian_dgp(
   s_unobs = p_unobs,
   betas = NULL,
   betas_unobs = NULL,
-  betas_sd = 1,
-  betas_unobs_sd = 1,
   intercept = 0,
   err = NULL,
   data_split = FALSE,
@@ -41,10 +39,6 @@ positions i = \code{s_unobs} + 1, ..., \code{p_unobs}) are set to 0.}
 
 \item{betas_unobs}{Coefficient vector for unobserved design matrix. If a scalar is provided, the coefficient vector is constant. If \code{NULL} (default), entries in the coefficient vector are drawn iid from N(0, \code{betas_unobs_sd}^2). Can also be a function that generates the coefficient vector; see \code{generate_coef()}.}
 
-\item{betas_sd}{(Optional) SD of normal distribution from which to draw \code{betas}. Only used if \code{betas} argument is \code{NULL} or is a function in which case \code{betas_sd} is optionally passed to the function as \code{sd}; see \code{generate_coef()}.}
-
-\item{betas_unobs_sd}{(Optional) SD of normal distribution from which to draw \code{betas_unobs}. Only used if \code{betas_unobs} argument is \code{NULL} or is a function in which case \code{betas_unobs_sd} is optionally passed to the function as \code{sd}; see \code{generate_coef()}.}
-
 \item{intercept}{Scalar intercept term.}
 
 \item{err}{Function from which to generate simulated error vector. Default is
@@ -59,7 +53,7 @@ TRUE}.}
 \item{return_values}{Character vector indicating what objects to return in
 list. Elements in vector must be one of "X", "y", "support".}
 
-\item{...}{Other arguments to pass to err() to generate the error vector.}
+\item{...}{Additional arguments to pass to functions that generate X, U, y, betas, betas_unobs, and err. If the argument doesn't exist in one of the functions it is ignored. If two or more of the functions have an argument of the same name but with different values, then use one of the following prefixes in front of the argument name (passed via \code{...}) to differentiate it: .X_, .U_, .y_, .betas_, .betas_unobs_, or .err_. For additional details, see \code{generate_X_gaussian()}, \code{generate_y_linear()}, \code{generate_coef()}, and \code{generate_errors()}}
 }
 \value{
 A list of the named objects that were requested in

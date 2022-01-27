@@ -117,7 +117,10 @@ xy_dgp_constructor <- function(X_fun, y_fun, err_fun = NULL, add_err = TRUE,
 #' @param s_unobs Sparsity level of unobserved (omitted) features. Coefficients
 #'   corresponding to features after the \code{s_unobs} position (i.e.,
 #'   positions i = \code{s_unobs} + 1, ..., \code{p_unobs}) are set to 0.
-#' 
+#' @eval dots_doc(c("X", "U", "y", "betas", "betas_unobs", "err"), see_also =
+#'   c("generate_X_gaussian", "generate_y_linear", "generate_coef",
+#'   "generate_errors"))
+#'
 #' @inherit shared_dgp_lib_args return
 #' 
 #' @details Data is generated via: \deqn{y = intercept + betas %*% X + 
@@ -141,40 +144,63 @@ xy_dgp_constructor <- function(X_fun, y_fun, err_fun = NULL, add_err = TRUE,
 linear_gaussian_dgp <- function(n, p_obs = 0, p_unobs = 0, 
                                 s_obs = p_obs, s_unobs = p_unobs,
                                 betas = NULL, betas_unobs = NULL,
-                                betas_sd = 1, betas_unobs_sd = 1, 
                                 intercept = 0, err = NULL, 
                                 data_split = FALSE, train_prop = 0.5,
                                 return_values = c("X", "y", "support"),
                                 ...) {
   return_values <- match.arg(return_values, several.ok = TRUE)
-  
+
+  fun_args <- dots_to_fun_args(
+    prefix = c("X", "U", "y", "err", "betas", "betas_unobs"), ...
+  )
+  X_args_list <- fun_args$.X_args
+  U_args_list <- fun_args$.U_args
+  y_args_list <- fun_args$.y_args
+  err_args_list <- fun_args$.err_args
+  betas_args_list <- fun_args$.betas_args
+  betas_unobs_args_list <- fun_args$.betas_unobs_args
+  optional_args_list <- fun_args$.optional_args
+
   # simulate observed covariates
   if (p_obs != 0) {
-    X <- generate_X_gaussian(n = n, p = p_obs)
-    betas <- generate_coef(betas = betas, p = p_obs, s = s_obs, sd = betas_sd)
+    X <- R.utils::doCall(
+      generate_X_gaussian, n = n, p = p_obs,
+      alwaysArgs = X_args_list
+    )
+    betas <- R.utils::doCall(
+      generate_coef, .betas = betas, .p = p_obs, .s = s_obs,
+      args = c(betas_args_list, optional_args_list), .ignoreUnusedArgs = FALSE
+    )
   } else {
     X <- matrix(0, nrow = n, ncol = 1)
     betas <- 0
   }
-  
+
   # simulate unobserved covariates
   if (p_unobs != 0) {
-    U <- generate_X_gaussian(n = n, p = p_unobs)
-    betas_unobs <- generate_coef(betas = betas_unobs, 
-                                 p = p_unobs, s = s_unobs, sd = betas_unobs_sd,
-                                 betas_name = "betas_unobs")
+    U <- R.utils::doCall(
+      generate_X_gaussian, n = n, p = p_unobs,
+      alwaysArgs = U_args_list
+    )
+    betas_unobs <- R.utils::doCall(
+      generate_coef, .betas = betas_unobs, .p = p_unobs, .s = s_unobs,
+      args = c(betas_unobs_args_list, optional_args_list),
+      .ignoreUnusedArgs = FALSE
+    )
   } else {
     U <- matrix(0, nrow = n, ncol = 1)
     betas_unobs <- 0
   }
-  
+
   # simulate linear y
-  y <- generate_y_linear(
-    X = X, U = U, betas = betas, betas_unobs = betas_unobs, 
+  y <- R.utils::doCall(
+    generate_y_linear, X = X, U = U, betas = betas, betas_unobs = betas_unobs,
     intercept = intercept, err = err,
-    return_support = "support" %in% return_values, ...
+    return_support = "support" %in% return_values,
+    args = c(optional_args_list, y_args_list, err_args_list),
+    .ignoreUnusedArgs = FALSE
   )
-  
+
   if ("support" %in% return_values) {
     support <- y$support
     y <- y$y
@@ -182,7 +208,7 @@ linear_gaussian_dgp <- function(n, p_obs = 0, p_unobs = 0,
   out <- return_DGP_output(X = X, y = y, support = support,
                            data_split = data_split, train_prop = train_prop,
                            return_values = return_values)
-  
+
   return(out)
 }
 
@@ -270,11 +296,11 @@ correlated_linear_gaussian_dgp <- function(n, p_uncorr, p_corr,
   }
   
   # simulate betas_corr and betas_uncorr
-  betas_corr <- generate_coef(betas = betas_corr, p = p_corr, s = s_corr,
-                              sd = betas_corr_sd, betas_name = "betas_corr")
-  betas_uncorr <- generate_coef(betas = betas_uncorr, p = p_uncorr, 
-                                s = s_uncorr, sd = betas_uncorr_sd, 
-                                betas_name = "betas_uncorr")
+  betas_corr <- generate_coef(.betas = betas_corr, .p = p_corr, .s = s_corr,
+                              .betas_name = "betas_corr", sd = betas_corr_sd)
+  betas_uncorr <- generate_coef(.betas = betas_uncorr, .p = p_uncorr,
+                                .s = s_uncorr, betas_name = "betas_uncorr",
+                                sd = betas_uncorr_sd)
   
   X <- cbind(X_uncorr, X_corr)
   betas <- c(betas_uncorr, betas_corr)
@@ -328,7 +354,7 @@ logistic_gaussian_dgp <- function(n, p, s = p, betas = NULL, betas_sd = 1,
   X <- generate_X_gaussian(n = n, p = p)
   
   # simulate betas
-  betas <- generate_coef(betas = betas, p = p, s = s, sd = betas_sd)
+  betas <- generate_coef(.betas = betas, .p = p, .s = s, sd = betas_sd)
   
   # simulate linear y
   y <- generate_y_logistic(
@@ -408,11 +434,11 @@ correlated_logistic_gaussian_dgp <- function(n, p_uncorr, p_corr,
   }
   
   # simulate betas_corr and betas_uncorr
-  betas_corr <- generate_coef(betas = betas_corr, p = p_corr, s = s_corr,
-                              sd = betas_corr_sd, betas_name = "betas_corr")
-  betas_uncorr <- generate_coef(betas = betas_uncorr, p = p_uncorr, 
-                                s = s_uncorr, sd = betas_uncorr_sd, 
-                                betas_name = "betas_uncorr")
+  betas_corr <- generate_coef(.betas = betas_corr, .p = p_corr, .s = s_corr,
+                              .betas_name = "betas_corr", sd = betas_corr_sd)
+  betas_uncorr <- generate_coef(.betas = betas_uncorr, .p = p_uncorr, 
+                                .s = s_uncorr, betas_name = "betas_uncorr",
+                                sd = betas_uncorr_sd)
   
   X <- cbind(X_uncorr, X_corr)
   betas <- c(betas_uncorr, betas_corr)

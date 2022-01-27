@@ -86,7 +86,7 @@ dots_doc <- function(prefix = c("X", "U", "y", "err", "betas",
 #'   \code{NULL} which adds no error to the DGP.
 #' @param intercept Scalar intercept term.
 #' @param n Number of samples.
-#' @param p Number of features.
+#' @param p,.p Number of features.
 #' @param return_support Logical specifying whether or not to return a vector of
 #'   the support column names. If \code{X} has no column names, then the indices
 #'   of the support are used.
@@ -98,7 +98,7 @@ dots_doc <- function(prefix = c("X", "U", "y", "err", "betas",
 #' @param X Data matrix or data frame.
 #' @param y Response vector.
 #' @param ... Other arguments to pass to err() to generate the error vector.
-#'   
+#'
 #' @returns A list of the named objects that were requested in
 #'   \code{return_values}. See brief descriptions below.
 #' \describe{
@@ -107,7 +107,7 @@ dots_doc <- function(prefix = c("X", "U", "y", "err", "betas",
 #' \item{support}{A vector of feature indices indicating all features used in
 #'   the true support of the DGP.}
 #' }
-#' Note that if \code{data_split = TRUE} and "X", "y" 
+#' Note that if \code{data_split = TRUE} and "X", "y"
 #'   are in \code{return_values}, then the returned list also contains slots for
 #'   "Xtest" and "ytest".
 #'
@@ -115,78 +115,99 @@ dots_doc <- function(prefix = c("X", "U", "y", "err", "betas",
 NULL
 
 #' Helper function to generate a coefficient vector.
-#' 
+#'
 #' @description Generate a coefficient vector with the specified dimensions and
 #'   sparsity level.
-#' 
+#'
 #' @inheritParams shared_dgp_lib_args
-#' @param betas Coefficient vector or function to generate the coefficients. If
+#' @param .betas Coefficient vector or function to generate the coefficients. If
 #'   a scalar is provided, the coefficient vector is a constant vector. If
-#'   \code{NULL} (default), entries in the coefficient vector are drawn iid from
-#'   N(0, \code{sd}^2). If a function, must take the integer argument \code{p}
-#'   (and optionally \code{s}, \code{sd}, \code{betas_name}, and other
-#'   user-defined args from \code{...}) and return a numeric vector.
-#' @param s Sparsity level. Coefficients corresponding to features after the
+#'   \code{NULL} (default), \code{.s} non-zero entries in the coefficient vector
+#'   are drawn iid N(\code{mean}, \code{sd}), where \code{mean} and \code{sd}
+#'   can optionally be specified via \code{...} (default 0 and 1). If a
+#'   function, must take the integer argument \code{.s} (and optionally
+#'   \code{.p}, \code{.betas_name}, and other user-defined args from \code{...})
+#'   and return a numeric vector of length 1, \code{.s}, or \code{.p}.
+#' @param .s Sparsity level. Coefficients corresponding to features after the
 #'   \code{s}th position (i.e., positions i = \code{s} + 1, ..., \code{p}) are
 #'   set to 0.
-#' @param sd (Optional) SD of normal distribution from which to draw
-#'   \code{betas}. Only used if \code{betas} argument is \code{NULL}.
-#' @param betas_name Name of coefficient variable to use in error message.
-#' @param ... Additional user arguments to pass to \code{betas} when
-#'   \code{betas} is a function.
-#' 
-#' @returns A vector of length \code{p}.
-#' 
+#' @param .betas_name Name of coefficient variable to use in error message.
+#' @param ... Additional user arguments to pass to \code{.betas} when
+#'   \code{.betas} is a function.
+#'
+#' @returns A vector of length \code{.p}.
+#'
 #' @examples
 #' # generate beta ~ N(0, 1) of dimension 10
-#' beta <- generate_coef(p = 10)
+#' beta <- generate_coef(.p = 10)
+#'
+#' # generate beta ~ N(1, 2) of dimension 10
+#' beta <- generate_coef(.p = 10, mean = 1, sd = 2)
 #' 
 #' # generate beta = [1, 1, 0, 0, 0]
-#' beta <- generate_coef(betas = 1, p = 5, s = 2)
+#' beta <- generate_coef(.betas = 1, .p = 5, .s = 2)
 #' 
 #' # generate beta = [1, 2, 3]
-#' beta <- generate_coef(betas = 1:3, p = 3)
+#' beta <- generate_coef(.betas = 1:3, .p = 3)
 #' 
 #' @export
-generate_coef <- function(betas = NULL, p = 1, s = p, sd = 1,
-                          betas_name = "betas", ...) {
-  if (s > p) {
-    stop(sprintf("Got s=%s, but should be less than or equal to p=%s.", s, p))
+generate_coef <- function(.betas = NULL, .p = 1, .s = .p, .betas_name = "betas",
+                          ...) {
+  if (.s > .p) {
+    stop(sprintf("Got s=%s, but should be less than or equal to p=%s.", .s, .p))
   }
-  if (is.function(betas)) {
-    betas <- R.utils::doCall(betas, ...,
-                             args = list(s=s, sd=sd, betas_name=betas_name),
-                             alwaysArgs = list(p=p))
-    if (!is.numeric(betas)) {
+  if (!is.numeric(.betas)) {
+    fun_args <- dots_to_fun_args(
+      prefix = .betas_name, ...
+    )
+    betas_args_list <- fun_args[[paste0(".", .betas_name, "_args")]]
+    optional_args_list <- c(
+      fun_args$.optional_args,
+      list(.p = .p, .betas_name = .betas_name)
+    )
+
+    if (is.null(.betas)) {
+      .betas <- stats::rnorm
+      betas_args_list$n <- .s
+    } else if (!is.function(.betas)) {
+      msg <- sprintf(
+        paste(
+          "%s must be NULL, a function that returns a numeric vector,",
+          "or a fixed numeric vector, but instead had class: %s."
+        ),
+        .betas_name, paste0(class(.betas), collapse = ", ")
+      )
+      stop(msg)
+    } else {
+      # user passed a custom function, which must accept .s argument
+      betas_args_list$.s <- .s
+    }
+
+    .betas <- R.utils::doCall(
+      .betas,
+      args = optional_args_list,
+      alwaysArgs = betas_args_list
+    )
+    if (!is.numeric(.betas)) {
       msg <- sprintf(
         paste("%s is a function but didn't return a numeric vector.",
               "Instead, returned object with class(es): %s."),
-        betas_name, paste0(class(betas), collapse=", ")
+        .betas_name, paste0(class(.betas), collapse=", ")
       )
       stop(msg)
     }
   }
-  if (is.numeric(betas)) {
-    if (length(betas) == 1 && p > 1) {
-      betas <- rep(betas, length.out = min(s, p))
-    } else if (length(betas) != p) {
-      stop(sprintf("%s must have length 1 or %s.", betas_name, p))
+  if (is.numeric(.betas)) {
+    if (length(.betas) == 1 && .p > 1) {
+      .betas <- rep(.betas, length.out = min(.s, .p))
+    } else if (!length(.betas) %in%  c(.s, .p)) {
+      stop(sprintf("%s must have length 1, %s, or %s.", .betas_name, .s, .p))
     }
-  } else if (!is.null(betas)) {
-    msg <- sprintf(
-      paste("%s must be NULL, a function that returns a numeric vector,",
-            "or a fixed numeric vector, but instead had class: %s."),
-      betas_name, paste0(class(betas), collapse=", ")
-    )
-    stop(msg)
-  } else {
-    # simulate betas from gaussian by default
-    betas <- stats::rnorm(min(s, p), mean = 0, sd = sd)
   }
-  if (length(betas) != p) {
-      betas <- c(betas, rep(0, p - length(betas)))
+  if (length(.betas) != .p) {
+      .betas <- c(.betas, rep(0, .p - length(.betas)))
   }
-  return(betas)
+  return(.betas)
 }
 
 #' Developer function to return consistent outputs in DGP.

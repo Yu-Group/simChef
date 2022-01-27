@@ -6,6 +6,8 @@
 #' @inheritParams shared_dgp_lib_args
 #' @param X Design data matrix of observed variables.
 #' @param U Design data matrix of unobserved (omitted) variables.
+#' @eval dots_doc(prefix = c("betas", "betas_unobs", "err"), see_also =
+#'   c("generate_coef", "generate_errors"))
 #' 
 #' @returns If \code{return_support = TRUE}, returns a list of two:
 #' \describe{
@@ -32,19 +34,38 @@ generate_y_linear <- function(X, U, betas = NULL, betas_unobs = NULL,
                               ...) {
   n <- nrow(X)
   p <- ncol(X)
-  
+
   if (missing(U)) {
     U <- matrix(0, nrow = n, ncol = 1)
   }
-  
-  betas <- generate_coef(betas = betas, p = p)
-  betas_unobs <- generate_coef(betas = betas_unobs, p = ncol(U),
-                               betas_name = "betas_unobs")
-  
-  eps <- generate_errors(err = err, n = n, X = X, ...)
-  
-  y <- intercept + c(as.matrix(U) %*% betas_unobs + as.matrix(X) %*% betas + eps)
-  
+
+  fun_args <- dots_to_fun_args(prefix = c("err", "betas", "betas_unobs"), ...)
+  err_args_list <- fun_args$.err_args
+  betas_args_list <- fun_args$.betas_args
+  betas_unobs_args_list <- fun_args$.betas_unobs_args
+  optional_args_list <- fun_args$.optional_args
+
+  betas <- R.utils::doCall(
+    generate_coef, .betas = betas, .p = p,
+    args = c(betas_args_list, optional_args_list), .ignoreUnusedArgs = FALSE
+  )
+
+  betas_unobs <- R.utils::doCall(
+    generate_coef,
+    .betas = betas_unobs, .p = ncol(U), .betas_name = "betas_unobs",
+    args = c(betas_unobs_args_list, optional_args_list),
+    .ignoreUnusedArgs = FALSE
+  )
+
+  eps <- R.utils::doCall(
+    generate_errors, err = err, n = n, X = X,
+    args = c(optional_args_list, err_args_list), .ignoreUnusedArgs = FALSE
+  )
+
+  y <- intercept + c(
+    as.matrix(U) %*% betas_unobs + as.matrix(X) %*% betas + eps
+  )
+
   if (return_support) {
     support <- which(betas != 0)
     return(list(y = y, support = support))
@@ -77,7 +98,7 @@ generate_y_logistic <- function(X, betas = 0, intercept = 0,
   n <- nrow(X)
   p <- ncol(X)
   
-  betas <- generate_coef(betas = betas, p = p)
+  betas <- generate_coef(.betas = betas, .p = p)
   
   probs <- 1 / (1 + exp(-(intercept + as.matrix(X) %*% betas)))
   y <- as.factor(
@@ -159,7 +180,7 @@ generate_y_lss <- function(X, k, s, thresholds = 1, signs = 1,
     }
   }
   
-  betas <- generate_coef(betas = betas, p = s)
+  betas <- generate_coef(.betas = betas, .p = s)
   if (!is.matrix(thresholds)) {
     thresholds <- matrix(thresholds, nrow = s, ncol = k)
   }

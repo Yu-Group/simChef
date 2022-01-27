@@ -1,10 +1,10 @@
 test_that("Functions in the DGP library work properly", {
   ## xy_dgp_constructor
-  sim_data <- xy_dgp_constructor(x_fun = MASS::mvrnorm,
+  sim_data <- xy_dgp_constructor(X_fun = MASS::mvrnorm,
                                  y_fun = generate_y_linear,
                                  err_fun = rnorm, data_split = TRUE,
                                  n = 100,
-                                 .x_mu = rep(0, 10), .x_Sigma = diag(10),
+                                 .X_mu = rep(0, 10), .X_Sigma = diag(10),
                                  .y_betas = rnorm(10), .y_return_support = TRUE,
                                  .err_sd = 1)
   expect_equal(names(sim_data), c("X", "Xtest", "y", "ytest", "support"))
@@ -14,7 +14,7 @@ test_that("Functions in the DGP library work properly", {
   expect_equal(dim(sim_data$Xtest), c(50, 10))
   expect_equal(length(sim_data$ytest), 50)
   
-  sim_data <- xy_dgp_constructor(x_fun = MASS::mvrnorm,
+  sim_data <- xy_dgp_constructor(X_fun = MASS::mvrnorm,
                                  y_fun = generate_y_linear,
                                  err_fun = rnorm, data_split = TRUE,
                                  n = 100,
@@ -29,11 +29,11 @@ test_that("Functions in the DGP library work properly", {
   expect_equal(length(sim_data$ytest), 50)
 
   expect_error(xy_dgp_constructor(
-    x_fun = MASS::mvrnorm, y_fun = generate_y_linear, .y_ = "bad"
+    X_fun = MASS::mvrnorm, y_fun = generate_y_linear, .y_ = "bad"
   ))
-  
+
   ## linear_gaussian_dgp
-  sim_data <- linear_gaussian_dgp(n = 100, p_obs = 10, s_obs = 2, betas_sd = 1,
+  sim_data <- linear_gaussian_dgp(n = 100, p_obs = 10, s_obs = 2,
                                   err = rnorm, sd = .5)
   expect_equal(names(sim_data), c("X", "y", "support"))
   expect_equal(sim_data$support, 1:2)
@@ -41,8 +41,8 @@ test_that("Functions in the DGP library work properly", {
   expect_equal(length(sim_data$y), 100)
 
   sim_data <- linear_gaussian_dgp(n = 100, p_obs = 10, p_unobs = 2,
-                                  betas_sd = .5, betas_unobs = c(-1, 0),
-                                  err = rt, df = 1)
+                                  betas_unobs = c(-1, 0),
+                                  err = rt, df = 1, .betas_sd = .5)
   expect_equal(names(sim_data), c("X", "y", "support"))
   expect_equal(sim_data$support, 1:10)
   expect_equal(dim(sim_data$X), c(100, 10))
@@ -258,56 +258,66 @@ test_that("Functions in the DGP utilities library work properly", {
 
 test_that("generate_coef works as expected", {
 
-  expect_equal(generate_coef(1, p = 5, s = 2),
+  expect_equal(generate_coef(1, .p = 5, .s =  2),
                c(1, 1, 0, 0, 0))
-  expect_equal(generate_coef(1:3, p = 3),
+  expect_equal(generate_coef(1:3, .p = 3),
                c(1, 2, 3))
-  expect_equal(generate_coef(function(p) { p }), 1)
-  expect_equal(generate_coef(function(p) { p }, p=2), c(2, 2))
-  expect_equal(generate_coef(function(p) { p }, p=2, s=1), c(2, 0))
+  expect_equal(generate_coef(function(.s) .s), 1)
+  expect_equal(generate_coef(function(.s) .s, .p = 3), c(3, 3, 3))
+  expect_equal(generate_coef(function(.s) .s, .s = 2, .p = 3), c(2, 2, 0))
 
   set.seed(123)
-  betas1 <- stats::rnorm(n=10)
+  betas1 <- stats::rnorm(n = 10)
   set.seed(123)
-  betas2 <- stats::rnorm(n=10, sd=2)
+  betas2 <- stats::rnorm(n = 10, sd = 2)
   set.seed(123)
-  expect_equal(generate_coef(p=10), betas1)
+  betas3 <- stats::rnorm(n = 10, mean = 1)
   set.seed(123)
-  expect_equal(generate_coef(p=10, sd=2), betas2)
+  expect_equal(generate_coef(.p = 10), betas1)
   set.seed(123)
-  expect_equal(generate_coef(p=10, s=5), c(betas1[1:5], rep(0, 5)))
+  expect_equal(generate_coef(.p = 10, sd = 2), betas2)
   set.seed(123)
-  expect_equal(generate_coef(p=10, s=5, sd=2), c(betas2[1:5], rep(0, 5)))
+  expect_equal(generate_coef(.p = 10, .s =  5), c(betas1[1:5], rep(0, 5)))
+  set.seed(123)
+  expect_equal(
+    generate_coef(.p = 10, .s = 5, sd = 2),
+    c(betas2[1:5], rep(0, 5))
+  )
+  set.seed(123)
+  expect_equal(
+    generate_coef(.p = 10, .s = 5, mean = 1),
+    c(betas3[1:5], rep(0, 5))
+  )
 
-  betas_fun1 <- function(p, s) {
-    return(c(stats::rnorm(s), rep(0, p - s)))
+  betas_fun1 <- function(.p, .s) {
+    return(c(stats::rnorm(.s), rep(0, .p - .s)))
   }
-  betas_fun2 <- function(p, s, sd) {
-    return(c(stats::rnorm(s, sd=sd), rep(0, p - s)))
+  betas_fun2 <- function(.p, .s, sd = 1) {
+    return(c(stats::rnorm(.s, sd = sd), rep(0, .p - .s)))
   }
-  betas_fun3 <- function(p, s, shift) {
-    return(c(shift + stats::rnorm(s), rep(0, p - s)))
+  betas_fun3 <- function(.p, .s, shift) {
+    return(c(shift + stats::rnorm(.s), rep(0, .p - .s)))
   }
 
   set.seed(123)
-  expect_equal(generate_coef(betas_fun1, p=10), betas1)
+  expect_equal(generate_coef(betas_fun1, .p = 10), betas1)
   set.seed(123)
-  expect_equal(generate_coef(betas_fun1, p=10, s=5),
+  expect_equal(generate_coef(betas_fun1, .p = 10, .s =  5),
                c(betas1[1:5], rep(0, 5)))
   set.seed(123)
-  expect_equal(generate_coef(betas_fun2, p=10, s=5),
+  expect_equal(generate_coef(betas_fun2, .p = 10, .s =  5),
                c(betas1[1:5], rep(0, 5)))
   set.seed(123)
-  expect_equal(generate_coef(betas_fun2, p=10, s=5, sd=2),
+  expect_equal(generate_coef(betas_fun2, .p = 10, .s =  5, sd = 2),
                c(betas2[1:5], rep(0, 5)))
   set.seed(123)
-  expect_equal(generate_coef(betas_fun3, p=10, s=5, shift=3),
+  expect_equal(generate_coef(betas_fun3, .p = 10, .s =  5, shift = 3),
                c(3 + betas1[1:5], rep(0, 5)))
 
-  expect_error(generate_coef(p = 1, s = 2))
-  expect_error(generate_coef(function(p, s) return("nope")))
-  expect_error(generate_coef(function(p, s) return(rep(0, s)), p=3, s=2))
-  expect_error(generate_coef(betas=TRUE))
+  expect_error(generate_coef(.p = 1, .s =  2))
+  expect_error(generate_coef(function(.p, .s) return("nope")))
+  expect_error(generate_coef(function(.p, .s) return(rep(0, s)), .p = 3, .s =  2))
+  expect_error(generate_coef(.betas = TRUE))
 })
 
 test_that("dots_to_fun_args works as expected", {
