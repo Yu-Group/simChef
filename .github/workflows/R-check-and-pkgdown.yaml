@@ -37,6 +37,7 @@ jobs:
   # Check R build
   R-CMD-check:
     needs: Knit-Vignette
+    if: ${{ always() }}
     runs-on: ${{ matrix.config.os }}
 
     name: ${{ matrix.config.os }} (${{ matrix.config.r }})
@@ -87,6 +88,7 @@ jobs:
   # Build website
   pkgdown:
     runs-on: ubuntu-latest
+    needs: [Knit-Vignette, R-CMD-check]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
