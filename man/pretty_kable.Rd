@@ -7,7 +7,8 @@
 pretty_kable(
   X,
   digits = 3,
-  sigfig = T,
+  sigfig = TRUE,
+  escape = FALSE,
   align = "c",
   caption = "",
   format = c("html", "latex"),
@@ -35,6 +36,10 @@ pretty_kable(
 \item{sigfig}{Logical. If \code{TRUE}, \code{digits} refers to the number of
 significant figures. If \code{FALSE}, \code{digits} refers to the number of
 decimal places.}
+
+\item{escape}{Boolean; whether to escape special characters when producing
+HTML or LaTeX tables. When escape = FALSE, you have to make sure that
+special characters will not trigger syntax errors in LaTeX or HTML.}
 
 \item{align}{A character vector indicating the column alignment, e.g., 'c'.
 For further details, see \code{\link[knitr:kable]{knitr::kable()}}.}
