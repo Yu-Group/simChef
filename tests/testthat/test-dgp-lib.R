@@ -393,6 +393,21 @@ test_that("dots_to_fun_args works as expected", {
     )
   )
 
+  expect_equal(
+    dots_to_fun_args(.betas_unobs_x = c(4, 5, 6), .betas_x = c(1, 2, 3)),
+    list(
+      .X_args = NULL,
+      .U_args = NULL,
+      .y_args = NULL,
+      .err_args = NULL,
+      .betas_args = list(x = c(1, 2, 3)),
+      .betas_unobs_args = list(x = c(4, 5, 6)),
+      .betas_corr_args = NULL,
+      .betas_uncorr_args = NULL,
+      .optional_args = NULL
+    )
+  )
+
   expect_error(dots_to_fun_args(c("x", "y"), "arg1"))
   expect_error(dots_to_fun_args(c("x", "y"), .y_ = "y1"))
 })

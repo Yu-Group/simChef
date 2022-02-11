@@ -341,18 +341,17 @@ dots_to_fun_args <- function(prefix = c("X", "U", "y", "err", "betas",
         caller_name
       ))
     }
-    for (arg_name in names(args_list)) {
-      if (!startsWith(arg_name, ".")) {
-        next
-      }
-      for (prefix in prefixes) {
-        if (startsWith(arg_name, prefix)) {
-          out_list_name <- paste0(prefix, "args")
-          root_arg_name <- substr(arg_name, nchar(prefix) + 1, nchar(arg_name))
-          out_list[[out_list_name]][[root_arg_name]] <- args_list[[arg_name]]
-          args_list[[arg_name]] <- NULL
-          break
-        }
+    for (arg_name in names(args_list)[startsWith(names(args_list), ".")]) {
+      ## find prefix that leads to longest match at beginning of arg_name
+      prefixes_filtered <- prefixes[sapply(prefixes, function(pre) {
+        startsWith(arg_name, pre)
+      })]
+      prefix <- prefixes_filtered[which.max(nchar(prefixes_filtered))]
+      if (length(prefix) > 0 && nchar(prefix) < nchar(arg_name)) {
+        out_list_name <- paste0(prefix, "args")
+        root_arg_name <- substr(arg_name, nchar(prefix) + 1, nchar(arg_name))
+        out_list[[out_list_name]][[root_arg_name]] <- args_list[[arg_name]]
+        args_list[[arg_name]] <- NULL
       }
     }
     if (length(args_list) > 0) {
