@@ -30,8 +30,8 @@ jobs:
         run: |
           Rscript -e 'rmarkdown::render("vignettes/simChef.Rmd")'
           rm vignettes/simChef.html
-          git config --local user.name "$GITHUB_ACTOR"
-          git config --local user.email "$GITHUB_ACTOR@users.noreply.github.com"
+          git config --local user.name "GitHub Actions"
+          git config --local user.email "actions@users.noreply.github.com"
           git add vignettes/results/*
           git commit -m "Update vignette outputs"
           git push
