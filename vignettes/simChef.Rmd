@@ -30,7 +30,7 @@ for (fname in list.files(file.path("results", "Linear Regression Experiment"),
 
 # Overview
 
-The goal of `simChef` is to seamlessly and efficiently run simulation experiments using a simple grammar. The results of these simulation experiments can also be conveniently viewed in an organized and interactive browser (or html file) (e.g., [here](linear_regression_output.html)). The basic usage of `simChef` can be summarized as follows:
+The goal of `simChef` is to seamlessly and efficiently run simulation experiments using a simple grammar. The results of these simulation experiments can also be conveniently viewed in an organized and interactive browser (or html file) (e.g., [here](../linear_regression_output.html)). The basic usage of `simChef` can be summarized as follows:
 
 1. Create individual parts of the simulation experiment recipe
     a. Create DGP(s) (data-generating processes) via `create_dgp()`
@@ -262,7 +262,18 @@ Finally, we can easily visualize all results from the simulation experiment in a
 create_rmd(experiment, open = FALSE)
 ```
 
-The results can be found [here](linear_regression_base_output.html).
+```{r echo = FALSE, warning = FALSE, message = FALSE, results = "hide"}
+# copy html output to vignettes/results/example-html-outputs folder for website
+if (!dir.exists(file.path("results", "example-html-outputs"))) {
+  dir.create(file.path("results", "example-html-outputs"), recursive = TRUE)
+}
+file.copy(from = file.path(experiment$get_save_dir(), 
+                           paste0(experiment$name, ".html")),
+          to = file.path("results", "example-html-outputs", 
+                         "linear_regression_base_output.html"))
+```
+
+The results can be found [here](../linear_regression_base_output.html).
 
 Note that if the documentation template has not yet been created for `experiment` (e.g., via `create_doc_template(experiment)`), then `create_rmd()` will automatically create the documentation template for the user to fill out. Again, we highly encourage practitioners to document their simulation experiments in the spirit of transparency and reproducibility.
 
@@ -418,7 +429,18 @@ Equivalently, we can create the same R Markdown report summary by directly speci
 create_rmd(save_dir = experiment$get_save_dir(), open = FALSE)
 ```
 
-The results can be found [here](linear_regression_output.html). 
+```{r echo = FALSE, warning = FALSE, message = FALSE, results = "hide"}
+# copy html output to vignettes/results/example-html-outputs folder for website
+if (!dir.exists(file.path("results", "example-html-outputs"))) {
+  dir.create(file.path("results", "example-html-outputs"), recursive = TRUE)
+}
+file.copy(from = file.path(experiment$get_save_dir(), 
+                           paste0(experiment$name, ".html")),
+          to = file.path("results", "example-html-outputs", 
+                         "linear_regression_output.html"))
+```
+
+The results can be found [here](../linear_regression_output.html). 
 
 In addition to showing all results under the root results directory, `create_rmd()` will automatically generate a blank documentation template for every `DGP()`, `Method()`, `Evaluator()`, and `Visualizer()` found in any one of the `Experiments` under the root results directory. If one would like to generate the documentation template but not create the R Markdown report, see `create_doc_template()`.
 

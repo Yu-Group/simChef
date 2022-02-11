@@ -166,3 +166,6 @@ reference:
       - plot_eval_summary
       - plot_fit_results
       - list_col_to_chr
+template:
+  assets: vignettes/results/example-html-outputs
+  
