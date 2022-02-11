@@ -143,13 +143,19 @@ NULL
 #'
 #' # generate beta ~ N(1, 2) of dimension 10
 #' beta <- generate_coef(.p = 10, mean = 1, sd = 2)
-#' 
+#'
 #' # generate beta = [1, 1, 0, 0, 0]
 #' beta <- generate_coef(.betas = 1, .p = 5, .s = 2)
-#' 
+#'
 #' # generate beta = [1, 2, 3]
 #' beta <- generate_coef(.betas = 1:3, .p = 3)
-#' 
+#'
+#' # use a function to generate beta
+#' beta_fun <- function(.s, df) {
+#'   return(rt(n = .s, df = df))
+#' }
+#' beta <- generate_coef(.betas = beta_fun, .p = 10, .s = 3, df = 10)
+#'
 #' @export
 generate_coef <- function(.betas = NULL, .p = 1, .s = .p, .betas_name = "betas",
                           ...) {
