@@ -165,7 +165,7 @@ linear_gaussian_dgp <- function(n, p_obs = 0, p_unobs = 0,
   if (p_obs != 0) {
     X <- R.utils::doCall(
       generate_X_gaussian, n = n, p = p_obs,
-      alwaysArgs = X_args_list
+      alwaysArgs = X_args_list, args = optional_args_list
     )
     betas <- R.utils::doCall(
       generate_coef, .betas = betas, .p = p_obs, .s = s_obs,
@@ -180,7 +180,7 @@ linear_gaussian_dgp <- function(n, p_obs = 0, p_unobs = 0,
   if (p_unobs != 0) {
     U <- R.utils::doCall(
       generate_X_gaussian, n = n, p = p_unobs,
-      alwaysArgs = U_args_list
+      alwaysArgs = U_args_list, args = optional_args_list
     )
     betas_unobs <- R.utils::doCall(
       generate_coef, .betas = betas_unobs, .p = p_unobs, .s = s_unobs,
@@ -192,12 +192,19 @@ linear_gaussian_dgp <- function(n, p_obs = 0, p_unobs = 0,
     betas_unobs <- 0
   }
 
+  eps <- R.utils::doCall(
+    generate_errors,
+    err = err, n = n, X = X,
+    args = c(err_args_list, optional_args_list),
+    .ignoreUnusedArgs = FALSE
+  )
+
   # simulate linear y
   y <- R.utils::doCall(
     generate_y_linear, X = X, U = U, betas = betas, betas_unobs = betas_unobs,
-    intercept = intercept, err = err,
+    intercept = intercept, err = eps,
     return_support = "support" %in% return_values,
-    args = c(optional_args_list, y_args_list, err_args_list),
+    args = c(y_args_list, optional_args_list),
     .ignoreUnusedArgs = FALSE
   )
 

@@ -47,7 +47,7 @@ test_that("Functions in the DGP library work properly", {
   expect_equal(sim_data$support, 1:10)
   expect_equal(dim(sim_data$X), c(100, 10))
   expect_equal(length(sim_data$y), 100)
-  
+
   ## correlated_linear_gaussian_dgp
   sim_data <- correlated_linear_gaussian_dgp(n = 100, p_uncorr = 0, p_corr = 10,
                                              s_corr = 2, corr = 0.7,
@@ -219,7 +219,17 @@ test_that("Functions in the DGP error library work properly", {
   }
   errs <- generate_errors(err = err_fun, n = 100, rho = 0.75)
   expect_equal(length(errs), 100)
-  
+
+  errs <- generate_errors(1, n = 3)
+  expect_equal(errs, rep(1, 3))
+  errs <- generate_errors(1:3, n = 3)
+  expect_equal(errs, 1:3)
+
+  # check errors
+  expect_error(generate_errors())
+  expect_error(generate_errors(err = "nope", n = 100))
+  expect_error(generate_errors(err = 1:3, n = 100))
+
   # check other common error functions
   errs <- ar1_errors(n = 100, rho = 0.7)
   expect_equal(length(errs), 100)

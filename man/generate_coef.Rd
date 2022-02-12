@@ -47,4 +47,10 @@ beta <- generate_coef(.betas = 1, .p = 5, .s = 2)
 # generate beta = [1, 2, 3]
 beta <- generate_coef(.betas = 1:3, .p = 3)
 
+# use a function to generate beta
+beta_fun <- function(.s, df) {
+  return(rt(n = .s, df = df))
+}
+beta <- generate_coef(.betas = beta_fun, .p = 10, .s = 3, df = 10)
+
 }

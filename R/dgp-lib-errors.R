@@ -51,8 +51,17 @@ generate_errors <- function(err = NULL, n, X, ...) {
     } else {
       eps <- R.utils::doCall(err, n = n, ...)
     }
+  } else if (is.numeric(err)) {
+    if (length(err) == 1) {
+      eps <- rep(err, n)
+    } else if (length(err) == n) {
+      eps <- err
+    } else {
+      stop("When err is numeric it must have the same length as the data.",
+           call. = FALSE)
+    }
   } else {
-    stop("The argument err must either be NULL or a function.", 
+    stop("The argument err must either be NULL, a function, or numeric.",
          call. = FALSE)
   }
   return(eps)
