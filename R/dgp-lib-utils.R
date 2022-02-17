@@ -85,7 +85,7 @@ dots_doc <- function(prefix = c("X", "U", "y", "err", "betas",
 #' @param err Function from which to generate simulated error vector. Default is
 #'   \code{NULL} which adds no error to the DGP.
 #' @param intercept Scalar intercept term.
-#' @param n Number of samples.
+#' @param n,.n Number of samples.
 #' @param p,.p Number of features.
 #' @param return_support Logical specifying whether or not to return a vector of
 #'   the support column names. If \code{X} has no column names, then the indices
@@ -123,13 +123,11 @@ NULL
 #' @param .betas Coefficient vector or function to generate the coefficients. If
 #'   a scalar is provided, the coefficient vector is a constant vector. If
 #'   \code{NULL} (default), \code{.s} non-zero entries in the coefficient vector
-#'   are drawn iid N(\code{mean}, \code{sd}), where \code{mean} and \code{sd}
-#'   can optionally be specified via \code{...} (default 0 and 1). If a
-#'   function, must take one or more of \code{n}, \code{.s}, or \code{.p}, and
-#'   can optionally take \code{.betas_name}, along with other user-defined args
-#'   from \code{...}) and must return a numeric vector of length 1, \code{.s},
-#'   or \code{.p}. If the function take \code{n} but not \code{.s} or \code{.p},
-#'   then \code{.s} is passed as \code{n}.
+#'   are equal to 0.5. If a function, must take one or more of \code{n},
+#'   \code{.s}, or \code{.p}, and can optionally take \code{.betas_name}, along
+#'   with other user-defined args from \code{...}) and must return a numeric
+#'   vector of length 1, \code{.s}, or \code{.p}. If the function take \code{n}
+#'   but not \code{.s} or \code{.p}, then \code{.s} is passed as \code{n}.
 #' @param .s Sparsity level. Coefficients corresponding to features after the
 #'   \code{s}th position (i.e., positions i = \code{s} + 1, ..., \code{p}) are
 #'   set to 0.
@@ -140,11 +138,11 @@ NULL
 #' @returns A vector of length \code{.p}.
 #'
 #' @examples
-#' # generate beta ~ N(0, 1) of dimension 10
+#' # generate constant beta = 0.5 of dimension 10
 #' beta <- generate_coef(.p = 10)
 #'
 #' # generate beta ~ N(1, 2) of dimension 10
-#' beta <- generate_coef(.p = 10, mean = 1, sd = 2)
+#' beta <- generate_coef(rnorm, .p = 10, mean = 1, sd = 2)
 #'
 #' # generate beta = [1, 1, 0, 0, 0]
 #' beta <- generate_coef(.betas = 1, .p = 5, .s = 2)
@@ -168,10 +166,9 @@ generate_coef <- function(.betas = NULL, .p = 1, .s = .p, .betas_name = "betas",
     stop(sprintf("Got s=%s, but should be less than or equal to p=%s.", .s, .p))
   }
   if (is.null(.betas)) {
-    .betas <- stats::rnorm
-  }
-  if (is.function(.betas)) {
-    # user passed a custom function, which must take n, .s, or .p
+    .betas <- rep(0.5, .s)
+  } else if (is.function(.betas)) {
+    # .betas is a function, which must take n, .s, or .p
     args_intersect <- intersect(c("n", ".s", ".p"), formalArgs(.betas))
     if (length(args_intersect) == 0) {
       msg <- paste0(
@@ -263,18 +260,18 @@ return_DGP_output <- function(X, y, support, data_split, train_prop,
 }
 
 #' Helper function to split data into training and test sets
-#' 
+#'
 #' @inheritParams shared_dgp_lib_args
 #' @param train_prop Proportion of data in training set.
-#' 
+#'
 #' @returns A list of four: "X", "y", "Xtest", and "ytest" containing the
 #'   training data, training response, test data, and test response,
 #'   respectively.
-#' 
+#'
 #' @keywords internal
 split_data <- function(X, y, train_prop = 0.5) {
   n <- nrow(X)
-  train_ids <- sample(1:n, size = round(n * train_prop), replace = F)
+  train_ids <- sample(seq(n), size = round(n * train_prop), replace = FALSE)
   out <- list(X = X[train_ids, , drop = FALSE], y = y[train_ids],
               Xtest = X[-train_ids, , drop = FALSE], ytest = y[-train_ids])
   return(out)
@@ -363,4 +360,17 @@ dots_to_fun_args <- function(prefix = c("X", "U", "y", "err", "betas",
     }
   }
   return(out_list)
+}
+
+#'
+#' @keywords internal
+do_call <- function(.fun, ..., args = NULL, always_args = NULL) {
+  if ("..." %in% formalArgs(.fun)) {
+    R.utils::doCall(
+      .fun, ..., args = args, alwaysArgs = always_args,
+      .ignoreUnusedArgs = FALSE
+    )
+  } else {
+    R.utils::doCall(.fun, ..., args = args, alwaysArgs = always_args)
+  }
 }

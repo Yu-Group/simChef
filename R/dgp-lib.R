@@ -5,14 +5,16 @@
 #'   y, and the additive error term.
 #'
 #' @inheritParams shared_dgp_lib_args
-#' @param X_fun Function to generate X data.
-#' @param y_fun Function to generate y data.
-#' @param err_fun Function to generate error/noise data. Default \code{NULL} 
+#' @param X_fun Function to generate X data. Must take an argument \code{n} or
+#'   \code{.n} which determines the number of observations to generate.
+#' @param y_fun Function to generate y data. Must take an argument \code{X}
+#'   which accepts the result from \code{X_fun}.
+#' @param err_fun Function to generate error/noise data. Default \code{NULL}
 #'   adds no error to the output of \code{y_fun()}.
-#' @param add_err Logical. If \code{TRUE} (default), add result of 
-#'   \code{err_fun()} to result of \code{y_fun()} to obtain the simulated 
-#'   response vector. If \code{FALSE}, return \code{err_fun(y_fun(...), ...)} as 
-#'   the simulated response vector. Note that \code{add_err = TRUE} will return 
+#' @param add_err Logical. If \code{TRUE} (default), add result of
+#'   \code{err_fun()} to result of \code{y_fun()} to obtain the simulated
+#'   response vector. If \code{FALSE}, return \code{err_fun(y_fun(...), ...)} as
+#'   the simulated response vector. Note that \code{add_err = TRUE} will return
 #'   an error for categorical responses \code{y}.
 #' @eval dots_doc(prefix = c("X", "y", "err"))
 #' 
@@ -56,47 +58,51 @@
 #'                                sd = 1)
 #'
 #' @export
-xy_dgp_constructor <- function(X_fun, y_fun, err_fun = NULL, add_err = TRUE,
+xy_dgp_constructor <- function(n, X_fun, y_fun, err_fun = NULL, add_err = TRUE,
                                data_split = FALSE, train_prop = 0.5,
-                               return_values = c("X", "y", "support"),
-                               ...) {
+                               return_values = c("X", "y", "support"), ...) {
   return_values <- match.arg(return_values, several.ok = TRUE)
 
-  fun_args <- dots_to_fun_args(fun_prefix = c("X", "y", "err"), ...)
+  fun_args <- dots_to_fun_args(prefix = c("X", "y", "err"), ...)
   X_args_list <- fun_args$.X_args
   y_args_list <- fun_args$.y_args
   err_args_list <- fun_args$.err_args
-  args_list <- fun_args$.optional_args
+  optional_args_list <- fun_args$.optional_args
 
-  X_out <- R.utils::doCall(X_fun, args = args_list, alwaysArgs = X_args_list)
-  if (!is.list(X_out)) {
-    X_out <- list(X = X_out)
-  }
-  y_true_out <- R.utils::doCall(y_fun, args = c(X_out, args_list),
-                                alwaysArgs = y_args_list)
-  if (!is.list(y_true_out)) {
-    y_true_out <- list(y = y_true_out)
+  X <- do_call(X_fun, n = n, .n = n,
+               args = optional_args_list,
+               always_args = X_args_list)
+  y_out <- do_call(y_fun, X = X,
+                   args = optional_args_list,
+                   always_args = y_args_list)
+  if (is.list(y_out)) {
+    y <- y_out$y
+    support <- y_out$support
+  } else {
+    y <- y_out
+    support <- NULL
   }
   if (!is.null(err_fun)) {
     if (add_err) {
-      if (is.factor(y_true_out$y)) {
+      if (is.factor(y)) {
         stop("Cannot add error term to factor response y: ",
              "'+' not meaningful for factors. Try add_err = FALSE instead.")
       }
-      err_out <- R.utils::doCall(err_fun,
-                                 args = c(X_out, y_true_out, args_list),
-                                 alwaysArgs = err_args_list)
-      y <- y_true_out$y + err_out
+      err_out <- do_call(
+        err_fun, n = n, .n = n, X = X, y = y,
+        args = optional_args_list,
+        always_args = err_args_list
+      )
+      y <- y + err_out
     } else {
-      y <- R.utils::doCall(err_fun, 
-                           args = c(X_out, y_true_out, args_list),
-                           alwaysArgs = err_args_list)
+      y <- do_call(
+        err_fun, n = n, .n = n, X = X, y = y,
+        args = optional_args_list,
+        always_args = err_args_list
+      )
     }
-  } else {
-    y <- y_true_out$y
   }
-  
-  out <- return_DGP_output(X = X_out$X, y = y, support = y_true_out$support, 
+  out <- return_DGP_output(X = X, y = y, support = support,
                            data_split = data_split, train_prop = train_prop,
                            return_values = return_values)
   return(out)
@@ -141,10 +147,10 @@ xy_dgp_constructor <- function(X_fun, y_fun, err_fun = NULL, add_err = TRUE,
 #'                                 err = rt, df = 1)
 #'   
 #' @export
-linear_gaussian_dgp <- function(n, p_obs = 0, p_unobs = 0, 
+linear_gaussian_dgp <- function(n, p_obs = 0, p_unobs = 0,
                                 s_obs = p_obs, s_unobs = p_unobs,
                                 betas = NULL, betas_unobs = NULL,
-                                intercept = 0, err = NULL, 
+                                intercept = 0, err = NULL,
                                 data_split = FALSE, train_prop = 0.5,
                                 return_values = c("X", "y", "support"),
                                 ...) {
@@ -163,13 +169,15 @@ linear_gaussian_dgp <- function(n, p_obs = 0, p_unobs = 0,
 
   # simulate observed covariates
   if (p_obs != 0) {
-    X <- R.utils::doCall(
-      generate_X_gaussian, n = n, p = p_obs,
-      alwaysArgs = X_args_list, args = optional_args_list
+    X <- do_call(
+      generate_X_gaussian, .n = n, .p = p_obs,
+      args = optional_args_list,
+      always_args = X_args_list
     )
-    betas <- R.utils::doCall(
+    betas <- do_call(
       generate_coef, .betas = betas, .p = p_obs, .s = s_obs,
-      args = c(betas_args_list, optional_args_list), .ignoreUnusedArgs = FALSE
+      args = optional_args_list,
+      always_args = betas_args_list
     )
   } else {
     X <- matrix(0, nrow = n, ncol = 1)
@@ -178,25 +186,25 @@ linear_gaussian_dgp <- function(n, p_obs = 0, p_unobs = 0,
 
   # simulate unobserved covariates
   if (p_unobs != 0) {
-    U <- R.utils::doCall(
-      generate_X_gaussian, n = n, p = p_unobs,
-      alwaysArgs = U_args_list, args = optional_args_list
+    U <- do_call(
+      generate_X_gaussian, .n = n, .p = p_unobs,
+      args = optional_args_list,
+      always_args = U_args_list
     )
-    betas_unobs <- R.utils::doCall(
+    betas_unobs <- do_call(
       generate_coef, .betas = betas_unobs, .p = p_unobs, .s = s_unobs,
-      args = c(betas_unobs_args_list, optional_args_list),
-      .ignoreUnusedArgs = FALSE
+      args = optional_args_list,
+      always_args = betas_unobs_args_list
     )
   } else {
     U <- matrix(0, nrow = n, ncol = 1)
     betas_unobs <- 0
   }
 
-  eps <- R.utils::doCall(
-    generate_errors,
-    err = err, n = n, X = X,
-    args = c(err_args_list, optional_args_list),
-    .ignoreUnusedArgs = FALSE
+  eps <- do_call(
+    generate_errors, err = err, n = n, X = X,
+    args = optional_args_list,
+    always_args = err_args_list
   )
 
   # simulate linear y
@@ -204,8 +212,8 @@ linear_gaussian_dgp <- function(n, p_obs = 0, p_unobs = 0,
     generate_y_linear, X = X, U = U, betas = betas, betas_unobs = betas_unobs,
     intercept = intercept, err = eps,
     return_support = "support" %in% return_values,
-    args = c(y_args_list, optional_args_list),
-    .ignoreUnusedArgs = FALSE
+    args = optional_args_list,
+    always_args = y_args_list
   )
 
   if ("support" %in% return_values) {
@@ -293,13 +301,13 @@ correlated_linear_gaussian_dgp <- function(n, p_uncorr, p_corr,
   # simulate correlated covariates
   X_corr <- NULL
   if (p_corr != 0) {
-    X_corr <- generate_X_gaussian(n = n, p = p_corr, corr = corr)
+    X_corr <- generate_X_gaussian(.n = n, .p = p_corr, .corr = corr)
   }
   
   # simulate uncorrelated covariates
   X_uncorr <- NULL
   if (p_uncorr != 0) {
-    X_uncorr <- generate_X_gaussian(n = n, p = p_uncorr, corr = 0)
+    X_uncorr <- generate_X_gaussian(.n = n, .p = p_uncorr, .corr = 0)
   }
   
   # simulate betas_corr and betas_uncorr
@@ -358,7 +366,7 @@ logistic_gaussian_dgp <- function(n, p, s = p, betas = NULL, betas_sd = 1,
   return_values <- match.arg(return_values, several.ok = TRUE)
   
   # simulate observed covariates
-  X <- generate_X_gaussian(n = n, p = p)
+  X <- generate_X_gaussian(.n = n, .p = p)
   
   # simulate betas
   betas <- generate_coef(.betas = betas, .p = p, .s = s, sd = betas_sd)
@@ -431,13 +439,13 @@ correlated_logistic_gaussian_dgp <- function(n, p_uncorr, p_corr,
   # simulate correlated covariates
   X_corr <- NULL
   if (p_corr != 0) {
-    X_corr <- generate_X_gaussian(n = n, p = p_corr, corr = corr)
+    X_corr <- generate_X_gaussian(.n = n, .p = p_corr, .corr = corr)
   }
   
   # simulate uncorrelated covariates
   X_uncorr <- NULL
   if (p_uncorr != 0) {
-    X_uncorr <- generate_X_gaussian(n = n, p = p_uncorr, corr = 0)
+    X_uncorr <- generate_X_gaussian(.n = n, .p = p_uncorr, .corr = 0)
   }
   
   # simulate betas_corr and betas_uncorr
@@ -523,7 +531,7 @@ lss_gaussian_dgp <- function(n, p, k, s, thresholds = 0, signs = 1, betas = 1,
                              choices = c("X", "y", "support", "int_support"), 
                              several.ok = TRUE)
   
-  X <- generate_X_gaussian(n = n, p = p)
+  X <- generate_X_gaussian(.n = n, .p = p)
   if (overlap) {
     s_mat <- matrix(sample(1:p, s * k, replace = TRUE),
                     nrow = s, ncol = k, byrow = TRUE)
@@ -623,8 +631,8 @@ correlated_lss_gaussian_dgp <- function(n, p_uncorr, p_corr,
                              choices = c("X", "y", "support", "int_support"), 
                              several.ok = TRUE)
   
-  X_corr <- generate_X_gaussian(n = n, p = p_corr, corr = corr)
-  X_uncorr <- generate_X_gaussian(n = n, p = p_uncorr, corr = 0)
+  X_corr <- generate_X_gaussian(.n = n, .p = p_corr, .corr = corr)
+  X_uncorr <- generate_X_gaussian(.n = n, .p = p_uncorr, .corr = 0)
   X <- cbind(X_uncorr, X_corr)
   
   support <- NULL

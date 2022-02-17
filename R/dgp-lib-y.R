@@ -47,7 +47,8 @@ generate_y_linear <- function(X, U, betas = NULL, betas_unobs = NULL,
 
   betas <- R.utils::doCall(
     generate_coef, .betas = betas, .p = p,
-    args = c(betas_args_list, optional_args_list), .ignoreUnusedArgs = FALSE
+    args = c(betas_args_list, optional_args_list),
+    .ignoreUnusedArgs = FALSE
   )
 
   betas_unobs <- R.utils::doCall(
