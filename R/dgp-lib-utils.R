@@ -125,9 +125,11 @@ NULL
 #'   \code{NULL} (default), \code{.s} non-zero entries in the coefficient vector
 #'   are drawn iid N(\code{mean}, \code{sd}), where \code{mean} and \code{sd}
 #'   can optionally be specified via \code{...} (default 0 and 1). If a
-#'   function, must take the integer argument \code{.s} (and optionally
-#'   \code{.p}, \code{.betas_name}, and other user-defined args from \code{...})
-#'   and return a numeric vector of length 1, \code{.s}, or \code{.p}.
+#'   function, must take one or more of \code{n}, \code{.s}, or \code{.p}, and
+#'   can optionally take \code{.betas_name}, along with other user-defined args
+#'   from \code{...}) and must return a numeric vector of length 1, \code{.s},
+#'   or \code{.p}. If the function take \code{n} but not \code{.s} or \code{.p},
+#'   then \code{.s} is passed as \code{n}.
 #' @param .s Sparsity level. Coefficients corresponding to features after the
 #'   \code{s}th position (i.e., positions i = \code{s} + 1, ..., \code{p}) are
 #'   set to 0.
@@ -156,62 +158,64 @@ NULL
 #' }
 #' beta <- generate_coef(.betas = beta_fun, .p = 10, .s = 3, df = 10)
 #'
+#' # we can do the same without wrapping rt
+#' beta <- generate_coef(.betas = rt, .p = 10, .s = 3, df = 10)
+#'
 #' @export
 generate_coef <- function(.betas = NULL, .p = 1, .s = .p, .betas_name = "betas",
                           ...) {
   if (.s > .p) {
     stop(sprintf("Got s=%s, but should be less than or equal to p=%s.", .s, .p))
   }
-  if (!is.numeric(.betas)) {
+  if (is.null(.betas)) {
+    .betas <- stats::rnorm
+  }
+  if (is.function(.betas)) {
+    # user passed a custom function, which must take n, .s, or .p
+    args_intersect <- intersect(c("n", ".s", ".p"), formalArgs(.betas))
+    if (length(args_intersect) == 0) {
+      msg <- paste0(
+        .betas_name,
+        " is a function but doesn't take an argument n, .s, or .p.",
+      )
+      stop(msg)
+    }
+    # call user's function
     fun_args <- dots_to_fun_args(
       prefix = .betas_name, ...
     )
     betas_args_list <- fun_args[[paste0(".", .betas_name, "_args")]]
     optional_args_list <- c(
       fun_args$.optional_args,
-      list(.p = .p, .betas_name = .betas_name)
+      list(.p = .p, .s = .s, .betas_name = .betas_name)
     )
-
-    if (is.null(.betas)) {
-      .betas <- stats::rnorm
+    if (identical(args_intersect, "n")) {
+      # user's function takes arg n, but not .s or .p
       betas_args_list$n <- .s
-    } else if (!is.function(.betas)) {
-      msg <- sprintf(
-        paste(
-          "%s must be NULL, a function that returns a numeric vector,",
-          "or a fixed numeric vector, but instead had class: %s."
-        ),
-        .betas_name, paste0(class(.betas), collapse = ", ")
-      )
-      stop(msg)
-    } else {
-      # user passed a custom function, which must accept .s argument
-      betas_args_list$.s <- .s
     }
-
     .betas <- R.utils::doCall(
       .betas,
       args = optional_args_list,
       alwaysArgs = betas_args_list
     )
-    if (!is.numeric(.betas)) {
-      msg <- sprintf(
-        paste("%s is a function but didn't return a numeric vector.",
-              "Instead, returned object with class(es): %s."),
-        .betas_name, paste0(class(.betas), collapse=", ")
-      )
-      stop(msg)
-    }
   }
   if (is.numeric(.betas)) {
-    if (length(.betas) == 1 && .p > 1) {
-      .betas <- rep(.betas, length.out = min(.s, .p))
-    } else if (!length(.betas) %in%  c(.s, .p)) {
+    if (!length(.betas) %in% c(1, .s, .p)) {
       stop(sprintf("%s must have length 1, %s, or %s.", .betas_name, .s, .p))
     }
-  }
-  if (length(.betas) != .p) {
-      .betas <- c(.betas, rep(0, .p - length(.betas)))
+    if (length(.betas) == 1 && .p > 1) {
+      .betas <- rep(.betas, length.out = min(.s, .p))
+    }
+    .betas <- c(.betas, rep(0, .p - length(.betas)))
+  } else {
+    msg <- sprintf(
+      paste(
+        "%s must be NULL, a function that returns a numeric vector,",
+        "or a fixed numeric vector, but instead had class: %s."
+      ),
+      .betas_name, paste0(class(.betas), collapse = ", ")
+    )
+    stop(msg)
   }
   return(.betas)
 }

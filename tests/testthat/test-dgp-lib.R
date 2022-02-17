@@ -279,24 +279,36 @@ test_that("generate_coef works as expected", {
   set.seed(123)
   betas1 <- stats::rnorm(n = 10)
   set.seed(123)
-  betas2 <- stats::rnorm(n = 10, sd = 2)
-  set.seed(123)
-  betas3 <- stats::rnorm(n = 10, mean = 1)
-  set.seed(123)
   expect_equal(generate_coef(.p = 10), betas1)
   set.seed(123)
-  expect_equal(generate_coef(.p = 10, sd = 2), betas2)
+  expect_equal(generate_coef(.p = 10, .s = 5), c(betas1[1:5], rep(0, 5)))
+
   set.seed(123)
-  expect_equal(generate_coef(.p = 10, .s =  5), c(betas1[1:5], rep(0, 5)))
+  betas2 <- stats::rnorm(n = 10, sd = 2)
+  set.seed(123)
+  expect_equal(generate_coef(.p = 10, sd = 2), betas2)
   set.seed(123)
   expect_equal(
     generate_coef(.p = 10, .s = 5, sd = 2),
     c(betas2[1:5], rep(0, 5))
   )
+
+  set.seed(123)
+  betas3 <- stats::rnorm(n = 10, mean = 1)
   set.seed(123)
   expect_equal(
     generate_coef(.p = 10, .s = 5, mean = 1),
     c(betas3[1:5], rep(0, 5))
+  )
+
+  set.seed(123)
+  betas4 <- stats::rt(n = 10, df = 9)
+  set.seed(123)
+  expect_equal(generate_coef(.betas = rt, .p = 10, df = 9), betas4)
+  set.seed(123)
+  expect_equal(
+    generate_coef(.betas = rt, .p = 10, .s = 5, df = 9),
+    c(betas4[1:5], rep(0, 5))
   )
 
   betas_fun1 <- function(.p, .s) {
