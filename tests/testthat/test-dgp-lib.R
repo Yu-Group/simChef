@@ -24,8 +24,40 @@ test_that("Functions in the DGP library work properly", {
   expect_equal(length(sim_data$ytest), 50)
   expect_equal(sim_data$ytest, y[-train_ids])
 
+  set.seed(1)
+  X <- MASS::mvrnorm(n = 100, mu = rep(0, 10), Sigma = diag(10))
+  y <- c(X %*% stats::rnorm(n = 10, sd = 2))
+  X <- as.data.frame(X)
+
+  set.seed(1)
+  sim_data <- xy_dgp_constructor(
+    X_fun = MASS::mvrnorm, y_fun = generate_y_linear,
+    n = 100, mu = rep(0, 10), Sigma = diag(10),
+    betas = stats::rnorm, .betas_sd = 2
+  )
+  expect_equal(sim_data$X, X)
+  expect_equal(sim_data$y, y)
+
+  set.seed(1)
+  sim_data <- xy_dgp_constructor(
+    X_fun = MASS::mvrnorm, y_fun = generate_y_linear,
+    n = 100, mu = rep(0, 10), Sigma = diag(10),
+    betas = stats::rnorm, .y_.betas_sd = 2
+  )
+  expect_equal(sim_data$X, X)
+  expect_equal(sim_data$y, y)
+
+  set.seed(1)
+  sim_data <- xy_dgp_constructor(
+    X_fun = MASS::mvrnorm, y_fun = generate_y_linear,
+    n = 100, mu = rep(0, 10), Sigma = diag(10),
+    betas = stats::rnorm, .y_sd = 2
+  )
+  expect_equal(sim_data$X, X)
+  expect_equal(sim_data$y, y)
+
   expect_error(xy_dgp_constructor(
-    X_fun = MASS::mvrnorm, y_fun = generate_y_linear, .y_ = "bad"
+    n = 100, X_fun = MASS::mvrnorm, y_fun = generate_y_linear, .y_ = "bad"
   ))
 
   ## linear_gaussian_dgp
