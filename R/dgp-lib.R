@@ -722,7 +722,6 @@ rwd_dgp <- function(X, y, support = NULL, data_split = FALSE, train_prop = 0.5,
 #'   DGP function, but will return a partially missing design matrix, where
 #'   some variable/feature columns have been omitted.
 #'
-#' @inheritParams shared_dgp_lib_args
 #' @param dgp_fun A function that generates data according to some known
 #'   data-generating process. This function should return an object of the same
 #'   format as the output of `return_DGP_output()`.

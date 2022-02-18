@@ -187,11 +187,14 @@ plot_eval_summary <- function(fit_results, eval_tib = NULL, eval_id = NULL,
     list_vary_params <- purrr::map_lgl(plt_df[vary_params], is.list)
     # if vary_param is a list-type column, coerce to string for plotting
     if (any(list_vary_params)) {
+      group_ids <- dplyr::group_vars(plt_df)
       plt_df <- plt_df %>%
+        dplyr::ungroup() %>%
         dplyr::mutate(dplyr::across(tidyselect::all_of(names(list_vary_params)),
                                     ~list_col_to_chr(.x, 
                                                      name = dplyr::cur_column(),
-                                                     verbatim = TRUE)))
+                                                     verbatim = TRUE))) %>%
+        dplyr::group_by(dplyr::across(tidyselect::all_of(group_ids)))
     }
     # if varying over multiple parameters, join column strings for plotting
     if (length(vary_params) > 1) {
