@@ -713,3 +713,60 @@ rwd_dgp <- function(X, y, support = NULL, data_split = FALSE, train_prop = 0.5,
                            return_values = return_values)
   return(out)
 }
+
+#' Generate data from a model with omitted variable bias.
+#'
+#' @description Takes in a data-generating process (DGP), and induces some bias
+#'   due to omitted variable(s). In other words, this function will generate
+#'   a design matrix `X` and response vector `y` according to the inputted 
+#'   DGP function, but will return a partially missing design matrix, where
+#'   some variable/feature columns have been omitted.
+#'
+#' @inheritParams shared_dgp_lib_args
+#' @param dgp_fun A function that generates data according to some known
+#'   data-generating process. This function should return an object of the same
+#'   format as the output of `return_DGP_output()`.
+#' @param omitted_vars A vector of indices or column names corresponding to 
+#'   columns in X that should be omitted.
+#' @param ... Additional arguments to pass to `dgp_fun()`.
+#'   
+#' @returns The returned object has the same format as the output of 
+#'   `dgp_fun()`, except that specified variables, given by `omitted_vars`, have 
+#'   been omitted from the `X` component and the `support` (if applicable).
+#' 
+#' @examples
+#' # generate data from a linear gaussian DGP with the first variable missing
+#' dgp_out <- omitted_var_dgp(dgp_fun = linear_gaussian_dgp, 
+#'                            n = 100, p_obs = 10, s_obs = 2,
+#'                            omitted_vars = 1)
+#' # or equivalently, (minus the difference in column names)
+#' dgp_out <- linear_gaussian_dgp(n = 10, p_obs = 9, p_unobs = 1,
+#'                                s_obs = 1, s_unobs = 1)
+#' 
+#' @export
+omitted_var_dgp <- function(dgp_fun, omitted_vars = 1, ...) {
+  dgp_out <- dgp_fun(...)
+  X_orig <- dgp_out$X
+  
+  if (is.numeric(omitted_vars)) {
+    if (max(omitted_vars) > ncol(X_orig)) {
+      stop("Omitted variable indices exceed the number of columns in X.")
+    } else if (length(setdiff(1:ncol(X_orig), omitted_vars)) == 0) {
+      stop("Cannot omit all variables in X. ",
+           "Must leave at least one observed variable in X.")
+    }
+  } else {
+    if (any(!(omitted_vars %in% colnames(X_orig)))) {
+      stop("Some omitted variable names cannot be found in X.")
+    }
+  }
+  
+  dgp_out$X <- X_orig %>%
+    dplyr::select(-tidyselect::all_of(unique(omitted_vars)))
+  
+  if ("support" %in% names(dgp_out)) {
+    col_support <- colnames(X_orig)[dgp_out$support]
+    dgp_out$support <- which(colnames(dgp_out$X) %in% col_support)
+  }
+  return(dgp_out)
+}
