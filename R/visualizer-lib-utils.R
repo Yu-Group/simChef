@@ -65,8 +65,8 @@ NULL
 #'   subsetting data and creating different plots for each unique value. Default
 #'   "auto" chooses what column to use for the subsetting automatically. Use
 #'   \code{NULL} to avoid creating multiple plots.
-#' @param add_ggplot_layers Additional layers to add to a ggplot object via 
-#'   \code{+}.
+#' @param add_ggplot_layers List of additional layers to add to a ggplot object
+#'   via \code{+}.
 #' @param boxplot_args (Optional) Additional arguments to pass into
 #'   \code{ggplot2::geom_boxplot()}.
 #' @param point_args (Optional) Additional arguments to pass into 
@@ -395,7 +395,9 @@ plot_eval_summary <- function(fit_results, eval_tib = NULL, eval_id = NULL,
       ggplot2::labs(x = labels_ls$x, y = labels_ls$y, 
                     color = labels_ls$color, fill = labels_ls$color)
     if (!is.null(add_ggplot_layers)) {
-      plt <- plt + add_ggplot_layers
+      for (ggplot_layer in add_ggplot_layers) {
+        plt <- plt + ggplot_layer
+      }
     }
     return(plt)
   }
