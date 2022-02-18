@@ -5,3 +5,5 @@
 ^\.github$
 ^vignettes/results$
 ^man-roxygen
+^.*\.Rproj$
+^\.Rproj\.user$
