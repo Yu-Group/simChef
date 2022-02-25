@@ -65,6 +65,8 @@ across various levels of significance.</p>
   evaluator_name <span class="op">=</span> <span class="cn">NULL</span>,
   vary_params <span class="op">=</span> <span class="cn">NULL</span>,
   feature_col <span class="op">=</span> <span class="cn">NULL</span>,
+  show_features <span class="op">=</span> <span class="cn">NULL</span>,
+  show_identity_line <span class="op">=</span> <span class="cn">FALSE</span>,
   show <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"line"</span><span class="op">)</span>,
   <span class="va">...</span>
 <span class="op">)</span></code></pre></div>
@@ -87,6 +89,13 @@ summary results have not yet been evaluated, set to <code>NULL</code>.</p></dd>
 <dt>feature_col</dt>
 <dd><p>A character string identifying the column in
 <code>fit_results</code> with the feature names or IDs.</p></dd>
+<dt>show_features</dt>
+<dd><p>Vector of feature names corresponding to features to
+display in the plot. If <code>NULL</code> (default), shows all features in the
+data.</p></dd>
+<dt>show_identity_line</dt>
+<dd><p>Logical indicating whether or not to plot the
+y = x line.</p></dd>
 <dt>show</dt>
 <dd><p>Character vector with elements being one of "boxplot", "point",
 "line", "bar", "errorbar", "ribbon" indicating what plot layer(s) to
