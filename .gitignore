@@ -6,3 +6,5 @@
 inst/doc
 tests/testthat/results/
 tests/testthat/figure/
+
+*.Rproj

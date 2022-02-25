@@ -371,6 +371,20 @@ test_that("Functions in Visualizer utilities library work properly", {
                            facet_formula = ~ .metric)
   vdiffr::expect_doppelganger("plot_eval_summary1", plt)
   
+  ## plot_eval_summary with vector vary_param and grouped variables
+  eval_results[["Prediction Errors"]] <- eval_results[["Prediction Errors"]] %>%
+    dplyr::mutate(vary_param = list(1:2)) %>%
+    dplyr::group_by(.dgp_name, vary_param)
+  expect_error(
+    plot_eval_summary(fit_results = fit_results, 
+                      vary_params = "vary_param",
+                      eval_tib = eval_results[["Prediction Errors"]], 
+                      eval_id = "pred_err",
+                      show = c("point", "errorbar"),
+                      facet_formula = ~ .metric),
+    NA
+  )
+  
   ## plot_fit_results
   plot_fun <- function(fit_results, vary_params = NULL) {
     plt <- fit_results %>%

@@ -67,6 +67,7 @@ reference:
       - lss_gaussian_dgp
       - correlated_lss_gaussian_dgp
       - rwd_dgp
+      - omitted_var_dgp
   - subtitle: "DGP Library: X"
     desc: >
       A library of common functions for generating data for X in a DGP.

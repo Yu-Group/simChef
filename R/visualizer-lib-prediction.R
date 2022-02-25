@@ -171,7 +171,7 @@ plot_pred_curve <- function(fit_results, eval_results = NULL,
       eval_fun = "summarize_pred_curve",
       x_str = x_str,
       ribbon_args = list(alpha = 0.2),
-      add_ggplot_layers = ggplot2::coord_cartesian(ylim = c(0, 1))
+      add_ggplot_layers = list(ggplot2::coord_cartesian(ylim = c(0, 1)))
     )
   )
   
