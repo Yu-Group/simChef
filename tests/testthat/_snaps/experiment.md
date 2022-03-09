@@ -517,20 +517,20 @@
 ---
 
     # A tibble: 12 x 8
-       .rep  .dgp_name .method_name result1 scalar vector    matrix        tibble   
-       <chr> <chr>     <chr>          <dbl>  <dbl> <list>    <list>        <list>   
-     1 1     DGP1      Method1            2     NA <NULL>    <NULL>        <NULL>   
-     2 1     DGP1      Method2           NA      4 <NULL>    <int [4 x 2]> <tibble ~
-     3 1     DGP2      Method1            3     NA <NULL>    <NULL>        <NULL>   
-     4 1     DGP2      Method2           NA      5 <dbl [3]> <int [4 x 2]> <tibble ~
-     5 2     DGP1      Method1            2     NA <NULL>    <NULL>        <NULL>   
-     6 2     DGP1      Method2           NA      4 <NULL>    <int [4 x 2]> <tibble ~
-     7 2     DGP2      Method1            3     NA <NULL>    <NULL>        <NULL>   
-     8 2     DGP2      Method2           NA      5 <dbl [3]> <int [4 x 2]> <tibble ~
-     9 3     DGP1      Method1            2     NA <NULL>    <NULL>        <NULL>   
-    10 3     DGP1      Method2           NA      4 <NULL>    <int [4 x 2]> <tibble ~
-    11 3     DGP2      Method1            3     NA <NULL>    <NULL>        <NULL>   
-    12 3     DGP2      Method2           NA      5 <dbl [3]> <int [4 x 2]> <tibble ~
+       .rep  .dgp_name .method_name result1 scalar vector    matrix        tibble  
+       <chr> <chr>     <chr>          <dbl>  <dbl> <list>    <list>        <list>  
+     1 1     DGP1      Method1            2     NA <NULL>    <NULL>        <NULL>  
+     2 1     DGP1      Method2           NA      4 <NULL>    <int [4 x 2]> <tibble>
+     3 1     DGP2      Method1            3     NA <NULL>    <NULL>        <NULL>  
+     4 1     DGP2      Method2           NA      5 <dbl [3]> <int [4 x 2]> <tibble>
+     5 2     DGP1      Method1            2     NA <NULL>    <NULL>        <NULL>  
+     6 2     DGP1      Method2           NA      4 <NULL>    <int [4 x 2]> <tibble>
+     7 2     DGP2      Method1            3     NA <NULL>    <NULL>        <NULL>  
+     8 2     DGP2      Method2           NA      5 <dbl [3]> <int [4 x 2]> <tibble>
+     9 3     DGP1      Method1            2     NA <NULL>    <NULL>        <NULL>  
+    10 3     DGP1      Method2           NA      4 <NULL>    <int [4 x 2]> <tibble>
+    11 3     DGP2      Method1            3     NA <NULL>    <NULL>        <NULL>  
+    12 3     DGP2      Method2           NA      5 <dbl [3]> <int [4 x 2]> <tibble>
 
 # Printing Experiment works properly
 
@@ -1129,4 +1129,6 @@
        $ eval_results:List of 1
         ..$ evaluator1: tibble [1 x 10] (S3: tbl_df/tbl/data.frame)
        $ vary_params : chr [1:6] "rho" "noise_level" "rho" "noise_level" ...
+      Caused by error:
+      ! Oh no!
 

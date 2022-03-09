@@ -10,6 +10,8 @@ plot_reject_prob(
   evaluator_name = NULL,
   vary_params = NULL,
   feature_col = NULL,
+  show_features = NULL,
+  show_identity_line = FALSE,
   show = c("line"),
   ...
 )
@@ -29,6 +31,13 @@ summary results have not yet been evaluated, set to \code{NULL}.}
 
 \item{feature_col}{A character string identifying the column in
 \code{fit_results} with the feature names or IDs.}
+
+\item{show_features}{Vector of feature names corresponding to features to
+display in the plot. If \code{NULL} (default), shows all features in the
+data.}
+
+\item{show_identity_line}{Logical indicating whether or not to plot the
+y = x line.}
 
 \item{show}{Character vector with elements being one of "boxplot", "point",
 "line", "bar", "errorbar", "ribbon" indicating what plot layer(s) to

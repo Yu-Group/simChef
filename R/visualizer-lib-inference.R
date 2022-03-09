@@ -191,6 +191,11 @@ plot_testing_curve <- function(fit_results, eval_results = NULL,
 #' @inheritParams shared_experiment_helpers_args
 #' @inheritParams shared_viz_lib_args
 #' @inheritParams eval_reject_prob
+#' @param show_features Vector of feature names corresponding to features to
+#'   display in the plot. If \code{NULL} (default), shows all features in the
+#'   data.
+#' @param show_identity_line Logical indicating whether or not to plot the
+#'   y = x line.
 #' @param ... Additional arguments to pass to \code{plot_eval_summary()}. This
 #'   includes arguments for plotting and for passing into
 #'   \code{eval_reject_prob()}.
@@ -250,7 +255,8 @@ plot_testing_curve <- function(fit_results, eval_results = NULL,
 #' @export
 plot_reject_prob <- function(fit_results, eval_results = NULL, 
                              evaluator_name = NULL,
-                             vary_params = NULL, feature_col = NULL, 
+                             vary_params = NULL, feature_col = NULL,
+                             show_features = NULL, show_identity_line = FALSE,
                              show = c("line"), ...) {
   .alpha <- NULL  # to fix no visible binding for global variable error
   show <- match.arg(show, choices = c("point", "line", "bar"))
@@ -276,7 +282,14 @@ plot_reject_prob <- function(fit_results, eval_results = NULL,
                           y_str = "reject_prob")
     )
   }
-  
+
+  if (show_identity_line) {
+    arg_list$add_ggplot_layers <- c(
+      list(ggplot2::geom_abline(slope = 1, intercept = 0, color = "grey")),
+      arg_list$add_ggplot_layers
+    )
+  }
+
   if (!is.null(evaluator_name)) {
     eval_tib <- eval_results[[evaluator_name]]
   } else {
@@ -292,7 +305,12 @@ plot_reject_prob <- function(fit_results, eval_results = NULL,
   if (identical(show, "bar")) {
     eval_tib <- eval_tib %>% dplyr::mutate(.alpha = as.factor(.alpha))
   }
-  
+
+  if (!is.null(show_features)) {
+    eval_tib <- eval_tib %>%
+      dplyr::filter(.data[[feature_col]] %in% show_features)
+  }
+
   plt <- do.call(
     plot_eval_summary, 
     args = c(list(fit_results = fit_results, eval_tib = eval_tib,

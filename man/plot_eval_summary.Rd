@@ -89,8 +89,8 @@ subsetting data and creating different plots for each unique value. Default
 "auto" chooses what column to use for the subsetting automatically. Use
 \code{NULL} to avoid creating multiple plots.}
 
-\item{add_ggplot_layers}{Additional layers to add to a ggplot object via
-\code{+}.}
+\item{add_ggplot_layers}{List of additional layers to add to a ggplot object
+via \code{+}.}
 
 \item{boxplot_args}{(Optional) Additional arguments to pass into
 \code{ggplot2::geom_boxplot()}.}
