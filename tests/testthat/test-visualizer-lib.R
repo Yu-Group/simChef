@@ -382,7 +382,7 @@ test_that("Functions in Visualizer utilities library work properly", {
                                     fit_results$.dgp_name,
                                     fit_results$.method_name,
                                     fit_results$.rep)) +
-      vthemes::pretty_ggplot_theme()
+      vthemes::theme_vmodern()
     return(plt)
   }
   plt <- plot_fit_results(fit_results, reps = 1, plot_fun = plot_fun)
