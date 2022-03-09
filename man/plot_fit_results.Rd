@@ -68,7 +68,7 @@ plot_fun <- function(fit_results, vary_params = NULL) {
                                   fit_results$.dgp_name,
                                   fit_results$.method_name,
                                   fit_results$.rep)) +
-    vdocs::pretty_ggplot_theme()
+    vthemes::theme_vmodern()
   return(plt)
 }
 

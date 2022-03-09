@@ -32,7 +32,7 @@ Imports:
     stringr,
     tibble,
     tidyselect,
-    vdocs,
+    vthemes,
     yardstick
 Suggests:
     testthat (>= 3.1.0),
@@ -48,6 +48,6 @@ Suggests:
     ranger,
     vdiffr
 Remotes:
-    Yu-Group/vdocs
+    Yu-Group/vthemes
 VignetteBuilder: knitr
 Config/testthat/edition: 3

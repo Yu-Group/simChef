@@ -21,7 +21,7 @@ for this argument.}
 
 \item{.rmd_options}{(Optional) List of options to control the aesthetics of
 the displayed \code{Evaluator}'s results table in the knitted R Markdown
-report. See \code{\link[vdocs:pretty_DT]{vdocs::pretty_DT()}} for possible options. The argument must be
+report. See \code{\link[vthemes:pretty_DT]{vthemes::pretty_DT()}} for possible options. The argument must be
 specified by position or typed out in whole; no partial matching is allowed
 for this argument.}
 

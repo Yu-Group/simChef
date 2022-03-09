@@ -27,7 +27,7 @@ in \code{Evaluator}/\code{Visualizer}.}
 
 \item{...}{Named R Markdown options to set. If \code{field_name = "visualizer"},
 options are "height" and "width". If \code{field_name = "evaluator"},
-see options for \code{\link[vdocs:pretty_DT]{vdocs::pretty_DT()}}.}
+see options for \code{\link[vthemes:pretty_DT]{vthemes::pretty_DT()}}.}
 }
 \value{
 The original \code{Experiment} object with the \code{rmd_options}

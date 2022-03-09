@@ -271,7 +271,7 @@ plot_eval_summary <- function(fit_results, eval_tib = NULL, eval_id = NULL,
   # helper function to make summary plot
   construct_plot <- function(plt_df) {
     plt <- ggplot2::ggplot(plt_df)
-    base_aes <- vdocs::get_aesthetics(x_str = x_str, y_str = y_str, 
+    base_aes <- vthemes::get_aesthetics(x_str = x_str, y_str = y_str, 
                                color_str = color_str, fill_str = color_str,
                                linetype_str = linetype_str)
     # add ggplot geom layers
@@ -327,7 +327,7 @@ plot_eval_summary <- function(fit_results, eval_tib = NULL, eval_id = NULL,
       } else {
         group_str <- sprintf("interaction(%s, %s)", x_str, color_str)
       }
-      boxplot_aes <- vdocs::get_aesthetics(x_str = x_str, 
+      boxplot_aes <- vthemes::get_aesthetics(x_str = x_str, 
                                     y_str = paste0("raw", eval_id), 
                                     color_str = color_str, 
                                     group_str = group_str)
@@ -363,14 +363,12 @@ plot_eval_summary <- function(fit_results, eval_tib = NULL, eval_id = NULL,
       }
     }
     # add theme
-    plt <- plt + vdocs::pretty_ggplot_theme()
+    plt <- plt + vthemes::theme_vmodern()
     if (!is.null(color_str)) {
-      if (is.character(plt_df[[color_str]])) {
-        plt_df[[color_str]] <- as.factor(plt_df[[color_str]])
-      }
+      discrete <- !is.numeric(plt_df[[color_str]])
       plt <- plt + 
-        vdocs::pretty_ggplot_color(color = plt_df[[color_str]]) +
-        vdocs::pretty_ggplot_fill(fill = plt_df[[color_str]])
+        vthemes::scale_color_vmodern(discrete = discrete) +
+        vthemes::scale_fill_vmodern(discrete = discrete)
     }
     # add labels
     labels_ls <- purrr::map(
@@ -468,7 +466,7 @@ plot_eval_summary <- function(fit_results, eval_tib = NULL, eval_id = NULL,
 #'                                   fit_results$.dgp_name,
 #'                                   fit_results$.method_name,
 #'                                   fit_results$.rep)) +
-#'     vdocs::pretty_ggplot_theme()
+#'     vthemes::theme_vmodern()
 #'   return(plt)
 #' }
 #' 

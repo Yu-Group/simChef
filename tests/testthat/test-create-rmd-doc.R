@@ -128,7 +128,7 @@ test_that("Visualizations in R Markdown documentation render correctly", {
       ggplot2::geom_point()
   }
   visualizer <- create_visualizer(viz_fun)
-  tab_fun <- function() vdocs::pretty_DT(iris)
+  tab_fun <- function() vthemes::pretty_DT(iris)
   tabler <- create_visualizer(tab_fun)
   text_fun <- function() "Hello world!"
   texter <- create_visualizer(text_fun)
