@@ -67,8 +67,7 @@ plot_fun <- function(fit_results, vary_params = NULL) {
     ggplot2::labs(title = sprintf("DGP: \%s | Method: \%s | Rep: \%s", 
                                   fit_results$.dgp_name,
                                   fit_results$.method_name,
-                                  fit_results$.rep)) +
-    vthemes::theme_vmodern()
+                                  fit_results$.rep))
   return(plt)
 }
 
