@@ -43,9 +43,6 @@
     <loc>/reference/ar1_errors.html</loc>
   </url>
   <url>
-    <loc>/reference/blank_ggplot_themes.html</loc>
-  </url>
-  <url>
     <loc>/reference/block_errors.html</loc>
   </url>
   <url>
@@ -166,9 +163,6 @@
     <loc>/reference/generate_y_lss.html</loc>
   </url>
   <url>
-    <loc>/reference/get_aesthetics.html</loc>
-  </url>
-  <url>
     <loc>/reference/get_cached_results.html</loc>
   </url>
   <url>
@@ -265,18 +259,6 @@
     <loc>/reference/pos.html</loc>
   </url>
   <url>
-    <loc>/reference/pretty_DT.html</loc>
-  </url>
-  <url>
-    <loc>/reference/pretty_ggplot_color_fill_themes.html</loc>
-  </url>
-  <url>
-    <loc>/reference/pretty_ggplot_theme.html</loc>
-  </url>
-  <url>
-    <loc>/reference/pretty_kable.html</loc>
-  </url>
-  <url>
     <loc>/reference/remove_funs.html</loc>
   </url>
   <url>
@@ -317,9 +299,6 @@
   </url>
   <url>
     <loc>/reference/split_data.html</loc>
-  </url>
-  <url>
-    <loc>/reference/subchunkify.html</loc>
   </url>
   <url>
     <loc>/reference/summarize_eval_results.html</loc>
