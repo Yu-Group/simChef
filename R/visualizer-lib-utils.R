@@ -274,7 +274,7 @@ plot_eval_summary <- function(fit_results, eval_tib = NULL, eval_id = NULL,
   # helper function to make summary plot
   construct_plot <- function(plt_df) {
     plt <- ggplot2::ggplot(plt_df)
-    base_aes <- get_aesthetics(x_str = x_str, y_str = y_str, 
+    base_aes <- vthemes::get_aesthetics(x_str = x_str, y_str = y_str, 
                                color_str = color_str, fill_str = color_str,
                                linetype_str = linetype_str)
     # add ggplot geom layers
@@ -330,7 +330,7 @@ plot_eval_summary <- function(fit_results, eval_tib = NULL, eval_id = NULL,
       } else {
         group_str <- sprintf("interaction(%s, %s)", x_str, color_str)
       }
-      boxplot_aes <- get_aesthetics(x_str = x_str, 
+      boxplot_aes <- vthemes::get_aesthetics(x_str = x_str, 
                                     y_str = paste0("raw", eval_id), 
                                     color_str = color_str, 
                                     group_str = group_str)
@@ -366,14 +366,12 @@ plot_eval_summary <- function(fit_results, eval_tib = NULL, eval_id = NULL,
       }
     }
     # add theme
-    plt <- plt + pretty_ggplot_theme()
+    plt <- plt + vthemes::theme_vmodern()
     if (!is.null(color_str)) {
-      if (is.character(plt_df[[color_str]])) {
-        plt_df[[color_str]] <- as.factor(plt_df[[color_str]])
-      }
+      discrete <- !is.numeric(plt_df[[color_str]])
       plt <- plt + 
-        pretty_ggplot_color(color = plt_df[[color_str]]) +
-        pretty_ggplot_fill(fill = plt_df[[color_str]])
+        vthemes::scale_color_vmodern(discrete = discrete) +
+        vthemes::scale_fill_vmodern(discrete = discrete)
     }
     # add labels
     labels_ls <- purrr::map(
@@ -472,8 +470,7 @@ plot_eval_summary <- function(fit_results, eval_tib = NULL, eval_id = NULL,
 #'     ggplot2::labs(title = sprintf("DGP: %s | Method: %s | Rep: %s", 
 #'                                   fit_results$.dgp_name,
 #'                                   fit_results$.method_name,
-#'                                   fit_results$.rep)) +
-#'     pretty_ggplot_theme()
+#'                                   fit_results$.rep))
 #'   return(plt)
 #' }
 #' 
@@ -529,55 +526,6 @@ plot_fit_results <- function(fit_results, vary_params = NULL, reps = 1,
     plt_ls <- purrr::map(plt_ls, ~plotly::ggplotly(.x))
   }
   return(plt_ls)
-}
-
-#' Get list of aesthetics to add to ggplot.
-#' 
-#' @description Helper function to ignore \code{NULL} inputs when adding
-#'   aesthetics to a ggplot.
-#'   
-#' @param x_str Character string specifying the name of the data column to plot
-#'   on the x-axis.
-#' @param y_str Character string specifying the name of the data column to plot
-#'   on the y-axis.
-#' @param color_str Character string specifying the name of the data column to
-#'   use for the color aesthetic.
-#' @param fill_str Character string specifying the name of the data column to 
-#'   use for the fill aesthetic.
-#' @param group_str Character string specifying the name of the data column to 
-#'   use for the group aesthetic.
-#' @param linetype_str Character string specifying the name of the data column 
-#'   to use for the linetype aesthetic.
-#'   
-#' @return A [ggplot2::aes()] object.
-#' 
-#' @keywords internal
-get_aesthetics <- function(x_str = NULL, y_str = NULL,
-                           color_str = NULL, fill_str = NULL,
-                           group_str = NULL, linetype_str = NULL) {
-  aes_list <- list()
-  if (!is.null(x_str)) {
-    aes_list$x <- substitute(.data[[x_str]], list(x_str = x_str))
-  }
-  if (!is.null(y_str)) {
-    aes_list$y <- substitute(.data[[y_str]], list(y_str = y_str))
-  }
-  if (!is.null(color_str)) {
-    aes_list$color <- substitute(.data[[color_str]], 
-                                 list(color_str = color_str))
-  }
-  if (!is.null(fill_str)) {
-    aes_list$fill <- substitute(.data[[fill_str]], list(fill_str = fill_str))
-  }
-  if (!is.null(linetype_str)) {
-    aes_list$linetype <- substitute(as.factor(.data[[linetype_str]]),
-                                    list(linetype_str = linetype_str))
-  }
-  if (!is.null(group_str)) {
-    aes_list$group <- substitute(.data[[group_str]],
-                                 list(group_str = group_str))
-  }
-  return(do.call(ggplot2::aes, aes_list))
 }
 
 #' Get the summarized evaluation results tibble for plotting.

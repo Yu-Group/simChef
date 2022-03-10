@@ -515,7 +515,7 @@ get_cached_results <- function(experiment, results_type, verbose = 0) {
 #'   in \code{Evaluator}/\code{Visualizer}.
 #' @param ... Named R Markdown options to set. If \code{field_name = "visualizer"},
 #'   options are "height" and "width". If \code{field_name = "evaluator"},
-#'   see options for [pretty_DT()].
+#'   see options for [vthemes::pretty_DT()].
 #'
 #' @return The original \code{Experiment} object with the \code{rmd_options}
 #'   and/or \code{show} fields modified in the \code{Evaluator}/\code{Visualizer}.

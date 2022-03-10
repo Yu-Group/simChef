@@ -8,9 +8,8 @@ header-includes:
     - \usepackage{gensymb}
 output:
   rmdformats::material:
-    fig_caption: true
     code_download: true
-css: css/general_rmd_theme_addons.css
+css: css/simchef.css
 params:
   author: 
     label: "Author:"
@@ -140,7 +139,7 @@ showRecipePart <- function(field_name = c("dgp", "method",
 
   obj_header <- "<p style='font-weight: bold; font-size: 20px'> %s </p>"
   invis_header <- "\n\n### %s {.tabset .tabset-pills .tabset-fade .tabset-circle}\n\n"
-  showtype_header <- "\n\n#### %s {.tabset .tabset-pills .tabset-fade .tabset-square}\n\n"
+  showtype_header <- "\n\n#### %s {.tabset .tabset-pills .tabset-fade}\n\n"
   exp_header <- "\n\n##### %s \n\n"
 
   if (all(sapply(objs, length) == 0)) {
@@ -165,11 +164,11 @@ showRecipePart <- function(field_name = c("dgp", "method",
                            ~isTRUE(check_equal(.x, keep_objs[[1]]))))) {
       obj <- keep_objs[[1]]
       cat("<b>Function</b>")
-      subchunkify(obj[[paste0(func_name, "_fun")]],
+      vthemes::subchunkify(obj[[paste0(func_name, "_fun")]],
                   chunk_idx, other_args = "max.height='200px'")
       chunk_idx <<- chunk_idx + 1
       cat("<b>Input Parameters</b>")
-      subchunkify(obj[[paste0(func_name, "_params")]],
+      vthemes::subchunkify(obj[[paste0(func_name, "_params")]],
                   chunk_idx, other_args = "max.height='200px'")
       chunk_idx <<- chunk_idx + 1
     } else {
@@ -180,11 +179,11 @@ showRecipePart <- function(field_name = c("dgp", "method",
         }
         cat(sprintf(exp_header, exp))
         cat("<b>Function</b>")
-        subchunkify(obj[[paste0(func_name, "_fun")]],
+        vthemes::subchunkify(obj[[paste0(func_name, "_fun")]],
                     chunk_idx, other_args = "max.height='200px'")
         chunk_idx <<- chunk_idx + 1
         cat("<b>Input Parameters</b>")
-        subchunkify(obj[[paste0(func_name, "_params")]],
+        vthemes::subchunkify(obj[[paste0(func_name, "_params")]],
                     chunk_idx, other_args = "max.height='200px'")
         chunk_idx <<- chunk_idx + 1
       }
@@ -226,7 +225,7 @@ showResults <- function(dir_name, depth, base = FALSE, show_header = TRUE,
     header_template <- "\n\n%s %s {.tabset .tabset-pills .tabset-fade}\n\n"
   } else {
     if (base | !experimentExists(dir_name)) {
-      header_template <- "\n\n%s %s {.tabset .tabset-pills .tabset-fade .tabset-square}"
+      header_template <- "\n\n%s %s {.tabset .tabset-pills .tabset-fade}"
     } else {
       header_template <- "\n\n%s %s {.tabset .tabset-pills .tabset-fade .tabset-circle}"
     }
@@ -252,7 +251,7 @@ showResults <- function(dir_name, depth, base = FALSE, show_header = TRUE,
   figname_template <- "<h3 style='font-weight: bold'> %s </h3>"
   invisible_header <- paste0(
     "\n\n", paste(rep("#", depth + 2), collapse = ""),
-    " {.tabset .tabset-pills .tabset-fade .tabset-square}\n\n"
+    " {.tabset .tabset-pills .tabset-fade}\n\n"
   )
   plt_template <- paste0(
     "\n\n", paste(rep("#", depth + 3), collapse = ""), " %s\n\n"
@@ -278,9 +277,9 @@ showResults <- function(dir_name, depth, base = FALSE, show_header = TRUE,
       evaluator <- exp$get_evaluators()[[eval_name]]
       if (evaluator$rmd_show) {
         cat(sprintf(figname_template, eval_name))
-        do.call(pretty_DT,
+        do.call(vthemes::pretty_DT,
                 c(list(eval_results[[eval_name]]), evaluator$rmd_options)) %>%
-          subchunkify(i = chunk_idx)
+          vthemes::subchunkify(i = chunk_idx)
         chunk_idx <<- chunk_idx + 1
       }
     }
@@ -310,7 +309,7 @@ showResults <- function(dir_name, depth, base = FALSE, show_header = TRUE,
             cat(sprintf(plt_template, plt_name))
           }
           plt <- plts[[plt_name]]
-          subchunkify(plt, i = chunk_idx,
+          vthemes::subchunkify(plt, i = chunk_idx,
                       fig_height = visualizer$rmd_options$height,
                       fig_width = visualizer$rmd_options$width,
                       other_args = "out.width = '100%'")
@@ -325,7 +324,7 @@ showResults <- function(dir_name, depth, base = FALSE, show_header = TRUE,
         (length(exp$get_vary_across()$method) != 0)) {
       cat(sprintf(showtype_template, fontawesome::fa("code")))
       cat("<b>Parameter Values</b>")
-      subchunkify(exp$get_vary_across(),
+      vthemes::subchunkify(exp$get_vary_across(),
                   chunk_idx, other_args = "max.height='200px'")
       chunk_idx <<- chunk_idx + 1
     }

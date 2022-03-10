@@ -142,15 +142,6 @@ reference:
       - plot_testing_err
       - plot_testing_curve
       - plot_reject_prob
-  - subtitle: "Visualizer Library: Custom Themes"
-    desc: >
-      A library of custom table and ggplot themes.
-    contents:
-      - pretty_DT
-      - pretty_kable
-      - pretty_ggplot_theme
-      - pretty_ggplot_color_fill_themes
-      - blank_ggplot_themes
   - subtitle: "Boilerplate Templates"
     desc: >
       A library of minimalistic templates for running common types of simulation experiments.
