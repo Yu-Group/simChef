@@ -10,11 +10,11 @@ generate_coef(.betas = NULL, .p = 1, .s = .p, .betas_name = "betas", ...)
 \item{.betas}{Coefficient vector or function to generate the coefficients. If
 a scalar is provided, the coefficient vector is a constant vector. If
 \code{NULL} (default), \code{.s} non-zero entries in the coefficient vector
-are drawn iid N(\code{mean}, \code{sd}), where \code{mean} and \code{sd}
-can optionally be specified via \code{...} (default 0 and 1). If a
-function, must take the integer argument \code{.s} (and optionally
-\code{.p}, \code{.betas_name}, and other user-defined args from \code{...})
-and return a numeric vector of length 1, \code{.s}, or \code{.p}.}
+are equal to 0.5. If a function, must take one or more of \code{n},
+\code{.s}, or \code{.p}, and can optionally take \code{.betas_name}, along
+with other user-defined args from \code{...}) and must return a numeric
+vector of length 1, \code{.s}, or \code{.p}. If the function take \code{n}
+but not \code{.s} or \code{.p}, then \code{.s} is passed as \code{n}.}
 
 \item{.p}{Number of features.}
 
@@ -35,11 +35,11 @@ Generate a coefficient vector with the specified dimensions and
 sparsity level.
 }
 \examples{
-# generate beta ~ N(0, 1) of dimension 10
+# generate constant beta = 0.5 of dimension 10
 beta <- generate_coef(.p = 10)
 
 # generate beta ~ N(1, 2) of dimension 10
-beta <- generate_coef(.p = 10, mean = 1, sd = 2)
+beta <- generate_coef(rnorm, .p = 10, mean = 1, sd = 2)
 
 # generate beta = [1, 1, 0, 0, 0]
 beta <- generate_coef(.betas = 1, .p = 5, .s = 2)
@@ -52,5 +52,8 @@ beta_fun <- function(.s, df) {
   return(rt(n = .s, df = df))
 }
 beta <- generate_coef(.betas = beta_fun, .p = 10, .s = 3, df = 10)
+
+# we can do the same without wrapping rt
+beta <- generate_coef(.betas = rt, .p = 10, .s = 3, df = 10)
 
 }

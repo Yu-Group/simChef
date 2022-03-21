@@ -4,46 +4,46 @@
 \alias{generate_X_gaussian}
 \title{Generate a normal random matrix of covariates/features.}
 \usage{
-generate_X_gaussian(n, p, mean = 0, sd = 1, corr = 0, Sigma = NULL)
+generate_X_gaussian(.n, .p, .mean = 0, .sd = 1, .corr = 0, .Sigma = NULL)
 }
 \arguments{
-\item{n}{Number of samples.}
+\item{.n}{Number of samples.}
 
-\item{p}{Number of features.}
+\item{.p}{Number of features.}
 
-\item{mean}{Mean of normal distribution from which to generate data. Can be
-either a scalar value or vector of length p. Default is 0.}
+\item{.mean}{Mean of normal distribution from which to generate data. Can be
+either a scalar value or vector of length \code{.p}. Default is 0.}
 
-\item{sd}{Standard deviation of normal distribution from which to generate
+\item{.sd}{Standard deviation of normal distribution from which to generate
 data. Default is 1.}
 
-\item{corr}{Correlation between all pairs of features. Default is 0 for no
+\item{.corr}{Correlation between all pairs of features. Default is 0 for no
 correlation.}
 
-\item{Sigma}{(Optional) p x p covariance matrix of the normal distribution
-from which to generate data. Default is NULL (not used). If provided, the
-arguments \code{corr} and \code{sd} are ignored.}
+\item{.Sigma}{(Optional) \code{.p} x \code{.p} covariance matrix of the
+normal distribution from which to generate data. Default is NULL (not
+used). If provided, the arguments \code{corr} and \code{sd} are ignored.}
 }
 \value{
-A normal random matrix of size n x p.
+A normal random matrix of size \code{n.} x \code{.p}.
 }
 \description{
-Generate an n x p normal random matrix with the specified mean
+Generate an \code{.n} x \code{.p} normal random matrix with the specified mean
 and covariance structure.
 }
 \examples{
 
 # Returns 100 x 10 random Gaussian matrix with X_ij ~ N(0, 1)
-X <- generate_X_gaussian(n = 100, p = 10)
+X <- generate_X_gaussian(.n = 100, .p = 10)
 
 # Returns 100 x 10 random Gaussian matrix with E(X_i) = 0 for all i,
 # Var(X_i) = 4 for all i, and Cor(X_i, X_j) = 0.7 for all i != j
-X <- generate_X_gaussian(n = 100, p = 10, sd = 2, corr = 0.7)
+X <- generate_X_gaussian(.n = 100, .p = 10, .sd = 2, .corr = 0.7)
 
 # Returns 100 x 2 random Gaussian matrix: X ~ N(0, Sigma), where
 # Sigma = [3, .5; .5, 1]
 X <- generate_X_gaussian(
-  n = 100, p = 2, Sigma = matrix(c(3, .5, .5, 1), nrow = 2, byrow = TRUE)
+  .n = 100, .p = 2, .Sigma = matrix(c(3, .5, .5, 1), nrow = 2, byrow = TRUE)
 )
 
 }

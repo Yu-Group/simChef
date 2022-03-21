@@ -28,7 +28,7 @@ sets according to \code{train_prop}.}
 
 \item{intercept}{Scalar intercept term.}
 
-\item{n}{Number of samples.}
+\item{n, .n}{Number of samples.}
 
 \item{p, .p}{Number of features.}
 

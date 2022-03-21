@@ -5,6 +5,7 @@
 \title{General DGP constructor function to generate X and y data.}
 \usage{
 xy_dgp_constructor(
+  n,
   X_fun,
   y_fun,
   err_fun = NULL,
@@ -16,9 +17,13 @@ xy_dgp_constructor(
 )
 }
 \arguments{
-\item{X_fun}{Function to generate X data.}
+\item{n}{Number of samples.}
 
-\item{y_fun}{Function to generate y data.}
+\item{X_fun}{Function to generate X data. Must take an argument \code{n} or
+\code{.n} which determines the number of observations to generate.}
+
+\item{y_fun}{Function to generate y data. Must take an argument \code{X}
+which accepts the result from \code{X_fun}.}
 
 \item{err_fun}{Function to generate error/noise data. Default \code{NULL}
 adds no error to the output of \code{y_fun()}.}

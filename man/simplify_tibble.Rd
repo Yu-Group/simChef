@@ -4,12 +4,12 @@
 \alias{simplify_tibble}
 \title{Simplify tibble.}
 \usage{
-simplify_tibble(tib, omit_cols = NULL)
+simplify_tibble(tbl, empty_as_na = TRUE)
 }
 \arguments{
-\item{tib}{Tibble to simplify.}
+\item{empty_as_na}{If TRUE (default), missing values will be treated as NA.}
 
-\item{omit_cols}{Character vector of column names to omit when simplifying.}
+\item{tib}{Tibble to simplify.}
 }
 \value{
 A tibble that has been "simplified".

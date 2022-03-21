@@ -1427,6 +1427,7 @@ test_that("Experiment checkpointing works as expected", {
   expect_equal(nrow(fit_results), 80)
   expect_equal(distinct_results, distinct_results2)
 
+  # TODO: clean up even when tests fail
   if (dir.exists(file.path("results", "checkpoint-exper"))) {
     for (fname in list.files(file.path("results", "checkpoint-exper"),
                              recursive = T, full.names = TRUE)) {

@@ -51,15 +51,10 @@ check_equal <- function(obj1, obj2) {
 #'
 #' @return A tibble with one row.
 #' @keywords internal
-list_to_tibble_row <- function(ls) {
-  tib <- tryCatch({
-    tibble::as_tibble_row(ls)
-  }, error = function(e) {
-    out <- purrr::map(ls, ~list(.x)) %>%
-      tibble::as_tibble_row()
-    return(out)
-  })
-  return(tib)
+list_to_tibble_row <- function(ls, simplify = FALSE) {
+  out <- purrr::map(ls, ~list(.x)) %>%
+    tibble::as_tibble_row()
+  return(out)
 }
 
 #' Coerce list into a tibble.
@@ -98,31 +93,104 @@ list_to_tibble <- function(ls) {
 #'   the list is a scalar value.
 #'
 #' @param tib Tibble to simplify.
-#' @param omit_cols Character vector of column names to omit when simplifying.
+#' @param empty_as_na If TRUE (default), missing values will be treated as NA.
 #'
 #' @return A tibble that has been "simplified".
 #' @keywords internal
-simplify_tibble <- function(tib, omit_cols = NULL) {
-  simplify_cols <- purrr::map_lgl(
-    tib,
-    function(col) {
-      all(purrr::map_lgl(
-        1:length(col), 
-        ~(length(unlist(col[.x], recursive = FALSE)) <= 1) &
-          (!tibble::is_tibble(col[[.x]]))
-      ))
+simplify_tibble <- function(tbl, empty_as_na=TRUE) {
+
+  # TODO: handle empty tibbles here?
+  simplified_tbl <- purrr::imap_dfc(
+    tbl,
+    function(col, col_name) {
+
+      if (!is.list(col)) {
+        tbl_col <- tibble::tibble(col)
+        colnames(tbl_col) <- col_name
+        return(tbl_col)
+      }
+
+      names_col <- names(col)
+
+      # only names attribute is allowed
+      bad_attr <- !is.null(attributes(col)) &&
+        (length(attributes(col)) > 1 || is.null(names_col))
+
+      if (!is.list(col) || bad_attr) {
+        tbl_col <- tibble::tibble(col)
+        colnames(tbl_col) <- col_name
+        return(tbl_col)
+      }
+
+      atomic_types <- c("double", "integer", "logical",
+                        "character", "complex", "raw")
+      atomic_type <- NULL
+
+      col_vals <- vector("list", length(col))
+
+      for (i in seq_along(col)) {
+        x <- col[[i]]
+        type <- typeof(x)
+
+        if (type == "NULL") {
+          col_vals[[i]] <- NA # treat NULL as missing
+
+        } else if (!type %in% atomic_types || !is.null(attributes(x))) {
+          # unlisting the column would discard attributes
+          tbl_col <- tibble::tibble(col)
+          colnames(tbl_col) <- col_name
+          return(tbl_col)
+        }
+
+        if (length(x) == 0) {
+          if (!empty_as_na) {
+            tbl_col <- tibble::tibble(col)
+            colnames(tbl_col) <- col_name
+            return(tbl_col)
+          }
+          col_vals[[i]] <- NA # treat empty atomic values as missing
+
+        } else if (length(x) == 1) {
+
+          col_vals[[i]] <- x # possibly good atomic in the inner list
+
+          if (is.null(atomic_type)) {
+            atomic_type <- type # record the type the first time we see it
+
+          } else {
+            # check type compatibility
+            is_lonely_type <- any(
+              c(type, atomic_type) %in% c("character", "raw")
+            )
+
+            # don't unlist if raw and character are mixed with other types
+            if (is_lonely_type && type != atomic_type) {
+              tbl_col <- tibble::tibble(col)
+              colnames(tbl_col) <- col_name
+              return(tbl_col)
+            }
+          }
+
+        } else {
+          # the inner list is too long to be simplified
+          tbl_col <- tibble::tibble(col)
+          colnames(tbl_col) <- col_name
+          return(tbl_col)
+        }
+      }
+
+      if (isTRUE(atomic_type == "raw")) {
+        col_vals <- sapply(col_vals, as.raw)
+      } else {
+        col_vals <- unlist(col_vals)
+      }
+      names(col_vals) <- names_col
+      tbl_col <- tibble::tibble(col_vals)
+      colnames(tbl_col) <- col_name
+      return(tbl_col)
     }
-  ) %>%
-    which() %>%
-    names() %>%
-    setdiff(omit_cols)
-  tib <- tib %>%
-    dplyr::mutate(dplyr::across(tidyselect::all_of(simplify_cols), 
-                                function(col) {
-                                  col[sapply(col, is.null)] <- NA
-                                  unlist(col, recursive = FALSE)
-                                }))
-  return(tib)
+  )
+  return(simplified_tbl)
 }
 
 #' Fix duplicate vary across parameter names.

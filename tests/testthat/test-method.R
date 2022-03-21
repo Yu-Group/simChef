@@ -99,9 +99,9 @@ test_that("Method$fit() works properly", {
   # ... in method_fun works as expected
   expect_error(method2$fit(data_list = NULL))
   expect_equal(method2$fit(data_list = list(a = 1, b = 2:3)),
-               tibble::tibble(a = list(1), b = list(2:3)))
+               tibble::tibble(a = 1, b = list(2:3)))
   expect_equal(method2$fit(data_list = NULL, a = 1, b = 2:3),
-               tibble::tibble(a = list(1), b = list(2:3)))
+               tibble::tibble(a = 1, b = list(2:3)))
   expect_equal(method2b$fit(data_list = NULL),
                tibble::tibble(a = 2))
   expect_equal(method2b$fit(data_list = NULL, a = 3, b = 4),
@@ -109,10 +109,10 @@ test_that("Method$fit() works properly", {
 
   # returns tibble row
   expect_equal(method3$fit(data_list = list(x = 1)),
-               tibble::tibble(a = list(1), b = list(1)))
+               tibble::tibble(a = 1, b = 1))
   expect_equal(method3$fit(data_list = NULL, x = 1),
-               tibble::tibble(a = list(1), b = list(1)))
+               tibble::tibble(a = 1, b = 1))
   expect_equal(method4$fit(data_list = list(x = "x", y = "y")),
-               tibble::tibble(a = list("x"), b = list(rep("y", 3))))
+               tibble::tibble(a = "x", b = list(rep("y", 3))))
 
 })
