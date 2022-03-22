@@ -70,5 +70,5 @@ and the true underlying support of this data is the first s features in X
 # generate data from: log(p / (1 - p)) = betas_1 * x_1 + betas_2 * x_2, where
 # betas_1, betas_2 ~ N(0, 1) and X ~ N(0, I_10)
 sim_data <- logistic_gaussian_dgp(n = 100, p = 10, s = 2, betas_sd = 1)
-  
+
 }

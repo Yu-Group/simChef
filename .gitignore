@@ -10,6 +10,9 @@ tests/testthat/figure/
 
 ## ---- R
 
+# R project files
+*.Rproj
+
 # History files
 .Rhistory
 .Rapp.history

@@ -97,7 +97,7 @@ sim_data <- lss_gaussian_dgp(n = 100, p = 10, k = 2, s = 2,
 
 # generate data from: y = 3 * 1(X_1 < 0) - 1(X_2 > 1) + N(0, 1), where
 # X is a 100 x 10 standard Gaussian random matrix
-sim_data <- lss_gaussian_dgp(n = 100, p = 10, k = 1, s = 2, 
+sim_data <- lss_gaussian_dgp(n = 100, p = 10, k = 1, s = 2,
                              thresholds = matrix(0:1, nrow = 2),
                              signs = matrix(c(-1, 1), nrow = 2),
                              betas = c(3, -1),

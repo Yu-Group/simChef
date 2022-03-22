@@ -90,5 +90,5 @@ sim_data <- linear_gaussian_dgp(n = 100, p_obs = 10, s_obs = 2, betas_sd = 1,
 sim_data <- linear_gaussian_dgp(n = 100, p_obs = 10, p_unobs = 2,
                                 betas_sd = .5, betas_unobs = c(-1, 0),
                                 err = rt, df = 1)
-  
+
 }

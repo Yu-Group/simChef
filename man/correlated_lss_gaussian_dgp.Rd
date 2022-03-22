@@ -109,26 +109,26 @@ For more details on the LSS model, see Behr, Merle, et al. "Provable Boolean Int
 }
 \examples{
 # generate data from: y = 1(X_1 > 0, X_2 > 0) + 1(X_3 > 0, X_4 > 0), where
-# X is a 100 x 10 correlated Gaussian random matrix with 
+# X is a 100 x 10 correlated Gaussian random matrix with
 # Var(X_i) = 1 for all i and Cor(X_i, X_j) = 0.7 for all i != j
-sim_data <- correlated_lss_gaussian_dgp(n = 100, p_uncorr = 0, p_corr = 10, 
+sim_data <- correlated_lss_gaussian_dgp(n = 100, p_uncorr = 0, p_corr = 10,
                                         k = 2, s_corr = 2, corr = 0.7,
                                         thresholds = 0, signs = 1, betas = 1)
 
-# generate data from: y = 3 * 1(X_1 > 0, X_2 > 0) - 1(X_11 > 0, X_12 > 0) + N(0, 1), 
-# where X = [Z, U], Z is a 100 x 10 standard Gaussian random matrix, 
+# generate data from: y = 3 * 1(X_1 > 0, X_2 > 0) - 1(X_11 > 0, X_12 > 0) + N(0, 1),
+# where X = [Z, U], Z is a 100 x 10 standard Gaussian random matrix,
 # U is a 100 x 10 Gaussian random matrix with Var(U_i) = 1 and Cor(U_i, U_j) = 0.7
 sim_data <- correlated_lss_gaussian_dgp(n = 100, p_uncorr = 10, p_corr = 10,
                                         s_uncorr = 1, s_corr = 1, corr = 0.7,
                                         k = 2, betas = c(3, -1), err = rnorm)
 
-# generate data from: y = \sum_{i = 1}^{4} \prod_{j = 1}^{2} 1(X_{s_j} > 0), 
-# where s_j \in {1:4, 11:14} are randomly selected indiceds, X = [Z, U], 
-# Z is a 100 x 10 standard Gaussian random matrix, U is a 100 x 10 Gaussian 
+# generate data from: y = \sum_{i = 1}^{4} \prod_{j = 1}^{2} 1(X_{s_j} > 0),
+# where s_j \in {1:4, 11:14} are randomly selected indiceds, X = [Z, U],
+# Z is a 100 x 10 standard Gaussian random matrix, U is a 100 x 10 Gaussian
 # random matrix with Var(U_i) = 1 and Cor(U_i, U_j) = 0.7
 # i.e., interactions may consist of both correlated and uncorrelated features
-sim_data <- correlated_lss_gaussian_dgp(n = 100, p_uncorr = 10, p_corr = 10, 
-                                        s_uncorr = 2, s_corr = 2, k = 2, 
+sim_data <- correlated_lss_gaussian_dgp(n = 100, p_uncorr = 10, p_corr = 10,
+                                        s_uncorr = 2, s_corr = 2, k = 2,
                                         corr = 0.7, mixed_int = TRUE)
 
 }
