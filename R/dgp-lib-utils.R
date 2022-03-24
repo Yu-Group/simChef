@@ -169,7 +169,7 @@ generate_coef <- function(.betas = NULL, .p = 1, .s = .p, .betas_name = "betas",
     .betas <- rep(0.5, .s)
   } else if (is.function(.betas)) {
     # .betas is a function, which must take n, .s, or .p
-    args_intersect <- intersect(c("n", ".s", ".p"), formalArgs(.betas))
+    args_intersect <- intersect(c("n", ".s", ".p"), methods::formalArgs(.betas))
     if (length(args_intersect) == 0) {
       msg <- paste0(
         .betas_name,
@@ -365,7 +365,7 @@ dots_to_fun_args <- function(prefix = c("X", "U", "y", "err", "betas",
 #'
 #' @keywords internal
 do_call <- function(.fun, ..., args = NULL, always_args = NULL) {
-  if ("..." %in% formalArgs(.fun)) {
+  if ("..." %in% methods::formalArgs(.fun)) {
     R.utils::doCall(
       .fun, ..., args = args, alwaysArgs = always_args,
       .ignoreUnusedArgs = FALSE

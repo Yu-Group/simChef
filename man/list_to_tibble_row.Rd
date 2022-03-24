@@ -4,10 +4,10 @@
 \alias{list_to_tibble_row}
 \title{Coerce list into a tibble row.}
 \usage{
-list_to_tibble_row(ls, simplify = FALSE)
+list_to_tibble_row(lst, simplify = FALSE)
 }
 \arguments{
-\item{ls}{List to convert into a tibble row.}
+\item{lst}{List to convert into a tibble row.}
 }
 \value{
 A tibble with one row.

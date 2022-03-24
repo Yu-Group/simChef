@@ -19,8 +19,8 @@
 #' If \code{return_support = FALSE}, returns only the response vector \code{y}.
 #' 
 #' @examples
-#' X <- generate_X_gaussian(n = 100, p = 2)
-#' U <- generate_X_gaussian(n = 100, p = 2)
+#' X <- generate_X_gaussian(.n = 100, .p = 2)
+#' U <- generate_X_gaussian(.n = 100, .p = 2)
 #' 
 #' # generate the response from: y = 3*x_1 - x_2 + N(0, 1) errors
 #' y <- generate_y_linear(X = X, betas = c(3, -1), err = rnorm)
@@ -87,7 +87,7 @@ generate_y_linear <- function(X, U, betas = NULL, betas_unobs = NULL,
 #' @inherit generate_y_linear return
 #' 
 #' @examples
-#' X <- generate_X_gaussian(n = 100, p = 2)
+#' X <- generate_X_gaussian(.n = 100, .p = 2)
 #' 
 #' # generate the response from: log(p / (1 - p)) = 3*x_1 - x_2
 #' # where p = P(y  = 1 | x)
@@ -151,7 +151,7 @@ generate_y_logistic <- function(X, betas = 0, intercept = 0,
 #' For more details on the LSS model, see Behr, Merle, et al. "Provable Boolean Interaction Recovery from Tree Ensemble obtained via Random Forests." arXiv preprint arXiv:2102.11800 (2021).
 #' 
 #' @examples
-#' X <- generate_X_gaussian(n = 100, p = 10)
+#' X <- generate_X_gaussian(.n = 100, .p = 10)
 #' 
 #' # generate data from: y = 1(X_1 > 0, X_2 > 0) + 1(X_3 > 0, X_4 > 0)
 #' y <- generate_y_lss(X = X, k = 2, s = matrix(1:4, nrow = 2, byrow = TRUE),

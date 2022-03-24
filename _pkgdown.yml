@@ -160,4 +160,3 @@ reference:
       - list_col_to_chr
 template:
   assets: vignettes/results/example-html-outputs
-  

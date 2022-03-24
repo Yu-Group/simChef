@@ -34,7 +34,7 @@ Generate (binary) logistic response data given the observed
 design matrices.
 }
 \examples{
-X <- generate_X_gaussian(n = 100, p = 2)
+X <- generate_X_gaussian(.n = 100, .p = 2)
 
 # generate the response from: log(p / (1 - p)) = 3*x_1 - x_2
 # where p = P(y  = 1 | x)

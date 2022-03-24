@@ -74,7 +74,7 @@ Here, data is generated from the following LSS model:
 For more details on the LSS model, see Behr, Merle, et al. "Provable Boolean Interaction Recovery from Tree Ensemble obtained via Random Forests." arXiv preprint arXiv:2102.11800 (2021).
 }
 \examples{
-X <- generate_X_gaussian(n = 100, p = 10)
+X <- generate_X_gaussian(.n = 100, .p = 10)
 
 # generate data from: y = 1(X_1 > 0, X_2 > 0) + 1(X_3 > 0, X_4 > 0)
 y <- generate_y_lss(X = X, k = 2, s = matrix(1:4, nrow = 2, byrow = TRUE),

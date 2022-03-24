@@ -50,8 +50,8 @@ Generate linear response data with a specified error
 distribution given the observed and unobserved design matrices.
 }
 \examples{
-X <- generate_X_gaussian(n = 100, p = 2)
-U <- generate_X_gaussian(n = 100, p = 2)
+X <- generate_X_gaussian(.n = 100, .p = 2)
+U <- generate_X_gaussian(.n = 100, .p = 2)
 
 # generate the response from: y = 3*x_1 - x_2 + N(0, 1) errors
 y <- generate_y_linear(X = X, betas = c(3, -1), err = rnorm)
