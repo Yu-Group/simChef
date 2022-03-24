@@ -47,12 +47,14 @@ check_equal <- function(obj1, obj2) {
 #'   coerce using [tibble::as_tibble_row()], but if this fails, then coerce list
 #'   into a tibble row, where each column in the tibble is of type list.
 #'
-#' @param ls List to convert into a tibble row.
+#' @param lst List to convert into a tibble row.
 #'
 #' @return A tibble with one row.
 #' @keywords internal
-list_to_tibble_row <- function(ls, simplify = FALSE) {
-  out <- purrr::map(ls, ~list(.x)) %>%
+list_to_tibble_row <- function(lst, simplify = FALSE) {
+  out <- purrr::map(lst, ~{
+    if (is.list(.x) && length(.x) == 1) .x else list(.x)
+  }) %>%
     tibble::as_tibble_row()
   return(out)
 }
@@ -63,15 +65,15 @@ list_to_tibble_row <- function(ls, simplify = FALSE) {
 #'   [tibble::as_tibble()], but if this fails, then coerce list into a tibble,
 #'   where each non-scalar column in the tibble is of type list.
 #'
-#' @param ls List to convert into a tibble.
+#' @param lst List to convert into a tibble.
 #'
 #' @return A tibble.
 #' @keywords internal
-list_to_tibble <- function(ls) {
+list_to_tibble <- function(lst) {
   tib <- tryCatch({
-    tibble::as_tibble(ls)
+    tibble::as_tibble(lst)
   }, error = function(e) {
-    out <- purrr::map(ls, ~list(.x)) %>%
+    out <- purrr::map(lst, ~list(.x)) %>%
       tibble::as_tibble()
     simplify_cols <- purrr::map_lgl(
       out,
@@ -92,99 +94,159 @@ list_to_tibble <- function(ls) {
 #' @description Simplify or unlist list columns in tibble if each element in
 #'   the list is a scalar value.
 #'
-#' @param tib Tibble to simplify.
-#' @param empty_as_na If TRUE (default), missing values will be treated as NA.
+#' @param tib `tibble::tibble` to simplify.
+#' @param empty_as_na If TRUE (default), 0-length values will be treated as NA.
 #'
 #' @return A tibble that has been "simplified".
 #' @keywords internal
 simplify_tibble <- function(tbl, empty_as_na=TRUE) {
 
-  # TODO: handle empty tibbles here?
   simplified_tbl <- purrr::imap_dfc(
     tbl,
     function(col, col_name) {
 
       if (!is.list(col)) {
+        # only list cols need simplification
         tbl_col <- tibble::tibble(col)
         colnames(tbl_col) <- col_name
         return(tbl_col)
       }
 
-      names_col <- names(col)
+      col_vals <- vector("list", length(col))
+      names_in_col <- names(col)
 
-      # only names attribute is allowed
-      bad_attr <- !is.null(attributes(col)) &&
-        (length(attributes(col)) > 1 || is.null(names_col))
-
-      if (!is.list(col) || bad_attr) {
-        tbl_col <- tibble::tibble(col)
-        colnames(tbl_col) <- col_name
-        return(tbl_col)
+      if (is.null(names_in_col)) {
+        names_in_col <- vector("character", length(col))
       }
 
       atomic_types <- c("double", "integer", "logical",
                         "character", "complex", "raw")
       atomic_type <- NULL
 
-      col_vals <- vector("list", length(col))
+      # only "names" attribute is allowed when unlisting the col
+      col_unlistable <- is.vector(col)
 
       for (i in seq_along(col)) {
+
+        # get the entry
         x <- col[[i]]
-        type <- typeof(x)
 
-        if (type == "NULL") {
-          col_vals[[i]] <- NA # treat NULL as missing
+        # check if entry is a plain singleton list
+        if (all(class(x) == "list") && length(x) == 1 && is.vector(x)) {
 
-        } else if (!type %in% atomic_types || !is.null(attributes(x))) {
-          # unlisting the column would discard attributes
-          tbl_col <- tibble::tibble(col)
-          colnames(tbl_col) <- col_name
-          return(tbl_col)
+          # get the names at each level
+          entry_names <- list(
+            names_in_col[i], # outer
+            names(x), # inner
+            names(x[[1]]) # nested
+          )
+
+          # filter to names that are valid to serve as the outer name
+          is_valid <- sapply(entry_names, function(ns) {
+            !is.null(ns) && length(ns) == 1 && !is.na(ns) && any(ns != "")
+          })
+
+          # x[[1]]'s name is only valid if it's a singleton vector
+          is_valid[3] <- is_valid[3] && is.vector(x[[1]])
+
+          # check for a unique valid name
+          new_name <- unique(unlist(entry_names[is_valid]))
+
+          if (length(new_name) > 1) {
+            # there are multiple unique names, so preserve all
+            col_unlistable <- FALSE
+          } else if (length(new_name) == 1) {
+            # update the name in the column vector
+            names_in_col[i] <- new_name
+          }
+
+          # unnest if there is enough space for the names
+          if (length(new_name) <= 1) {
+            x <- x[[1]]
+          }
         }
 
-        if (length(x) == 0) {
-          if (!empty_as_na) {
-            tbl_col <- tibble::tibble(col)
-            colnames(tbl_col) <- col_name
-            return(tbl_col)
-          }
-          col_vals[[i]] <- NA # treat empty atomic values as missing
+        # get the final type
+        if (length(x) == 0 || (length(x) == 1 && is.na(x)))  {
+          type <-  "NA"
+        } else {
+          type <- typeof(x)
+        }
 
-        } else if (length(x) == 1) {
+        # check col unlistability on three criteria:
+        # 1. all entries are NA or atomic of length at most 1
+        # 2. no atomic has attrs other than "names"
+        # 3. atomic types are compatible
 
-          col_vals[[i]] <- x # possibly good atomic in the inner list
+        col_unlistable <- col_unlistable &&
+          type %in% c(atomic_types, "NA") &&
+          length(x) <= 1 &&
+          (is.null(x) || is.vector(x))
+
+        if (col_unlistable && type %in% atomic_types) {
+          # record or check atomic type
 
           if (is.null(atomic_type)) {
-            atomic_type <- type # record the type the first time we see it
+            # record the type the first time we see it
+            atomic_type <- type
 
           } else {
-            # check type compatibility
+            # check atomic type compatibility
             is_lonely_type <- any(
               c(type, atomic_type) %in% c("character", "raw")
             )
 
             # don't unlist if raw and character are mixed with other types
             if (is_lonely_type && type != atomic_type) {
-              tbl_col <- tibble::tibble(col)
-              colnames(tbl_col) <- col_name
-              return(tbl_col)
+              col_unlistable <- FALSE
             }
           }
+        }
+
+        # put non-NULL value in the column
+        if (!is.null(x)) {
+          col_vals[[i]] <- x
+        }
+
+      } # END for loop over col
+
+      if (col_unlistable) {
+
+        # handle empties
+
+        if (empty_as_na) {
+          # some entries may be still be empty
+          col_vals <- lapply(col_vals, function(x) {
+            if (length(x) == 0) NA else x
+          })
 
         } else {
-          # the inner list is too long to be simplified
-          tbl_col <- tibble::tibble(col)
-          colnames(tbl_col) <- col_name
-          return(tbl_col)
+          # don't unlist if there are empties
+          if (any(sapply(col_vals, length) == 0)) {
+            col_unlistable <- FALSE
+          }
         }
       }
 
-      if (isTRUE(atomic_type == "raw")) {
-        col_vals <- sapply(col_vals, as.raw)
-      } else {
-        col_vals <- unlist(col_vals)
+      if (col_unlistable) {
+
+        # unlist
+
+        if (isTRUE(atomic_type == "raw")) {
+          # avoid casting raws to logicals if any NA entry
+          col_vals <- sapply(col_vals, as.raw)
+
+        } else {
+          # safe to unlist other atomic types
+          col_vals <- unlist(col_vals, use.names = FALSE)
+        }
       }
-      names(col_vals) <- names_col
+
+      if (isTRUE(any(names_in_col != ""))) {
+        # add names
+        names(col_vals) <- names_in_col
+      }
+
       tbl_col <- tibble::tibble(col_vals)
       colnames(tbl_col) <- col_name
       return(tbl_col)
@@ -194,18 +256,18 @@ simplify_tibble <- function(tbl, empty_as_na=TRUE) {
 }
 
 #' Fix duplicate vary across parameter names.
-#' 
+#'
 #' @description Add "_dgp" or "_method" suffixes to parameter names that are
 #'   found in both the DGP and Method vary across components. This is to avoid
-#'   errors that occur from duplicate column names when trying to create a 
+#'   errors that occur from duplicate column names when trying to create a
 #'   tibble.
-#'   
+#'
 #' @param dgp_params A named list of the DGP parameters.
 #' @param method_params A named list of the Method parameters.
 #' @param duplicate_param_names A vector of parameter names that are varied
 #'   across in both a DGP and a Method
-#' 
-#' @return A named list of the DGP and Method parameters with no duplicate 
+#'
+#' @return A named list of the DGP and Method parameters with no duplicate
 #'   names.
 #' @keywords internal
 fix_duplicate_param_names <- function(dgp_params, method_params,
@@ -226,16 +288,16 @@ fix_duplicate_param_names <- function(dgp_params, method_params,
 }
 
 #' Compare two tibbles.
-#' 
+#'
 #' @description Compare two tibbles for equality or containment.
-#'   
+#'
 #' @param x A tibble with unique rows.
 #' @param y A tibble with unique rows.
 #' @param op Name of opertaion.
-#' 
+#'
 #' @return If \code{op == "equal"}, returns a boolean indicating if \code{x} and
-#'   \code{y} have the same rows, ignoring the row order. If 
-#'   \code{op == "contained_in"}, returns a boolean indicating if all rows in 
+#'   \code{y} have the same rows, ignoring the row order. If
+#'   \code{op == "contained_in"}, returns a boolean indicating if all rows in
 #'   \code{x} are contained in the rows of \code{y}.
 #' @keywords internal
 compare_tibble_rows <- function(x, y, op = c("equal", "contained_in")) {
@@ -331,9 +393,9 @@ do_call_handler <- function(name, fun, params = list(), verbose = 1) {
 }
 
 #' Helper function to throw informative error when column names are duplicated,
-#' in particular, when the same parameter is in the user-provided method 
+#' in particular, when the same parameter is in the user-provided method
 #' results output and also in vary_across.
-#' 
+#'
 #' @param names Vector of column names to check for uniqueness
 #' @return Throws an error if duplicate names are found. Returns the original
 #'   names otherwise.

@@ -170,7 +170,9 @@ Experiment <- R6::R6Class(
           call. = FALSE
         )
       }
-      obj_fun_args <- formalArgs(obj_list[[obj_name]][[paste0(field_name, "_fun")]])
+      obj_fun_args <- methods::formalArgs(
+        obj_list[[obj_name]][[paste0(field_name, "_fun")]]
+      )
       dots_list_valid_names <- names(dots_list) %in% obj_fun_args
       if (!all(dots_list_valid_names) && (!("..." %in% obj_fun_args))) {
         invalid_names <- names(dots_list)[!dots_list_valid_names]
@@ -208,7 +210,7 @@ Experiment <- R6::R6Class(
       param_names <- purrr::reduce(param_names_ls, c)
       # fix duplicate names in dgp and method vary across components
       if (all(c("dgp", "method") %in% field_name)) {
-        same_names <- unique(intersect(param_names_ls[[1]], 
+        same_names <- unique(intersect(param_names_ls[[1]],
                                        param_names_ls[[2]]))
         if (length(same_names) >= 1) {
           unique_param_names <- setdiff(param_names, same_names)
@@ -374,11 +376,11 @@ Experiment <- R6::R6Class(
 
       fit_params <- private$.get_fit_params()
       fit_cached <- compare_tibble_rows(
-        fit_params, 
+        fit_params,
         cached_fit_params %>% dplyr::select(-.n_reps),
         op = "contained_in"
       )
-      
+
       if (!fit_cached) {
         return(0)
       } else {
@@ -478,7 +480,7 @@ Experiment <- R6::R6Class(
       if (results_type %in% c("fit", "eval", "viz")) {
         save_file <- file.path(save_dir, paste0(results_type, "_results.rds"))
         if (results_type == "fit") {
-          save_file2 <- file.path(save_dir, 
+          save_file2 <- file.path(save_dir,
                                   paste0(results_type,
                                          "_results_extra_cached_reps.rds"))
         }
@@ -525,7 +527,7 @@ Experiment <- R6::R6Class(
         file.remove(fits_fpath)
       }
     },
-    .get_cache = function(results_type = c("all", "fit", "evaluate", 
+    .get_cache = function(results_type = c("all", "fit", "evaluate",
                                            "visualize")) {
       results_type <- match.arg(results_type)
       cached_params <- private$.get_cached_results("experiment_cached_params",
@@ -612,8 +614,8 @@ Experiment <- R6::R6Class(
                               paste("Varying", param_names))
       }
       save_file <- file.path(save_dir, paste0(results_type, "_results.rds"))
-      save_file2 <- file.path(save_dir, 
-                              paste0(results_type, 
+      save_file2 <- file.path(save_dir,
+                              paste0(results_type,
                                      "_results_extra_cached_reps.rds"))
       if (!dir.exists(dirname(save_file))) {
         dir.create(dirname(save_file), recursive = TRUE)
@@ -696,7 +698,7 @@ Experiment <- R6::R6Class(
     },
     run = function(n_reps = 1, parallel_strategy = c("reps"),
                    future.globals = NULL, future.packages = NULL,
-                   future.seed = TRUE, use_cached = FALSE, 
+                   future.seed = TRUE, use_cached = FALSE,
                    return_all_cached_reps = FALSE, save = FALSE,
                    checkpoint_n_reps = 0, verbose = 1, ...) {
       if (!is.logical(save)) {
@@ -955,7 +957,6 @@ Experiment <- R6::R6Class(
             future.globals = future.globals,
             future.packages = future.packages,
             future.seed = future.seed)
-            # browser()
             dplyr::bind_rows(results, .id = ".rep")
           },
           "dgps" = {

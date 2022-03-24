@@ -365,7 +365,7 @@
     dgp <- create_dgp(
       dgp_fun = xy_dgp_constructor,
       name = 'Example DGP (Uncorrelated Gaussian Linear DGP)',
-      x_fun = generate_X_gaussian,
+      X_fun = generate_X_gaussian,
       y_fun = generate_y_linear,
       err_fun = rnorm,
       n = 200,
@@ -521,7 +521,7 @@
     dgp <- create_dgp(
       dgp_fun = xy_dgp_constructor,
       name = 'Example DGP (Uncorrelated Gaussian Logistic DGP)',
-      x_fun = generate_X_gaussian,
+      X_fun = generate_X_gaussian,
       y_fun = generate_y_logistic,
       n = 200,
       p = 10,
@@ -766,7 +766,7 @@
     dgp <- create_dgp(
       dgp_fun = xy_dgp_constructor,
       name = 'Example DGP (Uncorrelated Gaussian Linear DGP)',
-      x_fun = generate_X_gaussian,
+      X_fun = generate_X_gaussian,
       y_fun = generate_y_linear,
       err_fun = rnorm,
       n = 200,
@@ -971,7 +971,7 @@
     dgp <- create_dgp(
       dgp_fun = xy_dgp_constructor,
       name = 'Example DGP (Uncorrelated Gaussian Linear DGP)',
-      x_fun = generate_X_gaussian,
+      X_fun = generate_X_gaussian,
       y_fun = generate_y_linear,
       err_fun = rnorm,
       n = 200,
