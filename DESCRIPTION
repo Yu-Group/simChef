@@ -41,11 +41,13 @@ Suggests:
     ranger,
     testthat (>= 3.1.0),
     tidyr,
+    vdgp,
     vdiffr
 VignetteBuilder: 
     knitr
 Remotes:
     Yu-Group/vthemes
+    Yu-Group/vdgp
 Config/testthat/edition: 3
 Encoding: UTF-8
 LazyData: true
@@ -53,11 +55,6 @@ Roxygen: list(markdown = TRUE, r6 = FALSE)
 RoxygenNote: 7.1.2
 Collate: 
     'create_rmd.R'
-    'dgp-lib-X.R'
-    'dgp-lib-errors.R'
-    'dgp-lib-utils.R'
-    'dgp-lib-y.R'
-    'dgp-lib.R'
     'dgp.R'
     'evaluator-lib-feature-selection.R'
     'evaluator-lib-inference.R'
