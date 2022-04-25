@@ -139,8 +139,8 @@ showRecipePart <- function(field_name = c("dgp", "method",
   obj_names <- unique(purrr::reduce(sapply(objs, names), c))
 
   obj_header <- "<p style='font-weight: bold; font-size: 20px'> %s </p>"
-  invis_header <- "\n\n### %s {.tabset .tabset-pills .tabset-fade .tabset-recipe}\n\n"
-  showtype_header <- "\n\n#### %s {.tabset .tabset-pills .tabset-fade}\n\n"
+  invis_header <- "\n\n### %s {.tabset .tabset-pills .tabset-recipe .tabset-circle}\n\n"
+  showtype_header <- "\n\n#### %s {.tabset .tabset-pills}\n\n"
   exp_header <- "\n\n##### %s \n\n"
 
   if (all(sapply(objs, length) == 0)) {
@@ -223,12 +223,12 @@ showResults <- function(dir_name, depth, base = FALSE, show_header = TRUE,
   }
 
   if (depth == 1) {
-    header_template <- "\n\n%s %s {.tabset .tabset-pills .tabset-fade}\n\n"
+    header_template <- "\n\n%s %s {.tabset .tabset-pills .tabset-vmodern}\n\n"
   } else {
     if (base | !experimentExists(dir_name)) {
-      header_template <- "\n\n%s %s {.tabset .tabset-pills .tabset-fade}"
+      header_template <- "\n\n%s %s {.tabset .tabset-pills}"
     } else {
-      header_template <- "\n\n%s %s {.tabset .tabset-pills .tabset-fade .tabset-circle}"
+      header_template <- "\n\n%s %s {.tabset .tabset-pills .tabset-circle}"
     }
   }
 
@@ -242,7 +242,7 @@ showResults <- function(dir_name, depth, base = FALSE, show_header = TRUE,
     cat(paste0("\n\n",
                paste(rep("#", depth + 1), collapse = ""),
                " Base - ", basename(dir_name),
-               " {.tabset .tabset-pills .tabset-fade .tabset-circle}\n\n"))
+               " {.tabset .tabset-pills .tabset-circle}\n\n"))
     depth <- depth + 1
   }
 
@@ -252,7 +252,7 @@ showResults <- function(dir_name, depth, base = FALSE, show_header = TRUE,
   figname_template <- "<h3 style='font-weight: bold'> %s </h3>"
   invisible_header <- paste0(
     "\n\n", paste(rep("#", depth + 2), collapse = ""),
-    " {.tabset .tabset-pills .tabset-fade}\n\n"
+    " {.tabset .tabset-pills}\n\n"
   )
   plt_template <- paste0(
     "\n\n", paste(rep("#", depth + 3), collapse = ""), " %s\n\n"
@@ -368,7 +368,7 @@ showDescendantResults <- function(dir_name, depth = 1, ...) {
 
 ```
 
-# Simulation Experiment Recipe {.tabset .custom-tabs}
+# Simulation Experiment Recipe {.tabset .tabset-vmodern}
 
 ## Objectives {.panel .panel-default .padded-panel}
 
@@ -409,7 +409,7 @@ showRecipePart(field_name = "visualizer")
 # show results
 if (experimentExists(params$sim_path)) {
   cat(sprintf("\n\n# Base %s \n\n", params$sim_name))
-  cat("\n\n## {.tabset .tabset-pills .tabset-fade .tabset-circle}\n\n")
+  cat("\n\n## {.tabset .tabset-pills .tabset-circle}\n\n")
   message(sprintf("Creating R Markdown report for %s...", params$sim_name))
   showResults(params$sim_path, depth = 2, base = FALSE, show_header = FALSE,
               verbose = 0)
