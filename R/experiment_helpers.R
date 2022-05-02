@@ -158,8 +158,11 @@ generate_data <- function(experiment, n_reps=1, ...) {
 #' @param return_all_cached_reps Logical. If \code{FALSE} (default), returns
 #'   only the fit results for the requested \code{n_reps}. If \code{TRUE},
 #'   returns fit results for the requested \code{n_reps} plus any additional
-#'   cached replicates from the (\code{DGP}, \code{Method}) combinations in the 
+#'   cached replicates from the (\code{DGP}, \code{Method}) combinations in the
 #'   \code{Experiment}.
+#' @param ... Additional `future.*` arguments to pass to [future.apply]
+#'   functions. See [future.apply::future_lapply()] and
+#'   [future.apply::future_mapply()].
 #'
 #' @return A tibble containing the results from fitting all \code{Methods}
 #'   across all \code{DGPs} for \code{n_reps} repetitions. In addition to

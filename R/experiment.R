@@ -30,12 +30,6 @@ Experiment <- R6::R6Class(
     .fit_params = tibble::tibble(),
     .future.globals = TRUE,
     .future.packages = NULL,
-    # non-local util functions for global access by future
-    .check_results_names = check_results_names,
-    .do_call_handler = do_call_handler,
-    .fix_duplicate_param_names = fix_duplicate_param_names,
-    .list_to_tibble_row = list_to_tibble_row,
-    .simplify_tibble = simplify_tibble,
     # private methods
     .add_obj = function(field_name, obj, obj_name, ...) {
       # TODO: check if obj is already in list by another name
@@ -49,11 +43,13 @@ Experiment <- R6::R6Class(
         }
       }
       if (!is.null(obj_list[[obj_name]])) {
-        stop(
-          sprintf("The name '%s' already exists in the %s list. ",
-                  obj_name, field_name),
-          sprintf("Use update_%s instead.", field_name),
-          call. = FALSE
+        abort(
+          sprintf(
+            paste("The name '%s' already exists in the %s list.",
+                  "Use `update_%s` instead."),
+            obj_name, field_name, field_name,
+            ),
+          call = rlang::caller_env()
         )
       } else {
         list_name <- paste0(".", field_name, "_list")
@@ -63,11 +59,13 @@ Experiment <- R6::R6Class(
     .update_obj = function(field_name, obj, obj_name, ...) {
       obj_list <- private$.get_obj_list(field_name, ...)
       if (!obj_name %in% names(obj_list)) {
-        stop(
-          sprintf("The name '%s' isn't in the %s list. ",
-                  obj_name, field_name),
-          sprintf("Use add_%s instead.", field_name),
-          call. = FALSE
+        abort(
+          sprintf(
+            paste("The name '%s' isn't in the %s list.",
+                  "Use `add_%s` instead."),
+            obj_name, field_name, field_name
+          ),
+          call = rlang::caller_env()
         )
       }
       list_name <- paste0(".", field_name, "_list")
@@ -79,22 +77,26 @@ Experiment <- R6::R6Class(
       if (is.null(obj_name)) {
         private[[list_name]] <- list()
       } else if (is.null(obj_list[[obj_name]])) {
-        stop(
-          sprintf("Cannot remove '%s'. ", obj_name),
-          sprintf("The name '%s' does not exist in the %s list. ",
-                  obj_name, field_name),
-          call. = FALSE
+        abort(
+          sprintf(
+            paste("Cannot remove '%s'.",
+                  "The name '%s' does not exist in the %s list."),
+            obj_name, obj_name, field_name
+          ),
+          call = rlang::caller_env()
         )
       } else {
         private[[list_name]][[obj_name]] <- NULL
       }
     },
     .throw_empty_list_error = function(field_name, action_name = "run") {
-      stop(
-        sprintf("No %s has been added yet. ", field_name),
-        sprintf("Use add_%s before trying to %s the experiment.",
-                field_name, action_name),
-        call. = FALSE
+      abort(
+        sprintf(
+          paste("No %s has been added yet. ",
+                "Use add_%s before trying to %s the experiment."),
+          field_name, field_name, action_name
+        ),
+        call = rlang::caller_env()
       )
     },
     .get_obj_list = function(field_name, getter_name=NULL) {
@@ -106,20 +108,21 @@ Experiment <- R6::R6Class(
       if (!inherits(obj, expected_class)) {
         err_msg <- sprintf("%s must be an instance of simChef::%s",
                            as.character(substitute(obj)), expected_class)
-        stop(err_msg, call.=FALSE)
+        abort(err_msg, call = rlang::caller_env())
       }
     },
     .add_obj_list = function(obj_list, expected_class) {
       if (length(obj_list) > 0) {
         lapply(obj_list, function(obj) {
           if (!inherits(obj, expected_class)) {
-            stop(
-              sprintf("Expected all objects in %s_list ",
-                      tolower(expected_class)),
-              sprintf("to be instances of %s, ", expected_class),
-              sprintf("but found an object with the following class(es): %s",
-                      paste0(class(obj), collapse=", ")),
-              call. = FALSE
+            abort(
+              sprintf(
+                paste("Expected all objects in %s_list to be instances of %s,",
+                      "but found an object with the following class(es): %s"),
+                tolower(expected_class), expected_class,
+                paste0(class(obj), collapse=", ")
+              ),
+              call = rlang::caller_env()
             )
           }
         })
@@ -141,9 +144,11 @@ Experiment <- R6::R6Class(
     .check_vary_across = function(.dgp, .method, ...) {
       dots_list <- rlang::list2(...)
       if (missing(.dgp) && missing(.method)) {
-        stop("Must specify either dgp or method.")
-      } else if ((!missing(.dgp)) + (!missing(.method)) != 1) {
-        stop("Must specify one of dgp or method, but not both")
+        abort("Must specify either '.dgp' or '.method'.",
+              call = rlang::caller_env())
+      } else if (!missing(.dgp) && !missing(.method)) {
+        abort("Must specify one of '.dgp' or '.method', but not both.",
+              call = rlang::caller_env())
       } else if (!missing(.dgp)) {
         obj <- .dgp
         field_name <- "dgp"
@@ -162,12 +167,12 @@ Experiment <- R6::R6Class(
       } else if (obj %in% names(obj_list)) {
         obj_name <- obj
       } else {
-        stop(
+        abort(
           sprintf(
             "%s must either be a %s object or the name of a %s in the current Experiment.",
             field_name, class_name, class_name
           ),
-          call. = FALSE
+          call = rlang::caller_env()
         )
       }
       obj_fun_args <- methods::formalArgs(
@@ -177,10 +182,10 @@ Experiment <- R6::R6Class(
       if (!all(dots_list_valid_names) && (!("..." %in% obj_fun_args))) {
         invalid_names <- names(dots_list)[!dots_list_valid_names]
         invalid_names <- paste0(invalid_names, collapse=", ")
-        stop(
+        abort(
           sprintf("%s: not valid argument(s) to %s's %s_fun",
                   invalid_names, obj_name, field_name),
-          call. = FALSE
+          call = rlang::caller_env()
         )
       }
 
@@ -190,7 +195,7 @@ Experiment <- R6::R6Class(
     },
     .has_vary_across = function() {
       if ((length(private$.vary_across_list$dgp) == 0) &&
-          (length(private$.vary_across_list$method) == 0)) {
+            (length(private$.vary_across_list$method) == 0)) {
         return(FALSE)
       } else {
         return(TRUE)
@@ -315,23 +320,9 @@ Experiment <- R6::R6Class(
         out_params <- out_params %>%
           dplyr::select(-.dgp, -.dgp_fun, -.dgp_params,
                         -.method, -.method_fun, -.method_params) %>%
-          private$.simplify_tibble()
+          simplify_tibble()
       }
       return(out_params)
-    },
-    .get_new_dgp_params = function(method_params, new_fit_params) {
-      # get new dgp parameter combinations given method parameter set
-      dgp_params_list <- new_fit_params %>%
-        dplyr::filter(sapply(.method, identical, method_params)) %>%
-        dplyr::pull(.dgp)
-      return(dgp_params_list)
-    },
-    .get_new_method_params = function(dgp_params, new_fit_params) {
-      # get new method parameter combinations given dgp parameter set
-      method_params_list <- new_fit_params %>%
-        dplyr::filter(sapply(.dgp, identical, dgp_params)) %>%
-        dplyr::pull(.method)
-      return(method_params_list)
     },
     .get_new_obj_list = function(cached_params,
                                  field_name = c("dgp", "method",
@@ -405,7 +396,7 @@ Experiment <- R6::R6Class(
       }
 
       if (nrow(cached_params$fit) == 0) {
-          return(NULL)
+        return(NULL)
       }
 
       cached_fit_params <- cached_params$fit %>%
@@ -643,21 +634,6 @@ Experiment <- R6::R6Class(
                         difftime(Sys.time(), start_time, units = "secs")))
       }
     },
-    .in_error_state = FALSE,
-    .do_call_wrapper = function(name, fun, params = list(), verbose = 1) {
-      # the goal of this function is to catch and return errors from
-      # do_call_handler() and to set .in_error_state to TRUE for the worker's
-      # copy of this Experiment, which will be checked prior to additional
-      # computation in Experiment$fit
-      result <- tryCatch(
-        error = identity,
-        private$.do_call_handler(name, fun, params, verbose)
-      )
-      if ("simChefError" %in% class(result)) {
-        private$.in_error_state <- TRUE
-      }
-      return(result)
-    },
     deep_clone = function(name, value) {
       if (is.list(value) && length(value) > 0 && inherits(value[[1]], "R6")) {
         lapply(value, function(v) v$clone(deep = TRUE))
@@ -696,11 +672,12 @@ Experiment <- R6::R6Class(
       }
       private$.save_dir <- R.utils::getAbsolutePath(save_dir)
     },
-    run = function(n_reps = 1, parallel_strategy = c("reps"),
+    run = function(n_reps = 1, parallel_strategy = "reps",
                    future.globals = NULL, future.packages = NULL,
                    future.seed = TRUE, use_cached = FALSE,
                    return_all_cached_reps = FALSE, save = FALSE,
                    checkpoint_n_reps = 0, verbose = 1, ...) {
+
       if (!is.logical(save)) {
         save <- c("fit", "eval", "viz") %in% save
       } else {
@@ -720,15 +697,18 @@ Experiment <- R6::R6Class(
                               save = save[1],
                               checkpoint_n_reps = checkpoint_n_reps,
                               verbose = verbose, ...)
+
       eval_results <- self$evaluate(fit_results = fit_results %>%
                                       dplyr::filter(as.numeric(.rep) <= n_reps),
                                     use_cached = use_cached, save = save[2],
                                     verbose = verbose, ...)
+
       viz_results <- self$visualize(fit_results = fit_results %>%
                                       dplyr::filter(as.numeric(.rep) <= n_reps),
-                                eval_results = eval_results,
-                                use_cached = use_cached, save = save[3],
-                                verbose = verbose, ...)
+                                    eval_results = eval_results,
+                                    use_cached = use_cached, save = save[3],
+                                    verbose = verbose, ...)
+
       return(list(fit_results = fit_results,
                   eval_results = eval_results,
                   viz_results = viz_results))
@@ -767,20 +747,68 @@ Experiment <- R6::R6Class(
       }
       return(dgp_results)
     },
-    fit = function(n_reps = 1, parallel_strategy = c("reps"),
+    fit = function(n_reps = 1, parallel_strategy = "reps",
                    future.globals = NULL, future.packages = NULL,
                    future.seed = TRUE, use_cached = FALSE,
                    return_all_cached_reps = FALSE, save = FALSE,
                    checkpoint_n_reps = 0, verbose = 1, ...) {
 
+
+      parallel_strategy <- unique(parallel_strategy)
+
+      valid_strategies <- c(
+        "reps"
+        # TODO: currently unimplemented:
+        #, "dgps", "methods", "dgps+reps", "methods+reps",
+        # "dgps+methods", "dgps+methods+reps"
+      )
+
+      if (length(parallel_strategy) == 0) {
+        parallel_strategy <- "reps"
+
+      } else if (length(parallel_strategy > 1)) {
+
+        parallel_strategy <- sapply(
+          parallel_strategy, match.arg, choices = c("reps", "dgps", "methods")
+        )
+
+        strategy_string <- NULL
+
+        if ("reps" %in% parallel_strategy) {
+          strategy_string <- "reps"
+        }
+        if ("methods" %in% parallel_strategy) {
+          strategy_string <- paste0(c("methods", strategy_string), collapse="+")
+        }
+        if ("dgps" %in% parallel_strategy) {
+          strategy_string <- paste0(c("dgps", strategy_string), collapse="+")
+        }
+
+        parallel_strategy <- strategy_string
+      }
+
+      if (!parallel_strategy %in% valid_strategies) {
+        abort(
+          sprintf(
+            paste("`parallel_strategy` '%s' is currently unimplemented.",
+                  "Please use one of the supported values: %s."),
+            parallel_strategy,
+            paste0("'", valid_strategies, "'", collapse = "', '")
+          )
+        )
+      }
+
       dgp_list <- private$.get_obj_list("dgp")
       method_list <- private$.get_obj_list("method")
+
       if (length(dgp_list) == 0) {
         private$.throw_empty_list_error("dgp", "generate data from")
       }
+
       if (length(method_list) == 0) {
         private$.throw_empty_list_error("method", "fit methods in")
       }
+
       private$.update_fit_params()
 
       if (!is.numeric(checkpoint_n_reps)) {
@@ -792,6 +820,7 @@ Experiment <- R6::R6Class(
       n_reps_cached <- 0
       n_reps_total <- n_reps
       fit_results <- data.frame()
+
       if (checkpoint) {
         n_reps <- round(checkpoint_n_reps)
       }
@@ -799,21 +828,27 @@ Experiment <- R6::R6Class(
       if (use_cached || checkpoint) {
         cached_params <- private$.get_cache("fit")
         n_reps_cached <- private$.n_reps_cached(cached_params$fit)
+
         if (n_reps_cached > 0) {
+
           results <- private$.get_cached_results("fit", verbose = verbose)
           fit_params <- private$.get_fit_params(simplify = TRUE)
+
           fit_results <- dplyr::inner_join(x = results,
                                            y = fit_params,
                                            by = colnames(fit_params)) %>%
             dplyr::arrange(as.numeric(.rep), .dgp_name, .method_name)
+
           if (save) {
             n_reps_cached <- min(n_reps_total, n_reps_cached)
             private$.save_results(fit_results, "fit", n_reps_cached, verbose)
           }
+
           if (n_reps_cached >= n_reps_total) {
             if (verbose >= 1) {
               message("==============================")
             }
+
             if (use_cached && return_all_cached_reps) {
               return(fit_results)
             } else {
@@ -828,25 +863,6 @@ Experiment <- R6::R6Class(
         message(sprintf("Fitting %s...", self$name))
         start_time <- Sys.time()
       }
-      parallel_strategy <- unique(parallel_strategy)
-      if (length(parallel_strategy) == 0) {
-        parallel_strategy <- "reps"
-      } else {
-        parallel_strategy <- sapply(
-          parallel_strategy, match.arg, choices=c("reps", "dgps", "methods")
-        )
-      }
-      strategy_string <- NULL
-      if ("reps" %in% parallel_strategy) {
-        strategy_string <- "reps"
-      }
-      if ("dgps" %in% parallel_strategy) {
-        strategy_string <- paste0(c(strategy_string, "dgps"), collapse="+")
-      }
-      if ("methods" %in% parallel_strategy) {
-        strategy_string <- paste0(c(strategy_string, "methods"), collapse="+")
-      }
-      parallel_strategy <- strategy_string
 
       if (is.null(future.packages)) {
         future.packages <- private$.future.packages
@@ -859,553 +875,157 @@ Experiment <- R6::R6Class(
       dgp_params_list <- private$.combine_vary_params("dgp")
       method_params_list <- private$.combine_vary_params("method")
 
-      check_cache <- FALSE
+      # if new_fit_params is not NULL after the if statement below, then not all
+      # combos of (dgp_params_list, method_params_list) need to be rerun so need
+      # to check cache ids when fitting
+      new_fit_params <- NULL
+
       if (use_cached) {
+
         new_fit_params <- private$.get_fit_params(
           cached_params, "new", n_reps
         )
+
         n_params <- nrow(new_fit_params)
         new_fit <- n_params == nrow(private$.get_fit_params())
+
         if (!new_fit) {
+
           # get only the new dgps and methods that are not cached
           dgp_params_list <- private$.get_new_obj_list(
             cached_params, "dgp", new_fit_params = new_fit_params
           )
+
           method_params_list <- private$.get_new_obj_list(
             cached_params, "method", new_fit_params = new_fit_params
           )
-          if (length(dgp_params_list)*length(method_params_list) != n_params) {
-            # case when not all combos of (dgp_params_list, method_params_list)
-            # need to be rerun so need to check cache ids when fitting
-            check_cache <- TRUE
+
+          n_new <- length(dgp_params_list) * length(method_params_list)
+
+          if (n_new == n_params) {
+            new_fit_params <- NULL
           }
         }
       }
 
       duplicate_param_names <- private$.get_duplicate_param_names()
-      progressr::handlers("progress")
 
+      # simulation loop
       while (n_reps_cached < n_reps_total) {
+
         n_reps <- min(n_reps, n_reps_total - n_reps_cached)
 
-        new_fit_results <- switch(
-          parallel_strategy,
-          "reps" = {
-            p <- progressr::progressor(steps = n_reps)
-            # results <- replicate(n_reps, {
-            results <- future.apply::future_replicate(n_reps, {
-              p()
-              if (private$.in_error_state) {
-                return(NULL)
-              }
-              dgps_res <- purrr::map_dfr(dgp_params_list, function(dgp_params) {
-                if (private$.in_error_state) {
-                  return(NULL)
-                }
-                if (check_cache) {
-                  method_params_list <- private$.get_new_method_params(
-                    dgp_params, new_fit_params
-                  )
-                }
-                dgp_name <- dgp_params$.dgp_name
-                dgp_params$.dgp_name <- NULL
-                data_list <- private$.do_call_wrapper(
-                  dgp_name, dgp_list[[dgp_name]]$generate, dgp_params, verbose
-                )
-                if ("simChefError" %in% class(data_list)) {
-                  return(tibble::tibble(.err = list(data_list)))
-                }
-                methods_res <- purrr::map_dfr(
-                  method_params_list,
-                  function(method_params) {
-                    if (private$.in_error_state) {
-                      return(NULL)
-                    }
-                    method_name <- method_params$.method_name
-                    param_df <- private$.fix_duplicate_param_names(
-                      dgp_params = c(.dgp_name = dgp_name, dgp_params),
-                      method_params = method_params,
-                      duplicate_param_names = duplicate_param_names
-                    ) %>%
-                      private$.list_to_tibble_row()
-                    method_params$.method_name <- NULL
-                    method_params$data_list <- data_list
-                    method_params$.simplify <- FALSE
-                    result <- private$.do_call_wrapper(
-                      method_name, method_list[[method_name]]$fit,
-                      method_params, verbose
-                    )
-                    if ("simChefError" %in% class(result)) {
-                      return(tibble::tibble(.err = list(result)))
-                    }
+        new_fit_results <- local({
 
-                    result <- result %>%
-                      tibble::add_column(
-                        param_df, .before = 1,
-                        .name_repair = ~private$.check_results_names(
-                          ., method_name
-                        )
-                      )
-                    return(result)
-                  }
+          # create an env with objs/funcs that the future workers need
+          workenv <- rlang::new_environment(
+            data = list(
+              verbose = verbose,
+              dgp_list = dgp_list,
+              method_list = method_list,
+              new_fit_params = new_fit_params,
+              dgp_params_list = dgp_params_list,
+              method_params_list = method_params_list,
+              duplicate_param_names = duplicate_param_names,
+              do_call_wrapper = function(name,
+                                         fun,
+                                         params,
+                                         verbose,
+                                         call) {
+                tryCatch(
+                  error = identity,
+                  do_call_handler(
+                    name, fun, params, verbose, call
+                  )
                 )
-                return(methods_res)
-              })
-              return(dgps_res)
-            },
-            simplify = FALSE,
-            future.globals = future.globals,
-            future.packages = future.packages,
-            future.seed = future.seed)
-            dplyr::bind_rows(results, .id = ".rep")
-          },
-          "dgps" = {
-            p <- progressr::progressor(steps = length(dgp_params_list)*n_reps)
-            results <- future.apply::future_lapply(
-              dgp_params_list, function(dgp_params) {
-                if (private$.in_error_state) {
-                  return(NULL)
-                }
-                if (check_cache) {
-                  method_params_list <- private$.get_new_method_params(
-                    dgp_params, new_fit_params
-                  )
-                }
-                reps <- replicate(n_reps, {
-                  p()
-                  if (private$.in_error_state) {
-                    return(NULL)
-                  }
-                  dgp_name <- dgp_params$.dgp_name
-                  dgp_params$.dgp_name <- NULL
-                  data_list <- private$.do_call_wrapper(
-                    dgp_name, dgp_list[[dgp_name]]$generate, dgp_params, verbose
-                  )
-                  if ("simChefError" %in% class(data_list)) {
-                    return(tibble::tibble(.err = list(data_list)))
-                  }
-                  methods_res <- purrr::map_dfr(
-                    method_params_list,
-                    function(method_params) {
-                      if (private$.in_error_state) {
-                        return(NULL)
-                      }
-                      method_name <- method_params$.method_name
-                      param_df <- private$.fix_duplicate_param_names(
-                        dgp_params = c(.dgp_name = dgp_name, dgp_params),
-                        method_params = method_params,
-                        duplicate_param_names = duplicate_param_names
-                      ) %>%
-                        private$.list_to_tibble_row()
-                      method_params$.method_name <- NULL
-                      method_params$data_list <- data_list
-                      method_params$.simplify <- FALSE
-                      result <- private$.do_call_wrapper(
-                        method_name, method_list[[method_name]]$fit, method_params,
-                        verbose
-                      )
-                      if ("simChefError" %in% class(result)) {
-                        return(tibble::tibble(.err = list(result)))
-                      }
-                      result <- result %>%
-                        tibble::add_column(
-                          param_df, .before = 1,
-                          .name_repair = ~private$.check_results_names(
-                            ., method_name
-                          )
-                        )
-                      return(result)
-                    })
-                  return(methods_res)
-                }, simplify=FALSE)
-                dplyr::bind_rows(reps, .id = ".rep")
-              },
-              future.globals = future.globals,
-              future.packages = future.packages,
-              future.seed = future.seed)
-              dplyr::bind_rows(results)
-          },
-          "methods" = {
-            p <- progressr::progressor(steps = length(method_params_list)*n_reps)
-            results <- future.apply::future_lapply(
-              method_params_list, function(method_params) {
-                if (private$.in_error_state) {
-                  return(NULL)
-                }
-                if (check_cache) {
-                  dgp_params_list <- private$.get_new_dgp_params(
-                    method_params, new_fit_params
-                  )
-                }
-                reps <- replicate(n_reps, {
-                  p()
-                  dgps_res <- purrr::map_dfr(
-                    dgp_params_list,
-                    function(dgp_params) {
-                      if (private$.in_error_state) {
-                        return(NULL)
-                      }
-                      dgp_name <- dgp_params$.dgp_name
-                      dgp_params$.dgp_name <- NULL
-                      data_list <- private$.do_call_wrapper(
-                        dgp_name, dgp_list[[dgp_name]]$generate,
-                        dgp_params, verbose
-                      )
-                      if ("simChefError" %in% class(data_list)) {
-                        return(tibble::tibble(.err = list(data_list)))
-                      }
-                      method_name <- method_params$.method_name
-                      param_df <- private$.fix_duplicate_param_names(
-                        dgp_params = c(.dgp_name = dgp_name, dgp_params),
-                        method_params = method_params,
-                        duplicate_param_names = duplicate_param_names
-                      ) %>%
-                        private$.list_to_tibble_row()
-                      method_params$.method_name <- NULL
-                      method_params$data_list <- data_list
-                      method_params$.simplify <- FALSE
-                      result <- private$.do_call_wrapper(
-                        method_name, method_list[[method_name]]$fit,
-                        method_params, verbose
-                      )
-                      if ("simChefError" %in% class(result)) {
-                        return(tibble::tibble(.err = list(result)))
-                      }
-                      result <- result %>%
-                        tibble::add_column(
-                          param_df, .before = 1,
-                          .name_repair = ~private$.check_results_names(
-                            ., method_name
-                        )
-                      )
-                    return(result)
-                    })
-                  return(dgps_res)
-                }, simplify = FALSE)
-                dplyr::bind_rows(reps, .id = ".rep")
-              },
-              future.globals = future.globals,
-              future.packages = future.packages,
-              future.seed = future.seed)
-            dplyr::bind_rows(results)
-          },
-          "reps+dgps" = {
-            n_dgps <- length(dgp_params_list)
-            dgp_params_list <- rep(dgp_params_list, times = n_reps)
-            p <- progressr::progressor(along = dgp_params_list)
-            results <- future.apply::future_lapply(
-              dgp_params_list,
-              function(dgp_params) {
-                p()
-                if (private$.in_error_state) {
-                  return(NULL)
-                }
-                if (check_cache) {
-                  method_params_list <- private$.get_new_method_params(
-                    dgp_params, new_fit_params
-                  )
-                }
-                dgp_name <- dgp_params$.dgp_name
-                dgp_params$.dgp_name <- NULL
-                data_list <- private$.do_call_wrapper(
-                  dgp_name, dgp_list[[dgp_name]]$generate, dgp_params, verbose
-                )
-                if ("simChefError" %in% class(data_list)) {
-                  return(tibble::tibble(.err = list(data_list)))
-                }
-                methods_res <- purrr::map_dfr(
-                  method_params_list,
-                  function(method_params) {
-                    if (private$.in_error_state) {
-                      return(NULL)
-                    }
-                    method_name <- method_params$.method_name
-                    param_df <- private$.fix_duplicate_param_names(
-                      dgp_params = c(.dgp_name = dgp_name, dgp_params),
-                      method_params = method_params,
-                      duplicate_param_names = duplicate_param_names
-                    ) %>%
-                      private$.list_to_tibble_row()
-                    method_params$.method_name <- NULL
-                    method_params$data_list <- data_list
-                    method_params$.simplify <- FALSE
-                    result <- private$.do_call_wrapper(
-                      method_name, method_list[[method_name]]$fit,
-                      method_params, verbose
-                    )
-                    if ("simChefError" %in% class(result)) {
-                      return(tibble::tibble(.err = list(result)))
-                    }
-                    result <- result %>%
-                      tibble::add_column(
-                        param_df, .before = 1,
-                        .name_repair = ~private$.check_results_names(
-                          ., method_name
-                        )
-                      )
-                    return(result)
-                  })
-                return(methods_res)
-              },
-              future.seed = future.seed,
-              future.globals = future.globals,
-              future.packages = future.packages
-            )
-            dplyr::bind_rows(results, .id = ".rep") %>%
-              dplyr::mutate(
-                # get correct rep number
-                .rep = as.character((as.numeric(.rep) - 1) %/% n_dgps + 1)
-              )
-          },
-          "reps+methods" = {
-            n_methods <- length(method_params_list)
-            method_params_list <- rep(method_params_list, times = n_reps)
-            p <- progressr::progressor(along = method_params_list)
-            results <- future.apply::future_lapply(
-              method_params_list,
-              function(method_params) {
-                p()
-                if (private$.in_error_state) {
-                  return(NULL)
-                }
-                if (check_cache) {
-                  dgp_params_list <- private$.get_new_dgp_params(
-                    method_params, new_fit_params
-                  )
-                }
-                dgps_res <- purrr::map_dfr(dgp_params_list, function(dgp_params) {
-                  if (private$.in_error_state) {
-                    return(NULL)
-                  }
-                  dgp_name <- dgp_params$.dgp_name
-                  dgp_params$.dgp_name <- NULL
-                  data_list <- private$.do_call_wrapper(
-                    dgp_name, dgp_list[[dgp_name]]$generate, dgp_params, verbose
-                  )
-                  if ("simChefError" %in% class(data_list)) {
-                    return(tibble::tibble(.err = list(data_list)))
-                  }
-                  method_name <- method_params$.method_name
-                  param_df <- private$.fix_duplicate_param_names(
-                    dgp_params = c(.dgp_name = dgp_name, dgp_params),
-                    method_params = method_params,
-                    duplicate_param_names = duplicate_param_names
-                  ) %>%
-                    private$.list_to_tibble_row()
-                  method_params$.method_name <- NULL
-                  method_params$data_list <- data_list
-                  method_params$.simplify <- FALSE
-                  result <- private$.do_call_wrapper(
-                    method_name, method_list[[method_name]]$fit, method_params,
-                    verbose
-                  )
-                  if ("simChefError" %in% class(result)) {
-                    return(tibble::tibble(.err = list(result)))
-                  }
-                  result <- result %>%
-                    tibble::add_column(
-                      param_df, .before = 1,
-                      .name_repair = ~private$.check_results_names(
-                        ., method_name
-                      )
-                    )
-                  return(result)
-                })
-                return(dgps_res)
-              },
-              future.seed = future.seed,
-              future.globals = future.globals,
-              future.packages = future.packages
-            )
-            dplyr::bind_rows(results, .id = ".rep") %>%
-              dplyr::mutate(
-                # get correct rep number
-                .rep = as.character((as.numeric(.rep) - 1) %/% n_methods + 1)
-              )
-          },
-          "dgps+methods" = {
-            if (check_cache) {
-              mapply_args <- purrr::map2(new_fit_params$.dgp,
-                                         new_fit_params$.method,
-                                         ~c(list(.x), list(.y)))
-            } else {
-              mapply_args <- purrr::cross2(
-                dgp_params_list, method_params_list
-              )
-            }
-            # shuffle the inputs to avoid bad load balancing
-            mapply_args <- mapply_args[sample(1:length(mapply_args))]
-            dgp_mapply_args <- lapply(mapply_args, `[[`, 1)
-            method_mapply_args <- lapply(mapply_args, `[[`, 2)
-            p <- progressr::progressor(steps = length(dgp_mapply_args)*n_reps)
-            results <- future.apply::future_mapply(
-              function(dgp_params, method_params) {
-                if (private$.in_error_state) {
-                  return(NULL)
-                }
-                reps <- replicate(n_reps, {
-                  p()
-                  if (private$.in_error_state) {
-                    return(NULL)
-                  }
-                  dgp_name <- dgp_params$.dgp_name
-                  dgp_params$.dgp_name <- NULL
-                  data_list <- private$.do_call_wrapper(
-                    dgp_name, dgp_list[[dgp_name]]$generate, dgp_params, verbose
-                  )
-                  if ("simChefError" %in% class(data_list)) {
-                    return(tibble::tibble(.err = list(data_list)))
-                  }
-                  method_name <- method_params$.method_name
-                  param_df <- private$.fix_duplicate_param_names(
-                    dgp_params = c(.dgp_name = dgp_name, dgp_params),
-                    method_params = method_params,
-                    duplicate_param_names = duplicate_param_names
-                  ) %>%
-                    private$.list_to_tibble_row()
-                  method_params$.method_name <- NULL
-                  method_params$data_list <- data_list
-                  method_params$.simplify <- FALSE
-                  result <- private$.do_call_wrapper(
-                    method_name, method_list[[method_name]]$fit, method_params,
-                    verbose
-                  )
-                  if ("simChefError" %in% class(result)) {
-                    return(tibble::tibble(.err = list(result)))
-                  }
-                  result <- result %>%
-                    tibble::add_column(
-                      param_df, .before = 1,
-                      .name_repair = ~private$.check_results_names(
-                        ., method_name
-                      )
-                    )
-                  return(result)
-                }, simplify=FALSE)
-                dplyr::bind_rows(reps, .id = ".rep")
-              },
-              dgp_mapply_args, method_mapply_args,
-              future.seed = future.seed, SIMPLIFY = FALSE,
-              future.globals = future.globals,
-              future.packages = future.packages
-            )
-            dplyr::bind_rows(results)
-          },
-          "reps+dgps+methods" = {
-            if (check_cache) {
-              mapply_args <- purrr::map2(new_fit_params$.dgp,
-                                         new_fit_params$.method,
-                                         ~c(list(.x), list(.y)))
-              mapply_args <- purrr::map(1:n_reps,
-                                        function(i) {
-                                          purrr::map(mapply_args,
-                                                     ~c(list(i), .x))
-                                        }) %>%
-                purrr::reduce(c)
-            } else {
-              mapply_args <- purrr::cross3(
-                1:n_reps, dgp_params_list, method_params_list
-              )
-            }
-            # shuffle the inputs to avoid bad load balancing
-            mapply_args <- mapply_args[sample(1:length(mapply_args))]
-            reps <- sapply(mapply_args, `[[`, 1)
-            dgp_mapply_args <- lapply(mapply_args, `[[`, 2)
-            method_mapply_args <- lapply(mapply_args, `[[`, 3)
-            p <- progressr::progressor(along = dgp_mapply_args)
-            results <- future.apply::future_mapply(
-              function(dgp_params, method_params) {
-                p()
-                if (private$.in_error_state) {
-                  return(NULL)
-                }
-                dgp_name <- dgp_params$.dgp_name
-                dgp_params$.dgp_name <- NULL
-                data_list <- private$.do_call_wrapper(
-                  dgp_name, dgp_list[[dgp_name]]$generate, dgp_params, verbose
-                )
-                if ("simChefError" %in% class(data_list)) {
-                  return(tibble::tibble(.err = list(data_list)))
-                }
-                method_name <- method_params$.method_name
-                param_df <- private$.fix_duplicate_param_names(
-                  dgp_params = c(.dgp_name = dgp_name, dgp_params),
-                  method_params = method_params,
-                  duplicate_param_names = duplicate_param_names
-                ) %>%
-                  private$.list_to_tibble_row()
-                method_params$.method_name <- NULL
-                method_params$data_list <- data_list
-                method_params$.simplify <- FALSE
-                result <- private$.do_call_wrapper(
-                  method_name, method_list[[method_name]]$fit, method_params,
-                  verbose
-                )
-                if ("simChefError" %in% class(result)) {
-                  return(tibble::tibble(.err = list(result)))
-                }
-                result <- result %>%
-                  tibble::add_column(
-                    param_df, .before = 1,
-                    .name_repair = ~private$.check_results_names(
-                      ., method_name
-                    )
-                  )
-                return(result)
-              },
-              dgp_mapply_args, method_mapply_args,
-              future.seed = future.seed, SIMPLIFY = FALSE,
-              future.globals = future.globals,
-              future.packages = future.packages
-            )
-            result_non_null <- !sapply(results, is.null)
-            dplyr::bind_rows(results) %>%
-              dplyr::mutate(.rep = reps[result_non_null])
-          }
-        )
+              }
+            ),
+            parent = rlang::ns_env()
+          )
+
+          # get the experiment compute fun
+          compute_fun <- switch(
+            parallel_strategy,
+            "reps" = compute_rep,
+            "dgps" = compute_dgp,
+            "methods" = compute_method,
+            "dgps+reps" = compute_dgp_rep,
+            "methods+reps" = compute_method_rep,
+            "dgps+methods" = compute_dgp_method,
+            "dgps+methods+reps" = compute_dgp_method_rep
+          )
+
+          environment(compute_fun) <- workenv
+
+          # compute the experiment
+          compute_fun(n_reps,
+                      future.globals,
+                      future.packages,
+                      future.seed)
+        })
+
+        gc()
+
         new_fit_results <- new_fit_results %>%
           dplyr::mutate(
             .rep = as.character(as.numeric(.rep) + n_reps_cached)
           ) %>%
-          private$.simplify_tibble()
+          simplify_tibble()
 
         if (".err" %in% colnames(new_fit_results)) {
-          private$.in_error_state <- FALSE
-          if (save) {
-            # TODO: save to disk
+
+          errors <- new_fit_results %>%
+            dplyr::filter(
+              purrr::map_lgl(
+                .err, ~!is.null(.x)
+              )
+            ) %>%
+            dplyr::select(.dgp, .dgp_name, .dgp_params,
+                          .method, .method_name, .method_params,
+                          .err, .pid, .gc) %>%
+            dplyr::arrange(.dgp_name, .method_name)
+
+          # filter out errors
+          new_fit_results <- new_fit_results %>%
+            dplyr::filter(purrr::map_lgl(.err, is.null)) %>%
+            dplyr::select(-c(.dgp, .dgp_params, .method, .method_params, .err))
+
+          if (isFALSE(getOption("simChef.debug", FALSE))) {
+            new_fit_results <- new_fit_results %>%
+              dplyr::select(-c(.pid, .gc))
           }
-          is_err <- sapply(new_fit_results$.err, function(err) {
-            "simChefError" %in% class(err)
-          })
-          # get one of the errors
-          err <- new_fit_results$.err[is_err][[1]]
-          # filter out empty rows
-          if (".dgp_name" %in% colnames(new_fit_results)) {
-            not_err <- !sapply(new_fit_results$.dgp_name, is.na)
-            new_fit_results <- new_fit_results[is_err | not_err, ]
-          } else {
-            new_fit_results <- new_fit_results[is_err, ]
-          }
+
+          # TODO: add fail_fast -- immediately throw an error or continue
+
           # end the simulation with an error
-          rlang::abort(
+          abort(
             paste0(
               "Error(s) encountered while running the simulation, ",
-              "including:\n\n", err$message,
-              "\n\nUse `rlang::last_error()$partial_results` to return partial results."
+              "including:\n\n", errors$.err[[1]]$message,
+              "\n\nUse `rlang::last_error()$partial_results`",
+              "to return partial simulation results and ",
+              "`rlang::last_error()$errors` to get simulation errors with ",
+              "the `DGP`, `Method`, and params that led to the error."
             ),
-            class = "simChefError", partial_results=new_fit_results
+            partial_results = new_fit_results,
+            errors = errors
           )
+
         }
 
         n_reps_cached <- n_reps_cached + n_reps
 
+        # TODO: what is this for?
         attr(new_fit_results, ".internal.selfref") <- NULL
+
         col_diff <- setdiff(
           private$.get_vary_params(), colnames(new_fit_results)
         )
+
         for (col in col_diff) {
           new_fit_results[[col]] <- NA
         }
+
         fit_results <- new_fit_results %>%
           dplyr::select(.rep, .dgp_name, .method_name,
                         private$.get_vary_params(),
@@ -1430,18 +1050,21 @@ Experiment <- R6::R6Class(
             dplyr::arrange(as.numeric(.rep), .dgp_name, .method_name)
         }
 
-        if (verbose >= 1) {
-          message(sprintf("%s reps completed (totals: %s/%s) | time taken: %f minutes",
-                          n_reps, n_reps_cached, n_reps_total,
-                          difftime(Sys.time(), start_time, units = "mins")))
-        }
         if (save || checkpoint) {
           private$.save_results(
             fit_results, "fit", n_reps_cached, verbose,
             checkpoint && n_reps_cached < n_reps_total
           )
         }
-      }
+
+        if (verbose >= 1) {
+          message(sprintf("%s reps completed (totals: %s/%s) | time taken: %f minutes",
+                          n_reps, n_reps_cached, n_reps_total,
+                          difftime(Sys.time(), start_time, units = "mins")))
+        }
+
+      } # while (n_reps_cached < n_reps_total) {
+
       if (verbose >= 1) {
         message("==============================")
       }
@@ -1451,6 +1074,7 @@ Experiment <- R6::R6Class(
       } else {
         return(fit_results %>% dplyr::filter(as.numeric(.rep) <= n_reps_total))
       }
+
     },
     evaluate = function(fit_results, use_cached = FALSE, save = FALSE,
                         verbose = 1, ...) {
@@ -1585,12 +1209,12 @@ Experiment <- R6::R6Class(
       names(viz_results) <- names(visualizer_list)
       if (use_cached && !setequal(names(visualizer_list), visualizer_names)) {
         viz_results_cached <- private$.get_cached_results("viz",
-                                                                verbose = verbose)
+                                                          verbose = verbose)
         if (verbose >= 1) {
           message("Appending cached results to the new visualization results...")
         }
         viz_results <- c(viz_results,
-                               viz_results_cached)[visualizer_names]
+                         viz_results_cached)[visualizer_names]
       }
       if (verbose >= 1) {
         message(sprintf("Visualization completed | time taken: %f minutes",
@@ -1702,14 +1326,14 @@ Experiment <- R6::R6Class(
         if (is.null(vary_across_sublist[[arg_name]])) {
           vary_across_sublist[[arg_name]] <- dots_list[[arg_name]]
         } else {
-          stop(
+          abort(
             sprintf(
               paste0(
                 "The vary_across parameter for argument '%s' has already ",
                 "been set for %s's %s_fun. Use update_vary_across instead."
               ),
               arg_name, obj_name, field_name
-            ), call. = FALSE
+            )
           )
         }
       }
@@ -1723,26 +1347,26 @@ Experiment <- R6::R6Class(
       obj_name <- temp$obj_name
       vary_across_sublist <- private$.vary_across_list[[field_name]][[obj_name]]
       if (is.null(vary_across_sublist)) {
-        stop(
+        abort(
           sprintf(
             paste0(
               "The vary_across parameter has not been set for %s's %s_fun. ",
               "Use add_vary_across instead."
             ),
             obj_name, field_name
-          ), call. = FALSE
+          )
         )
       }
       for (arg_name in names(dots_list)) {
         if (is.null(vary_across_sublist[[arg_name]])) {
-          stop(
+          abort(
             sprintf(
               paste0(
                 "The vary_across parameter for argument '%s' has not ",
                 "been set for %s's %s_fun. Use add_vary_across instead."
               ),
               arg_name, obj_name, field_name
-            ), call. = FALSE
+            )
           )
         } else {
           vary_across_sublist[[arg_name]] <- dots_list[[arg_name]]
@@ -1754,10 +1378,9 @@ Experiment <- R6::R6Class(
     remove_vary_across = function(dgp, method, param_names = NULL) {
       if (missing(dgp) && missing(method)) {
         if (!private$.has_vary_across()) {
-          stop(
+          abort(
             paste("Cannot remove all vary_across parameters ",
-                  "since the vary_across parameter has not been set."),
-            call. = FALSE
+                  "since the vary_across parameter has not been set.")
           )
         } else {
           private$.vary_across_list <- list(
@@ -1772,27 +1395,27 @@ Experiment <- R6::R6Class(
       obj_name <- temp$obj_name
       vary_across_sublist <- private$.vary_across_list[[field_name]][[obj_name]]
       if (is.null(vary_across_sublist)) {
-        stop(
+        abort(
           sprintf(
             paste0(
               "Cannot remove vary_across parameter for %s's %s_fun ",
               "since the vary_across parameter has not been set."
             ),
             obj_name, field_name
-          ), call. = FALSE
+          )
         )
       }
 
       for (arg_name in param_names) {
         if (is.null(vary_across_sublist[[arg_name]])) {
-          stop(
+          abort(
             sprintf(
               paste0(
                 "Cannot remove vary_across parameter for argument '%s' ",
                 "in %s's %s_fun since the vary_across parameter has not been set."
               ),
               arg_name, obj_name, field_name
-            ), call. = FALSE
+            )
           )
         } else {
           vary_across_sublist[[arg_name]] <- NULL
@@ -1821,11 +1444,12 @@ Experiment <- R6::R6Class(
     set_rmd_options = function(field_name, name, show = NULL, ...) {
       obj_list <- private$.get_obj_list(field_name)
       if (!name %in% names(obj_list)) {
-        stop(
-          sprintf("The name '%s' isn't in the %s list. ",
-                  name, field_name),
-          sprintf("Use add_%s first.", field_name),
-          call. = FALSE
+        abort(
+          sprintf(
+            paste("The name '%s' isn't in the %s list.",
+                  "Use add_%s first."),
+            name, field_name, field_name
+          )
         )
       }
       list_name <- paste0(".", field_name, "_list")
@@ -1878,7 +1502,7 @@ Experiment <- R6::R6Class(
       } else {
         vary_across_list <- private$.vary_across_list
         if (!is.null(names(vary_across_list$dgp)) |
-            !is.null(names(vary_across_list$method))) {
+              !is.null(names(vary_across_list$method))) {
           cat("\n")
         }
         for (dgp in names(vary_across_list$dgp)) {
@@ -1894,7 +1518,7 @@ Experiment <- R6::R6Class(
           for (param_name in names(vary_across_list$method[[method]])) {
             cat(paste0("         ", param_name, ": "))
             cat(str(vary_across_list$method[[method]][[param_name]],
-                indent.str = "           ", no.list = F))
+                    indent.str = "           ", no.list = F))
           }
         }
       }

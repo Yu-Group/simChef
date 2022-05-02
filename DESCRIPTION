@@ -13,6 +13,7 @@ License: GPL (>= 3)
 Imports:
     dplyr,
     fontawesome,
+    future,
     future.apply,
     magrittr,
     methods,
@@ -30,11 +31,13 @@ Imports:
     yardstick
 Suggests:
     broom,
+    callr,
     data.table,
-    future,
+    future.callr,
     ggplot2,
     glmnet,
     knitr,
+    lobstr,
     MASS,
     plotly,
     prettydoc,
@@ -61,11 +64,13 @@ Collate:
     'evaluator-lib-prediction.R'
     'evaluator-lib-utils.R'
     'evaluator.R'
+    'experiment-utils.R'
     'utils.R'
     'experiment.R'
     'experiment_helpers.R'
     'globals.R'
     'method.R'
+    'signals.R'
     'use_templates.R'
     'utils-pipe.R'
     'utils-rmd.R'
@@ -75,3 +80,4 @@ Collate:
     'visualizer-lib-prediction.R'
     'visualizer-lib-utils.R'
     'visualizer.R'
+    'zzz.R'

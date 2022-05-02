@@ -252,6 +252,11 @@ simplify_tibble <- function(tbl, empty_as_na=TRUE) {
       return(tbl_col)
     }
   )
+
+  if ("simChef.debug" %in% names(attributes(tbl))) {
+    attr(simplified_tbl, "simChef.debug") <- attributes(tbl)[["simChef.debug"]]
+  }
+
   return(simplified_tbl)
 }
 
@@ -322,8 +327,8 @@ compare_tibble_rows <- function(x, y, op = c("equal", "contained_in")) {
   return(all(duplicated_rows[1:nrow(x)]))
 }
 
-#' Call a function with given parameters and if an error, warning, or message
-#' occurs during the call print information about the call to the console.
+#' Call a function with given parameters and capture errors, warnings, or
+#' messages that occur during evaluation.
 #'
 #' @param name a name to give some context for the call
 #' @param fun a function to call
@@ -333,9 +338,17 @@ compare_tibble_rows <- function(x, y, op = c("equal", "contained_in")) {
 #'
 #' @return the results of calling fun with params
 #' @keywords internal
-do_call_handler <- function(name, fun, params = list(), verbose = 1) {
+do_call_handler <- function(name,
+                            fun,
+                            params = list(),
+                            verbose = 1,
+                            call = rlang::caller_env()) {
   handler <- function(condition = "Error") {
     function(c) {
+
+      # TODO: add 'signal' arg which determines whether or not to signal the
+      # captured condition
+
       if (length(params) == 0) {
         params_str <- " (params empty)."
       } else {
@@ -344,30 +357,34 @@ do_call_handler <- function(name, fun, params = list(), verbose = 1) {
         )
         params_str <- paste0(" with the following params:\n", params_str)
       }
+
       condition <- match.arg(
         condition, choices = c("Error", "Warning", "Message")
       )
+
       msg_start <- if (condition == "Message") {
         paste0("The message below")
       } else {
         paste0(c$message, "\nThe above ", tolower(condition))
       }
+
       msg <- paste0(
         msg_start, " occurred while processing \"", name, "\"", params_str
       )
-      metadata <- list(name = name, params = params, pid = Sys.getpid())
+
       if (condition == "Error") {
         rlang::abort(
-          msg, parent = c, class = "simChefError",
-          data = metadata
+          msg, parent = c, class = "simChef_error", call = call
         )
+
       } else if (condition == "Warning") {
         rlang::warn(
-          msg, class = "simChefWarning", data = metadata
+          msg, class = "simChef_warning", call = call
         )
+
       } else {
         rlang::inform(
-          msg, class = "simChefMessage", data = metadata
+          msg, class = "simChef_message", call = call
         )
       }
     }
@@ -403,7 +420,7 @@ do_call_handler <- function(name, fun, params = list(), verbose = 1) {
 check_results_names <- function(names, method_name) {
   if (any(duplicated(names))) {
     dup_names <- unique(names[duplicated(names)])
-    stop(
+    abort(
       paste0(
         "Cannot create results tibble with duplicate column names: `",
         paste(dup_names, collapse = "`, `"), "`.\nPlease check that the ",
