@@ -6,7 +6,7 @@
        R Markdown Options: List of 2
          $ height: num 6
          $ width : num 10
-       Show in R Markdown: TRUE
+       Show in R Markdown: TRUE 
 
 ---
 
@@ -16,7 +16,7 @@
        R Markdown Options: List of 2
          $ height: num 6
          $ width : num 10
-       Show in R Markdown: TRUE
+       Show in R Markdown: TRUE 
 
 ---
 
@@ -26,7 +26,7 @@
        R Markdown Options: List of 2
          $ height: num 8
          $ width : num 10
-       Show in R Markdown: TRUE
+       Show in R Markdown: TRUE 
 
 ---
 
@@ -40,5 +40,5 @@
        R Markdown Options: List of 2
          $ height: num 6
          $ width : num 10
-       Show in R Markdown: TRUE
+       Show in R Markdown: TRUE 
 

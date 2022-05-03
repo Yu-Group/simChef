@@ -70,7 +70,7 @@ Evaluator <- R6::R6Class(
       cat("   R Markdown Options: ")
       cat(str(self$rmd_options,
               indent.str = "     ", no.list = F))
-      cat("   Show in R Markdown:", self$rmd_show)
+      cat("   Show in R Markdown:", self$rmd_show, "\n")
       invisible(self)
     }
   )
