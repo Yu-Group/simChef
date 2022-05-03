@@ -11,6 +11,7 @@ Description: Helps cook up the code necessary to create a fully-realized,
     experiment.
 License: GPL (>= 3)
 Imports:
+    data.table,
     dplyr,
     fontawesome,
     future,
@@ -32,7 +33,7 @@ Imports:
 Suggests:
     broom,
     callr,
-    data.table,
+    dgpoix,
     future.callr,
     ggplot2,
     glmnet,
@@ -44,13 +45,12 @@ Suggests:
     ranger,
     testthat (>= 3.1.0),
     tidyr,
-    vdgp,
     vdiffr,
     withr (>= 2.5.0)
 VignetteBuilder: 
     knitr
 Remotes:
-    Yu-Group/vdgp,
+    Yu-Group/dgpoix,
     Yu-Group/vthemes
 Config/testthat/edition: 3
 Encoding: UTF-8
