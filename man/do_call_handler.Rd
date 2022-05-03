@@ -2,10 +2,16 @@
 % Please edit documentation in R/utils.R
 \name{do_call_handler}
 \alias{do_call_handler}
-\title{Call a function with given parameters and if an error, warning, or message
-occurs during the call print information about the call to the console.}
+\title{Call a function with given parameters and capture errors, warnings, or
+messages that occur during evaluation.}
 \usage{
-do_call_handler(name, fun, params = list(), verbose = 1)
+do_call_handler(
+  name,
+  fun,
+  params = list(),
+  verbose = 1,
+  call = rlang::caller_env()
+)
 }
 \arguments{
 \item{name}{a name to give some context for the call}
@@ -21,7 +27,7 @@ messages in addition to errors.}
 the results of calling fun with params
 }
 \description{
-Call a function with given parameters and if an error, warning, or message
-occurs during the call print information about the call to the console.
+Call a function with given parameters and capture errors, warnings, or
+messages that occur during evaluation.
 }
 \keyword{internal}
