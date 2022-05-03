@@ -1,36 +1,7 @@
-/* Style circle tab */
-.tabset-circle>.nav-pills>li>a,
-.tabset-circle>.panel>.nav-pills>li>a {
-    border-radius: 50%;
-    font-size: 14px;
-    font-weight: normal;
-    padding-bottom: 8px;
-    padding-left: 11px;
-    padding-right: 11px;
-}
-
-/* Add padding box */
-.padded-panel {
-    padding: 15px;
-    position: relative;
-}
-
 /* Add additional styling for recipes page */
 /* Note: only used in pretty simChef template */
 .tabset-recipe>.panel>.nav-pills {
     position: absolute;
     top: -5px;
     right: 15px;
-}
-.tabset-recipe>.panel>.nav-pills>li>a {
-    border-radius: 50%;
-    font-size: 14px;
-    font-weight: normal;
-    padding-bottom: 8px;
-    padding-left: 11px;
-    padding-right: 11px;
-    background-color: #95a5a6;
-}
-.tabset-recipe>.panel>.nav-pills>li.active>a {
-    background-color: #637172;
 }

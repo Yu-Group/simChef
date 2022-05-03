@@ -318,7 +318,8 @@ if (!dir.exists(file.path("results", "example-html-outputs"))) {
 file.copy(from = file.path(experiment$get_save_dir(),
                            paste0(experiment$name, ".html")),
           to = file.path("results", "example-html-outputs",
-                         "linear_regression_base_output.html"))
+                         "linear_regression_base_output.html"),
+          overwrite = TRUE)
 ```
 
 The results can be found [here](../linear_regression_base_output.html).
@@ -485,7 +486,8 @@ if (!dir.exists(file.path("results", "example-html-outputs"))) {
 file.copy(from = file.path(experiment$get_save_dir(),
                            paste0(experiment$name, ".html")),
           to = file.path("results", "example-html-outputs",
-                         "linear_regression_output.html"))
+                         "linear_regression_output.html"),
+          overwrite = TRUE)
 ```
 
 The results can be found [here](../linear_regression_output.html).
