@@ -26,7 +26,7 @@ fit_experiment_fixture <- function(parallel_plan) {
 
     ## create a linear response y with additive gaussian noise
     y <- cbind(1, X) %*% c(1, betas) + rnorm(n)
-    return(list(X = X, y = y, betas = betas, error = error))
+    return(list(X = X, y = y, betas = betas))
 
   }
 
@@ -46,7 +46,6 @@ fit_experiment_fixture <- function(parallel_plan) {
   experiment <- create_experiment() %>%
     add_dgp(dgp) %>%
     add_method(method)
-
 
   # save the random seed before fitting experiment
   seed <- sample.int(.Machine$integer.max, 1L)

@@ -933,10 +933,10 @@ Experiment <- R6::R6Class(
                                          verbose,
                                          call) {
                 tryCatch(
-                  error = identity,
                   do_call_handler(
                     name, fun, params, verbose, call
-                  )
+                  ),
+                  error = identity
                 )
               }
             ),

@@ -33,6 +33,19 @@ obj_size <- function(obj = rlang::caller_env()) {
   return(bytes)
 }
 
+
+#' @keywords internal
+maybe_progressr <- function(...) {
+
+  if (rlang::is_installed("progressr")) {
+    return(progressr::progressor(...))
+
+  } else {
+    # return dummy function
+    return(function(...) invisible(NULL))
+  }
+}
+
 #' @keywords internal
 maybe_add_debug_data <- function(tbl, debug = FALSE) {
   if (debug) {
@@ -133,14 +146,15 @@ compute_rep <- function(n_reps,
     error_state <- data.table::data.table(error = FALSE)
   }
 
-  # p <- progressr::progressor(steps = n_reps)
+  # progress updates
+  total_reps <- n_reps * length(dgp_params_list) * length(method_params_list)
+  p <- maybe_progressr(steps = total_reps,
+                       envir = parent.frame())
 
   results <- future.apply::future_replicate(n_reps, {
 
     # make a local binding to error_state
     error_state <- error_state
-
-    # p()
 
     ## # debugging
     ## print(
@@ -272,6 +286,8 @@ compute_rep <- function(n_reps,
                 ., method_name
               )
             )
+
+          p("of total reps")
 
           return(result %>% maybe_add_debug_data(debug))
 
