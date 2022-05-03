@@ -41,6 +41,7 @@ test_that("Functions in Visualizer prediction library work properly", {
                        eval_results = eval_results_reg,
                        evaluator_name = "Prediction Errors",
                        show = c("point", "errorbar"))
+
   vdiffr::expect_doppelganger("plot_pred_err1", plt)
   plt <- plot_pred_err(fit_results_reg, show = c("point", "errorbar"),
                        truth_col = "y", estimate_col = "predictions")
@@ -79,9 +80,11 @@ test_that("Functions in Visualizer prediction library work properly", {
                              show = c("line", "ribbon"),
                              plot_by = ".dgp_name")
   vdiffr::expect_doppelganger("plot_pred_curve_roc2", roc_plt)
+
 })
 
 test_that("Functions in Visualizer feature selection library work properly", {
+
   # generate example fit_results data for a feature selection problem
   fit_results <- tibble::tibble(
     .rep = rep(1:2, times = 2),
@@ -99,7 +102,7 @@ test_that("Functions in Visualizer feature selection library work properly", {
       }
     )
   )
-  
+
   # generate example eval_results data
   eval_results <- list(
     `Feature Importance` = summarize_feature_importance(
@@ -203,6 +206,7 @@ test_that("Functions in Visualizer feature selection library work properly", {
 })
 
 test_that("Functions in Visualizer inference library work properly", {
+
   # generate example fit_results data
   fit_results <- tibble::tibble(
     .rep = rep(1:2, times = 2),
@@ -423,7 +427,7 @@ test_that("Functions in Visualizer utilities library work properly", {
                               eval_id = "pred_err",
                               eval_fun = "summarize_pred_err",
                               show = c("point", "errorbar"),
-                              y_str = NULL) 
+                              y_str = NULL)
   expect_equal(eval_tib, eval_tib2)
 
   eval_tib <- get_eval_tibble(fit_results = fit_results,
