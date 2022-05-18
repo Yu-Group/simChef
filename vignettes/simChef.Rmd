@@ -14,7 +14,12 @@ vignette: >
 ```{r include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  # disable R chunk evaluation when using macOS in GH Actions
+  # see https://github.com/tidyverse/ggplot2/issues/2252#issuecomment-1006713187
+  # and https://github.com/lcolladotor/biocthis/issues/27 and
+  # https://github.com/bodkan/slendr/commit/f0f5ae18452cc9df5d151874e41b0b8fd5f29aa2#
+  eval = Sys.getenv("$RUNNER_OS") != "macOS"
 )
 
 library(simChef)
