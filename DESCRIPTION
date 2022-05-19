@@ -36,6 +36,7 @@ Suggests:
     future.callr,
     ggplot2,
     glmnet,
+    here,
     knitr,
     lobstr,
     MASS,
