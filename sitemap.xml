@@ -1,348 +1,330 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>/404.html</loc>
+    <loc>https://yu-group.github.io/simChef/404.html</loc>
   </url>
   <url>
-    <loc>/LICENSE.html</loc>
+    <loc>https://yu-group.github.io/simChef/LICENSE.html</loc>
   </url>
   <url>
-    <loc>/articles/index.html</loc>
+    <loc>https://yu-group.github.io/simChef/articles/index.html</loc>
   </url>
   <url>
-    <loc>/articles/parallel.html</loc>
+    <loc>https://yu-group.github.io/simChef/articles/parallel.html</loc>
   </url>
   <url>
-    <loc>/articles/simChef.html</loc>
+    <loc>https://yu-group.github.io/simChef/articles/simChef.html</loc>
   </url>
   <url>
-    <loc>/authors.html</loc>
+    <loc>https://yu-group.github.io/simChef/authors.html</loc>
   </url>
   <url>
-    <loc>/index.html</loc>
+    <loc>https://yu-group.github.io/simChef/index.html</loc>
   </url>
   <url>
-    <loc>/reference/DGP.html</loc>
+    <loc>https://yu-group.github.io/simChef/linear_regression_base_output.html</loc>
   </url>
   <url>
-    <loc>/reference/Evaluator.html</loc>
+    <loc>https://yu-group.github.io/simChef/linear_regression_output.html</loc>
   </url>
   <url>
-    <loc>/reference/Experiment.html</loc>
+    <loc>https://yu-group.github.io/simChef/reference/DGP.html</loc>
   </url>
   <url>
-    <loc>/reference/Method.html</loc>
+    <loc>https://yu-group.github.io/simChef/reference/Evaluator.html</loc>
   </url>
   <url>
-    <loc>/reference/Visualizer.html</loc>
+    <loc>https://yu-group.github.io/simChef/reference/Experiment.html</loc>
   </url>
   <url>
-    <loc>/reference/add_funs.html</loc>
+    <loc>https://yu-group.github.io/simChef/reference/Method.html</loc>
   </url>
   <url>
-    <loc>/reference/ar1_errors.html</loc>
+    <loc>https://yu-group.github.io/simChef/reference/Visualizer.html</loc>
   </url>
   <url>
-    <loc>/reference/block_errors.html</loc>
+    <loc>https://yu-group.github.io/simChef/reference/abort.html</loc>
   </url>
   <url>
-    <loc>/reference/check_equal.html</loc>
+    <loc>https://yu-group.github.io/simChef/reference/abort_if_missing_subclass.html</loc>
   </url>
   <url>
-    <loc>/reference/check_results_names.html</loc>
+    <loc>https://yu-group.github.io/simChef/reference/abort_on_invalid_user_action.html</loc>
   </url>
   <url>
-    <loc>/reference/clear_cache.html</loc>
+    <loc>https://yu-group.github.io/simChef/reference/add_funs.html</loc>
   </url>
   <url>
-    <loc>/reference/compare_tibble_rows.html</loc>
+    <loc>https://yu-group.github.io/simChef/reference/check_equal.html</loc>
   </url>
   <url>
-    <loc>/reference/correlated_linear_gaussian_dgp.html</loc>
+    <loc>https://yu-group.github.io/simChef/reference/check_results_names.html</loc>
   </url>
   <url>
-    <loc>/reference/correlated_logistic_gaussian_dgp.html</loc>
+    <loc>https://yu-group.github.io/simChef/reference/clean_up_worker_env.html</loc>
   </url>
   <url>
-    <loc>/reference/correlated_lss_gaussian_dgp.html</loc>
+    <loc>https://yu-group.github.io/simChef/reference/clear_cache.html</loc>
   </url>
   <url>
-    <loc>/reference/create_assign_str.html</loc>
+    <loc>https://yu-group.github.io/simChef/reference/compare_tibble_rows.html</loc>
   </url>
   <url>
-    <loc>/reference/create_dgp.html</loc>
+    <loc>https://yu-group.github.io/simChef/reference/compute_dgp.html</loc>
   </url>
   <url>
-    <loc>/reference/create_doc_template.html</loc>
+    <loc>https://yu-group.github.io/simChef/reference/compute_dgp_method.html</loc>
   </url>
   <url>
-    <loc>/reference/create_evaluator.html</loc>
+    <loc>https://yu-group.github.io/simChef/reference/compute_dgp_method_reps.html</loc>
   </url>
   <url>
-    <loc>/reference/create_experiment.html</loc>
+    <loc>https://yu-group.github.io/simChef/reference/compute_dgp_rep.html</loc>
   </url>
   <url>
-    <loc>/reference/create_fun_str.html</loc>
+    <loc>https://yu-group.github.io/simChef/reference/compute_method.html</loc>
   </url>
   <url>
-    <loc>/reference/create_method.html</loc>
+    <loc>https://yu-group.github.io/simChef/reference/compute_method_rep.html</loc>
   </url>
   <url>
-    <loc>/reference/create_rmd.html</loc>
+    <loc>https://yu-group.github.io/simChef/reference/compute_rep.html</loc>
   </url>
   <url>
-    <loc>/reference/create_visualizer.html</loc>
+    <loc>https://yu-group.github.io/simChef/reference/create_assign_str.html</loc>
   </url>
   <url>
-    <loc>/reference/do_call_handler.html</loc>
+    <loc>https://yu-group.github.io/simChef/reference/create_dgp.html</loc>
   </url>
   <url>
-    <loc>/reference/eval_feature_importance_funs.html</loc>
+    <loc>https://yu-group.github.io/simChef/reference/create_doc_template.html</loc>
   </url>
   <url>
-    <loc>/reference/eval_feature_selection_curve_funs.html</loc>
+    <loc>https://yu-group.github.io/simChef/reference/create_evaluator.html</loc>
   </url>
   <url>
-    <loc>/reference/eval_feature_selection_err_funs.html</loc>
+    <loc>https://yu-group.github.io/simChef/reference/create_experiment.html</loc>
   </url>
   <url>
-    <loc>/reference/eval_pred_curve_funs.html</loc>
+    <loc>https://yu-group.github.io/simChef/reference/create_fun_str.html</loc>
   </url>
   <url>
-    <loc>/reference/eval_pred_err_funs.html</loc>
+    <loc>https://yu-group.github.io/simChef/reference/create_method.html</loc>
   </url>
   <url>
-    <loc>/reference/eval_reject_prob.html</loc>
+    <loc>https://yu-group.github.io/simChef/reference/create_rmd.html</loc>
   </url>
   <url>
-    <loc>/reference/eval_testing_curve_funs.html</loc>
+    <loc>https://yu-group.github.io/simChef/reference/create_visualizer.html</loc>
   </url>
   <url>
-    <loc>/reference/eval_testing_err_funs.html</loc>
+    <loc>https://yu-group.github.io/simChef/reference/do_call_handler.html</loc>
   </url>
   <url>
-    <loc>/reference/evaluate_experiment.html</loc>
+    <loc>https://yu-group.github.io/simChef/reference/eval_feature_importance_funs.html</loc>
   </url>
   <url>
-    <loc>/reference/event_col.html</loc>
+    <loc>https://yu-group.github.io/simChef/reference/eval_feature_selection_curve_funs.html</loc>
   </url>
   <url>
-    <loc>/reference/finalize_estimator_internal_constructor.html</loc>
+    <loc>https://yu-group.github.io/simChef/reference/eval_feature_selection_err_funs.html</loc>
   </url>
   <url>
-    <loc>/reference/fit_experiment.html</loc>
+    <loc>https://yu-group.github.io/simChef/reference/eval_pred_curve_funs.html</loc>
   </url>
   <url>
-    <loc>/reference/fix_duplicate_param_names.html</loc>
+    <loc>https://yu-group.github.io/simChef/reference/eval_pred_err_funs.html</loc>
   </url>
   <url>
-    <loc>/reference/fp.html</loc>
+    <loc>https://yu-group.github.io/simChef/reference/eval_reject_prob.html</loc>
   </url>
   <url>
-    <loc>/reference/generate_X_gaussian.html</loc>
+    <loc>https://yu-group.github.io/simChef/reference/eval_testing_curve_funs.html</loc>
   </url>
   <url>
-    <loc>/reference/generate_X_rwd.html</loc>
+    <loc>https://yu-group.github.io/simChef/reference/eval_testing_err_funs.html</loc>
   </url>
   <url>
-    <loc>/reference/generate_coef.html</loc>
+    <loc>https://yu-group.github.io/simChef/reference/evaluate_experiment.html</loc>
   </url>
   <url>
-    <loc>/reference/generate_data.html</loc>
+    <loc>https://yu-group.github.io/simChef/reference/event_col.html</loc>
   </url>
   <url>
-    <loc>/reference/generate_errors.html</loc>
+    <loc>https://yu-group.github.io/simChef/reference/finalize_estimator_internal_constructor.html</loc>
   </url>
   <url>
-    <loc>/reference/generate_y_linear.html</loc>
+    <loc>https://yu-group.github.io/simChef/reference/fit_experiment.html</loc>
   </url>
   <url>
-    <loc>/reference/generate_y_logistic.html</loc>
+    <loc>https://yu-group.github.io/simChef/reference/fix_duplicate_param_names.html</loc>
   </url>
   <url>
-    <loc>/reference/generate_y_lss.html</loc>
+    <loc>https://yu-group.github.io/simChef/reference/fp.html</loc>
   </url>
   <url>
-    <loc>/reference/get_cached_results.html</loc>
+    <loc>https://yu-group.github.io/simChef/reference/generate_data.html</loc>
   </url>
   <url>
-    <loc>/reference/get_dot_args.html</loc>
+    <loc>https://yu-group.github.io/simChef/reference/get_cached_results.html</loc>
   </url>
   <url>
-    <loc>/reference/get_eval_tibble.html</loc>
+    <loc>https://yu-group.github.io/simChef/reference/get_dot_args.html</loc>
   </url>
   <url>
-    <loc>/reference/get_funs.html</loc>
+    <loc>https://yu-group.github.io/simChef/reference/get_eval_tibble.html</loc>
   </url>
   <url>
-    <loc>/reference/get_save_dir.html</loc>
+    <loc>https://yu-group.github.io/simChef/reference/get_funs.html</loc>
   </url>
   <url>
-    <loc>/reference/index.html</loc>
+    <loc>https://yu-group.github.io/simChef/reference/get_save_dir.html</loc>
   </url>
   <url>
-    <loc>/reference/indicator.html</loc>
+    <loc>https://yu-group.github.io/simChef/reference/index.html</loc>
   </url>
   <url>
-    <loc>/reference/library_templates.html</loc>
+    <loc>https://yu-group.github.io/simChef/reference/inform.html</loc>
   </url>
   <url>
-    <loc>/reference/linear_gaussian_dgp.html</loc>
+    <loc>https://yu-group.github.io/simChef/reference/library_templates.html</loc>
   </url>
   <url>
-    <loc>/reference/list_col_to_chr.html</loc>
+    <loc>https://yu-group.github.io/simChef/reference/list_col_to_chr.html</loc>
   </url>
   <url>
-    <loc>/reference/list_to_tibble.html</loc>
+    <loc>https://yu-group.github.io/simChef/reference/list_to_tibble.html</loc>
   </url>
   <url>
-    <loc>/reference/list_to_tibble_row.html</loc>
+    <loc>https://yu-group.github.io/simChef/reference/list_to_tibble_row.html</loc>
   </url>
   <url>
-    <loc>/reference/logistic_gaussian_dgp.html</loc>
+    <loc>https://yu-group.github.io/simChef/reference/metric_vec_constructor.html</loc>
   </url>
   <url>
-    <loc>/reference/lss_gaussian_dgp.html</loc>
+    <loc>https://yu-group.github.io/simChef/reference/neg.html</loc>
   </url>
   <url>
-    <loc>/reference/metric_vec_constructor.html</loc>
+    <loc>https://yu-group.github.io/simChef/reference/obj_size.html</loc>
   </url>
   <url>
-    <loc>/reference/neg.html</loc>
+    <loc>https://yu-group.github.io/simChef/reference/pasteMd.html</loc>
   </url>
   <url>
-    <loc>/reference/norm_errors.html</loc>
+    <loc>https://yu-group.github.io/simChef/reference/pipe.html</loc>
   </url>
   <url>
-    <loc>/reference/omitted_var_dgp.html</loc>
+    <loc>https://yu-group.github.io/simChef/reference/pipe_value.html</loc>
   </url>
   <url>
-    <loc>/reference/pasteMd.html</loc>
+    <loc>https://yu-group.github.io/simChef/reference/plot_eval_summary.html</loc>
   </url>
   <url>
-    <loc>/reference/pipe.html</loc>
+    <loc>https://yu-group.github.io/simChef/reference/plot_feature_importance.html</loc>
   </url>
   <url>
-    <loc>/reference/pipe_value.html</loc>
+    <loc>https://yu-group.github.io/simChef/reference/plot_feature_selection_curve.html</loc>
   </url>
   <url>
-    <loc>/reference/plot_eval_summary.html</loc>
+    <loc>https://yu-group.github.io/simChef/reference/plot_feature_selection_err.html</loc>
   </url>
   <url>
-    <loc>/reference/plot_feature_importance.html</loc>
+    <loc>https://yu-group.github.io/simChef/reference/plot_fit_results.html</loc>
   </url>
   <url>
-    <loc>/reference/plot_feature_selection_curve.html</loc>
+    <loc>https://yu-group.github.io/simChef/reference/plot_pred_curve.html</loc>
   </url>
   <url>
-    <loc>/reference/plot_feature_selection_err.html</loc>
+    <loc>https://yu-group.github.io/simChef/reference/plot_pred_err.html</loc>
   </url>
   <url>
-    <loc>/reference/plot_fit_results.html</loc>
+    <loc>https://yu-group.github.io/simChef/reference/plot_reject_prob.html</loc>
   </url>
   <url>
-    <loc>/reference/plot_pred_curve.html</loc>
+    <loc>https://yu-group.github.io/simChef/reference/plot_testing_curve.html</loc>
   </url>
   <url>
-    <loc>/reference/plot_pred_err.html</loc>
+    <loc>https://yu-group.github.io/simChef/reference/plot_testing_err.html</loc>
   </url>
   <url>
-    <loc>/reference/plot_reject_prob.html</loc>
+    <loc>https://yu-group.github.io/simChef/reference/pos.html</loc>
   </url>
   <url>
-    <loc>/reference/plot_testing_curve.html</loc>
+    <loc>https://yu-group.github.io/simChef/reference/remove_funs.html</loc>
   </url>
   <url>
-    <loc>/reference/plot_testing_err.html</loc>
+    <loc>https://yu-group.github.io/simChef/reference/rescale_curve.html</loc>
   </url>
   <url>
-    <loc>/reference/pos.html</loc>
+    <loc>https://yu-group.github.io/simChef/reference/run_experiment.html</loc>
   </url>
   <url>
-    <loc>/reference/remove_funs.html</loc>
+    <loc>https://yu-group.github.io/simChef/reference/save_experiment.html</loc>
   </url>
   <url>
-    <loc>/reference/rescale_curve.html</loc>
+    <loc>https://yu-group.github.io/simChef/reference/set_rmd_options.html</loc>
   </url>
   <url>
-    <loc>/reference/return_DGP_output.html</loc>
+    <loc>https://yu-group.github.io/simChef/reference/set_save_dir.html</loc>
   </url>
   <url>
-    <loc>/reference/run_experiment.html</loc>
+    <loc>https://yu-group.github.io/simChef/reference/shared_error_args.html</loc>
   </url>
   <url>
-    <loc>/reference/rwd_dgp.html</loc>
+    <loc>https://yu-group.github.io/simChef/reference/shared_eval_lib_args.html</loc>
   </url>
   <url>
-    <loc>/reference/save_experiment.html</loc>
+    <loc>https://yu-group.github.io/simChef/reference/shared_experiment_helpers_args.html</loc>
   </url>
   <url>
-    <loc>/reference/set_rmd_options.html</loc>
+    <loc>https://yu-group.github.io/simChef/reference/shared_viz_lib_args.html</loc>
   </url>
   <url>
-    <loc>/reference/set_save_dir.html</loc>
+    <loc>https://yu-group.github.io/simChef/reference/simplify_tibble.html</loc>
   </url>
   <url>
-    <loc>/reference/shared_dgp_lib_args.html</loc>
+    <loc>https://yu-group.github.io/simChef/reference/summarize_eval_results.html</loc>
   </url>
   <url>
-    <loc>/reference/shared_eval_lib_args.html</loc>
+    <loc>https://yu-group.github.io/simChef/reference/tp.html</loc>
   </url>
   <url>
-    <loc>/reference/shared_experiment_helpers_args.html</loc>
+    <loc>https://yu-group.github.io/simChef/reference/update_funs.html</loc>
   </url>
   <url>
-    <loc>/reference/shared_viz_lib_args.html</loc>
+    <loc>https://yu-group.github.io/simChef/reference/use_dgp_template.html</loc>
   </url>
   <url>
-    <loc>/reference/simplify_tibble.html</loc>
+    <loc>https://yu-group.github.io/simChef/reference/use_doc_template.html</loc>
   </url>
   <url>
-    <loc>/reference/split_data.html</loc>
+    <loc>https://yu-group.github.io/simChef/reference/use_evaluator_template.html</loc>
   </url>
   <url>
-    <loc>/reference/summarize_eval_results.html</loc>
+    <loc>https://yu-group.github.io/simChef/reference/use_experiment_template.html</loc>
   </url>
   <url>
-    <loc>/reference/tp.html</loc>
+    <loc>https://yu-group.github.io/simChef/reference/use_method_template.html</loc>
   </url>
   <url>
-    <loc>/reference/update_funs.html</loc>
+    <loc>https://yu-group.github.io/simChef/reference/use_rmd_template.html</loc>
   </url>
   <url>
-    <loc>/reference/use_dgp_template.html</loc>
+    <loc>https://yu-group.github.io/simChef/reference/use_run_template.html</loc>
   </url>
   <url>
-    <loc>/reference/use_doc_template.html</loc>
+    <loc>https://yu-group.github.io/simChef/reference/use_variable_template.html</loc>
   </url>
   <url>
-    <loc>/reference/use_evaluator_template.html</loc>
+    <loc>https://yu-group.github.io/simChef/reference/use_visualizer_template.html</loc>
   </url>
   <url>
-    <loc>/reference/use_experiment_template.html</loc>
+    <loc>https://yu-group.github.io/simChef/reference/vary_across.html</loc>
   </url>
   <url>
-    <loc>/reference/use_method_template.html</loc>
+    <loc>https://yu-group.github.io/simChef/reference/visualize_experiment.html</loc>
   </url>
   <url>
-    <loc>/reference/use_rmd_template.html</loc>
-  </url>
-  <url>
-    <loc>/reference/use_run_template.html</loc>
-  </url>
-  <url>
-    <loc>/reference/use_variable_template.html</loc>
-  </url>
-  <url>
-    <loc>/reference/use_visualizer_template.html</loc>
-  </url>
-  <url>
-    <loc>/reference/vary_across.html</loc>
-  </url>
-  <url>
-    <loc>/reference/visualize_experiment.html</loc>
-  </url>
-  <url>
-    <loc>/reference/xy_dgp_constructor.html</loc>
+    <loc>https://yu-group.github.io/simChef/reference/warn.html</loc>
   </url>
 </urlset>
