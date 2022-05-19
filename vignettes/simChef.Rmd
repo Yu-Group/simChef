@@ -19,7 +19,7 @@ knitr::opts_chunk$set(
   # see https://github.com/tidyverse/ggplot2/issues/2252#issuecomment-1006713187
   # and https://github.com/lcolladotor/biocthis/issues/27 and
   # https://github.com/bodkan/slendr/commit/f0f5ae18452cc9df5d151874e41b0b8fd5f29aa2#
-  eval = Sys.getenv("$RUNNER_OS") != "macOS"
+  eval = Sys.getenv("RUNNER_OS") != "macOS"
 )
 
 library(simChef)
@@ -316,14 +316,14 @@ create_rmd(experiment, open = FALSE)
 ```
 
 ```{r echo = FALSE, warning = FALSE, message = FALSE, results = "hide"}
+
+assets_dir <- here::here("pkgdown/assets")
+dir.create(assets_dir, recursive = TRUE)
+
 # copy html output to vignettes/results/example-html-outputs folder for website
-if (!dir.exists(file.path("results", "example-html-outputs"))) {
-  dir.create(file.path("results", "example-html-outputs"), recursive = TRUE)
-}
 file.copy(from = file.path(experiment$get_save_dir(),
                            paste0(experiment$name, ".html")),
-          to = file.path("results", "example-html-outputs",
-                         "linear_regression_base_output.html"),
+          to = file.path(assets_dir, "linear_regression_base_output.html"),
           overwrite = TRUE)
 ```
 
@@ -484,14 +484,9 @@ create_rmd(save_dir = experiment$get_save_dir(), open = FALSE)
 ```
 
 ```{r echo = FALSE, warning = FALSE, message = FALSE, results = "hide"}
-# copy html output to vignettes/results/example-html-outputs folder for website
-if (!dir.exists(file.path("results", "example-html-outputs"))) {
-  dir.create(file.path("results", "example-html-outputs"), recursive = TRUE)
-}
 file.copy(from = file.path(experiment$get_save_dir(),
                            paste0(experiment$name, ".html")),
-          to = file.path("results", "example-html-outputs",
-                         "linear_regression_output.html"),
+          to = file.path(assets_dir, "linear_regression_output.html"),
           overwrite = TRUE)
 ```
 

@@ -1,7 +1,7 @@
 test_that("Various parallel strategies in experiment work properly", {
 
   # TODO: test this separately
-  withr::local_options(list(future.globals.onReference = "error"))
+  # withr::local_options(list(future.globals.onReference = "error"))
 
   dgp_fun1 <- function(y = "") return(x = list(paste0("data1", y)))
   dgp_fun2 <- function() return(x = list("data2"))
