@@ -13,7 +13,6 @@ name: pkgdown
 jobs:
   # Build website
   pkgdown:
-    needs: R-CMD-check
     runs-on: ubuntu-latest
     # Only restrict concurrency for non-PR jobs
     concurrency:
