@@ -1,8 +1,8 @@
 ---
-title: "Parallel computation in `simChef`"
+title: "Computing experimental replicates in parallel"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Parallel strategies in `simChef`}
+  %\VignetteIndexEntry{Computing experimental replicates in parallel}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -14,58 +14,99 @@ knitr::opts_chunk$set(
 )
 ```
 
-Given the large amount of computation that simulation experiments require,
+Given the large amount of computation that simulation studies require, one of
+the main goals of `simChef` is to make it easy to parallelize your simulations.
 `simChef` uses the R package [`future`](https://future.futureverse.org/) to
-distribute computation across available resources. Users must decide upon two
-aspects of the distributed computation in order to effectively parallelize the
-simulations: _what_ resources to use and _how_ to use them.
-
-`simChef` is entirely agnostic to the answer to the _what_ question; any
-resource that `future` supports is also supported. For example, to run your
-simulation experiments on your local Linux, macOS, or Windows machine using all
-but one of the cores, you might run:
+distribute simulation replicates across whatever available resources the user
+specifies. All you have to do to start running your simulations in parallel is
+set the `future` plan before calling `run_experiment()`:
 
 ```{r, plan-multisession, eval=FALSE}
 n_workers <- availableCores() - 1
 plan(multisession, workers = n_workers)
 ```
 
-Once a `future` plan has been set, `simChef` will execute computation according
-to the plan specified. To answer the _how_ question, consider `n` computational
-"tasks" to be distributed across `p` parallel workers. Assuming each task takes
-approximately the same amount of time to complete regardless of the worker
-assigned to the task, then with `n=100` and `p=4` each worker should complete
-around 25 of the tasks. In the ideal setting, the total time to complete the 100
-tasks should be around 4 times lower than the time it takes one worker to
-complete them, on average.
+The `multisession` plan used here will run your simulation experiments on a
+local (i.e., where R is running) Linux, macOS, or Windows machine, in this case
+using all but one of the cores. This is very convenient, but it's important to
+carefully consider two aspects of the distributed computation in order to
+effectively parallelize the simulations: _what_ plan to use and _how_ to use it.
 
-In more realistic scenarios, and especially in simulation experiments where
-heterogeneous methods are compared in various diverse problem settings, tasks
-are often much less uniform and different parallel strategies can have profound
-implications for the overall running time. Therefore, it's important to
-carefully decide how to package your tasks in order to take greatest advantage
-of the available parallelism.
+While `simChef` works with any valid `future` plan, one may be better than
+another for your particular set of experiments. We recommend you carefully read
+the `future`
+[docs](https://future.futureverse.org/articles/future-1-overview.html#controlling-how-futures-are-resolved)
+to learn more about the default plans, as well as alternative plans in packages
+like [`future.callr`](https://future.callr.futureverse.org) and
+[`future.batchtools`](https://future.batchtools.futureverse.org).
 
-By default, `simChef` distributes computation across the available resources by
-splitting up the simulation's replicates evenly across available workers,
-answering the _how_ question. In general, one should not have fewer tasks
-than workers and should avoid `n>>p` very small tasks as the overhead of
-distributing computation to workers may outweigh the benefits of parallelism.
+## Simulation tasks
 
-**Note**: In the future we plan to give more control over how the user splits
-the computation across workers, with nested parallelism for cases where, e.g.,
-`DGPs` or can be split across a few nodes (e.g., using one of the plan in the
+When a `future` plan has been set and the user calls `run_experiment`, `simChef`
+will distribute computation across the resources specified in the plan. Consider
+`n` computational "tasks" to be distributed across `p` parallel workers. In
+`simChef`, tasks correspond to simulation replicates, which generate data from a
+single `DGP` and fit that data using a single `Method`, along with associated
+parameters (either defaults or from those that have been varied in the
+`Experiment`).
+
+Assuming each task takes approximately the same amount of time to complete
+regardless of the worker assigned to the task, then with `n=100` and `p=4` each
+worker should complete around 25 of the tasks. In the ideal setting, the total
+time to complete the 100 tasks should be around 4 times lower than the time it
+takes one worker to complete them, on average.
+
+### Dealing with task heterogeneity
+
+In more realistic scenarios--and especially in simulation experiments which
+often include heterogeneous methods compared under diverse data-generated
+processes for a range of sample sizes--tasks can be much less uniform. Different
+groupings of tasks can have profound implications for the overall running time.
+Therefore, it's important to carefully decide how to arrange your simulation
+into separate experiments in order to take greatest advantage of the available
+parallelism.
+
+`simChef` distributes the simulation's replicates evenly across available
+`future` workers, partially answering the _how_ question. The remainder of the
+answer comes from you and your specific application, but here are a couple tips:
+
+- In general, one should not have fewer tasks than workers and should avoid
+  `n>>p` very small tasks as the overhead of distributing computation to workers
+  may outweigh the benefits of parallelism.
+- When tasks have unbalanced sizes, it can be helpful to group tasks into
+  separate experiments, each of which has tasks of roughly equal duration. In
+  spite of the extra overhead, you may find that using a separate `Experiment`
+  for each task group ends up decreasing the overall simulation running time
+  because workers with small tasks spend less time idly waiting for workers with
+  large tasks to finish. Using the `clone_from` argument in
+  `create_experiment()`, you can copy an existing experiment and modify it so
+  that tasks have similar sizes, repeating this process for each group of
+  similarly-sized tasks.
+- You can use the [`progressr`](https://progressr.futureverse.org/) package to
+  get updates as the experiment computation progresses.
+- Use `options(simChef.debug = TRUE)` to get helpful debugging output as an
+  `Experiment` works on it's tasks, including info on memory usage. This may
+  slow things down quite a bit, so don't use it when you run the full
+  simulation.
+
+### On the roadmap: nested parallelism
+
+In the future we plan to give more control over how the user splits the
+computation across workers, with nested parallelism for cases where, e.g.,
+`DGPs` can be split across a few nodes (e.g., using one of the plan in the
 package [`future.batchtools`](https://future.batchtools.futureverse.org/)) and
 each node uses many cores to process the replicates in parallel (e.g., using the
 `future::multicore` plan).
 
-## An example of parallel execution
+If this is something you're interested in, please feel free to contribute to the
+discussion at https://github.com/Yu-Group/simChef/issues/54.
 
-Practically speaking, parallelization in `simChef` works without modification to
-your code other than using `future` to set a parallel backend and choosing your
-parallelization strategy when running or fitting your experiment. In the example
-below, we choose the `multicore` backend (not available on Windows) to create
-forked R processes using all of the available cores.
+## Example
+
+Putting aside the caveats above for now, parallelization in `simChef` works
+without modification other than using `future` to set a parallel backend. In the
+example below, we choose the `multicore` backend (not available on Windows) to
+create forked R processes using all of the available cores.
 
 This example shows how total replicates can quickly add up when varying across
 `DGP` or `Method` parameters. By varying across parameters of one of the `DGPs`,
@@ -81,6 +122,8 @@ library(future)
 library(dplyr)
 
 n_cores <- availableCores(methods = "system")
+n_cores
+
 plan(multicore, workers = n_cores)
 
 dgp_fun1 <- function(n=100, rho=0.5, noise_level=1) {
@@ -91,16 +134,16 @@ dgp_fun1 <- function(n=100, rho=0.5, noise_level=1) {
   return(list(X = X, y = y))
 }
 
-dgp_fun2 <- function(n=100, p=100, rho=0.5, sparsity=0.5, noise_level=1,
+dgp_fun2 <- function(n=100, d=100, rho=0.5, sparsity=0.5, noise_level=1,
                      nonzero_coeff = c(-3, -1, 1, 3)) {
-  cov_mat <- diag(nrow = p)
+  cov_mat <- diag(nrow = d)
   cov_mat[cov_mat == 0] <- rho
-  X <- MASS::mvrnorm(n = n, mu = rep(0, p), Sigma = cov_mat)
+  X <- MASS::mvrnorm(n = n, mu = rep(0, d), Sigma = cov_mat)
   coeff_prob <- c(sparsity, rep((1 - sparsity) / 4, times = 4))
   coeff <- c(
     -8, # intercept
     sample(
-      c(0, nonzero_coeff), size = p, replace = TRUE,
+      c(0, nonzero_coeff), size = d, replace = TRUE,
       prob = coeff_prob
     )
   )
@@ -134,7 +177,7 @@ experiment <- create_experiment(
   add_method(method2) %>%
   add_vary_across(
     .dgp = "sparse_dgp",
-    p = c(100, 1000),
+    d = c(100, 1000),
     rho = c(0.2, 0.9),
     sparsity = c(0.5, 0.9),
     nonzero_coeff = list(c(-3, -1, 1, 3), c(-0.3, -0.1, 0.1, 0.3))
@@ -146,3 +189,9 @@ experiment <- create_experiment(
 results <- experiment$fit(n_reps = 2)
 results
 ```
+
+If we find lower computational resource utilization than we'd like, as the
+simulation grows we might consider breaking this experiment up into separate
+experiments, e.g., by DGP, method, or parameters like sample size `n` and number
+of covariates `d`, depending on which factors have the greatest impact on task
+duration.
