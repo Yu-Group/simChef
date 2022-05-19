@@ -1,3 +1,8 @@
+url: https://yu-group.github.io/simChef
+template:
+  bootstrap: 5
+development:
+  mode: auto
 reference:
   - title: "Experiment"
     desc: >
@@ -52,48 +57,6 @@ reference:
     contents:
       - Visualizer
       - create_visualizer
-  - title: "Simulation Experiment Library"
-    desc: >
-      A library of common functions that can be used to create a simulation experiment.
-  - subtitle: "DGP Library"
-    desc: >
-      A library of common functions for creating DGPs.
-    contents:
-      - xy_dgp_constructor
-      - linear_gaussian_dgp
-      - correlated_linear_gaussian_dgp
-      - logistic_gaussian_dgp
-      - correlated_logistic_gaussian_dgp
-      - lss_gaussian_dgp
-      - correlated_lss_gaussian_dgp
-      - rwd_dgp
-      - omitted_var_dgp
-  - subtitle: "DGP Library: X"
-    desc: >
-      A library of common functions for generating data for X in a DGP.
-    contents:
-      - generate_X_gaussian
-      - generate_X_rwd
-  - subtitle: "DGP Library: y"
-    desc: >
-      A library of common functions for generating data for y in a DGP.
-    contents:
-      - generate_y_linear
-      - generate_y_logistic
-      - generate_y_lss
-  - subtitle: "DGP Library: Errors"
-    desc: >
-      A library of common functions for generating errors in a DGP.
-    contents:
-      - generate_errors
-      - ar1_errors
-      - block_errors
-      - norm_errors
-  - subtitle: "DGP Library: Miscellaneous"
-    desc: >
-      Other utility functions for generating DGPs.
-    contents:
-      - generate_coef
   - subtitle: "Evaluator Library: Prediction"
     desc: >
       A library of common functions for evaluating prediction-focused simulation experiments.
@@ -153,11 +116,7 @@ reference:
     contents:
       - get_dot_args
       - get_eval_tibble
-      - return_DGP_output
       - summarize_eval_results
       - plot_eval_summary
       - plot_fit_results
       - list_col_to_chr
-template:
-  assets: vignettes/results/example-html-outputs
-  

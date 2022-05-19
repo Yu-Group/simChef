@@ -699,6 +699,7 @@
         .. ..$ .n          : num 10
         .. ..$ .rho        : num 0.2
         .. ..$ .noise_level: num 1
+       $ .simplify: logi FALSE
     Message <simpleMessage>
       3 isn't in vec
     Message <simChefMessage>
@@ -710,6 +711,7 @@
         .. ..$ .n          : num 10
         .. ..$ .rho        : num 0.2
         .. ..$ .noise_level: num 1
+       $ .simplify: logi FALSE
     Message <simpleMessage>
       3 isn't in vec
     Warning <simChefWarning>
@@ -728,6 +730,7 @@
         .. ..$ .n          : num 10
         .. ..$ .rho        : num 0.2
         .. ..$ .noise_level: num 2
+       $ .simplify: logi FALSE
     Message <simpleMessage>
       3 isn't in vec
     Message <simChefMessage>
@@ -739,6 +742,7 @@
         .. ..$ .n          : num 10
         .. ..$ .rho        : num 0.2
         .. ..$ .noise_level: num 2
+       $ .simplify: logi FALSE
     Message <simpleMessage>
       3 isn't in vec
     Warning <simChefWarning>
@@ -757,6 +761,7 @@
         .. ..$ .n          : num 10
         .. ..$ .rho        : num 0.2
         .. ..$ .noise_level: num 1
+       $ .simplify: logi FALSE
     Message <simpleMessage>
       3 isn't in vec
     Message <simChefMessage>
@@ -768,6 +773,7 @@
         .. ..$ .n          : num 10
         .. ..$ .rho        : num 0.2
         .. ..$ .noise_level: num 1
+       $ .simplify: logi FALSE
     Message <simpleMessage>
       3 isn't in vec
     Message <simChefMessage>
@@ -779,6 +785,7 @@
         .. ..$ .n          : num 10
         .. ..$ .rho        : num 0.9
         .. ..$ .noise_level: num 1
+       $ .simplify: logi FALSE
     Message <simpleMessage>
       3 isn't in vec
     Message <simChefMessage>
@@ -790,6 +797,7 @@
         .. ..$ .n          : num 10
         .. ..$ .rho        : num 0.9
         .. ..$ .noise_level: num 1
+       $ .simplify: logi FALSE
     Message <simpleMessage>
       3 isn't in vec
     Warning <simChefWarning>
@@ -808,6 +816,7 @@
         .. ..$ .n          : num 10
         .. ..$ .rho        : num 0.2
         .. ..$ .noise_level: num 2
+       $ .simplify: logi FALSE
     Message <simpleMessage>
       3 isn't in vec
     Message <simChefMessage>
@@ -819,6 +828,7 @@
         .. ..$ .n          : num 10
         .. ..$ .rho        : num 0.2
         .. ..$ .noise_level: num 2
+       $ .simplify: logi FALSE
     Message <simpleMessage>
       3 isn't in vec
     Message <simChefMessage>
@@ -830,6 +840,7 @@
         .. ..$ .n          : num 10
         .. ..$ .rho        : num 0.9
         .. ..$ .noise_level: num 2
+       $ .simplify: logi FALSE
     Message <simpleMessage>
       3 isn't in vec
     Message <simChefMessage>
@@ -841,6 +852,7 @@
         .. ..$ .n          : num 10
         .. ..$ .rho        : num 0.9
         .. ..$ .noise_level: num 2
+       $ .simplify: logi FALSE
     Message <simpleMessage>
       3 isn't in vec
     Warning <simChefWarning>
@@ -859,6 +871,7 @@
         .. ..$ .n          : num 10
         .. ..$ .rho        : num 0.2
         .. ..$ .noise_level: num 1
+       $ .simplify: logi FALSE
     Message <simpleMessage>
       3 isn't in vec
     Message <simChefMessage>
@@ -870,6 +883,7 @@
         .. ..$ .n          : num 10
         .. ..$ .rho        : num 0.2
         .. ..$ .noise_level: num 1
+       $ .simplify: logi FALSE
     Message <simpleMessage>
       3 isn't in vec
     Warning <simChefWarning>
@@ -888,6 +902,7 @@
         .. ..$ .n          : num 10
         .. ..$ .rho        : num 0.2
         .. ..$ .noise_level: num 2
+       $ .simplify: logi FALSE
     Message <simpleMessage>
       3 isn't in vec
     Message <simChefMessage>
@@ -899,6 +914,7 @@
         .. ..$ .n          : num 10
         .. ..$ .rho        : num 0.2
         .. ..$ .noise_level: num 2
+       $ .simplify: logi FALSE
     Message <simpleMessage>
       3 isn't in vec
     Warning <simChefWarning>
@@ -917,6 +933,7 @@
         .. ..$ .n          : num 10
         .. ..$ .rho        : num 0.2
         .. ..$ .noise_level: num 1
+       $ .simplify: logi FALSE
     Message <simpleMessage>
       3 isn't in vec
     Message <simChefMessage>
@@ -928,6 +945,7 @@
         .. ..$ .n          : num 10
         .. ..$ .rho        : num 0.2
         .. ..$ .noise_level: num 1
+       $ .simplify: logi FALSE
     Message <simpleMessage>
       3 isn't in vec
     Message <simChefMessage>
@@ -939,6 +957,7 @@
         .. ..$ .n          : num 10
         .. ..$ .rho        : num 0.9
         .. ..$ .noise_level: num 1
+       $ .simplify: logi FALSE
     Message <simpleMessage>
       3 isn't in vec
     Message <simChefMessage>
@@ -950,6 +969,7 @@
         .. ..$ .n          : num 10
         .. ..$ .rho        : num 0.9
         .. ..$ .noise_level: num 1
+       $ .simplify: logi FALSE
     Message <simpleMessage>
       3 isn't in vec
     Warning <simChefWarning>
@@ -968,6 +988,7 @@
         .. ..$ .n          : num 10
         .. ..$ .rho        : num 0.2
         .. ..$ .noise_level: num 2
+       $ .simplify: logi FALSE
     Message <simpleMessage>
       3 isn't in vec
     Message <simChefMessage>
@@ -979,6 +1000,7 @@
         .. ..$ .n          : num 10
         .. ..$ .rho        : num 0.2
         .. ..$ .noise_level: num 2
+       $ .simplify: logi FALSE
     Message <simpleMessage>
       3 isn't in vec
     Message <simChefMessage>
@@ -990,6 +1012,7 @@
         .. ..$ .n          : num 10
         .. ..$ .rho        : num 0.9
         .. ..$ .noise_level: num 2
+       $ .simplify: logi FALSE
     Message <simpleMessage>
       3 isn't in vec
     Message <simChefMessage>
@@ -1001,6 +1024,7 @@
         .. ..$ .n          : num 10
         .. ..$ .rho        : num 0.9
         .. ..$ .noise_level: num 2
+       $ .simplify: logi FALSE
     Message <simpleMessage>
       3 isn't in vec
       2 reps completed (totals: 2/2) | time taken: _x_ minutes

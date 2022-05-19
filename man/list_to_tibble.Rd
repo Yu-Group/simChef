@@ -4,10 +4,10 @@
 \alias{list_to_tibble}
 \title{Coerce list into a tibble.}
 \usage{
-list_to_tibble(ls)
+list_to_tibble(lst)
 }
 \arguments{
-\item{ls}{List to convert into a tibble.}
+\item{lst}{List to convert into a tibble.}
 }
 \value{
 A tibble.

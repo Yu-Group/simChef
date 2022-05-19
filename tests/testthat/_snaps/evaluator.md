@@ -9,7 +9,7 @@
          $ options:List of 2
           ..$ scrollX       : logi TRUE
           ..$ scrollCollapse: logi TRUE
-       Show in R Markdown: TRUE
+       Show in R Markdown: TRUE 
 
 ---
 
@@ -22,7 +22,7 @@
          $ options:List of 2
           ..$ scrollX       : logi TRUE
           ..$ scrollCollapse: logi TRUE
-       Show in R Markdown: TRUE
+       Show in R Markdown: TRUE 
 
 ---
 
@@ -35,7 +35,7 @@
          $ options:List of 2
           ..$ scrollX       : logi TRUE
           ..$ scrollCollapse: logi TRUE
-       Show in R Markdown: TRUE
+       Show in R Markdown: TRUE 
 
 ---
 
@@ -52,5 +52,5 @@
          $ options:List of 2
           ..$ scrollX       : logi TRUE
           ..$ scrollCollapse: logi TRUE
-       Show in R Markdown: TRUE
+       Show in R Markdown: TRUE 
 

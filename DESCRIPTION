@@ -1,28 +1,23 @@
 Package: simChef
 Title: Intensive Computational Experiments Made Easy
-Version: 0.0.1
+Version: 0.0.1.9000
 Authors@R: c(
-    person(given = "James", family = "Duncan", role = c("aut", "cre"),
-           email = "jpduncan@berkeley.edu",
+    person("James", "Duncan", , "jpduncan@berkeley.edu", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0003-3297-681X")),
-    person(given = "Tiffany", family = "Tang", role = "aut",
-           email = "tiffany.tang@berkeley.edu"))
+    person("Tiffany", "Tang", , "tiffany.tang@berkeley.edu", role = "aut")
+  )
 Description: Helps cook up the code necessary to create a fully-realized,
-             high-quality, reproducible, and transparently documented simulation
-             experiment.
+    high-quality, reproducible, and transparently documented simulation
+    experiment.
 License: GPL (>= 3)
-Encoding: UTF-8
-LazyData: true
-Roxygen: list(markdown = TRUE, r6 = FALSE)
-RoxygenNote: 7.1.2
 Imports:
     data.table,
     dplyr,
     fontawesome,
+    future,
     future.apply,
-    knitr,
     magrittr,
-    progressr (>= 0.9.0),
+    methods,
     purrr,
     R.utils,
     R6,
@@ -35,19 +30,56 @@ Imports:
     vthemes,
     yardstick
 Suggests:
-    testthat (>= 3.1.0),
-    prettydoc,
-    MASS,
-    ggplot2,
-    plotly,
     broom,
+    callr,
+    dgpoix,
+    fs,
+    future.callr,
+    ggplot2,
     glmnet,
-    future,
-    PRROC,
-    tidyr,
+    here,
+    knitr,
+    lobstr,
+    MASS,
+    plotly,
+    prettydoc,
+    progressr (>= 0.9.0),
     ranger,
-    vdiffr
+    testthat (>= 3.1.0),
+    tidyr,
+    vdiffr,
+    withr (>= 2.5.0)
+VignetteBuilder: 
+    knitr
 Remotes:
+    Yu-Group/dgpoix,
     Yu-Group/vthemes
-VignetteBuilder: knitr
 Config/testthat/edition: 3
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE, r6 = FALSE)
+RoxygenNote: 7.2.0
+Collate: 
+    'create_rmd.R'
+    'dgp.R'
+    'evaluator-lib-feature-selection.R'
+    'evaluator-lib-inference.R'
+    'evaluator-lib-prediction.R'
+    'evaluator-lib-utils.R'
+    'evaluator.R'
+    'experiment-helpers.R'
+    'experiment-utils.R'
+    'utils.R'
+    'experiment.R'
+    'globals.R'
+    'method.R'
+    'signals.R'
+    'use_templates.R'
+    'utils-pipe.R'
+    'utils-rmd.R'
+    'utils-templates.R'
+    'visualizer-lib-feature-selection.R'
+    'visualizer-lib-inference.R'
+    'visualizer-lib-prediction.R'
+    'visualizer-lib-utils.R'
+    'visualizer.R'
+    'zzz.R'

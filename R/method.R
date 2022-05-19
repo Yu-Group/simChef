@@ -27,9 +27,11 @@ Method <- R6::R6Class(
     #   the initialized \code{Method} parameters. If no additional arguments
     #   are provided, the \code{Method} will be fit using \code{method_fun()}
     #   and the parameters that were set when \code{Method$new()} was called.
+    # @param .simplify If TRUE, remove list wrapping from any column that has
+    #   scalar values.
     #
     # @return Result of \code{method_fun()}, coerced into a single tibble row.
-    fit = function(data_list, ...) {
+    fit = function(data_list, ..., .simplify = TRUE) {
       method_params <- self$method_params
       new_method_params <- rlang::list2(...)
       if (length(new_method_params) > 0) {
@@ -46,7 +48,11 @@ Method <- R6::R6Class(
       if (is.null(names(fit_results))) {
         names(fit_results) <- paste0("result", 1:length(fit_results))
       }
-      return(list_to_tibble_row(fit_results))
+      fit_results <- list_to_tibble_row(fit_results)
+      if (.simplify) {
+        return(simplify_tibble(fit_results))
+      }
+      return(fit_results)
     },
     # @description Print a \code{Method} in a nice format, showing the
     #   \code{Method}'s name, function, and parameters.

@@ -375,7 +375,7 @@ use_dgp_template <- function(ids = NULL) {
         args = list(
           dgp_fun = "xy_dgp_constructor",
           name = "'Example DGP (Uncorrelated Gaussian Linear DGP)'",
-          x_fun = "generate_X_gaussian",
+          X_fun = "generate_X_gaussian",
           y_fun = "generate_y_linear",
           err_fun = "rnorm",
           n = 200, p = 10, betas = "c(rep(1, 5), rep(0, 5))", .err_sd = 1,
@@ -389,7 +389,7 @@ use_dgp_template <- function(ids = NULL) {
         args = list(
           dgp_fun = "xy_dgp_constructor",
           name = "'Example DGP (Uncorrelated Gaussian Logistic DGP)'",
-          x_fun = "generate_X_gaussian",
+          X_fun = "generate_X_gaussian",
           y_fun = "generate_y_logistic",
           n = 200, p = 10, betas = "c(rep(1, 5), rep(0, 5))",
           data_split = TRUE, train_prop = 0.5, return_support = TRUE
