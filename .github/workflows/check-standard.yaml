@@ -10,8 +10,6 @@ name: R-CMD-check
 jobs:
   # Check R build
   R-CMD-check:
-    needs: Knit-Vignette
-    if: ${{ always() }}
     runs-on: ${{ matrix.config.os }}
 
     name: ${{ matrix.config.os }} (${{ matrix.config.r }})
