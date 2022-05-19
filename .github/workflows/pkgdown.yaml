@@ -33,6 +33,11 @@ jobs:
           extra-packages: any::pkgdown, local::.
           needs: website
 
+      # creates pkgdown/assets/*.html, which will be copied to site in next step
+      - name: Create simulation Rmd docs examples in pkgdown/assets/
+        run: rmarkdown::render("vignettes/simChef.Rmd")
+        shell: Rscript {0}
+
       - name: Build site
         run: pkgdown::build_site_github_pages(new_process = FALSE, install = FALSE)
         shell: Rscript {0}
