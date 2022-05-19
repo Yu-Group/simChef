@@ -53,7 +53,14 @@
         <input type="search" class="form-control me-sm-2" aria-label="Toggle navigation" name="search-input" data-search-index="../search.json" id="search-input" placeholder="Search for" autocomplete="off">
 </form>
 
-      <ul class="navbar-nav"></ul>
+      <ul class="navbar-nav">
+<li class="nav-item">
+  <a class="external-link nav-link" href="https://github.com/Yu-Group/simChef/" aria-label="github">
+    <span class="fab fa fab fa-github fa-lg"></span>
+     
+  </a>
+</li>
+      </ul>
 </div>
 
     
@@ -68,7 +75,7 @@
       <img src="" class="logo" alt=""><h1>Parallel computation in `simChef`</h1>
             
       
-      
+      <small class="dont-index">Source: <a href="https://github.com/Yu-Group/simChef/blob/HEAD/vignettes/parallel.Rmd" class="external-link"><code>vignettes/parallel.Rmd</code></a></small>
       <div class="d-none name"><code>parallel.Rmd</code></div>
     </div>
 
@@ -89,7 +96,7 @@
 <p>Practically speaking, parallelization in <code>simChef</code> works without modification to your code other than using <code>future</code> to set a parallel backend and choosing your parallelization strategy when running or fitting your experiment. In the example below, we choose the <code>multicore</code> backend (not available on Windows) to create forked R processes using all of the available cores.</p>
 <p>This example shows how total replicates can quickly add up when varying across <code>DGP</code> or <code>Method</code> parameters. By varying across parameters of one of the <code>DGPs</code>, we in effect have 17 distinct data generating processes in the experiment (1 for <code>dgp1</code> and 16 for the combinations of parameters to <code>dgp2</code>), though in actuality there are only two <code>DGP</code> objects. Similarly, we effectively have 4 distinct methods, though there are only 2 <code>Method</code> objects. With <code>n_reps = 2</code>, this results in a total of 2 x 17 x 4 = 136 total rows in the results <code>tibble</code>.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">simChef</span><span class="op">)</span>
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://yu-group.github.io/simChef">simChef</a></span><span class="op">)</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://future.futureverse.org" class="external-link">future</a></span><span class="op">)</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span>
 <span class="co">#&gt; </span>
@@ -166,7 +173,7 @@
 
 <span class="va">results</span> <span class="op">&lt;-</span> <span class="va">experiment</span><span class="op">$</span><span class="fu">fit</span><span class="op">(</span>n_reps <span class="op">=</span> <span class="fl">2</span><span class="op">)</span>
 <span class="co">#&gt; Fitting exper...</span>
-<span class="co">#&gt; 2 reps completed (totals: 2/2) | time taken: 0.680567 minutes</span>
+<span class="co">#&gt; 2 reps completed (totals: 2/2) | time taken: 0.645469 minutes</span>
 <span class="co">#&gt; ==============================</span>
 <span class="va">results</span>
 <span class="co">#&gt; <span style="color: #949494;"># A tibble: 136 × 16</span></span>
