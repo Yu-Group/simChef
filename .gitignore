@@ -7,6 +7,9 @@
 inst/doc
 tests/testthat/results/
 tests/testthat/figure/
+vignettes/results/
+pkgdown/
+results/
 
 ## ---- R
 

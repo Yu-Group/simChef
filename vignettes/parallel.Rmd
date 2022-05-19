@@ -1,5 +1,5 @@
 ---
-title: "Parallel strategies in `simChef`"
+title: "Parallel computation in `simChef`"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Parallel strategies in `simChef`}

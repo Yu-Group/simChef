@@ -33,6 +33,7 @@ Suggests:
     broom,
     callr,
     dgpoix,
+    fs,
     future.callr,
     ggplot2,
     glmnet,

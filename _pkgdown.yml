@@ -1,3 +1,8 @@
+url: https://yu-group.github.io/simChef
+template:
+  bootstrap: 5
+development:
+  mode: auto
 reference:
   - title: "Experiment"
     desc: >
@@ -115,5 +120,3 @@ reference:
       - plot_eval_summary
       - plot_fit_results
       - list_col_to_chr
-template:
-  bootstrap: 5

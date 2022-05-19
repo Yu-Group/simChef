@@ -39,78 +39,82 @@ The goal of `simChef` is to seamlessly and efficiently run simulation experiment
 
 1. Create individual parts of the simulation experiment recipe
     a. Create DGP(s) (data-generating processes) via `create_dgp()`
+        ```{r}
+        dgp <- create_dgp(
+            function(n = 100, p = 10, noise_max = 5) {
+            noise_level <- runif(1, max = noise_max)
+            X <- matrix(rnorm(n*p), nrow = n)
+            y <- X %*% rnorm(p, sd = 2) + rnorm(n, sd = noise_level)
+            # dgp's should return a named list
+            return(list(X = X, y = y, noise_level = noise_level))
+            }
+        )
+        dgp
+        ```
     b. Create Method(s) via `create_method()`
+        ```{r}
+        method <- create_method(
+          # method function args include the names in the dgp output list (`X` and `y` here)
+          function(X, y, ...) {
+            # by concatenating ... with the list output, we can pass through other
+            # outputs from the dgp to later stages of the simulation (evaluation and
+            # visualization)
+            return(c(list(fit = lm(y ~ X)), ...))
+          }
+        )
+        method
+        ```
     c. Create Evaluator(s) via `create_evaluator()`
+        ```{r}
+        evaluator <- create_evaluator(
+          # the main computational loop of the simulation will return a `tibble::tibble`
+          # which is passed as 'fit_results' to our evaluation functions
+          function(fit_results) {
+            # calculate R-squared
+            fit_results %>%
+              dplyr::mutate(
+                rsq = sapply(fit, function(.fit) summary(.fit)$r.squared)
+              )
+          }
+        )
+        evaluator
+        ```
     d. Create Visualizer(s) via `create_visualizer()`
+        ```{r}
+        visualizer <- create_visualizer(
+          # you can use 'fit_results' as well here by adding it as an argument
+          function(eval_results) {
+            require(ggplot2)
+            # return a plot r-squared vs noise level
+            ggplot(aes(x = noise_level, y = rsq), data = eval_results[[1]]) +
+              geom_point() +
+              geom_smooth()
+          }
+        )
+        visualizer
+        ```
 2. Assemble these recipe parts into a complete simulation experiment, e.g.:
-```{r}
-dgp <- create_dgp(
-  function(n = 100, p = 10, noise_max = 5) {
-    noise_level <- runif(1, max = noise_max)
-    X <- matrix(rnorm(n*p), nrow = n)
-    y <- X %*% rnorm(p, sd = 2) + rnorm(n, sd = noise_level)
-    # dgp's should return a named list
-    return(list(X = X, y = y, noise_level = noise_level))
-  }
-)
-dgp
-
-method <- create_method(
-  # method function args include the names in the dgp output list (`X` and `y` here)
-  function(X, y, ...) {
-    # by concatenating ... with the list output, we can pass through other
-    # outputs from the dgp to later stages of the simulation (evaluation and
-    # visualization)
-    return(c(list(fit = lm(y ~ X)), ...))
-  }
-)
-method
-
-evaluator <- create_evaluator(
-  # the main computational loop of the simulation will return a `tibble::tibble`
-  # which is passed as 'fit_results' to our evaluation functions
-  function(fit_results) {
-    # calculate R-squared
-    fit_results %>%
-      dplyr::mutate(
-        rsq = sapply(fit, function(.fit) summary(.fit)$r.squared)
-      )
-  }
-)
-evaluator
-
-visualizer <- create_visualizer(
-  # you can use 'fit_results' as well here by adding it as an argument
-  function(eval_results) {
-    require(ggplot2)
-    # return a plot r-squared vs noise level
-    ggplot(aes(x = noise_level, y = rsq), data = eval_results[[1]]) +
-      geom_point() +
-      geom_smooth()
-  }
-)
-visualizer
-
-experiment <- create_experiment(name = "Experiment") %>%
-  add_dgp(dgp, name = "DGP1") %>%
-  add_method(method, name = "Method1") %>%
-  add_evaluator(evaluator, name = "Evaluator1") %>%
-  add_visualizer(visualizer, name = "Visualizer1")
-experiment
-```
+    ```{r}
+    experiment <- create_experiment(name = "Experiment") %>%
+      add_dgp(dgp, name = "DGP1") %>%
+      add_method(method, name = "Method1") %>%
+      add_evaluator(evaluator, name = "Evaluator1") %>%
+      add_visualizer(visualizer, name = "Visualizer1")
+    experiment
+    ```
 3. Document and describe the simulation experiment in text
-```{r eval = FALSE}
-create_doc_template(experiment)
-```
+    ```{r eval = FALSE}
+    create_doc_template(experiment)
+    ```
 4. Run the experiment
-```{r eval = FALSE}
-results <- experiment$run(n_reps = 100, save = T)
-# or alternatively, `run_experiment(experiment, n_reps = 100, save = T)`
-```
+    ```{r eval = FALSE}
+    results <- run_experiment(experiment, n_reps = 100, save = T)
+    # or alternatively, `results <- experiment$run(n_reps = 100, save = T)`
+    ```
 5. Visualize results via an automated R Markdown report
-```{r eval = FALSE}
-create_rmd(experiment)
-```
+    ```{r eval = FALSE}
+    create_rmd(experiment)
+    ```
 
 We will next go through a toy example simulation using linear regression.
 
@@ -320,7 +324,7 @@ create_rmd(experiment, open = FALSE)
 assets_dir <- here::here("pkgdown/assets")
 dir.create(assets_dir, recursive = TRUE)
 
-# copy html output to vignettes/results/example-html-outputs folder for website
+# copy html output to pkgdown/assets directory for website
 file.copy(from = file.path(experiment$get_save_dir(),
                            paste0(experiment$name, ".html")),
           to = file.path(assets_dir, "linear_regression_base_output.html"),
@@ -484,6 +488,7 @@ create_rmd(save_dir = experiment$get_save_dir(), open = FALSE)
 ```
 
 ```{r echo = FALSE, warning = FALSE, message = FALSE, results = "hide"}
+# copy html output to pkgdown/assets directory for website
 file.copy(from = file.path(experiment$get_save_dir(),
                            paste0(experiment$name, ".html")),
           to = file.path(assets_dir, "linear_regression_output.html"),
@@ -734,7 +739,47 @@ By default, the root results directory is ./results/\{EXPERIMENT_NAME\}. If the 
 
 All results from `experiment$run(..., save = TRUE)` without a `vary_across` component are then saved under the root results directory. If `experiment` has a `vary_across` component, then the results of `experiment$run(..., save = TRUE)` are saved under ./\{ROOT_RESULTS_DIR\}/\{DGP_OR_METHOD_NAME\}/Varying \{PARAM_NAME\}/.
 
-For a concrete example of the saving structure, please refer to [this GitHub directory](https://github.com/Yu-Group/simChef/tree/main/vignettes/results/Linear Regression Experiment/), where we have stored all saved results from this vignette.
+Here's the directory tree of the "Linear Regression Experiment" example:
+
+```{r, eval = FALSE}
+fs::dir_tree(get_save_dir(experiment))
+#> results
+#> ├── Linear Gaussian DGP
+#> │   ├── Varying beta
+#> │   │   ├── eval_results.rds
+#> │   │   ├── experiment.rds
+#> │   │   ├── experiment_cached_params.rds
+#> │   │   ├── fit_results.rds
+#> │   │   └── viz_results.rds
+#> │   ├── Varying rho
+#> │   │   ├── eval_results.rds
+#> │   │   ├── experiment.rds
+#> │   │   ├── experiment_cached_params.rds
+#> │   │   ├── fit_results.rds
+#> │   │   └── viz_results.rds
+#> │   └── Varying sigma
+#> │       ├── eval_results.rds
+#> │       ├── experiment.rds
+#> │       ├── fit_results.rds
+#> │       └── viz_results.rds
+#> ├── Linear Regression Experiment.html
+#> ├── docs
+#> │   ├── dgps
+#> │   │   └── Linear Gaussian DGP.md
+#> │   ├── evaluators
+#> │   │   └── Rejection Prob. (alpha = 0.1).md
+#> │   ├── methods
+#> │   │   └── OLS.md
+#> │   ├── objectives.md
+#> │   └── visualizers
+#> │       ├── Power.md
+#> │       └── Rejection Prob. (alpha = 0.1) Plot.md
+#> ├── eval_results.rds
+#> ├── experiment.rds
+#> ├── experiment_cached_params.rds
+#> ├── fit_results.rds
+#> └── viz_results.rds
+```
 
 ## Additional handling of the experiment
 
@@ -810,7 +855,7 @@ experiment <- create_experiment(
 results <- run_experiment(experiment, n_reps = 2)
 ```
 
-If working interactively, the error can be inspected using the usual call to `rlang::last_error()`, and results that were run and completed before the error can be inspected via `rlang::last_error()$partial_results`.
+If working interactively, the error can be inspected using the usual call to `rlang::last_error()`. Results that were run and completed before the error can be recovered via `rlang::last_error()$partial_results` and you can find errors that occurred within the simulation loop via `rlang::last_error()$errors`.
 
 Alternatively, we can wrap the call that ran the error (in this case, `run_experiment()`) in `tryCatch()` as follows:
 ```{r error = TRUE}
@@ -825,18 +870,14 @@ results$partial_results
 ```
 and extract the error object(s) via
 ```{r}
-# find index where error occurred
-err_idx <- which(!sapply(results$partial_results$.err, is.null))
-# extract the error object
-err <- results$partial_results$.err[[err_idx]]
-err
+results$errors
 ```
 
-Note that the error object contains the name of the component (e.g., DGP, Method) that ran the error (i.e., `err$data$name`) and the input parameters for the function call (i.e., `err$data$params`). Using this, we can easily reproduce the error and if desired, work directly with the user-specified function that raised the error, e.g.,
+Note that the error tibble contains the `DGP` and `Method` (if the `DGP` was not the error cause) that were being processed when the error occurred in the `.dgp` and `.method` columns, respectively. The corresponding input parameters are in the `.dgp_params` and `.method_params` columns (both `NA` here since no parameters were varied in the experiment). Finally, the captured error itself is in the `.err` column. Using this, we can easily investigate and reproduce the error and if desired, work directly with the user-specified function that raised the error, e.g.,
 
 ```{r error = TRUE}
 # get dgp that ran the error
-err_fun <- experiment$get_dgps()[[err$data$name]]$dgp_fun
+err_fun <- results$errors$.dgp[[1]]$dgp_fun
 # reproduce error via a direct call to the DGP function that raised the error
-do.call(err_fun, args = err$data$params)
+err_fun()
 ```
