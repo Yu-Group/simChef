@@ -10,6 +10,8 @@ Description: Helps cook up the code necessary to create a fully-realized,
     high-quality, reproducible, and transparently documented simulation
     experiment.
 License: GPL (>= 3)
+URL: https://yu-group.github.io/simChef
+BugReports: https://github.com/Yu-Group/simChef/issues
 Imports:
     data.table,
     dplyr,
