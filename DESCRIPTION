@@ -1,6 +1,6 @@
 Package: simChef
 Title: Intensive Computational Experiments Made Easy
-Version: 0.0.1.9000
+Version: 0.0.1
 Authors@R: c(
     person("James", "Duncan", , "jpduncan@berkeley.edu", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0003-3297-681X")),
