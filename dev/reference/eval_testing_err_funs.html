@@ -108,14 +108,20 @@ across experimental replicates.</p>
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
     <dl><dt>fit_results</dt>
 <dd><p>A tibble, as returned by the <code>fit</code> method.</p></dd>
+
+
 <dt>vary_params</dt>
 <dd><p>A vector of parameter names that are varied across in the
 <code>Experiment</code>.</p></dd>
+
+
 <dt>nested_data</dt>
 <dd><p>(Optional) Character string. If specified, should be the
 name of the column in <code>fit_results</code> containing columns that must be
 unnested before evaluating results. Default is <code>NULL</code>, meaning no
 columns in <code>fit_results</code> need to be unnested prior to computation.</p></dd>
+
+
 <dt>truth_col</dt>
 <dd><p>A character string identifying the column in
 <code>fit_results</code> with the true feature support data. Each element in this
@@ -123,12 +129,16 @@ column should be an array of length <code>p</code>, where <code>p</code> is the 
 of features. Elements in this array should be binary with <code>TRUE</code> or
 <code>1</code> meaning the feature (corresponding to that slot) is in the support
 and <code>FALSE</code> or <code>0</code> meaning the feature is not in the support.</p></dd>
+
+
 <dt>pval_col</dt>
 <dd><p>A character string identifying the column in
 <code>fit_results</code> with the estimated p-values data. Each element in
 this column should be an array of length <code>p</code>, where <code>p</code> is the
 number of features and the feature order aligns with that of
 <code>truth_col</code>.</p></dd>
+
+
 <dt>metrics</dt>
 <dd><p>A <code>metric_set</code> object indicating the metrics to evaluate.
 See <code><a href="https://yardstick.tidymodels.org/reference/metric_set.html" class="external-link">yardstick::metric_set()</a></code> for more details. Default <code>NULL</code> will
@@ -137,29 +147,42 @@ false positives (<code>fp</code>), sensitivity (<code>sens</code>), specificity
 (<code>spec</code>), positive predictive value (<code>ppv</code>), number of tests that
 were rejected (<code>pos</code>), number of tests that were not rejected
 (<code>neg</code>), AUROC (<code>roc_auc</code>), and AUPRC (<code>pr_auc</code>).</p></dd>
+
+
 <dt>alphas</dt>
 <dd><p>Vector of significance levels at which to evaluate
 the various metrics. Default is <code>alphas = 0.05</code>.</p></dd>
+
+
 <dt>na_rm</dt>
 <dd><p>A <code>logical</code> value indicating whether <code>NA</code> values
 should be stripped before the computation proceeds.</p></dd>
+
+
 <dt>summary_funs</dt>
 <dd><p>Character vector specifying how to summarize
 evaluation metrics. Must choose from a built-in library of summary
 functions - elements of the vector must be one of "mean", "median",
 "min", "max", "sd", "raw".</p></dd>
+
+
 <dt>custom_summary_funs</dt>
 <dd><p>Named list of custom functions to summarize
 results. Names in the list should correspond to the name of the summary
 function. Values in the list should be a function that takes in one
 argument, that being the values of the evaluated metrics.</p></dd>
+
+
 <dt>eval_id</dt>
 <dd><p>Character string. ID to be used as a suffix when naming result
 columns. Default <code>NULL</code> does not add any ID to the column names.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>The output of <code>eval_testing_err()</code> is a <code>tibble</code> with the following
+    
+
+<p>The output of <code>eval_testing_err()</code> is a <code>tibble</code> with the following
 columns:</p><dl><dt>.rep</dt>
 <dd><p>Replicate ID.</p></dd>
 
@@ -179,8 +202,13 @@ columns:</p><dl><dt>.rep</dt>
 <dd><p>Value of the evaluation metric.</p></dd>
 
 
-</dl><p>as well as any columns specified by <code>vary_params</code>.
-The output of <code>summarize_testing_err()</code> is a grouped <code>tibble</code>containing both identifying information and the evaluation results
+</dl><p>as well as any columns specified by <code>vary_params</code>.</p>
+
+
+<p>The output of <code>summarize_testing_err()</code> is a grouped <code>tibble</code></p>
+
+
+<p>containing both identifying information and the evaluation results
 aggregated over experimental replicates. Specifically, the identifier columns
 include <code>.dgp_name</code>, <code>.method_name</code>, any columns specified by
 <code>vary_params</code>, and <code>.metric</code>. In addition, there are results columns
@@ -288,7 +316,7 @@ corresponding to the requested statistics in <code>summary_funs</code> and
 </div>
 
 <div class="pkgdown-footer-right">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.4.</p>
 </div>
 
     </footer></div>

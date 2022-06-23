@@ -88,24 +88,35 @@ held constant at their baseline value.</p>
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
     <dl><dt>.experiment, experiment</dt>
 <dd><p>An <code>Experiment</code> object.</p></dd>
+
+
 <dt>.dgp, dgp</dt>
 <dd><p>Name of <code>DGP</code> to vary in the <code>Experiment</code>. Can also be a
 <code>DGP</code> object that matches one in the <code>Experiment</code>.</p></dd>
+
+
 <dt>.method, method</dt>
 <dd><p>Name of <code>Method</code> to vary in the <code>Experiment</code>. Can
 also be a <code>Method</code> object that matches one in the <code>Experiment</code>.</p></dd>
+
+
 <dt>...</dt>
 <dd><p>Any number of named arguments where names match an argument in the
 user-specified <code>DGP</code> or <code>Method</code> function and values are vectors
 (for scalar parameters) or lists (for arbitrary parameters).</p></dd>
+
+
 <dt>param_names</dt>
 <dd><p>A character vector of parameter names to remove. If
 not provided, the entire set of <code>vary_across</code> parameters will be
 removed for the specified <code>DGP</code>/<code>Method</code>.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>In the case of <code>get_vary_across</code>, a nested list with entries
+    
+
+<p>In the case of <code>get_vary_across</code>, a nested list with entries
 "dgp" and "method" that contains the parameters to vary across for each
 <code>DGP</code> and <code>Method</code> in the <code>Experiment</code>. Otherwise, the
 original <code>Experiment</code> object passed to <code>*_vary_across()</code>.</p>
@@ -128,7 +139,7 @@ be provided when using <code>add_vary_across()</code> and
 </div>
 
 <div class="pkgdown-footer-right">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.4.</p>
 </div>
 
     </footer></div>

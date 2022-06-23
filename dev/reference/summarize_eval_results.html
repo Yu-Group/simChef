@@ -81,29 +81,42 @@ that summarize results over pre-specified groups in a grouped
     <dl><dt>eval_data</dt>
 <dd><p>A grouped <code>data.frame</code> of evaluation results to
 summarize.</p></dd>
+
+
 <dt>eval_id</dt>
 <dd><p>Character string. ID to be used as a suffix when naming result
 columns. Default <code>NULL</code> does not add any ID to the column names.</p></dd>
+
+
 <dt>value_col</dt>
 <dd><p>Character string. Name of column in <code>eval_data</code> with
 values to summarize.</p></dd>
+
+
 <dt>summary_funs</dt>
 <dd><p>Character vector specifying how to summarize
 evaluation metrics. Must choose from a built-in library of summary
 functions - elements of the vector must be one of "mean", "median",
 "min", "max", "sd", "raw".</p></dd>
+
+
 <dt>custom_summary_funs</dt>
 <dd><p>Named list of custom functions to summarize
 results. Names in the list should correspond to the name of the summary
 function. Values in the list should be a function that takes in one
 argument, that being the values of the evaluated metrics.</p></dd>
+
+
 <dt>na_rm</dt>
 <dd><p>A <code>logical</code> value indicating whether <code>NA</code> values
 should be stripped before the computation proceeds.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A <code>tibble</code> containing the summarized results aggregated
+    
+
+<p>A <code>tibble</code> containing the summarized results aggregated
 over the given groups. These columns correspond to the requested
 statistics in <code>summary_funs</code> and <code>custom_summary_funs</code> and end
 with the suffix specified by <code>eval_id</code>. Note that the group IDs are
@@ -144,7 +157,7 @@ also retained in the returned <code>tibble</code>.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.4.</p>
 </div>
 
     </footer></div>

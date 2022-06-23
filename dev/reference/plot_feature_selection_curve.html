@@ -78,31 +78,46 @@ across experimental replicates.</p>
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
     <dl><dt>fit_results</dt>
 <dd><p>A tibble, as returned by the <code>fit</code> method.</p></dd>
+
+
 <dt>eval_results</dt>
 <dd><p>A list of result tibbles, as returned by the
 <code>evaluate</code> method.</p></dd>
+
+
 <dt>evaluator_name</dt>
 <dd><p>Name of <code>Evaluator</code> containing results to plot.
 To compute the evaluation summary results from scratch or if the evaluation
 summary results have not yet been evaluated, set to <code>NULL</code>.</p></dd>
+
+
 <dt>vary_params</dt>
 <dd><p>A vector of parameter names that are varied across in the
 <code>Experiment</code>.</p></dd>
+
+
 <dt>curve</dt>
 <dd><p>Either "ROC" or "PR" indicating whether to plot the ROC or
 Precision-Recall curve.</p></dd>
+
+
 <dt>show</dt>
 <dd><p>Character vector with elements being one of "boxplot", "point",
 "line", "bar", "errorbar", "ribbon" indicating what plot layer(s) to
 construct.</p></dd>
+
+
 <dt>...</dt>
 <dd><p>Additional arguments to pass to <code><a href="plot_eval_summary.html">plot_eval_summary()</a></code>. This
 includes arguments for plotting and for passing into
 <code><a href="eval_feature_selection_curve_funs.html">summarize_feature_selection_curve()</a></code>.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>If <code>interactive = TRUE</code>, returns a <code>plotly</code> object if
+    
+
+<p>If <code>interactive = TRUE</code>, returns a <code>plotly</code> object if
 <code>plot_by</code> is <code>NULL</code> and a list of <code>plotly</code> objects if
 <code>plot_by</code> is not <code>NULL</code>. If <code>interactive = FALSE</code>, returns
 a <code>ggplot</code> object if <code>plot_by</code> is <code>NULL</code> and a list of
@@ -199,7 +214,7 @@ a <code>ggplot</code> object if <code>plot_by</code> is <code>NULL</code> and a 
 </div>
 
 <div class="pkgdown-footer-right">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.4.</p>
 </div>
 
     </footer></div>

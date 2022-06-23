@@ -110,6 +110,8 @@ results within this function call.</p>
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
     <dl><dt>fit_results</dt>
 <dd><p>A tibble, as returned by the <code>fit</code> method.</p></dd>
+
+
 <dt>eval_tib</dt>
 <dd><p>(Optional) <code>Tibble</code> (typically from the output of
 <code>eval_summary_constructor</code>) containing the summarized evaluation
@@ -117,89 +119,136 @@ results to plot. If not provided, the evaluation results will be
 automatically computed by calling <code>eval_fun()</code>. If the summarized
 evaluation results have already been computed previously, <code>eval_tib</code>
 should be specified to avoid duplicate computations.</p></dd>
+
+
 <dt>eval_id</dt>
 <dd><p>Character string. ID used as the suffix for naming columns in
 <code>eval_summary_constructor()</code>. Should be the same as the <code>eval_id</code>
 argument in <code>eval_summary_constructor()</code>.</p></dd>
+
+
 <dt>eval_fun</dt>
 <dd><p>Function used to compute evaluation results summary. This
 function is only used (and required) if necessary results have not already
 been computed in <code>eval_tib</code>.</p></dd>
+
+
 <dt>vary_params</dt>
 <dd><p>A vector of parameter names that are varied across in the
 <code>Experiment</code>.</p></dd>
+
+
 <dt>show</dt>
 <dd><p>Character vector with elements being one of "boxplot", "point",
 "line", "bar", "errorbar", "ribbon" indicating what plot layer(s) to
 construct.</p></dd>
+
+
 <dt>x_str</dt>
 <dd><p>(Optional) Name of column in <code>eval_tib</code> to plot on the
 x-axis. Default "auto" chooses what to plot on the x-axis automatically.</p></dd>
+
+
 <dt>y_str</dt>
 <dd><p>(Optional) Name of column in <code>eval_tib</code> to plot on the
 y-axis if <code>show</code> is anything but "boxplot". Default "auto" chooses
 what to plot on the y-axis automatically.</p></dd>
+
+
 <dt>err_sd_str</dt>
 <dd><p>(Optional) Name of column in <code>eval_tib</code> containing the
 standard deviations of <code>y_str</code>. Used for plotting the errorbar and
 ribbon ggplot layers. Default "auto" chooses what column to use for the
 standard deviations automatically.</p></dd>
+
+
 <dt>color_str</dt>
 <dd><p>(Optional) Name of column in <code>eval_tib</code> to use for the
 color and fill aesthetics when plotting. Default "auto" chooses what to
 use for the color and fill aesthetics automatically. Use <code>NULL</code> to
 avoid adding any color and fill aesthetic.</p></dd>
+
+
 <dt>linetype_str</dt>
 <dd><p>(Optional) Name of column in <code>eval_tib</code> to use for
 the linetype aesthetic when plotting. Used only when <code>show = "line"</code>.
 Default "auto" chooses what to use for the linetype aesthetic
 automatically. Use <code>NULL</code> to avoid adding any linetype aesthetic.</p></dd>
+
+
 <dt>facet_formula</dt>
 <dd><p>(Optional) Formula for <code><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">ggplot2::facet_wrap()</a></code> or
 <code><a href="https://ggplot2.tidyverse.org/reference/facet_grid.html" class="external-link">ggplot2::facet_grid()</a></code> if need be.</p></dd>
+
+
 <dt>facet_type</dt>
 <dd><p>One of "grid" or "wrap" specifying whether to use
 <code><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">ggplot2::facet_wrap()</a></code> or <code><a href="https://ggplot2.tidyverse.org/reference/facet_grid.html" class="external-link">ggplot2::facet_grid()</a></code> if need be.</p></dd>
+
+
 <dt>plot_by</dt>
 <dd><p>(Optional) Name of column in <code>eval_tib</code> to use for
 subsetting data and creating different plots for each unique value. Default
 "auto" chooses what column to use for the subsetting automatically. Use
 <code>NULL</code> to avoid creating multiple plots.</p></dd>
+
+
 <dt>add_ggplot_layers</dt>
 <dd><p>List of additional layers to add to a ggplot object
 via <code>+</code>.</p></dd>
+
+
 <dt>boxplot_args</dt>
 <dd><p>(Optional) Additional arguments to pass into
 <code><a href="https://ggplot2.tidyverse.org/reference/geom_boxplot.html" class="external-link">ggplot2::geom_boxplot()</a></code>.</p></dd>
+
+
 <dt>point_args</dt>
 <dd><p>(Optional) Additional arguments to pass into
 <code><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">ggplot2::geom_point()</a></code>.</p></dd>
+
+
 <dt>line_args</dt>
 <dd><p>(Optional) Additional arguments to pass into
 <code><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">ggplot2::geom_line()</a></code>.</p></dd>
+
+
 <dt>bar_args</dt>
 <dd><p>(Optional) Additional arguments to pass into
 <code><a href="https://ggplot2.tidyverse.org/reference/geom_bar.html" class="external-link">ggplot2::geom_bar()</a></code>.</p></dd>
+
+
 <dt>errorbar_args</dt>
 <dd><p>(Optional) Additional arguments to pass into
 <code><a href="https://ggplot2.tidyverse.org/reference/geom_linerange.html" class="external-link">ggplot2::geom_errorbar()</a></code>.</p></dd>
+
+
 <dt>ribbon_args</dt>
 <dd><p>(Optional) Additional arguments to pass into
 <code><a href="https://ggplot2.tidyverse.org/reference/geom_ribbon.html" class="external-link">ggplot2::geom_ribbon()</a></code>.</p></dd>
+
+
 <dt>facet_args</dt>
 <dd><p>(Optional) Additional arguments to pass into
 <code><a href="https://ggplot2.tidyverse.org/reference/facet_grid.html" class="external-link">ggplot2::facet_grid()</a></code> or <code><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">ggplot2::facet_wrap()</a></code>.</p></dd>
+
+
 <dt>interactive</dt>
 <dd><p>Logical. If <code>TRUE</code>, returns interactive <code>plotly</code>
 plots. If <code>FALSE</code>, returns static <code>ggplot</code> plots.</p></dd>
+
+
 <dt>...</dt>
 <dd><p>Additional arguments to pass to <code>eval_fun()</code>. This is only
 used if necessary results have not already been computed in
 <code>eval_tib</code>.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>If <code>interactive = TRUE</code>, returns a <code>plotly</code> object if
+    
+
+<p>If <code>interactive = TRUE</code>, returns a <code>plotly</code> object if
 <code>plot_by</code> is <code>NULL</code> and a list of <code>plotly</code> objects if
 <code>plot_by</code> is not <code>NULL</code>. If <code>interactive = FALSE</code>, returns
 a <code>ggplot</code> object if <code>plot_by</code> is <code>NULL</code> and a list of
@@ -274,7 +323,7 @@ a <code>ggplot</code> object if <code>plot_by</code> is <code>NULL</code> and a 
 </div>
 
 <div class="pkgdown-footer-right">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.4.</p>
 </div>
 
     </footer></div>

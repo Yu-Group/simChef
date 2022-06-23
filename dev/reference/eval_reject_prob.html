@@ -81,35 +81,50 @@ tests, one for each feature).</p>
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
     <dl><dt>fit_results</dt>
 <dd><p>A tibble, as returned by the <code>fit</code> method.</p></dd>
+
+
 <dt>vary_params</dt>
 <dd><p>A vector of parameter names that are varied across in the
 <code>Experiment</code>.</p></dd>
+
+
 <dt>nested_data</dt>
 <dd><p>(Optional) Character string. If specified, should be the
 name of the column in <code>fit_results</code> containing columns that must be
 unnested before evaluating results. Default is <code>NULL</code>, meaning no
 columns in <code>fit_results</code> need to be unnested prior to computation.</p></dd>
+
+
 <dt>feature_col</dt>
 <dd><p>A character string identifying the column in
 <code>fit_results</code> with the feature names or IDs.</p></dd>
+
+
 <dt>pval_col</dt>
 <dd><p>A character string identifying the column in
 <code>fit_results</code> with the estimated p-values data. Each element in
 this column should be an array of length <code>p</code>, where <code>p</code> is the
 number of features and the feature order aligns with that of
 <code>truth_col</code>.</p></dd>
+
+
 <dt>alphas</dt>
 <dd><p>(Optional) Vector of significance levels at which to evaluate
 the rejection probability. By default, <code>alphas</code> is <code>NULL</code>, which
 evaluates the full empirical cumulative distribution of the p-values, i.e.,
 the rejection probability is evaluated at all possible significance levels.</p></dd>
+
+
 <dt>na_rm</dt>
 <dd><p>A <code>logical</code> value indicating whether <code>NA</code> values
 should be stripped before the computation proceeds.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A grouped <code>tibble</code> containing both identifying information
+    
+
+<p>A grouped <code>tibble</code> containing both identifying information
 and the rejection probability results aggregated over experimental
 replicates. Specifically, the identifier columns include <code>.dgp_name</code>,
 <code>.method_name</code>, any columns specified by <code>vary_params</code>, and the
@@ -178,7 +193,7 @@ probabilities (averaged across experimental replicates).</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.4.</p>
 </div>
 
     </footer></div>

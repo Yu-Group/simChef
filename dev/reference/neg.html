@@ -92,31 +92,43 @@ negative cases) of a measurement system compared to the reference results
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
     <dl><dt>data</dt>
-<dd><p>Either a <code>data.frame</code> containing the <code>truth</code> and <code>estimate</code>
-columns, or a <code>table</code>/<code>matrix</code> where the true class results should be
-in the columns of the table.</p></dd>
+<dd><p>Either a <code>data.frame</code> containing the columns specified by the
+<code>truth</code> and <code>estimate</code> arguments, or a <code>table</code>/<code>matrix</code> where the true
+class results should be in the columns of the table.</p></dd>
+
+
 <dt>...</dt>
 <dd><p>Not currently used.</p></dd>
+
+
 <dt>truth</dt>
 <dd><p>The column identifier for the true class results
 (that is a <code>factor</code>). This should be an unquoted column name although
 this argument is passed by expression and supports
 <a href="https://rlang.r-lib.org/reference/topic-inject.html" class="external-link">quasiquotation</a> (you can unquote column
 names). For <code>_vec()</code> functions, a <code>factor</code> vector.</p></dd>
+
+
 <dt>estimate</dt>
 <dd><p>The column identifier for the predicted class
 results (that is also <code>factor</code>). As with <code>truth</code> this can be
 specified different ways but the primary method is to use an
 unquoted variable name. For <code>_vec()</code> functions, a <code>factor</code> vector.</p></dd>
+
+
 <dt>estimator</dt>
 <dd><p>One of: <code>"binary"</code>, <code>"macro"</code>, <code>"macro_weighted"</code>,
 or <code>"micro"</code> to specify the type of averaging to be done. <code>"binary"</code> is
 only relevant for the two class case. The other three are general methods
 for calculating multiclass metrics. The default will automatically choose
 <code>"binary"</code> or <code>"macro"</code> based on <code>estimate</code>.</p></dd>
+
+
 <dt>na_rm</dt>
 <dd><p>A <code>logical</code> value indicating whether <code>NA</code>
 values should be stripped before the computation proceeds.</p></dd>
+
+
 <dt>event_level</dt>
 <dd><p>A single string. Either <code>"first"</code> or <code>"second"</code> to specify
 which level of <code>truth</code> to consider as the "event". This argument is only
@@ -124,14 +136,21 @@ applicable when <code>estimator = "binary"</code>. The default uses an
 internal helper that generally defaults to <code>"first"</code>, however, if the
 deprecated global option <code>yardstick.event_first</code> is set, that will be
 used instead with a warning.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A <code>tibble</code> with columns <code>.metric</code>, <code>.estimator</code>, and
-<code>.estimate</code> with 1 row of values.
-For grouped data frames, the number of rows returned will be the same as the
-number of groups.
-For <code>neg_vec()</code>, a single <code>numeric</code> value (or <code>NA</code>).</p>
+    
+
+<p>A <code>tibble</code> with columns <code>.metric</code>, <code>.estimator</code>, and
+<code>.estimate</code> with 1 row of values.</p>
+
+
+<p>For grouped data frames, the number of rows returned will be the same as the
+number of groups.</p>
+
+
+<p>For <code>neg_vec()</code>, a single <code>numeric</code> value (or <code>NA</code>).</p>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
@@ -143,7 +162,7 @@ For <code>neg_vec()</code>, a single <code>numeric</code> value (or <code>NA</co
 </div>
 
 <div class="pkgdown-footer-right">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.4.</p>
 </div>
 
     </footer></div>

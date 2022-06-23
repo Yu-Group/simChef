@@ -80,29 +80,43 @@
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
     <dl><dt>experiment</dt>
 <dd><p>An <code>Experiment</code> object.</p></dd>
+
+
 <dt>n_reps</dt>
 <dd><p>The number of replicates of the <code>Experiment</code> for this run.</p></dd>
+
+
 <dt>parallel_strategy</dt>
 <dd><p>A vector with some combination of "reps", "dgps", or
 "methods". Determines how computation will be distributed across available
 resources. Default is "reps".</p></dd>
+
+
 <dt>future.globals</dt>
 <dd><p>Character vector of names in the global environment to
 pass to parallel workers. Passed as the argument of the same name to
 <code><a href="https://future.apply.futureverse.org/reference/future_lapply.html" class="external-link">future.apply::future_lapply</a></code> and related functions. To set for all
 runs of the experiment, use the same argument during initialization.</p></dd>
+
+
 <dt>future.packages</dt>
 <dd><p>Character vector of packages required by parallel
 workers. Passed as the argument of the same name to
 <code><a href="https://future.apply.futureverse.org/reference/future_lapply.html" class="external-link">future.apply::future_lapply</a></code> and related functions. To set for all
 runs of the experiment, use the same argument during initialization.</p></dd>
+
+
 <dt>future.seed</dt>
 <dd><p>Passed as the argument of the same name in
 <code><a href="https://future.apply.futureverse.org/reference/future_apply.html" class="external-link">future.apply::future_apply</a></code>.</p></dd>
+
+
 <dt>use_cached</dt>
 <dd><p>Logical. If <code>TRUE</code>, find and return previously saved
 results. If cached results cannot be found, continue as if
 <code>use_cached</code> was <code>FALSE</code>.</p></dd>
+
+
 <dt>return_all_cached_reps</dt>
 <dd><p>Logical. If <code>FALSE</code> (default), returns
 only the fit results for the requested <code>n_reps</code>. If <code>TRUE</code>,
@@ -111,24 +125,35 @@ cached replicates from the (<code>DGP</code>, <code>Method</code>) combinations 
 <code>Experiment</code>. Note that even if <code>return_all_cached_reps = TRUE</code>,
 only the <code>n_reps</code> replicates are used when evaluating and visualizing
 the <code>Experiment</code>.</p></dd>
+
+
 <dt>save</dt>
 <dd><p>If <code>TRUE</code>, save outputs to disk.</p></dd>
+
+
 <dt>checkpoint_n_reps</dt>
 <dd><p>The number of experiment replicates to compute
 before saving results to disk. If 0 (the default), no checkpoints are
 saved.</p></dd>
+
+
 <dt>verbose</dt>
 <dd><p>Level of verbosity. Default is 1, which prints out messages
 after major checkpoints in the experiment. If 2, prints additional
 debugging information for warnings and messages from user-defined functions
 (in addition to error debugging information). If 0, no messages are printed
 other than user-defined function error debugging information.</p></dd>
+
+
 <dt>...</dt>
 <dd><p>Not used.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A list of results from the simulation experiment.</p><dl><dt>fit_results</dt>
+    
+
+<p>A list of results from the simulation experiment.</p><dl><dt>fit_results</dt>
 <dd><p>A tibble containing results from the <code>fit</code>
 method. In addition to results columns, has columns named '.rep', '.dgp_name',
 '.method_name', and the <code>vary_across</code> parameter names if applicable.</p></dd>
@@ -157,7 +182,7 @@ the <code>Experiment</code>. Length of list is equivalent to the number of
 </div>
 
 <div class="pkgdown-footer-right">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.4.</p>
 </div>
 
     </footer></div>

@@ -66,38 +66,55 @@
 results. Names in the list should correspond to the name of the summary
 function. Values in the list should be a function that takes in one
 argument, that being the values of the evaluated metrics.</p></dd>
+
+
 <dt>curve</dt>
 <dd><p>Either "ROC" or "PR" indicating whether to evaluate the ROC or
 Precision-Recall curve.</p></dd>
+
+
 <dt>eval_id</dt>
 <dd><p>Character string. ID to be used as a suffix when naming result
 columns. Default <code>NULL</code> does not add any ID to the column names.</p></dd>
+
+
 <dt>feature_col</dt>
 <dd><p>A character string identifying the column in
 <code>fit_results</code> with the feature names or IDs.</p></dd>
+
+
 <dt>na_rm</dt>
 <dd><p>A <code>logical</code> value indicating whether <code>NA</code> values
 should be stripped before the computation proceeds.</p></dd>
+
+
 <dt>nested_data</dt>
 <dd><p>(Optional) Character string. If specified, should be the
 name of the column in <code>fit_results</code> containing columns that must be
 unnested before evaluating results. Default is <code>NULL</code>, meaning no
 columns in <code>fit_results</code> need to be unnested prior to computation.</p></dd>
+
+
 <dt>options</dt>
-<dd><p>A list of named options to pass to <code><a href="https://rdrr.io/pkg/pROC/man/roc.html" class="external-link">pROC::roc()</a></code> such as
+<dd><p>A list of named options to pass to <code>pROC::roc()</code> such as
 <code>smooth</code>. These options should not include <code>response</code>,
 <code>predictor</code>, <code>levels</code>, <code>quiet</code>, or <code>direction</code>. This
 argument is only used when computing the ROC and is ignored otherwise.</p></dd>
+
+
 <dt>summary_funs</dt>
 <dd><p>Character vector specifying how to summarize
 evaluation metrics. Must choose from a built-in library of summary
 functions - elements of the vector must be one of "mean", "median",
 "min", "max", "sd", "raw".</p></dd>
+
+
 <dt>x_grid</dt>
 <dd><p>Vector of values between 0 and 1 at which to evaluate the ROC
 or PR curve. If <code>curve = "ROC"</code>, the provided vector of values are
 the FPR values at which to evaluate the TPR, and if <code>curve = "PR"</code>,
 the values are the recall values at which to evaluate the precision.</p></dd>
+
 </dl></div>
 
   </main></div>
@@ -108,7 +125,7 @@ the values are the recall values at which to evaluate the precision.</p></dd>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.4.</p>
 </div>
 
     </footer></div>
