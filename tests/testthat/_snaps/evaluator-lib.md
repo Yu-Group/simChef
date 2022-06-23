@@ -7,7 +7,7 @@
      2     1 DGP1      Method       rsq          1   
      3     1 DGP1      Method       mae          5.05
      4     2 DGP1      Method       rmse        64.0 
-     5     2 DGP1      Method       rsq          1   
+     5     2 DGP1      Method       rsq          1.00
      6     2 DGP1      Method       mae         55.6 
      7     1 DGP2      Method       rmse       122.  
      8     1 DGP2      Method       rsq          1   
@@ -24,7 +24,7 @@
       <chr>     <chr>        <chr>           <dbl>           <dbl>        <dbl>
     1 DGP1      Method       mae              30.3            30.3         5.05
     2 DGP1      Method       rmse             34.9            34.9         5.82
-    3 DGP1      Method       rsq               1               1           1   
+    3 DGP1      Method       rsq               1               1           1.00
     4 DGP2      Method       mae             131.            131.        106.  
     5 DGP2      Method       rmse            151.            151.        122.  
     6 DGP2      Method       rsq               1               1           1   
@@ -54,24 +54,24 @@
     # Groups:   .dgp_name, .method_name, .group, .metric [18]
        .dgp_name .method_name .group .metric mean_pred_err median_pred_err
        <chr>     <chr>        <chr>  <chr>           <dbl>           <dbl>
-     1 DGP1      Method       .all   mae              30.3            30.3
-     2 DGP1      Method       .all   rmse             34.9            34.9
-     3 DGP1      Method       .all   rsq               1               1  
-     4 DGP1      Method       a      mae              30              30  
-     5 DGP1      Method       a      rmse             34.6            34.6
-     6 DGP1      Method       a      rsq               1               1  
-     7 DGP1      Method       b      mae              30.6            30.6
-     8 DGP1      Method       b      rmse             35.2            35.2
-     9 DGP1      Method       b      rsq               1               1  
-    10 DGP2      Method       .all   mae             131.            131. 
-    11 DGP2      Method       .all   rmse            151.            151. 
-    12 DGP2      Method       .all   rsq               1               1  
-    13 DGP2      Method       a      mae             130             130  
-    14 DGP2      Method       a      rmse            150.            150. 
-    15 DGP2      Method       a      rsq               1               1  
-    16 DGP2      Method       b      mae             133.            133. 
-    17 DGP2      Method       b      rmse            152.            152. 
-    18 DGP2      Method       b      rsq               1               1  
+     1 DGP1      Method       .all   mae             30.3            30.3 
+     2 DGP1      Method       .all   rmse            34.9            34.9 
+     3 DGP1      Method       .all   rsq              1               1   
+     4 DGP1      Method       a      mae             30              30   
+     5 DGP1      Method       a      rmse            34.6            34.6 
+     6 DGP1      Method       a      rsq              1               1   
+     7 DGP1      Method       b      mae             30.6            30.6 
+     8 DGP1      Method       b      rmse            35.2            35.2 
+     9 DGP1      Method       b      rsq              1               1   
+    10 DGP2      Method       .all   mae            131.            131.  
+    11 DGP2      Method       .all   rmse           151.            151.  
+    12 DGP2      Method       .all   rsq              1               1   
+    13 DGP2      Method       a      mae            130             130   
+    14 DGP2      Method       a      rmse           150.            150.  
+    15 DGP2      Method       a      rsq              1.00            1.00
+    16 DGP2      Method       b      mae            133.            133.  
+    17 DGP2      Method       b      rmse           152.            152.  
+    18 DGP2      Method       b      rsq              1.00            1.00
     # ... with 4 more variables: min_pred_err <dbl>, max_pred_err <dbl>,
     #   sd_pred_err <dbl>, raw_pred_err <list>
 
@@ -83,7 +83,7 @@
     1     1 DGP1      Method       rmse         5.82
     2     1 DGP1      Method       rsq          1   
     3     2 DGP1      Method       rmse        64.0 
-    4     2 DGP1      Method       rsq          1   
+    4     2 DGP1      Method       rsq          1.00
     5     1 DGP2      Method       rmse       122.  
     6     1 DGP2      Method       rsq          1   
     7     2 DGP2      Method       rmse       180.  
@@ -96,7 +96,7 @@
       .dgp_name .method_name .metric mean_pred_err median_pred_err min_pred_err
       <chr>     <chr>        <chr>           <dbl>           <dbl>        <dbl>
     1 DGP1      Method       rmse             34.9            34.9         5.82
-    2 DGP1      Method       rsq               1               1           1   
+    2 DGP1      Method       rsq               1               1           1.00
     3 DGP2      Method       rmse            151.            151.        122.  
     4 DGP2      Method       rsq               1               1           1   
     # ... with 3 more variables: max_pred_err <dbl>, sd_pred_err <dbl>,
@@ -110,7 +110,7 @@
       <chr>     <chr>        <chr>           <dbl>           <dbl>        <dbl>
     1 DGP1      Method       mae              30.3            30.3         5.05
     2 DGP1      Method       rmse             34.9            34.9         5.82
-    3 DGP1      Method       rsq               1               1           1   
+    3 DGP1      Method       rsq               1               1           1.00
     4 DGP2      Method       mae             131.            131.        106.  
     5 DGP2      Method       rmse            151.            151.        122.  
     6 DGP2      Method       rsq               1               1           1   

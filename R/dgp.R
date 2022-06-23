@@ -10,6 +10,9 @@
 #' @export
 DGP <- R6::R6Class(
   classname = 'DGP',
+  private = list(
+    .dgp_fun_formals = NULL
+  ),
   public = list(
     name = NULL,
     dgp_fun = NULL,
@@ -18,6 +21,11 @@ DGP <- R6::R6Class(
       self$dgp_fun <- .dgp_fun
       self$name <- .name
       self$dgp_params <- rlang::list2(...)
+      n_params <- length(self$dgp_params)
+      if (n_params > 0 && length(names(self$dgp_params)) != n_params) {
+        abort("All default .dgp_fun args given in DGP creation must be named.")
+      }
+      private$.dgp_fun_formals <- formalArgs(self$dgp_fun)
     },
     # @description Generate data from a \code{DGP} with the provided \code{DGP}
     #   parameters.
@@ -31,17 +39,27 @@ DGP <- R6::R6Class(
     generate = function(...) {
       dgp_params <- self$dgp_params
       new_dgp_params <- rlang::list2(...)
-      if (length(new_dgp_params) > 0) {
-        for (i in 1:length(new_dgp_params)) {
-          dgp_params[[names(new_dgp_params)[i]]] <- new_dgp_params[[i]]
+
+      param_names <- names(new_dgp_params)
+      n_params <- length(new_dgp_params)
+      n_named <- length(param_names)
+      if (n_params > 1 &&
+            (n_named == 0 || any(param_names[2:n_params] == ""))) {
+        abort(paste0("Only the first arg passed to ",
+                     "DGP$generate via ... can be unnamed"))
+      }
+
+      if (n_params > 0 && n_named > 0 && param_names[1] == "") {
+        names(new_dgp_params)[1] <- private$.dgp_fun_formals[1]
+      }
+
+      for (param_name in names(dgp_params)) {
+        if (!param_name %in% names(new_dgp_params)) {
+          new_dgp_params[[param_name]] <- dgp_params[[param_name]]
         }
       }
 
-      if (identical(dgp_params, list())) {
-        data_list <- self$dgp_fun()
-      } else {
-        data_list <- do.call(self$dgp_fun, dgp_params)
-      }
+      data_list <- eval(rlang::call2(self$dgp_fun, !!!new_dgp_params))
 
       # check if data_list is a list; if not, coerce to list
       if (!inherits(data_list, "list")) {
