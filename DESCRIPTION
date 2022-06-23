@@ -8,6 +8,8 @@ Authors@R: c(
            comment = c(ORCID = "0000-0002-8079-6867")),
     person("Corrine F.", "Elliott", role = "ctb",
            comment = c(ORCID = "0000-0001-7935-9945")),
+    person("Philippe", "Boileau", role = "ctb",
+           comment = c(ORCID = "0000-0002-4850-2507")),
     person("Yu", "Bin", role = "ths")
   )
 Description: Helps cook up the code necessary to create a fully-realized,
