@@ -8,6 +8,7 @@ header-includes:
     - \usepackage{gensymb}
 output:
   vthemes::vmodern:
+    thumbnails: false
 css: css/simchef.css
 params:
   author: 
@@ -310,7 +311,7 @@ showResults <- function(dir_name, depth, base = FALSE, show_header = TRUE,
             cat(sprintf(plt_template, plt_name))
           }
           plt <- plts[[plt_name]]
-          if (inherits(plt, "plotly")) {
+          if (inherits(plt, "plotly") | inherits(plt, "gg") | inherits(plt, "ggplot")) {
             add_class <- c("panel panel-default padded-panel")
           } else {
             add_class <- NULL
