@@ -1,6 +1,6 @@
 test_that("pasteMd works properly", {
 
-  skip("not used? remove?")
+  # skip("not used? remove?")
 
   expect_error(pasteMd())
   expect_error(pasteMd("path/to/file"))
