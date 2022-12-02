@@ -738,6 +738,204 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
 
   })
 
+  test_that("Vary across with multiple DGPs/Methods works properly", {
+
+    dgp_fun1 <- function(x, y = NULL) list(x = x)
+    dgp1 <- create_dgp(.dgp_fun = dgp_fun1, x = 1:10)
+    dgp_fun2 <- function(x, y = NULL, z = 2) list(x = x)
+    dgp2 <- create_dgp(.dgp_fun = dgp_fun2, x = 1:10)
+
+    method_fun1 <- function(x, idx = 1) list(x_idx = x[idx])
+    method1 <- create_method(.method_fun = method_fun1)
+    method_fun2 <- function(x, idx = 1) list(x_idx = rev(x)[idx])
+    method2 <- create_method(.method_fun = method_fun2)
+
+    experiment <- create_experiment(name = "test-multi-vary-across") %>%
+      add_dgp(dgp1, name = "DGP1") %>%
+      add_dgp(dgp2, name = "DGP2") %>%
+      add_method(method1, name = "Method1") %>%
+      add_method(method2, name = "Method2")
+
+    no_vary_list <- list(dgp = list(), method = list())
+
+    expect_error(
+      experiment %>% add_vary_across(.dgp = c("DGP2", "DGP1"), z = 1:3)
+    )
+    expect_equal(experiment %>% get_vary_across(), no_vary_list)
+    expect_error(
+      experiment %>% update_vary_across(.dgp = c("DGP2", "DGP1"), x = 1:3)
+    )
+
+    # adding/updating multiple DGP vary across params
+    experiment %>%
+      add_vary_across(.dgp = c("DGP1", "DGP2"), x = 1:3)
+    expect_equal(
+      experiment$get_vary_across(),
+      list(dgp = list(DGP1 = list(x = 1:3), DGP2 = list(x = 1:3)),
+           method = list())
+    )
+    experiment %>%
+      update_vary_across(.dgp = c("DGP2", "DGP1"), x = list(1:3, 2:4))
+    expect_equal(
+      experiment$get_vary_across(),
+      list(dgp = list(DGP1 = list(x = list(1:3, 2:4)),
+                      DGP2 = list(x = list(1:3, 2:4))),
+           method = list())
+    )
+    expect_error(
+      experiment %>% add_vary_across(.dgp = c("DGP1", "DGP2"), x = 1:3)
+    )
+    experiment %>%
+      add_vary_across(.dgp = c("DGP1", "DGP2"), y = c("a", "b"))
+    expect_equal(
+      experiment$get_vary_across(),
+      list(dgp = list(DGP1 = list(x = list(1:3, 2:4), y = c("a", "b")),
+                      DGP2 = list(x = list(1:3, 2:4), y = c("a", "b"))),
+           method = list())
+    )
+    experiment %>%
+      update_vary_across(.dgp = "DGP2", y = c("a", "b", "c"))
+    expect_equal(
+      experiment$get_vary_across(),
+      list(dgp = list(DGP1 = list(x = list(1:3, 2:4), y = c("a", "b")),
+                      DGP2 = list(x = list(1:3, 2:4), y = c("a", "b", "c"))),
+           method = list())
+    )
+
+    # removing DGP vary across params
+    expect_error(
+      experiment %>%
+        remove_vary_across(dgp = c("DGP1", "DGP2"), param_names = "z")
+    )
+    experiment %>%
+      remove_vary_across(dgp = c("DGP1", "DGP2"), param_names = "x")
+    expect_false("x" %in% names(experiment$get_vary_across()$dgp$DGP1))
+    expect_false("x" %in% names(experiment$get_vary_across()$dgp$DGP2))
+    expect_true("y" %in% names(experiment$get_vary_across()$dgp$DGP1))
+    expect_true("y" %in% names(experiment$get_vary_across()$dgp$DGP2))
+    experiment %>% remove_vary_across()
+    expect_equal(experiment$get_vary_across()$dgp, list())
+
+    # adding/updating/removing Method vary across params
+    experiment %>%
+      add_vary_across(.method = c("Method1", "Method2"), idx = 1:3)
+    expect_equal(
+      experiment$get_vary_across(),
+      list(dgp = list(),
+           method = list(Method1 = list(idx = 1:3), Method2 = list(idx = 1:3)))
+    )
+    experiment %>%
+      update_vary_across(.method = c("Method1", "Method2"),
+                         idx = list(1:2, 3:4))
+    expect_equal(
+      experiment$get_vary_across(),
+      list(dgp = list(),
+           method = list(Method1 = list(idx = list(1:2, 3:4)),
+                         Method2 = list(idx = list(1:2, 3:4))))
+    )
+    experiment %>% remove_vary_across(method = c("Method1", "Method2"))
+    expect_equal(experiment$get_vary_across(), no_vary_list)
+
+    # adding/removing multiple vary across params in multiple DGP/Method
+    expect_error(
+      experiment %>%
+        add_vary_across(.dgp = c("DGP2", "DGP1"), x = 1:3, z = c("a", "b"))
+    )
+    expect_equal(experiment %>% get_vary_across(), no_vary_list)
+    experiment %>%
+      add_vary_across(.dgp = c("DGP1", "DGP2"), x = 1:3, y = c("a", "b"))
+    expect_true(
+      all(c("x", "y") %in% names(experiment$get_vary_across()$dgp$DGP1))
+    )
+    expect_true(
+      all(c("x", "y") %in% names(experiment$get_vary_across()$dgp$DGP2))
+    )
+    experiment %>% remove_vary_across(dgp = c("DGP1", "DGP2"))
+    expect_equal(experiment$get_vary_across(), no_vary_list)
+
+    # add DGPs and Methods using various syntax
+    experiment %>%
+      add_vary_across(.dgp = c("DGP1", "DGP2"), x = 1:3, y = c("a", "b")) %>%
+      add_vary_across(.method = c("Method1", "Method2"), idx = 1:3)
+    expect_equal(
+      experiment$get_vary_across(),
+      list(dgp = list(DGP1 = list(x = 1:3, y = c("a", "b")),
+                      DGP2 = list(x = 1:3, y = c("a", "b"))),
+           method = list(Method1 = list(idx = 1:3),
+                         Method2 = list(idx = 1:3)))
+    )
+    experiment %>% remove_vary_across()
+    expect_equal(experiment$get_vary_across(), no_vary_list)
+
+    experiment %>%
+      add_vary_across(.dgp = c("DGP1"), x = 1:3)
+    expect_equal(
+      experiment$get_vary_across(),
+      list(dgp = list(DGP1 = list(x = 1:3)),
+           method = list())
+    )
+    expect_error(
+      experiment %>%
+        add_vary_across(.dgp = c("DGP2", "DGP1"), x = 1:3)
+    )
+    expect_equal(
+      experiment$get_vary_across(),
+      list(dgp = list(DGP1 = list(x = 1:3),
+                      DGP2 = list(x = 1:3)),
+           method = list())
+    )
+    experiment %>%
+      update_vary_across(.dgp = list("DGP1", "DGP2"), x = 2:4)
+    expect_equal(
+      experiment$get_vary_across(),
+      list(dgp = list(DGP1 = list(x = 2:4),
+                      DGP2 = list(x = 2:4)),
+           method = list())
+    )
+    experiment %>%
+      update_vary_across(.dgp = list(dgp1, dgp2), x = 3:5)
+    expect_equal(
+      experiment$get_vary_across(),
+      list(dgp = list(DGP1 = list(x = 3:5),
+                      DGP2 = list(x = 3:5)),
+           method = list())
+    )
+    experiment %>%
+      update_vary_across(.dgp = c(dgp1, dgp2), x = 4:6)
+    expect_equal(
+      experiment$get_vary_across(),
+      list(dgp = list(DGP1 = list(x = 4:6),
+                      DGP2 = list(x = 4:6)),
+           method = list())
+    )
+    experiment %>%
+      remove_vary_across()
+
+    # test running Experiment
+    fit_results_fun <- function(fit_results) fit_results
+    fit_results_eval <- create_evaluator(.eval_fun = fit_results_fun)
+    vary_params_fun <- function(vary_params = NULL) vary_params
+    vary_params_eval <- create_evaluator(.eval_fun = vary_params_fun)
+    experiment %>%
+      add_vary_across(.dgp = c("DGP1", "DGP2"), x = 1:3, y = c("a", "b")) %>%
+      add_vary_across(.method = c("Method1", "Method2"), idx = 1:3) %>%
+      add_evaluator(fit_results_eval, name = "Fit Results") %>%
+      add_evaluator(vary_params_eval, name = "Vary Params")
+
+    experiment_copy <- create_experiment(
+      name = "test-multi-vary-across-copy", clone_from = experiment
+    ) %>%
+      add_vary_across(.dgp = "DGP1", x = 1:3, y = c("a", "b")) %>%
+      add_vary_across(.dgp = "DGP2", x = 1:3, y = c("a", "b")) %>%
+      add_vary_across(.method = "Method1", idx = 1:3) %>%
+      add_vary_across(.method = "Method2", idx = 1:3)
+
+    fit_results <- fit_experiment(experiment, save = FALSE, verbose = 0)
+    expect_equal(nrow(fit_results), 3 * 2 * 2 * 2 * 3)
+    fit_results_copy <- fit_experiment(experiment_copy, save = FALSE, verbose = 0)
+    expect_equal(fit_results, fit_results_copy)
+  })
+
   test_that("Saving methods in Experiment works properly", {
 
     # check default path directory
