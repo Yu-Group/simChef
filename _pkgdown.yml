@@ -31,8 +31,8 @@ reference:
       experiment in a knitted R Markdown report.
     contents:
       - set_rmd_options
-      - create_doc_template
-      - create_rmd
+      - init_docs
+      - render_docs
   - title: "DGP"
     desc: >
       Functions for creating a DGP (data-generating process).

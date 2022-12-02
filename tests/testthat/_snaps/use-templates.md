@@ -37,7 +37,7 @@
       add_evaluator(pred_err) %>% 
       add_visualizer(pred_err_plot) 
     
-    create_doc_template(experiment)  #> fill out documentation before proceeding!
+    init_docs(experiment)  #> fill out documentation before proceeding!
     
     results <- run_experiment(
       experiment = experiment,
@@ -45,7 +45,7 @@
       save = TRUE
     ) 
     
-    create_rmd(experiment)
+    render_docs(experiment)
     
 
 ---
@@ -109,7 +109,7 @@
       add_visualizer(roc_plot) %>% 
       add_visualizer(pr_plot) 
     
-    create_doc_template(experiment)  #> fill out documentation before proceeding!
+    init_docs(experiment)  #> fill out documentation before proceeding!
     
     results <- run_experiment(
       experiment = experiment,
@@ -117,7 +117,7 @@
       save = TRUE
     ) 
     
-    create_rmd(experiment)
+    render_docs(experiment)
     
 
 ---
@@ -218,7 +218,7 @@
       add_visualizer(feature_roc_plot) %>% 
       add_visualizer(feature_pr_plot) 
     
-    create_doc_template(experiment)  #> fill out documentation before proceeding!
+    init_docs(experiment)  #> fill out documentation before proceeding!
     
     results <- run_experiment(
       experiment = experiment,
@@ -226,7 +226,7 @@
       save = TRUE
     ) 
     
-    create_rmd(experiment)
+    render_docs(experiment)
     
 
 ---
@@ -349,7 +349,7 @@
       add_visualizer(feature_roc_plot) %>% 
       add_visualizer(feature_pr_plot) 
     
-    create_doc_template(experiment)  #> fill out documentation before proceeding!
+    init_docs(experiment)  #> fill out documentation before proceeding!
     
     results <- run_experiment(
       experiment = experiment,
@@ -357,7 +357,7 @@
       save = TRUE
     ) 
     
-    create_rmd(experiment)
+    render_docs(experiment)
     
 
 ---
@@ -505,7 +505,7 @@
       add_visualizer(feature_roc_plot) %>% 
       add_visualizer(feature_pr_plot) 
     
-    create_doc_template(experiment)  #> fill out documentation before proceeding!
+    init_docs(experiment)  #> fill out documentation before proceeding!
     
     results <- run_experiment(
       experiment = experiment,
@@ -513,7 +513,7 @@
       save = TRUE
     ) 
     
-    create_rmd(experiment)
+    render_docs(experiment)
     
 
 ---
@@ -681,7 +681,7 @@
       add_visualizer(feature_roc_plot) %>% 
       add_visualizer(feature_pr_plot) 
     
-    create_doc_template(experiment)  #> fill out documentation before proceeding!
+    init_docs(experiment)  #> fill out documentation before proceeding!
     
     results <- run_experiment(
       experiment = experiment,
@@ -689,7 +689,7 @@
       save = TRUE
     ) 
     
-    create_rmd(experiment)
+    render_docs(experiment)
     
 
 ---
@@ -750,7 +750,7 @@
       add_visualizer(fi_plot) %>% 
       add_visualizer(feature_sel_plot) 
     
-    create_doc_template(experiment)  #> fill out documentation before proceeding!
+    init_docs(experiment)  #> fill out documentation before proceeding!
     
     results <- run_experiment(
       experiment = experiment,
@@ -758,7 +758,7 @@
       save = TRUE
     ) 
     
-    create_rmd(experiment)
+    render_docs(experiment)
     
 
 ---
@@ -866,7 +866,7 @@
       add_visualizer(fi_plot) %>% 
       add_visualizer(feature_sel_plot) 
     
-    create_doc_template(experiment)  #> fill out documentation before proceeding!
+    init_docs(experiment)  #> fill out documentation before proceeding!
     
     results <- run_experiment(
       experiment = experiment,
@@ -874,7 +874,7 @@
       save = TRUE
     ) 
     
-    create_rmd(experiment)
+    render_docs(experiment)
     
 
 ---
@@ -955,7 +955,7 @@
       add_visualizer(inf_pr_plot) %>% 
       add_visualizer(reject_prob_plot) 
     
-    create_doc_template(experiment)  #> fill out documentation before proceeding!
+    init_docs(experiment)  #> fill out documentation before proceeding!
     
     results <- run_experiment(
       experiment = experiment,
@@ -963,7 +963,7 @@
       save = TRUE
     ) 
     
-    create_rmd(experiment)
+    render_docs(experiment)
     
 
 ---
@@ -1071,7 +1071,7 @@
       add_visualizer(inf_pr_plot) %>% 
       add_visualizer(reject_prob_plot) 
     
-    create_doc_template(experiment)  #> fill out documentation before proceeding!
+    init_docs(experiment)  #> fill out documentation before proceeding!
     
     results <- run_experiment(
       experiment = experiment,
@@ -1079,6 +1079,6 @@
       save = TRUE
     ) 
     
-    create_rmd(experiment)
+    render_docs(experiment)
     
 

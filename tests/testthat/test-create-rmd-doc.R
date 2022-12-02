@@ -71,15 +71,15 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
     )
     results <- greatgrandchild2$run(save = TRUE, verbose = 0)
 
-    expect_error(create_rmd(base_experiment, open = FALSE, verbose = 0), NA)
+    expect_error(render_docs(base_experiment, open = FALSE, verbose = 0), NA)
     expect_error(
-      create_rmd(
+      render_docs(
         base_experiment, open = FALSE, verbose = 0, pretty = FALSE,
         output_format = rmarkdown::html_document()),
       NA
     )
     expect_error(
-      create_rmd(
+      render_docs(
         base_experiment, open = FALSE, verbose = 0, pretty = FALSE,
         output_options = list(css = "css/simchef.css")
       ),
@@ -93,28 +93,28 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
     results <- base_experiment$run(save = TRUE, verbose = 0)
 
     expect_error(
-      create_rmd(
+      render_docs(
         base_experiment, open = FALSE, verbose = 0, pretty = FALSE,
         eval_order = "Evaluator", viz_order = c("Plot2", "Plot3", "Plot")
       ),
       NA
     )
     expect_error(
-      create_rmd(
+      render_docs(
         base_experiment, open = FALSE, verbose = 0, pretty = TRUE,
         eval_order = "Evaluator", viz_order = c("Plot2", "Plot3", "Plot")
       ),
       NA
     )
     expect_error(
-      create_rmd(
+      render_docs(
         base_experiment, open = FALSE, verbose = 0, pretty = FALSE,
         eval_order = c("Evaluator2", "Evaluator"), viz_order = c("Plot2", "Plot")
       ),
       NA
     )
     expect_error(
-      create_rmd(
+      render_docs(
         base_experiment, open = FALSE, verbose = 0, pretty = TRUE,
         eval_order = c("Evaluator2", "Evaluator"), viz_order = c("Plot2", "Plot")
       ),
@@ -154,7 +154,7 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
       add_visualizer(texter, "Text")
     results <- run_experiment(experiment, save = TRUE, verbose = 0)
 
-    expect_error(create_rmd(experiment, open = FALSE, verbose = 0), NA)
+    expect_error(render_docs(experiment, open = FALSE, verbose = 0), NA)
   })
 
   test_that("R Markdown options work properly", {
@@ -203,7 +203,7 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
                       show = FALSE)
     results <- run_experiment(experiment, save = TRUE, verbose = 0)
 
-    expect_error(create_rmd(experiment, open = FALSE, verbose = 0), NA)
+    expect_error(render_docs(experiment, open = FALSE, verbose = 0), NA)
 
     expect_equal(purrr::map_lgl(experiment$get_evaluators(), "rmd_show"),
                  c(T, T, T, F) %>% setNames(names(experiment$get_evaluators())))

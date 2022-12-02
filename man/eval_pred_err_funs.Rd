@@ -140,21 +140,21 @@ fit_results <- tibble::tibble(
 )
 
 # evaluate prediction error (using all default metrics) for each replicate
-eval_results <- eval_pred_err(fit_results, 
-                              truth_col = "y", 
+eval_results <- eval_pred_err(fit_results,
+                              truth_col = "y",
                               estimate_col = "predictions")
 # summarize prediction error (using all default metric) across replicates
-eval_results_summary <- summarize_pred_err(fit_results, 
+eval_results_summary <- summarize_pred_err(fit_results,
                                            truth_col = "y",
                                            estimate_col = "predictions")
 
 # evaluate/summarize prediction error within subgroups
 group_ids <- rep(c("a", "b"), length.out = 100)
-eval_results <- eval_pred_err(fit_results, 
-                              truth_col = "y", 
+eval_results <- eval_pred_err(fit_results,
+                              truth_col = "y",
                               estimate_col = "predictions",
                               groups = group_ids)
-eval_results_summary <- summarize_pred_err(fit_results, 
+eval_results_summary <- summarize_pred_err(fit_results,
                                            truth_col = "y",
                                            estimate_col = "predictions",
                                            groups = group_ids)
@@ -192,17 +192,17 @@ fit_results <- tibble::tibble(
              FUN = function(x) {
                as.factor(sample(0:1, size = 100, replace = TRUE))
              }),
-  # predicted class probabilities 
+  # predicted class probabilities
   class_probs = lapply(1:4, FUN = function(x) runif(n = 100, min = 0, max = 1)),
   # predicted class responses
-  predictions = lapply(class_probs, 
+  predictions = lapply(class_probs,
                        FUN = function(x) as.factor(ifelse(x > 0.5, 1, 0)))
 )
 
 # evaluate prediction error (using all default metrics) for each replicate
 eval_results <- eval_pred_err(fit_results,
                               truth_col = "y",
-                              estimate_col = "predictions", 
+                              estimate_col = "predictions",
                               prob_cols = "class_probs")
 # summarize prediction error (using all default metric) across replicates
 eval_results_summary <- summarize_pred_err(fit_results,
@@ -227,12 +227,12 @@ fit_results <- tibble::tibble(
   .dgp_name = c("DGP1", "DGP1", "DGP2", "DGP2"),
   .method_name = c("Method"),
   # true response
-  y = lapply(1:4, 
+  y = lapply(1:4,
              FUN = function(x) {
                as.factor(sample(c("a", "b", "c"), size = 100, replace = TRUE))
              }),
   # predicted class probabilities
-  class_probs = lapply(1:4, 
+  class_probs = lapply(1:4,
                        FUN = function(x) {
                          tibble::tibble(a = runif(n = 100, min = 0, max = 0.5),
                                         b = runif(n = 100, min = 0, max = 0.5),
@@ -241,7 +241,7 @@ fit_results <- tibble::tibble(
   # predicted class responses
   predictions = lapply(class_probs,
                        FUN = function(x) {
-                         yhat <- apply(x, 1, 
+                         yhat <- apply(x, 1,
                                        FUN = function(xi) names(which.max(xi)))
                          return(as.factor(yhat))
                        })
@@ -250,14 +250,14 @@ fit_results <- tibble::tibble(
 # evaluate prediction error (using all default metrics) for each replicate
 eval_results <- eval_pred_err(fit_results,
                               truth_col = "y",
-                              estimate_col = "predictions", 
-                              prob_cols = c("a", "b", "c"), 
+                              estimate_col = "predictions",
+                              prob_cols = c("a", "b", "c"),
                               nested_data = "class_probs")
 #' summarize prediction error (using all default metric) across replicates
 eval_results_summary <- summarize_pred_err(fit_results,
                                            truth_col = "y",
                                            estimate_col = "predictions",
-                                           prob_cols = c("a", "b", "c"), 
+                                           prob_cols = c("a", "b", "c"),
                                            nested_data = "class_probs")
 
 # can also evaluate results using only class predictions (without class probs.)

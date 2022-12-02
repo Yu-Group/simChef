@@ -178,9 +178,9 @@ use_prediction_template <- function(experiment_name = "Prediction Experiment",
                           method_names = method_names,
                           eval_names = eval_names,
                           viz_names = viz_names)
-  use_doc_template()
+  use_init_docs_template()
   use_run_template()
-  use_rmd_template()
+  use_render_docs_template()
   
   return(invisible(NULL))
 }
@@ -264,9 +264,9 @@ use_feature_selection_template <- function(experiment_name =
                           method_names = method_names,
                           eval_names = eval_names,
                           viz_names = viz_names)
-  use_doc_template()
+  use_init_docs_template()
   use_run_template()
-  use_rmd_template()
+  use_render_docs_template()
   
   return(invisible(NULL))
 }
@@ -344,9 +344,9 @@ use_inference_template <- function(experiment_name = "Inference Experiment",
                           method_names = method_names,
                           eval_names = eval_names,
                           viz_names = viz_names)
-  use_doc_template()
+  use_init_docs_template()
   use_run_template()
-  use_rmd_template()
+  use_render_docs_template()
   
   return(invisible(NULL))
 }
@@ -733,15 +733,15 @@ use_run_template <- function() {
 #' Function to create boilerplate code for creating the documentation template.
 #' 
 #' @keywords internal
-use_doc_template <- function() {
-  cat("create_doc_template(experiment)  #> fill out documentation before proceeding!\n\n")
+use_init_docs_template <- function() {
+  cat("init_docs(experiment)  #> fill out documentation before proceeding!\n\n")
 }
 
 #' Function to create boilerplate code for creating the Rmd report.
 #' 
 #' @keywords internal
-use_rmd_template <- function() {
-  cat("create_rmd(experiment)\n\n")
+use_render_docs_template <- function() {
+  cat("render_docs(experiment)\n\n")
 }
 
 #' Function to create boilerplate code for assigning descriptive errors to 

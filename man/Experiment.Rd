@@ -31,8 +31,8 @@ evaluated using \code{Evaluators} and visualized using \code{Visualizers}.
 \item{\code{Experiment$fit()}} See \link{fit_experiment}.
 \item{\code{Experiment$evaluate()}} See \link{evaluate_experiment}.
 \item{\code{Experiment$visualize()}} See \link{visualize_experiment}.
-\item{\code{Experiment$create_doc_template()}} See \link{create_doc_template}.
-\item{\code{Experiment$create_rmd()}} See \link{create_rmd}.
+\item{\code{Experiment$init_docs()}} See \link{init_docs}.
+\item{\code{Experiment$render_docs()}} See \link{render_docs}.
 \item{\code{Experiment$add_dgp()}} See \link{add_dgp}.
 \item{\code{Experiment$update_dgp()}} See \link{update_dgp}.
 \item{\code{Experiment$remove_dgp()}} See \link{remove_dgp}.
