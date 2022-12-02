@@ -55,7 +55,7 @@ evaluated using \code{Evaluators} and visualized using \code{Visualizers}.
 \item{\code{Experiment$get_vary_across()}} See \link{get_vary_across}.
 \item{\code{Experiment$clear_cache()}} See \link{clear_cache}.
 \item{\code{Experiment$get_cached_results()}} See \link{get_cached_results}.
-\item{\code{Experiment$set_rmd_options()}} See \link{set_rmd_options}.
+\item{\code{Experiment$set_doc_options()}} See \link{set_doc_options}.
 \item{\code{Experiment$set_save_dir()}} See \link{set_save_dir}.
 \item{\code{Experiment$save()}} See \link{save_experiment}.
 }

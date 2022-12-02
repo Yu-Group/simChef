@@ -14,17 +14,17 @@ Evaluator <- R6::R6Class(
     name = NULL,
     eval_fun = NULL,
     eval_params = NULL,
-    rmd_options = list(digits = 2, sigfig = FALSE,
+    doc_options = list(digits = 2, sigfig = FALSE,
                        options = list(scrollX = TRUE, scrollCollapse = TRUE)),
-    rmd_show = TRUE,
-    initialize = function(.eval_fun, .name = NULL, .rmd_options = list(),
-                          .rmd_show = TRUE, ...) {
+    doc_show = TRUE,
+    initialize = function(.eval_fun, .name = NULL, .doc_options = list(),
+                          .doc_show = TRUE, ...) {
       self$eval_fun <- .eval_fun
       self$name <- .name
-      for (opt in names(.rmd_options)) {
-        self$rmd_options[[opt]] <- .rmd_options[[opt]]
+      for (opt in names(.doc_options)) {
+        self$doc_options[[opt]] <- .doc_options[[opt]]
       }
-      self$rmd_show <- .rmd_show
+      self$doc_show <- .doc_show
       self$eval_params <- rlang::list2(...)
     },
     # @description Evaluate the performance of method(s) in the
@@ -68,9 +68,9 @@ Evaluator <- R6::R6Class(
       cat(str(self$eval_params,
               indent.str = "     ", no.list = F))
       cat("   R Markdown Options: ")
-      cat(str(self$rmd_options,
+      cat(str(self$doc_options,
               indent.str = "     ", no.list = F))
-      cat("   Show in R Markdown:", self$rmd_show, "\n")
+      cat("   Show in R Markdown:", self$doc_show, "\n")
       invisible(self)
     }
   )
@@ -84,12 +84,12 @@ Evaluator <- R6::R6Class(
 #' @param .name (Optional) The name of the \code{Evaluator}. The argument must be
 #'   specified by position or typed out in whole; no partial matching is allowed
 #'   for this argument.
-#' @param .rmd_options (Optional) List of options to control the aesthetics of
+#' @param .doc_options (Optional) List of options to control the aesthetics of
 #'   the displayed \code{Evaluator}'s results table in the knitted R Markdown
 #'   report. See [vthemes::pretty_DT()] for possible options. The argument must be
 #'   specified by position or typed out in whole; no partial matching is allowed
 #'   for this argument.
-#' @param .rmd_show If \code{TRUE} (default), show \code{Evaluator}'s results as
+#' @param .doc_show If \code{TRUE} (default), show \code{Evaluator}'s results as
 #'   a table in the R Markdown report; if \code{FALSE}, hide output in the
 #'   R Markdown report.
 #' @param ... Arguments to pass into \code{.eval_fun()}.
@@ -139,15 +139,15 @@ Evaluator <- R6::R6Class(
 #'                                   # additional named parameters to pass to summarize_pred_err()
 #'                                   truth_col = "y", estimate_col = "predictions")
 #'                                   
-#' # set rmd options for displaying Evaluator in Rmd report to show 3 decimal points
+#' # set doc options for displaying Evaluator in Rmd report to show 3 decimal points
 #' pred_err_eval <- create_evaluator(.eval_fun = summarize_pred_err,
 #'                                   .name = "Prediction Error", 
-#'                                   .rmd_options = list(digits = 3),
+#'                                   .doc_options = list(digits = 3),
 #'                                   # additional named parameters to pass to summarize_pred_err()
 #'                                   truth_col = "y", estimate_col = "predictions")
 #'
 #' @export
-create_evaluator <- function(.eval_fun, .name = NULL, .rmd_options = list(),
-                             .rmd_show = TRUE, ...) {
-  Evaluator$new(.eval_fun, .name, .rmd_options, .rmd_show, ...)
+create_evaluator <- function(.eval_fun, .name = NULL, .doc_options = list(),
+                             .doc_show = TRUE, ...) {
+  Evaluator$new(.eval_fun, .name, .doc_options, .doc_show, ...)
 }

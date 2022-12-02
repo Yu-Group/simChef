@@ -30,7 +30,7 @@ reference:
       Functions for summarizing and visualizing results from a simulation
       experiment in a knitted R Markdown report.
     contents:
-      - set_rmd_options
+      - set_doc_options
       - init_docs
       - render_docs
   - title: "DGP"

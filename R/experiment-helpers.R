@@ -504,7 +504,7 @@ get_cached_results <- function(experiment, results_type, verbose = 0) {
 #' Set R Markdown options for \code{Evaluator} and \code{Visualizer} outputs in
 #'   summary report.
 #'
-#' @name set_rmd_options
+#' @name set_doc_options
 #' @description Set R Markdown options for \code{Evaluator} or \code{Visualizer}
 #'   outputs in the summary report. Some options include the height/width of
 #'   plots and number of digits to show in tables.
@@ -520,14 +520,14 @@ get_cached_results <- function(experiment, results_type, verbose = 0) {
 #'   options are "height" and "width". If \code{field_name = "evaluator"},
 #'   see options for [vthemes::pretty_DT()].
 #'
-#' @return The original \code{Experiment} object with the \code{rmd_options}
+#' @return The original \code{Experiment} object with the \code{doc_options}
 #'   and/or \code{show} fields modified in the \code{Evaluator}/\code{Visualizer}.
 #'
 #' @export
-set_rmd_options <- function(experiment, field_name = c("evaluator", "visualizer"),
+set_doc_options <- function(experiment, field_name = c("evaluator", "visualizer"),
                             name, show = NULL, ...) {
   field_name <- match.arg(field_name)
-  experiment$set_rmd_options(field_name = field_name, name = name, show = show,
+  experiment$set_doc_options(field_name = field_name, name = name, show = show,
                              ...)
 }
 

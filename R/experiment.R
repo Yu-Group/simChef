@@ -1441,7 +1441,7 @@ Experiment <- R6::R6Class(
       return(private$.get_cached_results(results_type = results_type,
                                          verbose = verbose))
     },
-    set_rmd_options = function(field_name, name, show = NULL, ...) {
+    set_doc_options = function(field_name, name, show = NULL, ...) {
       obj_list <- private$.get_obj_list(field_name)
       if (!name %in% names(obj_list)) {
         abort(
@@ -1454,13 +1454,13 @@ Experiment <- R6::R6Class(
       }
       list_name <- paste0(".", field_name, "_list")
       if (!is.null(show)) {
-        private[[list_name]][[name]]$rmd_show <- show
+        private[[list_name]][[name]]$doc_show <- show
       }
-      rmd_options <- list(...)
-      if (length(rmd_options) > 0) {
-        for (i in 1:length(rmd_options)) {
-          private[[list_name]][[name]]$rmd_options[[names(rmd_options)[i]]] <-
-            rmd_options[[i]]
+      doc_options <- list(...)
+      if (length(doc_options) > 0) {
+        for (i in 1:length(doc_options)) {
+          private[[list_name]][[name]]$doc_options[[names(doc_options)[i]]] <-
+            doc_options[[i]]
         }
       }
       invisible(self)

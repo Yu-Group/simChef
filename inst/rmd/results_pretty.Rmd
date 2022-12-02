@@ -277,10 +277,10 @@ showResults <- function(dir_name, depth, base = FALSE, show_header = TRUE,
         message(rep(" ", depth + 1), eval_name)
       }
       evaluator <- exp$get_evaluators()[[eval_name]]
-      if (evaluator$rmd_show) {
+      if (evaluator$doc_show) {
         cat(sprintf(figname_template, eval_name))
         do.call(vthemes::pretty_DT,
-                c(list(eval_results[[eval_name]]), evaluator$rmd_options)) %>%
+                c(list(eval_results[[eval_name]]), evaluator$doc_options)) %>%
           vthemes::subchunkify(i = chunk_idx)
         chunk_idx <<- chunk_idx + 1
       }
@@ -296,7 +296,7 @@ showResults <- function(dir_name, depth, base = FALSE, show_header = TRUE,
         message(rep(" ", depth + 1), viz_name)
       }
       visualizer <- exp$get_visualizers()[[viz_name]]
-      if (visualizer$rmd_show) {
+      if (visualizer$doc_show) {
         cat(invisible_header)
         cat(sprintf(figname_template, viz_name))
         plts <- viz_results[[viz_name]]
@@ -317,8 +317,8 @@ showResults <- function(dir_name, depth, base = FALSE, show_header = TRUE,
             add_class <- NULL
           }
           vthemes::subchunkify(plt, i = chunk_idx,
-                      fig_height = visualizer$rmd_options$height,
-                      fig_width = visualizer$rmd_options$width,
+                      fig_height = visualizer$doc_options$height,
+                      fig_width = visualizer$doc_options$width,
                       other_args = "out.width = '100%'",
                       add_class = add_class)
           chunk_idx <<- chunk_idx + 1

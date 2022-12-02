@@ -694,10 +694,10 @@ experiment$fit(n_reps = 100, checkpoint_n_reps = 25)
 ```
 ## Additional R Markdown notes and options
 
-There are several customizable options regarding the aesthetics of Evaluators and Visualizers displayed in the Rmd report. These can be modified using the `rmd_options` argument in `create_evaluator()` and `create_visualizer()`. For example, we can customize the height and width of the Power plot via
+There are several customizable options regarding the aesthetics of Evaluators and Visualizers displayed in the Rmd report. These can be modified using the `doc_options` argument in `create_evaluator()` and `create_visualizer()`. For example, we can customize the height and width of the Power plot via
 ```{r}
 power_plot <- create_visualizer(.viz_fun = power_plot_fun,
-                                .rmd_options = list(height = 10, width = 8))
+                                .doc_options = list(height = 10, width = 8))
 experiment <- experiment %>%
   update_visualizer(power_plot, "Power")
 ```
@@ -705,19 +705,19 @@ experiment <- experiment %>%
 and the number of digits in the evaluation table outputs via
 ```{r}
 reject_prob_eval <- create_evaluator(.eval_fun = reject_prob_fun, alpha = 0.1,
-                                     .rmd_options = list(digits = 3))
+                                     .doc_options = list(digits = 3))
 experiment <- experiment %>%
   update_evaluator(reject_prob_eval, "Rejection Prob. (alpha = 0.1)")
 ```
 
-Alternatively, `set_rmd_options()` can be used to update the R Markdown option for an existing object, rather than having to recreate the `Evaluator()` or `Visualizer()` from scratch, e.g.,
+Alternatively, `set_doc_options()` can be used to update the R Markdown option for an existing object, rather than having to recreate the `Evaluator()` or `Visualizer()` from scratch, e.g.,
 ```{r}
 experiment <- experiment %>%
-  set_rmd_options(field_name = "visualizer", name = "Power", show = TRUE,
+  set_doc_options(field_name = "visualizer", name = "Power", show = TRUE,
                   height = 10, width = 8)
 ```
 
-To hide the output of an `Evaluator()` or `Visualizer()` in the R Markdown report, set `show = FALSE` in `set_rmd_options()` or `create_*`.
+To hide the output of an `Evaluator()` or `Visualizer()` in the R Markdown report, set `show = FALSE` in `set_doc_options()` or `create_*`.
 
 There are additional customization options that can be set in `render_docs()` including the order in which results of Evaluators and Visualizers are displayed (via the `eval_order` and `viz_order` arguments) and the Rmd output type or theme. For example,
 
