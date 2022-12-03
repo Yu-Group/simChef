@@ -6,22 +6,22 @@ test_that("Visualizer initialization works properly", {
   visualizer1 <- Visualizer$new(.viz_fun = viz_fun1)
   visualizer1b <- Visualizer$new(.viz_fun = viz_fun1, .name = "Visualizer")
   visualizer1c <- Visualizer$new(.viz_fun = viz_fun1,
-                                 .rmd_options = list(height = 8))
+                                 .doc_options = list(height = 8))
   visualizer1d <- Visualizer$new(.viz_fun = viz_fun1,
-                                 .rmd_options = list(width = 8))
+                                 .doc_options = list(width = 8))
   visualizer1e <- Visualizer$new(.viz_fun = viz_fun1,
-                                 .rmd_options = list(height = 8, width = 8))
+                                 .doc_options = list(height = 8, width = 8))
   visualizer1f <- Visualizer$new(.viz_fun = viz_fun1,
                                  a = 5, b = 1:5, c = data.frame(d = 1:2))
-  visualizer1g <- Visualizer$new(.viz_fun = viz_fun1, .rmd_show = FALSE)
+  visualizer1g <- Visualizer$new(.viz_fun = viz_fun1, .doc_show = FALSE)
   visualizer1h <- Visualizer$new(viz_fun1, n = 100)
   visualizer1i <- Visualizer$new(n = 100, func = func, viz_fun1)
   visualizer1j <- Visualizer$new(n = 100, viz_fun1, "Visualizer")
   visualizer1k <- Visualizer$new(viz_fun1, "Visualizer",
-                                 list(width = 8), rmd_o = TRUE, n = 100)
-  visualizer1l <- Visualizer$new(viz_fun1, "Visualizer", n = 100, rmd_o = TRUE)
+                                 list(width = 8), doc_o = TRUE, n = 100)
+  visualizer1l <- Visualizer$new(viz_fun1, "Visualizer", n = 100, doc_o = TRUE)
   visualizer1m <- Visualizer$new(viz_fun1, a = 5, "Visualizer",
-                                 list(width = 8), rmd_o = TRUE)
+                                 list(width = 8), doc_o = TRUE)
 
   # print statements
   expect_snapshot_output(visualizer1)
@@ -33,87 +33,87 @@ test_that("Visualizer initialization works properly", {
   expect_equal(visualizer1$name, NULL)
   expect_equal(visualizer1$viz_fun, viz_fun1)
   expect_equal(visualizer1$viz_params, list())
-  expect_equal(visualizer1$rmd_options, list(height = 6, width = 10))
-  expect_equal(visualizer1$rmd_show, TRUE)
+  expect_equal(visualizer1$doc_options, list(height = 6, width = 10))
+  expect_equal(visualizer1$doc_show, TRUE)
 
   # basic initialization with name
   expect_equal(visualizer1b$name, "Visualizer")
   expect_equal(visualizer1b$viz_params, list())
 
-  # rmd options input
-  expect_equal(visualizer1c$rmd_options, list(height = 8, width = 10))
+  # doc options input
+  expect_equal(visualizer1c$doc_options, list(height = 8, width = 10))
   expect_equal(visualizer1c$viz_params, list())
-  expect_equal(visualizer1d$rmd_options, list(height = 6, width = 8))
+  expect_equal(visualizer1d$doc_options, list(height = 6, width = 8))
   expect_equal(visualizer1d$viz_params, list())
-  expect_equal(visualizer1e$rmd_options, list(height = 8, width = 8))
+  expect_equal(visualizer1e$doc_options, list(height = 8, width = 8))
   expect_equal(visualizer1e$viz_params, list())
 
   # viz_fun arguments
   expect_equal(visualizer1f$viz_params,
                list(a = 5, b = 1:5, c = data.frame(d = 1:2)))
   expect_equal(visualizer1f$viz_fun, visualizer1$viz_fun)
-  expect_equal(visualizer1f$rmd_options, list(height = 6, width = 10))
+  expect_equal(visualizer1f$doc_options, list(height = 6, width = 10))
 
-  # show rmd input
-  expect_equal(visualizer1g$rmd_show, FALSE)
+  # show doc input
+  expect_equal(visualizer1g$doc_show, FALSE)
 
   # preventing viz_fun arg partial matching
   expect_equal(visualizer1h$viz_params, list(n = 100))
   expect_equal(visualizer1h$viz_fun, viz_fun1)
   expect_null(visualizer1h$name)
-  expect_equal(visualizer1h$rmd_options, list(height = 6, width = 10))
+  expect_equal(visualizer1h$doc_options, list(height = 6, width = 10))
 
   # scrambled init args
   expect_equal(visualizer1i$viz_params, list(n = 100, func = func))
   expect_equal(visualizer1i$viz_fun, viz_fun1)
   expect_null(visualizer1i$name)
-  expect_equal(visualizer1i$rmd_options, list(height = 6, width = 10))
+  expect_equal(visualizer1i$doc_options, list(height = 6, width = 10))
 
   # scrambled init args with name
   expect_equal(visualizer1j$viz_params, list(n = 100))
   expect_equal(visualizer1j$viz_fun, viz_fun1)
   expect_equal(visualizer1j$name, "Visualizer")
-  expect_equal(visualizer1j$rmd_options, list(height = 6, width = 10))
+  expect_equal(visualizer1j$doc_options, list(height = 6, width = 10))
 
   # both formals by position, two user args partial matching
-  expect_equal(visualizer1k$viz_params, list(rmd_o = TRUE, n = 100))
+  expect_equal(visualizer1k$viz_params, list(doc_o = TRUE, n = 100))
   expect_equal(visualizer1k$viz_fun, viz_fun1)
   expect_equal(visualizer1k$name, "Visualizer")
-  expect_equal(visualizer1k$rmd_options, list(height = 6, width = 8))
+  expect_equal(visualizer1k$doc_options, list(height = 6, width = 8))
 
   # one formal by position, two user args partial matching
-  expect_equal(visualizer1l$viz_params, list(n = 100, rmd_o = TRUE))
+  expect_equal(visualizer1l$viz_params, list(n = 100, doc_o = TRUE))
   expect_equal(visualizer1l$viz_fun, viz_fun1)
   expect_equal(visualizer1l$name, "Visualizer")
-  expect_equal(visualizer1l$rmd_options, list(height = 6, width = 10))
+  expect_equal(visualizer1l$doc_options, list(height = 6, width = 10))
 
   # both formals by shifted position, one user arg partial matching
-  expect_equal(visualizer1m$viz_params, list(a = 5, rmd_o = TRUE))
+  expect_equal(visualizer1m$viz_params, list(a = 5, doc_o = TRUE))
   expect_equal(visualizer1m$viz_fun, viz_fun1)
   expect_equal(visualizer1m$name, "Visualizer")
-  expect_equal(visualizer1m$rmd_options, list(height = 6, width = 8))
+  expect_equal(visualizer1m$doc_options, list(height = 6, width = 8))
 
   # initialize with create_visualizer
   visualizer2 <- create_visualizer(.viz_fun = viz_fun1)
   visualizer2b <- create_visualizer(.viz_fun = viz_fun1,
                                     .name = "Visualizer")
   visualizer2c <- create_visualizer(.viz_fun = viz_fun1,
-                              .rmd_options = list(height = 8))
+                              .doc_options = list(height = 8))
   visualizer2d <- create_visualizer(.viz_fun = viz_fun1,
-                              .rmd_options = list(width = 8))
+                              .doc_options = list(width = 8))
   visualizer2e <- create_visualizer(.viz_fun = viz_fun1,
-                              .rmd_options = list(height = 8, width = 8))
+                              .doc_options = list(height = 8, width = 8))
   visualizer2f <- create_visualizer(.viz_fun = viz_fun1,
                                     a = 5, b = 1:5, c = data.frame(d = 1:2))
-  visualizer2g <- create_visualizer(.viz_fun = viz_fun1, .rmd_show = F)
+  visualizer2g <- create_visualizer(.viz_fun = viz_fun1, .doc_show = F)
   visualizer2h <- create_visualizer(viz_fun1, n = 100)
   visualizer2i <- create_visualizer(n = 100, func = func, viz_fun1)
   visualizer2j <- create_visualizer(n = 100, viz_fun1, "Visualizer")
   visualizer2k <- create_visualizer(viz_fun1, "Visualizer",
-                                    list(width = 8), rmd_o = TRUE, n = 100)
-  visualizer2l <- create_visualizer(viz_fun1, "Visualizer", n = 100, rmd_o = TRUE)
+                                    list(width = 8), doc_o = TRUE, n = 100)
+  visualizer2l <- create_visualizer(viz_fun1, "Visualizer", n = 100, doc_o = TRUE)
   visualizer2m <- create_visualizer(viz_fun1, a = 5, "Visualizer",
-                                    list(width = 8), rmd_o = TRUE)
+                                    list(width = 8), doc_o = TRUE)
 
   expect_error(create_visualizer())
   expect_error(create_visualizer(.name = "Visualizer"))

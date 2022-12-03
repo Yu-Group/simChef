@@ -13,28 +13,10 @@ set_rmd_options(
   ...
 )
 }
-\arguments{
-\item{experiment}{An \code{Experiment} object.}
-
-\item{field_name}{One of "evaluator" or "visualizer".}
-
-\item{name}{Name of \code{Evaluator} or \code{Visualizer} to set R Markdown
-options.}
-
-\item{show}{If \code{TRUE}, show output; if \code{FALSE}, hide output in
-R Markdown report. Default \code{NULL} does not change the "show" field
-in \code{Evaluator}/\code{Visualizer}.}
-
-\item{...}{Named R Markdown options to set. If \code{field_name = "visualizer"},
-options are "height" and "width". If \code{field_name = "evaluator"},
-see options for \code{\link[vthemes:pretty_DT]{vthemes::pretty_DT()}}.}
-}
-\value{
-The original \code{Experiment} object with the \code{rmd_options}
-and/or \code{show} fields modified in the \code{Evaluator}/\code{Visualizer}.
-}
 \description{
-Set R Markdown options for \code{Evaluator} or \code{Visualizer}
-outputs in the summary report. Some options include the height/width of
-plots and number of digits to show in tables.
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
+
+\code{set_rmd_options()} was renamed to \code{set_doc_options()} to create a more
+consistent API.
 }
+\keyword{internal}

@@ -14,16 +14,16 @@ Visualizer <- R6::R6Class(
     name = NULL,
     viz_fun = NULL,
     viz_params = NULL,
-    rmd_options = list(height = 6, width = 10),
-    rmd_show = TRUE,
-    initialize = function(.viz_fun, .name = NULL, .rmd_options = list(),
-                          .rmd_show = TRUE, ...) {
+    doc_options = list(height = 6, width = 10),
+    doc_show = TRUE,
+    initialize = function(.viz_fun, .name = NULL, .doc_options = list(),
+                          .doc_show = TRUE, ...) {
       self$viz_fun <- .viz_fun
       self$name <- .name
-      for (opt in names(.rmd_options)) {
-        self$rmd_options[[opt]] <- .rmd_options[[opt]]
+      for (opt in names(.doc_options)) {
+        self$doc_options[[opt]] <- .doc_options[[opt]]
       }
-      self$rmd_show <- .rmd_show
+      self$doc_show <- .doc_show
       self$viz_params <- rlang::list2(...)
     },
     # @description Visualize the performance of methods and/or their evaluation
@@ -72,9 +72,9 @@ Visualizer <- R6::R6Class(
       cat(str(self$viz_params,
               indent.str = "     ", no.list = F))
       cat("   R Markdown Options: ")
-      cat(str(self$rmd_options,
+      cat(str(self$doc_options,
               indent.str = "     ", no.list = F))
-      cat("   Show in R Markdown:", self$rmd_show, "\n")
+      cat("   Show in R Markdown:", self$doc_show, "\n")
       invisible(self)
     }
   )
@@ -86,12 +86,12 @@ Visualizer <- R6::R6Class(
 #'
 #' @param .viz_fun The visualization function.
 #' @param .name (Optional) The name of the \code{Visualizer}.
-#' @param .rmd_options (Optional) List of options to control the aesthetics of
+#' @param .doc_options (Optional) List of options to control the aesthetics of
 #'   the \code{Visualizer}'s visualization in the knitted R Markdown report.
 #'   Currently, possible options are "height" and "width" (in inches). The
 #'   argument must be specified by position or typed out in whole; no partial
 #'   matching is allowed for this argument.
-#' @param .rmd_show If \code{TRUE} (default), show the resulting visualization in 
+#' @param .doc_show If \code{TRUE} (default), show the resulting visualization in 
 #'   the R Markdown report; if \code{FALSE}, hide output in the R Markdown 
 #'   report.
 #' @param ... Arguments to pass into \code{.viz_fun()}.
@@ -162,12 +162,12 @@ Visualizer <- R6::R6Class(
 #' # change figure height/width when displaying Visualizer in Rmd report
 #' pred_err_plot <- create_visualizer(.viz_fun = plot_pred_err,
 #'                                    .name = "Prediction Error Plot",
-#'                                    .rmd_options = list(height = 8, width = 12),
+#'                                    .doc_options = list(height = 8, width = 12),
 #'                                    # additional named parameters to pass to plot_pred_err()
 #'                                    truth_col = "y", estimate_col = "predictions")
 #'
 #' @export
-create_visualizer <- function(.viz_fun, .name = NULL, .rmd_options = list(),
-                              .rmd_show = TRUE, ...) {
-  Visualizer$new(.viz_fun, .name, .rmd_options, .rmd_show, ...)
+create_visualizer <- function(.viz_fun, .name = NULL, .doc_options = list(),
+                              .doc_show = TRUE, ...) {
+  Visualizer$new(.viz_fun, .name, .doc_options, .doc_show, ...)
 }

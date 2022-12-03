@@ -7,6 +7,7 @@ get_new_dgp_params <- function(method_params, new_fit_params) {
   return(dgp_params_list)
 }
 
+
 #' @keywords internal
 get_new_method_params <- function(dgp_params, new_fit_params) {
   # get new method parameter combinations given dgp parameter set
@@ -15,6 +16,7 @@ get_new_method_params <- function(dgp_params, new_fit_params) {
     dplyr::pull(.method)
   return(method_params_list)
 }
+
 
 #' Get the size of an object, including environments.
 #'
@@ -46,6 +48,7 @@ maybe_progressr <- function(...) {
   }
 }
 
+
 #' @keywords internal
 maybe_add_debug_data <- function(tbl, debug = FALSE) {
   if (debug) {
@@ -54,6 +57,7 @@ maybe_add_debug_data <- function(tbl, debug = FALSE) {
   }
   invisible(tbl)
 }
+
 
 #' Clean up `future` worker-local environments on exit.
 #'
@@ -100,6 +104,7 @@ clean_up_worker_env <- function(what = c("future", "dgp", "method"),
   gc()
 
 }
+
 
 #' Distribute simulation computation by replicates.
 #'
@@ -339,6 +344,7 @@ compute_rep <- function(n_reps,
 
 }
 
+
 #' Distribute simulation computation by DGPs.
 #'
 #' @keywords internal
@@ -349,6 +355,7 @@ compute_dgp <- function(n_reps,
                         ...) {
   abort("`compute_dgp` not implemented")
 }
+
 
 #' Distribute simulation computation by Methods.
 #'
@@ -361,6 +368,7 @@ compute_method <- function(n_reps,
   abort("`compute_method` not implemented")
 }
 
+
 #' Doubly nested distributed simulation computation nested by DGPs and reps.
 #'
 #' @keywords internal
@@ -371,6 +379,7 @@ compute_dgp_rep <- function(n_reps,
                             ...) {
   abort("`compute_dgp_rep` not implemented")
 }
+
 
 #' Doubly nested distributed simulation computation nested by Methods and reps.
 #'
@@ -383,6 +392,7 @@ compute_method_rep <- function(n_reps,
   abort("`compute_method_rep` not implemented")
 }
 
+
 #' Doubly nested distributed simulation computation nested by DGPs and Methods.
 #'
 #' @keywords internal
@@ -393,6 +403,7 @@ compute_dgp_method <- function(n_reps,
                                ...) {
   abort("`compute_dgp_method` not implemented")
 }
+
 
 #' Triply nested distributed simulation computation nested by DGPs, Methods, and
 #' reps.

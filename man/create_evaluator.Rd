@@ -7,8 +7,8 @@
 create_evaluator(
   .eval_fun,
   .name = NULL,
-  .rmd_options = list(),
-  .rmd_show = TRUE,
+  .doc_options = list(),
+  .doc_show = TRUE,
   ...
 )
 }
@@ -19,13 +19,13 @@ create_evaluator(
 specified by position or typed out in whole; no partial matching is allowed
 for this argument.}
 
-\item{.rmd_options}{(Optional) List of options to control the aesthetics of
+\item{.doc_options}{(Optional) List of options to control the aesthetics of
 the displayed \code{Evaluator}'s results table in the knitted R Markdown
 report. See \code{\link[vthemes:pretty_DT]{vthemes::pretty_DT()}} for possible options. The argument must be
 specified by position or typed out in whole; no partial matching is allowed
 for this argument.}
 
-\item{.rmd_show}{If \code{TRUE} (default), show \code{Evaluator}'s results as
+\item{.doc_show}{If \code{TRUE} (default), show \code{Evaluator}'s results as
 a table in the R Markdown report; if \code{FALSE}, hide output in the
 R Markdown report.}
 
@@ -81,10 +81,10 @@ pred_err_eval <- create_evaluator(.eval_fun = summarize_pred_err,
                                   # additional named parameters to pass to summarize_pred_err()
                                   truth_col = "y", estimate_col = "predictions")
                                   
-# set rmd options for displaying Evaluator in Rmd report to show 3 decimal points
+# set doc options for displaying Evaluator in Rmd report to show 3 decimal points
 pred_err_eval <- create_evaluator(.eval_fun = summarize_pred_err,
                                   .name = "Prediction Error", 
-                                  .rmd_options = list(digits = 3),
+                                  .doc_options = list(digits = 3),
                                   # additional named parameters to pass to summarize_pred_err()
                                   truth_col = "y", estimate_col = "predictions")
 

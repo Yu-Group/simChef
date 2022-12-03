@@ -71,15 +71,15 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
     )
     results <- greatgrandchild2$run(save = TRUE, verbose = 0)
 
-    expect_error(create_rmd(base_experiment, open = FALSE, verbose = 0), NA)
+    expect_error(render_docs(base_experiment, open = FALSE, verbose = 0), NA)
     expect_error(
-      create_rmd(
+      render_docs(
         base_experiment, open = FALSE, verbose = 0, pretty = FALSE,
         output_format = rmarkdown::html_document()),
       NA
     )
     expect_error(
-      create_rmd(
+      render_docs(
         base_experiment, open = FALSE, verbose = 0, pretty = FALSE,
         output_options = list(css = "css/simchef.css")
       ),
@@ -93,28 +93,28 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
     results <- base_experiment$run(save = TRUE, verbose = 0)
 
     expect_error(
-      create_rmd(
+      render_docs(
         base_experiment, open = FALSE, verbose = 0, pretty = FALSE,
         eval_order = "Evaluator", viz_order = c("Plot2", "Plot3", "Plot")
       ),
       NA
     )
     expect_error(
-      create_rmd(
+      render_docs(
         base_experiment, open = FALSE, verbose = 0, pretty = TRUE,
         eval_order = "Evaluator", viz_order = c("Plot2", "Plot3", "Plot")
       ),
       NA
     )
     expect_error(
-      create_rmd(
+      render_docs(
         base_experiment, open = FALSE, verbose = 0, pretty = FALSE,
         eval_order = c("Evaluator2", "Evaluator"), viz_order = c("Plot2", "Plot")
       ),
       NA
     )
     expect_error(
-      create_rmd(
+      render_docs(
         base_experiment, open = FALSE, verbose = 0, pretty = TRUE,
         eval_order = c("Evaluator2", "Evaluator"), viz_order = c("Plot2", "Plot")
       ),
@@ -154,7 +154,7 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
       add_visualizer(texter, "Text")
     results <- run_experiment(experiment, save = TRUE, verbose = 0)
 
-    expect_error(create_rmd(experiment, open = FALSE, verbose = 0), NA)
+    expect_error(render_docs(experiment, open = FALSE, verbose = 0), NA)
   })
 
   test_that("R Markdown options work properly", {
@@ -169,7 +169,7 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
     method <- create_method(method_fun)
     eval_fun <- function() iris
     evaluator1 <- create_evaluator(eval_fun)
-    evaluator2 <- create_evaluator(eval_fun, .rmd_options = list(digits = 3))
+    evaluator2 <- create_evaluator(eval_fun, .doc_options = list(digits = 3))
     evaluator3 <- create_evaluator(eval_fun)
     evaluator4 <- create_evaluator(eval_fun)
     viz_fun <- function() {
@@ -178,42 +178,42 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
         ggplot2::geom_point()
     }
     visualizer1 <- create_visualizer(viz_fun)
-    visualizer2 <- create_visualizer(viz_fun, .rmd_options = list(height = 3))
+    visualizer2 <- create_visualizer(viz_fun, .doc_options = list(height = 3))
     visualizer3 <- create_visualizer(viz_fun)
     visualizer4 <- create_visualizer(viz_fun)
 
-    experiment <- create_experiment(name = "test-rmd-options") %>%
+    experiment <- create_experiment(name = "test-doc-options") %>%
       add_dgp(dgp, "DGP") %>%
       add_method(method, "Method") %>%
       add_evaluator(evaluator1, "Evaluator (digits = 2)") %>%
       add_evaluator(evaluator2, "Evaluator (digits = 3)") %>%
       add_evaluator(evaluator3, "Evaluator (digits = 4)") %>%
       add_evaluator(evaluator4, "Evaluator (no show)") %>%
-      set_rmd_options(field_name = "evaluator", name = "Evaluator (digits = 4)",
+      set_doc_options(field_name = "evaluator", name = "Evaluator (digits = 4)",
                       digits = 4) %>%
-      set_rmd_options(field_name = "evaluator", name = "Evaluator (no show)",
+      set_doc_options(field_name = "evaluator", name = "Evaluator (no show)",
                       show = FALSE) %>%
       add_visualizer(visualizer1, "Visualizer (height = 6)") %>%
       add_visualizer(visualizer2, "Visualizer (height = 3)") %>%
       add_visualizer(visualizer3, "Visualizer (height = 9)") %>%
       add_visualizer(visualizer4, "Visualizer (no show)") %>%
-      set_rmd_options(field_name = "visualizer", name = "Visualizer (height = 9)",
+      set_doc_options(field_name = "visualizer", name = "Visualizer (height = 9)",
                       height = 9) %>%
-      set_rmd_options(field_name = "visualizer", name = "Visualizer (no show)",
+      set_doc_options(field_name = "visualizer", name = "Visualizer (no show)",
                       show = FALSE)
     results <- run_experiment(experiment, save = TRUE, verbose = 0)
 
-    expect_error(create_rmd(experiment, open = FALSE, verbose = 0), NA)
+    expect_error(render_docs(experiment, open = FALSE, verbose = 0), NA)
 
-    expect_equal(purrr::map_lgl(experiment$get_evaluators(), "rmd_show"),
+    expect_equal(purrr::map_lgl(experiment$get_evaluators(), "doc_show"),
                  c(T, T, T, F) %>% setNames(names(experiment$get_evaluators())))
     expect_equal(purrr::map_dbl(experiment$get_evaluators(),
-                                ~.x$rmd_options$digits),
+                                ~.x$doc_options$digits),
                  c(2, 3, 4, 2) %>% setNames(names(experiment$get_evaluators())))
-    expect_equal(purrr::map_lgl(experiment$get_visualizers(), "rmd_show"),
+    expect_equal(purrr::map_lgl(experiment$get_visualizers(), "doc_show"),
                  c(T, T, T, F) %>% setNames(names(experiment$get_visualizers())))
     expect_equal(purrr::map_dbl(experiment$get_visualizers(),
-                                ~.x$rmd_options$height),
+                                ~.x$doc_options$height),
                  c(6, 3, 9, 6) %>% setNames(names(experiment$get_visualizers())))
   })
 

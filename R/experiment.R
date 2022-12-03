@@ -142,7 +142,6 @@ Experiment <- R6::R6Class(
       }
     },
     .check_vary_across = function(.dgp, .method, ...) {
-      dots_list <- rlang::list2(...)
       if (missing(.dgp) && missing(.method)) {
         abort("Must specify either '.dgp' or '.method'.",
               call = rlang::caller_env())
@@ -151,11 +150,37 @@ Experiment <- R6::R6Class(
               call = rlang::caller_env())
       } else if (!missing(.dgp)) {
         obj <- .dgp
-        field_name <- "dgp"
-        class_name <- "DGP"
+        field <- "dgp"
       } else if (!missing(.method)) {
         obj <- .method
-        field_name <- "method"
+        field <- "method"
+      }
+      is_multi <- FALSE
+      if (is.vector(obj)) {  # note: is.vector("abc") returns TRUE
+        if (!((length(obj) == 1) && is.character(obj))) {  # check that not obj = "abc" case
+          is_multi <- TRUE
+          objs <- obj
+        }
+      }
+      if (!is_multi) {
+        if (field == "dgp") {
+          objs <- list(.dgp)
+        } else if (field == "method") {
+          objs <- list(.method)
+        }
+      }
+      out <- list()
+      for (i in 1:length(objs)) {
+        obj <- objs[[i]]
+        out[[i]] <- private$.check_each_vary_across(obj, field, ...)
+      }
+      return(out)
+    },
+    .check_each_vary_across = function(obj, field_name, ...) {
+      dots_list <- rlang::list2(...)
+      if (field_name == "dgp") {
+        class_name <- "DGP"
+      } else if (field_name == "method") {
         class_name <- "Method"
       }
       obj_list <- private$.get_obj_list(field_name)
@@ -1314,65 +1339,69 @@ Experiment <- R6::R6Class(
       return(private$.get_obj_list("visualizer"))
     },
     add_vary_across = function(.dgp, .method, ...) {
-      temp <- private$.check_vary_across(.dgp, .method, ...)
-      dots_list <- temp$dots_list
-      field_name <- temp$field_name
-      obj_name <- temp$obj_name
-      vary_across_sublist <- private$.vary_across_list[[field_name]][[obj_name]]
-      if (is.null(vary_across_sublist)) {
-        vary_across_sublist <- list()
-      }
-      for (arg_name in names(dots_list)) {
-        if (is.null(vary_across_sublist[[arg_name]])) {
-          vary_across_sublist[[arg_name]] <- dots_list[[arg_name]]
-        } else {
-          abort(
-            sprintf(
-              paste0(
-                "The vary_across parameter for argument '%s' has already ",
-                "been set for %s's %s_fun. Use update_vary_across instead."
-              ),
-              arg_name, obj_name, field_name
-            )
-          )
+      objs <- private$.check_vary_across(.dgp, .method, ...)
+      for (obj in objs) {
+        dots_list <- obj$dots_list
+        field_name <- obj$field_name
+        obj_name <- obj$obj_name
+        vary_across_sublist <- private$.vary_across_list[[field_name]][[obj_name]]
+        if (is.null(vary_across_sublist)) {
+          vary_across_sublist <- list()
         }
+        for (arg_name in names(dots_list)) {
+          if (is.null(vary_across_sublist[[arg_name]])) {
+            vary_across_sublist[[arg_name]] <- dots_list[[arg_name]]
+          } else {
+            abort(
+              sprintf(
+                paste0(
+                  "The vary_across parameter for argument '%s' has already ",
+                  "been set for %s's %s_fun. Use update_vary_across instead."
+                ),
+                arg_name, obj_name, field_name
+              )
+            )
+          }
+        }
+        private$.vary_across_list[[field_name]][[obj_name]] <- vary_across_sublist
       }
-      private$.vary_across_list[[field_name]][[obj_name]] <- vary_across_sublist
       invisible(self)
     },
     update_vary_across = function(.dgp, .method, ...) {
-      temp <- private$.check_vary_across(.dgp, .method, ...)
-      dots_list <- temp$dots_list
-      field_name <- temp$field_name
-      obj_name <- temp$obj_name
-      vary_across_sublist <- private$.vary_across_list[[field_name]][[obj_name]]
-      if (is.null(vary_across_sublist)) {
-        abort(
-          sprintf(
-            paste0(
-              "The vary_across parameter has not been set for %s's %s_fun. ",
-              "Use add_vary_across instead."
-            ),
-            obj_name, field_name
-          )
-        )
-      }
-      for (arg_name in names(dots_list)) {
-        if (is.null(vary_across_sublist[[arg_name]])) {
+      objs <- private$.check_vary_across(.dgp, .method, ...)
+      for (obj in objs) {
+        dots_list <- obj$dots_list
+        field_name <- obj$field_name
+        obj_name <- obj$obj_name
+        vary_across_sublist <- private$.vary_across_list[[field_name]][[obj_name]]
+        if (is.null(vary_across_sublist)) {
           abort(
             sprintf(
               paste0(
-                "The vary_across parameter for argument '%s' has not ",
-                "been set for %s's %s_fun. Use add_vary_across instead."
+                "The vary_across parameter has not been set for %s's %s_fun. ",
+                "Use add_vary_across instead."
               ),
-              arg_name, obj_name, field_name
+              obj_name, field_name
             )
           )
-        } else {
-          vary_across_sublist[[arg_name]] <- dots_list[[arg_name]]
         }
+        for (arg_name in names(dots_list)) {
+          if (is.null(vary_across_sublist[[arg_name]])) {
+            abort(
+              sprintf(
+                paste0(
+                  "The vary_across parameter for argument '%s' has not ",
+                  "been set for %s's %s_fun. Use add_vary_across instead."
+                ),
+                arg_name, obj_name, field_name
+              )
+            )
+          } else {
+            vary_across_sublist[[arg_name]] <- dots_list[[arg_name]]
+          }
+        }
+        private$.vary_across_list[[field_name]][[obj_name]] <- vary_across_sublist
       }
-      private$.vary_across_list[[field_name]][[obj_name]] <- vary_across_sublist
       invisible(self)
     },
     remove_vary_across = function(dgp, method, param_names = NULL) {
@@ -1390,43 +1419,45 @@ Experiment <- R6::R6Class(
           return(invisible(self))
         }
       }
-      temp <- private$.check_vary_across(dgp, method)
-      field_name <- temp$field_name
-      obj_name <- temp$obj_name
-      vary_across_sublist <- private$.vary_across_list[[field_name]][[obj_name]]
-      if (is.null(vary_across_sublist)) {
-        abort(
-          sprintf(
-            paste0(
-              "Cannot remove vary_across parameter for %s's %s_fun ",
-              "since the vary_across parameter has not been set."
-            ),
-            obj_name, field_name
-          )
-        )
-      }
-
-      for (arg_name in param_names) {
-        if (is.null(vary_across_sublist[[arg_name]])) {
+      objs <- private$.check_vary_across(dgp, method)
+      for (obj in objs) {
+        field_name <- obj$field_name
+        obj_name <- obj$obj_name
+        vary_across_sublist <- private$.vary_across_list[[field_name]][[obj_name]]
+        if (is.null(vary_across_sublist)) {
           abort(
             sprintf(
               paste0(
-                "Cannot remove vary_across parameter for argument '%s' ",
-                "in %s's %s_fun since the vary_across parameter has not been set."
+                "Cannot remove vary_across parameter for %s's %s_fun ",
+                "since the vary_across parameter has not been set."
               ),
-              arg_name, obj_name, field_name
+              obj_name, field_name
             )
           )
-        } else {
-          vary_across_sublist[[arg_name]] <- NULL
         }
-      }
-      if ((length(vary_across_sublist) == 0) || is.null(param_names)) {
-        vary_across_sublist <- NULL
-      }
-      private$.vary_across_list[[field_name]][[obj_name]] <- vary_across_sublist
-      if (length(private$.vary_across_list[[field_name]]) == 0) {
-        private$.vary_across_list[[field_name]] <- list()
+
+        for (arg_name in param_names) {
+          if (is.null(vary_across_sublist[[arg_name]])) {
+            abort(
+              sprintf(
+                paste0(
+                  "Cannot remove vary_across parameter for argument '%s' ",
+                  "in %s's %s_fun since the vary_across parameter has not been set."
+                ),
+                arg_name, obj_name, field_name
+              )
+            )
+          } else {
+            vary_across_sublist[[arg_name]] <- NULL
+          }
+        }
+        if ((length(vary_across_sublist) == 0) || is.null(param_names)) {
+          vary_across_sublist <- NULL
+        }
+        private$.vary_across_list[[field_name]][[obj_name]] <- vary_across_sublist
+        if (length(private$.vary_across_list[[field_name]]) == 0) {
+          private$.vary_across_list[[field_name]] <- list()
+        }
       }
       invisible(self)
     },
@@ -1441,7 +1472,7 @@ Experiment <- R6::R6Class(
       return(private$.get_cached_results(results_type = results_type,
                                          verbose = verbose))
     },
-    set_rmd_options = function(field_name, name, show = NULL, ...) {
+    set_doc_options = function(field_name, name, show = NULL, ...) {
       obj_list <- private$.get_obj_list(field_name)
       if (!name %in% names(obj_list)) {
         abort(
@@ -1454,13 +1485,13 @@ Experiment <- R6::R6Class(
       }
       list_name <- paste0(".", field_name, "_list")
       if (!is.null(show)) {
-        private[[list_name]][[name]]$rmd_show <- show
+        private[[list_name]][[name]]$doc_show <- show
       }
-      rmd_options <- list(...)
-      if (length(rmd_options) > 0) {
-        for (i in 1:length(rmd_options)) {
-          private[[list_name]][[name]]$rmd_options[[names(rmd_options)[i]]] <-
-            rmd_options[[i]]
+      doc_options <- list(...)
+      if (length(doc_options) > 0) {
+        for (i in 1:length(doc_options)) {
+          private[[list_name]][[name]]$doc_options[[names(doc_options)[i]]] <-
+            doc_options[[i]]
         }
       }
       invisible(self)

@@ -86,11 +86,11 @@ When all of this is put together, the `Experiment` class can output an R
 Markdown document that is structured to provide a well-organized summary of a
 simulation study. Moreover, this document can contain multiple experiments,
 simply by using a common output path with each `Experiment` in the study. When
-the simulation is complete, you can use the `create_rmd()` helper to generate
+the simulation is complete, you can use the `render_docs()` helper to generate
 the documentation:
 
 ```r
-create_rmd(experiment)
+render_docs(experiment)
 ```
 
 This results in an HTML document like the one shown below:

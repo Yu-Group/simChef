@@ -20,10 +20,14 @@ get_vary_across(experiment)
 \item{.experiment, experiment}{An \code{Experiment} object.}
 
 \item{.dgp, dgp}{Name of \code{DGP} to vary in the \code{Experiment}. Can also be a
-\code{DGP} object that matches one in the \code{Experiment}.}
+\code{DGP} object that matches one in the \code{Experiment} or even a
+vector/list of \code{DGP} names/objects, assuming they can all take in the
+specified \code{param_names}.}
 
 \item{.method, method}{Name of \code{Method} to vary in the \code{Experiment}. Can
-also be a \code{Method} object that matches one in the \code{Experiment}.}
+also be a \code{Method} object that matches one in the \code{Experiment} or
+even a vector/listo f \code{Method} names/objects, assuming they can all
+take in the specified \code{param_names}.}
 
 \item{...}{Any number of named arguments where names match an argument in the
 user-specified \code{DGP} or \code{Method} function and values are vectors

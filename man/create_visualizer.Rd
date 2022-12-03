@@ -7,8 +7,8 @@
 create_visualizer(
   .viz_fun,
   .name = NULL,
-  .rmd_options = list(),
-  .rmd_show = TRUE,
+  .doc_options = list(),
+  .doc_show = TRUE,
   ...
 )
 }
@@ -17,13 +17,13 @@ create_visualizer(
 
 \item{.name}{(Optional) The name of the \code{Visualizer}.}
 
-\item{.rmd_options}{(Optional) List of options to control the aesthetics of
+\item{.doc_options}{(Optional) List of options to control the aesthetics of
 the \code{Visualizer}'s visualization in the knitted R Markdown report.
 Currently, possible options are "height" and "width" (in inches). The
 argument must be specified by position or typed out in whole; no partial
 matching is allowed for this argument.}
 
-\item{.rmd_show}{If \code{TRUE} (default), show the resulting visualization in
+\item{.doc_show}{If \code{TRUE} (default), show the resulting visualization in
 the R Markdown report; if \code{FALSE}, hide output in the R Markdown
 report.}
 
@@ -100,7 +100,7 @@ pred_err_plot <- create_visualizer(.viz_fun = plot_pred_err,
 # change figure height/width when displaying Visualizer in Rmd report
 pred_err_plot <- create_visualizer(.viz_fun = plot_pred_err,
                                    .name = "Prediction Error Plot",
-                                   .rmd_options = list(height = 8, width = 12),
+                                   .doc_options = list(height = 8, width = 12),
                                    # additional named parameters to pass to plot_pred_err()
                                    truth_col = "y", estimate_col = "predictions")
 

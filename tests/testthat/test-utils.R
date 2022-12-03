@@ -10,12 +10,12 @@ test_that("check_equal works properly", {
   method2 <- create_method(.method_fun = function(x) x - 2)
   eval1 <- create_evaluator(.eval_fun = function(x) x * 1)
   eval1b <- create_evaluator(.eval_fun = function(x) x * 1,
-                             .rmd_options = list(digits = 3),
+                             .doc_options = list(digits = 3),
                              .name = "Eval")
   eval2 <- create_evaluator(.eval_fun = function(x) x * 2)
   visualizer1 <- create_visualizer(.viz_fun = function(x) x)
   visualizer1b <- create_visualizer(.viz_fun = function(x) x,
-                                    .rmd_options = list(height = 8))
+                                    .doc_options = list(height = 8))
   visualizer2 <- create_visualizer(.viz_fun = function(x) x / 2)
 
   expect_true(check_equal(dgp1, dgp1))

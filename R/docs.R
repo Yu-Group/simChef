@@ -1,39 +1,39 @@
-#' Create documentation template for the R Markdown results report.
+#' Initialize documentation template for the R Markdown results report.
 #'
-#' @name create_doc_template
+#' @name init_docs
 #' @description Create documentation template (a series of .md files) to
 #'   fill out for the R Markdown results report. If the \code{experiment} is
-#'   provided, the documentation files can be found in the \code{Experiment}'s 
-#'   results directory (see \code{Experiment$get_save_dir()}) under docs/. 
-#'   Otherwise, the documentation files can be found in the specified 
+#'   provided, the documentation files can be found in the \code{Experiment}'s
+#'   results directory (see \code{Experiment$get_save_dir()}) under docs/.
+#'   Otherwise, the documentation files can be found in the specified
 #'   \code{save_dir} directory under docs/. The documentation files generated
-#'   include objectives.md and .md files corresponding to \code{DGPs}, 
-#'   \code{Methods}, \code{Evaluators}, and \code{Visualizers} in the 
+#'   include objectives.md and .md files corresponding to \code{DGPs},
+#'   \code{Methods}, \code{Evaluators}, and \code{Visualizers} in the
 #'   \code{Experiment}.
 #'
 #' @param experiment An \code{Experiment} object. If provided, documentation is
-#'   created for all previously saved \code{Experiments} that are found in the 
-#'   directory given by \code{experiment$get_save_dir()}. If no 
-#'   \code{Experiments} have been previously saved under this directory, then 
-#'   the current \code{experiment} is saved to disk and used to create the 
-#'   documentation template. 
+#'   created for all previously saved \code{Experiments} that are found in the
+#'   directory given by \code{experiment$get_save_dir()}. If no
+#'   \code{Experiments} have been previously saved under this directory, then
+#'   the current \code{experiment} is saved to disk and used to create the
+#'   documentation template.
 #' @param save_dir An optional directory in which to find previously saved
 #'   \code{Experiment} objects. Documentation is created for these found
 #'   \code{Experiments}. Not used if \code{experiment} is provided.
 #'
-#' @returns The original \code{Experiment} object if provided. Otherwise, 
+#' @returns The original \code{Experiment} object if provided. Otherwise,
 #'   returns \code{NULL}.
 #'
 #' @examples
 #' \dontrun{
 #' # create documentation template from an experiment (of class `Experiment`)
-#' create_doc_template(experiment)
+#' init_docs(experiment)
 #'
 #' # or alternatively, create documentation template from a specific directory
-#' create_doc_template(save_dir = experiment$get_save_dir())}
+#' init_docs(save_dir = experiment$get_save_dir())}
 #'
 #' @export
-create_doc_template <- function(experiment, save_dir) {
+init_docs <- function(experiment, save_dir) {
   if (missing(experiment) && missing(save_dir)) {
     stop("Must provide argument for one of experiment or save_dir.")
   }
@@ -45,16 +45,16 @@ create_doc_template <- function(experiment, save_dir) {
     }
     save_dir <- experiment$get_save_dir()
   }
-  
+
   if (!dir.exists(file.path(save_dir, "docs"))) {
     dir.create(file.path(save_dir, "docs"), recursive = TRUE)
   }
-  
+
   if (!file.exists(file.path(save_dir, "docs", "objectives.md"))) {
     fname <- file.path(save_dir, "docs", "objectives.md")
     utils::write.csv(NULL, file = fname, quote = F)
   }
-  
+
   descendants <- purrr::map(
     list.dirs(save_dir), function(d) {
       if (file.exists(file.path(d, "experiment.rds"))) {
@@ -65,7 +65,7 @@ create_doc_template <- function(experiment, save_dir) {
     }
   )
   descendants[sapply(descendants, is.null)] <- NULL
-  
+
   fields <- c("dgp", "method", "evaluator", "visualizer")
   if (identical(descendants, list()) && !missing(experiment)) {
     saveRDS(experiment, file.path(save_dir, "experiment.rds"))
@@ -89,26 +89,41 @@ create_doc_template <- function(experiment, save_dir) {
       }
     }
   }
-  
+
   if (!missing(experiment)) {
     return(invisible(experiment))
   }
 }
 
-#' Create an R Markdown file summarizing the results of an \code{Experiment} or
+#' Initialize documentation template for the R Markdown results report.
+#'
+#' @description
+#' `r lifecycle::badge("deprecated")`
+#'
+#' `create_doc_template()` was renamed to `init_docs()` to create a more
+#' consistent API.
+#'
+#' @keywords internal
+#' @export
+create_doc_template <- function(experiment, save_dir) {
+  lifecycle::deprecate_warn("0.1.0", "create_doc_template()", "init_docs()")
+  init_docs(experiment, save_dir)
+}
+
+#' Render an R Markdown file summarizing the results of an \code{Experiment} or
 #'   set of \code{Experiments}.
 #'
-#' @name create_rmd
+#' @name render_docs
 #' @description Knits an R Markdown file summarizing the results of an
-#'   \code{Experiment} or set of \code{Experiments}. Outputs an R 
+#'   \code{Experiment} or set of \code{Experiments}. Outputs an R
 #'   Markdown-generated html file. If \code{experiment} is provided, the results
 #'   are saved in the \code{Experiment}'s root results directory (see
 #'   \code{Experiment$get_save_dir()}). Otherwise, the root results directory is
-#'   taken to be that specified by \code{save_dir}. Note that 
-#'   \code{create_rmd()} will process and include results from all 
+#'   taken to be that specified by \code{save_dir}. Note that
+#'   \code{render_docs()} will process and include results from all
 #'   \code{Experiments} found *under* the root directory.
 #'
-#' @inheritParams create_doc_template
+#' @inheritParams init_docs
 #' @param open If \code{TRUE}, open the R Markdown-generated html file in a
 #'   web browser.
 #' @param title Character string. Title of the report. By default, this will be
@@ -117,37 +132,37 @@ create_doc_template <- function(experiment, save_dir) {
 #'   Markdown document.
 #' @param verbose Level of verboseness (0, 1, 2) when knitting R Markdown.
 #'   Default is 2.
-#' @param quiet Default is \code{TRUE}. See [rmarkdown::render()] for 
+#' @param quiet Default is \code{TRUE}. See [rmarkdown::render()] for
 #'   details.
 #' @param pretty Logical. Specifies whether or not to use pretty R Markdown
 #'   results template or more barebones R Markdown results template. Default
 #'   \code{TRUE} uses the pretty template. Set to \code{FALSE} to start from
 #'   the barebones template, which can be helpful when using your own custom
 #'   R Markdown theme.
-#' @param eval_order Vector of \code{Evaluator} names in their desired order for 
+#' @param eval_order Vector of \code{Evaluator} names in their desired order for
 #'   display. By default, the report will display the \code{Evaluator} results
 #'   in the order that they were computed.
-#' @param viz_order Vector of \code{Visualizer} names in their desired order for 
+#' @param viz_order Vector of \code{Visualizer} names in their desired order for
 #'   display. By default, the report will display the \code{Visualizer} results
 #'   in the order that they were computed.
 #' @param ... Additional arguments to pass to [rmarkdown::render()]. Useful
 #'   for applying a custom R Markdown output theme.
 #'
-#' @returns The original \code{Experiment} object if provided. Otherwise, 
+#' @returns The original \code{Experiment} object if provided. Otherwise,
 #'   returns \code{NULL}.
 #'
 #' @examples
 #' \dontrun{
 #' # create basic Rmd from an experiment (of class `Experiment`)
-#' create_rmd(experiment)
+#' render_docs(experiment)
 #'
 #' # or alternatively, create basic Rmd from a specific directory
-#' create_rmd(save_dir = experiment$get_save_dir())}
+#' render_docs(save_dir = experiment$get_save_dir())}
 #'
 #' @export
-create_rmd <- function(experiment, save_dir, open = TRUE, title = NULL,
-                       author = "", verbose = 2, quiet = TRUE, pretty = TRUE, 
-                       eval_order = NULL, viz_order = NULL, ...) {
+render_docs <- function(experiment, save_dir, open = TRUE, title = NULL,
+                        author = "", verbose = 2, quiet = TRUE, pretty = TRUE,
+                        eval_order = NULL, viz_order = NULL, ...) {
   if (missing(experiment) && missing(save_dir)) {
     stop("Must provide argument for one of experiment or save_dir.")
   }
@@ -166,9 +181,9 @@ create_rmd <- function(experiment, save_dir, open = TRUE, title = NULL,
       title <- "Results"
     }
   }
-  
-  create_doc_template(save_dir = save_dir)
-  
+
+  init_docs(save_dir = save_dir)
+
   if (pretty) {
     input_fname <- system.file("rmd", "results_pretty.Rmd",
                                package = utils::packageName())
@@ -177,8 +192,8 @@ create_rmd <- function(experiment, save_dir, open = TRUE, title = NULL,
                                package = utils::packageName())
   }
   output_fname <- file.path(save_dir, paste0(title, ".html"))
-  params_list <- list(sim_name = title, sim_path = save_dir, author = author, 
-                      eval_order = eval_order, viz_order = viz_order, 
+  params_list <- list(sim_name = title, sim_path = save_dir, author = author,
+                      eval_order = eval_order, viz_order = viz_order,
                       verbose = verbose)
   rmarkdown::render(input = input_fname, params = params_list,
                     output_file = output_fname, quiet = quiet, ...)
@@ -186,8 +201,27 @@ create_rmd <- function(experiment, save_dir, open = TRUE, title = NULL,
   if (open) {
     system(paste("open", output_fname))
   }
-  
+
   if (!missing(experiment)) {
     return(invisible(experiment))
   }
+}
+
+#' Render an R Markdown file summarizing the results of an \code{Experiment} or
+#' set of \code{Experiments}.
+#'
+#' @description
+#' `r lifecycle::badge("deprecated")`
+#'
+#' `create_rmd()` was renamed to `render_docs()` to create a more consistent
+#' API.
+#'
+#' @keywords internal
+#' @export
+create_rmd <- function(experiment, save_dir, open = TRUE, title = NULL,
+                       author = "", verbose = 2, quiet = TRUE, pretty = TRUE,
+                       eval_order = NULL, viz_order = NULL, ...) {
+  lifecycle::deprecate_warn("0.1.0", "create_rmd()", "render_docs()")
+  render_docs(experiment, save_dir, open, title, author, verbose, quiet,
+              pretty, eval_order, viz_order, ...)
 }

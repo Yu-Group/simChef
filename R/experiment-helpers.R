@@ -91,9 +91,9 @@ create_experiment <- function(name = "experiment",
 #' @param return_all_cached_reps Logical. If \code{FALSE} (default), returns
 #'   only the fit results for the requested \code{n_reps}. If \code{TRUE},
 #'   returns fit results for the requested \code{n_reps} plus any additional
-#'   cached replicates from the (\code{DGP}, \code{Method}) combinations in the 
-#'   \code{Experiment}. Note that even if \code{return_all_cached_reps = TRUE}, 
-#'   only the \code{n_reps} replicates are used when evaluating and visualizing 
+#'   cached replicates from the (\code{DGP}, \code{Method}) combinations in the
+#'   \code{Experiment}. Note that even if \code{return_all_cached_reps = TRUE},
+#'   only the \code{n_reps} replicates are used when evaluating and visualizing
 #'   the \code{Experiment}.
 #'
 #' @return A list of results from the simulation experiment.
@@ -115,7 +115,7 @@ run_experiment <- function(experiment, n_reps = 1,
                            parallel_strategy = c("reps"), future.globals = NULL,
                            future.packages = NULL, future.seed = TRUE,
                            use_cached = FALSE, return_all_cached_reps = FALSE,
-                           save = FALSE, checkpoint_n_reps = 0, verbose = 1, 
+                           save = FALSE, checkpoint_n_reps = 0, verbose = 1,
                            ...) {
   return(experiment$run(n_reps = n_reps,
                         parallel_strategy = parallel_strategy,
@@ -172,7 +172,7 @@ generate_data <- function(experiment, n_reps=1, ...) {
 #' @export
 fit_experiment <- function(experiment, n_reps=1, parallel_strategy = c("reps"),
                            future.globals = NULL, future.packages = NULL,
-                           future.seed = TRUE, use_cached = FALSE, 
+                           future.seed = TRUE, use_cached = FALSE,
                            return_all_cached_reps = FALSE, save = FALSE,
                            checkpoint_n_reps = 0, verbose = 1, ...) {
   return(experiment$fit(n_reps = n_reps,
@@ -409,9 +409,13 @@ get_visualizers <- function(experiment, ...) {
 #'
 #' @param .experiment,experiment An \code{Experiment} object.
 #' @param .dgp,dgp Name of \code{DGP} to vary in the \code{Experiment}. Can also be a
-#'   \code{DGP} object that matches one in the \code{Experiment}.
+#'   \code{DGP} object that matches one in the \code{Experiment} or even a
+#'   vector/list of \code{DGP} names/objects, assuming they can all take in the
+#'   specified \code{param_names}.
 #' @param .method,method Name of \code{Method} to vary in the \code{Experiment}. Can
-#'   also be a \code{Method} object that matches one in the \code{Experiment}.
+#'   also be a \code{Method} object that matches one in the \code{Experiment} or
+#'   even a vector/listo f \code{Method} names/objects, assuming they can all
+#'   take in the specified \code{param_names}.
 #' @param param_names A character vector of parameter names to remove. If
 #'   not provided, the entire set of \code{vary_across} parameters will be
 #'   removed for the specified \code{DGP}/\code{Method}.
@@ -490,12 +494,12 @@ clear_cache <- function(experiment) {
 #'   or "viz".
 #'
 #' @return The cached results, specifically the cached \code{Experiment} object
-#'   if \code{results_type = "experiment"}, the cached fit results if 
-#'   \code{results_type = "fit"}, the cached evaluation results if 
+#'   if \code{results_type = "experiment"}, the cached fit results if
+#'   \code{results_type = "fit"}, the cached evaluation results if
 #'   \code{results_type = "eval"}, the cached visualization results if
-#'   \code{results_type = "viz"}, and the experiment parameters used in 
+#'   \code{results_type = "viz"}, and the experiment parameters used in
 #'   the cache if \code{results_type = "experiment_cached_params"}.
-#'   
+#'
 #' @export
 get_cached_results <- function(experiment, results_type, verbose = 0) {
   experiment$get_cached_results(results_type = results_type, verbose = verbose)
@@ -504,7 +508,7 @@ get_cached_results <- function(experiment, results_type, verbose = 0) {
 #' Set R Markdown options for \code{Evaluator} and \code{Visualizer} outputs in
 #'   summary report.
 #'
-#' @name set_rmd_options
+#' @name set_doc_options
 #' @description Set R Markdown options for \code{Evaluator} or \code{Visualizer}
 #'   outputs in the summary report. Some options include the height/width of
 #'   plots and number of digits to show in tables.
@@ -520,15 +524,32 @@ get_cached_results <- function(experiment, results_type, verbose = 0) {
 #'   options are "height" and "width". If \code{field_name = "evaluator"},
 #'   see options for [vthemes::pretty_DT()].
 #'
-#' @return The original \code{Experiment} object with the \code{rmd_options}
+#' @return The original \code{Experiment} object with the \code{doc_options}
 #'   and/or \code{show} fields modified in the \code{Evaluator}/\code{Visualizer}.
 #'
 #' @export
-set_rmd_options <- function(experiment, field_name = c("evaluator", "visualizer"),
+set_doc_options <- function(experiment, field_name = c("evaluator", "visualizer"),
                             name, show = NULL, ...) {
   field_name <- match.arg(field_name)
-  experiment$set_rmd_options(field_name = field_name, name = name, show = show,
+  experiment$set_doc_options(field_name = field_name, name = name, show = show,
                              ...)
+}
+
+#' Set R Markdown options for \code{Evaluator} and \code{Visualizer} outputs in
+#'   summary report.
+#'
+#' @description
+#' `r lifecycle::badge("deprecated")`
+#'
+#' `set_rmd_options()` was renamed to `set_doc_options()` to create a more
+#' consistent API.
+#'
+#' @keywords internal
+#' @export
+set_rmd_options <- function(experiment, field_name = c("evaluator", "visualizer"),
+                            name, show = NULL, ...) {
+  lifecycle::deprecate_warn("0.1.0", "set_rmd_options()", "set_doc_options()")
+  set_doc_options(experiment, field_name, name, show, ...)
 }
 
 #' Set results directory for an \code{Experiment}.

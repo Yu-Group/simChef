@@ -182,21 +182,21 @@ fit_results <- tibble::tibble(
 # evaluate ROC/PR curve for each replicate
 roc_results <- eval_pred_curve(fit_results, curve = "ROC",
                                nested_data = "class_probs",
-                               truth_col = "y", 
+                               truth_col = "y",
                                prob_cols = c("a", "b", "c"))
 pr_results <- eval_pred_curve(fit_results, curve = "PR",
                               nested_data = "class_probs",
-                              truth_col = "y", 
+                              truth_col = "y",
                               prob_cols = c("a", "b", "c"))
 
 # summarize ROC/PR curves across replicates
 roc_summary <- summarize_pred_curve(fit_results, curve = "ROC",
                                     nested_data = "class_probs",
-                                    truth_col = "y", 
+                                    truth_col = "y",
                                     prob_cols = c("a", "b", "c"))
 pr_summary <- summarize_pred_curve(fit_results, curve = "PR",
                                    nested_data = "class_probs",
-                                   truth_col = "y", 
+                                   truth_col = "y",
                                    prob_cols = c("a", "b", "c"))
 
 }

@@ -104,7 +104,7 @@ The goal of `simChef` is to seamlessly and efficiently run simulation experiment
     ```
 3. Document and describe the simulation experiment in text
     ```{r eval = FALSE}
-    create_doc_template(experiment)
+    init_docs(experiment)
     ```
 4. Run the experiment
     ```{r eval = FALSE}
@@ -113,7 +113,7 @@ The goal of `simChef` is to seamlessly and efficiently run simulation experiment
     ```
 5. Visualize results via an automated R Markdown report
     ```{r eval = FALSE}
-    create_rmd(experiment)
+    render_docs(experiment)
     ```
 
 We will next go through a toy example simulation using linear regression.
@@ -274,7 +274,7 @@ Once a DGP, Method, Evaluator, or Visualizer has been added to the simulation ex
 A crucial component when running veridical simulations is **documentation**. We highly encourage practitioners to document the purpose or objective of the simulation experiment, what DGPs, Methods, Evaluators, and Visualizers were used, and why these DGPs, Methods, Evaluators, and Visualizers were chosen. This can and should be done before even running the simulation experiment. To facilitate this tedious but important process, we can easily create a documentation template to fill out using
 
 ```{r}
-create_doc_template(experiment)
+init_docs(experiment)
 ```
 
 This creates a series of blank .md files for the user to fill out with descriptions of the simulation experiment and its recipe components. These blank .md files can be found in the experiment's root results directory under docs/. To find the experiment's root results directory, use `experiment$get_save_dir()`.
@@ -316,7 +316,7 @@ The experiment can also be run in parallel. For a more detailed walkthrough on h
 Finally, we can easily visualize all results from the simulation experiment in an html file (generated using R Markdown) or browser.
 
 ```{r warning = FALSE}
-create_rmd(experiment, open = FALSE)
+render_docs(experiment, open = FALSE)
 ```
 
 ```{r echo = FALSE, warning = FALSE, message = FALSE, results = "hide"}
@@ -333,7 +333,7 @@ file.copy(from = file.path(experiment$get_save_dir(),
 
 The results can be found [here](../linear_regression_base_output.html).
 
-Note that if the documentation template has not yet been created for `experiment` (e.g., via `create_doc_template(experiment)`), then `create_rmd()` will automatically create the documentation template for the user to fill out. Again, we highly encourage practitioners to document their simulation experiments in the spirit of transparency and reproducibility.
+Note that if the documentation template has not yet been created for `experiment` (e.g., via `init_docs(experiment)`), then `render_docs()` will automatically create the documentation template for the user to fill out. Again, we highly encourage practitioners to document their simulation experiments in the spirit of transparency and reproducibility.
 
 ## Running an experiment across varying parameters in the DGP/Method
 
@@ -478,13 +478,13 @@ vary_cor_results <- experiment %>%
 Now when generating the R Markdown report summary for an `Experiment`, the R Markdown will compile results (both evaluation and visualization results) from all saved `Experiments` under the root results directory `experiment$get_save_dir()`. Since the results from the many `vary_across` runs above are all saved under the original `experiment`'s results directory, then the following will include all of the above results in a single document.
 
 ```{r warning = FALSE}
-create_rmd(experiment, open = FALSE)
+render_docs(experiment, open = FALSE)
 ```
 
 Equivalently, we can create the same R Markdown report summary by directly specifying the experiment's root results directory.
 
 ```{r eval = FALSE}
-create_rmd(save_dir = experiment$get_save_dir(), open = FALSE)
+render_docs(save_dir = experiment$get_save_dir(), open = FALSE)
 ```
 
 ```{r echo = FALSE, warning = FALSE, message = FALSE, results = "hide"}
@@ -497,7 +497,7 @@ file.copy(from = file.path(experiment$get_save_dir(),
 
 The results can be found [here](../linear_regression_output.html).
 
-In addition to showing all results under the root results directory, `create_rmd()` will automatically generate a blank documentation template for every `DGP()`, `Method()`, `Evaluator()`, and `Visualizer()` found in any one of the `Experiments` under the root results directory. If one would like to generate the documentation template but not create the R Markdown report, see `create_doc_template()`.
+In addition to showing all results under the root results directory, `render_docs()` will automatically generate a blank documentation template for every `DGP()`, `Method()`, `Evaluator()`, and `Visualizer()` found in any one of the `Experiments` under the root results directory. If one would like to generate the documentation template but not create the R Markdown report, see `init_docs()`.
 
 # Simulation Experiment Templates
 
@@ -694,10 +694,10 @@ experiment$fit(n_reps = 100, checkpoint_n_reps = 25)
 ```
 ## Additional R Markdown notes and options
 
-There are several customizable options regarding the aesthetics of Evaluators and Visualizers displayed in the Rmd report. These can be modified using the `rmd_options` argument in `create_evaluator()` and `create_visualizer()`. For example, we can customize the height and width of the Power plot via
+There are several customizable options regarding the aesthetics of Evaluators and Visualizers displayed in the Rmd report. These can be modified using the `doc_options` argument in `create_evaluator()` and `create_visualizer()`. For example, we can customize the height and width of the Power plot via
 ```{r}
 power_plot <- create_visualizer(.viz_fun = power_plot_fun,
-                                .rmd_options = list(height = 10, width = 8))
+                                .doc_options = list(height = 10, width = 8))
 experiment <- experiment %>%
   update_visualizer(power_plot, "Power")
 ```
@@ -705,30 +705,30 @@ experiment <- experiment %>%
 and the number of digits in the evaluation table outputs via
 ```{r}
 reject_prob_eval <- create_evaluator(.eval_fun = reject_prob_fun, alpha = 0.1,
-                                     .rmd_options = list(digits = 3))
+                                     .doc_options = list(digits = 3))
 experiment <- experiment %>%
   update_evaluator(reject_prob_eval, "Rejection Prob. (alpha = 0.1)")
 ```
 
-Alternatively, `set_rmd_options()` can be used to update the R Markdown option for an existing object, rather than having to recreate the `Evaluator()` or `Visualizer()` from scratch, e.g.,
+Alternatively, `set_doc_options()` can be used to update the R Markdown option for an existing object, rather than having to recreate the `Evaluator()` or `Visualizer()` from scratch, e.g.,
 ```{r}
 experiment <- experiment %>%
-  set_rmd_options(field_name = "visualizer", name = "Power", show = TRUE,
+  set_doc_options(field_name = "visualizer", name = "Power", show = TRUE,
                   height = 10, width = 8)
 ```
 
-To hide the output of an `Evaluator()` or `Visualizer()` in the R Markdown report, set `show = FALSE` in `set_rmd_options()` or `create_*`.
+To hide the output of an `Evaluator()` or `Visualizer()` in the R Markdown report, set `show = FALSE` in `set_doc_options()` or `create_*`.
 
-There are additional customization options that can be set in `create_rmd()` including the order in which results of Evaluators and Visualizers are displayed (via the `eval_order` and `viz_order` arguments) and the Rmd output type or theme. For example,
+There are additional customization options that can be set in `render_docs()` including the order in which results of Evaluators and Visualizers are displayed (via the `eval_order` and `viz_order` arguments) and the Rmd output type or theme. For example,
 
 ```{r eval = FALSE}
 # use html_document instead of rmdformats::material (default)
-create_rmd(experiment, open = FALSE, pretty = FALSE,
-           output_format = rmarkdown::html_document())
+render_docs(experiment, open = FALSE, pretty = FALSE,
+            output_format = rmarkdown::html_document())
 
 # add custom css style
-create_rmd(experiment, open = FALSE, pretty = FALSE,
-           output_options = list(css = "path/to/file.css"))
+render_docs(experiment, open = FALSE, pretty = FALSE,
+            output_options = list(css = "path/to/file.css"))
 ```
 
 ## Saving results
