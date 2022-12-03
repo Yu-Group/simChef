@@ -4,7 +4,7 @@ pkgdown_sha: ~
 articles:
   parallel: parallel.html
   simChef: simChef.html
-last_built: 2022-12-03T20:49Z
+last_built: 2022-12-03T22:13Z
 urls:
   reference: https://yu-group.github.io/simChef/reference
   article: https://yu-group.github.io/simChef/articles
