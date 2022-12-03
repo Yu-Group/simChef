@@ -125,9 +125,9 @@
 <div class="section level3">
 <h3 id="simulation-study-documentation">Simulation study documentation<a class="anchor" aria-label="anchor" href="#simulation-study-documentation"></a>
 </h3>
-<p>When all of this is put together, the <code>Experiment</code> class can output an R Markdown document that is structured to provide a well-organized summary of a simulation study. Moreover, this document can contain multiple experiments, simply by using a common output path with each <code>Experiment</code> in the study. When the simulation is complete, you can use the <code><a href="reference/create_rmd.html">create_rmd()</a></code> helper to generate the documentation:</p>
+<p>When all of this is put together, the <code>Experiment</code> class can output an R Markdown document that is structured to provide a well-organized summary of a simulation study. Moreover, this document can contain multiple experiments, simply by using a common output path with each <code>Experiment</code> in the study. When the simulation is complete, you can use the <code><a href="reference/render_docs.html">render_docs()</a></code> helper to generate the documentation:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="reference/create_rmd.html">create_rmd</a></span><span class="op">(</span><span class="va">experiment</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="reference/render_docs.html">render_docs</a></span><span class="op">(</span><span class="va">experiment</span><span class="op">)</span></span></code></pre></div>
 <p>This results in an HTML document like the one shown below:</p>
 <div class="figure">
 <img src="reference/figures/simchef.gif" alt=""><p class="caption">Interactive R Markdown simulation documentation</p>

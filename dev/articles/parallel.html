@@ -84,41 +84,116 @@
 
     
     
-<p>Given the large amount of computation that simulation studies require, one of the main goals of <code>simChef</code> is to make it easy to parallelize your simulations. <code>simChef</code> uses the R package <a href="https://future.futureverse.org/" class="external-link"><code>future</code></a> to distribute simulation replicates across whatever available resources the user specifies. All you have to do to start running your simulations in parallel is set the <code>future</code> plan before calling <code><a href="../reference/run_experiment.html">run_experiment()</a></code>:</p>
+<p>Given the large amount of computation that simulation studies
+require, one of the main goals of <code>simChef</code> is to make it
+easy to parallelize your simulations. <code>simChef</code> uses the R
+package <a href="https://future.futureverse.org/" class="external-link"><code>future</code></a> to
+distribute simulation replicates across whatever available resources the
+user specifies. All you have to do to start running your simulations in
+parallel is set the <code>future</code> plan before calling
+<code><a href="../reference/run_experiment.html">run_experiment()</a></code>:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">n_workers</span> <span class="op">&lt;-</span> <span class="fu">availableCores</span><span class="op">(</span><span class="op">)</span> <span class="op">-</span> <span class="fl">1</span></span>
 <span><span class="fu">plan</span><span class="op">(</span><span class="va">multisession</span>, workers <span class="op">=</span> <span class="va">n_workers</span><span class="op">)</span></span></code></pre></div>
-<p>The <code>multisession</code> plan used here will run your simulation experiments on a local (i.e., where R is running) Linux, macOS, or Windows machine, in this case using all but one of the cores. This is very convenient, but it’s important to carefully consider two aspects of the distributed computation in order to effectively parallelize the simulations: <em>what</em> plan to use and <em>how</em> to use it.</p>
-<p>While <code>simChef</code> works with any valid <code>future</code> plan, one may be better than another for your particular set of experiments. We recommend you carefully read the <code>future</code> <a href="https://future.futureverse.org/articles/future-1-overview.html#controlling-how-futures-are-resolved" class="external-link">docs</a> to learn more about the default plans, as well as alternative plans in packages like <a href="https://future.callr.futureverse.org" class="external-link"><code>future.callr</code></a> and <a href="https://future.batchtools.futureverse.org" class="external-link"><code>future.batchtools</code></a>.</p>
+<p>The <code>multisession</code> plan used here will run your simulation
+experiments on a local (i.e., where R is running) Linux, macOS, or
+Windows machine, in this case using all but one of the cores. This is
+very convenient, but it’s important to carefully consider two aspects of
+the distributed computation in order to effectively parallelize the
+simulations: <em>what</em> plan to use and <em>how</em> to use it.</p>
+<p>While <code>simChef</code> works with any valid <code>future</code>
+plan, one may be better than another for your particular set of
+experiments. We recommend you carefully read the <code>future</code> <a href="https://future.futureverse.org/articles/future-1-overview.html#controlling-how-futures-are-resolved" class="external-link">docs</a>
+to learn more about the default plans, as well as alternative plans in
+packages like <a href="https://future.callr.futureverse.org" class="external-link"><code>future.callr</code></a>
+and <a href="https://future.batchtools.futureverse.org" class="external-link"><code>future.batchtools</code></a>.</p>
 <div class="section level2">
 <h2 id="simulation-tasks">Simulation tasks<a class="anchor" aria-label="anchor" href="#simulation-tasks"></a>
 </h2>
-<p>When a <code>future</code> plan has been set and the user calls <code>run_experiment</code>, <code>simChef</code> will distribute computation across the resources specified in the plan. Consider <code>n</code> computational “tasks” to be distributed across <code>p</code> parallel workers. In <code>simChef</code>, tasks correspond to simulation replicates, which generate data from a single <code>DGP</code> and fit that data using a single <code>Method</code>, along with associated parameters (either defaults or from those that have been varied in the <code>Experiment</code>).</p>
-<p>Assuming each task takes approximately the same amount of time to complete regardless of the worker assigned to the task, then with <code>n=100</code> and <code>p=4</code> each worker should complete around 25 of the tasks. In the ideal setting, the total time to complete the 100 tasks should be around 4 times lower than the time it takes one worker to complete them, on average.</p>
+<p>When a <code>future</code> plan has been set and the user calls
+<code>run_experiment</code>, <code>simChef</code> will distribute
+computation across the resources specified in the plan. Consider
+<code>n</code> computational “tasks” to be distributed across
+<code>p</code> parallel workers. In <code>simChef</code>, tasks
+correspond to simulation replicates, which generate data from a single
+<code>DGP</code> and fit that data using a single <code>Method</code>,
+along with associated parameters (either defaults or from those that
+have been varied in the <code>Experiment</code>).</p>
+<p>Assuming each task takes approximately the same amount of time to
+complete regardless of the worker assigned to the task, then with
+<code>n=100</code> and <code>p=4</code> each worker should complete
+around 25 of the tasks. In the ideal setting, the total time to complete
+the 100 tasks should be around 4 times lower than the time it takes one
+worker to complete them, on average.</p>
 <div class="section level3">
 <h3 id="dealing-with-task-heterogeneity">Dealing with task heterogeneity<a class="anchor" aria-label="anchor" href="#dealing-with-task-heterogeneity"></a>
 </h3>
-<p>In more realistic scenarios–and especially in simulation experiments which often include heterogeneous methods compared under diverse data-generated processes for a range of sample sizes–tasks can be much less uniform. Different groupings of tasks can have profound implications for the overall running time. Therefore, it’s important to carefully decide how to arrange your simulation into separate experiments in order to take greatest advantage of the available parallelism.</p>
-<p><code>simChef</code> distributes the simulation’s replicates evenly across available <code>future</code> workers, partially answering the <em>how</em> question. The remainder of the answer comes from you and your specific application, but here are a couple tips:</p>
+<p>In more realistic scenarios–and especially in simulation experiments
+which often include heterogeneous methods compared under diverse
+data-generated processes for a range of sample sizes–tasks can be much
+less uniform. Different groupings of tasks can have profound
+implications for the overall running time. Therefore, it’s important to
+carefully decide how to arrange your simulation into separate
+experiments in order to take greatest advantage of the available
+parallelism.</p>
+<p><code>simChef</code> distributes the simulation’s replicates evenly
+across available <code>future</code> workers, partially answering the
+<em>how</em> question. The remainder of the answer comes from you and
+your specific application, but here are a couple tips:</p>
 <ul>
-<li>In general, one should not have fewer tasks than workers and should avoid <code>n&gt;&gt;p</code> very small tasks as the overhead of distributing computation to workers may outweigh the benefits of parallelism.</li>
-<li>When tasks have unbalanced sizes, it can be helpful to group tasks into separate experiments, each of which has tasks of roughly equal duration. In spite of the extra overhead, you may find that using a separate <code>Experiment</code> for each task group ends up decreasing the overall simulation running time because workers with small tasks spend less time idly waiting for workers with large tasks to finish. Using the <code>clone_from</code> argument in <code><a href="../reference/create_experiment.html">create_experiment()</a></code>, you can copy an existing experiment and modify it so that tasks have similar sizes, repeating this process for each group of similarly-sized tasks.</li>
-<li>You can use the <a href="https://progressr.futureverse.org/" class="external-link"><code>progressr</code></a> package to get updates as the experiment computation progresses.</li>
-<li>Use <code>options(simChef.debug = TRUE)</code> to get helpful debugging output as an <code>Experiment</code> works on it’s tasks, including info on memory usage. This may slow things down quite a bit, so don’t use it when you run the full simulation.</li>
+<li>In general, one should not have fewer tasks than workers and should
+avoid <code>n&gt;&gt;p</code> very small tasks as the overhead of
+distributing computation to workers may outweigh the benefits of
+parallelism.</li>
+<li>When tasks have unbalanced sizes, it can be helpful to group tasks
+into separate experiments, each of which has tasks of roughly equal
+duration. In spite of the extra overhead, you may find that using a
+separate <code>Experiment</code> for each task group ends up decreasing
+the overall simulation running time because workers with small tasks
+spend less time idly waiting for workers with large tasks to finish.
+Using the <code>clone_from</code> argument in
+<code><a href="../reference/create_experiment.html">create_experiment()</a></code>, you can copy an existing experiment
+and modify it so that tasks have similar sizes, repeating this process
+for each group of similarly-sized tasks.</li>
+<li>You can use the <a href="https://progressr.futureverse.org/" class="external-link"><code>progressr</code></a>
+package to get updates as the experiment computation progresses.</li>
+<li>Use <code>options(simChef.debug = TRUE)</code> to get helpful
+debugging output as an <code>Experiment</code> works on it’s tasks,
+including info on memory usage. This may slow things down quite a bit,
+so don’t use it when you run the full simulation.</li>
 </ul>
 </div>
 <div class="section level3">
 <h3 id="on-the-roadmap-nested-parallelism">On the roadmap: nested parallelism<a class="anchor" aria-label="anchor" href="#on-the-roadmap-nested-parallelism"></a>
 </h3>
-<p>In the future we plan to give more control over how the user splits the computation across workers, with nested parallelism for cases where, e.g., <code>DGPs</code> can be split across a few nodes (e.g., using one of the plan in the package <a href="https://future.batchtools.futureverse.org/" class="external-link"><code>future.batchtools</code></a>) and each node uses many cores to process the replicates in parallel (e.g., using the <code><a href="https://future.futureverse.org/reference/multicore.html" class="external-link">future::multicore</a></code> plan).</p>
-<p>If this is something you’re interested in, please feel free to contribute to the discussion at <a href="https://github.com/Yu-Group/simChef/issues/54" class="external-link uri">https://github.com/Yu-Group/simChef/issues/54</a>.</p>
+<p>In the future we plan to give more control over how the user splits
+the computation across workers, with nested parallelism for cases where,
+e.g., <code>DGPs</code> can be split across a few nodes (e.g., using one
+of the plan in the package <a href="https://future.batchtools.futureverse.org/" class="external-link"><code>future.batchtools</code></a>)
+and each node uses many cores to process the replicates in parallel
+(e.g., using the <code><a href="https://future.futureverse.org/reference/multicore.html" class="external-link">future::multicore</a></code> plan).</p>
+<p>If this is something you’re interested in, please feel free to
+contribute to the discussion at <a href="https://github.com/Yu-Group/simChef/issues/54" class="external-link uri">https://github.com/Yu-Group/simChef/issues/54</a>.</p>
 </div>
 </div>
 <div class="section level2">
 <h2 id="example">Example<a class="anchor" aria-label="anchor" href="#example"></a>
 </h2>
-<p>Putting aside the caveats above for now, parallelization in <code>simChef</code> works without modification other than using <code>future</code> to set a parallel backend. In the example below, we choose the <code>multicore</code> backend (not available on Windows) to create forked R processes using all of the available cores.</p>
-<p>This example shows how total replicates can quickly add up when varying across <code>DGP</code> or <code>Method</code> parameters. By varying across parameters of one of the <code>DGPs</code>, we in effect have 17 distinct data generating processes in the experiment (1 for <code>dgp1</code> and 16 for the combinations of parameters to <code>dgp2</code>), though in actuality there are only two <code>DGP</code> objects. Similarly, we effectively have 4 distinct methods, though there are only 2 <code>Method</code> objects. With <code>n_reps = 2</code>, this results in a total of 2 x 17 x 4 = 136 total rows in the results <code>tibble</code>.</p>
+<p>Putting aside the caveats above for now, parallelization in
+<code>simChef</code> works without modification other than using
+<code>future</code> to set a parallel backend. In the example below, we
+choose the <code>multicore</code> backend (not available on Windows) to
+create forked R processes using all of the available cores.</p>
+<p>This example shows how total replicates can quickly add up when
+varying across <code>DGP</code> or <code>Method</code> parameters. By
+varying across parameters of one of the <code>DGPs</code>, we in effect
+have 17 distinct data generating processes in the experiment (1 for
+<code>dgp1</code> and 16 for the combinations of parameters to
+<code>dgp2</code>), though in actuality there are only two
+<code>DGP</code> objects. Similarly, we effectively have 4 distinct
+methods, though there are only 2 <code>Method</code> objects. With
+<code>n_reps = 2</code>, this results in a total of 2 x 17 x 4 = 136
+total rows in the results <code>tibble</code>.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://yu-group.github.io/simChef">simChef</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://future.futureverse.org" class="external-link">future</a></span><span class="op">)</span></span>
@@ -201,7 +276,7 @@
 <span></span>
 <span><span class="va">results</span> <span class="op">&lt;-</span> <span class="va">experiment</span><span class="op">$</span><span class="fu">fit</span><span class="op">(</span>n_reps <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Fitting exper...</span></span>
-<span><span class="co">#&gt; 2 reps completed (totals: 2/2) | time taken: 0.733123 minutes</span></span>
+<span><span class="co">#&gt; 2 reps completed (totals: 2/2) | time taken: 0.839235 minutes</span></span>
 <span><span class="co">#&gt; ==============================</span></span>
 <span><span class="va">results</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 136 × 16</span></span></span>
@@ -221,7 +296,12 @@
 <span><span class="co">#&gt; <span style="color: #949494;">#   step &lt;list&gt;, lambda &lt;list&gt;, dev.ratio &lt;list&gt;, and abbreviated variable</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;">#   names ¹​.dgp_name, ²​.method_name, ³​sparsity, ⁴​nonzero_coeff, ⁵​estimate,</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;">#   ⁶​std.error</span></span></span></code></pre></div>
-<p>If we find lower computational resource utilization than we’d like, as the simulation grows we might consider breaking this experiment up into separate experiments, e.g., by DGP, method, or parameters like sample size <code>n</code> and number of covariates <code>d</code>, depending on which factors have the greatest impact on task duration.</p>
+<p>If we find lower computational resource utilization than we’d like,
+as the simulation grows we might consider breaking this experiment up
+into separate experiments, e.g., by DGP, method, or parameters like
+sample size <code>n</code> and number of covariates <code>d</code>,
+depending on which factors have the greatest impact on task
+duration.</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside>

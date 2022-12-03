@@ -164,7 +164,7 @@ Method example, rather than a fill-in-the-blank template.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   add_evaluator(pred_err) %&gt;% </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   add_visualizer(pred_err_plot) </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> create_doc_template(experiment)  #&gt; fill out documentation before proceeding!</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> init_docs(experiment)  #&gt; fill out documentation before proceeding!</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> results &lt;- run_experiment(</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   experiment = experiment,</span>
@@ -172,7 +172,7 @@ Method example, rather than a fill-in-the-blank template.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   save = TRUE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ) </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> create_rmd(experiment)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> render_docs(experiment)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span><span class="fu">use_prediction_template</span><span class="op">(</span>type <span class="op">=</span> <span class="st">"classification"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> dgp &lt;- create_dgp(</span>
@@ -234,7 +234,7 @@ Method example, rather than a fill-in-the-blank template.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   add_visualizer(roc_plot) %&gt;% </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   add_visualizer(pr_plot) </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> create_doc_template(experiment)  #&gt; fill out documentation before proceeding!</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> init_docs(experiment)  #&gt; fill out documentation before proceeding!</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> results &lt;- run_experiment(</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   experiment = experiment,</span>
@@ -242,7 +242,7 @@ Method example, rather than a fill-in-the-blank template.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   save = TRUE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ) </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> create_rmd(experiment)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> render_docs(experiment)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># prediction templates with example DGP and Method</span></span></span>
@@ -333,7 +333,7 @@ Method example, rather than a fill-in-the-blank template.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   add_evaluator(pred_err) %&gt;% </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   add_visualizer(pred_err_plot) </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> create_doc_template(experiment)  #&gt; fill out documentation before proceeding!</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> init_docs(experiment)  #&gt; fill out documentation before proceeding!</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> results &lt;- run_experiment(</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   experiment = experiment,</span>
@@ -341,7 +341,7 @@ Method example, rather than a fill-in-the-blank template.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   save = TRUE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ) </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> create_rmd(experiment)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> render_docs(experiment)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span><span class="fu">use_prediction_template</span><span class="op">(</span>type <span class="op">=</span> <span class="st">"classification"</span>, </span></span>
 <span class="r-in"><span>                        include_dgp_example <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
@@ -450,7 +450,7 @@ Method example, rather than a fill-in-the-blank template.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   add_visualizer(roc_plot) %&gt;% </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   add_visualizer(pr_plot) </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> create_doc_template(experiment)  #&gt; fill out documentation before proceeding!</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> init_docs(experiment)  #&gt; fill out documentation before proceeding!</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> results &lt;- run_experiment(</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   experiment = experiment,</span>
@@ -458,7 +458,7 @@ Method example, rather than a fill-in-the-blank template.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   save = TRUE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ) </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> create_rmd(experiment)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> render_docs(experiment)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># feature selection template</span></span></span>
@@ -519,7 +519,7 @@ Method example, rather than a fill-in-the-blank template.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   add_visualizer(fi_plot) %&gt;% </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   add_visualizer(feature_sel_plot) </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> create_doc_template(experiment)  #&gt; fill out documentation before proceeding!</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> init_docs(experiment)  #&gt; fill out documentation before proceeding!</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> results &lt;- run_experiment(</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   experiment = experiment,</span>
@@ -527,7 +527,7 @@ Method example, rather than a fill-in-the-blank template.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   save = TRUE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ) </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> create_rmd(experiment)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> render_docs(experiment)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span><span class="co"># feature selection template with example DGP and Method</span></span></span>
 <span class="r-in"><span><span class="fu">use_feature_selection_template</span><span class="op">(</span>include_dgp_example <span class="op">=</span> <span class="cn">TRUE</span>, </span></span>
@@ -635,7 +635,7 @@ Method example, rather than a fill-in-the-blank template.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   add_visualizer(fi_plot) %&gt;% </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   add_visualizer(feature_sel_plot) </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> create_doc_template(experiment)  #&gt; fill out documentation before proceeding!</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> init_docs(experiment)  #&gt; fill out documentation before proceeding!</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> results &lt;- run_experiment(</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   experiment = experiment,</span>
@@ -643,7 +643,7 @@ Method example, rather than a fill-in-the-blank template.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   save = TRUE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ) </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> create_rmd(experiment)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> render_docs(experiment)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># inference template</span></span></span>
@@ -724,7 +724,7 @@ Method example, rather than a fill-in-the-blank template.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   add_visualizer(inf_pr_plot) %&gt;% </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   add_visualizer(reject_prob_plot) </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> create_doc_template(experiment)  #&gt; fill out documentation before proceeding!</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> init_docs(experiment)  #&gt; fill out documentation before proceeding!</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> results &lt;- run_experiment(</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   experiment = experiment,</span>
@@ -732,7 +732,7 @@ Method example, rather than a fill-in-the-blank template.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   save = TRUE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ) </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> create_rmd(experiment)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> render_docs(experiment)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span><span class="co"># inference template with example DGP and Method</span></span></span>
 <span class="r-in"><span><span class="fu">use_inference_template</span><span class="op">(</span>include_dgp_example <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
@@ -840,7 +840,7 @@ Method example, rather than a fill-in-the-blank template.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   add_visualizer(inf_pr_plot) %&gt;% </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   add_visualizer(reject_prob_plot) </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> create_doc_template(experiment)  #&gt; fill out documentation before proceeding!</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> init_docs(experiment)  #&gt; fill out documentation before proceeding!</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> results &lt;- run_experiment(</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   experiment = experiment,</span>
@@ -848,7 +848,7 @@ Method example, rather than a fill-in-the-blank template.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   save = TRUE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ) </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> create_rmd(experiment)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> render_docs(experiment)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
