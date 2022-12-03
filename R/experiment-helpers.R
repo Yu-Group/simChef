@@ -535,6 +535,23 @@ set_doc_options <- function(experiment, field_name = c("evaluator", "visualizer"
                              ...)
 }
 
+#' Set R Markdown options for \code{Evaluator} and \code{Visualizer} outputs in
+#'   summary report.
+#'
+#' @description
+#' `r lifecycle::badge("deprecated")`
+#'
+#' `set_rmd_options()` was renamed to `set_doc_options()` to create a more
+#' consistent API.
+#'
+#' @keywords internal
+#' @export
+set_rmd_options <- function(experiment, field_name = c("evaluator", "visualizer"),
+                            name, show = NULL, ...) {
+  lifecycle::deprecate_warn("0.1.0", "set_rmd_options()", "set_doc_options()")
+  set_doc_options(experiment, field_name, name, show, ...)
+}
+
 #' Set results directory for an \code{Experiment}.
 #'
 #' @name set_save_dir

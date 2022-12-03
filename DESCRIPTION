@@ -24,6 +24,7 @@ Imports:
     fontawesome,
     future,
     future.apply,
+    lifecycle,
     magrittr,
     methods,
     purrr,
