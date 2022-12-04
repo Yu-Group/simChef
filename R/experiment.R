@@ -746,30 +746,46 @@ Experiment <- R6::R6Class(
       }
 
       if (!private$.has_vary_across()) {
-        dgp_results <- purrr::map(dgp_list, function(dgp) {
+        dgp_results <- purrr::map_dfr(dgp_list, function(dgp) {
           replicates <- replicate(n_reps, {
             return(dgp$generate())
-          }, simplify = FALSE)
-        })
+          }, simplify = FALSE) %>%
+            # convert list of data to tibble
+            setNames(1:n_reps) %>%
+            purrr::map_dfr(~list(.data_output = .x), .id = ".rep")
+        }, .id = ".dgp_name")
       } else {
         dgp_params_list <- private$.combine_vary_params("dgp")
         dgp_names <- purrr::map_chr(dgp_params_list, ".dgp_name") %>%
           unique() %>%
           setNames(., .)
-        dgp_results <- purrr::map(dgp_names, function(dgp_name) {
+        dgp_results <- purrr::map_dfr(dgp_names, function(dgp_name) {
           keep_dgps <- purrr::map_chr(dgp_params_list, ".dgp_name") == dgp_name
           keep_dgp_params_list <- dgp_params_list[keep_dgps]
-          purrr::map(keep_dgp_params_list, function(dgp_params) {
+          purrr::map_dfr(keep_dgp_params_list, function(dgp_params) {
             dgp_params$.dgp_name <- NULL
             replicates <- replicate(n_reps, {
               sim_data <- do.call(dgp_list[[dgp_name]]$generate, dgp_params)
               return(sim_data)
-            }, simplify = FALSE)
-            attr(replicates, "params") <- dgp_params
+            }, simplify = FALSE) %>%
+              setNames(1:n_reps) %>%
+              purrr::map_dfr(~list(.data_output = .x), .id = ".rep")
+            if (length(dgp_params) > 0) {
+              replicates <- dplyr::bind_cols(
+                dgp_params %>%
+                  list_to_tibble_row() %>%
+                  simplify_tibble(),
+                replicates
+              )
+            }
             replicates
           })
-        })
+        }, .id = ".dgp_name")
       }
+
+      dgp_results <- dgp_results %>%
+        dplyr::select(.rep, .dgp_name, tidyselect::everything()) %>%
+        dplyr::relocate(.data_output, .after = tidyselect::last_col())
       return(dgp_results)
     },
     fit = function(n_reps = 1, parallel_strategy = "reps",

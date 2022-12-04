@@ -288,43 +288,99 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
 
     dgp_fun1 <- function(x, y = NULL) x + 1
     dgp_fun2 <- function(x, y = NULL) x + 2
+    dgp_fun3 <- function(x, y = NULL) data.frame(a = x)
     dgp1 <- DGP$new(dgp_fun1, x = 1)
     dgp2 <- DGP$new(dgp_fun2, x = 1)
+    dgp3 <- DGP$new(dgp_fun3, x = 1)
 
     method_fun1 <- function(x, y = NULL) x * 1
     method1 <- Method$new(method_fun1)
 
     # with one dgp
     experiment <- create_experiment(name = "test-generate-data") %>%
+      add_dgp(dgp3, "DGP3")
+    expect_equal(generate_data(experiment),
+                 tibble::tibble(
+                   .rep = "1",
+                   .dgp_name = "DGP3",
+                   .data_output = list(data.frame(a = 1))
+                 ))
+    experiment <- create_experiment(name = "test-generate-data") %>%
       add_dgp(dgp1, "DGP1")
-    expect_equal(generate_data(experiment), list(DGP1 = list(list(2))))
+    expect_equal(generate_data(experiment),
+                 tibble::tibble(
+                   .rep = "1",
+                   .dgp_name = "DGP1",
+                   .data_output = list(2)
+                 ))
     expect_equal(generate_data(experiment, n_reps = 2),
-                 list(DGP1 = list(list(2), list(2))))
+                 tibble::tibble(
+                   .rep = as.character(1:2),
+                   .dgp_name = "DGP1",
+                   .data_output = list(2, 2)
+                 ))
 
     # with two dgps
     experiment %>% add_dgp(dgp2, "DGP2")
-    expect_equal(generate_data(experiment), list(DGP1 = list(list(2)),
-                                                 DGP2 = list(list(3))))
+    expect_equal(generate_data(experiment),
+                 tibble::tibble(
+                   .rep = "1",
+                   .dgp_name = c("DGP1", "DGP2"),
+                   .data_output = list(2, 3)
+                 ))
     expect_equal(generate_data(experiment, n_reps = 2),
-                 list(DGP1 = list(list(2), list(2)),
-                      DGP2 = list(list(3), list(3))))
+                 tibble::tibble(
+                   .rep = rep(as.character(1:2), times = 2),
+                   .dgp_name = rep(c("DGP1", "DGP2"), each = 2),
+                   .data_output = list(2, 2, 3, 3)
+                 ))
 
     # varying across one dgp
     experiment %>% add_vary_across(.dgp = "DGP1", x = c(1, 2))
-    expect_equal(length(generate_data(experiment)), 2)
-    expect_snapshot_output(generate_data(experiment))
-    expect_equal(length(unlist(generate_data(experiment, n_reps = 3))), 9)
-    expect_equal(length(unlist(generate_data(experiment, n_reps = 3)$DGP1)), 6)
-    expect_snapshot_output(generate_data(experiment, n_reps = 3))
+    expect_equal(nrow(generate_data(experiment)), 3)
+    expect_equal(
+      generate_data(experiment),
+      tibble::tibble(
+        .rep = "1",
+        .dgp_name = c("DGP1", "DGP1", "DGP2"),
+        x = c(1, 2, NA),
+        .data_output = list(2, 3, 3)
+      )
+    )
+    expect_equal(nrow(generate_data(experiment, n_reps = 3)), 9)
+    expect_equal(
+      generate_data(experiment, n_reps = 3),
+      tibble::tibble(
+        .rep = as.character(rep(1:3, times = 3)),
+        .dgp_name = rep(c("DGP1", "DGP1", "DGP2"), each = 3),
+        x = rep(c(1, 2, NA), each = 3),
+        .data_output = list(2, 2, 2, 3, 3, 3, 3, 3, 3)
+      )
+    )
 
     # varying across two dgp
     experiment %>% add_vary_across(.dgp = "DGP2", x = c(1, 2, 3))
-    expect_equal(length(generate_data(experiment)), 2)
-    expect_snapshot_output(generate_data(experiment))
+    expect_equal(nrow(generate_data(experiment)), 5)
+    expect_equal(
+      generate_data(experiment),
+      tibble::tibble(
+        .rep = "1",
+        .dgp_name = c(rep("DGP1", 2), rep("DGP2", 3)),
+        x = c(1:2, 1:3),
+        .data_output = list(2, 3, 3, 4, 5)
+      )
+    )
     data_out <- generate_data(experiment, n_reps = 3)
-    expect_equal(length(unlist(data_out)), 15)
-    expect_equal(length(unlist(data_out$DGP2)), 9)
-    expect_snapshot_output(data_out)
+    expect_equal(nrow(data_out), 15)
+    expect_equal(
+      data_out,
+      tibble::tibble(
+        .rep = as.character(rep(1:3, 5)),
+        .dgp_name = c(rep("DGP1", 6), rep("DGP2", 9)),
+        x = c(rep(1:2, each = 3), rep(1:3, each = 3)),
+        .data_output = list(2, 2, 2, 3, 3, 3, 3, 3, 3, 4, 4, 4, 5, 5, 5)
+      )
+    )
 
     # adding method does not affect data output
     experiment %>%
@@ -334,15 +390,27 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
 
     # varying across two parameters in dgp
     experiment %>%
-      add_vary_across(.dgp = "DGP1", y = c(1, 2))
-    expect_snapshot_output(generate_data(experiment))
-    expect_equal(length(unlist(generate_data(experiment))), 7)
-    expect_equal(length(unlist(generate_data(experiment)$DGP1)), 4)
-    expect_equal(length(unlist(generate_data(experiment, n_reps = 2)$DGP1)), 8)
-    expect_snapshot_output(generate_data(experiment, n_reps = 2))
-    expect_equal(generate_data(experiment, n_reps = 2),
-                 experiment$generate_data(n_reps = 2))
-
+      add_vary_across(.dgp = "DGP2", y = c(1, 2))
+    expect_equal(
+      generate_data(experiment),
+      tibble::tibble(
+        .rep = "1",
+        .dgp_name = c(rep("DGP1", 2), rep("DGP2", 6)),
+        x = c(1:2, rep(1:3, times = 2)),
+        y = c(NA, NA, rep(1:2, each = 3)),
+        .data_output = list(2, 3, 3, 4, 5, 3, 4, 5)
+      )
+    )
+    expect_equal(
+      generate_data(experiment, n_reps = 2),
+      tibble::tibble(
+        .rep = as.character(rep(1:2, 8)),
+        .dgp_name = c(rep("DGP1", 4), rep("DGP2", 12)),
+        x = rep(c(1:2, rep(1:3, times = 2)), each = 2),
+        y = rep(c(NA, NA, rep(1:2, each = 3)), each = 2),
+        .data_output = list(2, 2, 3, 3, 3, 3, 4, 4, 5, 5, 3, 3, 4, 4, 5, 5)
+      )
+    )
   })
 
   test_that("Fitting experiment works properly", {
