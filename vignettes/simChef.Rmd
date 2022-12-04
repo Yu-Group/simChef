@@ -692,6 +692,23 @@ experiment$fit(n_reps = 100, checkpoint_n_reps = 25)
 #> Fit results saved | time taken: 0.124632 seconds
 #> ==============================
 ```
+
+## Setting global plotting theme for built-in `Visualizers`
+
+By default, all `Visualizers` in the built-in `simChef` library use the default `ggplot` theme when plotting. To modify this plotting theme (for all built-in `Visualizers` and any `Visualizer` built upon `plot_eval_summary()`), one can change the `simChef.plot_theme` global option.
+
+For instance, to use the [vthemes](https://yu-group.github.io/vthemes/) plotting theme:
+
+```{r eval = FALSE}
+options(simChef.plot_theme = "vthemes")  # to use the vthemes plotting theme (see)
+```
+
+More generally, one can specify any `ggplot::theme()` object.
+
+```{r eval = FALSE}
+options(simChef.plot_theme = ggplot2::theme_minimal())
+```
+
 ## Additional R Markdown notes and options
 
 There are several customizable options regarding the aesthetics of Evaluators and Visualizers displayed in the Rmd report. These can be modified using the `doc_options` argument in `create_evaluator()` and `create_visualizer()`. For example, we can customize the height and width of the Power plot via

@@ -6,9 +6,7 @@ header-includes:
     - \usepackage{float}
     - \usepackage{amsmath}
     - \usepackage{gensymb}
-output:
-  vthemes::vmodern:
-    thumbnails: false
+output: vthemes::vmodern
 css: css/simchef.css
 params:
   author: 

@@ -365,14 +365,23 @@ plot_eval_summary <- function(fit_results, eval_tib = NULL, eval_id = NULL,
                   args = c(list(facets = facet_formula), facet_args))
       }
     }
+
     # add theme
-    plt <- plt + vthemes::theme_vmodern()
-    if (!is.null(color_str)) {
-      discrete <- !is.numeric(plt_df[[color_str]])
-      plt <- plt + 
-        vthemes::scale_color_vmodern(discrete = discrete) +
-        vthemes::scale_fill_vmodern(discrete = discrete)
+    plot_theme <- getOption("simChef.plot_theme", "default")
+    if (!identical(plot_theme, "default")) {
+      if (identical(plot_theme, "vthemes")) {
+        plt <- plt + vthemes::theme_vmodern()
+        if (!is.null(color_str)) {
+          discrete <- !is.numeric(plt_df[[color_str]])
+          plt <- plt +
+            vthemes::scale_color_vmodern(discrete = discrete) +
+            vthemes::scale_fill_vmodern(discrete = discrete)
+        }
+      } else {
+        plt <- plt + plot_theme
+      }
     }
+
     # add labels
     labels_ls <- purrr::map(
       list(x = x_str, y = y_str, color = color_str),
