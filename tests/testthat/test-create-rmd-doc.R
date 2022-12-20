@@ -203,6 +203,10 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
                       show = FALSE)
     results <- run_experiment(experiment, save = TRUE, verbose = 0)
 
+    experiment <- experiment %>%
+      add_vary_across(.dgp = "DGP", x = 1:3)
+    results <- run_experiment(experiment, save = TRUE, verbose = 0)
+
     expect_error(render_docs(experiment, open = FALSE, verbose = 0), NA)
     expect_snapshot(render_docs(experiment, open = FALSE))
 
