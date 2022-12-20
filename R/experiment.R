@@ -1504,7 +1504,17 @@ Experiment <- R6::R6Class(
       invisible(self)
     },
     save = function() {
-      save_dir <- self$get_save_dir()
+      if (!private$.has_vary_across()) {
+        save_dir <- private$.save_dir
+      } else {
+        obj_names <- purrr::map(private$.vary_across_list, names) %>%
+          purrr::reduce(c) %>%
+          paste(collapse = "-")
+        param_names <- private$.get_vary_params() %>%
+          paste(collapse = "-")
+        save_dir <- file.path(private$.save_dir, obj_names,
+                              paste("Varying", param_names))
+      }
       if (!dir.exists(save_dir)) {
         dir.create(save_dir, recursive = TRUE)
       }
