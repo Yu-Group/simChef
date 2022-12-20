@@ -11,6 +11,14 @@
          Visualizer (height = 6)
          Visualizer (height = 3)
          Visualizer (height = 9)
+      *DGP
+      **Varying x
+         Evaluator (digits = 2)
+         Evaluator (digits = 3)
+         Evaluator (digits = 4)
+         Visualizer (height = 6)
+         Visualizer (height = 3)
+         Visualizer (height = 9)
 
 ---
 
