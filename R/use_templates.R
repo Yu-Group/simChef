@@ -56,7 +56,19 @@ use_prediction_template <- function(experiment_name = "Prediction Experiment",
                                     include_dgp_example = FALSE,
                                     include_method_example = FALSE) {
   type <- match.arg(type)
-  
+
+  github_packages <- NULL
+  # if (include_dgp_example) {
+  #   github_packages <- "Yu-Group/dgpoix"
+  # }
+  cran_packages <- NULL
+  if (include_method_example) {
+    cran_packages <- c("dplyr", "purrr", "ranger")
+  }
+  req_packages <- use_library_template(
+    cran_packages = cran_packages, github_packages = github_packages
+  )
+
   if (include_dgp_example) {
     dgp_names <- use_dgp_template(ids = paste0(type, "-example"))
   } else {
@@ -192,7 +204,19 @@ use_feature_selection_template <- function(experiment_name =
                                              "Feature Selection Experiment",
                                            include_dgp_example = FALSE,
                                            include_method_example = FALSE) {
-  
+
+  github_packages <- NULL
+  # if (include_dgp_example) {
+  #   github_packages <- "Yu-Group/dgpoix"
+  # }
+  cran_packages <- NULL
+  if (include_method_example) {
+    cran_packages <- c("dplyr", "purrr", "ranger")
+  }
+  req_packages <- use_library_template(
+    cran_packages = cran_packages, github_packages = github_packages
+  )
+
   if (include_dgp_example) {
     dgp_names <- use_dgp_template(ids = "regression-example")
   } else {
@@ -277,9 +301,22 @@ use_feature_selection_template <- function(experiment_name =
 use_inference_template <- function(experiment_name = "Inference Experiment",
                                    include_dgp_example = FALSE,
                                    include_method_example = FALSE) {
-  
+
+  github_packages <- NULL
+  # if (include_dgp_example) {
+  #   github_packages <- "Yu-Group/dgpoix"
+  # }
+  cran_packages <- NULL
+  if (include_method_example) {
+    cran_packages <- "broom"
+  }
+  req_packages <- use_library_template(
+    cran_packages = cran_packages, github_packages = github_packages
+  )
+
   if (include_dgp_example) {
-    dgp_names <- use_dgp_template(ids = "regression-example")
+    dgp_names <- use_dgp_template(ids = "regression-example",
+                                  data_split = FALSE)
   } else {
     dgp_names <- use_dgp_template()
   }
@@ -351,17 +388,47 @@ use_inference_template <- function(experiment_name = "Inference Experiment",
   return(invisible(NULL))
 }
 
+#' Function to create boilerplate code for loading in packages
+#'
+#' @keywords internal
+use_library_template <- function(cran_packages = NULL,
+                                 github_packages = NULL) {
+  library_str <- NULL
+  if (!is.null(cran_packages)) {
+    for (pkg in cran_packages) {
+      library_str <- paste0(
+        library_str,
+        sprintf("if (!require('%s')) install.packages('%s')\n", pkg, pkg)
+      )
+    }
+  }
+  if (!is.null(github_packages)) {
+    for (pkg in github_packages) {
+      library_str <- paste0(
+        library_str,
+        sprintf("if (!require('%s')) devtools::install_github('%s')\n",
+                basename(pkg), pkg)
+      )
+    }
+  }
+
+  if (!is.null(library_str)) {
+    cat(library_str, "\n\n")
+  }
+  return("library")
+}
+
 #' Function to create boilerplate code for creating DGPs.
 #' 
 #' @keywords internal
-use_dgp_template <- function(ids = NULL) {
+use_dgp_template <- function(ids = NULL, data_split = TRUE) {
   if (is.null(ids)) {
     dgp_str <- create_fun_str(
       name = "dgp",
       fun = "create_dgp",
       args = list(
-        dgp_fun = "stop('Add DGP function here.')",
-        name = "stop('Add name of DGP here.')",
+        .dgp_fun = "stop('Add DGP function here.')",
+        .name = "stop('Add name of DGP here.')",
         "stop('Add additional arguments (if necessary) to pass to DGP here.')"
       )
     )
@@ -369,35 +436,121 @@ use_dgp_template <- function(ids = NULL) {
     ids <- match.arg(ids, choices = c("regression-example", 
                                       "classification-example"))
     if (ids == "regression-example") {
-      dgp_str <- create_fun_str(
-        name = "dgp",
-        fun = "create_dgp",
-        args = list(
-          dgp_fun = "xy_dgp_constructor",
-          name = "'Example DGP (Uncorrelated Gaussian Linear DGP)'",
-          X_fun = "generate_X_gaussian",
-          y_fun = "generate_y_linear",
-          err_fun = "rnorm",
-          n = 200, p = 10, betas = "c(rep(1, 5), rep(0, 5))", .err_sd = 1,
+      dgp_fun_name <- "gaussian_linear_dgp"
+      dgp_name <- "'Example DGP (Uncorrelated Gaussian Linear DGP)'"
+      if (data_split) {
+        dgp_args <- list(
+          n = 200, p = 10, beta = c(rep(1, 5), rep(0, 5)), err_sd = 1,
           data_split = TRUE, train_prop = 0.5, return_support = TRUE
         )
-      )
+      } else {
+        dgp_args <- list(
+          n = 200, p = 10, beta = c(rep(1, 5), rep(0, 5)), err_sd = 1,
+          data_split = FALSE, return_support = TRUE
+        )
+      }
+      dgp <- function(n, p, beta = 1, err_sd = 1, data_split = TRUE,
+                      train_prop = 0.5, return_support = TRUE) {
+
+        X <- matrix(stats::rnorm(n * p), nrow = n, ncol = p)
+        beta_vec <- matrix(beta, ncol = 1, nrow = p)
+        y <- X %*% beta_vec + rnorm(n = n, sd = err_sd)
+        if (data_split) {
+          train_ids <- sample(1:n, size = round(n * train_prop))
+          Xtest <- X[-train_ids, , drop = FALSE]
+          ytest <- y[-train_ids]
+          X <- X[train_ids, , drop = FALSE]
+          y <- y[train_ids]
+        } else {
+          Xtest <- NULL
+          ytest <- NULL
+        }
+        if (return_support) {
+          support <- which(beta_vec != 0)
+          out <- list(X = X, y = y, Xtest = Xtest, ytest = ytest, support = support)
+        } else {
+          out <- list(X = X, y = y, Xtest = Xtest, ytest = ytest)
+        }
+        return(out)
+      }
+
+      # dgp_str <- create_fun_str(
+      #   name = "dgp",
+      #   fun = "create_dgp",
+      #   args = list(
+      #     .dgp_fun = "dgpoix::xy_dgp_constructor",
+      #     .name = "'Example DGP (Uncorrelated Gaussian Linear DGP)'",
+      #     X_fun = "dgpoix::generate_X_gaussian",
+      #     y_fun = "dgpoix::generate_y_linear",
+      #     err_fun = "rnorm",
+      #     n = 200, p = 10, betas = "c(rep(1, 5), rep(0, 5))", .err_sd = 1,
+      #     data_split = TRUE, train_prop = 0.5, return_support = TRUE
+      #   )
+      # )
     } else if (ids == "classification-example") {
-      dgp_str <- create_fun_str(
-        name = "dgp",
-        fun = "create_dgp",
-        args = list(
-          dgp_fun = "xy_dgp_constructor",
-          name = "'Example DGP (Uncorrelated Gaussian Logistic DGP)'",
-          X_fun = "generate_X_gaussian",
-          y_fun = "generate_y_logistic",
-          n = 200, p = 10, betas = "c(rep(1, 5), rep(0, 5))",
+      dgp_fun_name <- "gaussian_logistic_dgp"
+      dgp_name <- "'Example DGP (Uncorrelated Gaussian Logistic DGP)'"
+      if (data_split) {
+        dgp_args <- list(
+          n = 200, p = 10, beta = c(rep(1, 5), rep(0, 5)),
           data_split = TRUE, train_prop = 0.5, return_support = TRUE
         )
-      )
+      } else {
+        dgp_args <- list(
+          n = 200, p = 10, beta = c(rep(1, 5), rep(0, 5)),
+          data_split = FALSE, return_support = TRUE
+        )
+      }
+      dgp <- function(n, p, beta = 1, data_split = TRUE,
+                      train_prop = 0.5, return_support = TRUE) {
+
+        X <- matrix(stats::rnorm(n * p), nrow = n, ncol = p)
+        beta_vec <- matrix(beta, ncol = 1, nrow = p)
+        probs <- 1 / (1 + exp(-(X %*% beta_vec)))
+        y <- as.factor(
+          ifelse(stats::runif(n = n, min = 0, max = 1) > probs, "0", "1")
+        )
+        if (data_split) {
+          train_ids <- sample(1:n, size = round(n * train_prop))
+          Xtest <- X[-train_ids, , drop = FALSE]
+          ytest <- y[-train_ids]
+          X <- X[train_ids, , drop = FALSE]
+          y <- y[train_ids]
+        } else {
+          Xtest <- NULL
+          ytest <- NULL
+        }
+        if (return_support) {
+          support <- which(beta_vec != 0)
+          out <- list(X = X, y = y, Xtest = Xtest, ytest = ytest, support = support)
+        } else {
+          out <- list(X = X, y = y, Xtest = Xtest, ytest = ytest)
+        }
+        return(out)
+      }
+
+      # dgp_str <- create_fun_str(
+      #   name = "dgp",
+      #   fun = "create_dgp",
+      #   args = list(
+      #     .dgp_fun = "dgpoix::xy_dgp_constructor",
+      #     .name = "'Example DGP (Uncorrelated Gaussian Logistic DGP)'",
+      #     X_fun = "dgpoix::generate_X_gaussian",
+      #     y_fun = "dgpoix::generate_y_logistic",
+      #     n = 200, p = 10, betas = "c(rep(1, 5), rep(0, 5))",
+      #     data_split = TRUE, train_prop = 0.5, return_support = TRUE
+      #   )
+      # )
     }
-  } 
-  
+
+    cat(paste0(dgp_fun_name, " <- ", rlang::expr_text(dgp)), "\n\n")
+    dgp_str <- create_fun_str(
+      name = "dgp",
+      fun = "create_dgp",
+      args = c(list(.dgp_fun = dgp_fun_name, .name = dgp_name), dgp_args)
+    )
+  }
+
   cat(dgp_str, "\n\n")
   return("dgp")
 }
@@ -410,8 +563,8 @@ use_method_template <- function(ids = NULL) {
     method_str <- create_fun_str(
       name = "method",
       fun = "create_method",
-      args = list(method_fun = "stop('Add Method function here.')", 
-                  name = "stop('Add name of Method here.')",
+      args = list(.method_fun = "stop('Add Method function here.')",
+                  .name = "stop('Add name of Method here.')",
                   "stop('Add additional arguments (if necessary) to pass to Method here.')")
     )
   } else {
@@ -460,7 +613,7 @@ use_method_template <- function(ids = NULL) {
           features <- colnames(X)
         }
         out <- list(
-          y = y,
+          y = ytest,
           predictions = preds,
           prob_predictions = prob_preds,
           support_df = data.frame(
@@ -473,7 +626,7 @@ use_method_template <- function(ids = NULL) {
         return(out)
       }
     } else if (ids == "OLS") {
-      method <- function(X, y, Xtest, ytest, support, ...) {
+      method <- function(X, y, support, ...) {
         
         data <- as.data.frame(X) %>%
           cbind(.y = y)
@@ -500,12 +653,12 @@ use_method_template <- function(ids = NULL) {
         return(out)
       }
     }
-    cat(paste0(tolower(ids), "_method <-", rlang::expr_text(method)), "\n\n")
+    cat(paste0(tolower(ids), "_method <- ", rlang::expr_text(method)), "\n\n")
     method_str <- create_fun_str(
       name = "method",
       fun = "create_method",
-      args = list(method_fun = paste0(tolower(ids), "_method"), 
-                  name = paste0("'", ids, "'"))
+      args = list(.method_fun = paste0(tolower(ids), "_method"),
+                  .name = paste0("'", ids, "'"))
     )
   }
   
@@ -527,8 +680,8 @@ use_evaluator_template <- function(ids = NULL,
       name = "eval",
       fun = "create_evaluator",
       args = list(
-        eval_fun = "stop('Add Evaluator function here.')",
-        name = "stop('Add name of Evaluator here.')",
+        .eval_fun = "stop('Add Evaluator function here.')",
+        .name = "stop('Add name of Evaluator here.')",
         "stop('Add additional arguments (if necessary) to pass to Evaluator here.')"
       )
     )
@@ -541,36 +694,36 @@ use_evaluator_template <- function(ids = NULL,
     for (id in ids) {
       if (id == "pred_err") {
         eval_args <- list(
-          eval_fun = "summarize_pred_err", name = "'Prediction Accuracy'",
+          .eval_fun = "summarize_pred_err", .name = "'Prediction Accuracy'",
           nested_data = pred_nested_data, truth_col = pred_truth_col,
           estimate_col = pred_estimate_col, prob_cols = pred_prob_cols
         )
       } else if (id == "fi") {
         eval_args <- list(
-          eval_fun = "summarize_feature_importance", 
-          name = "'Feature Importances'", 
+          .eval_fun = "summarize_feature_importance",
+          .name = "'Feature Importances'",
           nested_data = feature_nested_data,
           feature_col = feature_col, imp_col = feature_imp_col
         )
       } else if (id == "feature_sel") {
         eval_args <- list(
-          eval_fun = "summarize_feature_selection_err",
-          name = "'Feature Selection Error'", 
+          .eval_fun = "summarize_feature_selection_err",
+          .name = "'Feature Selection Error'",
           nested_data = feature_nested_data, truth_col = feature_truth_col, 
           estimate_col = feature_sel_col, imp_col = feature_imp_col
         )
       } else if (id == "inf_err") {
         eval_args <- list(
-          eval_fun = "summarize_testing_err",
-          name = "'Hypothesis Testing Error'",
+          .eval_fun = "summarize_testing_err",
+          .name = "'Hypothesis Testing Error'",
           nested_data = feature_nested_data, truth_col = feature_truth_col,
           pval_col = feature_pval_col
         )
       } else if (id == "fi_pval") {
         eval_args <- list(
-          eval_fun = "summarize_feature_importance", 
+          .eval_fun = "summarize_feature_importance",
+          .name = "'P-value Summary Statistics'",
           eval_id = "'pval'",
-          name = "'P-value Summary Statistics'", 
           nested_data = feature_nested_data,
           feature_col = feature_col, imp_col = feature_pval_col
         )
@@ -597,8 +750,8 @@ use_visualizer_template <- function(ids = NULL,
       name = "viz",
       fun = "create_visualizer",
       args = list(
-        viz_fun = "stop('Add Visualizer function here.')",
-        name = "stop('Add name of Visualizer here.')",
+        .viz_fun = "stop('Add Visualizer function here.')",
+        .name = "stop('Add name of Visualizer here.')",
         "stop('Add additional arguments (if necessary) to pass to Visualizer here.')"
       )
     )
@@ -614,61 +767,61 @@ use_visualizer_template <- function(ids = NULL,
                      several.ok = TRUE)
     for (id in ids) {
       if (id == "pred_err_plot") {
-        viz_args <- list(viz_fun = "plot_pred_err", 
-                         name = "'Prediction Accuracy Plot'",
+        viz_args <- list(.viz_fun = "plot_pred_err",
+                         .name = "'Prediction Accuracy Plot'",
                          evaluator_name = "'Prediction Accuracy'")
       } else if (id == "roc_plot") {
-        viz_args <- list(viz_fun = "plot_pred_curve", 
-                         name = "'ROC Plot'", curve = "'ROC'", 
+        viz_args <- list(.viz_fun = "plot_pred_curve",
+                         .name = "'ROC Plot'", curve = "'ROC'",
                          nested_data = pred_nested_data, 
                          truth_col = pred_truth_col, 
                          prob_cols = pred_prob_cols)
       } else if (id == "pr_plot") {
-        viz_args <- list(viz_fun = "plot_pred_curve", 
-                         name = "'PR Plot'", curve = "'PR'", 
+        viz_args <- list(.viz_fun = "plot_pred_curve",
+                         .name = "'PR Plot'", curve = "'PR'",
                          nested_data = pred_nested_data, 
                          truth_col = pred_truth_col, 
                          prob_cols = pred_prob_cols)
       } else if (id == "fi_plot") {
-        viz_args <- list(viz_fun = "plot_feature_importance",
-                         name = "'Feature Importances Plot'",
+        viz_args <- list(.viz_fun = "plot_feature_importance",
+                         .name = "'Feature Importances Plot'",
                          evaluator_name = "'Feature Importances'",
                          feature_col = feature_col)
       } else if (id == "feature_sel_plot") {
-        viz_args <- list(viz_fun = "plot_feature_selection_err",
-                         name = "'Feature Selection Error Plot'",
+        viz_args <- list(.viz_fun = "plot_feature_selection_err",
+                         .name = "'Feature Selection Error Plot'",
                          evaluator_name = "'Feature Selection Error'")
       } else if (id == "feature_roc_plot") {
-        viz_args <- list(viz_fun = "plot_feature_selection_curve",
-                         name = "'Feature Selection ROC Plot'",
+        viz_args <- list(.viz_fun = "plot_feature_selection_curve",
+                         .name = "'Feature Selection ROC Plot'",
                          curve = "'ROC'", nested_data = feature_nested_data, 
                          truth_col = feature_truth_col, 
                          imp_col = feature_imp_col)
       } else if (id == "feature_pr_plot") {
-        viz_args <- list(viz_fun = "plot_feature_selection_curve",
-                         name = "'Feature Selection PR Plot'",
+        viz_args <- list(.viz_fun = "plot_feature_selection_curve",
+                         .name = "'Feature Selection PR Plot'",
                          curve = "'PR'", nested_data = feature_nested_data, 
                          truth_col = feature_truth_col, 
                          imp_col = feature_imp_col)
       } else if (id == "inf_err_plot") {
-        viz_args <- list(viz_fun = "plot_testing_err",
-                         name = "'Hypothesis Testing Error Plot'",
+        viz_args <- list(.viz_fun = "plot_testing_err",
+                         .name = "'Hypothesis Testing Error Plot'",
                          evaluator_name = "'Hypothesis Testing Error'")
       } else if (id == "inf_roc_plot") {
-        viz_args <- list(viz_fun = "plot_testing_curve",
-                         name = "'Feature ROC Plot'",
+        viz_args <- list(.viz_fun = "plot_testing_curve",
+                         .name = "'Feature ROC Plot'",
                          curve = "'ROC'", nested_data = feature_nested_data, 
                          truth_col = feature_truth_col, 
                          pval_col = feature_pval_col)
       } else if (id == "inf_pr_plot") {
-        viz_args <- list(viz_fun = "plot_testing_curve",
-                         name = "'Feature Selection PR Plot'",
+        viz_args <- list(.viz_fun = "plot_testing_curve",
+                         .name = "'Feature Selection PR Plot'",
                          curve = "'PR'", nested_data = feature_nested_data, 
                          truth_col = feature_truth_col, 
                          pval_col = feature_pval_col)
       } else if (id == "reject_prob_plot") {
-        viz_args <- list(viz_fun = "plot_reject_prob",
-                         name = "'Rejection Probability Curve'",
+        viz_args <- list(.viz_fun = "plot_reject_prob",
+                         .name = "'Rejection Probability Curve'",
                          nested_data = feature_nested_data,
                          feature_col = feature_col,
                          pval_col = feature_pval_col)

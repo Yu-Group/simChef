@@ -53,7 +53,11 @@ check_equal <- function(obj1, obj2) {
 #' @keywords internal
 list_to_tibble_row <- function(lst, simplify = FALSE) {
   out <- purrr::map(lst, ~{
-    if (is.list(.x) && length(.x) == 1) .x else list(.x)
+    if (is.list(.x) && !is.data.frame(.x) && length(.x) == 1) {
+      .x
+    } else {
+      list(.x)
+    }
   }) %>%
     tibble::as_tibble_row()
   return(out)
@@ -77,7 +81,7 @@ list_to_tibble <- function(lst) {
       tibble::as_tibble()
     simplify_cols <- purrr::map_lgl(
       out,
-      ~(length(unlist(.x, recursive = F)) == 1) & !tibble::is_tibble(.x[[1]])
+      ~(length(unlist(.x, recursive = F)) == 1) && !is.data.frame(.x[[1]])
     ) %>%
       which() %>%
       names()
@@ -167,7 +171,7 @@ simplify_tibble <- function(tbl, empty_as_na=TRUE) {
         }
 
         # get the final type
-        if (length(x) == 0 || (length(x) == 1 && is.na(x)))  {
+        if (length(x) == 0 || (length(x) == 1 && all(is.na(x))))  {
           type <-  "NA"
         } else {
           type <- typeof(x)

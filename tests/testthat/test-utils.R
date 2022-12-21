@@ -48,7 +48,12 @@ test_that("list_to_tibble_row works properly", {
   ls2 <- list(a = 1:3, b = 2:4, c = 3:5)
   ls3 <- list(a = 1, b = 1:2, c = 1:3,
               d = data.frame(e = 1:4, f = 1:4),
-              g = tibble::tibble(h = 1:2, i = 1:2, j = 1:2))
+              g = tibble::tibble(h = 1:2, i = 1:2, j = 1:2),
+              k = tibble::tibble(l = 1:5),
+              m = data.frame(n = 1:5),
+              o = tibble::tibble(p = 1),
+              q = data.frame(r = 1),
+              s = list(1))
   ls4 <- list(a = list(list(1)), b = list(2), c = list(list(1:3)))
 
   expect_error(list_to_tibble_row(ls0))
@@ -60,7 +65,12 @@ test_that("list_to_tibble_row works properly", {
                tibble::tibble(a = list(1), b = list(1:2), c = list(1:3),
                               d = list(data.frame(e = 1:4, f = 1:4)),
                               g = list(tibble::tibble(h = 1:2, i = 1:2,
-                                                      j = 1:2))))
+                                                      j = 1:2)),
+                              k = list(tibble::tibble(l = 1:5)),
+                              m = list(data.frame(n = 1:5)),
+                              o = list(tibble::tibble(p = 1)),
+                              q = list(data.frame(r = 1)),
+                              s = list(1)))
   expect_equal(list_to_tibble_row(ls4),
                tibble::as_tibble(ls4))
 })
@@ -73,7 +83,12 @@ test_that("list_to_tibble works properly", {
   ls2 <- list(a = 1:3, b = 2:4, c = 3:5)
   ls3 <- list(a = 1, b = 1:2, c = 1:3,
               d = data.frame(e = 1:4, f = 1:4),
-              g = tibble::tibble(h = 1:2, i = 1:2, j = 1:2))
+              g = tibble::tibble(h = 1:2, i = 1:2, j = 1:2),
+              k = tibble::tibble(l = 1:5),
+              m = data.frame(n = 1:5),
+              o = tibble::tibble(p = 1),
+              q = data.frame(r = 1),
+              s = list(1))
   ls4 <- list(a = list(list(1)), b = list(2), c = list(list(1:3)))
 
   expect_error(list_to_tibble(ls0))
@@ -83,7 +98,12 @@ test_that("list_to_tibble works properly", {
                tibble::tibble(a = 1, b = list(1:2), c = list(1:3),
                               d = list(data.frame(e = 1:4, f = 1:4)),
                               g = list(tibble::tibble(h = 1:2, i = 1:2,
-                                                      j = 1:2))))
+                                                      j = 1:2)),
+                              k = list(tibble::tibble(l = 1:5)),
+                              m = list(data.frame(n = 1:5)),
+                              o = list(tibble::tibble(p = 1)),
+                              q = list(data.frame(r = 1)),
+                              s = list(1)))
   expect_equal(list_to_tibble(ls4),
                tibble::as_tibble(ls4))
 })

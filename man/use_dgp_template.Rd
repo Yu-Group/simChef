@@ -4,7 +4,7 @@
 \alias{use_dgp_template}
 \title{Function to create boilerplate code for creating DGPs.}
 \usage{
-use_dgp_template(ids = NULL)
+use_dgp_template(ids = NULL, data_split = TRUE)
 }
 \description{
 Function to create boilerplate code for creating DGPs.
