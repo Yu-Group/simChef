@@ -426,12 +426,12 @@ check_results_names <- function(names, method_name) {
     dup_names <- unique(names[duplicated(names)])
     abort(
       paste0(
-        "Cannot create results tibble with duplicate column names: `",
+        "Cannot create `fit_results` tibble with duplicate column names: `",
         paste(dup_names, collapse = "`, `"), "`.\nPlease check that the ",
         method_name, "() output does not have the same names as the ",
-        "parameters being varied across in the Experiment and avoid using `",
-        paste(dup_names, collapse = "`, `"), "` as names in the ",
-        method_name, "() output."
+        "parameters being varied across in the Experiment. ",
+        "In particular, avoid using `", paste(dup_names, collapse = "`, `"),
+        "` as names in the ", method_name, "() output."
       )
     )
   }
