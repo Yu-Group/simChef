@@ -267,7 +267,7 @@ Experiment <- R6::R6Class(
         }
         obj_params <- c(obj_name, obj_params)
         names(obj_params)[1] <- paste0(".", field_name, "_name")
-        param_grid <- purrr::cross(obj_params)
+        param_grid <- cross(obj_params)
         return(param_grid)
       }) %>% purrr::reduce(c)
       return(param_list)
@@ -278,7 +278,7 @@ Experiment <- R6::R6Class(
       dgp_params_list <- private$.combine_vary_params("dgp")
       method_list <- private$.get_obj_list("method")
       method_params_list <- private$.combine_vary_params("method")
-      fit_params <- purrr::cross2(dgp_params_list, method_params_list) %>%
+      fit_params <- cross(list(dgp_params_list, method_params_list)) %>%
         purrr::map_dfr(
           ~tibble::tibble(
             .dgp_name = .x[[1]]$.dgp_name,

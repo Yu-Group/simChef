@@ -437,3 +437,38 @@ check_results_names <- function(names, method_name) {
   }
   return(names)
 }
+
+#' Produce all combinations of list elements
+#'
+#' @description Copy of `purrr::cross()` which was deprecated in `purrr 1.0.0`.
+#'
+#' @param .l A list of lists or atomic vectors. Alternatively, a data frame.
+#' @return List of all combinations of list elements
+#'
+#' @keywords internal
+cross <- function(.l) {
+
+  if (rlang::is_empty(.l)) {
+    return(.l)
+  }
+
+  n <- length(.l)
+  lengths <- lapply(.l, length)
+  names <- names(.l)
+
+  factors <- cumprod(lengths)
+  total_length <- factors[n]
+  factors <- c(1, factors[-n])
+
+  out <- replicate(total_length, vector("list", n), simplify = FALSE)
+
+  for (i in seq_along(out)) {
+    for (j in seq_len(n)) {
+      index <- floor((i - 1) / factors[j]) %% length(.l[[j]]) + 1
+      out[[i]][[j]] <- .l[[j]][[index]]
+    }
+    names(out[[i]]) <- names
+  }
+
+  purrr::compact(out)
+}
