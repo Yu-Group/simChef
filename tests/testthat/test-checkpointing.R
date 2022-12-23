@@ -58,7 +58,7 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
 
     vary_results <- mapply(list, distinct_results$param1, distinct_results$param2,
                            distinct_results$vec, SIMPLIFY = FALSE)
-    expected_vary_results <- purrr::cross(
+    expected_vary_results <- cross(
       list(c(1,2), c(3,4), list(c(1,3,4), 2:7))
     )
 
