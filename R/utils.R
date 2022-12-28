@@ -32,7 +32,7 @@ check_equal <- function(obj1, obj2) {
   # check if function and function parameters are equal
   if (!identical(obj1[[paste0(class_name, "_fun")]],
                  obj2[[paste0(class_name, "_fun")]],
-                 ignore.environment = TRUE) |
+                 ignore.environment = TRUE) ||
       !identical(obj1[[paste0(class_name, "_params")]],
                  obj2[[paste0(class_name, "_params")]],
                  ignore.environment = TRUE)) {
@@ -311,7 +311,7 @@ fix_duplicate_param_names <- function(dgp_params, method_params,
 #' @keywords internal
 compare_tibble_rows <- function(x, y, op = c("equal", "contained_in")) {
   op <- match.arg(op)
-  if ((!tibble::is_tibble(x)) | (!tibble::is_tibble(y))) {
+  if ((!tibble::is_tibble(x)) || (!tibble::is_tibble(y))) {
     stop("x and y must be tibbles.")
   }
   if (ncol(x) != ncol(y)) {

@@ -1542,7 +1542,7 @@ Experiment <- R6::R6Class(
         cat("None\n")
       } else {
         vary_across_list <- private$.vary_across_list
-        if (!is.null(names(vary_across_list$dgp)) |
+        if (!is.null(names(vary_across_list$dgp)) ||
               !is.null(names(vary_across_list$method))) {
           cat("\n")
         }

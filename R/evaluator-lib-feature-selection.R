@@ -338,7 +338,7 @@ eval_feature_selection_curve <- function(fit_results, vary_params = NULL,
                                          nested_data = NULL, truth_col, imp_col,
                                          curve = c("ROC", "PR"), 
                                          options = list(), na_rm = FALSE) {
-  if (is.null(nested_data) | (truth_col %in% names(fit_results))) {
+  if (is.null(nested_data) || (truth_col %in% names(fit_results))) {
     fit_results <- fit_results %>%
       dplyr::rowwise() %>%
       dplyr::mutate(

@@ -204,16 +204,16 @@ plot_eval_summary <- function(fit_results, eval_tib = NULL, eval_id = NULL,
   }
   
   # get default plot schematic if input is "auto"
-  if (is.null(y_str) | identical(y_str, "auto")) {
+  if (is.null(y_str) || identical(y_str, "auto")) {
     y_str <- paste0("mean", eval_id)
   }
-  if (is.null(err_sd_str) | identical(err_sd_str, "auto")) {
+  if (is.null(err_sd_str) || identical(err_sd_str, "auto")) {
     if (("errorbar" %in% show) && (y_str != paste0("mean", eval_id))) {
       stop("Must specify 'err_sd_str' to show error bars.")
     }
     err_sd_str <- paste0("sd", eval_id)
   }
-  if (is.null(x_str) | identical(x_str, "auto")) {
+  if (is.null(x_str) || identical(x_str, "auto")) {
     if (is.null(vary_params)) {
       if ((n_methods == 1) && (n_dgps > 1)) {
         x_str <- ".dgp_name"
@@ -231,9 +231,9 @@ plot_eval_summary <- function(fit_results, eval_tib = NULL, eval_id = NULL,
       color_str <- ".method_name"
     } else if ((x_str != ".dgp_name") && (n_dgps > 1)) {
       color_str <- ".dgp_name"
-    } else if (!identical(x_str, vary_params) &
+    } else if (!identical(x_str, vary_params) &&
                !identical(x_str, ".vary_params")) {
-      if (is.null(vary_params) | (length(vary_params) == 1)) {
+      if (is.null(vary_params) || (length(vary_params) == 1)) {
         color_str <- vary_params
       } else {
         color_str <- ".vary_params"
@@ -608,7 +608,7 @@ get_eval_tibble <- function(fit_results, eval_tib = NULL, eval_id = NULL,
       summary_funs <- c(summary_funs, "raw") 
     }
   }
-  if (is.null(y_str) | identical(y_str, paste0("mean", eval_id))) {
+  if (is.null(y_str) || identical(y_str, paste0("mean", eval_id))) {
     if (any(c("point", "line", "bar", "errorbar") %in% show)) {
       if (!(paste0("mean", eval_id) %in% colnames(eval_tib))) {
         summary_funs <- c(summary_funs, "mean")
@@ -622,7 +622,7 @@ get_eval_tibble <- function(fit_results, eval_tib = NULL, eval_id = NULL,
   }
   
   # append new results to previous results
-  if (!is.null(summary_funs) | is.null(eval_tib)) {
+  if (!is.null(summary_funs) || is.null(eval_tib)) {
     new_eval_tib <- R.utils::doCall(eval_fun, fit_results = fit_results,
                                     vary_params = vary_params, 
                                     summary_funs = summary_funs, ...)
