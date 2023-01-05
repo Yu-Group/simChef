@@ -8,16 +8,95 @@ set of \code{Experiments}.}
 create_rmd(
   experiment,
   save_dir,
-  open = TRUE,
+  write_rmd = FALSE,
+  output_file = NULL,
+  output_format = vthemes::vmodern(),
+  output_ext = "auto",
   title = NULL,
   author = "",
-  verbose = 2,
-  quiet = TRUE,
-  pretty = TRUE,
+  show_code = TRUE,
+  show_eval = TRUE,
+  show_viz = TRUE,
   eval_order = NULL,
   viz_order = NULL,
+  use_icons = TRUE,
+  open = TRUE,
+  quiet = TRUE,
+  verbose = 2,
   ...
 )
+}
+\arguments{
+\item{experiment}{An \code{Experiment} object. If provided, documentation is
+created for all previously saved \code{Experiments} that are found in the
+directory given by \code{experiment$get_save_dir()}. If no
+\code{Experiments} have been previously saved under this directory, then
+the current \code{experiment} is saved to disk and used to create the
+documentation template.}
+
+\item{save_dir}{An optional directory in which to find previously saved
+\code{Experiment} objects. Documentation is created for these found
+\code{Experiments}. Not used if \code{experiment} is provided.}
+
+\item{write_rmd}{Logical indicating whether or not to write out the raw
+R Markdown file used to generate the results. If \code{TRUE}, both the
+raw R Markdown file and the rendered R Markdown output are saved to disk.
+If \code{FALSE}, only the rendered R Markdown output is saved. Default is
+\code{FALSE}.}
+
+\item{output_file}{The name of the output file. If using \code{NULL}, then
+the output filename will be based on the \code{experiment}'s root results
+directory and the name of the \code{experiment}. Note that the filename
+may include the path to the output file.}
+
+\item{output_format}{The R Markdown output format to convert to. Must be an
+object of class \code{rmarkdown_output_format} (e.g.,
+\code{\link[rmarkdown:html_document]{rmarkdown::html_document()}}, \code{\link[rmarkdown:pdf_document]{rmarkdown::pdf_document()}},
+\link[rmarkdown:md_document]{rmarkdown::md_document}).}
+
+\item{output_ext}{File extension for the rendered R Markdown output document.
+Only used if  \code{open = TRUE} to open the rendered document. Default is
+"auto", which automatically detects the file extension based on
+\code{output_format}.}
+
+\item{title}{Character string. Title of the report. By default, this will be
+the name of the \code{experiment} if \code{experiment} is provided.}
+
+\item{author}{Character string of author names to display in knitted R
+Markdown document.}
+
+\item{show_code}{Logical indicating whether or not to show code portions in
+the output document.}
+
+\item{show_eval}{Logical indicating whether or not to show the results of
+the \code{Evaluators} in the output document.}
+
+\item{show_viz}{Logical indicating whether or not to show the results of
+the \code{Visualizers} in the output document.}
+
+\item{eval_order}{Vector of \code{Evaluator} names in their desired order for
+display. By default, the report will display the \code{Evaluator} results
+in the order that they were computed.}
+
+\item{viz_order}{Vector of \code{Visualizer} names in their desired order for
+display. By default, the report will display the \code{Visualizer} results
+in the order that they were computed.}
+
+\item{use_icons}{Logical indicating whether or not to use fontawesome icons.}
+
+\item{open}{If \code{TRUE}, open the rendered (and raw, if applicable)
+R Markdown-generated file using the system's default application.}
+
+\item{quiet}{An option to suppress printing during rendering from knitr,
+pandoc command line and others. To only suppress printing of the last
+"Output created: " message, you can set \code{rmarkdown.render.message} to
+\code{FALSE}}
+
+\item{verbose}{Level of verboseness (0, 1, 2) when knitting R Markdown.
+Default is 2.}
+
+\item{...}{Additional arguments to pass to \code{\link[rmarkdown:render]{rmarkdown::render()}}. Useful
+for applying a custom R Markdown output theme.}
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
@@ -25,4 +104,3 @@ create_rmd(
 \code{create_rmd()} was renamed to \code{render_docs()} to create a more consistent
 API.
 }
-\keyword{internal}

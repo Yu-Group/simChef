@@ -74,13 +74,22 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
     expect_error(render_docs(base_experiment, open = FALSE, verbose = 0), NA)
     expect_error(
       render_docs(
-        base_experiment, open = FALSE, verbose = 0, pretty = FALSE,
-        output_format = rmarkdown::html_document()),
+        save_dir = base_experiment$get_save_dir(), open = FALSE, verbose = 0
+      ),
       NA
     )
     expect_error(
       render_docs(
-        base_experiment, open = FALSE, verbose = 0, pretty = FALSE,
+        base_experiment, open = FALSE, verbose = 0,
+        output_format = rmarkdown::html_document()
+      ),
+      NA
+    )
+
+    # check ... arguments to rmarkdown::render()
+    expect_error(
+      render_docs(
+        base_experiment, open = FALSE, verbose = 0,
         output_options = list(css = "css/simchef.css")
       ),
       NA
@@ -94,29 +103,72 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
 
     expect_error(
       render_docs(
-        base_experiment, open = FALSE, verbose = 0, pretty = FALSE,
+        base_experiment, open = FALSE, verbose = 0,
         eval_order = "Evaluator", viz_order = c("Plot2", "Plot3", "Plot")
       ),
       NA
     )
     expect_error(
       render_docs(
-        base_experiment, open = FALSE, verbose = 0, pretty = TRUE,
+        base_experiment, open = FALSE, verbose = 0,
         eval_order = "Evaluator", viz_order = c("Plot2", "Plot3", "Plot")
       ),
       NA
     )
     expect_error(
       render_docs(
-        base_experiment, open = FALSE, verbose = 0, pretty = FALSE,
+        base_experiment, open = FALSE, verbose = 0,
         eval_order = c("Evaluator2", "Evaluator"), viz_order = c("Plot2", "Plot")
       ),
       NA
     )
     expect_error(
       render_docs(
-        base_experiment, open = FALSE, verbose = 0, pretty = TRUE,
+        base_experiment, open = FALSE, verbose = 0,
         eval_order = c("Evaluator2", "Evaluator"), viz_order = c("Plot2", "Plot")
+      ),
+      NA
+    )
+
+    # check use_icons
+    expect_error(
+      render_docs(
+        base_experiment, open = FALSE, verbose = 0,
+        output_format = rmarkdown::pdf_document()
+      )
+    )
+    # # ERROR: ! LaTeX Error: Unknown float option `H'.
+    # expect_error(
+    #   render_docs(
+    #     base_experiment, use_icons = FALSE, open = FALSE, verbose = 0,
+    #     output_format = rmarkdown::pdf_document()
+    #   ),
+    #   NA
+    # )
+
+    # test write_rmd = TRUE
+    expect_error(
+      render_docs(
+        base_experiment, write_rmd = TRUE, open = FALSE, verbose = 0,
+        output_file = file.path(base_experiment$get_save_dir(), "test1")
+      ),
+      NA
+    )
+    expect_error(
+      render_docs(
+        base_experiment, write_rmd = TRUE, open = FALSE, verbose = 0,
+        use_icons = FALSE, output_format = rmarkdown::pdf_document(),
+        output_file = file.path(base_experiment$get_save_dir(), "test2")
+      ),
+      NA
+    )
+
+    # check defuse requirement
+    output_format <- quote(rmarkdown::html_document())
+    expect_error(
+      render_docs(
+        base_experiment, write_rmd = FALSE, open = FALSE, verbose = 0,
+        output_format = eval(output_format)
       ),
       NA
     )

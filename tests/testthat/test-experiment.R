@@ -961,6 +961,62 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
     expect_false(file.exists(file.path(old_path, "experiment.rds")))
   })
 
+  test_that("Exporting visualizers in Experiment works properly", {
+
+    dgp_fun <- function(x, y = NULL) x + 1
+    dgp <- DGP$new(dgp_fun, x = 1)
+    method_fun <- function(x, y = NULL) x * 1
+    method <- Method$new(method_fun)
+    ggplot_plot <- create_visualizer(
+      .viz_fun = function() ggplot2::ggplot()
+    )
+    plotly_plot <- create_visualizer(
+      .viz_fun = function() plotly::ggplotly(ggplot2::ggplot())
+    )
+    error_plot <- create_visualizer(
+      .viz_fun = function() 5
+    )
+
+    experiment <- create_experiment(name = "test-evaluate") %>%
+      add_dgp(dgp, "DGP") %>%
+      add_method(method, "Method")
+    fit_results <- experiment$fit(verbose = 0)
+    eval_results <- experiment$evaluate(fit_results, verbose = 0)
+    fpath <- file.path(experiment$get_save_dir(), "viz_results")
+
+    # with no visualizers
+    expect_error(experiment$export_visualizers(), NA)
+    expect_equal(length(list.files(path = fpath)), 0)
+
+    # warning if can't export visualizer
+    experiment %>% add_visualizer(plotly_plot, name = "plotly")
+    viz_results <- experiment$visualize(fit_results, eval_results,
+                                        save = TRUE, verbose = 0)
+    expect_warning(experiment %>% export_visualizers())
+    expect_equal(length(list.files(path = fpath)), 0)
+
+    # with one working visualizer
+    experiment %>%
+      add_visualizer(ggplot_plot, name = "ggplot") %>%
+      add_visualizer(error_plot, name = "error")
+    viz_results <- experiment$visualize(fit_results, eval_results,
+                                        save = TRUE, verbose = 0)
+    expect_warning(expect_warning(experiment$export_visualizers()))
+    expect_equal(list.files(path = fpath), "ggplot.pdf")
+
+    # using vary across
+    experiment %>%
+      add_vary_across(.dgp = "DGP", y = 1:3)
+    results <- run_experiment(experiment, save = TRUE, verbose = 0)
+    expect_warning(expect_warning(experiment$export_visualizers()))
+    expect_equal(
+      list.files(
+        path = file.path(experiment$get_save_dir(), "DGP", "Varying y", "viz_results")
+      ),
+      "ggplot.pdf"
+    )
+  })
+
   test_that("Printing Experiment works properly", {
 
     dgp_fun1 <- function(x) x + 1

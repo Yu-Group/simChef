@@ -21,9 +21,9 @@ BugReports: https://github.com/Yu-Group/simChef/issues
 Imports:
     data.table,
     dplyr,
-    fontawesome,
     future,
     future.apply,
+    knitr,
     lifecycle,
     magrittr,
     methods,
@@ -32,36 +32,35 @@ Imports:
     R6,
     rlang,
     rmarkdown,
-    rmdformats,
     stringr,
     tibble,
     tidyselect,
-    vthemes,
-    yardstick
+    vthemes
 Suggests:
     broom,
     callr,
-    dgpoix,
+    fontawesome,
     fs,
     future.callr,
     ggplot2,
     glmnet,
     here,
-    knitr,
+    htmltools,
     lobstr,
     MASS,
     plotly,
-    prettydoc,
     progressr (>= 0.9.0),
     ranger,
+    rstudioapi,
     testthat (>= 3.1.0),
     tidyr,
     vdiffr,
-    withr (>= 2.5.0)
+    withr (>= 2.5.0),
+    yardstick,
+    ymlthis
 VignetteBuilder: 
     knitr
 Remotes:
-    Yu-Group/dgpoix,
     Yu-Group/vthemes
 Config/testthat/edition: 3
 Encoding: UTF-8

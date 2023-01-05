@@ -1,10 +1,7 @@
 ---
 title: "Getting started with simChef"
 output:
-  prettydoc::html_pretty:
-    theme: architect
-    toc: true
-    number_sections: true
+  rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{simChef Vignette}
   %\VignetteEngine{knitr::rmarkdown}
@@ -734,7 +731,7 @@ Note that if document options are set after running the experiment, the experime
 There are additional customization options that can be set in `render_docs()` including the order in which results of Evaluators and Visualizers are displayed (via the `eval_order` and `viz_order` arguments) and the Rmd output type or theme. For example,
 
 ```{r eval = FALSE}
-# use html_document instead of rmdformats::material (default)
+# use html_document instead of vthemes::vmodern (default)
 render_docs(experiment, open = FALSE, pretty = FALSE,
             output_format = rmarkdown::html_document())
 
