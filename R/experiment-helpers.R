@@ -601,3 +601,21 @@ get_save_dir <- function(experiment) {
 save_experiment <- function(experiment) {
   experiment$save()
 }
+
+#' Export cached \code{Visualizer} results to image.
+#'
+#' @name export_visualizers
+#' @description Export all cached \code{Visualizer} results from an
+#'   \code{Experiment} to images in viz_results/ under the \code{Experiment}'s
+#'   results directory (see \code{Experiment$get_save_dir()}).
+#'
+#' @inheritParams shared_experiment_helpers_args
+#' @param ... Additional arguments to pass to [ggplot2::ggsave()]
+#'
+#' @return The original \code{Experiment} object passed to
+#'   \code{export_visualizers}.
+#'
+#' @export
+export_visualizers <- function(experiment, ...) {
+  experiment$export_visualizers(...)
+}

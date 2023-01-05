@@ -2,14 +2,7 @@
 title: "`r params$sim_name`"
 author: "`r params$author`"
 date: "`r format(Sys.time(), '%B %d, %Y')`"
-header-includes:
-    - \usepackage{float}
-    - \usepackage{amsmath}
-    - \usepackage{gensymb}
-output:
-  rmdformats::material:
-    code_download: true
-css: css/simchef.css
+output: rmarkdown::html_document
 params:
   author: 
     label: "Author:"
@@ -20,19 +13,39 @@ params:
   sim_path:
     label: "Path to Simulation Experiment Folder:"
     value: ""
+  write_filename:
+    label: "Output File:"
+    value: ""
+  show_code:
+    label: "Show Code:"
+    value: TRUE
+  show_eval:
+    label: "Show Evaluators:"
+    value: TRUE
+  show_viz:
+    label: "Show Visualizers:"
+    value: TRUE
   eval_order:
     label: "Order of Evaluators:"
     value: NULL
   viz_order:
     label: "Order of Visualizers:"
     value: NULL
+  use_icons:
+    label: "Use Icons:"
+    value: TRUE
+  use_vmodern:
+    label: "Use vthemes::vmodern:"
+    value: TRUE
+  write:
+    label: "Write File:"
+    value: FALSE
   verbose:
     label: "Verbose Level:"
     value: 2
 ---
 
 ```{r setup, include=FALSE}
-options(width = 10000)
 knitr::opts_chunk$set(
   echo = FALSE,
   warning = FALSE,
@@ -44,33 +57,88 @@ knitr::opts_chunk$set(
   fig.width = 10
 )
 
-options(knitr.kable.NA = 'NA',
-        dplyr.summarise.inform = FALSE)
+options(
+  width = 10000,
+  knitr.kable.NA = "NA"
+)
 
 # scrollable text output
 local({
-  hook_output <- knitr::knit_hooks$get('output')
+  hook_output <- knitr::knit_hooks$get("output")
   knitr::knit_hooks$set(output = function(x, options) {
-    if (!is.null(options$max.height)) options$attr.output <- c(
-      options$attr.output,
-      sprintf('style="max-height: %s;"', options$max.height)
-    )
+    if (!is.null(options$max.height)) {
+      options$attr.output <- c(
+        options$attr.output,
+        sprintf('style="max-height: %s;"', options$max.height)
+      )
+    }
     hook_output(x, options)
   })
 })
 
 chunk_idx <- 1
 doc_dir <- file.path(params$sim_path, "docs")
+write_filename <- params$write_filename
 ```
 
 ```{r helper-funs}
+
+#' Wrap text/code in knitr code chunk string
+#'
+#' @param code String of code to wrap in knitr code chunk
+#' @param chunk_args String of arguments to place in the knitr code chunk header
+#' @return String of code, wrapped inside the knitr code chunk ``` markers
+write_code_chunk <- function(code = "", chunk_args = "") {
+  sprintf("\n```{r, %s}\n%s\n```\n", chunk_args, code)
+}
+
+#' Write text to vector (write_flag = TRUE) or to console (write_flag = FALSE)
+#'
+#' @param ... Text to write to vector or to console
+#' @param old_text Previous text to append to when writing to a vector
+#' @param write_flag Boolean indicating whether to write text to a vector
+#'   (write_flag = TRUE) or to console (write_flag = FALSE)
+#' @return If write_flag = TRUE, returns vector of text. Otherwise, text is
+#'   written to console via `cat()`.
+write <- function(..., old_text = NULL, write_flag) {
+  if (write_flag) {
+    return(c(old_text, ...))
+  } else {
+    dots_list <- list(...) %>%
+      purrr::map(
+        function(x) {
+          if (stringr::str_detect(x, "`r .*`")) {
+            # run r code before printing results in cat()
+            out <- stringr::str_replace(
+              x, "`r .*`",
+              eval(parse(text = stringr::str_extract(x, "(?<=`r )(.*?)(?=`)")))
+            )
+          } else {
+            out <- x
+          }
+          return(out)
+        }
+      )
+    do.call(cat, args = c(dots_list, list(sep = "")))
+  }
+}
+
+#' Write text to file
+#'
+#' @param path Path to output file
+#' @param ... Text to output to file
+write_to_file <- function(path, ...) {
+  storelines <- readLines(path)
+  storelines <- c(storelines, ...)
+  writeLines(storelines, path)
+}
 
 #' Get order of objects to display
 #'
 #' @param obj_names Vector of all object names that need to be displayed.
 #' @param obj_order Vector of object names in the desired appearance order.
 #' @return Vector of object names in the order in which they will be displayed.
-getObjOrder <- function(obj_names, obj_order = NULL) {
+get_object_order <- function(obj_names, obj_order = NULL) {
   if (is.null(obj_order)) {
     return(obj_names)
   } else {
@@ -82,7 +150,7 @@ getObjOrder <- function(obj_names, obj_order = NULL) {
 #'
 #' @param dir_name name of directory
 #' @return list of named experiments
-getDescendants <- function(dir_name) {
+get_descendants <- function(dir_name) {
   experiments <- list()
   for (d in list.dirs(dir_name)) {
     if (file.exists(file.path(d, "experiment.rds"))) {
@@ -107,17 +175,19 @@ getDescendants <- function(dir_name) {
 #'   given directory(s); if FALSE, checks if any experiment exists under the
 #'   directory(s) and its descendants
 #' @return TRUE if experiment exists and FALSE otherwise
-experimentExists <- function(dir_name, recursive = FALSE) {
-  res <- purrr::map_lgl(dir_name,
-                        function(d) {
-                          if (!recursive) {
-                            exp_fname <- file.path(d, "experiment.rds")
-                            return(file.exists(exp_fname))
-                          } else {
-                            descendants <- getDescendants(d)
-                            return(length(descendants) > 0)
-                          }
-                        })
+experiment_exists <- function(dir_name, recursive = FALSE) {
+  res <- purrr::map_lgl(
+    dir_name,
+    function(d) {
+      if (!recursive) {
+        exp_fname <- file.path(d, "experiment.rds")
+        return(file.exists(exp_fname))
+      } else {
+        descendants <- get_descendants(d)
+        return(length(descendants) > 0)
+      }
+    }
+  )
   return(any(res))
 }
 
@@ -125,78 +195,153 @@ experimentExists <- function(dir_name, recursive = FALSE) {
 #'
 #' @param field_name part of recipe to show; must be one of "dgp", "method",
 #'   "evaluator", or "visualizer"
+#' @param write_flag Boolean indicating whether to write text to a vector
+#'   (write_flag = TRUE) or to console (write_flag = FALSE)
 #' @return content for recipe
-showRecipePart <- function(field_name = c("dgp", "method",
-                                          "evaluator", "visualizer")) {
-
+show_recipe <- function(field_name = c(
+                          "dgp", "method", "evaluator", "visualizer"
+                        ),
+                        write_flag = FALSE) {
   field_name <- match.arg(field_name)
-  func_name <- dplyr::case_when(field_name == "evaluator" ~ "eval",
-                                field_name == "visualizer" ~ "viz",
-                                TRUE ~ field_name)
-  descendants <- getDescendants(dir_name = params$sim_path)
-  objs <- purrr::map(descendants, ~.x[[paste0("get_", field_name, "s")]]())
+  func_name <- dplyr::case_when(
+    field_name == "evaluator" ~ "eval",
+    field_name == "visualizer" ~ "viz",
+    TRUE ~ field_name
+  )
+  descendants <- get_descendants(dir_name = params$sim_path)
+  objs <- purrr::map(descendants, ~ .x[[paste0("get_", field_name, "s")]]())
   obj_names <- unique(purrr::reduce(sapply(objs, names), c))
 
-  obj_header <- "<p style='font-weight: bold; font-size: 20px'> %s </p>"
-  invis_header <- "\n\n### %s {.tabset .tabset-pills .tabset-fade .tabset-circle}\n\n"
-  showtype_header <- "\n\n#### %s {.tabset .tabset-pills .tabset-fade}\n\n"
-  exp_header <- "\n\n##### %s \n\n"
+  if (field_name %in% c("method", "evaluator")) {
+    obj_header <- "\n\n#### %s {.tabset .tabset-pills .tabset-circle .tabset-recipe}\n\n"
+    showtype_header <- "\n\n##### %s {.tabset .tabset-pills}\n\n"
+    exp_header <- "\n\n###### %s \n\n"
+  } else {
+    obj_header <- "\n\n### %s {.tabset .tabset-pills .tabset-circle .tabset-recipe}\n\n"
+    showtype_header <- "\n\n#### %s {.tabset .tabset-pills}\n\n"
+    exp_header <- "\n\n##### %s \n\n"
+  }
+
+  if (params$use_icons) {
+    if (params$use_vmodern) {
+      description_label <- "`r fontawesome::fa('readme', fill = 'white')`"
+      code_label <- "`r fontawesome::fa('code', fill = 'white')`"
+    } else {
+      description_label <- "`r fontawesome::fa('readme')`"
+      code_label <- "`r fontawesome::fa('code')`"
+    }
+  } else {
+    description_label <- "Description"
+    code_label <- "Code"
+  }
 
   if (all(sapply(objs, length) == 0)) {
-    return(cat("N/A"))
+    if (write_flag) {
+      return("N/A")
+    } else {
+      return(cat("N/A"))
+    }
   }
 
+  recipe <- c()
   for (idx in 1:length(obj_names)) {
-    cat(sprintf(invis_header, ""))
     obj_name <- obj_names[idx]
+    description_fpath <- file.path(
+      doc_dir, paste0(field_name, "s"), paste0(obj_name, ".md")
+    )
+    
+    if (params$use_vmodern) {
+      recipe <- write(
+        "\n\n<div class='panel panel-default padded-panel'>\n\n",
+        old_text = recipe, write_flag = write_flag
+      )
+    }
 
-    cat("<div class='panel panel-default padded-panel'>")
-    cat(sprintf(obj_header, obj_name))
+    recipe <- write(
+      sprintf(obj_header, obj_name),
+      sprintf(showtype_header, description_label),
+      pasteMd(description_fpath),
+      old_text = recipe, write_flag = write_flag
+    )
 
-    cat(sprintf(showtype_header, fontawesome::fa("readme")))
-    pasteMd(file.path(doc_dir, paste0(field_name, "s"),
-                      paste0(obj_name, ".md")))
+    if (params$show_code) {
+      recipe <- write(
+        sprintf(showtype_header, code_label),
+        old_text = recipe, write_flag = write_flag
+      )
 
-    cat(sprintf(showtype_header, fontawesome::fa("code")))
-    keep_objs <- purrr::map(objs, obj_name)
-    keep_objs[sapply(keep_objs, is.null)] <- NULL
-    if (all(purrr::map_lgl(keep_objs,
-                           ~isTRUE(check_equal(.x, keep_objs[[1]]))))) {
-      obj <- keep_objs[[1]]
-      cat("<b>Function</b>")
-      vthemes::subchunkify(obj[[paste0(func_name, "_fun")]],
-                  chunk_idx, other_args = "max.height='200px'")
-      chunk_idx <<- chunk_idx + 1
-      cat("<b>Input Parameters</b>")
-      vthemes::subchunkify(obj[[paste0(func_name, "_params")]],
-                  chunk_idx, other_args = "max.height='200px'")
-      chunk_idx <<- chunk_idx + 1
-    } else {
-      for (exp in names(objs)) {
-        obj <- objs[[exp]][[obj_name]]
-        if (is.null(obj)) {
-          next
+      keep_objs <- purrr::compact(purrr::map(objs, obj_name))
+      is_identical <- all(
+        purrr::map_lgl(keep_objs, ~ isTRUE(check_equal(.x, keep_objs[[1]])))
+      )
+      for (exp in names(keep_objs)) {
+        obj <- keep_objs[[exp]]
+        if (!is_identical) {
+          recipe <- write(
+            sprintf(exp_header, exp),
+            old_text = recipe, write_flag = write_flag
+          )
         }
-        cat(sprintf(exp_header, exp))
-        cat("<b>Function</b>")
-        vthemes::subchunkify(obj[[paste0(func_name, "_fun")]],
-                    chunk_idx, other_args = "max.height='200px'")
-        chunk_idx <<- chunk_idx + 1
-        cat("<b>Input Parameters</b>")
-        vthemes::subchunkify(obj[[paste0(func_name, "_params")]],
-                    chunk_idx, other_args = "max.height='200px'")
-        chunk_idx <<- chunk_idx + 1
+
+        recipe <- write(
+          "\n\n**Function**\n\n",
+          old_text = recipe, write_flag = write_flag
+        )
+        if (write_flag) {
+          recipe <- sprintf(
+            "show_recipe(%s_objs, '%s', '%s', what = 'function')",
+            func_name, obj_name, exp
+          ) %>%
+            write_code_chunk(chunk_args = "max.height='200px'") %>%
+            write(old_text = recipe, write_flag = write_flag)
+        } else {
+          vthemes::subchunkify(
+            obj[[paste0(func_name, "_fun")]], chunk_idx,
+            other_args = "max.height='200px'"
+          )
+          chunk_idx <<- chunk_idx + 1
+        }
+
+        recipe <- write(
+          "\n\n**Input Parameters**\n\n",
+          old_text = recipe, write_flag = write_flag
+        )
+        if (write_flag) {
+          recipe <- sprintf(
+            "show_recipe(%s_objs, '%s', '%s', what = 'parameters')",
+            func_name, obj_name, exp
+          ) %>%
+            write_code_chunk(chunk_args = "max.height='200px'") %>%
+            write(old_text = recipe, write_flag = write_flag)
+        } else {
+          vthemes::subchunkify(
+            obj[[paste0(func_name, "_params")]], chunk_idx,
+            other_args = "max.height='200px'"
+          )
+          chunk_idx <<- chunk_idx + 1
+        }
+
+        if (is_identical) {
+          break
+        }
       }
     }
-    cat("</div>")
+
+    if (params$use_vmodern) {
+      recipe <- write(
+        "\n\n</div>\n\n", old_text = recipe, write_flag = write_flag
+      )
+    }
   }
+
+  return(recipe)
 }
 
 #' Reads in file if it exists and returns NULL if the file does not exist
 #'
 #' @param filename name of .rds file to try reading in
 #' @return output of filename.rds if the file exists and NULL otherwise
-getResults <- function(filename) {
+get_results <- function(filename) {
   if (file.exists(filename)) {
     results <- readRDS(filename)
   } else {
@@ -214,89 +359,136 @@ getResults <- function(filename) {
 #' @param show_header logical; whether or not to show section header
 #' @param verbose integer; 0 = no messages; 1 = print out directory name only;
 #'   2 = print out directory name and name of evaluators/visualizers
+#' @param write_flag Boolean indicating whether to write text to a vector
+#'   (write_flag = TRUE) or to console (write_flag = FALSE)
 #' @return content results from evaluate() and visualize() from the experiment
-showResults <- function(dir_name, depth, base = FALSE, show_header = TRUE,
-                        verbose = 1) {
+show_results <- function(dir_name, depth, base = FALSE, show_header = TRUE,
+                         verbose = 1, write_flag = FALSE) {
   if (verbose >= 1) {
     message(rep("*", depth), basename(dir_name))
   }
 
   if (depth == 1) {
-    header_template <- "\n\n%s %s {.tabset .tabset-pills .tabset-fade}\n\n"
+    header_template <- "\n\n%s %s {.tabset .tabset-pills .tabset-vmodern}\n\n"
   } else {
-    if (base | !experimentExists(dir_name)) {
-      header_template <- "\n\n%s %s {.tabset .tabset-pills .tabset-fade}"
+    if (base || !experiment_exists(dir_name)) {
+      header_template <- "\n\n%s %s {.tabset .tabset-pills}\n\n"
     } else {
-      header_template <- "\n\n%s %s {.tabset .tabset-pills .tabset-fade .tabset-circle}"
+      header_template <- "\n\n%s %s {.tabset .tabset-pills .tabset-circle}\n\n"
     }
   }
 
+  results <- c()
   if (show_header) {
-    cat(sprintf(header_template,
-                paste(rep("#", depth), collapse = ""),
-                basename(dir_name)))
+    results <- sprintf(
+      header_template,
+      paste(rep("#", depth), collapse = ""),
+      basename(dir_name)
+    ) %>%
+      write(old_text = results, write_flag = write_flag)
   }
 
   if (base) {
-    cat(paste0("\n\n",
-               paste(rep("#", depth + 1), collapse = ""),
-               " Base - ", basename(dir_name),
-               " {.tabset .tabset-pills .tabset-fade .tabset-circle}\n\n"))
+    results <- sprintf(
+      "\n\n%s Base - %s {.tabset .tabset-pills .tabset-circle}\n\n",
+      paste(rep("#", depth + 1), collapse = ""),
+      basename(dir_name)
+    ) %>%
+      write(old_text = results, write_flag = write_flag)
     depth <- depth + 1
   }
 
   showtype_template <- paste0(
     "\n\n", paste(rep("#", depth + 1), collapse = ""), " %s\n\n"
   )
-  figname_template <- "<h3 style='font-weight: bold'> %s </h3>"
+  figname_template <- paste0(
+    "\n\n", paste(rep("#", depth + 2), collapse = ""), " %s\n\n"
+  )
   invisible_header <- paste0(
-    "\n\n", paste(rep("#", depth + 2), collapse = ""),
-    " {.tabset .tabset-pills .tabset-fade}\n\n"
+    "\n\n", paste(rep("#", depth + 3), collapse = ""),
+    " {.tabset .tabset-pills}\n\n"
   )
   plt_template <- paste0(
-    "\n\n", paste(rep("#", depth + 3), collapse = ""), " %s\n\n"
+    "\n\n", paste(rep("#", depth + 4), collapse = ""), " %s\n\n"
   )
 
+  if (params$use_icons) {
+    if (params$use_vmodern) {
+      evaluator_label <- "`r fontawesome::fa('table', fill = 'white')`"
+      visualizer_label <- "`r fontawesome::fa('chart-bar', fill = 'white')`"
+      code_label <- "`r fontawesome::fa('code', fill = 'white')`"
+    } else {
+      evaluator_label <- "`r fontawesome::fa('table')`"
+      visualizer_label <- "`r fontawesome::fa('chart-bar')`"
+      code_label <- "`r fontawesome::fa('code')`"
+    }
+  } else {
+    evaluator_label <- "Evaluators"
+    visualizer_label <- "Visualizers"
+    code_label <- "Varying Parameters"
+  }
+
   exp_fname <- file.path(dir_name, "experiment.rds")
-  # fit_fname <- file.path(dir_name, "fit_results.rds")
   eval_fname <- file.path(dir_name, "eval_results.rds")
   viz_fname <- file.path(dir_name, "viz_results.rds")
 
-  exp <- getResults(exp_fname)
-  # fit_results <- getResults(fit_fname)
-  eval_results <- getResults(eval_fname)
-  viz_results <- getResults(viz_fname)
+  exp <- get_results(exp_fname)
+  eval_results <- get_results(eval_fname)
+  viz_results <- get_results(viz_fname)
 
-  if (!is.null(eval_results)) {
-    cat(sprintf(showtype_template, fontawesome::fa("table")))
-    eval_names <- getObjOrder(names(eval_results), params$eval_order)
+  if (!is.null(eval_results) && params$show_eval) {
+    results <- write(
+      sprintf(showtype_template, evaluator_label),
+      old_text = results, write_flag = write_flag
+    )
+
+    eval_names <- get_object_order(names(eval_results), params$eval_order)
     for (eval_name in eval_names) {
       evaluator <- exp$get_evaluators()[[eval_name]]
       if (evaluator$doc_show) {
-        if (verbose >= 2) {
+        if (verbose >= 1) {
           message(rep(" ", depth + 1), eval_name)
         }
-        cat(sprintf(figname_template, eval_name))
-        do.call(vthemes::pretty_DT,
-                c(list(eval_results[[eval_name]]), evaluator$doc_options)) %>%
-          vthemes::subchunkify(i = chunk_idx)
-        chunk_idx <<- chunk_idx + 1
+        results <- write(
+          sprintf(figname_template, eval_name),
+          old_text = results, write_flag = write_flag
+        )
+        if (write_flag) {
+          results <- sprintf(
+            "show_results('%s', '%s', 'evaluator')", dir_name, eval_name
+          ) %>%
+            write_code_chunk(chunk_args = "results = 'asis'") %>%
+            write(old_text = results, write_flag = write_flag)
+        } else {
+          do.call(
+            vthemes::pretty_DT,
+            c(list(eval_results[[eval_name]]), evaluator$doc_options)
+          ) %>%
+            vthemes::subchunkify(i = chunk_idx)
+          chunk_idx <<- chunk_idx + 1
+        }
       }
     }
   }
 
-  if (!is.null(viz_results)) {
-    cat(sprintf(showtype_template,
-                fontawesome::fa("chart-bar")))
-    viz_names <- getObjOrder(names(viz_results), params$viz_order)
+  if (!is.null(viz_results) && params$show_viz) {
+    results <- write(
+      sprintf(showtype_template, visualizer_label),
+      old_text = results, write_flag = write_flag
+    )
+
+    viz_names <- get_object_order(names(viz_results), params$viz_order)
     for (viz_name in viz_names) {
       visualizer <- exp$get_visualizers()[[viz_name]]
       if (visualizer$doc_show) {
-        if (verbose >= 2) {
+        if (verbose >= 1) {
           message(rep(" ", depth + 1), viz_name)
         }
-        cat(invisible_header)
-        cat(sprintf(figname_template, viz_name))
+        results <- write(
+          sprintf(figname_template, viz_name),
+          invisible_header,
+          old_text = results, write_flag = write_flag
+        )
         plts <- viz_results[[viz_name]]
         if (!inherits(plts, "list")) {
           plts <- list(plt = plts)
@@ -306,73 +498,210 @@ showResults <- function(dir_name, depth, base = FALSE, show_header = TRUE,
         }
         for (plt_name in names(plts)) {
           if (length(plts) != 1) {
-            cat(sprintf(plt_template, plt_name))
+            results <- write(
+              sprintf(plt_template, plt_name),
+              old_text = results, write_flag = write_flag
+            )
           }
           plt <- plts[[plt_name]]
-          vthemes::subchunkify(plt, i = chunk_idx,
-                      fig_height = visualizer$doc_options$height,
-                      fig_width = visualizer$doc_options$width,
-                      other_args = "out.width = '100%'")
-          chunk_idx <<- chunk_idx + 1
+          is_plot <- inherits(plt, "plotly") || 
+            inherits(plt, "gg") || 
+            inherits(plt, "ggplot")
+          
+          if (params$use_vmodern && is_plot) {
+            chunk_args <- "fig.height = %s, fig.width = %s, out.width = '100%%', add.panel = TRUE"
+            add_class <- "panel panel-default padded-panel"
+          } else {
+            chunk_args <- "fig.height = %s, fig.width = %s, out.width = '100%%'"
+            add_class <- NULL
+          }
+          
+          if (write_flag) {
+            results <- sprintf(
+              "show_results('%s', '%s', 'visualizer')", dir_name, viz_name
+            ) %>%
+              write_code_chunk(
+                chunk_args = sprintf(
+                  chunk_args,
+                  visualizer$doc_options$height, visualizer$doc_options$width
+                )
+              ) %>%
+              write(old_text = results, write_flag = write_flag)
+          } else {
+            vthemes::subchunkify(plt,
+              i = chunk_idx,
+              fig_height = visualizer$doc_options$height,
+              fig_width = visualizer$doc_options$width,
+              other_args = "out.width = '100%'", 
+              add_class = add_class
+            )
+            chunk_idx <<- chunk_idx + 1
+          }
         }
       }
     }
   }
 
-  if (!is.null(exp)) {
-    if ((length(exp$get_vary_across()$dgp) != 0) |
+  if (!is.null(exp) && params$show_code) {
+    if ((length(exp$get_vary_across()$dgp) != 0) ||
         (length(exp$get_vary_across()$method) != 0)) {
-      cat(sprintf(showtype_template, fontawesome::fa("code")))
-      cat("<b>Parameter Values</b>")
-      vthemes::subchunkify(exp$get_vary_across(),
-                  chunk_idx, other_args = "max.height='200px'")
-      chunk_idx <<- chunk_idx + 1
+      results <- write(
+        sprintf(showtype_template, code_label),
+        "\n\n**Parameter Values**\n\n",
+        old_text = results, write_flag = write_flag
+      )
+      if (write_flag) {
+        results <- sprintf(
+          "show_results('%s', NULL, 'vary_params')", dir_name
+        ) %>%
+          write_code_chunk(chunk_args = "max.height='200px'") %>%
+          write(old_text = results, write_flag = write_flag)
+      } else {
+        vthemes::subchunkify(exp$get_vary_across(),
+          chunk_idx,
+          other_args = "max.height='200px'"
+        )
+        chunk_idx <<- chunk_idx + 1
+      }
     }
   }
+
+  return(results)
 }
 
 #' Displays output of experiment for all of its (saved) descendants
 #'
 #' @param dir_name name of parent experiment directory
 #' @param depth placeholder for recursion; should not be messed with
-#' @param ... other arguments to pass into showResults()
-showDescendantResults <- function(dir_name, depth = 1, ...) {
+#' @param write_flag Boolean indicating whether to write text to a file
+#'   (write_flag = TRUE) or to console (write_flag = FALSE)
+#' @param write_filename Name of file to write to if write_flag = TRUE
+#' @param ... other arguments to pass into show_results()
+show_descendant_results <- function(dir_name, depth = 1, write_flag = FALSE,
+                                    write_filename = NULL, ...) {
   children <- list.dirs(dir_name, recursive = FALSE)
   if (length(children) == 0) {
     return()
   }
   for (child_idx in 1:length(children)) {
     child <- children[child_idx]
-    if (!experimentExists(child, recursive = TRUE)) {
+    if (!experiment_exists(child, recursive = TRUE)) {
       next
     }
-    if (experimentExists(child, recursive = FALSE) &
-        (experimentExists(list.dirs(child, recursive = TRUE)[-1]) |
-         (depth == 1))) {
+    if (experiment_exists(child, recursive = FALSE) &&
+      (experiment_exists(list.dirs(child, recursive = TRUE)[-1]) ||
+        (depth == 1))) {
       base <- TRUE
     } else {
       base <- FALSE
     }
-    showResults(child, depth, base = base, ...)
-    showDescendantResults(child, depth + 1, ...)
+    results <- show_results(child, depth, base, write_flag = write_flag, ...)
+    if (write_flag) {
+      write_to_file(path = write_filename, results)
+    }
+    show_descendant_results(child, depth + 1, write_flag, write_filename, ...)
   }
 }
 
+#' Clean output file (e.g., remove excessive blank lines)
+#'
+#' @param path Path to output file
+clean_file <- function(path) {
+  storelines <- readLines(path)
+  rle_out <- rle(storelines == "")
+  line_ids <- which((rle_out$lengths > 2) & rle_out$values)
+  keep_lines <- rep(TRUE, length(storelines))
+  for (line_id in line_ids) {
+    num_blank <- rle_out$lengths[line_id]
+    line_ptr <- sum(rle_out$lengths[1:line_id])
+    # only allow for max of two consecutive blank lines
+    keep_lines[(line_ptr - num_blank + 3):line_ptr] <- FALSE
+  }
+  writeLines(storelines[keep_lines], path)
+}
+
+#' Insert lines to add extra resources (css/js) for simChef R Markdown theme
+#' 
+#' @param path Path to output file
+insert_simChef_resources <- function(path) {
+  storelines <- readLines(path)
+  pattern <- "<Insert extra simChef resources here>"
+  replace <- sprintf(
+    '<script src="%s"></script>\n\n<link rel="stylesheet" href="%s">', 
+    system.file("rmd", "js", "simchefNavClass.js",
+                package = utils::packageName()),
+    system.file("rmd", "css", "simchef.css",
+                package = utils::packageName())
+  ) 
+  storelines[storelines == pattern] <- replace
+  writeLines(storelines, path)
+}
+
+#' Remove lines with simChef R Markdown theme-specific code
+#' 
+#' @param path Path to output file
+remove_simChef_resources <- function(path) {
+  storelines <- readLines(path)
+  
+  pattern <- "add.panel = function"
+  line_id <- which(stringr::str_detect(storelines, pattern))
+  remove_lines <- (line_id - 2):(line_id + 5)
+  storelines <- storelines[-remove_lines]
+  
+  pattern <- "<Insert extra simChef resources here>"
+  remove_lines <- which(stringr::str_detect(storelines, pattern))
+  storelines <- storelines[-remove_lines]
+  
+  writeLines(storelines, path)
+}
 
 ```
 
-# Simulation Experiment Recipe {.tabset .tabset-fade}
+```{r}
+if (params$write) {
+  if (params$use_vmodern) {
+    insert_simChef_resources(write_filename)
+  } else {
+    remove_simChef_resources(write_filename)
+  }
+} else {
+  if (params$use_vmodern) {
+    htmltools::HTML('<script src="js/simchefNavClass.js"></script>\n\n<link rel="stylesheet" href="css/simchef.css">')
+  }
+}
+```
 
-## Objectives {.panel .panel-default .padded-panel}
+
+# Simulation Experiment Recipe {.tabset .tabset-vmodern}
+
+## Objectives
 
 ```{r objectives, results = "asis"}
-pasteMd(file.path(doc_dir, "objectives.md"))
+if (params$use_vmodern) {
+  objectives <- write(
+    "\n\n<div class='panel panel-default padded-panel'>\n\n",
+    pasteMd(file.path(doc_dir, "objectives.md")),
+    "\n\n</div>\n\n",
+    write_flag = params$write
+  )
+} else {
+  objectives <- write(
+    pasteMd(file.path(doc_dir, "objectives.md")),
+    write_flag = params$write
+  )
+}
+if (params$write) {
+  write_to_file(path = write_filename, "\n\n## Objectives\n\n", objectives)
+}
 ```
 
 ## Data Generation
 
 ```{r dgps, results = "asis"}
-showRecipePart(field_name = "dgp")
+dgp_recipe <- show_recipe(field_name = "dgp", write_flag = params$write)
+if (params$write) {
+  write_to_file(path = write_filename, "\n\n## Data Generation\n\n", dgp_recipe)
+}
 ```
 
 ## Methods and Evaluation
@@ -380,19 +709,32 @@ showRecipePart(field_name = "dgp")
 ### Methods
 
 ```{r methods, results = "asis"}
-showRecipePart(field_name = "method")
+method_recipe <- show_recipe(field_name = "method", write_flag = params$write)
+if (params$write) {
+  write_to_file(
+    path = write_filename,
+    "\n\n## Methods and Evaluation\n\n", "\n\n### Methods\n\n",
+    method_recipe
+  )
+}
 ```
 
 ### Evaluation
 
 ```{r evaluators, results = "asis"}
-showRecipePart(field_name = "evaluator")
+eval_recipe <- show_recipe(field_name = "evaluator", write_flag = params$write)
+if (params$write) {
+  write_to_file(path = write_filename, "\n\n### Evaluation\n\n", eval_recipe)
+}
 ```
 
 ## Visualizations
 
 ```{r visualizers, results = "asis"}
-showRecipePart(field_name = "visualizer")
+viz_recipe <- show_recipe(field_name = "visualizer", write_flag = params$write)
+if (params$write) {
+  write_to_file(path = write_filename, "\n\n## Visualizations\n\n", viz_recipe)
+}
 ```
 
 
@@ -403,13 +745,35 @@ if (params$verbose > 0) {
 }
 
 # show results
-if (experimentExists(params$sim_path)) {
-  cat(sprintf("\n\n# Base %s \n\n", params$sim_name))
-  cat("\n\n## {.tabset .tabset-pills .tabset-fade .tabset-circle}\n\n")
-  showResults(params$sim_path, depth = 2, base = FALSE, show_header = FALSE,
-              verbose = params$verbose)
+if (experiment_exists(params$sim_path)) {
+  base_header <- write(
+    sprintf("\n\n# Base %s \n\n", params$sim_name),
+    "\n\n## {.tabset .tabset-pills .tabset-circle}\n\n",
+    write_flag = params$write
+  )
+  base_results <- show_results(
+    params$sim_path,
+    depth = 2, base = FALSE, show_header = FALSE,
+    verbose = params$verbose, write_flag = params$write
+  )
+
+  if (params$write) {
+    write_to_file(path = write_filename, base_header, base_results)
+  }
 }
 
-showDescendantResults(params$sim_path, verbose = params$verbose)
+show_descendant_results(
+  params$sim_path,
+  verbose = params$verbose,
+  write_flag = params$write, 
+  write_filename = write_filename
+)
+```
 
+
+
+```{r}
+if (params$write) {
+  clean_file(path = write_filename)
+}
 ```

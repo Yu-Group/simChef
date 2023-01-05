@@ -1521,6 +1521,59 @@ Experiment <- R6::R6Class(
       saveRDS(self, file.path(save_dir, "experiment.rds"))
       invisible(self)
     },
+    export_visualizers = function(device = "pdf", width = "auto", height = "auto",
+                                ...) {
+      if (!rlang::is_installed("ggplot2")) {
+        stop("ggplot2 must be installed to export visualizers to image. Please install package via `install.packages('ggplot2')`.")
+      }
+      viz_list <- self$get_visualizers()
+      if (length(viz_list) == 0) {
+        return(invisible(self))
+      }
+      viz_results <- private$.get_cached_results("viz", verbose = 0)
+
+      if (!private$.has_vary_across()) {
+        save_dir <- private$.save_dir
+      } else {
+        obj_names <- purrr::map(private$.vary_across_list, names) %>%
+          purrr::reduce(c) %>%
+          paste(collapse = "-")
+        param_names <- private$.get_vary_params() %>%
+          paste(collapse = "-")
+        save_dir <- file.path(private$.save_dir, obj_names,
+                              paste("Varying", param_names))
+      }
+      save_dir <- file.path(save_dir, "viz_results")
+      if (!dir.exists(save_dir)) {
+        dir.create(save_dir, recursive = TRUE)
+      }
+
+      ggsave_args <- list(device = device, ...)
+      for (viz_name in names(viz_results)) {
+        viz <- viz_list[[viz_name]]
+        if (identical(height, "auto")) {
+          ggsave_args[["height"]] <- viz$doc_options$height
+        }
+        if (identical(width, "auto")) {
+          ggsave_args[["width"]] <- viz$doc_options$width
+        }
+        fname <- file.path(save_dir, sprintf("%s.%s", viz_name, device))
+        tryCatch({
+          do.call(ggplot2::ggsave,
+                  args = c(list(filename = fname,
+                                plot = viz_results[[viz_name]]),
+                           ggsave_args))
+        }, error = function(err) {
+          rlang::warn(sprintf(
+            "Could not save %s as image using ggplot2::ggsave.", viz_name
+          ))
+          if (file.exists(fname)) {
+            file.remove(fname)
+          }
+        })
+      }
+      invisible(self)
+    },
     print = function() {
       cat("Experiment Name:", self$name, "\n")
       cat("   Saved results at:",

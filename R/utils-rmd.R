@@ -22,6 +22,6 @@ pasteMd <- function(filename){
 
   storelines <- readLines(filename)
 
-  cat(paste0(lapply(storelines, FUN = function(x) breakFun(x)), collapse = ""))
-
+  out <- paste0(lapply(storelines, FUN = function(x) breakFun(x)), collapse = "")
+  return(out)
 }
