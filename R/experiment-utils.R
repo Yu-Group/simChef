@@ -219,6 +219,7 @@ compute_rep <- function(n_reps,
                .method = NULL,
                .method_name = NULL,
                .method_params = NULL,
+               .method_output = NULL,
                .err = data_list) %>%
             list_to_tibble_row() %>%
             maybe_add_debug_data(TRUE)
@@ -278,19 +279,49 @@ compute_rep <- function(n_reps,
                    .method = method_list[[method_name]],
                    .method_name = method_name,
                    .method_params = method_params,
+                   .method_output = NULL,
                    .err = result) %>%
                 list_to_tibble_row() %>%
                 maybe_add_debug_data(TRUE)
             )
           }
 
-          result <- result %>%
-            tibble::add_column(
-              param_df, .before = 1,
-              .name_repair = ~check_results_names(
-                ., method_name
-              )
+          names_check <- tryCatch(
+            check_results_names(
+              c(names(result), names(param_df)),
+              method_name
+            ),
+            error = identity
+          )
+
+          if ("error" %in% class(names_check)) {
+
+            if (err_on_ref) {
+              # env
+              error_state[["error"]] <- TRUE
+            } else {
+              # data.table
+              data.table::set(error_state, j = "error", value = TRUE)
+            }
+
+            method_params$data_list <- NULL
+
+            return(
+              list(.dgp = dgp_list[[dgp_name]],
+                   .dgp_name = dgp_name,
+                   .dgp_params = dgp_params,
+                   .method = method_list[[method_name]],
+                   .method_name = method_name,
+                   .method_params = method_params,
+                   .method_output = result,
+                   .err = names_check) %>%
+                list_to_tibble_row() %>%
+                maybe_add_debug_data(TRUE)
             )
+          }
+
+          result <- result %>%
+            tibble::add_column(param_df, .before = 1)
 
           p("of total reps")
 

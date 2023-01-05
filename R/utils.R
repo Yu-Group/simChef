@@ -428,8 +428,8 @@ check_results_names <- function(names, method_name) {
       paste0(
         "Cannot create `fit_results` tibble with duplicate column names: `",
         paste(dup_names, collapse = "`, `"), "`.\nPlease check that the ",
-        method_name, "() output does not have the same names as the ",
-        "parameters being varied across in the Experiment. ",
+        method_name, "() output does not have the same names as\n",
+        "the parameters being varied across in the Experiment.\n",
         "In particular, avoid using `", paste(dup_names, collapse = "`, `"),
         "` as names in the ", method_name, "() output."
       )

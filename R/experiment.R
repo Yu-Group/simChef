@@ -1007,13 +1007,14 @@ Experiment <- R6::R6Class(
             ) %>%
             dplyr::select(.dgp, .dgp_name, .dgp_params,
                           .method, .method_name, .method_params,
-                          .err, .pid, .gc) %>%
+                          .method_output, .err, .pid, .gc) %>%
             dplyr::arrange(.dgp_name, .method_name)
 
           # filter out errors
           new_fit_results <- new_fit_results %>%
             dplyr::filter(purrr::map_lgl(.err, is.null)) %>%
-            dplyr::select(-c(.dgp, .dgp_params, .method, .method_params, .err))
+            dplyr::select(-c(.dgp, .dgp_params, .method, .method_params,
+                             .method_output, .err))
 
           if (isFALSE(getOption("simChef.debug", FALSE))) {
             new_fit_results <- new_fit_results %>%
@@ -1027,10 +1028,11 @@ Experiment <- R6::R6Class(
             paste0(
               "Error(s) encountered while running the simulation, ",
               "including:\n\n", errors$.err[[1]]$message,
-              "\n\nUse `rlang::last_error()$partial_results`",
-              "to return partial simulation results and ",
-              "`rlang::last_error()$errors` to get simulation errors with ",
-              "the `DGP`, `Method`, and params that led to the error."
+              "\n\nRun `rlang::last_error()$partial_results`",
+              "to return partial simulation results.\n",
+              "Run `rlang::last_error()$errors` to inspect each error, ",
+              "along with the params,\n  `DGP`, `Method`, and ",
+              "inputs/outputs before the error occurred."
             ),
             partial_results = new_fit_results,
             errors = errors
