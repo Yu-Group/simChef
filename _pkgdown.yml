@@ -25,6 +25,7 @@ reference:
       - get_save_dir
       - set_save_dir
       - save_experiment
+      - export_visualizers
   - title: "R Markdown Report"
     desc: >
       Functions for summarizing and visualizing results from a simulation
