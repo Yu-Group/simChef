@@ -348,7 +348,7 @@ do_call_handler <- function(name,
                             verbose = 1,
                             call = rlang::caller_env()) {
   handler <- function(condition = "Error") {
-    function(c) {
+    function(cond) {
 
       # TODO: add 'signal' arg which determines whether or not to signal the
       # captured condition
@@ -357,7 +357,7 @@ do_call_handler <- function(name,
         params_str <- " (params empty)."
       } else {
         params_str <- paste0(
-          utils::capture.output(tibble::glimpse(params))[-1], collapse="\n"
+          utils::capture.output(tibble::glimpse(params))[-1], collapse = "\n"
         )
         params_str <- paste0(" with the following params:\n", params_str)
       }
@@ -369,7 +369,7 @@ do_call_handler <- function(name,
       msg_start <- if (condition == "Message") {
         paste0("The message below")
       } else {
-        paste0(c$message, "\nThe above ", tolower(condition))
+        paste0(cond$message, "\nThe above ", tolower(condition))
       }
 
       msg <- paste0(
@@ -378,7 +378,7 @@ do_call_handler <- function(name,
 
       if (condition == "Error") {
         rlang::abort(
-          msg, parent = c, class = "simChef_error", call = call
+          msg, parent = cond, class = "simChef_error", call = call
         )
 
       } else if (condition == "Warning") {
