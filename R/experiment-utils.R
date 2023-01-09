@@ -172,136 +172,170 @@ compute_rep <- function(n_reps,
     future_env <- rlang::current_env()
     withr::defer(clean_up_worker_env("future", env = future_env))
 
-    dgp_res <- purrr::map_dfr(dgp_params_list, function(dgp_params) {
+    dgp_res <- purrr::list_rbind(purrr::map(
+      dgp_params_list,
+      function(dgp_params) {
 
-      dgp_env <- rlang::current_env()
-      withr::defer(clean_up_worker_env("dgp", env = dgp_env))
+        dgp_env <- rlang::current_env()
+        withr::defer(clean_up_worker_env("dgp", env = dgp_env))
 
-      if (error_state[["error"]]) {
-        return(NULL)
-      }
-
-      if (!is.null(new_fit_params)) {
-        # TODO: do this outside of loop
-        method_params_list <- get_new_method_params(
-          dgp_params, new_fit_params
-        )
-      }
-
-      dgp_name <- dgp_params$.dgp_name
-      dgp_params$.dgp_name <- NULL
-
-      # seed <- list(.Random.seed)
-
-      data_list <- do_call_wrapper(
-        dgp_name,
-        dgp_list[[dgp_name]]$generate,
-        dgp_params,
-        verbose,
-        # hard-coded dgp fun call for error messages
-        call = rlang::call2(paste0(dgp_name, "$dgp_fun(...)"))
-      )
-
-      if ("error" %in% class(data_list)) {
-
-        if (err_on_ref) {
-          # env
-          error_state[["error"]] <- TRUE
-        } else {
-          # data.table
-          data.table::set(error_state, j = "error", value = TRUE)
+        if (error_state[["error"]]) {
+          return(NULL)
         }
 
-        return(
-          list(.dgp = dgp_list[[dgp_name]],
-               .dgp_name = dgp_name,
-               .dgp_params = dgp_params,
-               .method = NULL,
-               .method_name = NULL,
-               .method_params = NULL,
-               .err = data_list) %>%
-            list_to_tibble_row() %>%
-            maybe_add_debug_data(TRUE)
+        if (!is.null(new_fit_params)) {
+          # TODO: do this outside of loop
+          method_params_list <- get_new_method_params(
+            dgp_params, new_fit_params
+          )
+        }
+
+        dgp_name <- dgp_params$.dgp_name
+        dgp_params$.dgp_name <- NULL
+
+        # seed <- list(.Random.seed)
+
+        data_list <- do_call_wrapper(
+          dgp_name,
+          dgp_list[[dgp_name]]$generate,
+          dgp_params,
+          verbose,
+          # hard-coded dgp fun call for error messages
+          call = rlang::call2(paste0(dgp_name, "$dgp_fun(...)"))
         )
-      }
 
-      method_res <- purrr::map_dfr(
-        method_params_list,
-        function(method_params) {
+        if ("error" %in% class(data_list)) {
 
-          method_env <- rlang::current_env()
-          withr::defer(
-            clean_up_worker_env("method", env = method_env),
-            envir = method_env
-          )
-
-          method_name <- method_params$.method_name
-
-          param_df <- fix_duplicate_param_names(
-            dgp_params = c(.dgp_name = dgp_name, dgp_params),
-            method_params = method_params,
-            duplicate_param_names = duplicate_param_names
-          ) %>%
-            list_to_tibble_row()
-
-          # param_df$.seed <- seed
-
-          method_params$.method_name <- NULL
-          method_params$data_list <- data_list
-          method_params$.simplify <- FALSE
-
-          result <- do_call_wrapper(
-            method_name,
-            method_list[[method_name]]$fit,
-            method_params,
-            verbose,
-            # hard-coded method fun call for error messages
-            call = rlang::call2(paste0(method_name, "$method_fun(...)"))
-          )
-
-          if ("error" %in% class(result)) {
-
-            if (err_on_ref) {
-              # env
-              error_state[["error"]] <- TRUE
-            } else {
-              # data.table
-              data.table::set(error_state, j = "error", value = TRUE)
-            }
-
-            method_params$data_list <- NULL
-
-            return(
-              list(.dgp = dgp_list[[dgp_name]],
-                   .dgp_name = dgp_name,
-                   .dgp_params = dgp_params,
-                   .method = method_list[[method_name]],
-                   .method_name = method_name,
-                   .method_params = method_params,
-                   .err = result) %>%
-                list_to_tibble_row() %>%
-                maybe_add_debug_data(TRUE)
-            )
+          if (err_on_ref) {
+            # env
+            error_state[["error"]] <- TRUE
+          } else {
+            # data.table
+            data.table::set(error_state, j = "error", value = TRUE)
           }
 
-          result <- result %>%
-            tibble::add_column(
-              param_df, .before = 1,
-              .name_repair = ~check_results_names(
-                ., method_name
-              )
+          return(
+            list(.dgp = dgp_list[[dgp_name]],
+                 .dgp_name = dgp_name,
+                 .dgp_params = dgp_params,
+                 .method = NULL,
+                 .method_name = NULL,
+                 .method_params = NULL,
+                 .method_output = NULL,
+                 .err = data_list) %>%
+              list_to_tibble_row() %>%
+              maybe_add_debug_data(TRUE)
+          )
+        }
+
+        method_res <- purrr::list_rbind(purrr::map(
+          method_params_list,
+          function(method_params) {
+
+            method_env <- rlang::current_env()
+            withr::defer(
+              clean_up_worker_env("method", env = method_env),
+              envir = method_env
             )
 
-          p("of total reps")
+            method_name <- method_params$.method_name
 
-          return(result %>% maybe_add_debug_data(debug))
+            param_df <- fix_duplicate_param_names(
+              dgp_params = c(.dgp_name = dgp_name, dgp_params),
+              method_params = method_params,
+              duplicate_param_names = duplicate_param_names
+            ) %>%
+              list_to_tibble_row()
 
-        }
-      ) # method_res <- purrr:map_dfr(
+            # param_df$.seed <- seed
 
-      return(method_res)
+            method_params$.method_name <- NULL
+            method_params$data_list <- data_list
+            method_params$.simplify <- FALSE
 
-    }) # dgp_res <- purrr::map_dfr(
+            result <- do_call_wrapper(
+              method_name,
+              method_list[[method_name]]$fit,
+              method_params,
+              verbose,
+              # hard-coded method fun call for error messages
+              call = rlang::call2(paste0(method_name, "$method_fun(...)"))
+            )
+
+            if ("error" %in% class(result)) {
+
+              if (err_on_ref) {
+                # env
+                error_state[["error"]] <- TRUE
+              } else {
+                # data.table
+                data.table::set(error_state, j = "error", value = TRUE)
+              }
+
+              method_params$data_list <- NULL
+
+              return(
+                list(.dgp = dgp_list[[dgp_name]],
+                     .dgp_name = dgp_name,
+                     .dgp_params = dgp_params,
+                     .method = method_list[[method_name]],
+                     .method_name = method_name,
+                     .method_params = method_params,
+                     .method_output = NULL,
+                     .err = result) %>%
+                  list_to_tibble_row() %>%
+                  maybe_add_debug_data(TRUE)
+              )
+            }
+
+            names_check <- tryCatch(
+              check_results_names(
+                c(names(result), names(param_df)),
+                method_name
+              ),
+              error = identity
+            )
+
+            if ("error" %in% class(names_check)) {
+
+              if (err_on_ref) {
+                # env
+                error_state[["error"]] <- TRUE
+              } else {
+                # data.table
+                data.table::set(error_state, j = "error", value = TRUE)
+              }
+
+              method_params$data_list <- NULL
+
+              return(
+                list(.dgp = dgp_list[[dgp_name]],
+                     .dgp_name = dgp_name,
+                     .dgp_params = dgp_params,
+                     .method = method_list[[method_name]],
+                     .method_name = method_name,
+                     .method_params = method_params,
+                     .method_output = result,
+                     .err = names_check) %>%
+                  list_to_tibble_row() %>%
+                  maybe_add_debug_data(TRUE)
+              )
+            }
+
+            result <- result %>%
+              tibble::add_column(param_df, .before = 1)
+
+            p("of total reps")
+
+            return(result %>% maybe_add_debug_data(debug))
+
+          }
+        )) # method_res <- purrr::list_rbind(purrr::map(
+
+        return(method_res)
+
+      }
+    )) # dgp_res <- purrr::list_rbind(purrr::map(
 
     return(dgp_res)
 

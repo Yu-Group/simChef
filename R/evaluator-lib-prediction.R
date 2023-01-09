@@ -231,10 +231,9 @@ eval_pred_err <- function(fit_results, vary_params = NULL, nested_data = NULL,
       tidyr::unnest(tidyselect::all_of(c(truth_col, estimate_col, prob_cols)))
 
     if (!is.null(groups)) {
+      group_id_vec <- c(rep(".all", nrow(data)), groups)
       data <- dplyr::bind_rows(data, data) %>%
-        dplyr::mutate(
-          .group = tidyselect::all_of(c(rep(".all", nrow(data)), groups))
-        ) %>%
+        dplyr::mutate(.group = group_id_vec) %>%
         dplyr::group_by(.group)
     }
 
@@ -452,10 +451,9 @@ eval_pred_curve <- function(fit_results, vary_params = NULL, nested_data = NULL,
       tidyr::unnest(tidyselect::all_of(c(truth_col, prob_cols)))
 
     if (!is.null(groups)) {
+      group_id_vec <- c(rep(".all", nrow(data)), groups)
       data <- dplyr::bind_rows(data, data) %>%
-        dplyr::mutate(
-          .group = tidyselect::all_of(c(rep(".all", nrow(data)), groups))
-        ) %>%
+        dplyr::mutate(.group = group_id_vec) %>%
         dplyr::group_by(.group)
     }
 

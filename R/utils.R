@@ -32,7 +32,7 @@ check_equal <- function(obj1, obj2) {
   # check if function and function parameters are equal
   if (!identical(obj1[[paste0(class_name, "_fun")]],
                  obj2[[paste0(class_name, "_fun")]],
-                 ignore.environment = TRUE) |
+                 ignore.environment = TRUE) ||
       !identical(obj1[[paste0(class_name, "_params")]],
                  obj2[[paste0(class_name, "_params")]],
                  ignore.environment = TRUE)) {
@@ -53,7 +53,11 @@ check_equal <- function(obj1, obj2) {
 #' @keywords internal
 list_to_tibble_row <- function(lst, simplify = FALSE) {
   out <- purrr::map(lst, ~{
-    if (is.list(.x) && length(.x) == 1) .x else list(.x)
+    if (is.list(.x) && !is.data.frame(.x) && length(.x) == 1) {
+      .x
+    } else {
+      list(.x)
+    }
   }) %>%
     tibble::as_tibble_row()
   return(out)
@@ -77,7 +81,7 @@ list_to_tibble <- function(lst) {
       tibble::as_tibble()
     simplify_cols <- purrr::map_lgl(
       out,
-      ~(length(unlist(.x, recursive = F)) == 1) & !tibble::is_tibble(.x[[1]])
+      ~(length(unlist(.x, recursive = F)) == 1) && !is.data.frame(.x[[1]])
     ) %>%
       which() %>%
       names()
@@ -99,9 +103,9 @@ list_to_tibble <- function(lst) {
 #'
 #' @return A tibble that has been "simplified".
 #' @keywords internal
-simplify_tibble <- function(tbl, empty_as_na=TRUE) {
+simplify_tibble <- function(tbl, empty_as_na = TRUE) {
 
-  simplified_tbl <- purrr::imap_dfc(
+  tbl_list <- purrr::imap(
     tbl,
     function(col, col_name) {
 
@@ -167,7 +171,7 @@ simplify_tibble <- function(tbl, empty_as_na=TRUE) {
         }
 
         # get the final type
-        if (length(x) == 0 || (length(x) == 1 && is.na(x)))  {
+        if (length(x) == 0 || (length(x) == 1 && all(is.na(x))))  {
           type <-  "NA"
         } else {
           type <- typeof(x)
@@ -251,7 +255,10 @@ simplify_tibble <- function(tbl, empty_as_na=TRUE) {
       colnames(tbl_col) <- col_name
       return(tbl_col)
     }
-  )
+  ) # tbl_list <- purrr::imap(
+
+  names(tbl_list) <- NULL
+  simplified_tbl <- purrr::list_cbind(tbl_list)
 
   if ("simChef.debug" %in% names(attributes(tbl))) {
     attr(simplified_tbl, "simChef.debug") <- attributes(tbl)[["simChef.debug"]]
@@ -307,7 +314,7 @@ fix_duplicate_param_names <- function(dgp_params, method_params,
 #' @keywords internal
 compare_tibble_rows <- function(x, y, op = c("equal", "contained_in")) {
   op <- match.arg(op)
-  if ((!tibble::is_tibble(x)) | (!tibble::is_tibble(y))) {
+  if ((!tibble::is_tibble(x)) || (!tibble::is_tibble(y))) {
     stop("x and y must be tibbles.")
   }
   if (ncol(x) != ncol(y)) {
@@ -344,7 +351,7 @@ do_call_handler <- function(name,
                             verbose = 1,
                             call = rlang::caller_env()) {
   handler <- function(condition = "Error") {
-    function(c) {
+    function(cond) {
 
       # TODO: add 'signal' arg which determines whether or not to signal the
       # captured condition
@@ -353,7 +360,7 @@ do_call_handler <- function(name,
         params_str <- " (params empty)."
       } else {
         params_str <- paste0(
-          utils::capture.output(tibble::glimpse(params))[-1], collapse="\n"
+          utils::capture.output(tibble::glimpse(params))[-1], collapse = "\n"
         )
         params_str <- paste0(" with the following params:\n", params_str)
       }
@@ -365,7 +372,7 @@ do_call_handler <- function(name,
       msg_start <- if (condition == "Message") {
         paste0("The message below")
       } else {
-        paste0(c$message, "\nThe above ", tolower(condition))
+        paste0(cond$message, "\nThe above ", tolower(condition))
       }
 
       msg <- paste0(
@@ -374,7 +381,7 @@ do_call_handler <- function(name,
 
       if (condition == "Error") {
         rlang::abort(
-          msg, parent = c, class = "simChef_error", call = call
+          msg, parent = cond, class = "simChef_error", call = call
         )
 
       } else if (condition == "Warning") {
@@ -422,12 +429,12 @@ check_results_names <- function(names, method_name) {
     dup_names <- unique(names[duplicated(names)])
     abort(
       paste0(
-        "Cannot create results tibble with duplicate column names: `",
+        "Cannot create `fit_results` tibble with duplicate column names: `",
         paste(dup_names, collapse = "`, `"), "`.\nPlease check that the ",
-        method_name, "() output does not have the same names as the ",
-        "parameters being varied across in the Experiment and avoid using `",
-        paste(dup_names, collapse = "`, `"), "` as names in the ",
-        method_name, "() output."
+        method_name, "() output does not have the same names as\n",
+        "the parameters being varied across in the Experiment.\n",
+        "In particular, avoid using `", paste(dup_names, collapse = "`, `"),
+        "` as names in the ", method_name, "() output."
       )
     )
   }

@@ -184,9 +184,6 @@ test_that("Various parallel strategies in experiment work properly", {
                                   method_list = list(method1)) %>%
     add_vary_across(.dgp = dgp1, y = c("a", "b", "c"))
 
-  expected_results <- c("data1a+method1", "data1b+method1", "data1c+method1",
-                        "data1a+method1", "data1b+method1", "data1c+method1")
-
   for (strat in strategies) {
 
     # return error if duplicate column names

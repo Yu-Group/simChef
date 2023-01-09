@@ -401,7 +401,7 @@ power_plot_fun <- function(fit_results, vary_params = NULL, col = "X1") {
     ggplot2::aes(x = .data[[paste(col, "p-value")]],
                  color = as.factor(.method_name)) +
     ggplot2::geom_abline(slope = 1, intercept = 0,
-                         color = "darkgray", linetype = "solid", size = 1) +
+                         color = "darkgray", linetype = "solid", linewidth = 1) +
     ggplot2::stat_ecdf(size = 1) +
     ggplot2::scale_x_continuous(limits = c(0, 1)) +
     ggplot2::labs(x = "t", y = "P( p-value \u2264 t )",
@@ -725,9 +725,11 @@ Alternatively, `set_doc_options()` can be used to update the R Markdown option f
 experiment <- experiment %>%
   set_doc_options(field_name = "visualizer", name = "Power", show = TRUE,
                   height = 10, width = 8)
+save_experiment(experiment)
 ```
 
-To hide the output of an `Evaluator()` or `Visualizer()` in the R Markdown report, set `show = FALSE` in `set_doc_options()` or `create_*`.
+To hide the output of an `Evaluator()` or `Visualizer()` in the R Markdown report, set `show = FALSE` in `set_doc_options()` or `create_*`. 
+Note that if document options are set after running the experiment, the experiment must be manually saved via `save_experiment(experiment)` in order for these changes to appear in the R Markdown output.
 
 There are additional customization options that can be set in `render_docs()` including the order in which results of Evaluators and Visualizers are displayed (via the `eval_order` and `viz_order` arguments) and the Rmd output type or theme. For example,
 

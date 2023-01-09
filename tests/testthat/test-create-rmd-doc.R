@@ -203,7 +203,12 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
                       show = FALSE)
     results <- run_experiment(experiment, save = TRUE, verbose = 0)
 
+    experiment <- experiment %>%
+      add_vary_across(.dgp = "DGP", x = 1:3)
+    results <- run_experiment(experiment, save = TRUE, verbose = 0)
+
     expect_error(render_docs(experiment, open = FALSE, verbose = 0), NA)
+    expect_snapshot(render_docs(experiment, open = FALSE))
 
     expect_equal(purrr::map_lgl(experiment$get_evaluators(), "doc_show"),
                  c(T, T, T, F) %>% setNames(names(experiment$get_evaluators())))
@@ -215,6 +220,116 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
     expect_equal(purrr::map_dbl(experiment$get_visualizers(),
                                 ~.x$doc_options$height),
                  c(6, 3, 9, 6) %>% setNames(names(experiment$get_visualizers())))
+
+    evaluator1 <- create_evaluator(eval_fun)
+    evaluator2 <- create_evaluator(eval_fun, .doc_options = list(digits = 3))
+    evaluator3 <- create_evaluator(eval_fun)
+    evaluator4 <- create_evaluator(eval_fun)
+    visualizer1 <- create_visualizer(viz_fun)
+    visualizer2 <- create_visualizer(viz_fun, .doc_options = list(height = 3))
+    visualizer3 <- create_visualizer(viz_fun)
+    visualizer4 <- create_visualizer(viz_fun)
+
+    experiment <- create_experiment(name = "test-doc-options-2") %>%
+      add_dgp(dgp, "DGP") %>%
+      add_method(method, "Method") %>%
+      add_evaluator(evaluator1, "Evaluator (digits = 2)") %>%
+      add_evaluator(evaluator2, "Evaluator (digits = 3)") %>%
+      add_evaluator(evaluator3, "Evaluator (digits = 4)") %>%
+      add_evaluator(evaluator4, "Evaluator (no show)") %>%
+      set_doc_options(field_name = "evaluator", name = "Evaluator (digits = 4)",
+                      digits = 4) %>%
+      set_doc_options(field_name = "evaluator", name = "Evaluator (no show)",
+                      show = FALSE) %>%
+      add_visualizer(visualizer1, "Visualizer (height = 6)") %>%
+      add_visualizer(visualizer2, "Visualizer (height = 3)") %>%
+      add_visualizer(visualizer3, "Visualizer (height = 9)") %>%
+      add_visualizer(visualizer4, "Visualizer (no show)") %>%
+      set_doc_options(field_name = "visualizer", name = "Visualizer (height = 9)",
+                      height = 9) %>%
+      set_doc_options(field_name = "visualizer", name = "Visualizer (no show)",
+                      show = FALSE) %>%
+      add_vary_across(.dgp = "DGP", x = 1:3)
+    results <- run_experiment(experiment, save = TRUE, verbose = 0)
+    expect_error(render_docs(experiment, open = FALSE, verbose = 0), NA)
+    expect_snapshot(render_docs(experiment, open = FALSE))
+
+    evaluator1 <- create_evaluator(eval_fun)
+    evaluator2 <- create_evaluator(eval_fun, .doc_options = list(digits = 3))
+    evaluator3 <- create_evaluator(eval_fun)
+    evaluator4 <- create_evaluator(eval_fun)
+    visualizer1 <- create_visualizer(viz_fun)
+    visualizer2 <- create_visualizer(viz_fun, .doc_options = list(height = 3))
+    visualizer3 <- create_visualizer(viz_fun)
+    visualizer4 <- create_visualizer(viz_fun)
+
+    experiment <- create_experiment(name = "test-doc-options-3") %>%
+      add_dgp(dgp, "DGP") %>%
+      add_method(method, "Method") %>%
+      add_evaluator(evaluator1, "Evaluator (digits = 2)") %>%
+      add_evaluator(evaluator2, "Evaluator (digits = 3)") %>%
+      add_evaluator(evaluator3, "Evaluator (digits = 4)") %>%
+      add_evaluator(evaluator4, "Evaluator (no show)") %>%
+      add_visualizer(visualizer1, "Visualizer (height = 6)") %>%
+      add_visualizer(visualizer2, "Visualizer (height = 3)") %>%
+      add_visualizer(visualizer3, "Visualizer (height = 9)") %>%
+      add_visualizer(visualizer4, "Visualizer (no show)")
+    results <- run_experiment(experiment, save = TRUE, verbose = 0)
+
+    experiment <- experiment %>%
+      set_doc_options(field_name = "evaluator", name = "Evaluator (digits = 4)",
+                      digits = 4) %>%
+      set_doc_options(field_name = "evaluator", name = "Evaluator (no show)",
+                      show = FALSE) %>%
+      set_doc_options(field_name = "visualizer", name = "Visualizer (height = 9)",
+                      height = 9) %>%
+      set_doc_options(field_name = "visualizer", name = "Visualizer (no show)",
+                      show = FALSE)
+
+    expect_error(render_docs(experiment, open = FALSE, verbose = 0), NA)
+    expect_snapshot(render_docs(experiment, open = FALSE))
+    save_experiment(experiment)
+    expect_error(render_docs(experiment, open = FALSE, verbose = 0), NA)
+    expect_snapshot(render_docs(experiment, open = FALSE))
+
+    evaluator1 <- create_evaluator(eval_fun)
+    evaluator2 <- create_evaluator(eval_fun, .doc_options = list(digits = 3))
+    evaluator3 <- create_evaluator(eval_fun)
+    evaluator4 <- create_evaluator(eval_fun)
+    visualizer1 <- create_visualizer(viz_fun)
+    visualizer2 <- create_visualizer(viz_fun, .doc_options = list(height = 3))
+    visualizer3 <- create_visualizer(viz_fun)
+    visualizer4 <- create_visualizer(viz_fun)
+
+    experiment <- create_experiment(name = "test-doc-options-4") %>%
+      add_dgp(dgp, "DGP") %>%
+      add_method(method, "Method") %>%
+      add_evaluator(evaluator1, "Evaluator (digits = 2)") %>%
+      add_evaluator(evaluator2, "Evaluator (digits = 3)") %>%
+      add_evaluator(evaluator3, "Evaluator (digits = 4)") %>%
+      add_evaluator(evaluator4, "Evaluator (no show)") %>%
+      add_visualizer(visualizer1, "Visualizer (height = 6)") %>%
+      add_visualizer(visualizer2, "Visualizer (height = 3)") %>%
+      add_visualizer(visualizer3, "Visualizer (height = 9)") %>%
+      add_visualizer(visualizer4, "Visualizer (no show)") %>%
+      add_vary_across(.dgp = "DGP", x = 1:3)
+    results <- run_experiment(experiment, save = TRUE, verbose = 0)
+
+    experiment <- experiment %>%
+      set_doc_options(field_name = "evaluator", name = "Evaluator (digits = 4)",
+                      digits = 4) %>%
+      set_doc_options(field_name = "evaluator", name = "Evaluator (no show)",
+                      show = FALSE) %>%
+      set_doc_options(field_name = "visualizer", name = "Visualizer (height = 9)",
+                      height = 9) %>%
+      set_doc_options(field_name = "visualizer", name = "Visualizer (no show)",
+                      show = FALSE)
+
+    expect_error(render_docs(experiment, open = FALSE, verbose = 0), NA)
+    expect_snapshot(render_docs(experiment, open = FALSE))
+    save_experiment(experiment)
+    expect_error(render_docs(experiment, open = FALSE, verbose = 0), NA)
+    expect_snapshot(render_docs(experiment, open = FALSE))
   })
 
 }) # withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {

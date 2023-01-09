@@ -934,6 +934,7 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
     expect_equal(nrow(fit_results), 3 * 2 * 2 * 2 * 3)
     fit_results_copy <- fit_experiment(experiment_copy, save = FALSE, verbose = 0)
     expect_equal(fit_results, fit_results_copy)
+
   })
 
   test_that("Saving methods in Experiment works properly", {
@@ -1017,7 +1018,8 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
 
   test_that("Capturing errors, warnings, and messages from user-defined functions works as expected", {
 
-    skip("working in globalenv but not in tests")
+    skip_on_ci()
+    skip_on_cran()
 
     dgp_fun <- function(n=100, rho=0.5, noise_level=1) {
       X <- data.frame(.n = n, .rho = rho, .noise_level = noise_level)
@@ -1110,6 +1112,49 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
       error = TRUE, transform = transform_fun
     )
 
+  })
+
+  test_that("Signal simChef_error when output from Method has same name as a vary_across param", {
+      dgp_fun1 <- function(y = "") return(x = list(paste0("data1", y)))
+      dgp1 <- create_dgp(dgp_fun1)
+
+      method_fun1 <- function(x) return(list(y = paste0(x, "+method1")))
+      method1 <- create_method(method_fun1)
+
+      method_fun2 <- function(x, z = "a") return(list(z = paste0(x, "+method2", z)))
+      method2 <- create_method(method_fun2)
+
+      # varying dgp param
+      experiment <- create_experiment(dgp_list = list(dgp1),
+                                      method_list = list(method1)) %>%
+        add_vary_across(.dgp = dgp1, y = c("a", "b", "c"))
+
+      expected_err_msg <- "Cannot create `fit_results` tibble with duplicate column names: "
+
+      err <- expect_error(experiment$fit(n_reps = 2, verbose = 0))
+      expect_partial_results_and_errors(err)
+      expect_true(grepl(paste0(expected_err_msg, "`y`."), err$message))
+      expect_s3_class(err$errors$.method_output[[1]], "tbl_df")
+      expect_named(err$errors$.method_output[[1]], "y")
+      expect_equal(err$errors$.method_output[[1]]$y[[1]], "data1a+method1")
+
+      experiment <- create_experiment(dgp_list = list(dgp1),
+                                      method_list = list(method2 = method2)) %>%
+        add_vary_across(.method = method2, z = c("a", "b", "c"))
+
+      # varying method param
+      err <- expect_error(experiment$fit(n_reps = 2, verbose = 0))
+      expect_partial_results_and_errors(err)
+      expect_true(grepl(paste0(expected_err_msg, "`z`."), err$message))
+      expect_s3_class(err$errors$.method_output[[1]], "tbl_df")
+      expect_length(err$errors$.method_output, 3)
+      for (i in seq(3)) {
+        expected_output <- paste0(
+          "data1+method2", unlist(experiment$get_vary_across())[i]
+        )
+        expect_named(err$errors$.method_output[[i]], "z")
+        expect_equal(err$errors$.method_output[[i]]$z[[1]], expected_output)
+      }
   })
 
 }) # withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
