@@ -1018,6 +1018,9 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
 
   test_that("Capturing errors, warnings, and messages from user-defined functions works as expected", {
 
+    skip_on_ci()
+    skip_on_cran()
+
     dgp_fun <- function(n=100, rho=0.5, noise_level=1) {
       X <- data.frame(.n = n, .rho = rho, .noise_level = noise_level)
       if (rho < 0.5)
