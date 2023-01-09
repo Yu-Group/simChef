@@ -105,7 +105,7 @@ list_to_tibble <- function(lst) {
 #' @keywords internal
 simplify_tibble <- function(tbl, empty_as_na = TRUE) {
 
-  simplified_tbl <- purrr::imap_dfc(
+  tbl_list <- purrr::imap(
     tbl,
     function(col, col_name) {
 
@@ -255,7 +255,10 @@ simplify_tibble <- function(tbl, empty_as_na = TRUE) {
       colnames(tbl_col) <- col_name
       return(tbl_col)
     }
-  )
+  ) # tbl_list <- purrr::imap(
+
+  names(tbl_list) <- NULL
+  simplified_tbl <- purrr::list_cbind(tbl_list)
 
   if ("simChef.debug" %in% names(attributes(tbl))) {
     attr(simplified_tbl, "simChef.debug") <- attributes(tbl)[["simChef.debug"]]

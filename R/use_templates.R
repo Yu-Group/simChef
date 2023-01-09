@@ -593,13 +593,13 @@ use_method_template <- function(ids = NULL) {
           prob_preds <- stats::predict(fit, as.data.frame(Xtest), 
                                        predict.all = TRUE,
                                        num.threads = 1)$predictions
-          prob_preds <- purrr::map_dfr(
+          prob_preds <- purrr::list_rbind(purrr::map(
             1:nrow(prob_preds),
             function(i) {
               x <- factor(prob_preds[i, ], levels = 1:k)
-              c(prop.table(table(x)))
+              tibble::as_tibble_row(c(prop.table(table(x))))
             }
-          ) %>% 
+          )) %>%
             stats::setNames(levels(y)) %>%
             dplyr::select(-1)
         } else {
