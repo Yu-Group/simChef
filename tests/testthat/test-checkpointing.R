@@ -56,13 +56,15 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
     expect_equal(max(as.numeric(fit_results$.rep)), 5)
     expect_equal(nrow(fit_results), 40)
 
-    vary_results <- mapply(list, distinct_results$param1, distinct_results$param2,
-                           distinct_results$vec, SIMPLIFY = FALSE)
-    expected_vary_results <- cross(
-      list(c(1,2), c(3,4), list(c(1,3,4), 2:7))
+    vary_results <- distinct_results %>%
+      dplyr::select(param1, param2, vec) %>%
+      dplyr::arrange(param1, param2)
+
+    expected_vary_results <- tidyr::expand_grid(
+      param1 = c(1, 2), param2 = c(3, 4), vec = list(c(1, 3, 4), 2:7)
     )
 
-    expect_equal(vary_results, expected_vary_results)
+    expect_identical(vary_results, expected_vary_results)
 
     fit_results <- experiment$fit(n_reps = 10, checkpoint_n_reps = 5, verbose=0)
 

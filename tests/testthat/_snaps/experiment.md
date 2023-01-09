@@ -298,6 +298,20 @@
     $DGP1[[2]]
     $DGP1[[2]][[1]]
     $DGP1[[2]][[1]][[1]]
+    [1] 2
+    
+    
+    attr(,"params")
+    attr(,"params")$x
+    [1] 1
+    
+    attr(,"params")$y
+    [1] 2
+    
+    
+    $DGP1[[3]]
+    $DGP1[[3]][[1]]
+    $DGP1[[3]][[1]][[1]]
     [1] 3
     
     
@@ -307,20 +321,6 @@
     
     attr(,"params")$y
     [1] 1
-    
-    
-    $DGP1[[3]]
-    $DGP1[[3]][[1]]
-    $DGP1[[3]][[1]][[1]]
-    [1] 2
-    
-    
-    attr(,"params")
-    attr(,"params")$x
-    [1] 1
-    
-    attr(,"params")$y
-    [1] 2
     
     
     $DGP1[[4]]
@@ -399,39 +399,39 @@
     $DGP1[[2]]
     $DGP1[[2]][[1]]
     $DGP1[[2]][[1]][[1]]
-    [1] 3
+    [1] 2
     
     
     $DGP1[[2]][[2]]
     $DGP1[[2]][[2]][[1]]
-    [1] 3
+    [1] 2
     
     
     attr(,"params")
     attr(,"params")$x
-    [1] 2
+    [1] 1
     
     attr(,"params")$y
-    [1] 1
+    [1] 2
     
     
     $DGP1[[3]]
     $DGP1[[3]][[1]]
     $DGP1[[3]][[1]][[1]]
-    [1] 2
+    [1] 3
     
     
     $DGP1[[3]][[2]]
     $DGP1[[3]][[2]][[1]]
-    [1] 2
+    [1] 3
     
     
     attr(,"params")
     attr(,"params")$x
-    [1] 1
+    [1] 2
     
     attr(,"params")$y
-    [1] 2
+    [1] 1
     
     
     $DGP1[[4]]
@@ -641,8 +641,6 @@
     Message <simpleMessage>
       3 isn't in vec
       3 isn't in vec
-      3 isn't in vec
-      3 isn't in vec
     Warning <simpleWarning>
       rho must be greater than 0.5
     Message <simpleMessage>
@@ -650,9 +648,6 @@
       3 isn't in vec
       3 isn't in vec
       3 isn't in vec
-    Warning <simpleWarning>
-      rho must be greater than 0.5
-    Message <simpleMessage>
       3 isn't in vec
       3 isn't in vec
     Warning <simpleWarning>
@@ -665,11 +660,16 @@
     Message <simpleMessage>
       3 isn't in vec
       3 isn't in vec
+    Warning <simpleWarning>
+      rho must be greater than 0.5
+    Message <simpleMessage>
       3 isn't in vec
       3 isn't in vec
     Warning <simpleWarning>
       rho must be greater than 0.5
     Message <simpleMessage>
+      3 isn't in vec
+      3 isn't in vec
       3 isn't in vec
       3 isn't in vec
       3 isn't in vec
@@ -683,14 +683,14 @@
       invisible(fit_results <- experiment$fit(n_reps = 2, verbose = 2))
     Message <simpleMessage>
       Fitting error-tracking...
-    Warning <simChefWarning>
+    Warning <simChef_warning>
       rho must be greater than 0.5
       The above warning occurred while processing "dgp1" with the following params:
        $ rho        : num 0.2
        $ noise_level: num 1
     Warning <simpleWarning>
       rho must be greater than 0.5
-    Message <simChefMessage>
+    Message <simChef_message>
       The message below occurred while processing "method_test" with the following params:
        $ param2   : num 2
        $ vec      : int [1:4] 4 5 6 7
@@ -702,7 +702,7 @@
        $ .simplify: logi FALSE
     Message <simpleMessage>
       3 isn't in vec
-    Message <simChefMessage>
+    Message <simChef_message>
       The message below occurred while processing "method_test" with the following params:
        $ param2   : num 4
        $ vec      : int [1:4] 4 5 6 7
@@ -714,14 +714,14 @@
        $ .simplify: logi FALSE
     Message <simpleMessage>
       3 isn't in vec
-    Warning <simChefWarning>
+    Warning <simChef_warning>
       rho must be greater than 0.5
       The above warning occurred while processing "dgp1" with the following params:
        $ rho        : num 0.2
        $ noise_level: num 2
     Warning <simpleWarning>
       rho must be greater than 0.5
-    Message <simChefMessage>
+    Message <simChef_message>
       The message below occurred while processing "method_test" with the following params:
        $ param2   : num 2
        $ vec      : int [1:4] 4 5 6 7
@@ -733,7 +733,7 @@
        $ .simplify: logi FALSE
     Message <simpleMessage>
       3 isn't in vec
-    Message <simChefMessage>
+    Message <simChef_message>
       The message below occurred while processing "method_test" with the following params:
        $ param2   : num 4
        $ vec      : int [1:4] 4 5 6 7
@@ -745,14 +745,14 @@
        $ .simplify: logi FALSE
     Message <simpleMessage>
       3 isn't in vec
-    Warning <simChefWarning>
+    Warning <simChef_warning>
       rho must be greater than 0.5
       The above warning occurred while processing "dgp_test" with the following params:
        $ rho        : num 0.2
        $ noise_level: num 1
     Warning <simpleWarning>
       rho must be greater than 0.5
-    Message <simChefMessage>
+    Message <simChef_message>
       The message below occurred while processing "method_test" with the following params:
        $ param2   : num 2
        $ vec      : int [1:4] 4 5 6 7
@@ -764,7 +764,7 @@
        $ .simplify: logi FALSE
     Message <simpleMessage>
       3 isn't in vec
-    Message <simChefMessage>
+    Message <simChef_message>
       The message below occurred while processing "method_test" with the following params:
        $ param2   : num 4
        $ vec      : int [1:4] 4 5 6 7
@@ -776,38 +776,14 @@
        $ .simplify: logi FALSE
     Message <simpleMessage>
       3 isn't in vec
-    Message <simChefMessage>
-      The message below occurred while processing "method_test" with the following params:
-       $ param2   : num 2
-       $ vec      : int [1:4] 4 5 6 7
-       $ data_list:List of 1
-        ..$ X:'data.frame':	1 obs. of  3 variables:
-        .. ..$ .n          : num 10
-        .. ..$ .rho        : num 0.9
-        .. ..$ .noise_level: num 1
-       $ .simplify: logi FALSE
-    Message <simpleMessage>
-      3 isn't in vec
-    Message <simChefMessage>
-      The message below occurred while processing "method_test" with the following params:
-       $ param2   : num 4
-       $ vec      : int [1:4] 4 5 6 7
-       $ data_list:List of 1
-        ..$ X:'data.frame':	1 obs. of  3 variables:
-        .. ..$ .n          : num 10
-        .. ..$ .rho        : num 0.9
-        .. ..$ .noise_level: num 1
-       $ .simplify: logi FALSE
-    Message <simpleMessage>
-      3 isn't in vec
-    Warning <simChefWarning>
+    Warning <simChef_warning>
       rho must be greater than 0.5
       The above warning occurred while processing "dgp_test" with the following params:
        $ rho        : num 0.2
        $ noise_level: num 2
     Warning <simpleWarning>
       rho must be greater than 0.5
-    Message <simChefMessage>
+    Message <simChef_message>
       The message below occurred while processing "method_test" with the following params:
        $ param2   : num 2
        $ vec      : int [1:4] 4 5 6 7
@@ -819,7 +795,7 @@
        $ .simplify: logi FALSE
     Message <simpleMessage>
       3 isn't in vec
-    Message <simChefMessage>
+    Message <simChef_message>
       The message below occurred while processing "method_test" with the following params:
        $ param2   : num 4
        $ vec      : int [1:4] 4 5 6 7
@@ -831,7 +807,31 @@
        $ .simplify: logi FALSE
     Message <simpleMessage>
       3 isn't in vec
-    Message <simChefMessage>
+    Message <simChef_message>
+      The message below occurred while processing "method_test" with the following params:
+       $ param2   : num 2
+       $ vec      : int [1:4] 4 5 6 7
+       $ data_list:List of 1
+        ..$ X:'data.frame':	1 obs. of  3 variables:
+        .. ..$ .n          : num 10
+        .. ..$ .rho        : num 0.9
+        .. ..$ .noise_level: num 1
+       $ .simplify: logi FALSE
+    Message <simpleMessage>
+      3 isn't in vec
+    Message <simChef_message>
+      The message below occurred while processing "method_test" with the following params:
+       $ param2   : num 4
+       $ vec      : int [1:4] 4 5 6 7
+       $ data_list:List of 1
+        ..$ X:'data.frame':	1 obs. of  3 variables:
+        .. ..$ .n          : num 10
+        .. ..$ .rho        : num 0.9
+        .. ..$ .noise_level: num 1
+       $ .simplify: logi FALSE
+    Message <simpleMessage>
+      3 isn't in vec
+    Message <simChef_message>
       The message below occurred while processing "method_test" with the following params:
        $ param2   : num 2
        $ vec      : int [1:4] 4 5 6 7
@@ -843,7 +843,7 @@
        $ .simplify: logi FALSE
     Message <simpleMessage>
       3 isn't in vec
-    Message <simChefMessage>
+    Message <simChef_message>
       The message below occurred while processing "method_test" with the following params:
        $ param2   : num 4
        $ vec      : int [1:4] 4 5 6 7
@@ -855,14 +855,14 @@
        $ .simplify: logi FALSE
     Message <simpleMessage>
       3 isn't in vec
-    Warning <simChefWarning>
+    Warning <simChef_warning>
       rho must be greater than 0.5
       The above warning occurred while processing "dgp1" with the following params:
        $ rho        : num 0.2
        $ noise_level: num 1
     Warning <simpleWarning>
       rho must be greater than 0.5
-    Message <simChefMessage>
+    Message <simChef_message>
       The message below occurred while processing "method_test" with the following params:
        $ param2   : num 2
        $ vec      : int [1:4] 4 5 6 7
@@ -874,7 +874,7 @@
        $ .simplify: logi FALSE
     Message <simpleMessage>
       3 isn't in vec
-    Message <simChefMessage>
+    Message <simChef_message>
       The message below occurred while processing "method_test" with the following params:
        $ param2   : num 4
        $ vec      : int [1:4] 4 5 6 7
@@ -886,14 +886,14 @@
        $ .simplify: logi FALSE
     Message <simpleMessage>
       3 isn't in vec
-    Warning <simChefWarning>
+    Warning <simChef_warning>
       rho must be greater than 0.5
       The above warning occurred while processing "dgp1" with the following params:
        $ rho        : num 0.2
        $ noise_level: num 2
     Warning <simpleWarning>
       rho must be greater than 0.5
-    Message <simChefMessage>
+    Message <simChef_message>
       The message below occurred while processing "method_test" with the following params:
        $ param2   : num 2
        $ vec      : int [1:4] 4 5 6 7
@@ -905,7 +905,7 @@
        $ .simplify: logi FALSE
     Message <simpleMessage>
       3 isn't in vec
-    Message <simChefMessage>
+    Message <simChef_message>
       The message below occurred while processing "method_test" with the following params:
        $ param2   : num 4
        $ vec      : int [1:4] 4 5 6 7
@@ -917,14 +917,14 @@
        $ .simplify: logi FALSE
     Message <simpleMessage>
       3 isn't in vec
-    Warning <simChefWarning>
+    Warning <simChef_warning>
       rho must be greater than 0.5
       The above warning occurred while processing "dgp_test" with the following params:
        $ rho        : num 0.2
        $ noise_level: num 1
     Warning <simpleWarning>
       rho must be greater than 0.5
-    Message <simChefMessage>
+    Message <simChef_message>
       The message below occurred while processing "method_test" with the following params:
        $ param2   : num 2
        $ vec      : int [1:4] 4 5 6 7
@@ -936,7 +936,7 @@
        $ .simplify: logi FALSE
     Message <simpleMessage>
       3 isn't in vec
-    Message <simChefMessage>
+    Message <simChef_message>
       The message below occurred while processing "method_test" with the following params:
        $ param2   : num 4
        $ vec      : int [1:4] 4 5 6 7
@@ -948,38 +948,14 @@
        $ .simplify: logi FALSE
     Message <simpleMessage>
       3 isn't in vec
-    Message <simChefMessage>
-      The message below occurred while processing "method_test" with the following params:
-       $ param2   : num 2
-       $ vec      : int [1:4] 4 5 6 7
-       $ data_list:List of 1
-        ..$ X:'data.frame':	1 obs. of  3 variables:
-        .. ..$ .n          : num 10
-        .. ..$ .rho        : num 0.9
-        .. ..$ .noise_level: num 1
-       $ .simplify: logi FALSE
-    Message <simpleMessage>
-      3 isn't in vec
-    Message <simChefMessage>
-      The message below occurred while processing "method_test" with the following params:
-       $ param2   : num 4
-       $ vec      : int [1:4] 4 5 6 7
-       $ data_list:List of 1
-        ..$ X:'data.frame':	1 obs. of  3 variables:
-        .. ..$ .n          : num 10
-        .. ..$ .rho        : num 0.9
-        .. ..$ .noise_level: num 1
-       $ .simplify: logi FALSE
-    Message <simpleMessage>
-      3 isn't in vec
-    Warning <simChefWarning>
+    Warning <simChef_warning>
       rho must be greater than 0.5
       The above warning occurred while processing "dgp_test" with the following params:
        $ rho        : num 0.2
        $ noise_level: num 2
     Warning <simpleWarning>
       rho must be greater than 0.5
-    Message <simChefMessage>
+    Message <simChef_message>
       The message below occurred while processing "method_test" with the following params:
        $ param2   : num 2
        $ vec      : int [1:4] 4 5 6 7
@@ -991,7 +967,7 @@
        $ .simplify: logi FALSE
     Message <simpleMessage>
       3 isn't in vec
-    Message <simChefMessage>
+    Message <simChef_message>
       The message below occurred while processing "method_test" with the following params:
        $ param2   : num 4
        $ vec      : int [1:4] 4 5 6 7
@@ -1003,7 +979,31 @@
        $ .simplify: logi FALSE
     Message <simpleMessage>
       3 isn't in vec
-    Message <simChefMessage>
+    Message <simChef_message>
+      The message below occurred while processing "method_test" with the following params:
+       $ param2   : num 2
+       $ vec      : int [1:4] 4 5 6 7
+       $ data_list:List of 1
+        ..$ X:'data.frame':	1 obs. of  3 variables:
+        .. ..$ .n          : num 10
+        .. ..$ .rho        : num 0.9
+        .. ..$ .noise_level: num 1
+       $ .simplify: logi FALSE
+    Message <simpleMessage>
+      3 isn't in vec
+    Message <simChef_message>
+      The message below occurred while processing "method_test" with the following params:
+       $ param2   : num 4
+       $ vec      : int [1:4] 4 5 6 7
+       $ data_list:List of 1
+        ..$ X:'data.frame':	1 obs. of  3 variables:
+        .. ..$ .n          : num 10
+        .. ..$ .rho        : num 0.9
+        .. ..$ .noise_level: num 1
+       $ .simplify: logi FALSE
+    Message <simpleMessage>
+      3 isn't in vec
+    Message <simChef_message>
       The message below occurred while processing "method_test" with the following params:
        $ param2   : num 2
        $ vec      : int [1:4] 4 5 6 7
@@ -1015,7 +1015,7 @@
        $ .simplify: logi FALSE
     Message <simpleMessage>
       3 isn't in vec
-    Message <simChefMessage>
+    Message <simChef_message>
       The message below occurred while processing "method_test" with the following params:
        $ param2   : num 4
        $ vec      : int [1:4] 4 5 6 7
@@ -1048,7 +1048,7 @@
       invisible(eval_results <- experiment$evaluate(fit_results, verbose = 2))
     Message <simpleMessage>
       Evaluating error-tracking...
-    Warning <simChefWarning>
+    Warning <simChef_warning>
       that's a lot of rows
       The above warning occurred while processing "evaluator1" with the following params:
        $ fit_results: tibble [48 x 10] (S3: tbl_df/tbl/data.frame)
@@ -1057,7 +1057,7 @@
         ..$ .method_name: chr [1:48] "method_test" "method_test" "method_test" "method_test" ...
         ..$ rho         : num [1:48] 0.2 0.2 0.2 0.2 0.2 0.2 0.2 0.2 0.2 0.2 ...
         ..$ noise_level : num [1:48] 1 1 1 1 2 2 2 2 1 1 ...
-        ..$ param2      : num [1:48] 2 4 2 4 2 4 2 4 2 4 ...
+        ..$ param2      : num [1:48] 2 2 4 4 2 2 4 4 2 2 ...
         ..$ vec         :List of 48
         ..$ .n          : num [1:48] 10 10 10 10 10 10 10 10 10 10 ...
         ..$ .rho        : num [1:48] 0.2 0.2 0.2 0.2 0.2 0.2 0.2 0.2 0.2 0.2 ...
@@ -1088,7 +1088,7 @@
         verbose = 2))
     Message <simpleMessage>
       Visualizing error-tracking...
-    Warning <simChefWarning>
+    Warning <simChef_warning>
       False alarm!
       The above warning occurred while processing "visualizer1" with the following params:
        $ fit_results : tibble [48 x 10] (S3: tbl_df/tbl/data.frame)
@@ -1097,7 +1097,7 @@
         ..$ .method_name: chr [1:48] "method_test" "method_test" "method_test" "method_test" ...
         ..$ rho         : num [1:48] 0.2 0.2 0.2 0.2 0.2 0.2 0.2 0.2 0.2 0.2 ...
         ..$ noise_level : num [1:48] 1 1 1 1 2 2 2 2 1 1 ...
-        ..$ param2      : num [1:48] 2 4 2 4 2 4 2 4 2 4 ...
+        ..$ param2      : num [1:48] 2 2 4 4 2 2 4 4 2 2 ...
         ..$ vec         :List of 48
         ..$ .n          : num [1:48] 10 10 10 10 10 10 10 10 10 10 ...
         ..$ .rho        : num [1:48] 0.2 0.2 0.2 0.2 0.2 0.2 0.2 0.2 0.2 0.2 ...
@@ -1117,7 +1117,7 @@
       invisible(experiment$visualize(fit_results, eval_results, verbose = 2))
     Message <simpleMessage>
       Visualizing error-tracking...
-    Warning <simChefWarning>
+    Warning <simChef_warning>
       False alarm!
       The above warning occurred while processing "visualizer1" with the following params:
        $ fit_results : tibble [48 x 10] (S3: tbl_df/tbl/data.frame)
@@ -1126,7 +1126,7 @@
         ..$ .method_name: chr [1:48] "method_test" "method_test" "method_test" "method_test" ...
         ..$ rho         : num [1:48] 0.2 0.2 0.2 0.2 0.2 0.2 0.2 0.2 0.2 0.2 ...
         ..$ noise_level : num [1:48] 1 1 1 1 2 2 2 2 1 1 ...
-        ..$ param2      : num [1:48] 2 4 2 4 2 4 2 4 2 4 ...
+        ..$ param2      : num [1:48] 2 2 4 4 2 2 4 4 2 2 ...
         ..$ vec         :List of 48
         ..$ .n          : num [1:48] 10 10 10 10 10 10 10 10 10 10 ...
         ..$ .rho        : num [1:48] 0.2 0.2 0.2 0.2 0.2 0.2 0.2 0.2 0.2 0.2 ...
@@ -1136,8 +1136,10 @@
        $ vary_params : chr [1:6] "rho" "noise_level" "rho" "noise_level" ...
     Warning <simpleWarning>
       False alarm!
-    Error <simChefError>
-      Oh no!
+    Error <rlang_error>
+      i In index: 2.
+      Caused by error in `.f()`:
+      ! Oh no!
       The above error occurred while processing "visualizer2" with the following params:
        $ fit_results : tibble [48 x 10] (S3: tbl_df/tbl/data.frame)
         ..$ .rep        : chr [1:48] "1" "1" "1" "1" ...
@@ -1145,7 +1147,7 @@
         ..$ .method_name: chr [1:48] "method_test" "method_test" "method_test" "method_test" ...
         ..$ rho         : num [1:48] 0.2 0.2 0.2 0.2 0.2 0.2 0.2 0.2 0.2 0.2 ...
         ..$ noise_level : num [1:48] 1 1 1 1 2 2 2 2 1 1 ...
-        ..$ param2      : num [1:48] 2 4 2 4 2 4 2 4 2 4 ...
+        ..$ param2      : num [1:48] 2 2 4 4 2 2 4 4 2 2 ...
         ..$ vec         :List of 48
         ..$ .n          : num [1:48] 10 10 10 10 10 10 10 10 10 10 ...
         ..$ .rho        : num [1:48] 0.2 0.2 0.2 0.2 0.2 0.2 0.2 0.2 0.2 0.2 ...

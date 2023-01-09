@@ -934,6 +934,7 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
     expect_equal(nrow(fit_results), 3 * 2 * 2 * 2 * 3)
     fit_results_copy <- fit_experiment(experiment_copy, save = FALSE, verbose = 0)
     expect_equal(fit_results, fit_results_copy)
+
   })
 
   test_that("Saving methods in Experiment works properly", {
@@ -1016,8 +1017,6 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
   })
 
   test_that("Capturing errors, warnings, and messages from user-defined functions works as expected", {
-
-    skip("working in globalenv but not in tests")
 
     dgp_fun <- function(n=100, rho=0.5, noise_level=1) {
       X <- data.frame(.n = n, .rho = rho, .noise_level = noise_level)

@@ -170,7 +170,7 @@ Experiment <- R6::R6Class(
         }
       }
       out <- list()
-      for (i in 1:length(objs)) {
+      for (i in seq_along(objs)) {
         obj <- objs[[i]]
         out[[i]] <- private$.check_each_vary_across(obj, field, ...)
       }
@@ -260,17 +260,19 @@ Experiment <- R6::R6Class(
       field_name <- match.arg(field_name)
       obj_list <- private$.get_obj_list(field_name)
       obj_names <- names(obj_list)
-      param_list <- purrr::map(obj_names, function(obj_name) {
+      params_list <- purrr::map(obj_names, function(obj_name) {
         obj_params <- private$.vary_across_list[[field_name]][[obj_name]]
         if (is.null(obj_params)) {
           obj_params <- list()
         }
         obj_params <- c(obj_name, obj_params)
         names(obj_params)[1] <- paste0(".", field_name, "_name")
-        param_grid <- cross(obj_params)
-        return(param_grid)
-      }) %>% purrr::reduce(c)
-      return(param_list)
+        param_grid <- tidyr::expand_grid(!!!obj_params) %>%
+          dplyr::transmute(params = purrr::pmap(., list))
+        return(param_grid$params)
+      }) %>%
+        unlist(recursive = FALSE)
+      return(params_list)
     },
     .update_fit_params = function() {
       # update/set (dgp, method) fit parameter combinations
@@ -278,19 +280,26 @@ Experiment <- R6::R6Class(
       dgp_params_list <- private$.combine_vary_params("dgp")
       method_list <- private$.get_obj_list("method")
       method_params_list <- private$.combine_vary_params("method")
-      fit_params <- cross(list(dgp_params_list, method_params_list)) %>%
-        purrr::map_dfr(
-          ~tibble::tibble(
-            .dgp_name = .x[[1]]$.dgp_name,
-            .dgp_fun = list(deparse(dgp_list[[.dgp_name]]$dgp_fun)),
-            .dgp_params = list(dgp_list[[.dgp_name]]$dgp_params),
-            .dgp = .x[1],
-            .method_name = .x[[2]]$.method_name,
-            .method_fun = list(deparse(method_list[[.method_name]]$method_fun)),
-            .method_params = list(method_list[[.method_name]]$method_params),
-            .method = .x[2]
+
+      fit_params <- tidyr::crossing(.dgp = dgp_params_list,
+                                    .method = method_params_list) %>%
+        dplyr::mutate(
+          .dgp_name = purrr::map_chr(.dgp, ~.x$.dgp_name),
+          .dgp_fun = purrr::map(
+            .dgp, ~deparse(dgp_list[[.x$.dgp_name]]$dgp_fun)
+          ),
+          .dgp_params = purrr::map(
+            .dgp, ~dgp_list[[.x$.dgp_name]]$dgp_params
+          ),
+          .method_name = purrr::map_chr(.method, ~.x$.method_name),
+          .method_fun = purrr::map(
+            .method, ~deparse(method_list[[.x$.method_name]]$method_fun)
+          ),
+          .method_params = purrr::map(
+            .method, ~method_list[[.x$.method_name]]$method_params
           )
         )
+
       private$.fit_params <- fit_params
     },
     .get_fit_params = function(cached_params = NULL,
@@ -317,9 +326,9 @@ Experiment <- R6::R6Class(
           ) %>%
             duplicated(fromLast = TRUE)
           if (identical(type, "cached")) {
-            out_params <- fit_params[cached_idxs[1:nrow(fit_params)], ]
+            out_params <- fit_params[cached_idxs[seq_len(nrow(fit_params))], ]
           } else if (identical(type, "new")) {
-            out_params <- fit_params[!cached_idxs[1:nrow(fit_params)], ]
+            out_params <- fit_params[!cached_idxs[seq_len(nrow(fit_params))], ]
           }
         }
       }
