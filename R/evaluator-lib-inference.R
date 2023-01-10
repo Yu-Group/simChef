@@ -174,7 +174,7 @@ eval_testing_err <- function(fit_results, vary_params = NULL,
                                        yardstick::roc_auc, yardstick::pr_auc)
     }
     
-    res <- purrr::map_dfr(
+    res <- purrr::list_rbind(purrr::map(
       alphas,
       function(alpha) {
         data_alpha <- data %>%
@@ -195,7 +195,7 @@ eval_testing_err <- function(fit_results, vary_params = NULL,
         }
         return(res)
       }
-    )
+    ))
     return(res)
   }
   

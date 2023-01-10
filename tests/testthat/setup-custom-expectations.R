@@ -189,10 +189,14 @@ expect_error_if_invalid_strat <- function(fit_or_run_expr,
 
 expect_partial_results_and_errors <- function(err) {
 
-  expect_true("simChef_error" %in% class(err))
+  expect_s3_class(err, "simChef_error")
 
   expect_false(is.null(err$partial_results))
   expect_false(is.null(err$errors))
+
+  expect_true(all(
+    c(".rep", ".dgp_name", ".method_name") %in% names(err$partial_results)
+  ))
 
   expect_named(err$errors, c(".dgp",
                              ".dgp_name",
@@ -200,6 +204,7 @@ expect_partial_results_and_errors <- function(err) {
                              ".method",
                              ".method_name",
                              ".method_params",
+                             ".method_output",
                              ".err",
                              ".pid",
                              ".gc"))

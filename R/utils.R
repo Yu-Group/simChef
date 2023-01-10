@@ -103,9 +103,9 @@ list_to_tibble <- function(lst) {
 #'
 #' @return A tibble that has been "simplified".
 #' @keywords internal
-simplify_tibble <- function(tbl, empty_as_na=TRUE) {
+simplify_tibble <- function(tbl, empty_as_na = TRUE) {
 
-  simplified_tbl <- purrr::imap_dfc(
+  tbl_list <- purrr::imap(
     tbl,
     function(col, col_name) {
 
@@ -255,7 +255,10 @@ simplify_tibble <- function(tbl, empty_as_na=TRUE) {
       colnames(tbl_col) <- col_name
       return(tbl_col)
     }
-  )
+  ) # tbl_list <- purrr::imap(
+
+  names(tbl_list) <- NULL
+  simplified_tbl <- purrr::list_cbind(tbl_list)
 
   if ("simChef.debug" %in% names(attributes(tbl))) {
     attr(simplified_tbl, "simChef.debug") <- attributes(tbl)[["simChef.debug"]]
@@ -348,7 +351,7 @@ do_call_handler <- function(name,
                             verbose = 1,
                             call = rlang::caller_env()) {
   handler <- function(condition = "Error") {
-    function(c) {
+    function(cond) {
 
       # TODO: add 'signal' arg which determines whether or not to signal the
       # captured condition
@@ -357,7 +360,7 @@ do_call_handler <- function(name,
         params_str <- " (params empty)."
       } else {
         params_str <- paste0(
-          utils::capture.output(tibble::glimpse(params))[-1], collapse="\n"
+          utils::capture.output(tibble::glimpse(params))[-1], collapse = "\n"
         )
         params_str <- paste0(" with the following params:\n", params_str)
       }
@@ -369,7 +372,7 @@ do_call_handler <- function(name,
       msg_start <- if (condition == "Message") {
         paste0("The message below")
       } else {
-        paste0(c$message, "\nThe above ", tolower(condition))
+        paste0(cond$message, "\nThe above ", tolower(condition))
       }
 
       msg <- paste0(
@@ -378,7 +381,7 @@ do_call_handler <- function(name,
 
       if (condition == "Error") {
         rlang::abort(
-          msg, parent = c, class = "simChef_error", call = call
+          msg, parent = cond, class = "simChef_error", call = call
         )
 
       } else if (condition == "Warning") {
@@ -428,47 +431,12 @@ check_results_names <- function(names, method_name) {
       paste0(
         "Cannot create `fit_results` tibble with duplicate column names: `",
         paste(dup_names, collapse = "`, `"), "`.\nPlease check that the ",
-        method_name, "() output does not have the same names as the ",
-        "parameters being varied across in the Experiment. ",
+        method_name, "() output does not have the same names as\n",
+        "the parameters being varied across in the Experiment.\n",
         "In particular, avoid using `", paste(dup_names, collapse = "`, `"),
         "` as names in the ", method_name, "() output."
       )
     )
   }
   return(names)
-}
-
-#' Produce all combinations of list elements
-#'
-#' @description Copy of `purrr::cross()` which was deprecated in `purrr 1.0.0`.
-#'
-#' @param .l A list of lists or atomic vectors. Alternatively, a data frame.
-#' @return List of all combinations of list elements
-#'
-#' @keywords internal
-cross <- function(.l) {
-
-  if (rlang::is_empty(.l)) {
-    return(.l)
-  }
-
-  n <- length(.l)
-  lengths <- lapply(.l, length)
-  names <- names(.l)
-
-  factors <- cumprod(lengths)
-  total_length <- factors[n]
-  factors <- c(1, factors[-n])
-
-  out <- replicate(total_length, vector("list", n), simplify = FALSE)
-
-  for (i in seq_along(out)) {
-    for (j in seq_len(n)) {
-      index <- floor((i - 1) / factors[j]) %% length(.l[[j]]) + 1
-      out[[i]][[j]] <- .l[[j]][[index]]
-    }
-    names(out[[i]]) <- names
-  }
-
-  purrr::compact(out)
 }
