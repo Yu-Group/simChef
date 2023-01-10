@@ -1,10 +1,7 @@
 ---
 title: "Getting started with simChef"
 output:
-  prettydoc::html_pretty:
-    theme: architect
-    toc: true
-    number_sections: true
+  rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{simChef Vignette}
   %\VignetteEngine{knitr::rmarkdown}
@@ -323,7 +320,7 @@ The experiment can also be run in parallel. For a more detailed walkthrough on h
 Finally, we can easily visualize all results from the simulation experiment in an html file (generated using R Markdown) or browser.
 
 ```{r render_docs1, eval = FALSE}
-render_docs(experiment, open = FALSE)
+render_docs(experiment)
 ```
 
 ```{r cp_html1, echo = FALSE, warning = FALSE, message = FALSE, results = "hide"}
@@ -347,7 +344,7 @@ Note that if the documentation template has not yet been created for `experiment
 
 Now, going slightly beyond the most basic usage of `simChef`, it is often helpful to understand how a method's performance is affected as we vary a single parameter in the DGP across different values. For instance, what happens to the power as the amount of noise in the linear model increases?
 
-Using the simple grammar of `simChef`, we can investigate this question by adding a "vary across" component to the simulation experiment.
+Using the simple grammar of `simChef`, we can investigate this question by adding a `vary_across` component to the simulation experiment.
 ```{r vary1}
 experiment <- experiment %>%
   add_vary_across(.dgp = "Linear Gaussian DGP", sigma = c(1, 2, 4, 8))
@@ -486,7 +483,7 @@ vary_cor_results <- experiment %>%
 Now when generating the R Markdown report summary for an `Experiment`, the R Markdown will compile results (both evaluation and visualization results) from all saved `Experiments` under the root results directory `experiment$get_save_dir()`. Since the results from the many `vary_across` runs above are all saved under the original `experiment`'s results directory, then the following will include all of the above results in a single document.
 
 ```{r render_docs2, warning = FALSE}
-render_docs(experiment, open = FALSE)
+render_docs(experiment)
 ```
 
 ```{r cp_html2, echo = FALSE, warning = FALSE, message = FALSE, results = "hide"}
@@ -500,7 +497,7 @@ file.copy(from = file.path(experiment$get_save_dir(),
 Equivalently, we can create the same R Markdown report summary by directly specifying the experiment's root results directory.
 
 ```{r eval = FALSE}
-render_docs(save_dir = experiment$get_save_dir(), open = FALSE)
+render_docs(save_dir = experiment$get_save_dir())
 ```
 
 
@@ -734,12 +731,12 @@ Note that if document options are set after running the experiment, the experime
 There are additional customization options that can be set in `render_docs()` including the order in which results of Evaluators and Visualizers are displayed (via the `eval_order` and `viz_order` arguments) and the Rmd output type or theme. For example,
 
 ```{r eval = FALSE}
-# use html_document instead of rmdformats::material (default)
-render_docs(experiment, open = FALSE, pretty = FALSE,
+# use html_document instead of vthemes::vmodern (default)
+render_docs(experiment,
             output_format = rmarkdown::html_document())
 
 # add custom css style
-render_docs(experiment, open = FALSE, pretty = FALSE,
+render_docs(experiment,
             output_options = list(css = "path/to/file.css"))
 ```
 

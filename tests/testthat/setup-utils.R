@@ -11,6 +11,23 @@ transform_fun <- function(lines) {
   })
 }
 
+#' This function is passed to expect_snapshot() and scrubs stochastic lines
+#' (i.e,. the temp file path) from the verbose of render_docs()
+#'
+#' @param lines a character vector of output line see
+#'  \code{testthat::expect_snapshot}
+#' @return the character vector lines, scrubbed of stochastic output
+#'
+remove_tempdir <- function(lines) {
+  sapply(lines, function(line) {
+    gsub(
+      "Rendered document can be found at .*$",
+      "Rendered document can be found at _x_",
+      line
+    )
+  })
+}
+
 set_plan <- function(plan, ...) {
   # get the original plan so we can reset at the end
   old_plan <- future::plan()

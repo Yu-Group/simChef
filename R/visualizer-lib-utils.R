@@ -209,7 +209,7 @@ plot_eval_summary <- function(fit_results, eval_tib = NULL, eval_id = NULL,
   }
   if (is.null(err_sd_str) || identical(err_sd_str, "auto")) {
     if (("errorbar" %in% show) && (y_str != paste0("mean", eval_id))) {
-      stop("Must specify 'err_sd_str' to show error bars.")
+      abort("Must specify 'err_sd_str' to show error bars.")
     }
     err_sd_str <- paste0("sd", eval_id)
   }
@@ -415,6 +415,8 @@ plot_eval_summary <- function(fit_results, eval_tib = NULL, eval_id = NULL,
   }
   
   if (interactive) {
+    rlang::check_installed("plotly",
+                           reason = "to return an interactive plot (with `interactive = TRUE`).")
     plt_ls <- purrr::map(plt_ls, ~plotly::ggplotly(.x))
   }
   if (length(plt_ls) == 1) {
@@ -523,6 +525,8 @@ plot_fit_results <- function(fit_results, vary_params = NULL, reps = 1,
     purrr::reduce(paste, sep = " // ")
   
   if (interactive) {
+    rlang::check_installed("plotly",
+                           reason = "to return an interactive plot (with `interactive = TRUE`).")
     plt_ls <- purrr::map(plt_ls, ~plotly::ggplotly(.x))
   }
   return(plt_ls)

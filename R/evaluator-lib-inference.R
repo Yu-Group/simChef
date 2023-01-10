@@ -141,8 +141,7 @@ eval_testing_err <- function(fit_results, vary_params = NULL,
   .metric <- NULL
   .eval_res <- NULL
   if (!is.null(metrics) && !inherits(metrics, "metric_set")) {
-    stop("Unknown metrics. ",
-         "metrics must be of class 'yardstick::metric_set' or NULL.")
+    abort("Unknown metrics. metrics must be of class 'yardstick::metric_set' or NULL.")
   }
   
   eval_testing_err_rowwise <- function(data) {

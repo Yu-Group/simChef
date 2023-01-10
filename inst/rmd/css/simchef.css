@@ -1,7 +1,14 @@
 /* Add additional styling for recipes page */
 /* Note: only used in pretty simChef template */
-.tabset-recipe>.panel>.nav-pills {
+.tabset-recipe>.nav-pills {
     position: absolute;
     top: -5px;
     right: 15px;
 }
+
+.tabset-recipe>h3, .tabset-recipe>h4 {
+    font-weight: bold; 
+    font-size: 20px;
+    color: black;
+    margin-top: 5px;
+} 
