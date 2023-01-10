@@ -71,16 +71,16 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
     )
     results <- greatgrandchild2$run(save = TRUE, verbose = 0)
 
-    expect_error(render_docs(base_experiment, open = FALSE, verbose = 0), NA)
+    expect_error(render_docs(base_experiment, verbose = 0), NA)
     expect_error(
       render_docs(
-        save_dir = base_experiment$get_save_dir(), open = FALSE, verbose = 0
+        save_dir = base_experiment$get_save_dir(), verbose = 0
       ),
       NA
     )
     expect_error(
       render_docs(
-        base_experiment, open = FALSE, verbose = 0,
+        base_experiment, verbose = 0,
         output_format = rmarkdown::html_document()
       ),
       NA
@@ -89,7 +89,7 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
     # check ... arguments to rmarkdown::render()
     expect_error(
       render_docs(
-        base_experiment, open = FALSE, verbose = 0,
+        base_experiment, verbose = 0,
         output_options = list(css = "css/simchef.css")
       ),
       NA
@@ -103,28 +103,28 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
 
     expect_error(
       render_docs(
-        base_experiment, open = FALSE, verbose = 0,
+        base_experiment, verbose = 0,
         eval_order = "Evaluator", viz_order = c("Plot2", "Plot3", "Plot")
       ),
       NA
     )
     expect_error(
       render_docs(
-        base_experiment, open = FALSE, verbose = 0,
+        base_experiment, verbose = 0,
         eval_order = "Evaluator", viz_order = c("Plot2", "Plot3", "Plot")
       ),
       NA
     )
     expect_error(
       render_docs(
-        base_experiment, open = FALSE, verbose = 0,
+        base_experiment, verbose = 0,
         eval_order = c("Evaluator2", "Evaluator"), viz_order = c("Plot2", "Plot")
       ),
       NA
     )
     expect_error(
       render_docs(
-        base_experiment, open = FALSE, verbose = 0,
+        base_experiment, verbose = 0,
         eval_order = c("Evaluator2", "Evaluator"), viz_order = c("Plot2", "Plot")
       ),
       NA
@@ -133,14 +133,14 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
     # check use_icons
     expect_error(
       render_docs(
-        base_experiment, open = FALSE, verbose = 0,
+        base_experiment, verbose = 0,
         output_format = rmarkdown::pdf_document()
       )
     )
     # # ERROR: ! LaTeX Error: Unknown float option `H'.
     # expect_error(
     #   render_docs(
-    #     base_experiment, use_icons = FALSE, open = FALSE, verbose = 0,
+    #     base_experiment, use_icons = FALSE, verbose = 0,
     #     output_format = rmarkdown::pdf_document()
     #   ),
     #   NA
@@ -149,14 +149,14 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
     # test write_rmd = TRUE
     expect_error(
       render_docs(
-        base_experiment, write_rmd = TRUE, open = FALSE, verbose = 0,
+        base_experiment, write_rmd = TRUE, verbose = 0,
         output_file = file.path(base_experiment$get_save_dir(), "test1")
       ),
       NA
     )
     expect_error(
       render_docs(
-        base_experiment, write_rmd = TRUE, open = FALSE, verbose = 0,
+        base_experiment, write_rmd = TRUE, verbose = 0,
         use_icons = FALSE, output_format = rmarkdown::pdf_document(),
         output_file = file.path(base_experiment$get_save_dir(), "test2")
       ),
@@ -167,7 +167,7 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
     output_format <- quote(rmarkdown::html_document())
     expect_error(
       render_docs(
-        base_experiment, write_rmd = FALSE, open = FALSE, verbose = 0,
+        base_experiment, write_rmd = FALSE, verbose = 0,
         output_format = eval(output_format)
       ),
       NA
@@ -206,7 +206,7 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
       add_visualizer(texter, "Text")
     results <- run_experiment(experiment, save = TRUE, verbose = 0)
 
-    expect_error(render_docs(experiment, open = FALSE, verbose = 0), NA)
+    expect_error(render_docs(experiment, verbose = 0), NA)
   })
 
   test_that("R Markdown options work properly", {
@@ -259,8 +259,8 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
       add_vary_across(.dgp = "DGP", x = 1:3)
     results <- run_experiment(experiment, save = TRUE, verbose = 0)
 
-    expect_error(render_docs(experiment, open = FALSE, verbose = 0), NA)
-    expect_snapshot(render_docs(experiment, open = FALSE))
+    expect_error(render_docs(experiment, verbose = 0), NA)
+    expect_snapshot(render_docs(experiment))
 
     expect_equal(purrr::map_lgl(experiment$get_evaluators(), "doc_show"),
                  c(T, T, T, F) %>% setNames(names(experiment$get_evaluators())))
@@ -303,8 +303,8 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
                       show = FALSE) %>%
       add_vary_across(.dgp = "DGP", x = 1:3)
     results <- run_experiment(experiment, save = TRUE, verbose = 0)
-    expect_error(render_docs(experiment, open = FALSE, verbose = 0), NA)
-    expect_snapshot(render_docs(experiment, open = FALSE))
+    expect_error(render_docs(experiment, verbose = 0), NA)
+    expect_snapshot(render_docs(experiment))
 
     evaluator1 <- create_evaluator(eval_fun)
     evaluator2 <- create_evaluator(eval_fun, .doc_options = list(digits = 3))
@@ -338,11 +338,11 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
       set_doc_options(field_name = "visualizer", name = "Visualizer (no show)",
                       show = FALSE)
 
-    expect_error(render_docs(experiment, open = FALSE, verbose = 0), NA)
-    expect_snapshot(render_docs(experiment, open = FALSE))
+    expect_error(render_docs(experiment, verbose = 0), NA)
+    expect_snapshot(render_docs(experiment))
     save_experiment(experiment)
-    expect_error(render_docs(experiment, open = FALSE, verbose = 0), NA)
-    expect_snapshot(render_docs(experiment, open = FALSE))
+    expect_error(render_docs(experiment, verbose = 0), NA)
+    expect_snapshot(render_docs(experiment))
 
     evaluator1 <- create_evaluator(eval_fun)
     evaluator2 <- create_evaluator(eval_fun, .doc_options = list(digits = 3))
@@ -377,11 +377,11 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
       set_doc_options(field_name = "visualizer", name = "Visualizer (no show)",
                       show = FALSE)
 
-    expect_error(render_docs(experiment, open = FALSE, verbose = 0), NA)
-    expect_snapshot(render_docs(experiment, open = FALSE))
+    expect_error(render_docs(experiment, verbose = 0), NA)
+    expect_snapshot(render_docs(experiment))
     save_experiment(experiment)
-    expect_error(render_docs(experiment, open = FALSE, verbose = 0), NA)
-    expect_snapshot(render_docs(experiment, open = FALSE))
+    expect_error(render_docs(experiment, verbose = 0), NA)
+    expect_snapshot(render_docs(experiment))
   })
 
 }) # withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {

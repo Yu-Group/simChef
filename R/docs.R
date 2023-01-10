@@ -141,10 +141,6 @@ create_doc_template <- function(experiment, save_dir) {
 #'   object of class `rmarkdown_output_format` (e.g.,
 #'   [rmarkdown::html_document()], [rmarkdown::pdf_document()],
 #'   [rmarkdown::md_document]).
-#' @param output_ext File extension for the rendered R Markdown output document.
-#'   Only used if  \code{open = TRUE} to open the rendered document. Default is
-#'   "auto", which automatically detects the file extension based on
-#'   `output_format`.
 #' @param title Character string. Title of the report. By default, this will be
 #'   the name of the \code{experiment} if \code{experiment} is provided.
 #' @param author Character string of author names to display in knitted R
@@ -162,8 +158,6 @@ create_doc_template <- function(experiment, save_dir) {
 #'   display. By default, the report will display the \code{Visualizer} results
 #'   in the order that they were computed.
 #' @param use_icons Logical indicating whether or not to use fontawesome icons.
-#' @param open If \code{TRUE}, open the rendered (and raw, if applicable)
-#'   R Markdown-generated file using the system's default application.
 #' @param verbose Level of verboseness (0, 1, 2) when knitting R Markdown.
 #'   Default is 2.
 #' @param ... Additional arguments to pass to [rmarkdown::render()]. Useful
@@ -183,10 +177,10 @@ create_doc_template <- function(experiment, save_dir) {
 #' @export
 render_docs <- function(experiment, save_dir, write_rmd = FALSE,
                         output_file = NULL, output_format = vthemes::vmodern(),
-                        output_ext = "auto", title = NULL, author = "",
+                        title = NULL, author = "",
                         show_code = TRUE, show_eval = TRUE, show_viz = TRUE,
                         eval_order = NULL, viz_order = NULL, use_icons = TRUE,
-                        open = TRUE, quiet = TRUE, verbose = 2, ...) {
+                        quiet = TRUE, verbose = 2, ...) {
 
   if (missing(experiment) && missing(save_dir)) {
     abort("Must provide argument for one of experiment or save_dir.")
@@ -254,9 +248,6 @@ render_docs <- function(experiment, save_dir, write_rmd = FALSE,
       abort("Cannot output pdf_document when use_icons = TRUE. To output a pdf_document, please set use_icons = FALSE.")
     }
   }
-  if (identical(output_ext, "auto")) {
-    output_ext <- get_rmd_output_extension(output_format)
-  }
   if (write_rmd) {
     output_format <- rmarkdown::html_document()
     output_file_temp <- file.path(
@@ -289,20 +280,16 @@ render_docs <- function(experiment, save_dir, write_rmd = FALSE,
     )
   }
 
-  if (open) {
-    if (write_rmd) {
-      if (rlang::is_installed("rstudioapi")) {
-        if (rstudioapi::isAvailable()) {
-          rstudioapi::navigateToFile(sprintf("%s.Rmd", output_file), line = 2)
-        }
+  if (write_rmd) {
+    if (rlang::is_installed("rstudioapi")) {
+      if (rstudioapi::isAvailable()) {
+        rstudioapi::navigateToFile(sprintf("%s.Rmd", output_file), line = 2)
       }
     }
-    if (!is.null(output_ext)) {
-      output_file <- stringr::str_replace_all(output_file, " ", "\\\\ ")
-      system(paste("open", sprintf("%s.%s", output_file, output_ext)))
-    } else {
-      warn("Cannot automatically detect output file extension. Please specify `output_ext` directly in function call in order to open file.")
-    }
+  }
+
+  if (verbose > 1) {
+    inform(sprintf("Rendered document can be found at %s", output_file))
   }
 
   if (!missing(experiment)) {
@@ -324,36 +311,12 @@ render_docs <- function(experiment, save_dir, write_rmd = FALSE,
 #' @export
 create_rmd <- function(experiment, save_dir, write_rmd = FALSE,
                        output_file = NULL, output_format = vthemes::vmodern(),
-                       output_ext = "auto", title = NULL, author = "",
+                       title = NULL, author = "",
                        show_code = TRUE, show_eval = TRUE, show_viz = TRUE,
                        eval_order = NULL, viz_order = NULL, use_icons = TRUE,
-                       open = TRUE, quiet = TRUE, verbose = 2, ...) {
+                       quiet = TRUE, verbose = 2, ...) {
   lifecycle::deprecate_warn("0.1.0", "create_rmd()", "render_docs()")
   render_docs(experiment, save_dir, write_rmd, output_file, output_format,
-              output_ext, title, author, show_code, show_eval, show_viz,
-              eval_order, viz_order, use_icons, open, quiet, verbose, ...)
-}
-
-#' Get R Markdown output file extension
-#'
-#' @description Infer file extension of R Markdown output format
-#'
-#' @param output_format An rmarkdown output format object (e.g.,
-#'   `rmarkdown::html_document()`)
-#'
-#' @return File extension string (e.g., "html", "pdf", "docx")
-#'
-#' @keywords internal
-get_rmd_output_extension <- function(output_format) {
-  if (!is.null(output_format$pandoc$ext)) {
-    return(stringr::str_remove(output_format$pandoc$ext, "^\\."))
-  } else if (!is.null(output_format$pandoc$to)) {
-    if (output_format$pandoc$to == "latex") {
-      return("pdf")
-    } else {
-      return(output_format$pandoc$to)
-    }
-  } else {
-    return(NULL)
-  }
+              title, author, show_code, show_eval, show_viz,
+              eval_order, viz_order, use_icons, quiet, verbose, ...)
 }

@@ -1,7 +1,7 @@
 # R Markdown options work properly
 
     Code
-      render_docs(experiment, open = FALSE)
+      render_docs(experiment)
     Message <simpleMessage>
       Creating R Markdown report for test-doc-options...
       **test-doc-options
@@ -23,7 +23,7 @@
 ---
 
     Code
-      render_docs(experiment, open = FALSE)
+      render_docs(experiment)
     Message <simpleMessage>
       Creating R Markdown report for test-doc-options-2...
       *DGP
@@ -38,7 +38,7 @@
 ---
 
     Code
-      render_docs(experiment, open = FALSE)
+      render_docs(experiment)
     Message <simpleMessage>
       Creating R Markdown report for test-doc-options-3...
       **test-doc-options-3
@@ -54,7 +54,7 @@
 ---
 
     Code
-      render_docs(experiment, open = FALSE)
+      render_docs(experiment)
     Message <simpleMessage>
       Creating R Markdown report for test-doc-options-3...
       **test-doc-options-3
@@ -68,7 +68,7 @@
 ---
 
     Code
-      render_docs(experiment, open = FALSE)
+      render_docs(experiment)
     Message <simpleMessage>
       Creating R Markdown report for test-doc-options-4...
       *DGP
@@ -85,7 +85,7 @@
 ---
 
     Code
-      render_docs(experiment, open = FALSE)
+      render_docs(experiment)
     Message <simpleMessage>
       Creating R Markdown report for test-doc-options-4...
       *DGP
