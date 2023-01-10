@@ -39,10 +39,4 @@ dgp_corr <- create_dgp(.dgp_fun = dgp_fun,
                        # additional named parameters to pass to dgp_fun()
                        n = 200, beta = c(1, 0), rho = 0.7, sigma = 1)
 
-# create DGP from a function in the built-in DGP library
-dgp <- create_dgp(.dgp_fun = dgpoix::linear_gaussian_dgp,
-                  .name = "Linear Gaussian DGP",
-                  # additional named parameters to pass to linear_gaussian_dgp()
-                  n = 100, p_obs = 10, err = rnorm)
-
 }

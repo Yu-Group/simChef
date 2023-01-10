@@ -25,6 +25,7 @@ reference:
       - get_save_dir
       - set_save_dir
       - save_experiment
+      - export_visualizers
   - title: "R Markdown Report"
     desc: >
       Functions for summarizing and visualizing results from a simulation
@@ -33,6 +34,7 @@ reference:
       - set_doc_options
       - init_docs
       - render_docs
+      - create_rmd
   - title: "DGP"
     desc: >
       Functions for creating a DGP (data-generating process).

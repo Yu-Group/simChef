@@ -5,9 +5,7 @@ withr::with_tempdir(pattern = "simChef-test-use-templates-temp", code = {
     modify_template <- function(template_str) {
       modified_template_str <- template_str %>%
         stringr::str_replace(pattern = "n_reps = stop\\(.*\\)",
-                             replace = "n_reps = 2") %>%
-        stringr::str_replace(pattern = "render_docs\\(experiment\\)",
-                             replace = "render_docs\\(experiment, open = FALSE\\)")
+                             replace = "n_reps = 2")
       return(modified_template_str)
     }
 

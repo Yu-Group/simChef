@@ -15,10 +15,10 @@
 check_equal <- function(obj1, obj2) {
 
   if (!inherits(obj1, c("DGP", "Method", "Evaluator", "Visualizer"))) {
-    stop("obj1 must be a 'DGP', 'Method', 'Evaluator', or 'Visualizer' object.")
+    abort("obj1 must be a 'DGP', 'Method', 'Evaluator', or 'Visualizer' object.")
   }
   if (!inherits(obj2, c("DGP", "Method", "Evaluator", "Visualizer"))) {
-    stop("obj2 must be a 'DGP', 'Method', 'Evaluator', or 'Visualizer' object.")
+    abort("obj2 must be a 'DGP', 'Method', 'Evaluator', or 'Visualizer' object.")
   }
 
   if (!identical(class(obj1), class(obj2))) {
@@ -267,11 +267,11 @@ simplify_tibble <- function(tbl, empty_as_na = TRUE) {
   return(simplified_tbl)
 }
 
-#' Fix duplicate vary across parameter names.
+#' Fix duplicate \code{vary_across} parameter names.
 #'
 #' @description Add "_dgp" or "_method" suffixes to parameter names that are
-#'   found in both the DGP and Method vary across components. This is to avoid
-#'   errors that occur from duplicate column names when trying to create a
+#'   found in both the DGP and Method \code{vary_across} components. This is to
+#'   avoid errors that occur from duplicate column names when trying to create a
 #'   tibble.
 #'
 #' @param dgp_params A named list of the DGP parameters.
@@ -315,7 +315,7 @@ fix_duplicate_param_names <- function(dgp_params, method_params,
 compare_tibble_rows <- function(x, y, op = c("equal", "contained_in")) {
   op <- match.arg(op)
   if ((!tibble::is_tibble(x)) || (!tibble::is_tibble(y))) {
-    stop("x and y must be tibbles.")
+    abort("x and y must be tibbles.")
   }
   if (ncol(x) != ncol(y)) {
     return(FALSE)
