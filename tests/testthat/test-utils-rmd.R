@@ -4,5 +4,8 @@ test_that("pasteMd works properly", {
   expect_warning(expect_error(pasteMd("path/to/file")))
 
   filename <- file.path("md", "test_doc.md")
-  expect_snapshot_output(pasteMd(filename))
+  out <- pasteMd(filename)
+  expect_snapshot_output(cat(out))
+  expect_equal(class(out), "character")
+  expect_equal(length(out), 1)
 })

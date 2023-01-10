@@ -624,7 +624,7 @@
 
     Code
       invisible(experiment$fit(n_reps = 2))
-    Message <simpleMessage>
+    Message <simChef_message>
       Fitting error-tracking...
     Warning <simpleWarning>
       rho must be greater than 0.5
@@ -674,6 +674,7 @@
       3 isn't in vec
       3 isn't in vec
       3 isn't in vec
+    Message <simChef_message>
       2 reps completed (totals: 2/2) | time taken: _x_ minutes
       ==============================
 
@@ -681,7 +682,7 @@
 
     Code
       invisible(fit_results <- experiment$fit(n_reps = 2, verbose = 2))
-    Message <simpleMessage>
+    Message <simChef_message>
       Fitting error-tracking...
     Warning <simChef_warning>
       rho must be greater than 0.5
@@ -1027,6 +1028,7 @@
        $ .simplify: logi FALSE
     Message <simpleMessage>
       3 isn't in vec
+    Message <simChef_message>
       2 reps completed (totals: 2/2) | time taken: _x_ minutes
       ==============================
 
@@ -1034,11 +1036,11 @@
 
     Code
       invisible(experiment$evaluate(fit_results))
-    Message <simpleMessage>
+    Message <simChef_message>
       Evaluating error-tracking...
     Warning <simpleWarning>
       that's a lot of rows
-    Message <simpleMessage>
+    Message <simChef_message>
       Evaluation completed | time taken: _x_ minutes
       ==============================
 
@@ -1046,7 +1048,7 @@
 
     Code
       invisible(eval_results <- experiment$evaluate(fit_results, verbose = 2))
-    Message <simpleMessage>
+    Message <simChef_message>
       Evaluating error-tracking...
     Warning <simChef_warning>
       that's a lot of rows
@@ -1065,7 +1067,7 @@
        $ vary_params: chr [1:6] "rho" "noise_level" "rho" "noise_level" ...
     Warning <simpleWarning>
       that's a lot of rows
-    Message <simpleMessage>
+    Message <simChef_message>
       Evaluation completed | time taken: _x_ minutes
       ==============================
 
@@ -1073,11 +1075,11 @@
 
     Code
       invisible(experiment$visualize(fit_results, eval_results))
-    Message <simpleMessage>
+    Message <simChef_message>
       Visualizing error-tracking...
     Warning <simpleWarning>
       False alarm!
-    Message <simpleMessage>
+    Message <simChef_message>
       Visualization completed | time taken: _x_ minutes
       ==============================
 
@@ -1086,7 +1088,7 @@
     Code
       invisible(viz_results <- experiment$visualize(fit_results, eval_results,
         verbose = 2))
-    Message <simpleMessage>
+    Message <simChef_message>
       Visualizing error-tracking...
     Warning <simChef_warning>
       False alarm!
@@ -1107,7 +1109,7 @@
        $ vary_params : chr [1:6] "rho" "noise_level" "rho" "noise_level" ...
     Warning <simpleWarning>
       False alarm!
-    Message <simpleMessage>
+    Message <simChef_message>
       Visualization completed | time taken: _x_ minutes
       ==============================
 
@@ -1115,7 +1117,7 @@
 
     Code
       invisible(experiment$visualize(fit_results, eval_results, verbose = 2))
-    Message <simpleMessage>
+    Message <simChef_message>
       Visualizing error-tracking...
     Warning <simChef_warning>
       False alarm!

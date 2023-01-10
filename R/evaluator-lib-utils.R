@@ -85,8 +85,7 @@ summarize_eval_results <- function(eval_data, eval_id = NULL, value_col,
   summary_funs <- match.arg(summary_funs, several.ok = TRUE)
   group_ids <- dplyr::group_vars(eval_data)
   if (length(group_ids) == 0) {
-    stop("eval_data must be a grouped data.frame. Use dplyr::group_by() to ",
-         "specify groups.")
+    abort("eval_data must be a grouped data.frame. Use dplyr::group_by() to specify groups.")
   }
   if (!is.null(eval_id)) {
     eval_id <- paste0("_", eval_id)
@@ -240,7 +239,7 @@ finalize_estimator_internal_constructor <- function(metric_dispatcher, x,
   lvls <- levels(x)
   
   if(length(lvls) > 2) {
-    stop("A multiclass `truth` input was provided, but only `binary` is supported.")
+    abort("A multiclass `truth` input was provided, but only `binary` is supported.")
   } 
   
   "binary"

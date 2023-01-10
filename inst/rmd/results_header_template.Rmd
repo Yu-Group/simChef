@@ -1,0 +1,151 @@
+---
+date: '`r format(Sys.time(), "%B %d, %Y")`'
+---
+
+<Insert extra simChef resources here>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = FALSE,
+  warning = FALSE,
+  message = FALSE,
+  cache = FALSE,
+  fig.align = "center",
+  fig.pos = "H",
+  fig.height = 12,
+  fig.width = 10
+)
+
+options(
+  width = 10000,
+  knitr.kable.NA = 'NA'
+)
+
+local({
+  hook_output <- knitr::knit_hooks$get("output")
+  knitr::knit_hooks$set(
+    # scrollable text output
+    output = function(x, options) {
+      if (!is.null(options$max.height)) {
+        options$attr.output <- c(
+          options$attr.output,
+          sprintf('style="max-height: %s;"', options$max.height)
+        )
+      }
+      hook_output(x, options)
+    },
+    # add panel around figures
+    add.panel = function(before, options, envir) {
+      if (before) {
+        htmltools::HTML("<div class='panel panel-default padded-panel'>")
+      } else {
+        htmltools::HTML("</div>")
+      }
+    }
+  )
+})
+```
+
+```{r}
+#' Get all experiments under a given directory name.
+#'
+#' @param dir_name Name of directory.
+#' @return List of named experiments.
+get_descendants <- function(dir_name) {
+  experiments <- list()
+  for (d in list.dirs(dir_name)) {
+    if (file.exists(file.path(d, "experiment.rds"))) {
+      if (identical(d, params$sim_path)) {
+        exp_name <- "Base"
+      } else {
+        exp_name <- stringr::str_replace_all(
+          stringr::str_remove(d, paste0(params$sim_path, "/")),
+          "/", " - "
+        )
+      }
+      experiments[[exp_name]] <- readRDS(file.path(d, "experiment.rds"))
+    }
+  }
+  return(experiments)
+}
+
+#' Reads in file if it exists and returns NULL if the file does not exist.
+#'
+#' @param filename Name of .rds file to try reading in.
+#' @return Output of filename.rds if the file exists and NULL otherwise.
+get_results <- function(filename) {
+  if (file.exists(filename)) {
+    results <- readRDS(filename)
+  } else {
+    results <- NULL
+  }
+  return(results)
+}
+
+#' Show recipe content.
+#' 
+#' @param objs List of DGP/Method/Evaluator/Visualizer objects. Should be one of
+#'   `dgp_objs`, `method_objs`, `eval_objs`, or `viz_objs` defined below.
+#' @param name Name of DGP/Method/Evaluator/Visualizer.
+#' @param experiment_name Name of the Experiment.
+#' @param what Either "function" or "parameters", indicating whether to return 
+#'   the function code or parameters.
+show_recipe <- function(objs, name, experiment_name,
+                        what = c("function", "parameters")) {
+  what <- match.arg(what)
+  obj <- objs[[experiment_name]][[name]]
+  field_name <- tolower(class(obj)[1])
+  func_name <- dplyr::case_when(
+    field_name == "evaluator" ~ "eval",
+    field_name == "visualizer" ~ "viz",
+    TRUE ~ field_name
+  )
+  if (identical(what, "function")) {
+    return(obj[[paste0(func_name, "_fun")]])
+  } else if (identical(what, "parameters")) {
+    return(obj[[paste0(func_name, "_params")]])
+  }
+}
+
+#' Show results of Evaluator, Visualizer, or Varying Across Parameters.
+#' 
+#' @param dir_name Name of directory of Experiment.
+#' @param name Name of Evaluator/Visualizer.
+#' @param field_name One of "evaluator", "visualizer", or "vary_params", 
+#'   indicating whether to return the results of an Evaluator, Visualizer, or
+#'   the varying across parameters of the Experiment, respectively.
+show_results <- function(dir_name, name,
+                         field_name = c("evaluator", "visualizer", "vary_params")) {
+  field_name <- match.arg(field_name)
+  exp_fname <- file.path(dir_name, "experiment.rds")
+  eval_fname <- file.path(dir_name, "eval_results.rds")
+  viz_fname <- file.path(dir_name, "viz_results.rds")
+
+  exp <- get_results(exp_fname)
+  eval_results <- get_results(eval_fname)
+  viz_results <- get_results(viz_fname)
+  
+  if (field_name == "evaluator") {
+    do.call(vthemes::pretty_DT,
+            c(list(eval_results[[name]]),
+              exp$get_evaluators()[[name]]$doc_options))
+  } else if (field_name == "visualizer") {
+    viz_results[[name]]
+  } else if (field_name == "vary_params") {
+    exp$get_vary_across()
+  }
+}
+```
+
+
+
+# Simulation Experiment Recipe {.tabset .tabset-vmodern}
+
+```{r}
+descendants <- get_descendants(dir_name = params$sim_path)
+dgp_objs <- purrr::map(descendants, ~.x$get_dgps())
+method_objs <- purrr::map(descendants, ~.x$get_methods())
+eval_objs <- purrr::map(descendants, ~.x$get_evaluators())
+viz_objs <- purrr::map(descendants, ~.x$get_visualizers())
+```
+

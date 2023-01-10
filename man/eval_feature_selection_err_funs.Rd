@@ -117,7 +117,7 @@ suffix "_feature_selection".
 Evaluate various feature selection metrics, given the true
 feature support and the estimated feature support.
 \code{eval_feature_selection_err()} evaluates the various feature selection
-metrics for each experimental replicate separately..
+metrics for each experimental replicate separately.
 \code{summarize_feature_selection_err()} summarizes the various feature
 selection metrics across experimental replicates.
 }

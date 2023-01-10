@@ -4,7 +4,7 @@
 #' @description Evaluate various feature selection metrics, given the true 
 #'   feature support and the estimated feature support.
 #'   \code{eval_feature_selection_err()} evaluates the various feature selection
-#'   metrics for each experimental replicate separately.. 
+#'   metrics for each experimental replicate separately.
 #'   \code{summarize_feature_selection_err()} summarizes the various feature
 #'   selection metrics across experimental replicates.
 #'   
@@ -147,8 +147,7 @@ eval_feature_selection_err <- function(fit_results, vary_params = NULL,
   .estimator <- NULL  # to fix no visible binding for global variable error
   .eval_res <- NULL
   if (!is.null(metrics) && !inherits(metrics, "metric_set")) {
-    stop("Unknown metrics. ",
-         "metrics must be of class 'yardstick::metric_set' or NULL.")
+    abort("Unknown metrics. metrics must be of class 'yardstick::metric_set' or NULL.")
   }
   
   eval_feature_selection_err_rowwise <- function(data) {

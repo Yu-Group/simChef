@@ -8,14 +8,19 @@ set of \code{Experiments}.}
 render_docs(
   experiment,
   save_dir,
-  open = TRUE,
+  write_rmd = FALSE,
+  output_file = NULL,
+  output_format = vthemes::vmodern(),
   title = NULL,
   author = "",
-  verbose = 2,
-  quiet = TRUE,
-  pretty = TRUE,
+  show_code = TRUE,
+  show_eval = TRUE,
+  show_viz = TRUE,
   eval_order = NULL,
   viz_order = NULL,
+  use_icons = TRUE,
+  quiet = TRUE,
+  verbose = 2,
   ...
 )
 }
@@ -31,8 +36,21 @@ documentation template.}
 \code{Experiment} objects. Documentation is created for these found
 \code{Experiments}. Not used if \code{experiment} is provided.}
 
-\item{open}{If \code{TRUE}, open the R Markdown-generated html file in a
-web browser.}
+\item{write_rmd}{Logical indicating whether or not to write out the raw
+R Markdown file used to generate the results. If \code{TRUE}, both the
+raw R Markdown file and the rendered R Markdown output are saved to disk.
+If \code{FALSE}, only the rendered R Markdown output is saved. Default is
+\code{FALSE}.}
+
+\item{output_file}{The name of the output file. If using \code{NULL}, then
+the output filename will be based on the \code{experiment}'s root results
+directory and the name of the \code{experiment}. Note that the filename
+may include the path to the output file.}
+
+\item{output_format}{The R Markdown output format to convert to. Must be an
+object of class \code{rmarkdown_output_format} (e.g.,
+\code{\link[rmarkdown:html_document]{rmarkdown::html_document()}}, \code{\link[rmarkdown:pdf_document]{rmarkdown::pdf_document()}},
+\link[rmarkdown:md_document]{rmarkdown::md_document}).}
 
 \item{title}{Character string. Title of the report. By default, this will be
 the name of the \code{experiment} if \code{experiment} is provided.}
@@ -40,17 +58,14 @@ the name of the \code{experiment} if \code{experiment} is provided.}
 \item{author}{Character string of author names to display in knitted R
 Markdown document.}
 
-\item{verbose}{Level of verboseness (0, 1, 2) when knitting R Markdown.
-Default is 2.}
+\item{show_code}{Logical indicating whether or not to show code portions in
+the output document.}
 
-\item{quiet}{Default is \code{TRUE}. See \code{\link[rmarkdown:render]{rmarkdown::render()}} for
-details.}
+\item{show_eval}{Logical indicating whether or not to show the results of
+the \code{Evaluators} in the output document.}
 
-\item{pretty}{Logical. Specifies whether or not to use pretty R Markdown
-results template or more barebones R Markdown results template. Default
-\code{TRUE} uses the pretty template. Set to \code{FALSE} to start from
-the barebones template, which can be helpful when using your own custom
-R Markdown theme.}
+\item{show_viz}{Logical indicating whether or not to show the results of
+the \code{Visualizers} in the output document.}
 
 \item{eval_order}{Vector of \code{Evaluator} names in their desired order for
 display. By default, the report will display the \code{Evaluator} results
@@ -60,6 +75,16 @@ in the order that they were computed.}
 display. By default, the report will display the \code{Visualizer} results
 in the order that they were computed.}
 
+\item{use_icons}{Logical indicating whether or not to use fontawesome icons.}
+
+\item{quiet}{An option to suppress printing during rendering from knitr,
+pandoc command line and others. To only suppress printing of the last
+"Output created: " message, you can set \code{rmarkdown.render.message} to
+\code{FALSE}}
+
+\item{verbose}{Level of verboseness (0, 1, 2) when knitting R Markdown.
+Default is 2.}
+
 \item{...}{Additional arguments to pass to \code{\link[rmarkdown:render]{rmarkdown::render()}}. Useful
 for applying a custom R Markdown output theme.}
 }
@@ -68,14 +93,17 @@ The original \code{Experiment} object if provided. Otherwise,
 returns \code{NULL}.
 }
 \description{
-Knits an R Markdown file summarizing the results of an
-\code{Experiment} or set of \code{Experiments}. Outputs an R
-Markdown-generated html file. If \code{experiment} is provided, the results
-are saved in the \code{Experiment}'s root results directory (see
-\code{Experiment$get_save_dir()}). Otherwise, the root results directory is
-taken to be that specified by \code{save_dir}. Note that
-\code{render_docs()} will process and include results from all
-\code{Experiments} found \emph{under} the root directory.
+Knits and/or writes an R Markdown file summarizing the results of
+an \code{Experiment} or set of \code{Experiments}. This document may
+contain (1) the code corresponding to the \code{DGPs}, \code{Methods},
+\code{Evaluators}, \code{Visualizers}, and \code{vary_across} parameters
+from the \code{Experiment}, (2) the results of the \code{Evaluators}
+(typically tables), and (3) the results of the \code{Visualizers}
+(typically figures). Note that \code{render_docs()} will process and
+include results from all \code{Experiments} found \emph{under} the root
+directory. This root directory is determined via
+\code{experiment$get_save_dir()} if \code{experiment} is provided and
+\code{save_dir} otherwise.
 }
 \examples{
 \dontrun{
