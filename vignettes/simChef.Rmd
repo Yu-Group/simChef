@@ -8,7 +8,9 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r include = FALSE}
+```{r setup, include = FALSE}
+not_macos <- Sys.getenv("RUNNER_OS") != "macOS"
+
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
@@ -16,20 +18,17 @@ knitr::opts_chunk$set(
   # see https://github.com/tidyverse/ggplot2/issues/2252#issuecomment-1006713187
   # and https://github.com/lcolladotor/biocthis/issues/27 and
   # https://github.com/bodkan/slendr/commit/f0f5ae18452cc9df5d151874e41b0b8fd5f29aa2#
-  eval = Sys.getenv("RUNNER_OS") != "macOS"
+  eval = not_macos
 )
 
 library(simChef)
 
 set.seed(12345)
 
-# remove old cached results to start fresh
-for (fname in list.files(file.path("results", "Linear Regression Experiment"),
-                         pattern = ".rds", recursive = T, full.names = T)) {
-  file.remove(fname)
-}
+# remove any old results to start fresh
+unlink("results", recursive = TRUE)
 
-eval_render_docs <- Sys.getenv("GITHUB_JOB") != "R-CMD-check"
+eval_render_docs <- not_macos && Sys.getenv("GITHUB_JOB") != "R-CMD-check"
 ```
 
 # Overview
@@ -752,7 +751,7 @@ All results from `experiment$run(..., save = TRUE)` without a `vary_across` comp
 
 Here's the directory tree of the "Linear Regression Experiment" example:
 
-```{r, eval = FALSE}
+```{r eval = FALSE}
 fs::dir_tree(get_save_dir(experiment))
 #> results
 #> ├── Linear Gaussian DGP
@@ -891,4 +890,8 @@ Note that the error tibble contains the `DGP` and `Method` (if the `DGP` was not
 err_fun <- results$errors$.dgp[[1]]$dgp_fun
 # reproduce error via a direct call to the DGP function that raised the error
 err_fun()
+```
+
+```{r teardown, include = FALSE}
+unlink("results", recursive = TRUE)
 ```
