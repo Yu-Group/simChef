@@ -72,20 +72,123 @@ API.</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">create_rmd</span><span class="op">(</span></span>
 <span>  <span class="va">experiment</span>,</span>
 <span>  <span class="va">save_dir</span>,</span>
-<span>  open <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  write_rmd <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  output_file <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  output_format <span class="op">=</span> <span class="fu">vthemes</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/vthemes/man/vmodern.html" class="external-link">vmodern</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  title <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  author <span class="op">=</span> <span class="st">""</span>,</span>
-<span>  verbose <span class="op">=</span> <span class="fl">2</span>,</span>
-<span>  quiet <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  pretty <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  show_code <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  show_eval <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  show_viz <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  eval_order <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  viz_order <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  use_icons <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  quiet <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  verbose <span class="op">=</span> <span class="fl">2</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
+    <div class="section level2">
+    <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
+    <dl><dt>experiment</dt>
+<dd><p>An <code>Experiment</code> object. If provided, documentation is
+created for all previously saved <code>Experiments</code> that are found in the
+directory given by <code>experiment$get_save_dir()</code>. If no
+<code>Experiments</code> have been previously saved under this directory, then
+the current <code>experiment</code> is saved to disk and used to create the
+documentation template.</p></dd>
 
-  </main></div>
+
+<dt>save_dir</dt>
+<dd><p>An optional directory in which to find previously saved
+<code>Experiment</code> objects. Documentation is created for these found
+<code>Experiments</code>. Not used if <code>experiment</code> is provided.</p></dd>
+
+
+<dt>write_rmd</dt>
+<dd><p>Logical indicating whether or not to write out the raw
+R Markdown file used to generate the results. If <code>TRUE</code>, both the
+raw R Markdown file and the rendered R Markdown output are saved to disk.
+If <code>FALSE</code>, only the rendered R Markdown output is saved. Default is
+<code>FALSE</code>.</p></dd>
+
+
+<dt>output_file</dt>
+<dd><p>The name of the output file. If using <code>NULL</code>, then
+the output filename will be based on the <code>experiment</code>'s root results
+directory and the name of the <code>experiment</code>. Note that the filename
+may include the path to the output file.</p></dd>
+
+
+<dt>output_format</dt>
+<dd><p>The R Markdown output format to convert to. Must be an
+object of class <code>rmarkdown_output_format</code> (e.g.,
+<code><a href="https://pkgs.rstudio.com/rmarkdown/reference/html_document.html" class="external-link">rmarkdown::html_document()</a></code>, <code><a href="https://pkgs.rstudio.com/rmarkdown/reference/pdf_document.html" class="external-link">rmarkdown::pdf_document()</a></code>,
+<a href="https://pkgs.rstudio.com/rmarkdown/reference/md_document.html" class="external-link">rmarkdown::md_document</a>).</p></dd>
+
+
+<dt>title</dt>
+<dd><p>Character string. Title of the report. By default, this will be
+the name of the <code>experiment</code> if <code>experiment</code> is provided.</p></dd>
+
+
+<dt>author</dt>
+<dd><p>Character string of author names to display in knitted R
+Markdown document.</p></dd>
+
+
+<dt>show_code</dt>
+<dd><p>Logical indicating whether or not to show code portions in
+the output document.</p></dd>
+
+
+<dt>show_eval</dt>
+<dd><p>Logical indicating whether or not to show the results of
+the <code>Evaluators</code> in the output document.</p></dd>
+
+
+<dt>show_viz</dt>
+<dd><p>Logical indicating whether or not to show the results of
+the <code>Visualizers</code> in the output document.</p></dd>
+
+
+<dt>eval_order</dt>
+<dd><p>Vector of <code>Evaluator</code> names in their desired order for
+display. By default, the report will display the <code>Evaluator</code> results
+in the order that they were computed.</p></dd>
+
+
+<dt>viz_order</dt>
+<dd><p>Vector of <code>Visualizer</code> names in their desired order for
+display. By default, the report will display the <code>Visualizer</code> results
+in the order that they were computed.</p></dd>
+
+
+<dt>use_icons</dt>
+<dd><p>Logical indicating whether or not to use fontawesome icons.</p></dd>
+
+
+<dt>quiet</dt>
+<dd><p>An option to suppress printing during rendering from knitr,
+pandoc command line and others. To only suppress printing of the last
+"Output created: " message, you can set <code>rmarkdown.render.message</code> to
+<code>FALSE</code></p></dd>
+
+
+<dt>verbose</dt>
+<dd><p>Level of verboseness (0, 1, 2) when knitting R Markdown.
+Default is 2.</p></dd>
+
+
+<dt>...</dt>
+<dd><p>Additional arguments to pass to <code><a href="https://pkgs.rstudio.com/rmarkdown/reference/render.html" class="external-link">rmarkdown::render()</a></code>. Useful
+for applying a custom R Markdown output theme.</p></dd>
+
+</dl></div>
+
+  </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
+    </nav></aside></div>
 
 
     <footer><div class="pkgdown-footer-left">
