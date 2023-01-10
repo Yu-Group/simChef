@@ -11,7 +11,6 @@ render_docs(
   write_rmd = FALSE,
   output_file = NULL,
   output_format = vthemes::vmodern(),
-  output_ext = "auto",
   title = NULL,
   author = "",
   show_code = TRUE,
@@ -20,7 +19,6 @@ render_docs(
   eval_order = NULL,
   viz_order = NULL,
   use_icons = TRUE,
-  open = TRUE,
   quiet = TRUE,
   verbose = 2,
   ...
@@ -54,11 +52,6 @@ object of class \code{rmarkdown_output_format} (e.g.,
 \code{\link[rmarkdown:html_document]{rmarkdown::html_document()}}, \code{\link[rmarkdown:pdf_document]{rmarkdown::pdf_document()}},
 \link[rmarkdown:md_document]{rmarkdown::md_document}).}
 
-\item{output_ext}{File extension for the rendered R Markdown output document.
-Only used if  \code{open = TRUE} to open the rendered document. Default is
-"auto", which automatically detects the file extension based on
-\code{output_format}.}
-
 \item{title}{Character string. Title of the report. By default, this will be
 the name of the \code{experiment} if \code{experiment} is provided.}
 
@@ -83,9 +76,6 @@ display. By default, the report will display the \code{Visualizer} results
 in the order that they were computed.}
 
 \item{use_icons}{Logical indicating whether or not to use fontawesome icons.}
-
-\item{open}{If \code{TRUE}, open the rendered (and raw, if applicable)
-R Markdown-generated file using the system's default application.}
 
 \item{quiet}{An option to suppress printing during rendering from knitr,
 pandoc command line and others. To only suppress printing of the last
