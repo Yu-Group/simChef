@@ -344,7 +344,7 @@ Note that if the documentation template has not yet been created for `experiment
 
 Now, going slightly beyond the most basic usage of `simChef`, it is often helpful to understand how a method's performance is affected as we vary a single parameter in the DGP across different values. For instance, what happens to the power as the amount of noise in the linear model increases?
 
-Using the simple grammar of `simChef`, we can investigate this question by adding a "vary across" component to the simulation experiment.
+Using the simple grammar of `simChef`, we can investigate this question by adding a `vary_across` component to the simulation experiment.
 ```{r vary1}
 experiment <- experiment %>%
   add_vary_across(.dgp = "Linear Gaussian DGP", sigma = c(1, 2, 4, 8))

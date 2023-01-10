@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils.R
 \name{fix_duplicate_param_names}
 \alias{fix_duplicate_param_names}
-\title{Fix duplicate vary across parameter names.}
+\title{Fix duplicate \code{vary_across} parameter names.}
 \usage{
 fix_duplicate_param_names(
   dgp_params,
@@ -24,8 +24,8 @@ names.
 }
 \description{
 Add "_dgp" or "_method" suffixes to parameter names that are
-found in both the DGP and Method vary across components. This is to avoid
-errors that occur from duplicate column names when trying to create a
+found in both the DGP and Method \code{vary_across} components. This is to
+avoid errors that occur from duplicate column names when trying to create a
 tibble.
 }
 \keyword{internal}

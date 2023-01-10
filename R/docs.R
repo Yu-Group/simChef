@@ -117,7 +117,7 @@ create_doc_template <- function(experiment, save_dir) {
 #' @description Knits and/or writes an R Markdown file summarizing the results of
 #'   an \code{Experiment} or set of \code{Experiments}. This document may
 #'   contain (1) the code corresponding to the \code{DGPs}, \code{Methods},
-#'   \code{Evaluators}, \code{Visualizers}, and \code{Vary Across Parameters}
+#'   \code{Evaluators}, \code{Visualizers}, and \code{vary_across} parameters
 #'   from the \code{Experiment}, (2) the results of the \code{Evaluators}
 #'   (typically tables), and (3) the results of the \code{Visualizers}
 #'   (typically figures). Note that \code{render_docs()} will process and

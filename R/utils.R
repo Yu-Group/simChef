@@ -267,11 +267,11 @@ simplify_tibble <- function(tbl, empty_as_na = TRUE) {
   return(simplified_tbl)
 }
 
-#' Fix duplicate vary across parameter names.
+#' Fix duplicate \code{vary_across} parameter names.
 #'
 #' @description Add "_dgp" or "_method" suffixes to parameter names that are
-#'   found in both the DGP and Method vary across components. This is to avoid
-#'   errors that occur from duplicate column names when trying to create a
+#'   found in both the DGP and Method \code{vary_across} components. This is to
+#'   avoid errors that occur from duplicate column names when trying to create a
 #'   tibble.
 #'
 #' @param dgp_params A named list of the DGP parameters.
