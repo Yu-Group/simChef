@@ -1533,9 +1533,8 @@ Experiment <- R6::R6Class(
     },
     export_visualizers = function(device = "pdf", width = "auto", height = "auto",
                                 ...) {
-      if (!rlang::is_installed("ggplot2")) {
-        abort("ggplot2 must be installed to export visualizers to image. Please install package via `install.packages('ggplot2')`.")
-      }
+      rlang::check_installed("ggplot2",
+                             reason = "to export visualizers to image.")
       viz_list <- self$get_visualizers()
       if (length(viz_list) == 0) {
         return(invisible(self))

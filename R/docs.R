@@ -220,15 +220,13 @@ render_docs <- function(experiment, save_dir, write_rmd = FALSE,
   output_format_type <- rlang::call_name(rlang::enexpr(output_format))
   use_vmodern <- output_format_type == "vmodern"
   if (use_vmodern) {
-    if (!rlang::is_installed("htmltools")) {
-      stop("Need `htmltools` package in order to run `render_docs(output_format = vthemes::vmodern(), ...)`. Please install via `install.packages('htmltools')`.")
-    }
+    rlang::check_installed("htmltools",
+                           reason = "to run `render_docs(output_format = vthemes::vmodern(), ...)`")
   }
 
   if (write_rmd) {
-    if (!rlang::is_installed("ymlthis")) {
-      stop("Need `ymlthis` package in order to run `render_docs(write_rmd = TRUE, ...)`. Please install via `install.packages('ymlthis').`")
-    }
+    rlang::check_installed("ymlthis",
+                           reason = "to run `render_docs(write_rmd = TRUE, ...)`")
     yml_header <- ymlthis::yml() %>%
       ymlthis::yml_title(title) %>%
       ymlthis::yml_author(author) %>%

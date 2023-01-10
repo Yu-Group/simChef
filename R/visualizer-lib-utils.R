@@ -415,11 +415,9 @@ plot_eval_summary <- function(fit_results, eval_tib = NULL, eval_id = NULL,
   }
   
   if (interactive) {
-    if (rlang::is_installed("plotly")) {
-      plt_ls <- purrr::map(plt_ls, ~plotly::ggplotly(.x))
-    } else {
-      warn("To return an interactive plot (with `interactive = TRUE`), please install the `plotly` package via `install.packages('plotly').`")
-    }
+    rlang::check_installed("plotly",
+                           reason = "to return an interactive plot (with `interactive = TRUE`).")
+    plt_ls <- purrr::map(plt_ls, ~plotly::ggplotly(.x))
   }
   if (length(plt_ls) == 1) {
     plt <- plt_ls[[1]]
@@ -527,11 +525,9 @@ plot_fit_results <- function(fit_results, vary_params = NULL, reps = 1,
     purrr::reduce(paste, sep = " // ")
   
   if (interactive) {
-    if (rlang::is_installed("plotly")) {
-      plt_ls <- purrr::map(plt_ls, ~plotly::ggplotly(.x))
-    } else {
-      warn("To return an interactive plot (with `interactive = TRUE`), please install the `plotly` package via `install.packages('plotly').`")
-    }
+    rlang::check_installed("plotly",
+                           reason = "to return an interactive plot (with `interactive = TRUE`).")
+    plt_ls <- purrr::map(plt_ls, ~plotly::ggplotly(.x))
   }
   return(plt_ls)
 }
