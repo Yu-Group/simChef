@@ -494,13 +494,7 @@ Experiment <- R6::R6Class(
       if (!private$.has_vary_across()) {
         save_dir <- private$.save_dir
       } else {
-        obj_names <- purrr::map(private$.vary_across_list, names) %>%
-          purrr::reduce(c) %>%
-          paste(collapse = "-")
-        param_names <- private$.get_vary_params() %>%
-          paste(collapse = "-")
-        save_dir <- file.path(private$.save_dir, obj_names,
-                              paste("Varying", param_names))
+        save_dir <- private$.get_vary_across_dir()
       }
       if (results_type %in% c("fit", "eval", "viz")) {
         save_file <- file.path(save_dir, paste0(results_type, "_results.rds"))
@@ -535,13 +529,7 @@ Experiment <- R6::R6Class(
       if (!private$.has_vary_across()) {
         save_dir <- private$.save_dir
       } else {
-        obj_names <- purrr::map(private$.vary_across_list, names) %>%
-          purrr::reduce(c) %>%
-          paste(collapse = "-")
-        param_names <- private$.get_vary_params() %>%
-          paste(collapse = "-")
-        save_dir <- file.path(private$.save_dir, obj_names,
-                              paste("Varying", param_names))
+        save_dir <- private$.get_vary_across_dir()
       }
       params_fpath <- file.path(save_dir, "experiment_cached_params.rds")
       fits_fpath <- file.path(save_dir, "fit_results_extra_cached_reps.rds")
@@ -630,13 +618,7 @@ Experiment <- R6::R6Class(
       if (!private$.has_vary_across()) {
         save_dir <- private$.save_dir
       } else {
-        obj_names <- purrr::map(private$.vary_across_list, names) %>%
-          purrr::reduce(c) %>%
-          paste(collapse = "-")
-        param_names <- private$.get_vary_params() %>%
-          paste(collapse = "-")
-        save_dir <- file.path(private$.save_dir, obj_names,
-                              paste("Varying", param_names))
+        save_dir <- private$.get_vary_across_dir()
       }
       save_file <- file.path(save_dir, paste0(results_type, "_results.rds"))
       save_file2 <- file.path(save_dir,
@@ -667,6 +649,16 @@ Experiment <- R6::R6Class(
                        R.utils::capitalize(results_type),
                        difftime(Sys.time(), start_time, units = "secs")))
       }
+    },
+    .get_vary_across_dir = function() {
+      obj_names <- purrr::map(private$.vary_across_list, names) %>%
+        purrr::reduce(c) %>%
+        paste(collapse = "-")
+      param_names <- private$.get_vary_params() %>%
+        paste(collapse = "-")
+      save_dir <- file.path(private$.save_dir, obj_names,
+                            paste("Varying", param_names))
+      return(save_dir)
     },
     deep_clone = function(name, value) {
       if (is.list(value) && length(value) > 0 && inherits(value[[1]], "R6")) {
@@ -1517,13 +1509,7 @@ Experiment <- R6::R6Class(
       if (!private$.has_vary_across()) {
         save_dir <- private$.save_dir
       } else {
-        obj_names <- purrr::map(private$.vary_across_list, names) %>%
-          purrr::reduce(c) %>%
-          paste(collapse = "-")
-        param_names <- private$.get_vary_params() %>%
-          paste(collapse = "-")
-        save_dir <- file.path(private$.save_dir, obj_names,
-                              paste("Varying", param_names))
+        save_dir <- private$.get_vary_across_dir()
       }
       if (!dir.exists(save_dir)) {
         dir.create(save_dir, recursive = TRUE)
@@ -1544,13 +1530,7 @@ Experiment <- R6::R6Class(
       if (!private$.has_vary_across()) {
         save_dir <- private$.save_dir
       } else {
-        obj_names <- purrr::map(private$.vary_across_list, names) %>%
-          purrr::reduce(c) %>%
-          paste(collapse = "-")
-        param_names <- private$.get_vary_params() %>%
-          paste(collapse = "-")
-        save_dir <- file.path(private$.save_dir, obj_names,
-                              paste("Varying", param_names))
+        save_dir <- private$.get_vary_across_dir()
       }
       save_dir <- file.path(save_dir, "viz_results")
       if (!dir.exists(save_dir)) {
