@@ -34,7 +34,7 @@ create_fun_str <- function(name, fun, args) {
 #' Create an assignment string and print to console.
 #' @keywords internal
 create_assign_str <- function(name, value, throw_error = FALSE) {
-  if (is.null(value) | is.null(name)) {
+  if (is.null(value) || is.null(name)) {
     return(invisible(NULL))
   }
   if (throw_error) {

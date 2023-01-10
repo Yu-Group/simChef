@@ -13,6 +13,12 @@ results/
 
 ## ---- R
 
+# renv
+
+renv/
+.Rprofile
+renv.lock
+
 # R project files
 *.Rproj
 
@@ -58,7 +64,7 @@ vignettes/*.pdf
 .Renviron
 
 # pkgdown site
-docs/
+/docs/
 
 # translation temp files
 po/*~

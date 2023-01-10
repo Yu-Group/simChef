@@ -174,7 +174,7 @@ eval_testing_err <- function(fit_results, vary_params = NULL,
                                        yardstick::roc_auc, yardstick::pr_auc)
     }
     
-    res <- purrr::map_dfr(
+    res <- purrr::list_rbind(purrr::map(
       alphas,
       function(alpha) {
         data_alpha <- data %>%
@@ -195,7 +195,7 @@ eval_testing_err <- function(fit_results, vary_params = NULL,
         }
         return(res)
       }
-    )
+    ))
     return(res)
   }
   
@@ -346,7 +346,7 @@ eval_testing_curve <- function(fit_results, vary_params = NULL,
                                curve = c("ROC", "PR"), options = list(), 
                                na_rm = FALSE) {
   curve_estimate <- NULL  # to fix no visible binding for global variable error
-  if (is.null(nested_data) | (pval_col %in% names(fit_results))) {
+  if (is.null(nested_data) || (pval_col %in% names(fit_results))) {
     fit_results <- fit_results %>%
       dplyr::rowwise() %>%
       dplyr::mutate({{pval_col}} := -.data[[pval_col]])

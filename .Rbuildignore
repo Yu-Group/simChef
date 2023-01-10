@@ -1,9 +1,12 @@
+^renv$
+^renv\.lock$
 ^_pkgdown\.yml$
 ^docs$
 ^pkgdown$
 ^LICENSE\.md$
 ^\.github$
 ^vignettes/results$
+^vignettes/docs$
 ^man-roxygen
 ^.*\.Rproj$
 ^\.Rproj\.user$
