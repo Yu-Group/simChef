@@ -365,7 +365,7 @@ get_results <- function(filename) {
 show_results <- function(dir_name, depth, base = FALSE, show_header = TRUE,
                          verbose = 1, write_flag = FALSE) {
   if (verbose >= 1) {
-    inform(rep("*", depth), basename(dir_name))
+    inform(paste0(paste(rep("*", depth), collapse = ""), basename(dir_name)))
   }
 
   if (depth == 1) {
@@ -447,7 +447,7 @@ show_results <- function(dir_name, depth, base = FALSE, show_header = TRUE,
       evaluator <- exp$get_evaluators()[[eval_name]]
       if (evaluator$doc_show) {
         if (verbose >= 1) {
-          inform(rep(" ", depth + 1), eval_name)
+          inform(paste0(paste(rep(" ", depth + 1), collapse = ""), eval_name))
         }
         results <- write(
           sprintf(figname_template, eval_name),
@@ -482,7 +482,7 @@ show_results <- function(dir_name, depth, base = FALSE, show_header = TRUE,
       visualizer <- exp$get_visualizers()[[viz_name]]
       if (visualizer$doc_show) {
         if (verbose >= 1) {
-          inform(rep(" ", depth + 1), viz_name)
+          inform(paste0(paste(rep(" ", depth + 1), collapse = ""), viz_name))
         }
         results <- write(
           sprintf(figname_template, viz_name),

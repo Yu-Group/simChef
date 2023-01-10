@@ -47,9 +47,9 @@ inform <- function(message = NULL,
                    ...) {
   prefix <- ""
   if (getOption("simChef.debug", FALSE)) {
-    prefix <- "[simChef.debug]"
+    prefix <- "[simChef.debug] "
   }
-  message <- paste(prefix, message)
+  message <- paste0(prefix, message)
   rlang::inform(message = message, class = class, call = call, ...)
 }
 

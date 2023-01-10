@@ -260,7 +260,7 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
     results <- run_experiment(experiment, save = TRUE, verbose = 0)
 
     expect_error(render_docs(experiment, verbose = 0), NA)
-    expect_snapshot(render_docs(experiment))
+    expect_snapshot(render_docs(experiment), transform = remove_tempdir)
 
     expect_equal(purrr::map_lgl(experiment$get_evaluators(), "doc_show"),
                  c(T, T, T, F) %>% setNames(names(experiment$get_evaluators())))
@@ -304,7 +304,7 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
       add_vary_across(.dgp = "DGP", x = 1:3)
     results <- run_experiment(experiment, save = TRUE, verbose = 0)
     expect_error(render_docs(experiment, verbose = 0), NA)
-    expect_snapshot(render_docs(experiment))
+    expect_snapshot(render_docs(experiment), transform = remove_tempdir)
 
     evaluator1 <- create_evaluator(eval_fun)
     evaluator2 <- create_evaluator(eval_fun, .doc_options = list(digits = 3))
@@ -339,10 +339,10 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
                       show = FALSE)
 
     expect_error(render_docs(experiment, verbose = 0), NA)
-    expect_snapshot(render_docs(experiment))
+    expect_snapshot(render_docs(experiment), transform = remove_tempdir)
     save_experiment(experiment)
     expect_error(render_docs(experiment, verbose = 0), NA)
-    expect_snapshot(render_docs(experiment))
+    expect_snapshot(render_docs(experiment), transform = remove_tempdir)
 
     evaluator1 <- create_evaluator(eval_fun)
     evaluator2 <- create_evaluator(eval_fun, .doc_options = list(digits = 3))
@@ -378,10 +378,10 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
                       show = FALSE)
 
     expect_error(render_docs(experiment, verbose = 0), NA)
-    expect_snapshot(render_docs(experiment))
+    expect_snapshot(render_docs(experiment), transform = remove_tempdir)
     save_experiment(experiment)
     expect_error(render_docs(experiment, verbose = 0), NA)
-    expect_snapshot(render_docs(experiment))
+    expect_snapshot(render_docs(experiment), transform = remove_tempdir)
   })
 
 }) # withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
