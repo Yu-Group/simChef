@@ -484,11 +484,11 @@ Experiment <- R6::R6Class(
       results_type <- match.arg(results_type)
       if (verbose >= 1) {
         if (results_type %in% c("fit", "eval", "viz")) {
-          message(sprintf("Reading in cached %s results...", results_type))
+          inform(sprintf("Reading in cached %s results...", results_type))
         } else if (identical(results_type, "experiment")) {
-          message(sprintf("Reading in the cached experiment..."))
+          inform("Reading in the cached experiment...")
         } else if (identical(results_type, "experiment_cached_params")) {
-          message(sprintf("Reading in the cached experiment parameters..."))
+          inform("Reading in the cached experiment parameters...")
         }
       }
       if (!private$.has_vary_across()) {
@@ -523,9 +523,9 @@ Experiment <- R6::R6Class(
       } else {
         if (verbose >= 1) {
           if (results_type %in% c("fit", "eval", "viz")) {
-            message(sprintf("Cannot find cached %s results.", results_type))
+            inform(sprintf("Cannot find cached %s results.", results_type))
           } else {
-            message("Cannot find cache.")
+            inform("Cannot find cache.")
           }
         }
         return(NULL)
@@ -621,9 +621,9 @@ Experiment <- R6::R6Class(
       results_type <- match.arg(results_type)
       if (verbose >= 1) {
         if (checkpoint) {
-          message(sprintf("Saving %s results checkpoint...", results_type))
+          inform(sprintf("Saving %s results checkpoint...", results_type))
         } else {
-          message(sprintf("Saving %s results...", results_type))
+          inform(sprintf("Saving %s results...", results_type))
         }
         start_time <- Sys.time()
       }
@@ -663,9 +663,9 @@ Experiment <- R6::R6Class(
         saveRDS(results, save_file)
       }
       if (verbose >= 1) {
-        message(sprintf("%s results saved | time taken: %f seconds",
-                        R.utils::capitalize(results_type),
-                        difftime(Sys.time(), start_time, units = "secs")))
+        inform(sprintf("%s results saved | time taken: %f seconds",
+                       R.utils::capitalize(results_type),
+                       difftime(Sys.time(), start_time, units = "secs")))
       }
     },
     deep_clone = function(name, value) {
@@ -716,8 +716,7 @@ Experiment <- R6::R6Class(
         save <- c("fit", "eval", "viz") %in% save
       } else {
         if (length(save) > 1) {
-          warning("The input save is a logical vector of length > 1. ",
-                  "Only the first element of save is used.")
+          warn("The input save is a logical vector of length > 1. Only the first element of save is used.")
         }
         save <- rep(save[1], 3)
       }
@@ -880,7 +879,7 @@ Experiment <- R6::R6Class(
 
           if (n_reps_cached >= n_reps_total) {
             if (verbose >= 1) {
-              message("==============================")
+              inform("==============================")
             }
 
             if (use_cached && return_all_cached_reps) {
@@ -894,7 +893,7 @@ Experiment <- R6::R6Class(
       }
 
       if (verbose >= 1) {
-        message(sprintf("Fitting %s...", self$name))
+        inform(sprintf("Fitting %s...", self$name))
         start_time <- Sys.time()
       }
 
@@ -1077,7 +1076,7 @@ Experiment <- R6::R6Class(
             dplyr::inner_join(y = fit_params_cached,
                               by = colnames(fit_params_cached))
           if (verbose >= 1) {
-            message("Appending cached results to the new fit results...")
+            inform("Appending cached results to the new fit results...")
           }
           fit_params <- private$.get_fit_params(simplify = TRUE)
           fit_params_cols <- colnames(fit_params)
@@ -1094,15 +1093,15 @@ Experiment <- R6::R6Class(
         }
 
         if (verbose >= 1) {
-          message(sprintf("%s reps completed (totals: %s/%s) | time taken: %f minutes",
-                          n_reps, n_reps_cached, n_reps_total,
-                          difftime(Sys.time(), start_time, units = "mins")))
+          inform(sprintf("%s reps completed (totals: %s/%s) | time taken: %f minutes",
+                         n_reps, n_reps_cached, n_reps_total,
+                         difftime(Sys.time(), start_time, units = "mins")))
         }
 
       } # while (n_reps_cached < n_reps_total) {
 
       if (verbose >= 1) {
-        message("==============================")
+        inform("==============================")
       }
 
       if (use_cached && return_all_cached_reps) {
@@ -1118,8 +1117,8 @@ Experiment <- R6::R6Class(
       evaluator_names <- names(evaluator_list)
       if (length(evaluator_list) == 0) {
         if (verbose >= 1) {
-          message("No evaluators to evaluate. Skipping evaluation.")
-          message("==============================")
+          inform("No evaluators to evaluate. Skipping evaluation.")
+          inform("==============================")
         }
         return(NULL)
       }
@@ -1139,7 +1138,7 @@ Experiment <- R6::R6Class(
             }
           }
           if (verbose >= 1) {
-            message("==============================")
+            inform("==============================")
           }
           return(results)
         } else if (is.null(is_cached)) {
@@ -1151,7 +1150,7 @@ Experiment <- R6::R6Class(
       }
 
       if (verbose >= 1) {
-        message(sprintf("Evaluating %s...", self$name))
+        inform(sprintf("Evaluating %s...", self$name))
         start_time <- Sys.time()
       }
       eval_results <- purrr::map2(
@@ -1170,19 +1169,19 @@ Experiment <- R6::R6Class(
         eval_results_cached <- private$.get_cached_results("eval",
                                                            verbose = verbose)
         if (verbose >= 1) {
-          message("Appending cached results to the new evaluation results...")
+          inform("Appending cached results to the new evaluation results...")
         }
         eval_results <- c(eval_results, eval_results_cached)[evaluator_names]
       }
       if (verbose >= 1) {
-        message(sprintf("Evaluation completed | time taken: %f minutes",
-                        difftime(Sys.time(), start_time, units = "mins")))
+        inform(sprintf("Evaluation completed | time taken: %f minutes",
+                       difftime(Sys.time(), start_time, units = "mins")))
       }
       if (save) {
         private$.save_results(eval_results, "eval", n_reps, verbose)
       }
       if (verbose >= 1) {
-        message("==============================")
+        inform("==============================")
       }
 
       return(eval_results)
@@ -1194,8 +1193,8 @@ Experiment <- R6::R6Class(
       visualizer_names <- names(visualizer_list)
       if (length(visualizer_list) == 0) {
         if (verbose >= 1) {
-          message("No visualizers to visualize. Skipping visualization.")
-          message("==============================")
+          inform("No visualizers to visualize. Skipping visualization.")
+          inform("==============================")
         }
         return(NULL)
       }
@@ -1215,7 +1214,7 @@ Experiment <- R6::R6Class(
             }
           }
           if (verbose >= 1) {
-            message("==============================")
+            inform("==============================")
           }
           return(results)
         } else if (is.null(is_cached)) {
@@ -1227,7 +1226,7 @@ Experiment <- R6::R6Class(
       }
 
       if (verbose >= 1) {
-        message(sprintf("Visualizing %s...", self$name))
+        inform(sprintf("Visualizing %s...", self$name))
         start_time <- Sys.time()
       }
       viz_results <- purrr::map2(
@@ -1247,20 +1246,20 @@ Experiment <- R6::R6Class(
         viz_results_cached <- private$.get_cached_results("viz",
                                                           verbose = verbose)
         if (verbose >= 1) {
-          message("Appending cached results to the new visualization results...")
+          inform("Appending cached results to the new visualization results...")
         }
         viz_results <- c(viz_results,
                          viz_results_cached)[visualizer_names]
       }
       if (verbose >= 1) {
-        message(sprintf("Visualization completed | time taken: %f minutes",
-                        difftime(Sys.time(), start_time, units = "mins")))
+        inform(sprintf("Visualization completed | time taken: %f minutes",
+                       difftime(Sys.time(), start_time, units = "mins")))
       }
       if (save) {
         private$.save_results(viz_results, "viz", n_reps, verbose)
       }
       if (verbose >= 1) {
-        message("==============================")
+        inform("==============================")
       }
 
       return(viz_results)
@@ -1535,7 +1534,7 @@ Experiment <- R6::R6Class(
     export_visualizers = function(device = "pdf", width = "auto", height = "auto",
                                 ...) {
       if (!rlang::is_installed("ggplot2")) {
-        stop("ggplot2 must be installed to export visualizers to image. Please install package via `install.packages('ggplot2')`.")
+        abort("ggplot2 must be installed to export visualizers to image. Please install package via `install.packages('ggplot2')`.")
       }
       viz_list <- self$get_visualizers()
       if (length(viz_list) == 0) {

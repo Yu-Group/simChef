@@ -35,13 +35,13 @@
 #' @export
 init_docs <- function(experiment, save_dir) {
   if (missing(experiment) && missing(save_dir)) {
-    stop("Must provide argument for one of experiment or save_dir.")
+    abort("Must provide argument for one of experiment or save_dir.")
   }
   if (!missing(experiment)) {
     if (!inherits(experiment, "Experiment")) {
       err_msg <- sprintf("%s must be an instance of simChef::%s",
                          as.character(substitute(experiment)), "Experiment")
-      stop(err_msg, call.=FALSE)
+      abort(err_msg, call. = FALSE)
     }
     save_dir <- experiment$get_save_dir()
   }
@@ -189,13 +189,13 @@ render_docs <- function(experiment, save_dir, write_rmd = FALSE,
                         open = TRUE, quiet = TRUE, verbose = 2, ...) {
 
   if (missing(experiment) && missing(save_dir)) {
-    stop("Must provide argument for one of experiment or save_dir.")
+    abort("Must provide argument for one of experiment or save_dir.")
   }
   if (!missing(experiment)) {
     if (!inherits(experiment, "Experiment")) {
       err_msg <- sprintf("%s must be an instance of simChef::%s",
                          as.character(substitute(experiment)), "Experiment")
-      stop(err_msg, call. = FALSE)
+      abort(err_msg, call. = FALSE)
     }
     save_dir <- experiment$get_save_dir()
     if (is.null(title)) {
@@ -251,9 +251,9 @@ render_docs <- function(experiment, save_dir, write_rmd = FALSE,
   if (use_icons) {
     if (!rlang::is_installed("fontawesome")) {
       use_icons <- FALSE
-      warning("fontawesome package is not installed. Setting use_icons to FALSE. Install package via `install.packages('fontawesome')` to use use_icons = TRUE.")
+      warn("fontawesome package is not installed. Setting use_icons to FALSE. Install package via `install.packages('fontawesome')` to use use_icons = TRUE.")
     } else if (identical(output_format_type, "pdf_document")) {
-      stop("Cannot output pdf_document when use_icons = TRUE. To output a pdf_document, please set use_icons = FALSE.")
+      abort("Cannot output pdf_document when use_icons = TRUE. To output a pdf_document, please set use_icons = FALSE.")
     }
   }
   if (identical(output_ext, "auto")) {
@@ -303,7 +303,7 @@ render_docs <- function(experiment, save_dir, write_rmd = FALSE,
       output_file <- stringr::str_replace_all(output_file, " ", "\\\\ ")
       system(paste("open", sprintf("%s.%s", output_file, output_ext)))
     } else {
-      warning("Cannot automatically detect output file extension. Please specify `output_ext` directly in function call in order to open file.")
+      warn("Cannot automatically detect output file extension. Please specify `output_ext` directly in function call in order to open file.")
     }
   }
 

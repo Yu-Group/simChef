@@ -15,10 +15,10 @@
 check_equal <- function(obj1, obj2) {
 
   if (!inherits(obj1, c("DGP", "Method", "Evaluator", "Visualizer"))) {
-    stop("obj1 must be a 'DGP', 'Method', 'Evaluator', or 'Visualizer' object.")
+    abort("obj1 must be a 'DGP', 'Method', 'Evaluator', or 'Visualizer' object.")
   }
   if (!inherits(obj2, c("DGP", "Method", "Evaluator", "Visualizer"))) {
-    stop("obj2 must be a 'DGP', 'Method', 'Evaluator', or 'Visualizer' object.")
+    abort("obj2 must be a 'DGP', 'Method', 'Evaluator', or 'Visualizer' object.")
   }
 
   if (!identical(class(obj1), class(obj2))) {
@@ -315,7 +315,7 @@ fix_duplicate_param_names <- function(dgp_params, method_params,
 compare_tibble_rows <- function(x, y, op = c("equal", "contained_in")) {
   op <- match.arg(op)
   if ((!tibble::is_tibble(x)) || (!tibble::is_tibble(y))) {
-    stop("x and y must be tibbles.")
+    abort("x and y must be tibbles.")
   }
   if (ncol(x) != ncol(y)) {
     return(FALSE)

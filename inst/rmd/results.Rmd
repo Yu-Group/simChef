@@ -365,7 +365,7 @@ get_results <- function(filename) {
 show_results <- function(dir_name, depth, base = FALSE, show_header = TRUE,
                          verbose = 1, write_flag = FALSE) {
   if (verbose >= 1) {
-    message(rep("*", depth), basename(dir_name))
+    inform(rep("*", depth), basename(dir_name))
   }
 
   if (depth == 1) {
@@ -447,7 +447,7 @@ show_results <- function(dir_name, depth, base = FALSE, show_header = TRUE,
       evaluator <- exp$get_evaluators()[[eval_name]]
       if (evaluator$doc_show) {
         if (verbose >= 1) {
-          message(rep(" ", depth + 1), eval_name)
+          inform(rep(" ", depth + 1), eval_name)
         }
         results <- write(
           sprintf(figname_template, eval_name),
@@ -482,7 +482,7 @@ show_results <- function(dir_name, depth, base = FALSE, show_header = TRUE,
       visualizer <- exp$get_visualizers()[[viz_name]]
       if (visualizer$doc_show) {
         if (verbose >= 1) {
-          message(rep(" ", depth + 1), viz_name)
+          inform(rep(" ", depth + 1), viz_name)
         }
         results <- write(
           sprintf(figname_template, viz_name),
@@ -741,7 +741,7 @@ if (params$write) {
 
 ```{r res, results = "asis"}
 if (params$verbose > 0) {
-  message(sprintf("Creating R Markdown report for %s...", params$sim_name))
+  inform(sprintf("Creating R Markdown report for %s...", params$sim_name))
 }
 
 # show results
