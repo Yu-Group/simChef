@@ -1,0 +1,84 @@
+---
+title: "Setting Up Your Simulation"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{simulation-directory-setup}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  echo = FALSE
+)
+```
+
+```{r setup}
+library(simChef)
+```
+
+<!-- Why provide guidelines? -->
+
+We recommend initializing your simulation directory as you would any new
+analysis: using a project. Doing so improves reproducibility and replicability:
+your code, data, and outputs are neatly separated from other analyses. In the
+same vein, we encourage the use of version control software ---
+[git](https://git-scm.com/) in particular. It helps you keep track of changes,
+undo snafus, and seamlessly collaborate with your peers.
+
+While you could create a version-controlled R project manually, we suggest using
+the tools provided by the [`usethis`](https://usethis.r-lib.org/index.html) R
+package. Here's a brief workflow:
+
+1. Install the most recent version of package by running
+  `install.packages("usethis")`.
+2. Create the project using `usethis::create_project()`.
+3. Initialize a git repository with `usethis::use_git()`. Call this function
+   from the root of your simulation project directory,
+4. (Optional) Link you local project to a project on GitHub by running
+   `usethis::use_github()`.
+   
+If you're unfamiliar with git or GitHub, or haven't yet set git up on you
+machine, we recommend you review Chapters 4 through 8 of [*Happy Git and GitHub
+for the useR*](https://happygitwithr.com/index.html).
+
+
+Once your project is set up, we recommend organizing your project with the
+following directories and files:
+
+- `README.md`:
+- `R/`: This folder will contain your simulation study's R code.
+  - `meal.R`: Your `simChef` experiment is assembled in this script.
+  - `dgp-functions/`: Data-generating process functions are stored here.
+  - `method-functions/`: Method functions are stored here.
+  - `eval-functions/`: Evaluator functions are stored here.
+  - `viz-functions/`: Visualizer functions are stored here.
+- `results/`: Your simulation experiment's output are automatically saved here.
+
+You might consider including the following directories, too:
+- `tests/`: Unit tests promote high-quality code by ensuring that your many
+  functions operate as expected. Your simulation study's results are in turn
+  more trustworthy. We recommend using the
+  [`testthat`](https://testthat.r-lib.org/) R package's suite of unit testing
+  tools, and including the following files and sub-directories:
+  - `testthat.R`: This script should call `testthat::test_dir()` on the
+    following sub-directories to run the tests contained therein.
+  - `testthat/dgp-tests/`: Tests for data-generating process functions.
+  - `testthat/method-tests/`: Tests for method functions.
+  - `testthat/eval-tests/`: Tests for evaluator functions.
+  - `testthat/viz-tests/`: Tests for visualizer functions.
+- `hpc-scripts/`: We recommend running resource-intense simulation studies on
+  high-powered computing environments with workload managers, like
+  [SLURM](https://slurm.schedmd.com/documentation.html). Scripts for doing so
+  should be saved here.
+- `logs/`: The files output by these workload managers should be stored in this
+  directory.
+
+Again with reproducibility and replicability in mind, we encourage the use of
+[`renv`](https://cran.r-project.org/web/packages/renv/index.html) for
+project-local dependency management. The general `renv` workflow can be found
+[here](https://rstudio.github.io/renv/articles/renv.html). Note that
+initializing this tool generates an `renv/` directory and `renv.lock` file in
+the root directory.
