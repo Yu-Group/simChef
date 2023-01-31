@@ -2,7 +2,7 @@
 title: "Setting Up Your Simulation"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{simulation-directory-setup}
+  %\VignetteIndexEntry{Setting Up Your Simulation}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -13,10 +13,6 @@ knitr::opts_chunk$set(
   comment = "#>",
   echo = FALSE
 )
-```
-
-```{r setup}
-library(simChef)
 ```
 
 <!-- Why provide guidelines? -->
@@ -50,11 +46,11 @@ following directories and files:
 
 - `README.md`:
 - `R/`: This folder will contain your simulation study's R code.
-  - `meal.R`: Your `simChef` experiment is assembled in this script.
-  - `dgp-functions/`: Data-generating process functions are stored here.
-  - `method-functions/`: Method functions are stored here.
-  - `eval-functions/`: Evaluator functions are stored here.
-  - `viz-functions/`: Visualizer functions are stored here.
+  - `meal.R`: Your `simChef` experiment is assembled in this file.
+  - `dgp/`: Data-generating process functions are stored here.
+  - `method/`: Method functions are stored here.
+  - `eval/`: Evaluator functions are stored here.
+  - `viz/`: Visualizer functions are stored here.
 - `results/`: Your simulation experiment's output are automatically saved here.
 
 You might consider including the following directories, too:
@@ -69,11 +65,13 @@ You might consider including the following directories, too:
   - `testthat/method-tests/`: Tests for method functions.
   - `testthat/eval-tests/`: Tests for evaluator functions.
   - `testthat/viz-tests/`: Tests for visualizer functions.
-- `hpc-scripts/`: We recommend running resource-intense simulation studies on
-  high-powered computing environments with workload managers, like
-  [SLURM](https://slurm.schedmd.com/documentation.html). Scripts for doing so
-  should be saved here.
-- `logs/`: The files output by these workload managers should be stored in this
+- `scripts/`: We recommend running resource-intense simulation studies on
+  high-performance computing environments with workload managers, like
+  [SLURM](https://slurm.schedmd.com/documentation.html). Bash scripts for doing
+  so can be saved here. For added flexibility, we recommend the R package
+  [`optparse`](https://github.com/trevorld/r-optparse) to parse command-line
+  options from your bash scripts within `meal.R`.
+- `logs/`: The files output by these workload managers can be stored in this
   directory.
 
 Again with reproducibility and replicability in mind, we encourage the use of
