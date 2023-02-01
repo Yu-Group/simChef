@@ -15,12 +15,10 @@ knitr::opts_chunk$set(
 )
 ```
 
-<!-- Why provide guidelines? -->
-
 We recommend initializing your simulation directory as you would any new
-analysis: using a project. Doing so improves reproducibility and replicability:
-your code, data, and outputs are neatly separated from other analyses. In the
-same vein, we encourage the use of version control software ---
+analysis: using a project. Doing so improves reproducibility and replicability;
+it keeps your code, data, and outputs are neatly separated from other analyses.
+In the same vein, we encourage the use of version control software ---
 [git](https://git-scm.com/) in particular. It helps you keep track of changes,
 undo snafus, and seamlessly collaborate with your peers.
 
@@ -28,7 +26,7 @@ While you could create a version-controlled R project manually, we suggest using
 the tools provided by the [`usethis`](https://usethis.r-lib.org/index.html) R
 package. Here's a brief workflow:
 
-1. Install the most recent version of package by running
+1. Install the most recent release of this package by running
   `install.packages("usethis")`.
 2. Create the project using `usethis::create_project()`.
 3. Initialize a git repository with `usethis::use_git()`. Call this function
@@ -37,14 +35,13 @@ package. Here's a brief workflow:
    `usethis::use_github()`.
    
 If you're unfamiliar with git or GitHub, or haven't yet set git up on you
-machine, we recommend you review Chapters 4 through 8 of [*Happy Git and GitHub
-for the useR*](https://happygitwithr.com/index.html).
+machine, we suggest reviewing Chapters 4 through 8 of [*Happy Git and GitHub for
+the useR*](https://happygitwithr.com/index.html).
 
 
 Once your project is set up, we recommend organizing your project with the
 following directories and files:
 
-- `README.md`:
 - `R/`: This folder will contain your simulation study's R code.
   - `meal.R`: Your `simChef` experiment is assembled in this file.
   - `dgp/`: Data-generating process functions are stored here.
@@ -52,6 +49,10 @@ following directories and files:
   - `eval/`: Evaluator functions are stored here.
   - `viz/`: Visualizer functions are stored here.
 - `results/`: Your simulation experiment's output are automatically saved here.
+- `README.md`: This markdown file briefly summarizes your simulation study's
+  goals and results. Some guidance on navigating your project's directory
+  structure might also be appreciated by your collaborators --- and even
+  yourself at some point in the future.
 
 You might consider including the following directories, too:
 - `tests/`: Unit tests promote high-quality code by ensuring that your many
@@ -80,3 +81,10 @@ project-local dependency management. The general `renv` workflow can be found
 [here](https://rstudio.github.io/renv/articles/renv.html). Note that
 initializing this tool generates an `renv/` directory and `renv.lock` file in
 the root directory.
+
+Of course, this project structure, as well as the names of directories and
+files, are nothing but suggestions. Feel free to organize your simulation study
+as best you see fit. You might find some inspiration
+[here](https://github.com/openpharma/mmrm/tree/main/simulations) and
+[here](https://github.com/PhilBoileau/simChef-case-study).
+
