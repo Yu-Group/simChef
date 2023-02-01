@@ -46,6 +46,7 @@
   <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
     <a class="dropdown-item" href="../articles/parallel.html">Computing experimental replicates in parallel</a>
+    <a class="dropdown-item" href="../articles/simulation-directory-setup.html">Setting Up Your Simulation</a>
   </div>
 </li>
 <li class="nav-item">
@@ -485,21 +486,21 @@ do. To run the experiment, say over 10 replicates, we can do so via</p>
 <code class="sourceCode R"><span><span class="va">results</span> <span class="op">&lt;-</span> <span class="va">experiment</span><span class="op">$</span><span class="fu">run</span><span class="op">(</span>n_reps <span class="op">=</span> <span class="fl">10</span>, save <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Fitting Linear Regression Experiment...</span></span>
 <span><span class="co">#&gt; Saving fit results...</span></span>
-<span><span class="co">#&gt; Fit results saved | time taken: 0.037490 seconds</span></span>
-<span><span class="co">#&gt; 10 reps completed (totals: 10/10) | time taken: 0.044210 minutes</span></span>
+<span><span class="co">#&gt; Fit results saved | time taken: 0.049215 seconds</span></span>
+<span><span class="co">#&gt; 10 reps completed (totals: 10/10) | time taken: 0.069103 minutes</span></span>
 <span><span class="co">#&gt; ==============================</span></span>
 <span><span class="co">#&gt; Evaluating Linear Regression Experiment...</span></span>
 <span><span class="co">#&gt; `summarise()` has grouped output by '.dgp_name'. You can override using the `.groups` argument.</span></span>
-<span><span class="co">#&gt; Evaluation completed | time taken: 0.000647 minutes</span></span>
+<span><span class="co">#&gt; Evaluation completed | time taken: 0.000943 minutes</span></span>
 <span><span class="co">#&gt; Saving eval results...</span></span>
-<span><span class="co">#&gt; Eval results saved | time taken: 0.069835 seconds</span></span>
+<span><span class="co">#&gt; Eval results saved | time taken: 0.096633 seconds</span></span>
 <span><span class="co">#&gt; ==============================</span></span>
 <span><span class="co">#&gt; Visualizing Linear Regression Experiment...</span></span>
 <span><span class="co">#&gt; Warning: Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Please use `linewidth` instead.</span></span>
-<span><span class="co">#&gt; Visualization completed | time taken: 0.002635 minutes</span></span>
+<span><span class="co">#&gt; Visualization completed | time taken: 0.003710 minutes</span></span>
 <span><span class="co">#&gt; Saving viz results...</span></span>
-<span><span class="co">#&gt; Viz results saved | time taken: 0.057281 seconds</span></span>
+<span><span class="co">#&gt; Viz results saved | time taken: 0.070035 seconds</span></span>
 <span><span class="co">#&gt; ==============================</span></span></code></pre></div>
 <p>or alternatively,</p>
 <div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
@@ -620,19 +621,19 @@ we expect. The results are summarized/aggregated across all values of
 <code class="sourceCode R"><span><span class="va">vary_results</span> <span class="op">&lt;-</span> <span class="va">experiment</span><span class="op">$</span><span class="fu">run</span><span class="op">(</span>n_reps <span class="op">=</span> <span class="fl">10</span>, save <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Fitting Linear Regression Experiment...</span></span>
 <span><span class="co">#&gt; Saving fit results...</span></span>
-<span><span class="co">#&gt; Fit results saved | time taken: 0.036634 seconds</span></span>
-<span><span class="co">#&gt; 10 reps completed (totals: 10/10) | time taken: 0.146775 minutes</span></span>
+<span><span class="co">#&gt; Fit results saved | time taken: 0.043721 seconds</span></span>
+<span><span class="co">#&gt; 10 reps completed (totals: 10/10) | time taken: 0.223937 minutes</span></span>
 <span><span class="co">#&gt; ==============================</span></span>
 <span><span class="co">#&gt; Evaluating Linear Regression Experiment...</span></span>
 <span><span class="co">#&gt; `summarise()` has grouped output by '.dgp_name'. You can override using the `.groups` argument.</span></span>
-<span><span class="co">#&gt; Evaluation completed | time taken: 0.000391 minutes</span></span>
+<span><span class="co">#&gt; Evaluation completed | time taken: 0.000578 minutes</span></span>
 <span><span class="co">#&gt; Saving eval results...</span></span>
-<span><span class="co">#&gt; Eval results saved | time taken: 0.030552 seconds</span></span>
+<span><span class="co">#&gt; Eval results saved | time taken: 0.036382 seconds</span></span>
 <span><span class="co">#&gt; ==============================</span></span>
 <span><span class="co">#&gt; Visualizing Linear Regression Experiment...</span></span>
-<span><span class="co">#&gt; Visualization completed | time taken: 0.000712 minutes</span></span>
+<span><span class="co">#&gt; Visualization completed | time taken: 0.001058 minutes</span></span>
 <span><span class="co">#&gt; Saving viz results...</span></span>
-<span><span class="co">#&gt; Viz results saved | time taken: 0.068228 seconds</span></span>
+<span><span class="co">#&gt; Viz results saved | time taken: 0.080046 seconds</span></span>
 <span><span class="co">#&gt; ==============================</span></span>
 <span><span class="va">vary_results</span><span class="op">$</span><span class="va">eval_results</span></span>
 <span><span class="co">#&gt; $`Rejection Prob. (alpha = 0.1)`</span></span>
@@ -712,19 +713,19 @@ via</p>
 <span>  <span class="fu"><a href="../reference/run_experiment.html">run_experiment</a></span><span class="op">(</span>n_reps <span class="op">=</span> <span class="fl">10</span>, save <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Fitting Linear Regression Experiment...</span></span>
 <span><span class="co">#&gt; Saving fit results...</span></span>
-<span><span class="co">#&gt; Fit results saved | time taken: 0.046650 seconds</span></span>
-<span><span class="co">#&gt; 10 reps completed (totals: 10/10) | time taken: 0.166461 minutes</span></span>
+<span><span class="co">#&gt; Fit results saved | time taken: 0.064848 seconds</span></span>
+<span><span class="co">#&gt; 10 reps completed (totals: 10/10) | time taken: 0.223504 minutes</span></span>
 <span><span class="co">#&gt; ==============================</span></span>
 <span><span class="co">#&gt; Evaluating Linear Regression Experiment...</span></span>
 <span><span class="co">#&gt; `summarise()` has grouped output by '.dgp_name', '.method_name'. You can override using the `.groups` argument.</span></span>
-<span><span class="co">#&gt; Evaluation completed | time taken: 0.000330 minutes</span></span>
+<span><span class="co">#&gt; Evaluation completed | time taken: 0.000498 minutes</span></span>
 <span><span class="co">#&gt; Saving eval results...</span></span>
-<span><span class="co">#&gt; Eval results saved | time taken: 0.032856 seconds</span></span>
+<span><span class="co">#&gt; Eval results saved | time taken: 0.038965 seconds</span></span>
 <span><span class="co">#&gt; ==============================</span></span>
 <span><span class="co">#&gt; Visualizing Linear Regression Experiment...</span></span>
-<span><span class="co">#&gt; Visualization completed | time taken: 0.000720 minutes</span></span>
+<span><span class="co">#&gt; Visualization completed | time taken: 0.000946 minutes</span></span>
 <span><span class="co">#&gt; Saving viz results...</span></span>
-<span><span class="co">#&gt; Viz results saved | time taken: 0.082895 seconds</span></span>
+<span><span class="co">#&gt; Viz results saved | time taken: 0.103489 seconds</span></span>
 <span><span class="co">#&gt; ==============================</span></span>
 <span><span class="va">vary_results</span><span class="op">$</span><span class="va">eval_results</span></span>
 <span><span class="co">#&gt; $`Rejection Prob. (alpha = 0.1)`</span></span>
@@ -798,19 +799,19 @@ and plots the rejection probability for the <span class="math inline">\(\boldsym
 <span>  <span class="fu"><a href="../reference/run_experiment.html">run_experiment</a></span><span class="op">(</span>n_reps <span class="op">=</span> <span class="fl">10</span>, save <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Fitting Linear Regression Experiment...</span></span>
 <span><span class="co">#&gt; Saving fit results...</span></span>
-<span><span class="co">#&gt; Fit results saved | time taken: 0.040764 seconds</span></span>
-<span><span class="co">#&gt; 10 reps completed (totals: 10/10) | time taken: 0.184400 minutes</span></span>
+<span><span class="co">#&gt; Fit results saved | time taken: 0.053161 seconds</span></span>
+<span><span class="co">#&gt; 10 reps completed (totals: 10/10) | time taken: 0.277828 minutes</span></span>
 <span><span class="co">#&gt; ==============================</span></span>
 <span><span class="co">#&gt; Evaluating Linear Regression Experiment...</span></span>
 <span><span class="co">#&gt; `summarise()` has grouped output by '.dgp_name', '.method_name'. You can override using the `.groups` argument.</span></span>
-<span><span class="co">#&gt; Evaluation completed | time taken: 0.000365 minutes</span></span>
+<span><span class="co">#&gt; Evaluation completed | time taken: 0.000572 minutes</span></span>
 <span><span class="co">#&gt; Saving eval results...</span></span>
-<span><span class="co">#&gt; Eval results saved | time taken: 0.035977 seconds</span></span>
+<span><span class="co">#&gt; Eval results saved | time taken: 0.043662 seconds</span></span>
 <span><span class="co">#&gt; ==============================</span></span>
 <span><span class="co">#&gt; Visualizing Linear Regression Experiment...</span></span>
-<span><span class="co">#&gt; Visualization completed | time taken: 0.002747 minutes</span></span>
+<span><span class="co">#&gt; Visualization completed | time taken: 0.004108 minutes</span></span>
 <span><span class="co">#&gt; Saving viz results...</span></span>
-<span><span class="co">#&gt; Viz results saved | time taken: 0.123018 seconds</span></span>
+<span><span class="co">#&gt; Viz results saved | time taken: 0.143950 seconds</span></span>
 <span><span class="co">#&gt; ==============================</span></span>
 <span></span>
 <span><span class="co"># run experiment across values of rho (correlation)</span></span>
@@ -821,19 +822,19 @@ and plots the rejection probability for the <span class="math inline">\(\boldsym
 <span>  <span class="fu"><a href="../reference/run_experiment.html">run_experiment</a></span><span class="op">(</span>n_reps <span class="op">=</span> <span class="fl">10</span>, save <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Fitting Linear Regression Experiment...</span></span>
 <span><span class="co">#&gt; Saving fit results...</span></span>
-<span><span class="co">#&gt; Fit results saved | time taken: 0.044113 seconds</span></span>
-<span><span class="co">#&gt; 10 reps completed (totals: 10/10) | time taken: 0.159323 minutes</span></span>
+<span><span class="co">#&gt; Fit results saved | time taken: 0.053787 seconds</span></span>
+<span><span class="co">#&gt; 10 reps completed (totals: 10/10) | time taken: 0.245341 minutes</span></span>
 <span><span class="co">#&gt; ==============================</span></span>
 <span><span class="co">#&gt; Evaluating Linear Regression Experiment...</span></span>
 <span><span class="co">#&gt; `summarise()` has grouped output by '.dgp_name', '.method_name'. You can override using the `.groups` argument.</span></span>
-<span><span class="co">#&gt; Evaluation completed | time taken: 0.000300 minutes</span></span>
+<span><span class="co">#&gt; Evaluation completed | time taken: 0.000383 minutes</span></span>
 <span><span class="co">#&gt; Saving eval results...</span></span>
-<span><span class="co">#&gt; Eval results saved | time taken: 0.038106 seconds</span></span>
+<span><span class="co">#&gt; Eval results saved | time taken: 0.050103 seconds</span></span>
 <span><span class="co">#&gt; ==============================</span></span>
 <span><span class="co">#&gt; Visualizing Linear Regression Experiment...</span></span>
-<span><span class="co">#&gt; Visualization completed | time taken: 0.001943 minutes</span></span>
+<span><span class="co">#&gt; Visualization completed | time taken: 0.002799 minutes</span></span>
 <span><span class="co">#&gt; Saving viz results...</span></span>
-<span><span class="co">#&gt; Viz results saved | time taken: 0.129984 seconds</span></span>
+<span><span class="co">#&gt; Viz results saved | time taken: 0.156621 seconds</span></span>
 <span><span class="co">#&gt; ==============================</span></span></code></pre></div>
 <p>Now when generating the R Markdown report summary for an
 <code>Experiment</code>, the R Markdown will compile results (both
@@ -1184,19 +1185,19 @@ results.</p>
 <code class="sourceCode R"><span><span class="va">orig_results</span> <span class="op">&lt;-</span> <span class="va">experiment</span><span class="op">$</span><span class="fu">run</span><span class="op">(</span>n_reps <span class="op">=</span> <span class="fl">10</span>, save <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Fitting Linear Regression Experiment...</span></span>
 <span><span class="co">#&gt; Saving fit results...</span></span>
-<span><span class="co">#&gt; Fit results saved | time taken: 0.048692 seconds</span></span>
-<span><span class="co">#&gt; 10 reps completed (totals: 10/10) | time taken: 0.201375 minutes</span></span>
+<span><span class="co">#&gt; Fit results saved | time taken: 0.065685 seconds</span></span>
+<span><span class="co">#&gt; 10 reps completed (totals: 10/10) | time taken: 0.288601 minutes</span></span>
 <span><span class="co">#&gt; ==============================</span></span>
 <span><span class="co">#&gt; Evaluating Linear Regression Experiment...</span></span>
 <span><span class="co">#&gt; `summarise()` has grouped output by '.dgp_name', '.method_name'. You can override using the `.groups` argument.</span></span>
-<span><span class="co">#&gt; Evaluation completed | time taken: 0.000277 minutes</span></span>
+<span><span class="co">#&gt; Evaluation completed | time taken: 0.000458 minutes</span></span>
 <span><span class="co">#&gt; Saving eval results...</span></span>
-<span><span class="co">#&gt; Eval results saved | time taken: 0.036933 seconds</span></span>
+<span><span class="co">#&gt; Eval results saved | time taken: 0.045941 seconds</span></span>
 <span><span class="co">#&gt; ==============================</span></span>
 <span><span class="co">#&gt; Visualizing Linear Regression Experiment...</span></span>
-<span><span class="co">#&gt; Visualization completed | time taken: 0.001679 minutes</span></span>
+<span><span class="co">#&gt; Visualization completed | time taken: 0.002793 minutes</span></span>
 <span><span class="co">#&gt; Saving viz results...</span></span>
-<span><span class="co">#&gt; Viz results saved | time taken: 0.126907 seconds</span></span>
+<span><span class="co">#&gt; Viz results saved | time taken: 0.177336 seconds</span></span>
 <span><span class="co">#&gt; ==============================</span></span></code></pre></div>
 <p>When setting <code>use_cached = TRUE</code>, the following line of
 code will not generate any new results but will instead simply read in
@@ -1219,10 +1220,10 @@ replicates</p>
 <span><span class="co">#&gt; ==============================</span></span>
 <span><span class="co">#&gt; Evaluating Linear Regression Experiment...</span></span>
 <span><span class="co">#&gt; `summarise()` has grouped output by '.dgp_name', '.method_name'. You can override using the `.groups` argument.</span></span>
-<span><span class="co">#&gt; Evaluation completed | time taken: 0.000280 minutes</span></span>
+<span><span class="co">#&gt; Evaluation completed | time taken: 0.000434 minutes</span></span>
 <span><span class="co">#&gt; ==============================</span></span>
 <span><span class="co">#&gt; Visualizing Linear Regression Experiment...</span></span>
-<span><span class="co">#&gt; Visualization completed | time taken: 0.001708 minutes</span></span>
+<span><span class="co">#&gt; Visualization completed | time taken: 0.002564 minutes</span></span>
 <span><span class="co">#&gt; ==============================</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="va">smaller_results</span><span class="op">$</span><span class="va">fit_results</span><span class="op">$</span><span class="va">.rep</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 5</span></span></code></pre></div>
@@ -1232,14 +1233,14 @@ the previously cached replicates</p>
 <code class="sourceCode R"><span><span class="va">larger_results</span> <span class="op">&lt;-</span> <span class="va">experiment</span><span class="op">$</span><span class="fu">run</span><span class="op">(</span>n_reps <span class="op">=</span> <span class="fl">15</span>, use_cached <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Reading in cached fit results...</span></span>
 <span><span class="co">#&gt; Fitting Linear Regression Experiment...</span></span>
-<span><span class="co">#&gt; 5 reps completed (totals: 15/15) | time taken: 0.098641 minutes</span></span>
+<span><span class="co">#&gt; 5 reps completed (totals: 15/15) | time taken: 0.154231 minutes</span></span>
 <span><span class="co">#&gt; ==============================</span></span>
 <span><span class="co">#&gt; Evaluating Linear Regression Experiment...</span></span>
 <span><span class="co">#&gt; `summarise()` has grouped output by '.dgp_name', '.method_name'. You can override using the `.groups` argument.</span></span>
-<span><span class="co">#&gt; Evaluation completed | time taken: 0.000277 minutes</span></span>
+<span><span class="co">#&gt; Evaluation completed | time taken: 0.000412 minutes</span></span>
 <span><span class="co">#&gt; ==============================</span></span>
 <span><span class="co">#&gt; Visualizing Linear Regression Experiment...</span></span>
-<span><span class="co">#&gt; Visualization completed | time taken: 0.001687 minutes</span></span>
+<span><span class="co">#&gt; Visualization completed | time taken: 0.002601 minutes</span></span>
 <span><span class="co">#&gt; ==============================</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/all.equal.html" class="external-link">all.equal</a></span><span class="op">(</span><span class="va">orig_results</span><span class="op">$</span><span class="va">fit_results</span>,</span>
 <span>          <span class="va">larger_results</span><span class="op">$</span><span class="va">fit_results</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="va">.rep</span><span class="op">)</span> <span class="op">&lt;=</span> <span class="fl">10</span><span class="op">)</span><span class="op">)</span></span>
@@ -1256,14 +1257,14 @@ DGP are run while the replicates involving the old DGP (i.e., the
 <span><span class="co">#&gt; Fitting Linear Regression Experiment...</span></span>
 <span><span class="co">#&gt; Reading in cached fit results...</span></span>
 <span><span class="co">#&gt; Appending cached results to the new fit results...</span></span>
-<span><span class="co">#&gt; 10 reps completed (totals: 10/10) | time taken: 0.070880 minutes</span></span>
+<span><span class="co">#&gt; 10 reps completed (totals: 10/10) | time taken: 0.104387 minutes</span></span>
 <span><span class="co">#&gt; ==============================</span></span>
 <span><span class="co">#&gt; Evaluating Linear Regression Experiment...</span></span>
 <span><span class="co">#&gt; `summarise()` has grouped output by '.dgp_name', '.method_name'. You can override using the `.groups` argument.</span></span>
-<span><span class="co">#&gt; Evaluation completed | time taken: 0.000300 minutes</span></span>
+<span><span class="co">#&gt; Evaluation completed | time taken: 0.000463 minutes</span></span>
 <span><span class="co">#&gt; ==============================</span></span>
 <span><span class="co">#&gt; Visualizing Linear Regression Experiment...</span></span>
-<span><span class="co">#&gt; Visualization completed | time taken: 0.001750 minutes</span></span>
+<span><span class="co">#&gt; Visualization completed | time taken: 0.002684 minutes</span></span>
 <span><span class="co">#&gt; ==============================</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/all.equal.html" class="external-link">all.equal</a></span><span class="op">(</span><span class="va">new_results</span><span class="op">$</span><span class="va">fit_results</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">.dgp_name</span> <span class="op">==</span> <span class="st">"Linear Gaussian DGP"</span><span class="op">)</span>,</span>
 <span>          <span class="va">orig_results</span><span class="op">$</span><span class="va">fit_results</span><span class="op">)</span></span>
@@ -1277,14 +1278,14 @@ for future use.</p>
 <span><span class="co">#&gt; Fitting Linear Regression Experiment...</span></span>
 <span><span class="co">#&gt; Reading in cached fit results...</span></span>
 <span><span class="co">#&gt; Appending cached results to the new fit results...</span></span>
-<span><span class="co">#&gt; 10 reps completed (totals: 10/10) | time taken: 0.078826 minutes</span></span>
+<span><span class="co">#&gt; 10 reps completed (totals: 10/10) | time taken: 0.105028 minutes</span></span>
 <span><span class="co">#&gt; ==============================</span></span>
 <span><span class="co">#&gt; Evaluating Linear Regression Experiment...</span></span>
 <span><span class="co">#&gt; `summarise()` has grouped output by '.dgp_name', '.method_name'. You can override using the `.groups` argument.</span></span>
-<span><span class="co">#&gt; Evaluation completed | time taken: 0.000289 minutes</span></span>
+<span><span class="co">#&gt; Evaluation completed | time taken: 0.000461 minutes</span></span>
 <span><span class="co">#&gt; ==============================</span></span>
 <span><span class="co">#&gt; Visualizing Linear Regression Experiment...</span></span>
-<span><span class="co">#&gt; Visualization completed | time taken: 0.001749 minutes</span></span>
+<span><span class="co">#&gt; Visualization completed | time taken: 0.002675 minutes</span></span>
 <span><span class="co">#&gt; ==============================</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/identical.html" class="external-link">identical</a></span><span class="op">(</span><span class="va">new_results</span><span class="op">$</span><span class="va">fit_results</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">.dgp_name</span> <span class="op">==</span> <span class="st">"New DGP"</span><span class="op">)</span>,</span>
 <span>          <span class="va">new_results2</span><span class="op">$</span><span class="va">fit_results</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">.dgp_name</span> <span class="op">==</span> <span class="st">"New DGP"</span><span class="op">)</span><span class="op">)</span></span>
@@ -1490,16 +1491,16 @@ return the visualization results</li>
 <div class="sourceCode" id="cb54"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fit_results</span> <span class="op">&lt;-</span> <span class="va">experiment</span><span class="op">$</span><span class="fu">fit</span><span class="op">(</span>n_reps <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Fitting Linear Regression Experiment...</span></span>
-<span><span class="co">#&gt; 10 reps completed (totals: 10/10) | time taken: 0.222425 minutes</span></span>
+<span><span class="co">#&gt; 10 reps completed (totals: 10/10) | time taken: 0.304346 minutes</span></span>
 <span><span class="co">#&gt; ==============================</span></span>
 <span><span class="va">eval_results</span> <span class="op">&lt;-</span> <span class="va">experiment</span><span class="op">$</span><span class="fu">evaluate</span><span class="op">(</span><span class="va">fit_results</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Evaluating Linear Regression Experiment...</span></span>
 <span><span class="co">#&gt; `summarise()` has grouped output by '.dgp_name', '.method_name'. You can override using the `.groups` argument.</span></span>
-<span><span class="co">#&gt; Evaluation completed | time taken: 0.000273 minutes</span></span>
+<span><span class="co">#&gt; Evaluation completed | time taken: 0.000407 minutes</span></span>
 <span><span class="co">#&gt; ==============================</span></span>
 <span><span class="va">viz_results</span> <span class="op">&lt;-</span> <span class="va">experiment</span><span class="op">$</span><span class="fu">visualize</span><span class="op">(</span><span class="va">fit_results</span>, <span class="va">eval_results</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Visualizing Linear Regression Experiment...</span></span>
-<span><span class="co">#&gt; Visualization completed | time taken: 0.001661 minutes</span></span>
+<span><span class="co">#&gt; Visualization completed | time taken: 0.002525 minutes</span></span>
 <span><span class="co">#&gt; ==============================</span></span></code></pre></div>
 <p>or alternatively,</p>
 <div class="sourceCode" id="cb55"><pre class="downlit sourceCode r">
@@ -1699,7 +1700,7 @@ into the error via</p>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 1 × 10</span></span></span>
 <span><span class="co">#&gt;   .dgp   .dgp_name .dgp_params .method .method_name .method_params .method_output .err        .pid .gc          </span></span>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;list&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;list&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;list&gt;</span>       </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> <span style="color: #949494;">&lt;DGP&gt;</span>  Buggy DGP <span style="color: #BB0000;">NA</span>          <span style="color: #BB0000;">NA</span>      <span style="color: #BB0000;">NA</span>           <span style="color: #BB0000;">NA</span>             <span style="color: #BB0000;">NA</span>             <span style="color: #949494;">&lt;smChf_rr&gt;</span> <span style="text-decoration: underline;">16</span>177 <span style="color: #949494;">&lt;dbl [2 × 6]&gt;</span></span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> <span style="color: #949494;">&lt;DGP&gt;</span>  Buggy DGP <span style="color: #BB0000;">NA</span>          <span style="color: #BB0000;">NA</span>      <span style="color: #BB0000;">NA</span>           <span style="color: #BB0000;">NA</span>             <span style="color: #BB0000;">NA</span>             <span style="color: #949494;">&lt;smChf_rr&gt;</span> <span style="text-decoration: underline;">21</span>037 <span style="color: #949494;">&lt;dbl [2 × 6]&gt;</span></span></span></code></pre></div>
 <p>Note that the error tibble contains the <code>DGP</code> and
 <code>Method</code> (if the <code>DGP</code> was not the error cause)
 that were being processed when the error occurred in the
