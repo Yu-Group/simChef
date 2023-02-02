@@ -139,26 +139,45 @@ simulation study’s goals and results. Some guidance on navigating your
 project’s directory structure might also be appreciated by your
 collaborators — and even yourself at some point in the future.</li>
 </ul>
-<p>You might consider including the following directories, too: -
-<code>tests/</code>: Unit tests promote high-quality code by ensuring
-that your many functions operate as expected. Your simulation study’s
-results are in turn more trustworthy. We recommend using the <a href="https://testthat.r-lib.org/" class="external-link"><code>testthat</code></a> R package’s
+<p>You might consider including the following directories, too:</p>
+<ul>
+<li>
+<code>tests/</code>: Unit tests promote high-quality code by
+ensuring that your many functions operate as expected. Your simulation
+study’s results are in turn more trustworthy. We recommend using the <a href="https://testthat.r-lib.org/" class="external-link"><code>testthat</code></a> R package’s
 suite of unit testing tools, and including the following files and
-sub-directories: - <code>testthat.R</code>: This script should call
+sub-directories:
+<ul>
+<li>
+<code>testthat.R</code>: This script should call
 <code><a href="https://testthat.r-lib.org/reference/test_dir.html" class="external-link">testthat::test_dir()</a></code> on the following sub-directories to
-run the tests contained therein. - <code>testthat/dgp-tests/</code>:
-Tests for data-generating process functions. -
-<code>testthat/method-tests/</code>: Tests for method functions. -
-<code>testthat/eval-tests/</code>: Tests for evaluator functions. -
-<code>testthat/viz-tests/</code>: Tests for visualizer functions. -
-<code>scripts/</code>: We recommend running resource-intense simulation
-studies on high-performance computing environments with workload
-managers, like <a href="https://slurm.schedmd.com/documentation.html" class="external-link">SLURM</a>. Bash
+run the tests contained therein.</li>
+<li>
+<code>testthat/dgp-tests/</code>: Tests for data-generating process
+functions.</li>
+<li>
+<code>testthat/method-tests/</code>: Tests for method
+functions.</li>
+<li>
+<code>testthat/eval-tests/</code>: Tests for evaluator
+functions.</li>
+<li>
+<code>testthat/viz-tests/</code>: Tests for visualizer
+functions.</li>
+</ul>
+</li>
+<li>
+<code>scripts/</code>: We recommend running resource-intense
+simulation studies on high-performance computing environments with
+workload managers, like <a href="https://slurm.schedmd.com/documentation.html" class="external-link">SLURM</a>. Bash
 scripts for doing so can be saved here. For added flexibility, we
 recommend the R package <a href="https://github.com/trevorld/r-optparse" class="external-link"><code>optparse</code></a>
 to parse command-line options from your bash scripts within
-<code>meal.R</code>. - <code>logs/</code>: The files output by these
-workload managers can be stored in this directory.</p>
+<code>meal.R</code>.</li>
+<li>
+<code>logs/</code>: The files output by these workload managers can
+be stored in this directory.</li>
+</ul>
 <p>Again with reproducibility and replicability in mind, we encourage
 the use of <a href="https://cran.r-project.org/web/packages/renv/index.html" class="external-link"><code>renv</code></a>
 for project-local dependency management. The general <code>renv</code>
