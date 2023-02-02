@@ -55,6 +55,7 @@ following directories and files:
   yourself at some point in the future.
 
 You might consider including the following directories, too:
+
 - `tests/`: Unit tests promote high-quality code by ensuring that your many
   functions operate as expected. Your simulation study's results are in turn
   more trustworthy. We recommend using the
