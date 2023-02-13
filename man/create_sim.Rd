@@ -25,6 +25,7 @@ organizing files related to high-power computing environments. Defaults to
 }
 \description{
 \code{create_sim()} initializes a directory for your simulation
-study. It wraps around \code{\link[usethis]{create_project}()} and
-\code{\link[usethis]{use_git}()}.
+study. It wraps around \code{\link[usethis]{create_project}()}, as well as
+\code{\link[usethis::use_git]{usethis::use_git}()} and
+\code{\link[renv::init]{renv::init}()}.
 }

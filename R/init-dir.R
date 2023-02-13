@@ -1,8 +1,9 @@
 #' @title Create a simulation project
 #'
 #' @description \code{create_sim()} initializes a directory for your simulation
-#'   study. It wraps around \code{\link[usethis]{create_project}()} and
-#'   \code{\link[usethis]{use_git}()}.
+#'   study. It wraps around \code{\link[usethis]{create_project}()}, as well as
+#'   \code{\link[usethis::use_git]{usethis::use_git}()} and
+#'   \code{\link[renv::init]{renv::init}()}.
 #'
 #' @param path A \code{character} specifying the path for your simulation
 #'   directory.
@@ -117,9 +118,52 @@ create_sim <- function(
     usethis::proj_activate(path = path)
 
     ## initialize a git repository if asked
-    if (init_git) usethis::use_git()
+    if (init_git) use_git_no_ask()
 
     ## intialize renv if desired
     if (init_renv) renv::init()
   }
+}
+
+#' Initialise a git repository
+#'
+#' @description \code{use_git_no_ask()} is based on
+#'   \code{\link[usethis::use_git]{usethis::use_git}()}: it generates a git
+#'   repository. This function differs from \code{\link[usethis]{use_git}()},
+#'   however, in that users are not prompted to add untracked files to the
+#'   initial commit.
+#' @param message A \code{character} message to use for the initial commit.
+#' @keywords internal
+use_git_no_ask <- function(message = "initial commit") {
+
+  ## intialize the git repo
+  usethis:::ui_done("Initialising Git repo")
+  usethis:::git_init()
+
+  ## write the .gitignore
+  usethis:::use_git_ignore(usethis:::git_ignore_lines)
+
+  ## safely fail if something goes wrong
+  if (!rlang::is_interactive() || !usethis:::uses_git()) {
+    return(invisible())
+  }
+
+  ## select files for initial commit
+  untracked <- TRUE
+  uncommitted <- sort(usethis:::git_status(untracked)$file)
+
+  ## make intial commit
+  repo <- usethis:::git_repo()
+  usethis::ui_done("Adding files")
+  gert::git_add(uncommitted, repo = repo)
+  usethis::ui_done("Making a commit with message {usethis::ui_value(message)}")
+  gert::git_commit(message, repo = repo)
+
+  if (Sys.getenv("RSTUDIO") == "1") {
+    usethis:::restart_rstudio(
+      "A restart of RStudio is required to activate the Git pane"
+    )
+  }
+
+  invisible(TRUE)
 }
