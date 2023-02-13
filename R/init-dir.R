@@ -17,6 +17,11 @@
 #'   organizing files related to high-power computing environments. Defaults to
 #'   \code{FALSE}.
 #'
+#' @importFrom assertthat assert_that
+#' @importFrom usethis create_project proj_activate
+#' @importFrom rlang is_interactive
+#' @importFrom renv init
+#'
 #' @export
 create_sim <- function(
   path,
@@ -25,6 +30,13 @@ create_sim <- function(
   tests = TRUE,
   hpc = FALSE
 ) {
+
+  ## ensure arguments are appropriate
+  assertthat::assert_that(is.character(path))
+  assertthat::assert_that(is.logical(init_git))
+  assertthat::assert_that(is.logical(init_renv))
+  assertthat::assert_that(is.logical(tests))
+  assertthat::assert_that(is.logical(hpc))
 
   ## don't overwrite existing project
   assertthat::assert_that(
@@ -131,17 +143,21 @@ create_sim <- function(
 #'   \code{\link[usethis::use_git]{usethis::use_git}()}: it generates a git
 #'   repository. This function differs from \code{\link[usethis]{use_git}()},
 #'   however, in that users are not prompted to add untracked files to the
-#'   initial commit.
+#'   initial commit. NOTE: This is hacky due to use of non-exported functions
+#'   implemented in \code{usethis}.
 #' @param message A \code{character} message to use for the initial commit.
+#' @importFrom rlang is_interactive
+#' @importFrom usethis ui_done use_git_ignore
+#' @importFrom gert git_add git_commit
 #' @keywords internal
 use_git_no_ask <- function(message = "initial commit") {
 
   ## intialize the git repo
-  usethis:::ui_done("Initialising Git repo")
+  usethis::ui_done("Initialising Git repo")
   usethis:::git_init()
 
   ## write the .gitignore
-  usethis:::use_git_ignore(usethis:::git_ignore_lines)
+  usethis::use_git_ignore(usethis:::git_ignore_lines)
 
   ## safely fail if something goes wrong
   if (!rlang::is_interactive() || !usethis:::uses_git()) {

@@ -14,6 +14,7 @@ use_git_no_ask(message = "initial commit")
 \code{\link[usethis::use_git]{usethis::use_git}()}: it generates a git
 repository. This function differs from \code{\link[usethis]{use_git}()},
 however, in that users are not prompted to add untracked files to the
-initial commit.
+initial commit. NOTE: This is hacky due to use of non-exported functions
+implemented in \code{usethis}.
 }
 \keyword{internal}
