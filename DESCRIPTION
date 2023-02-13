@@ -79,6 +79,7 @@ Collate:
     'utils.R'
     'experiment.R'
     'globals.R'
+    'init-dir.R'
     'method.R'
     'signals.R'
     'use_templates.R'
