@@ -26,6 +26,11 @@ reference:
       - set_save_dir
       - save_experiment
       - export_visualizers
+  - title: "Simulation Experiment Directory Setup"
+    desc: >
+      Functions for automatically setting up a simulation experiment directory.
+    contents:
+      - create_sim
   - title: "R Markdown Report"
     desc: >
       Functions for summarizing and visualizing results from a simulation
