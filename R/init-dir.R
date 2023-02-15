@@ -117,8 +117,11 @@ create_sim <- function(
     testthat_file <- file(paste(path, "tests/testthat.R", sep = "/"))
     writeLines(
       c(
+        "library(simChef)",
         "library(testthat)",
-        "testthat::test_dir()"
+        "# load required packages here",
+        "",
+        "test_sim_dir()"
       ),
       con = testthat_file
     )

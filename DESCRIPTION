@@ -85,6 +85,7 @@ Collate:
     'globals.R'
     'init-dir.R'
     'method.R'
+    'run-tests.R'
     'signals.R'
     'use_templates.R'
     'utils-pipe.R'
