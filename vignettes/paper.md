@@ -39,19 +39,18 @@ bibliography: paper.bib
 Data science simulation studies occupy an important role in data science
 research as a means to gain insight into new and existing statistical methods.
 Creating high quality simulation studies typically involves a number of
-repetitive and error-prone coding tasks, such as data sampling, varying and
-aligning parameters for data-generating processes (DGPs) and statistical
-methods, parallelized computation of simulation replicates, summarizing metrics,
-and visualizing, documenting, and saving results. While this administrative
-overhead is necessary to reach the scientific end goals of a given data science
-simulation, it is not sufficient, as the data scientist must navigate a number
-of important judgment calls such as the choice of data settings, baseline
-statistical methods, associated parameters, and evaluation metrics for
-scientific relevancy. The scientific context varies drastically from one study
-to the next while the simulation scaffolding remains largely similar; yet
-simulation code repositories often lack the flexibility to easily allow for
-reuse in novel settings or even simple extension when new questions arise in the
-original context.
+repetitive and error-prone coding tasks, such as implementing data-generating
+processes (DGPs) and statistical methods, sampling from these DGPs,
+parallelizing computation of simulation replicates, summarizing metrics, and
+visualizing, documenting, and saving results. While this administrative overhead
+is necessary to reach the end goals of a given data science simulation, it is
+not sufficient, as the data scientist must navigate a number of important
+judgment calls such as the choice of data settings, baseline statistical
+methods, associated parameters, and evaluation metrics for scientific relevancy.
+The scientific context varies drastically from one study to the next while the
+simulation scaffolding remains largely similar; yet simulation code repositories
+often lack the flexibility to easily allow for reuse in novel settings or even
+simple extension when new questions arise in the original context.
 
 `simChef` addresses the need for an intuitive, extensible, and reusable
 framework for data science simulations. Drawing substantially from the
@@ -116,9 +115,9 @@ simulations using four `R6` [@chang-r6-2022] classes, portrayed on the right
 half of \autoref{fig:api}: `DGP`, `Method`, `Evaluator`, and `Visualizer`. Users
 create or reuse custom functions (`dgp_fun`, `method_fun`, `eval_fun`, and
 `viz_fun` above) aligned with their scientific goals. The custom functions are
-then and optionally parameterized, which are encapsulated in one of the
+then optionally parameterized, which are encapsulated in one of the
 corresponding classes via a `create_*` method together with optional constant
-parameters (`alpha` above). 
+parameters (`alpha` above).
 
 A fifth `R6` class, `Experiment`, serves as a concrete implementation of the
 user's intent to answer a specific scientific question. The `Experiment` stores
