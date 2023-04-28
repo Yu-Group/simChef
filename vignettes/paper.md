@@ -38,28 +38,33 @@ bibliography: paper.bib
 
 Data science simulation studies occupy an important role in data science
 research as a means to gain insight into new and existing statistical methods.
-Creating high quality simulation studies typically involves a number of
-repetitive and error-prone coding tasks, such as implementing data-generating
-processes (DGPs) and statistical methods, sampling from these DGPs,
-parallelizing computation of simulation replicates, summarizing metrics, and
-visualizing, documenting, and saving results. While this administrative overhead
-is necessary to reach the end goals of a given data science simulation, it is
-not sufficient, as the data scientist must navigate a number of important
-judgment calls such as the choice of data settings, baseline statistical
-methods, associated parameters, and evaluation metrics for scientific relevancy.
-The scientific context varies drastically from one study to the next while the
-simulation scaffolding remains largely similar; yet simulation code repositories
-often lack the flexibility to easily allow for reuse in novel settings or even
-simple extension when new questions arise in the original context.
+Whether as a means to establish comprehensive benchmarks of existing procedures
+for a common task, to demonstrate the strengths and weaknesses of novel
+methodology applied to synthetic and real-world data, or to probe the validity
+of a theoretical analysis, simulations serve as statistical sandboxes that open
+a path toward otherwise inaccessible discoveries. Yet creating high-quality
+simulation studies typically involves a number of repetitive and error-prone
+coding tasks, such as implementing data-generating processes (DGPs) and
+statistical methods, sampling from these DGPs, parallelizing computation of
+simulation replicates, summarizing metrics, and visualizing, documenting, and
+saving results. While this administrative overhead is necessary to reach the end
+goals of a given data science simulation, it is not sufficient, as the data
+scientist must navigate a number of important judgment calls such as the choice
+of data settings, baseline statistical methods, associated parameters, and
+evaluation metrics for scientific relevancy. The scientific context varies
+drastically from one study to the next while the simulation scaffolding remains
+largely similar; yet simulation code repositories often lack the flexibility to
+easily allow for reuse in novel settings or even simple extension when new
+questions arise in the original context.
 
 `simChef` addresses the need for an intuitive, extensible, and reusable
 framework for data science simulations. Drawing substantially from the
 Predictability, Computability, and Stability (PCS) framework
 [@yu-veridical-2020], `simChef` empowers data scientists to focus their
 attention toward the scientific best practices encompassed by PCS by removing
-many of the administrative burdens of simulation design with an intuitive tidy
-grammar of data science simulations and automated interactive R Markdown
-documentation.
+many of the administrative burdens of simulation design with an intuitive [tidy
+grammar](https://design.tidyverse.org/) of data science simulations and
+automated interactive R Markdown documentation.
 
 # A powerful grammar of data science simulations
 
@@ -91,9 +96,11 @@ exper <- create_experiment(dgp_list = list(dgp1, dgp2)) %>%
     vector_valued_param = list(c(1, 2, 3), c(4, 5, 6)),
     list_valued_param = list(list(a1=1, a2=2, a3=3),
                              list(b1=3, b2=2, b3=1))
-  )
+  ) %>%
+  add_evaluator(eval) %>%
+  add_viz(viz)
 
-future::plan(multicore, workers = 4)
+future::plan(multicore, workers = 64)
 
 results <- exper %>%
   run_experiment(n_reps = 100, save = TRUE)
@@ -115,9 +122,9 @@ simulations using four `R6` [@chang-r6-2022] classes, portrayed on the right
 half of \autoref{fig:api}: `DGP`, `Method`, `Evaluator`, and `Visualizer`. Users
 create or reuse custom functions (`dgp_fun`, `method_fun`, `eval_fun`, and
 `viz_fun` above) aligned with their scientific goals. The custom functions are
-then optionally parameterized, which are encapsulated in one of the
-corresponding classes via a `create_*` method together with optional constant
-parameters (`alpha` above).
+then optionally parameterized and encapsulated in one of the corresponding
+classes via a `create_*` method together with optional constant parameters
+(e.g., `sd` above).
 
 A fifth `R6` class, `Experiment`, serves as a concrete implementation of the
 user's intent to answer a specific scientific question. The `Experiment` stores
@@ -126,13 +133,34 @@ parameters that should be varied and combined during the simulation run.
 Parameters that are common across the users functions can be added jointly (as
 is the case for the `n` parameter to `dgp_fun1` and `dgp_fun2` above) and can
 have arbitrary data type (such as `scalar_valued_param` and
-`vector_valued_param` to `method_fun`). 
+`vector_valued_param` to `method_fun`).
 
 The `Experiment` class flexibly handles the computation of simulation replicates
-in parallel using `future` [@bengtsson-unifying-2021] and optionally saves the
-results to disk. Once saved, with the `use_cached` option the user can add new
-`DGP` and `Method` objects to the experiment and compute additional replicates
-without re-computing existing results.
+in parallel using `future` [@bengtsson-unifying-2021]. The number of replicates
+per combination of `DGP`, `Method`, and parameters specified via
+`add_vary_across` is determined by the `n_reps` argument to `run_experiment`.
+Because replication happens at the per-combination level, the effective total
+number of replicates in the `Experiment` depends on the number of DGPs, methods,
+and varied parameters. 
+
+In the first call to `run_experiment` in the above example, there are two `DGP`
+instances, both of which are varied across three values of `n` and one of which
+is additionally varied across two values of `sparse`. This effectively results
+in nine distinct configurations for data generation. For the single `Method` in
+the experiment, we use three values of `scalar_valued_param`, two of
+`vector_valued_param`, and another two of `list_valued_param`, giving 12
+distinct configurations. Thus, there are a total of 108 DGP-method-parameter
+combinations in the experiment, each of which is replicated 100 times.
+
+Users can also choose to save the experiment's results to disk by passing `save
+= TRUE` to `run_experiment`. Once saved, the user can add new `DGP` and `Method`
+objects to the experiment and compute additional replicates without re-computing
+existing results via the the `use_cached` option. Considering the example above,
+when we add `new_method` and call `run_experiment` with `use_cached = TRUE`,
+`simChef` finds that the cached results are missing combinations of
+`new_method`, existing DGPs, and their associated parameters, giving nine new
+configurations. Replicates for the new combinations are then appended to the
+cached results.
 
 Automated documentation in an interactive R Markdown template gathers the
 scientific details, summary tables, and visualizations side-by-side with the
