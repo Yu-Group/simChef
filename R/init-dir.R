@@ -116,6 +116,7 @@ create_sim <- function(
         "library(testthat)",
         "# load required packages here",
         "",
+        "load_all()",
         "test_sim_dir()"
       ),
       con = testthat_file
