@@ -4,8 +4,6 @@
 #'   This function only works if the simulation study is set up as an R project
 #'   and if it is run when this R project is active.
 #'
-#' @importFrom usethis proj_get
-#'
 #' @export
 run_tests <- function() {
 
@@ -25,7 +23,6 @@ run_tests <- function() {
   invisible()
 }
 
-
 #' Test simChef Ingredients
 #'
 #' @description \code{test_sim_dir()} wraps around
@@ -37,10 +34,6 @@ run_tests <- function() {
 #'   must be stored in sub-directories whose names match those suggesting in the
 #'   "Setting Up Your Simulation" vignette. These details are conveniently taken
 #'   care of when a simulation study is set up using \code{\link{create_sim}()}.
-#'
-#' @importFrom usethis proj_get ui_line
-#' @importFrom assertthat assert_that
-#' @importFrom testthat test_dir
 #'
 #' @export
 test_sim_dir <- function() {

@@ -17,11 +17,6 @@
 #'   organizing files related to high-power computing environments. Defaults to
 #'   \code{FALSE}.
 #'
-#' @importFrom assertthat assert_that
-#' @importFrom usethis create_project proj_activate
-#' @importFrom rlang is_interactive
-#' @importFrom renv init
-#'
 #' @export
 create_sim <- function(
   path,
