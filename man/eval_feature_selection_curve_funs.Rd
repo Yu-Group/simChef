@@ -12,6 +12,7 @@ eval_feature_selection_curve(
   nested_data = NULL,
   truth_col,
   imp_col,
+  group_cols = NULL,
   curve = c("ROC", "PR"),
   options = list(),
   na_rm = FALSE
@@ -23,6 +24,7 @@ summarize_feature_selection_curve(
   nested_data = NULL,
   truth_col,
   imp_col,
+  group_cols = NULL,
   curve = c("ROC", "PR"),
   options = list(),
   na_rm = FALSE,
@@ -56,6 +58,12 @@ in this column should be an array of length \code{p}, where \code{p} is the
 number of features and the feature order aligns with that of
 \code{truth_col}. Elements in this array should be numeric where a higher
 magnitude indicates a more important feature.}
+
+\item{group_cols}{(Optional) A character string or vector identifying the
+column(s) to group observations by before evaluating metrics. This is
+useful for assessing within-group metrics. Note: the (unstratified)
+metrics, aggregated across the full data set, are computed in addition to
+these stratified within-group metrics.}
 
 \item{curve}{Either "ROC" or "PR" indicating whether to evaluate the ROC or
 Precision-Recall curve.}
@@ -100,18 +108,19 @@ the ROC/PR curve for the given experimental replicate. If
 positive rate, respectively. If \code{curve = "PR"}, the \code{tibble} has
 the columns \code{.threshold}, \code{recall}, and \code{precision}.}
 }
-as well as any columns specified by \code{vary_params}.
+as well as any columns specified by \code{group_cols} and \code{vary_params}.
 
 The output of \code{summarize_feature_selection_curve()} is a grouped
 \code{tibble} containing both identifying information and the
 feature selection curve results aggregated over experimental replicates.
 Specifically, the identifier columns include \code{.dgp_name},
-\code{.method_name}, and any columns specified by \code{vary_params}. In
-addition, there are results columns corresponding to the requested statistics
-in \code{summary_funs} and \code{custom_summary_funs}. If
-\code{curve = "ROC"}, these results columns include \code{FPR} and others
-that end in the suffix "_TPR". If \code{curve = "PR"}, the results columns
-include \code{recall} and others that end in the suffix "_precision".
+\code{.method_name}, and any columns specified by \code{group_cols} and
+\code{vary_params}. In addition, there are results columns corresponding to
+the requested statistics in \code{summary_funs} and
+\code{custom_summary_funs}. If \code{curve = "ROC"}, these results columns
+include \code{FPR} and others that end in the suffix "_TPR". If
+\code{curve = "PR"}, the results columns include \code{recall} and others
+that end in the suffix "_precision".
 }
 \description{
 Evaluate the ROC or PR curves corresponding to the selected

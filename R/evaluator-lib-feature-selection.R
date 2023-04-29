@@ -40,6 +40,11 @@
 #'   estimated support (\code{neg}), AUROC (\code{roc_auc}), and AUPRC 
 #'   (\code{pr_auc}). If \code{na_rm = TRUE}, the number of NA values 
 #'   (\code{num_na}) is also computed.
+#' @param group_cols (Optional) A character string or vector identifying the
+#'   column(s) to group observations by before evaluating metrics. This is
+#'   useful for assessing within-group metrics. Note: the (unstratified)
+#'   metrics, aggregated across the full data set, are computed in addition to
+#'   these stratified within-group metrics.
 #' 
 #' @returns 
 #' The output of \code{eval_feature_selection_err()} is a \code{tibble} with the
@@ -51,16 +56,16 @@
 #' \item{.metric}{Name of the evaluation metric.}
 #' \item{.estimate}{Value of the evaluation metric.}
 #' }
-#' as well as any columns specified by \code{vary_params}.
+#' as well as any columns specified by \code{group_cols} and \code{vary_params}.
 #' 
 #' The output of \code{summarize_feature_selection_err()} is a grouped
 #' \code{tibble} containing both identifying information and the feature 
 #' selection results aggregated over experimental replicates. Specifically, the 
 #' identifier columns include \code{.dgp_name}, \code{.method_name}, any columns
-#' specified by \code{vary_params}, and \code{.metric}. In addition, there are 
-#' results columns corresponding to the requested statistics in 
-#' \code{summary_funs} and \code{custom_summary_funs}. These columns end in the 
-#' suffix "_feature_selection".
+#' specified by \code{group_cols} and \code{vary_params}, and \code{.metric}.
+#' In addition, there are results columns corresponding to the requested
+#' statistics in \code{summary_funs} and \code{custom_summary_funs}. These
+#' columns end in the suffix specified by \code{eval_id}.
 #' 
 #' @family feature_selection_funs
 #' 
@@ -143,7 +148,8 @@ NULL
 eval_feature_selection_err <- function(fit_results, vary_params = NULL,
                                        nested_data = NULL, truth_col, 
                                        estimate_col = NULL, imp_col, 
-                                       metrics = NULL, na_rm = FALSE) {
+                                       group_cols = NULL, metrics = NULL,
+                                       na_rm = FALSE) {
   .estimator <- NULL  # to fix no visible binding for global variable error
   .eval_res <- NULL
   if (!is.null(metrics) && !inherits(metrics, "metric_set")) {
@@ -158,14 +164,20 @@ eval_feature_selection_err <- function(fit_results, vary_params = NULL,
     truth_col <- tidyselect::vars_pull(cols, tidyselect::all_of(truth_col))
     imp_col <- tidyselect::vars_pull(cols, tidyselect::all_of(imp_col))
     estimate_col <- intersect(cols, estimate_col)
+    group_cols <- intersect(cols, group_cols)
     if (is.null(estimate_col)) {
       estimate_col <- imp_col
     }
     data <- data %>%
-      tidyr::unnest(tidyselect::all_of(c(truth_col, imp_col, estimate_col)))
-    
+      tidyr::unnest(
+        tidyselect::all_of(c(truth_col, imp_col, estimate_col, group_cols))
+      )
+
+    if (!is.null(group_cols)) {
+      data <- add_all_group(data, group_cols)
+    }
+
     data <- data %>%
-      dplyr::mutate(.imp_est = abs(.data[[imp_col]])) %>%
       dplyr::mutate(
         dplyr::across(tidyselect::all_of(c(truth_col, estimate_col)),
                       ~factor(as.integer(as.numeric(.x) != 0), levels = 0:1))
@@ -180,7 +192,7 @@ eval_feature_selection_err <- function(fit_results, vary_params = NULL,
     }
     
     res <- metrics(data = data, truth = !!truth_col, estimate = !!estimate_col,
-                   tidyselect::all_of(".imp_est"), na_rm = na_rm, 
+                   tidyselect::all_of(imp_col), na_rm = na_rm,
                    event_level = "second") %>%
       dplyr::select(-.estimator)
     if (na_rm) {
@@ -210,20 +222,22 @@ eval_feature_selection_err <- function(fit_results, vary_params = NULL,
 summarize_feature_selection_err <- function(fit_results, vary_params = NULL,
                                             nested_data = NULL, truth_col,
                                             estimate_col = NULL, imp_col,
-                                            metrics = NULL, na_rm = FALSE,
+                                            group_cols = NULL, metrics = NULL,
+                                            na_rm = FALSE,
                                             summary_funs = c("mean", "median",
                                                              "min", "max", 
                                                              "sd", "raw"),
                                             custom_summary_funs = NULL,
                                             eval_id = "feature_selection") {
-  group_vars <- c(".dgp_name", ".method_name", vary_params, ".metric")
+  group_vars <- c(".dgp_name", ".method_name", vary_params,
+                  group_cols, ".metric")
   eval_tib <- eval_feature_selection_err(
     fit_results = fit_results, vary_params = vary_params,
     nested_data = nested_data, truth_col = truth_col, 
-    estimate_col = estimate_col, imp_col = imp_col, 
+    estimate_col = estimate_col, imp_col = imp_col, group_cols = group_cols,
     metrics = metrics, na_rm = na_rm
   ) %>%
-    dplyr::group_by(dplyr::across({{group_vars}}))
+    dplyr::group_by(dplyr::across(tidyselect::any_of(group_vars)))
   
   eval_summary <- summarize_eval_results(
     eval_data = eval_tib, eval_id = eval_id, value_col = ".estimate",
@@ -260,18 +274,19 @@ summarize_feature_selection_err <- function(fit_results, vary_params = NULL,
 #'   positive rate, respectively. If \code{curve = "PR"}, the \code{tibble} has 
 #'   the columns \code{.threshold}, \code{recall}, and \code{precision}.}
 #' }
-#' as well as any columns specified by \code{vary_params}.
-#' 
+#' as well as any columns specified by \code{group_cols} and \code{vary_params}.
+#'
 #' The output of \code{summarize_feature_selection_curve()} is a grouped
 #' \code{tibble} containing both identifying information and the 
 #' feature selection curve results aggregated over experimental replicates. 
 #' Specifically, the identifier columns include \code{.dgp_name},
-#' \code{.method_name}, and any columns specified by \code{vary_params}. In
-#' addition, there are results columns corresponding to the requested statistics 
-#' in \code{summary_funs} and \code{custom_summary_funs}. If 
-#' \code{curve = "ROC"}, these results columns include \code{FPR} and others 
-#' that end in the suffix "_TPR". If \code{curve = "PR"}, the results columns 
-#' include \code{recall} and others that end in the suffix "_precision".
+#' \code{.method_name}, and any columns specified by \code{group_cols} and
+#' \code{vary_params}. In addition, there are results columns corresponding to
+#' the requested statistics in \code{summary_funs} and
+#' \code{custom_summary_funs}. If \code{curve = "ROC"}, these results columns
+#' include \code{FPR} and others that end in the suffix "_TPR". If
+#' \code{curve = "PR"}, the results columns include \code{recall} and others
+#' that end in the suffix "_precision".
 #' 
 #' @family feature_selection_funs
 #' 
@@ -335,8 +350,10 @@ NULL
 #' @export
 eval_feature_selection_curve <- function(fit_results, vary_params = NULL,
                                          nested_data = NULL, truth_col, imp_col,
+                                         group_cols = NULL,
                                          curve = c("ROC", "PR"), 
-                                         options = list(), na_rm = FALSE) {
+                                         options = list(),
+                                         na_rm = FALSE) {
   if (is.null(nested_data) || (truth_col %in% names(fit_results))) {
     fit_results <- fit_results %>%
       dplyr::rowwise() %>%
@@ -360,7 +377,7 @@ eval_feature_selection_curve <- function(fit_results, vary_params = NULL,
   eval_tib <- eval_pred_curve(
     fit_results = fit_results, vary_params = vary_params,
     nested_data = nested_data, truth_col = truth_col, prob_cols = imp_col,
-    curve = curve, options = options, na_rm = na_rm
+    group_cols = group_cols, curve = curve, options = options, na_rm = na_rm
   )
   return(eval_tib)
 }
@@ -371,7 +388,8 @@ eval_feature_selection_curve <- function(fit_results, vary_params = NULL,
 #' @export
 summarize_feature_selection_curve <- function(fit_results, vary_params = NULL,
                                               nested_data = NULL, truth_col,
-                                              imp_col, curve = c("ROC", "PR"), 
+                                              imp_col, group_cols = NULL,
+                                              curve = c("ROC", "PR"),
                                               options = list(), na_rm = FALSE,
                                               x_grid = seq(0, 1, by = 1e-2),
                                               summary_funs = c("mean", "median",
@@ -389,12 +407,12 @@ summarize_feature_selection_curve <- function(fit_results, vary_params = NULL,
     xvar <- "FPR"
     yvar <- "TPR"
   }
-  group_vars <- c(".dgp_name", ".method_name", vary_params, xvar)
+  group_vars <- c(".dgp_name", ".method_name", vary_params, group_cols, xvar)
   
   eval_tib <- eval_feature_selection_curve(
     fit_results = fit_results, vary_params = vary_params,
     nested_data = nested_data, truth_col = truth_col, imp_col = imp_col, 
-    curve = curve, options = options, na_rm = na_rm
+    group_cols = group_cols, curve = curve, options = options, na_rm = na_rm
   ) %>%
     dplyr::rowwise() %>%
     dplyr::mutate(curve_estimate = list(rescale_curve(curve_estimate,
@@ -402,7 +420,7 @@ summarize_feature_selection_curve <- function(fit_results, vary_params = NULL,
                                                       xvar = xvar,
                                                       yvar = yvar))) %>%
     tidyr::unnest(curve_estimate) %>%
-    dplyr::group_by(dplyr::across({{group_vars}})) 
+    dplyr::group_by(dplyr::across(tidyselect::any_of(group_vars)))
   
   eval_summary <- summarize_eval_results(
     eval_data = eval_tib, eval_id = eval_id, value_col = yvar,
@@ -427,18 +445,18 @@ summarize_feature_selection_curve <- function(fit_results, vary_params = NULL,
 #' @returns
 #' The output of \code{eval_feature_importance()} is a \code{tibble} with 
 #' the columns \code{.rep}, \code{.dgp_name}, and \code{.method_name} in 
-#' addition to the columns specified by \code{vary_params}, \code{feature_col}, 
-#' and \code{imp_col}.
+#' addition to the columns specified by \code{group_cols}, \code{vary_params},
+#' \code{feature_col}, and \code{imp_col}.
 #' 
 #' The output of \code{summarize_feature_importance()} is a grouped 
 #' \code{tibble} containing both identifying information and the feature 
 #' importance results aggregated over experimental replicates. Specifically, the
 #' identifier columns include \code{.dgp_name}, \code{.method_name}, any columns
-#' specified by \code{vary_params}, and the column specified by 
-#' \code{feature_col}. In addition, there are results columns corresponding to 
-#' the requested statistics in \code{summary_funs} and 
+#' specified by \code{group_cols} and \code{vary_params}, and the column
+#' specified by \code{feature_col}. In addition, there are results columns
+#' corresponding to the requested statistics in \code{summary_funs} and
 #' \code{custom_summary_funs}. These columns end in the suffix
-#' "_feature_importance".
+#' specified by \code{eval_id}.
 #' 
 #' @family feature_selection_funs
 #' 
@@ -482,15 +500,18 @@ NULL
 #' 
 #' @export
 eval_feature_importance <- function(fit_results, vary_params = NULL,
-                                    nested_data = NULL, feature_col, imp_col) {
+                                    nested_data = NULL, feature_col, imp_col,
+                                    group_cols = NULL) {
   id_vars <- c(".rep", ".dgp_name", ".method_name", vary_params)
   if (!is.null(nested_data)) {
     fit_results <- fit_results %>% 
       tidyr::unnest(tidyselect::all_of(nested_data))
   }
   eval_tib <- fit_results %>%
-    dplyr::select(tidyselect::all_of(c(id_vars, feature_col, imp_col))) %>%
-    tidyr::unnest(tidyselect::all_of(c(feature_col, imp_col)))
+    dplyr::select(
+      tidyselect::all_of(c(id_vars, feature_col, imp_col, group_cols))
+    ) %>%
+    tidyr::unnest(tidyselect::all_of(c(feature_col, imp_col, group_cols)))
   return(eval_tib)
 }
 
@@ -499,18 +520,21 @@ eval_feature_importance <- function(fit_results, vary_params = NULL,
 #' @export
 summarize_feature_importance <- function(fit_results, vary_params = NULL,
                                          nested_data = NULL, feature_col, 
-                                         imp_col, na_rm = FALSE,
+                                         imp_col, group_cols = NULL,
+                                         na_rm = FALSE,
                                          summary_funs = c("mean", "median",
                                                           "min", "max", 
                                                           "sd", "raw"),
                                          custom_summary_funs = NULL,
                                          eval_id = "feature_importance") {
-  group_vars <- c(".dgp_name", ".method_name", vary_params, feature_col)
+  group_vars <- c(".dgp_name", ".method_name", vary_params,
+                  group_cols, feature_col)
   eval_tib <- eval_feature_importance(
     fit_results = fit_results, vary_params = vary_params,
-    nested_data = nested_data, feature_col = feature_col, imp_col = imp_col
+    nested_data = nested_data, feature_col = feature_col, imp_col = imp_col,
+    group_cols = group_cols
   ) %>%
-    dplyr::group_by(dplyr::across({{group_vars}})) 
+    dplyr::group_by(dplyr::across(tidyselect::all_of(group_vars)))
   
   eval_summary <- summarize_eval_results(
     eval_data = eval_tib, eval_id = eval_id, value_col = imp_col,

@@ -26,11 +26,11 @@
 #' @param metrics A \code{metric_set} object indicating the metrics to evaluate.
 #'   See [yardstick::metric_set()] for more details. Default \code{NULL} will
 #'   use the default metrics in [yardstick::metrics()].
-#' @param groups (Optional) vector of group IDs to group observations by before
-#'   evaluating prediction errors. This is useful for assessing within-group
-#'   prediction errors. Note: the (unstratified) prediction errors, aggregated
-#'   across the full data set, are computed in addition to these stratified
-#'   within-group errors.
+#' @param group_cols (Optional) A character string or vector identifying the
+#'   column(s) to group observations by before evaluating prediction errors.
+#'   This is useful for assessing within-group prediction errors.
+#'   Note: the (unstratified) prediction errors, aggregated across the full data
+#'   set, are computed in addition to these stratified within-group errors.
 #'
 #' @returns
 #' The output of \code{eval_pred_err()} is a \code{tibble} with the following
@@ -39,20 +39,19 @@
 #' \item{.rep}{Replicate ID.}
 #' \item{.dgp_name}{Name of DGP.}
 #' \item{.method_name}{Name of Method.}
-#' \item{.group}{If \code{groups} is not \code{NULL}, this column specifies the
-#'   name of the group under evaluation. Otherwise, this column is not returned.}
 #' \item{.metric}{Name of the evaluation metric.}
 #' \item{.estimate}{Value of the evaluation metric.}
 #' }
-#' as well as any columns specified by \code{vary_params}.
+#' as well as any columns specified by \code{group_cols} and \code{vary_params}.
 #'
 #' The output of \code{summarize_pred_err()} is a grouped \code{tibble}
 #' containing both identifying information and the prediction error results
 #' aggregated over experimental replicates. Specifically, the identifier columns
 #' include \code{.dgp_name}, \code{.method_name}, any columns specified by
-#' \code{vary_params}, and  \code{.metric}. In addition, there are results
-#' columns corresponding to the requested statistics in \code{summary_funs} and
-#' \code{custom_summary_funs}. These columns end in the suffix "_pred_err".
+#' \code{group_cols} and \code{vary_params}, and  \code{.metric}. In addition,
+#' there are results columns corresponding to the requested statistics in
+#' \code{summary_funs} and \code{custom_summary_funs}. These columns end in the
+#' suffix specified by \code{eval_id}.
 #'
 #' @family prediction_error_funs
 #'
@@ -69,7 +68,8 @@
 #'   # true response
 #'   y = lapply(1:4, FUN = function(x) rnorm(100)),
 #'   # predicted response
-#'   predictions = lapply(1:4, FUN = function(x) rnorm(100))
+#'   predictions = lapply(1:4, FUN = function(x) rnorm(100)),
+#'   group = lapply(1:4, FUN = function(x) rep(c("a", "b"), length.out = 100))
 #' )
 #'
 #' # evaluate prediction error (using all default metrics) for each replicate
@@ -82,15 +82,14 @@
 #'                                            estimate_col = "predictions")
 #'
 #' # evaluate/summarize prediction error within subgroups
-#' group_ids <- rep(c("a", "b"), length.out = 100)
 #' eval_results <- eval_pred_err(fit_results,
 #'                               truth_col = "y",
 #'                               estimate_col = "predictions",
-#'                               groups = group_ids)
+#'                               group_cols = "group")
 #' eval_results_summary <- summarize_pred_err(fit_results,
 #'                                            truth_col = "y",
 #'                                            estimate_col = "predictions",
-#'                                            groups = group_ids)
+#'                                            group_cols = "group")
 #'
 #' # evaluate/summarize prediction errors using specific yardstick metrics
 #' metrics <- yardstick::metric_set(yardstick::rmse, yardstick::rsq)
@@ -209,7 +208,7 @@ NULL
 #' @export
 eval_pred_err <- function(fit_results, vary_params = NULL, nested_data = NULL,
                           truth_col, estimate_col, prob_cols = NULL,
-                          metrics = NULL, groups = NULL, options = list(),
+                          group_cols = NULL, metrics = NULL, options = list(),
                           na_rm = FALSE) {
   .estimator <- NULL  # to fix no visible binding for global variable error
   .eval_res <- NULL
@@ -226,14 +225,14 @@ eval_pred_err <- function(fit_results, vary_params = NULL, nested_data = NULL,
     estimate_col <- tidyselect::vars_pull(cols,
                                           tidyselect::all_of(estimate_col))
     prob_cols <- intersect(cols, prob_cols)
+    group_cols <- intersect(cols, group_cols)
     data <- data %>%
-      tidyr::unnest(tidyselect::all_of(c(truth_col, estimate_col, prob_cols)))
+      tidyr::unnest(
+        tidyselect::all_of(c(truth_col, estimate_col, prob_cols, group_cols))
+      )
 
-    if (!is.null(groups)) {
-      group_id_vec <- c(rep(".all", nrow(data)), groups)
-      data <- dplyr::bind_rows(data, data) %>%
-        dplyr::mutate(.group = group_id_vec) %>%
-        dplyr::group_by(.group)
+    if (!is.null(group_cols)) {
+      data <- add_all_group(data, group_cols)
     }
 
     if (is.null(metrics)) {
@@ -283,24 +282,21 @@ eval_pred_err <- function(fit_results, vary_params = NULL, nested_data = NULL,
 #' @export
 summarize_pred_err <- function(fit_results, vary_params = NULL,
                                nested_data = NULL, truth_col, estimate_col,
-                               prob_cols = NULL, metrics = NULL, groups = NULL,
-                               options = list(), na_rm = FALSE,
+                               prob_cols = NULL, group_cols = NULL,
+                               metrics = NULL, options = list(), na_rm = FALSE,
                                summary_funs = c("mean", "median", "min", "max",
                                                 "sd", "raw"),
                                custom_summary_funs = NULL,
                                eval_id = "pred_err") {
-  if (!is.null(groups)) {
-    group_vars <- c(".dgp_name", ".method_name", vary_params, ".group", ".metric")
-  } else {
-    group_vars <- c(".dgp_name", ".method_name", vary_params, ".metric")
-  }
+  group_vars <- c(".dgp_name", ".method_name", vary_params,
+                  group_cols, ".metric")
   eval_tib <- eval_pred_err(
     fit_results = fit_results, vary_params = vary_params,
     nested_data = nested_data, truth_col = truth_col,
-    estimate_col = estimate_col, prob_cols = prob_cols,
-    metrics = metrics, groups = groups, options = options, na_rm = na_rm
+    estimate_col = estimate_col, prob_cols = prob_cols, group_cols = group_cols,
+    metrics = metrics, options = options, na_rm = na_rm
   ) %>%
-    dplyr::group_by(dplyr::across({{group_vars}}))
+    dplyr::group_by(dplyr::across(tidyselect::any_of(group_vars)))
 
   eval_summary <- summarize_eval_results(
     eval_data = eval_tib, eval_id = eval_id, value_col = ".estimate",
@@ -329,8 +325,6 @@ summarize_pred_err <- function(fit_results, vary_params = NULL,
 #' \item{.rep}{Replicate ID.}
 #' \item{.dgp_name}{Name of DGP.}
 #' \item{.method_name}{Name of Method.}
-#' \item{.group}{If \code{groups} is not \code{NULL}, this column specifies the
-#'   name of the group under evaluation. Otherwise, this column is not returned.}
 #' \item{curve_estimate}{A list of tibbles with x and y coordinate values for
 #'   the ROC/PR curve for the given experimental replicate. If
 #'   \code{curve = "ROC"}, the \code{tibble} has the columns \code{.threshold},
@@ -338,14 +332,14 @@ summarize_pred_err <- function(fit_results, vary_params = NULL,
 #'   positive rate, respectively. If \code{curve = "PR"}, the \code{tibble} has
 #'   the columns \code{.threshold}, \code{recall}, and \code{precision}.}
 #' }
-#' as well as any columns specified by \code{vary_params}.
+#' as well as any columns specified by \code{group_cols} and \code{vary_params}.
 #'
 #' The output of \code{summarize_pred_curve()} is a grouped \code{tibble}
 #' containing both identifying information and the prediction curve results
 #' aggregated over experimental replicates. Specifically, the identifier columns
 #' include \code{.dgp_name}, \code{.method_name}, and any columns specified by
-#' \code{vary_params}. In addition, there are results columns corresponding to
-#' the requested statistics in \code{summary_funs} and
+#' \code{group_cols} and \code{vary_params}. In addition, there are results
+#' columns corresponding to the requested statistics in \code{summary_funs} and
 #' \code{custom_summary_funs}. If \code{curve = "ROC"}, these results columns
 #' include \code{FPR} and others that end in the suffix "_TPR". If
 #' \code{curve = "PR"}, the results columns include \code{recall} and others
@@ -431,8 +425,9 @@ NULL
 #'
 #' @export
 eval_pred_curve <- function(fit_results, vary_params = NULL, nested_data = NULL,
-                            truth_col, prob_cols, curve = c("ROC", "PR"),
-                            groups = NULL, options = list(), na_rm = FALSE) {
+                            truth_col, prob_cols, group_cols = NULL,
+                            curve = c("ROC", "PR"), options = list(),
+                            na_rm = FALSE) {
   specificity <- NULL  # to fix no visible binding for global variable error
   sensitivity <- NULL
   FPR <- NULL
@@ -446,14 +441,12 @@ eval_pred_curve <- function(fit_results, vary_params = NULL, nested_data = NULL,
     cols <- colnames(data)
     truth_col <- tidyselect::vars_pull(cols, tidyselect::all_of(truth_col))
     prob_cols <- intersect(cols, prob_cols)
+    group_cols <- intersect(cols, group_cols)
     data <- data %>%
-      tidyr::unnest(tidyselect::all_of(c(truth_col, prob_cols)))
+      tidyr::unnest(tidyselect::all_of(c(truth_col, prob_cols, group_cols)))
 
-    if (!is.null(groups)) {
-      group_id_vec <- c(rep(".all", nrow(data)), groups)
-      data <- dplyr::bind_rows(data, data) %>%
-        dplyr::mutate(.group = group_id_vec) %>%
-        dplyr::group_by(.group)
+    if (!is.null(group_cols)) {
+      data <- add_all_group(data, group_cols)
     }
 
     if (identical(curve, "ROC")) {
@@ -489,8 +482,8 @@ eval_pred_curve <- function(fit_results, vary_params = NULL, nested_data = NULL,
 #' @export
 summarize_pred_curve <- function(fit_results, vary_params = NULL,
                                  nested_data = NULL, truth_col, prob_cols,
-                                 curve = c("ROC", "PR"),
-                                 groups = NULL, options = list(), na_rm = FALSE,
+                                 group_cols = NULL, curve = c("ROC", "PR"),
+                                 options = list(), na_rm = FALSE,
                                  x_grid = seq(0, 1, by = 1e-2),
                                  summary_funs = c("mean", "median", "min",
                                                   "max", "sd", "raw"),
@@ -505,16 +498,12 @@ summarize_pred_curve <- function(fit_results, vary_params = NULL,
     xvar <- "FPR"
     yvar <- "TPR"
   }
-  if (!is.null(groups)) {
-    group_vars <- c(".dgp_name", ".method_name", vary_params, ".group", xvar)
-  } else {
-    group_vars <- c(".dgp_name", ".method_name", vary_params, xvar)
-  }
+  group_vars <- c(".dgp_name", ".method_name", vary_params, group_cols, xvar)
 
   eval_tib <- eval_pred_curve(
     fit_results = fit_results, vary_params = vary_params,
     nested_data = nested_data, truth_col = truth_col, prob_cols = prob_cols,
-    curve = curve, groups = groups, options = options, na_rm = na_rm
+    group_cols = group_cols, curve = curve, options = options, na_rm = na_rm
   ) %>%
     dplyr::rowwise() %>%
     dplyr::mutate(curve_estimate = list(rescale_curve(curve_estimate,
@@ -522,7 +511,7 @@ summarize_pred_curve <- function(fit_results, vary_params = NULL,
                                                       xvar = xvar,
                                                       yvar = yvar))) %>%
     tidyr::unnest(curve_estimate) %>%
-    dplyr::group_by(dplyr::across({{group_vars}}))
+    dplyr::group_by(dplyr::across(tidyselect::any_of(group_vars)))
 
   eval_summary <- summarize_eval_results(
     eval_data = eval_tib, eval_id = eval_id, value_col = yvar,

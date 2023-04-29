@@ -13,6 +13,7 @@ eval_testing_err(
   nested_data = NULL,
   truth_col,
   pval_col = NULL,
+  group_cols = NULL,
   metrics = NULL,
   alphas = 0.05,
   na_rm = FALSE
@@ -24,6 +25,7 @@ summarize_testing_err(
   nested_data = NULL,
   truth_col,
   pval_col = NULL,
+  group_cols = NULL,
   metrics = NULL,
   alphas = 0.05,
   na_rm = FALSE,
@@ -55,6 +57,12 @@ and \code{FALSE} or \code{0} meaning the feature is not in the support.}
 this column should be an array of length \code{p}, where \code{p} is the
 number of features and the feature order aligns with that of
 \code{truth_col}.}
+
+\item{group_cols}{(Optional) A character string or vector identifying the
+column(s) to group observations by before evaluating metrics. This is
+useful for assessing within-group metrics. Note: the (unstratified)
+metrics, aggregated across the full data set, are computed in addition to
+these stratified within-group metrics.}
 
 \item{metrics}{A \code{metric_set} object indicating the metrics to evaluate.
 See \code{\link[yardstick:metric_set]{yardstick::metric_set()}} for more details. Default \code{NULL} will
@@ -94,15 +102,16 @@ columns:
 \item{.metric}{Name of the evaluation metric.}
 \item{.estimate}{Value of the evaluation metric.}
 }
-as well as any columns specified by \code{vary_params}.
+as well as any columns specified by \code{group_cols} and \code{vary_params}.
 
 The output of \code{summarize_testing_err()} is a grouped \code{tibble}
 containing both identifying information and the evaluation results
 aggregated over experimental replicates. Specifically, the identifier columns
 include \code{.dgp_name}, \code{.method_name}, any columns specified by
-\code{vary_params}, and \code{.metric}. In addition, there are results columns
-corresponding to the requested statistics in \code{summary_funs} and
-\code{custom_summary_funs}. These columns end in the suffix "_testing_err".
+\code{group_cols} and \code{vary_params}, and \code{.metric}. In addition,
+there are results columns corresponding to the requested statistics in
+\code{summary_funs} and \code{custom_summary_funs}. These columns end in the
+suffix specified by \code{eval_id}.
 }
 \description{
 Evaluate various testing error metrics, given the true feature

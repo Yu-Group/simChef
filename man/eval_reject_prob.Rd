@@ -10,6 +10,7 @@ eval_reject_prob(
   nested_data = NULL,
   feature_col = NULL,
   pval_col,
+  group_cols = NULL,
   alphas = NULL,
   na_rm = FALSE
 )
@@ -34,6 +35,12 @@ this column should be an array of length \code{p}, where \code{p} is the
 number of features and the feature order aligns with that of
 \code{truth_col}.}
 
+\item{group_cols}{(Optional) A character string or vector identifying the
+column(s) to group observations by before evaluating metrics. This is
+useful for assessing within-group metrics. Note: the (unstratified)
+metrics, aggregated across the full data set, are computed in addition to
+these stratified within-group metrics.}
+
 \item{alphas}{(Optional) Vector of significance levels at which to evaluate
 the rejection probability. By default, \code{alphas} is \code{NULL}, which
 evaluates the full empirical cumulative distribution of the p-values, i.e.,
@@ -46,11 +53,12 @@ should be stripped before the computation proceeds.}
 A grouped \code{tibble} containing both identifying information
 and the rejection probability results aggregated over experimental
 replicates. Specifically, the identifier columns include \code{.dgp_name},
-\code{.method_name}, any columns specified by \code{vary_params}, and the
-feature names given in \code{feature_col} if applicable. In addition, there
-are results columns \code{.alpha} and \code{reject_prob}, which
-respectively give the significance level and the estimated rejection
-probabilities (averaged across experimental replicates).
+\code{.method_name}, any columns specified by \code{group_cols} and
+\code{vary_params}, and the feature names given in \code{feature_col} if
+applicable. In addition, there are results columns \code{.alpha} and
+\code{reject_prob}, which respectively give the significance level and the
+estimated rejection probabilities (averaged across experimental
+replicates).
 }
 \description{
 Evaluate the probability of rejecting the null hypothesis

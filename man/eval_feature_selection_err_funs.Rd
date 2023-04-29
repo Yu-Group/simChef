@@ -13,6 +13,7 @@ eval_feature_selection_err(
   truth_col,
   estimate_col = NULL,
   imp_col,
+  group_cols = NULL,
   metrics = NULL,
   na_rm = FALSE
 )
@@ -24,6 +25,7 @@ summarize_feature_selection_err(
   truth_col,
   estimate_col = NULL,
   imp_col,
+  group_cols = NULL,
   metrics = NULL,
   na_rm = FALSE,
   summary_funs = c("mean", "median", "min", "max", "sd", "raw"),
@@ -66,6 +68,12 @@ number of features and the feature order aligns with that of
 \code{truth_col}. Elements in this array should be numeric where a higher
 magnitude indicates a more important feature.}
 
+\item{group_cols}{(Optional) A character string or vector identifying the
+column(s) to group observations by before evaluating metrics. This is
+useful for assessing within-group metrics. Note: the (unstratified)
+metrics, aggregated across the full data set, are computed in addition to
+these stratified within-group metrics.}
+
 \item{metrics}{A \code{metric_set} object indicating the metrics to evaluate.
 See \code{\link[yardstick:metric_set]{yardstick::metric_set()}} for more details. Default \code{NULL} will
 evaluate the following: number of true positives (\code{tp}), number of
@@ -102,16 +110,16 @@ following columns:
 \item{.metric}{Name of the evaluation metric.}
 \item{.estimate}{Value of the evaluation metric.}
 }
-as well as any columns specified by \code{vary_params}.
+as well as any columns specified by \code{group_cols} and \code{vary_params}.
 
 The output of \code{summarize_feature_selection_err()} is a grouped
 \code{tibble} containing both identifying information and the feature
 selection results aggregated over experimental replicates. Specifically, the
 identifier columns include \code{.dgp_name}, \code{.method_name}, any columns
-specified by \code{vary_params}, and \code{.metric}. In addition, there are
-results columns corresponding to the requested statistics in
-\code{summary_funs} and \code{custom_summary_funs}. These columns end in the
-suffix "_feature_selection".
+specified by \code{group_cols} and \code{vary_params}, and \code{.metric}.
+In addition, there are results columns corresponding to the requested
+statistics in \code{summary_funs} and \code{custom_summary_funs}. These
+columns end in the suffix specified by \code{eval_id}.
 }
 \description{
 Evaluate various feature selection metrics, given the true

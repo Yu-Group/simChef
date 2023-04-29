@@ -137,8 +137,46 @@ summarize_eval_results <- function(eval_data, eval_id = NULL, value_col,
   }
   
   return(tibble::tibble(eval_out) %>% 
-           dplyr::group_by(dplyr::across({{group_ids}})))
+           dplyr::group_by(dplyr::across(tidyselect::all_of(group_ids))))
 }
+
+
+#' Add ".all" group to data
+#'
+#' @description A helper function to append ".all" group to data in order to
+#'   conveniently compute (unstratified) global metrics on the full dataset in
+#'   addition to within-group metrics, specified by \code{group_cols}.
+#'
+#' @param data A \code{data.frame}.
+#' @param group_cols A character string or vector identifying the
+#'   column(s) to group observations by before evaluating metrics.
+#'   This is useful for assessing within-group prediction errors.
+#'
+#' @return A \code{data.frame} with twice the number of rows as \code{data}.
+#'   In the second half of this \code{data.frame}, the columns specified by
+#'   \code{group_cols} have been set to ".all" (or some variant thereof if
+#'   ".all" already appears in the column).
+#'
+#' @keywords internal
+add_all_group <- function(data, group_cols) {
+  data <- data %>%
+    dplyr::mutate(
+      dplyr::across(
+        tidyselect::all_of(group_cols),
+        function(.x) {
+          out <- ".all"
+          while (any(.x == out)) {
+            out <- paste0(".", out)
+          }
+          return(out)
+        }
+      )
+    ) %>%
+    dplyr::bind_rows(data) %>%
+    dplyr::group_by(dplyr::across(tidyselect::all_of(group_cols)))
+  return(data)
+}
+
 
 #' Rescale ROC/PR curves onto the same x-axis grid
 #' 

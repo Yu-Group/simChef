@@ -12,8 +12,8 @@ eval_pred_curve(
   nested_data = NULL,
   truth_col,
   prob_cols,
+  group_cols = NULL,
   curve = c("ROC", "PR"),
-  groups = NULL,
   options = list(),
   na_rm = FALSE
 )
@@ -24,8 +24,8 @@ summarize_pred_curve(
   nested_data = NULL,
   truth_col,
   prob_cols,
+  group_cols = NULL,
   curve = c("ROC", "PR"),
-  groups = NULL,
   options = list(),
   na_rm = FALSE,
   x_grid = seq(0, 1, by = 0.01),
@@ -56,14 +56,14 @@ only 1 column name should be provided. Otherwise, the length of the
 the \code{truth_col} column. This argument is not used when evaluating
 numeric metrics.}
 
+\item{group_cols}{(Optional) A character string or vector identifying the
+column(s) to group observations by before evaluating prediction errors.
+This is useful for assessing within-group prediction errors.
+Note: the (unstratified) prediction errors, aggregated across the full data
+set, are computed in addition to these stratified within-group errors.}
+
 \item{curve}{Either "ROC" or "PR" indicating whether to evaluate the ROC or
 Precision-Recall curve.}
-
-\item{groups}{(Optional) vector of group IDs to group observations by before
-evaluating prediction errors. This is useful for assessing within-group
-prediction errors. Note: the (unstratified) prediction errors, aggregated
-across the full data set, are computed in addition to these stratified
-within-group errors.}
 
 \item{options}{A list of named options to pass to \code{pROC::roc()} such as
 \code{smooth}. These options should not include \code{response},
@@ -98,8 +98,6 @@ columns:
 \item{.rep}{Replicate ID.}
 \item{.dgp_name}{Name of DGP.}
 \item{.method_name}{Name of Method.}
-\item{.group}{If \code{groups} is not \code{NULL}, this column specifies the
-name of the group under evaluation. Otherwise, this column is not returned.}
 \item{curve_estimate}{A list of tibbles with x and y coordinate values for
 the ROC/PR curve for the given experimental replicate. If
 \code{curve = "ROC"}, the \code{tibble} has the columns \code{.threshold},
@@ -107,14 +105,14 @@ the ROC/PR curve for the given experimental replicate. If
 positive rate, respectively. If \code{curve = "PR"}, the \code{tibble} has
 the columns \code{.threshold}, \code{recall}, and \code{precision}.}
 }
-as well as any columns specified by \code{vary_params}.
+as well as any columns specified by \code{group_cols} and \code{vary_params}.
 
 The output of \code{summarize_pred_curve()} is a grouped \code{tibble}
 containing both identifying information and the prediction curve results
 aggregated over experimental replicates. Specifically, the identifier columns
 include \code{.dgp_name}, \code{.method_name}, and any columns specified by
-\code{vary_params}. In addition, there are results columns corresponding to
-the requested statistics in \code{summary_funs} and
+\code{group_cols} and \code{vary_params}. In addition, there are results
+columns corresponding to the requested statistics in \code{summary_funs} and
 \code{custom_summary_funs}. If \code{curve = "ROC"}, these results columns
 include \code{FPR} and others that end in the suffix "_TPR". If
 \code{curve = "PR"}, the results columns include \code{recall} and others

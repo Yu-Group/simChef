@@ -13,7 +13,8 @@ test_that("Functions in Evaluator prediction library work properly", {
     .dgp_name = rep(dgps, each = 2),
     .method_name = methods,
     y = lapply(1:4, FUN = function(x) (1:100)),
-    predictions = lapply(1:4, FUN = function(x) (1:100)*(x+.1))
+    predictions = lapply(1:4, FUN = function(x) (1:100)*(x+.1)),
+    .group = lapply(1:4, FUN = function(x) rep(groups, length.out = 100))
   )
 
   # test eval_pred_err and summarize_pred_err
@@ -77,15 +78,14 @@ test_that("Functions in Evaluator prediction library work properly", {
   )
 
   # test eval_pred_err and summarize_pred_err with group argument
-  group_ids <- rep(groups, length.out = 100)
   eval_results <- eval_pred_err(fit_results_reg,
                                 truth_col = "y",
                                 estimate_col = "predictions",
-                                groups = group_ids)
+                                group_cols = ".group")
   eval_results_summary <- summarize_pred_err(fit_results_reg,
                                              truth_col = "y",
                                              estimate_col = "predictions",
-                                             groups = group_ids)
+                                             group_cols = ".group")
 
   expect_true(tibble::is_tibble(eval_results))
   expect_equal(dim(eval_results), c(36, 6))

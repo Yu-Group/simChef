@@ -11,7 +11,8 @@ eval_feature_importance(
   vary_params = NULL,
   nested_data = NULL,
   feature_col,
-  imp_col
+  imp_col,
+  group_cols = NULL
 )
 
 summarize_feature_importance(
@@ -20,6 +21,7 @@ summarize_feature_importance(
   nested_data = NULL,
   feature_col,
   imp_col,
+  group_cols = NULL,
   na_rm = FALSE,
   summary_funs = c("mean", "median", "min", "max", "sd", "raw"),
   custom_summary_funs = NULL,
@@ -47,6 +49,12 @@ number of features and the feature order aligns with that of
 \code{truth_col}. Elements in this array should be numeric where a higher
 magnitude indicates a more important feature.}
 
+\item{group_cols}{(Optional) A character string or vector identifying the
+column(s) to group observations by before evaluating metrics. This is
+useful for assessing within-group metrics. Note: the (unstratified)
+metrics, aggregated across the full data set, are computed in addition to
+these stratified within-group metrics.}
+
 \item{na_rm}{A \code{logical} value indicating whether \code{NA} values
 should be stripped before the computation proceeds.}
 
@@ -66,18 +74,18 @@ columns. Default \code{NULL} does not add any ID to the column names.}
 \value{
 The output of \code{eval_feature_importance()} is a \code{tibble} with
 the columns \code{.rep}, \code{.dgp_name}, and \code{.method_name} in
-addition to the columns specified by \code{vary_params}, \code{feature_col},
-and \code{imp_col}.
+addition to the columns specified by \code{group_cols}, \code{vary_params},
+\code{feature_col}, and \code{imp_col}.
 
 The output of \code{summarize_feature_importance()} is a grouped
 \code{tibble} containing both identifying information and the feature
 importance results aggregated over experimental replicates. Specifically, the
 identifier columns include \code{.dgp_name}, \code{.method_name}, any columns
-specified by \code{vary_params}, and the column specified by
-\code{feature_col}. In addition, there are results columns corresponding to
-the requested statistics in \code{summary_funs} and
+specified by \code{group_cols} and \code{vary_params}, and the column
+specified by \code{feature_col}. In addition, there are results columns
+corresponding to the requested statistics in \code{summary_funs} and
 \code{custom_summary_funs}. These columns end in the suffix
-"_feature_importance".
+specified by \code{eval_id}.
 }
 \description{
 Evaluate the estimated feature importance scores against the
