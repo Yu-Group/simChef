@@ -128,56 +128,9 @@ create_sim <- function(
     usethis::proj_activate(path = path)
 
     ## initialize a git repository if asked
-    if (init_git) use_git_no_ask()
+    if (init_git) usethis::use_git()
 
     ## intialize renv if desired
     if (init_renv) renv::init()
   }
-}
-
-#' Initialise a git repository
-#'
-#' @description \code{use_git_no_ask()} is based on
-#'   \code{\link[usethis::use_git]{usethis::use_git}()}: it generates a git
-#'   repository. This function differs from \code{\link[usethis]{use_git}()},
-#'   however, in that users are not prompted to add untracked files to the
-#'   initial commit. NOTE: This is hacky due to use of non-exported functions
-#'   implemented in \code{usethis}.
-#' @param message A \code{character} message to use for the initial commit.
-#' @importFrom rlang is_interactive
-#' @importFrom usethis ui_done use_git_ignore
-#' @importFrom gert git_add git_commit
-#' @keywords internal
-use_git_no_ask <- function(message = "initial commit") {
-
-  ## intialize the git repo
-  usethis::ui_done("Initialising Git repo")
-  usethis:::git_init()
-
-  ## write the .gitignore
-  usethis::use_git_ignore(usethis:::git_ignore_lines)
-
-  ## safely fail if something goes wrong
-  if (!rlang::is_interactive() || !usethis:::uses_git()) {
-    return(invisible())
-  }
-
-  ## select files for initial commit
-  untracked <- TRUE
-  uncommitted <- sort(usethis:::git_status(untracked)$file)
-
-  ## make intial commit
-  repo <- usethis:::git_repo()
-  usethis::ui_done("Adding files")
-  gert::git_add(uncommitted, repo = repo)
-  usethis::ui_done("Making a commit with message {usethis::ui_value(message)}")
-  gert::git_commit(message, repo = repo)
-
-  if (Sys.getenv("RSTUDIO") == "1") {
-    usethis:::restart_rstudio(
-      "A restart of RStudio is required to activate the Git pane"
-    )
-  }
-
-  invisible(TRUE)
 }
