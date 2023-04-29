@@ -270,89 +270,113 @@ plot_eval_summary <- function(fit_results, eval_tib = NULL, eval_id = NULL,
       plot_by_id <- plot_by
     }
   }
-  
+
+  if (!is.null(x_str)) {
+    x <- rlang::sym(x_str)
+  } else {
+    x <- x_str
+  }
+  if (!is.null(y_str)) {
+    y <- rlang::sym(y_str)
+  } else {
+    y <- y_str
+  }
+  if (!is.null(err_sd_str)) {
+    err_sd <- rlang::sym(err_sd_str)
+  } else {
+    err_sd <- err_sd_str
+  }
+  if (!is.null(linetype_str)) {
+    linetype <- rlang::sym(linetype_str)
+  } else {
+    linetype <- linetype_str
+  }
+  if (!is.null(color_str)) {
+    color <- rlang::sym(color_str)
+  } else {
+    color <- color_str
+  }
+  fill <- color
+
   # helper function to make summary plot
   construct_plot <- function(plt_df) {
     plt <- ggplot2::ggplot(plt_df)
-    base_aes <- vthemes::get_aesthetics(x_str = x_str, y_str = y_str, 
-                               color_str = color_str, fill_str = color_str,
-                               linetype_str = linetype_str)
     # add ggplot geom layers
     if ("ribbon" %in% show) {
-      if (!is.null(color_str)) {
-        ribbon_aes <- ggplot2::aes(
-          x = .data[[x_str]], 
-          ymin = .data[[y_str]] - .data[[err_sd_str]],
-          ymax = .data[[y_str]] + .data[[err_sd_str]],
-          fill = .data[[color_str]]
+      ribbon_aes <- ggplot2::aes(
+        x = !!x, ymin = !!y - !!err_sd, ymax = !!y + !!err_sd, fill = !!color
+      )
+      plt <- plt +
+        do.call(
+          ggplot2::geom_ribbon,
+          args = c(list(mapping = ribbon_aes), ribbon_args)
         )
-      } else {
-        ribbon_aes <- ggplot2::aes(
-          x = .data[[x_str]], 
-          ymin = .data[[y_str]] - .data[[err_sd_str]],
-          ymax = .data[[y_str]] + .data[[err_sd_str]]
-        )
-      }
-      plt <- plt + 
-        do.call(ggplot2::geom_ribbon, 
-                args = c(list(mapping = ribbon_aes), ribbon_args))
     }
     if ("errorbar" %in% show) {
-      if (!is.null(color_str)) {
-        errorbar_aes <- ggplot2::aes(
-          x = .data[[x_str]], 
-          ymin = .data[[y_str]] - .data[[err_sd_str]],
-          ymax = .data[[y_str]] + .data[[err_sd_str]],
-          color = .data[[color_str]]
+      errorbar_aes <- ggplot2::aes(
+        x = !!x, ymin = !!y - !!err_sd, ymax = !!y + !!err_sd, color = !!color
+      )
+      plt <- plt +
+        do.call(
+          ggplot2::geom_errorbar,
+          args = c(list(mapping = errorbar_aes), errorbar_args)
         )
-      } else {
-        errorbar_aes <- ggplot2::aes(
-          x = .data[[x_str]], 
-          ymin = .data[[y_str]] - .data[[err_sd_str]],
-          ymax = .data[[y_str]] + .data[[err_sd_str]]
-        )
-      }
-      plt <- plt + 
-        do.call(ggplot2::geom_errorbar, 
-                args = c(list(mapping = errorbar_aes), errorbar_args))
     }
     if ("bar" %in% show) {
-      bar_aes <- base_aes[names(base_aes) %in% c("x", "y", "colour", "fill")]
+      bar_aes <- ggplot2::aes(
+        x = !!x, y = !!y, color = !!color, fill = !!fill
+      )
       plt <- plt +
-        do.call(ggplot2::geom_bar,
-                args = c(list(mapping = bar_aes, 
-                              stat = "identity", position = "dodge"), 
-                         bar_args))
+        do.call(
+          ggplot2::geom_bar,
+          args = c(
+            list(mapping = bar_aes, stat = "identity", position = "dodge"),
+            bar_args
+          )
+        )
     }
     if ("boxplot" %in% show) {
+      y_boxplot <- rlang::sym(paste0("raw", eval_id))
       if (is.null(color_str)) {
-        group_str <- x_str
+        boxplot_aes <- ggplot2::aes(
+          x = !!x, y = !!y_boxplot, color = !!color, group = !!x
+        )
       } else {
-        group_str <- sprintf("interaction(%s, %s)", x_str, color_str)
+        boxplot_aes <- ggplot2::aes(
+          x = !!x, y = !!y_boxplot, color = !!color,
+          group = interaction(!!x, !!color)
+        )
       }
-      boxplot_aes <- vthemes::get_aesthetics(x_str = x_str, 
-                                    y_str = paste0("raw", eval_id), 
-                                    color_str = color_str, 
-                                    group_str = group_str)
       plt <- plt +
-        do.call(ggplot2::geom_boxplot,
-                args = c(list(data = plt_df %>%
-                                tidyr::unnest(.data[[paste0("raw", eval_id)]]),
-                              mapping = boxplot_aes), 
-                         boxplot_args))
+        do.call(
+          ggplot2::geom_boxplot,
+          args = c(
+            list(data = plt_df %>%
+                   tidyr::unnest(tidyselect::all_of(paste0("raw", eval_id))),
+                 mapping = boxplot_aes),
+            boxplot_args
+          )
+        )
     }
     if ("line" %in% show) {
-      line_aes <- base_aes[names(base_aes) %in% c("x", "y", "colour", 
-                                                  "linetype")]
+      line_aes <- ggplot2::aes(
+        x = !!x, y = !!y, color = !!color, linetype = !!linetype
+      )
       plt <- plt +
-        do.call(ggplot2::geom_line,
-                args = c(list(mapping = line_aes), line_args))
+        do.call(
+          ggplot2::geom_line,
+          args = c(list(mapping = line_aes), line_args)
+        )
     }
     if ("point" %in% show) {
-      point_aes <- base_aes[names(base_aes) %in% c("x", "y", "colour")]
+      point_aes <- ggplot2::aes(
+        x = !!x, y = !!y, color = !!color
+      )
       plt <- plt +
-        do.call(ggplot2::geom_point,
-                args = c(list(mapping = point_aes), point_args))
+        do.call(
+          ggplot2::geom_point,
+          args = c(list(mapping = point_aes), point_args)
+        )
     }
     if (!is.null(facet_formula)) {
       if (facet_type == "grid") {
@@ -375,7 +399,7 @@ plot_eval_summary <- function(fit_results, eval_tib = NULL, eval_id = NULL,
     }
     # add labels
     labels_ls <- purrr::map(
-      list(x = x_str, y = y_str, color = color_str),
+      list(xlab = x_str, ylab = y_str, colorlab = color_str),
       function(l) {
         if (is.null(l)) {
           return(NULL)
@@ -392,9 +416,13 @@ plot_eval_summary <- function(fit_results, eval_tib = NULL, eval_id = NULL,
         }
       }
     )
-    plt <- plt + 
-      ggplot2::labs(x = labels_ls$x, y = labels_ls$y, 
-                    color = labels_ls$color, fill = labels_ls$color)
+    plt <- plt +
+      ggplot2::labs(x = labels_ls$xlab, y = labels_ls$ylab,
+                    color = labels_ls$colorlab, fill = labels_ls$colorlab)
+    if ("boxplot" %in% show) {
+      plt <- plt +
+        ggplot2::labs(y = substr(eval_id, start = 2, stop = nchar(eval_id)))
+    }
     if (!is.null(add_ggplot_layers)) {
       for (ggplot_layer in add_ggplot_layers) {
         plt <- plt + ggplot_layer
@@ -415,8 +443,10 @@ plot_eval_summary <- function(fit_results, eval_tib = NULL, eval_id = NULL,
   }
   
   if (interactive) {
-    rlang::check_installed("plotly",
-                           reason = "to return an interactive plot (with `interactive = TRUE`).")
+    rlang::check_installed(
+      "plotly",
+      reason = "to return an interactive plot (with `interactive = TRUE`)."
+    )
     plt_ls <- purrr::map(plt_ls, ~plotly::ggplotly(.x))
   }
   if (length(plt_ls) == 1) {
@@ -525,8 +555,10 @@ plot_fit_results <- function(fit_results, vary_params = NULL, reps = 1,
     purrr::reduce(paste, sep = " // ")
   
   if (interactive) {
-    rlang::check_installed("plotly",
-                           reason = "to return an interactive plot (with `interactive = TRUE`).")
+    rlang::check_installed(
+      "plotly",
+      reason = "to return an interactive plot (with `interactive = TRUE`)."
+    )
     plt_ls <- purrr::map(plt_ls, ~plotly::ggplotly(.x))
   }
   return(plt_ls)

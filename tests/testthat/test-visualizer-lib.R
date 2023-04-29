@@ -43,7 +43,6 @@ test_that("Functions in Visualizer prediction library work properly", {
                        eval_results = eval_results_reg,
                        evaluator_name = "Prediction Errors",
                        show = c("point", "errorbar"))
-
   vdiffr::expect_doppelganger("plot_pred_err1", plt)
   plt <- plot_pred_err(fit_results_reg, show = c("point", "errorbar"),
                        truth_col = "y", estimate_col = "predictions")
@@ -56,6 +55,16 @@ test_that("Functions in Visualizer prediction library work properly", {
                        facet_formula = .method_name ~ .metric,
                        facet_type = "grid")
   vdiffr::expect_doppelganger("plot_pred_err2", plt)
+  plt <- plot_pred_err(fit_results = fit_results_reg,
+                       eval_results = eval_results_reg,
+                       evaluator_name = "Prediction Errors",
+                       show = "boxplot")
+  vdiffr::expect_doppelganger("plot_pred_err3", plt)
+  plt <- plot_pred_err(fit_results = fit_results_reg,
+                       eval_results = eval_results_reg,
+                       evaluator_name = "Prediction Errors",
+                       show = "boxplot", color_str = ".method_name")
+  vdiffr::expect_doppelganger("plot_pred_err4", plt)
 
   ## plot_pred_curve
   roc_plt <- plot_pred_curve(fit_results = fit_results_bin,
