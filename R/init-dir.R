@@ -2,15 +2,15 @@
 #'
 #' @description \code{create_sim()} initializes a directory for your simulation
 #'   study. It wraps around \code{\link[usethis]{create_project}()}, as well as
-#'   \code{\link[usethis::use_git]{usethis::use_git}()} and
-#'   \code{\link[renv::init]{renv::init}()}.
+#'   \code{\link[usethis:use_git]{usethis::use_git}()} and
+#'   \code{\link[renv:init]{renv::init}()}.
 #'
 #' @param path A \code{character} specifying the path for your simulation
 #'   directory.
 #' @param init_git A \code{logical} indicating whether to intialize your
 #'   simulation directory as a git repository.
 #' @param init_renv A \code{logical} stating whether to initialize
-#'   \code{\link[renv::init]{renv}}. Defaults to \code{FALSE}.
+#'   \code{\link[renv:init]{renv}}. Defaults to \code{FALSE}.
 #' @param tests A \code{logical} indicating whether to generate sub-directories
 #'   for organizing unit tests. Defaults to \code{TRUE}.
 #' @param hpc A \code{logical} indicating whether to create sub-directories for

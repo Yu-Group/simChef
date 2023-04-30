@@ -31,7 +31,6 @@ Imports:
     R.utils,
     assertthat,
     usethis,
-    gert,
     renv,
     R6,
     rlang,
@@ -46,6 +45,7 @@ Imports:
 Suggests:
     broom,
     callr,
+    devtools,
     fontawesome,
     fs,
     future.callr,
