@@ -286,14 +286,14 @@ Experiment <- R6::R6Class(
         dplyr::mutate(
           .dgp_name = purrr::map_chr(.dgp, ~.x$.dgp_name),
           .dgp_fun = purrr::map(
-            .dgp, ~deparse(dgp_list[[.x$.dgp_name]]$dgp_fun)
+            .dgp, ~removeSource(dgp_list[[.x$.dgp_name]]$dgp_fun)
           ),
           .dgp_params = purrr::map(
             .dgp, ~dgp_list[[.x$.dgp_name]]$dgp_params
           ),
           .method_name = purrr::map_chr(.method, ~.x$.method_name),
           .method_fun = purrr::map(
-            .method, ~deparse(method_list[[.x$.method_name]]$method_fun)
+            .method, ~removeSource(method_list[[.x$.method_name]]$method_fun)
           ),
           .method_params = purrr::map(
             .method, ~method_list[[.x$.method_name]]$method_params
@@ -358,6 +358,25 @@ Experiment <- R6::R6Class(
       }
       return(out_params)
     },
+    .get_obj_params = function(field_name = c("evaluator", "visualizer"),
+                               obj_list) {
+      field_name <- match.arg(field_name)
+      field_name <- dplyr::case_when(
+        field_name == "evaluator" ~ "eval",
+        field_name == "visualizer" ~ "viz"
+      )
+      obj_params <- tibble::tibble(
+        name = names(obj_list),
+        fun = purrr::map(
+          obj_list, ~removeSource(.x[[sprintf("%s_fun", field_name)]])
+        ),
+        params = purrr::map(
+          obj_list, sprintf("%s_params", field_name)
+        )
+      ) %>%
+        dplyr::rename_with(~sprintf(".%s_%s", field_name, .x))
+      return(obj_params)
+    },
     .get_new_obj_list = function(cached_params,
                                  field_name = c("dgp", "method",
                                                 "evaluator", "visualizer"),
@@ -366,31 +385,23 @@ Experiment <- R6::R6Class(
       field_name <- match.arg(field_name)
       if (field_name %in% c("dgp", "method")) {
         return(unique(new_fit_params[[paste0(".", field_name)]]))
-      } else if (identical(field_name, "evaluator")) {
-        evaluator_list <- private$.get_obj_list("evaluator")
-        evaluate_params <- tibble::tibble(
-          .eval_name = names(evaluator_list),
-          .eval_fun = purrr::map(evaluator_list, ~deparse(.x$eval_fun)),
-          .eval_params = purrr::map(evaluator_list, "eval_params")
+      } else {
+        obj_verb <- dplyr::case_when(
+          field_name == "evaluator" ~ "evaluate",
+          field_name == "visualizer" ~ "visualize"
         )
-        cached_idxs <- dplyr::bind_rows(evaluate_params,
-                                        cached_params$evaluate) %>%
-          duplicated(fromLast = TRUE)
-        return(evaluator_list[
-          evaluate_params$.eval_name[!cached_idxs[1:nrow(evaluate_params)]]
-        ])
-      } else if (identical(field_name, "visualizer")) {
-        visualizer_list <- private$.get_obj_list("visualizer")
-        visualize_params <- tibble::tibble(
-          .viz_name = names(visualizer_list),
-          .viz_fun = purrr::map(visualizer_list, ~deparse(.x$viz_fun)),
-          .viz_params = purrr::map(visualizer_list, "viz_params")
+        obj_name_col <- dplyr::case_when(
+          field_name == "evaluator" ~ ".eval_name",
+          field_name == "visualizer" ~ ".viz_name"
         )
-        cached_idxs <- dplyr::bind_rows(visualize_params,
-                                        cached_params$visualize) %>%
+        obj_list <- private$.get_obj_list(field_name)
+        obj_params <- private$.get_obj_params(field_name, obj_list)
+        cached_idxs <- dplyr::bind_rows(
+          obj_params, cached_params[[obj_verb]]
+        ) %>%
           duplicated(fromLast = TRUE)
-        return(visualizer_list[
-          visualize_params$.viz_name[!cached_idxs[1:nrow(visualize_params)]]
+        return(obj_list[
+          obj_params[[obj_name_col]][!cached_idxs[1:nrow(obj_params)]]
         ])
       }
     },
@@ -409,11 +420,11 @@ Experiment <- R6::R6Class(
       if (!fit_cached) {
         return(0)
       } else {
-        n_reps_complete <- fit_params %>%
-          dplyr::left_join(y = cached_fit_params, by = colnames(fit_params)) %>%
-          dplyr::pull(.n_reps) %>%
-          as.numeric()
-        return(min(n_reps_complete))
+        n_reps_complete <- get_matching_rows(
+          id = fit_params, x = cached_fit_params
+        ) %>%
+          dplyr::pull(.n_reps)
+        return(min(as.numeric(n_reps_complete)))
       }
     },
     .is_fully_cached = function(cached_params,
@@ -452,11 +463,7 @@ Experiment <- R6::R6Class(
       }
 
       evaluator_list <- private$.get_obj_list("evaluator")
-      evaluate_params <- tibble::tibble(
-        .eval_name = names(evaluator_list),
-        .eval_fun = purrr::map(evaluator_list, ~deparse(.x$eval_fun)),
-        .eval_params = purrr::map(evaluator_list, "eval_params")
-      )
+      evaluate_params <- private$.get_obj_params("evaluator", evaluator_list)
       eval_cached <- compare_tibble_rows(evaluate_params,
                                          cached_params$evaluate,
                                          op = eval_cached_op)
@@ -467,11 +474,7 @@ Experiment <- R6::R6Class(
       }
 
       visualizer_list <- private$.get_obj_list("visualizer")
-      visualize_params <- tibble::tibble(
-        .viz_name = names(visualizer_list),
-        .viz_fun = purrr::map(visualizer_list, ~deparse(.x$viz_fun)),
-        .viz_params = purrr::map(visualizer_list, "viz_params")
-      )
+      visualize_params <- private$.get_obj_params("visualizer", visualizer_list)
       visualize_cached <- compare_tibble_rows(visualize_params,
                                               cached_params$visualize,
                                               op = viz_cached_op)
@@ -570,13 +573,20 @@ Experiment <- R6::R6Class(
         dplyr::mutate(.n_reps = n_reps)
       if (identical(results_type, "fit")) {
         if (nrow(cached_params_all$fit$fit) > 0) {
+          cached_n_reps <- purrr::map_int(
+            1:nrow(cached_params$fit),
+            function(i) {
+              n_reps0 <- cached_params$fit$.n_reps[i]
+              n_reps_all <- get_matching_rows(
+                id = cached_params$fit[i, ] %>% dplyr::select(-.n_reps),
+                x = cached_params_all$fit$fit
+              ) %>%
+                dplyr::pull(.n_reps)
+              return(max(n_reps0, n_reps_all, na.rm = TRUE))
+            }
+          )
           cached_params_all$fit$fit <- cached_params$fit %>%
-            dplyr::left_join(cached_params_all$fit$fit,
-                             by = c(".dgp_name", ".dgp_fun", ".dgp_params",
-                                    ".dgp", ".method_name", ".method_fun",
-                                    ".method_params", ".method")) %>%
-            dplyr::mutate(.n_reps = pmax(.n_reps.x, .n_reps.y, na.rm = T)) %>%
-            dplyr::select(-.n_reps.x, -.n_reps.y)
+            dplyr::mutate(.n_reps = cached_n_reps)
         } else {
           cached_params_all$fit$fit <- cached_params$fit
         }
@@ -584,10 +594,8 @@ Experiment <- R6::R6Class(
       }
 
       evaluator_list <- private$.get_obj_list("evaluator")
-      cached_params$evaluate <- tibble::tibble(
-        .eval_name = names(evaluator_list),
-        .eval_fun = purrr::map(evaluator_list, ~deparse(.x$eval_fun)),
-        .eval_params = purrr::map(evaluator_list, "eval_params")
+      cached_params$evaluate <- private$.get_obj_params(
+        "evaluator", evaluator_list
       )
       if (identical(results_type, "eval")) {
         cached_params_all$evaluate <- cached_params
@@ -595,10 +603,8 @@ Experiment <- R6::R6Class(
       }
 
       visualizer_list <- private$.get_obj_list("visualizer")
-      cached_params$visualize <- tibble::tibble(
-        .viz_name = names(visualizer_list),
-        .viz_fun = purrr::map(visualizer_list, ~deparse(.x$viz_fun)),
-        .viz_params = purrr::map(visualizer_list, "viz_params")
+      cached_params$visualize <- private$.get_obj_params(
+        "visualizer", visualizer_list
       )
       cached_params_all$visualize <- cached_params
       return(cached_params_all)
@@ -778,7 +784,6 @@ Experiment <- R6::R6Class(
                    return_all_cached_reps = FALSE, save = FALSE,
                    checkpoint_n_reps = 0, verbose = 1, ...) {
 
-
       parallel_strategy <- unique(parallel_strategy)
 
       valid_strategies <- c(
@@ -859,9 +864,8 @@ Experiment <- R6::R6Class(
           results <- private$.get_cached_results("fit", verbose = verbose)
           fit_params <- private$.get_fit_params(simplify = TRUE)
 
-          fit_results <- dplyr::inner_join(x = results,
-                                           y = fit_params,
-                                           by = colnames(fit_params)) %>%
+          fit_results <- get_matching_rows(id = fit_params, x = results) %>%
+            dplyr::select(.rep, tidyselect::everything()) %>%
             dplyr::arrange(as.numeric(.rep), .dgp_name, .method_name)
 
           if (save) {
@@ -1063,18 +1067,18 @@ Experiment <- R6::R6Class(
         if (use_cached && !new_fit) {
           fit_params_cached <- private$.get_fit_params(cached_params, "cached",
                                                        n_reps_total, TRUE)
-          fit_results_cached <- private$.get_cached_results("fit",
-                                                            verbose = verbose) %>%
-            dplyr::inner_join(y = fit_params_cached,
-                              by = colnames(fit_params_cached))
+          fit_results_cached <- private$.get_cached_results(
+            "fit", verbose = verbose
+          ) %>%
+            get_matching_rows(id = fit_params_cached, x = .)
           if (verbose >= 1) {
             inform("Appending cached results to the new fit results...")
           }
           fit_params <- private$.get_fit_params(simplify = TRUE)
-          fit_params_cols <- colnames(fit_params)
           fit_results <- dplyr::bind_rows(fit_results, fit_results_cached) %>%
-            dplyr::inner_join(y = fit_params, by = fit_params_cols) %>%
-            dplyr::arrange(as.numeric(.rep), .dgp_name, .method_name)
+            get_matching_rows(id = fit_params, x = .) %>%
+            dplyr::arrange(as.numeric(.rep), .dgp_name, .method_name) %>%
+            dplyr::select(.rep, tidyselect::everything())
         }
 
         if (save || checkpoint) {

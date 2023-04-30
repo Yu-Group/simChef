@@ -300,6 +300,124 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
     expect_equal(cached_params$evaluate$fit$.n_reps, rep(12, 8))
     expect_equal(cached_params$visualize$fit$.n_reps, rep(10, 8))
 
-  }) # test_that("Caching in Experiment runs properly", {
+    # check if caching works for functions
+    my_mean <- function(x) mean(x)
+    my_median <- function(x) median(x)
+    dgp_fun1 <- function(f) f(rnorm(100))
+    dgp1 <- DGP$new(dgp_fun1, f = my_mean)
+    dgp_fun2 <- function(g) g(runif(100))
+    dgp2 <- DGP$new(dgp_fun2, g = my_mean)
 
-}) # withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
+    method_fun1 <- function(g) g
+    method1 <- Method$new(method_fun1)
+
+    fit_results_fun <- function(fit_results, f = mean) f(rnorm(100))
+    fit_results_eval <- create_evaluator(.eval_fun = fit_results_fun)
+
+    fit_plot_fun <- function(fit_results, f = mean) f(rnorm(100))
+    fit_plot <- create_visualizer(.viz_fun = fit_plot_fun)
+
+    clean_fun <- function(function_col) purrr::map(function_col, deparse)
+
+    experiment <- create_experiment(name = "test-cache-function") %>%
+      add_dgp(dgp1, name = "DGP1") %>%
+      add_method(method1, name = "Method1") %>%
+      add_evaluator(fit_results_eval, name = "Evaluator1") %>%
+      add_visualizer(fit_plot, name = "Visualizer1")
+
+    # remove cache
+    if (dir.exists(file.path("results", "test-cache-function"))) {
+      for (fname in list.files(file.path("results", "test-cache-function"),
+                               recursive = T, full.names = TRUE)) {
+        file.remove(fname)
+      }
+    }
+
+    # basic cache usage
+    results0 <- experiment$run(n_reps = 10, use_cached = TRUE, save = FALSE,
+                               verbose = verbose)
+    results1 <- experiment$run(n_reps = 10, save = TRUE, verbose = verbose)
+    expect_false(identical(results0$fit_results, results1$fit_results))
+    results2 <- experiment$run(n_reps = 10, use_cached = TRUE, verbose = verbose)
+    expect_equal(results1, results2)
+
+    # try caching with function in vary across
+    experiment %>%
+      add_vary_across(.dgp = "DGP1", f = list(my_mean, my_median))
+    results0 <- experiment$run(n_reps = 10, use_cached = TRUE, save = FALSE,
+                               verbose = verbose)
+    results1 <- experiment$run(n_reps = 10, save = TRUE, verbose = verbose)
+    expect_false(identical(results0$fit_results, results1$fit_results))
+    results2 <- experiment$run(n_reps = 10, use_cached = TRUE, verbose = verbose)
+    # to ignore function source bytecode
+    results1$fit_results$f <- clean_fun(results1$fit_results$f)
+    results2$fit_results$f <- clean_fun(results2$fit_results$f)
+    expect_equal(results1, results2)
+
+    # try caching with function in visualizer and evaluator
+    new_eval <- create_evaluator(.eval_fun = fit_results_fun, f = my_median)
+    new_plot <- create_visualizer(.viz_fun = fit_plot_fun, f = my_median)
+    experiment %>%
+      update_evaluator(new_eval, "Evaluator1") %>%
+      update_visualizer(new_plot, "Visualizer1")
+    results0 <- experiment$run(n_reps = 10, use_cached = TRUE, save = FALSE,
+                               verbose = verbose)
+    results0$fit_results$f <- clean_fun(results0$fit_results$f)
+    results1 <- experiment$run(n_reps = 10, save = TRUE, verbose = verbose)
+    results1$fit_results$f <- clean_fun(results1$fit_results$f)
+    expect_false(identical(results0$fit_results, results1$fit_results))
+    results2 <- experiment$run(n_reps = 10, use_cached = TRUE, verbose = verbose)
+    results2$fit_results$f <- purrr::map(results2$fit_results$f, deparse)
+    expect_equal(results1, results2)
+
+    # check caching with function and different n_reps
+    results3 <- experiment$run(n_reps = 4, use_cached = TRUE, save = TRUE,
+                               verbose = verbose)
+    results3$fit_results$f <- clean_fun(results3$fit_results$f)
+    extra_reps_fpath <- file.path(
+      "results", "test-cache-function", "DGP1", "Varying f",
+      "fit_results_extra_cached_reps.rds"
+    )
+    extra_fit_results3 <- readRDS(extra_reps_fpath)
+    extra_fit_results3$f <- clean_fun(extra_fit_results3$f)
+    expect_equal(nrow(results3$fit_results), 4 * 2)
+    expect_equal(nrow(extra_fit_results3), 6 * 2)
+    expect_equal(results3$fit_results,
+                 results2$fit_results %>% dplyr::filter(as.numeric(.rep) <= 4))
+    expect_equal(extra_fit_results3,
+                 results2$fit_results %>% dplyr::filter(as.numeric(.rep) > 4))
+
+    results4 <- experiment$run(n_reps = 10, use_cached = TRUE, save = TRUE,
+                               verbose = verbose)
+    results4$fit_results$f <- clean_fun(results4$fit_results$f)
+    fit_results4 <- readRDS(
+      file.path("results", "test-cache-function", "DGP1", "Varying f",
+                "fit_results.rds")
+    )
+    fit_results4$f <- clean_fun(fit_results4$f)
+    expect_equal(results4$fit_results, fit_results4)
+    expect_equal(nrow(results4$fit_results), 10 * 2)
+    expect_false(file.exists(extra_reps_fpath))
+    expect_true(identical(results3$fit_results,
+                          results4$fit_results %>%
+                            dplyr::filter(as.numeric(.rep) <= 4)))
+    expect_true(identical(results2$fit_results, results4$fit_results))
+
+    results5 <- experiment$run(n_reps = 15, use_cached = TRUE, save = TRUE,
+                               verbose = verbose)
+    results5$fit_results$f <- clean_fun(results5$fit_results$f)
+    expect_equal(nrow(results5$fit_results), 15 * 2)
+    expect_equal(results4$fit_results %>% dplyr::filter(as.numeric(.rep) <= 10),
+                 results2$fit_results)
+
+    experiment %>% add_dgp(dgp2, name = "DGP2")
+    results6 <- experiment$run(n_reps = 10, use_cached = TRUE, save = TRUE,
+                               verbose = verbose)
+    results6$fit_results$f <- clean_fun(results6$fit_results$f)
+    expect_equal(nrow(results6$fit_results), 10 * 3)
+    expect_equal(results6$fit_results %>%
+                   dplyr::filter(as.numeric(.rep) <= 10, .dgp_name == "DGP1"),
+                 results2$fit_results)
+  })
+
+})

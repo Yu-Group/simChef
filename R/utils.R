@@ -170,8 +170,9 @@ simplify_tibble <- function(tbl, empty_as_na = TRUE) {
           }
         }
 
-        # get the final type
-        if (length(x) == 0 || (length(x) == 1 && all(is.na(x))))  {
+        # get the final type (hiding warning that arises for is.na(<function>))
+        if (length(x) == 0 ||
+            (length(x) == 1 && all(suppressWarnings(is.na(x)))))  {
           type <-  "NA"
         } else {
           type <- typeof(x)
@@ -333,6 +334,63 @@ compare_tibble_rows <- function(x, y, op = c("equal", "contained_in")) {
     duplicated(fromLast = TRUE)
   return(all(duplicated_rows[1:nrow(x)]))
 }
+
+
+#' Get matching rows from x based on id
+#'
+#' @description Get rows in \code{x} tibble that match the id rows specified
+#'   by the \code{id} tibble. This function is an alternative to the usual
+#'   \code{dplyr::inner_join} function. The difference is that this function
+#'   ignores the source bytecode of functions when looking for matching rows,
+#'   while \code{dplyr::inner_join} treats functions with different sources
+#'   as different. This function also requires that the \code{id} tibble have
+#'   distinct rows while \code{dplyr::inner_join} does not. This function
+#'   enables caching when functions are used as parameters in DGPs and Methods.
+#'
+#' @param id A tibble with distinct rows.
+#' @param x A tibble.
+#'
+#' @return A tibble, containing the subset of rows from \code{x} that match
+#'   id rows from \code{id}.
+#' @keywords internal
+get_matching_rows <- function(id, x) {
+  if ((!tibble::is_tibble(id)) || (!tibble::is_tibble(x))) {
+    abort("id and x must be tibbles.")
+  }
+  id_cols <- colnames(id)
+  id_coltypes <- purrr::map_chr(id, class)
+  if (anyDuplicated(id)) {
+    stop("id must be a tibble with unique rows.")
+  }
+  x_ids <- x %>%
+    dplyr::select(tidyselect::all_of(id_cols))
+  if (!any(id_coltypes == "list")) {
+    # easy case: no functions in id tibble -> use inner_join
+    out <- dplyr::inner_join(id, x, by = id_cols)
+  } else if (!anyDuplicated(x_ids)) {
+    # no duplicate id rows in x -> use duplicated
+    df <- dplyr::bind_rows(id, x)
+    keep_row_idx <- df %>%
+      dplyr::select(tidyselect::all_of(id_cols)) %>%
+      duplicated()
+    out <- df %>%
+      dplyr::filter(!!keep_row_idx)
+  } else {
+    # duplicate id rows in x -> brute-force matching using duplicated
+    keep_row_idx <- purrr::map_lgl(
+      1:nrow(x),
+      function(i) {
+        dplyr::bind_rows(id, x_ids[i, ]) %>%
+          duplicated() %>%
+          dplyr::last()
+      }
+    )
+    out <- x %>%
+      dplyr::filter(!!keep_row_idx)
+  }
+  return(out)
+}
+
 
 #' Call a function with given parameters and capture errors, warnings, or
 #' messages that occur during evaluation.
