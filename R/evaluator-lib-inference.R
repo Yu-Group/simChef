@@ -158,7 +158,8 @@ eval_testing_err <- function(fit_results, vary_params = NULL,
       tidyr::unnest(tidyselect::all_of(c(truth_col, pval_col, group_cols)))
 
     if (!is.null(group_cols)) {
-      data <- add_all_group(data, group_cols)
+      data <- data %>%
+        dplyr::group_by(dplyr::across(tidyselect::all_of(group_cols)))
     }
 
     data <- data %>%
@@ -499,10 +500,6 @@ eval_reject_prob <- function(fit_results, vary_params = NULL,
   }
   fit_results <- fit_results %>%
     tidyr::unnest(tidyselect::all_of(c(feature_col, pval_col, group_cols)))
-
-  if (!is.null(group_cols)) {
-    fit_results <- add_all_group(fit_results, group_cols)
-  }
 
   if (is.null(alphas)) {
     eval_tib <- fit_results %>%

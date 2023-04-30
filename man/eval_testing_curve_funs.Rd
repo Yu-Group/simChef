@@ -61,9 +61,7 @@ number of features and the feature order aligns with that of
 
 \item{group_cols}{(Optional) A character string or vector identifying the
 column(s) to group observations by before evaluating metrics. This is
-useful for assessing within-group metrics. Note: the (unstratified)
-metrics, aggregated across the full data set, are computed in addition to
-these stratified within-group metrics.}
+useful for assessing within-group metrics.}
 
 \item{curve}{Either "ROC" or "PR" indicating whether to evaluate the ROC or
 Precision-Recall curve.}

@@ -58,9 +58,7 @@ numeric metrics.}
 
 \item{group_cols}{(Optional) A character string or vector identifying the
 column(s) to group observations by before evaluating prediction errors.
-This is useful for assessing within-group prediction errors.
-Note: the (unstratified) prediction errors, aggregated across the full data
-set, are computed in addition to these stratified within-group errors.}
+This is useful for assessing within-group prediction errors.}
 
 \item{curve}{Either "ROC" or "PR" indicating whether to evaluate the ROC or
 Precision-Recall curve.}

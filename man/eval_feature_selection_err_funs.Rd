@@ -70,9 +70,7 @@ magnitude indicates a more important feature.}
 
 \item{group_cols}{(Optional) A character string or vector identifying the
 column(s) to group observations by before evaluating metrics. This is
-useful for assessing within-group metrics. Note: the (unstratified)
-metrics, aggregated across the full data set, are computed in addition to
-these stratified within-group metrics.}
+useful for assessing within-group metrics.}
 
 \item{metrics}{A \code{metric_set} object indicating the metrics to evaluate.
 See \code{\link[yardstick:metric_set]{yardstick::metric_set()}} for more details. Default \code{NULL} will

@@ -64,9 +64,7 @@ numeric metrics.}
 
 \item{group_cols}{(Optional) A character string or vector identifying the
 column(s) to group observations by before evaluating prediction errors.
-This is useful for assessing within-group prediction errors.
-Note: the (unstratified) prediction errors, aggregated across the full data
-set, are computed in addition to these stratified within-group errors.}
+This is useful for assessing within-group prediction errors.}
 
 \item{metrics}{A \code{metric_set} object indicating the metrics to evaluate.
 See \code{\link[yardstick:metric_set]{yardstick::metric_set()}} for more details. Default \code{NULL} will

@@ -88,26 +88,26 @@ test_that("Functions in Evaluator prediction library work properly", {
                                              group_cols = ".group")
 
   expect_true(tibble::is_tibble(eval_results))
-  expect_equal(dim(eval_results), c(36, 6))
+  expect_equal(dim(eval_results), c(24, 6))
   expect_equal(unique(eval_results$.rep), reps)
   expect_equal(unique(eval_results$.dgp_name), dgps)
   expect_equal(unique(eval_results$.method_name), methods)
   expect_equal(unique(eval_results$.metric), metrics)
-  expect_equal(unique(eval_results$.group), c(".all", groups))
+  expect_equal(unique(eval_results$.group), groups)
   expect_equal(
     eval_results %>% dplyr::filter(.metric == "rsq"),
     tibble::tibble(
-      .rep = rep(rep(reps, each = 3), times = 2),
-      .dgp_name = rep(dgps, each = 6),
+      .rep = rep(rep(reps, each = 2), times = 2),
+      .dgp_name = rep(dgps, each = 4),
       .method_name = methods,
-      .group = rep(c(".all", groups), times = 4),
+      .group = rep(groups, times = 4),
       .metric = "rsq",
       .estimate = 1
     )
   )
 
   expect_true(tibble::is_tibble(eval_results_summary))
-  expect_equal(dim(eval_results_summary), c(18, 10))
+  expect_equal(dim(eval_results_summary), c(12, 10))
   expect_equal(
     colnames(eval_results_summary),
     c(".dgp_name", ".method_name", ".group", ".metric",
@@ -116,29 +116,29 @@ test_that("Functions in Evaluator prediction library work properly", {
   expect_equal(unique(eval_results_summary$.dgp_name), dgps)
   expect_equal(unique(eval_results_summary$.method_name), methods)
   expect_equal(unique(eval_results_summary$.metric), metrics_sorted)
-  expect_equal(unique(eval_results$.group), c(".all", groups))
+  expect_equal(unique(eval_results$.group), groups)
   expect_equal(
     eval_results_summary %>% dplyr::group_keys(),
     tibble::tibble(
-      .dgp_name = rep(dgps, each = 9),
+      .dgp_name = rep(dgps, each = 6),
       .method_name = methods,
-      .group = rep(rep(c(".all", groups), each = 3), times = 2),
-      .metric = rep(metrics_sorted, times = 6)
+      .group = rep(rep(groups, each = 3), times = 2),
+      .metric = rep(metrics_sorted, times = 4)
     )
   )
   expect_equal(
     eval_results_summary %>% dplyr::filter(.metric == "rsq") %>% dplyr::ungroup(),
     tibble::tibble(
-      .dgp_name = rep(dgps, each = 3),
+      .dgp_name = rep(dgps, each = 2),
       .method_name = methods,
-      .group = rep(c(".all", groups), times = 2),
+      .group = rep(groups, times = 2),
       .metric = "rsq",
       mean_pred_err = 1,
       median_pred_err = 1,
       min_pred_err = 1,
       max_pred_err = 1,
       sd_pred_err = 0,
-      raw_pred_err = rep(list(c(1, 1)), 6)
+      raw_pred_err = rep(list(c(1, 1)), 4)
     )
   )
 

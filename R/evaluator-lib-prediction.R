@@ -29,8 +29,6 @@
 #' @param group_cols (Optional) A character string or vector identifying the
 #'   column(s) to group observations by before evaluating prediction errors.
 #'   This is useful for assessing within-group prediction errors.
-#'   Note: the (unstratified) prediction errors, aggregated across the full data
-#'   set, are computed in addition to these stratified within-group errors.
 #'
 #' @returns
 #' The output of \code{eval_pred_err()} is a \code{tibble} with the following
@@ -232,7 +230,8 @@ eval_pred_err <- function(fit_results, vary_params = NULL, nested_data = NULL,
       )
 
     if (!is.null(group_cols)) {
-      data <- add_all_group(data, group_cols)
+      data <- data %>%
+        dplyr::group_by(dplyr::across(tidyselect::all_of(group_cols)))
     }
 
     if (is.null(metrics)) {
@@ -446,7 +445,8 @@ eval_pred_curve <- function(fit_results, vary_params = NULL, nested_data = NULL,
       tidyr::unnest(tidyselect::all_of(c(truth_col, prob_cols, group_cols)))
 
     if (!is.null(group_cols)) {
-      data <- add_all_group(data, group_cols)
+      data <- data %>%
+        dplyr::group_by(dplyr::across(tidyselect::all_of(group_cols)))
     }
 
     if (identical(curve, "ROC")) {
