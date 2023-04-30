@@ -172,7 +172,9 @@ Experiment <- R6::R6Class(
       out <- list()
       for (i in seq_along(objs)) {
         obj <- objs[[i]]
-        out[[i]] <- private$.check_each_vary_across(obj, field, ...)
+        out[[i]] <- private$.check_each_vary_across(
+          obj = obj, field_name = field, ...
+        )
       }
       return(out)
     },
@@ -796,7 +798,7 @@ Experiment <- R6::R6Class(
       if (length(parallel_strategy) == 0) {
         parallel_strategy <- "reps"
 
-      } else if (length(parallel_strategy > 1)) {
+      } else if (length(parallel_strategy) > 1) {
 
         parallel_strategy <- sapply(
           parallel_strategy, match.arg, choices = c("reps", "dgps", "methods")
@@ -1046,9 +1048,6 @@ Experiment <- R6::R6Class(
 
         n_reps_cached <- n_reps_cached + n_reps
 
-        # TODO: what is this for?
-        attr(new_fit_results, ".internal.selfref") <- NULL
-
         col_diff <- setdiff(
           private$.get_vary_params(), colnames(new_fit_results)
         )
@@ -1260,7 +1259,7 @@ Experiment <- R6::R6Class(
 
       return(viz_results)
     },
-    add_dgp = function(dgp, name=NULL, ...) {
+    add_dgp = function(dgp, name = NULL, ...) {
       private$.check_obj(dgp, "DGP")
       private$.add_obj("dgp", dgp, name)
       invisible(self)
@@ -1285,7 +1284,7 @@ Experiment <- R6::R6Class(
     get_dgps = function() {
       return(private$.get_obj_list("dgp"))
     },
-    add_method = function(method, name=NULL, ...) {
+    add_method = function(method, name = NULL, ...) {
       private$.check_obj(method, "Method")
       private$.add_obj("method", method, name)
       invisible(self)
@@ -1327,7 +1326,7 @@ Experiment <- R6::R6Class(
     get_evaluators = function() {
       return(private$.get_obj_list("evaluator"))
     },
-    add_visualizer = function(visualizer, name=NULL, ...) {
+    add_visualizer = function(visualizer, name = NULL, ...) {
       private$.check_obj(visualizer, "Visualizer")
       private$.add_obj("visualizer", visualizer, name)
       invisible(self)
@@ -1345,7 +1344,7 @@ Experiment <- R6::R6Class(
       return(private$.get_obj_list("visualizer"))
     },
     add_vary_across = function(.dgp, .method, ...) {
-      objs <- private$.check_vary_across(.dgp, .method, ...)
+      objs <- private$.check_vary_across(.dgp = .dgp, .method = .method, ...)
       for (obj in objs) {
         dots_list <- obj$dots_list
         field_name <- obj$field_name
@@ -1374,7 +1373,7 @@ Experiment <- R6::R6Class(
       invisible(self)
     },
     update_vary_across = function(.dgp, .method, ...) {
-      objs <- private$.check_vary_across(.dgp, .method, ...)
+      objs <- private$.check_vary_across(.dgp = .dgp, .method = .method, ...)
       for (obj in objs) {
         dots_list <- obj$dots_list
         field_name <- obj$field_name
@@ -1425,7 +1424,7 @@ Experiment <- R6::R6Class(
           return(invisible(self))
         }
       }
-      objs <- private$.check_vary_across(dgp, method)
+      objs <- private$.check_vary_across(.dgp = dgp, .method = method)
       for (obj in objs) {
         field_name <- obj$field_name
         obj_name <- obj$obj_name
