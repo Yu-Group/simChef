@@ -163,9 +163,6 @@ eval_feature_selection_err <- function(fit_results, vary_params = NULL,
     imp_col <- tidyselect::vars_pull(cols, tidyselect::all_of(imp_col))
     estimate_col <- intersect(cols, estimate_col)
     group_cols <- intersect(cols, group_cols)
-    if (is.null(estimate_col)) {
-      estimate_col <- imp_col
-    }
     data <- data %>%
       tidyr::unnest(
         tidyselect::all_of(c(truth_col, imp_col, estimate_col, group_cols))
@@ -191,7 +188,7 @@ eval_feature_selection_err <- function(fit_results, vary_params = NULL,
     }
     
     res <- metrics(data = data, truth = !!truth_col, estimate = !!estimate_col,
-                   tidyselect::all_of(imp_col), na_rm = na_rm,
+                   !!imp_col, na_rm = na_rm,
                    event_level = "second") %>%
       dplyr::select(-.estimator)
     if (na_rm) {
