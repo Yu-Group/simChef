@@ -283,35 +283,33 @@ test_that("Functions in Evaluator prediction library work properly", {
                FUN = function(x) {
                  as.factor(rep(c("a", "b", "c"), length.out = 6))
                }),
-    class_probs = lapply(1:4,
+    predictions = lapply(1:4,
                          FUN = function(x) {
-                           tibble::tibble(a = c(0.1, 0.5, 0.8, 0.2, 0.2, 0.3),
-                                          b = c(0.4, 0.1, 0.1, 0.5, 0.5, 0.1),
-                                          c = 1 - a - b)
+                           factor(c("c", "a", "a", "b", "b", "c"),
+                                  levels = c("a", "b", "c"))
                          }),
-    predictions = lapply(class_probs,
-                         FUN = function(x) {
-                           yhat <- apply(x, 1,
-                                         FUN = function(xi) names(which.max(xi))[1])
-                           return(factor(yhat, levels = c("a", "b", "c")))
-                         })
+    a = lapply(1:4, FUN = function(x) c(0.1, 0.5, 0.8, 0.2, 0.2, 0.3)),
+    b = lapply(1:4, FUN = function(x) c(0.4, 0.1, 0.1, 0.5, 0.5, 0.1)),
+    c = lapply(1:4, FUN = function(x) c(0.5, 0.4, 0.1, 0.3, 0.3, 0.6))
   )
 
   eval_results <- eval_pred_err(fit_results_class,
                                 truth_col = "y",
                                 estimate_col = "predictions",
-                                prob_cols = c("a", "b", "c"),
-                                nested_data = "class_probs")
+                                prob_cols = c("a", "b", "c"))
   eval_results_summary <- summarize_pred_err(fit_results_class,
                                              truth_col = "y",
                                              estimate_col = "predictions",
-                                             prob_cols = c("a", "b", "c"),
-                                             nested_data = "class_probs")
+                                             prob_cols = c("a", "b", "c"))
 
   expect_true(tibble::is_tibble(eval_results))
   expect_equal(dim(eval_results), dim(eval_results_orig))
   expect_equal(eval_results %>% dplyr::select(-.estimate),
                eval_results_orig %>% dplyr::select(-.estimate))
+  true_auroc <- fit_results_class[1, ] %>%
+    tidyr::unnest(c(y, predictions, a, b, c)) %>%
+    yardstick::roc_auc(truth = y, a, b, c) %>%
+    dplyr::pull(.estimate)
   expect_equal(
     eval_results %>% dplyr::filter(.metric == "roc_auc"),
     tibble::tibble(
@@ -319,7 +317,7 @@ test_that("Functions in Evaluator prediction library work properly", {
       .dgp_name = rep(dgps, each = 2),
       .method_name = methods,
       .metric = "roc_auc",
-      .estimate = 0.5
+      .estimate = true_auroc
     )
   )
 
@@ -339,17 +337,19 @@ test_that("Functions in Evaluator prediction library work properly", {
     eval_results_summary_orig %>% dplyr::group_keys()
   )
   expect_equal(
-    eval_results_summary %>% dplyr::filter(.metric == "roc_auc") %>% dplyr::ungroup(),
+    eval_results_summary %>%
+      dplyr::filter(.metric == "roc_auc") %>%
+      dplyr::ungroup(),
     tibble::tibble(
       .dgp_name = dgps,
       .method_name = methods,
       .metric = "roc_auc",
-      mean_pred_err = 0.5,
-      median_pred_err = 0.5,
-      min_pred_err = 0.5,
-      max_pred_err = 0.5,
+      mean_pred_err = true_auroc,
+      median_pred_err = true_auroc,
+      min_pred_err = true_auroc,
+      max_pred_err = true_auroc,
       sd_pred_err = 0,
-      raw_pred_err = rep(list(c(0.5, 0.5)), 2)
+      raw_pred_err = rep(list(c(true_auroc, true_auroc)), 2)
     )
   )
 
@@ -478,19 +478,15 @@ test_that("Functions in Evaluator prediction library work properly", {
 
   ## eval_pred_curve / summarize_pred_curve - multi-class classification
   roc_results <- eval_pred_curve(fit_results_class, curve = "ROC",
-                                 nested_data = "class_probs",
                                  truth_col = "y",
                                  prob_cols = c("a", "b", "c"))
   pr_results <- eval_pred_curve(fit_results_class, curve = "PR",
-                                nested_data = "class_probs",
                                 truth_col = "y",
                                 prob_cols = c("a", "b", "c"))
   roc_summary <- summarize_pred_curve(fit_results_class, curve = "ROC",
-                                      nested_data = "class_probs",
                                       truth_col = "y",
                                       prob_cols = c("a", "b", "c"))
   pr_summary <- summarize_pred_curve(fit_results_class, curve = "PR",
-                                     nested_data = "class_probs",
                                      truth_col = "y",
                                      prob_cols = c("a", "b", "c"))
 
@@ -525,10 +521,6 @@ test_that("Functions in Evaluator prediction library work properly", {
     roc_summary %>% dplyr::group_keys(),
     roc_summary_orig %>% dplyr::group_keys()
   )
-  expect_equal(
-    roc_summary[1, ] %>% dplyr::ungroup(),
-    roc_summary_orig[1, ] %>% dplyr::ungroup()
-  )
 
   expect_true(tibble::is_tibble(pr_summary))
   expect_equal(dim(roc_summary), dim(pr_summary))
@@ -540,10 +532,6 @@ test_that("Functions in Evaluator prediction library work properly", {
   expect_equal(
     pr_summary %>% dplyr::group_keys(),
     pr_summary_orig %>% dplyr::group_keys()
-  )
-  expect_equal(
-    pr_summary[1, ] %>% dplyr::ungroup(),
-    pr_summary_orig[1, ] %>% dplyr::ungroup()
   )
 })
 

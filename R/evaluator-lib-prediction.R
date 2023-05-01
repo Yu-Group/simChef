@@ -224,10 +224,13 @@ eval_pred_err <- function(fit_results, vary_params = NULL, nested_data = NULL,
                                           tidyselect::all_of(estimate_col))
     prob_cols <- intersect(cols, prob_cols)
     group_cols <- intersect(cols, group_cols)
-    data <- data %>%
-      tidyr::unnest(
-        tidyselect::all_of(c(truth_col, estimate_col, prob_cols, group_cols))
-      )
+
+    if (is.null(nested_data)) {
+      data <- data %>%
+        tidyr::unnest(
+          tidyselect::all_of(c(truth_col, estimate_col, prob_cols, group_cols))
+        )
+    }
 
     if (!is.null(group_cols)) {
       data <- data %>%
@@ -237,7 +240,7 @@ eval_pred_err <- function(fit_results, vary_params = NULL, nested_data = NULL,
     if (is.null(metrics)) {
       res <- yardstick::metrics(
         data = data, truth = !!truth_col, estimate = !!estimate_col,
-        tidyselect::all_of(prob_cols), options = options, na_rm = na_rm
+        !!tidyselect::all_of(prob_cols), options = options, na_rm = na_rm
       )
     } else {
       is_class <- is.factor(data[[truth_col]]) ||
@@ -245,7 +248,7 @@ eval_pred_err <- function(fit_results, vary_params = NULL, nested_data = NULL,
       if (is_class) {
         res <- metrics(
           data = data, truth = !!truth_col, estimate = !!estimate_col,
-          tidyselect::all_of(prob_cols), na_rm = na_rm
+          !!tidyselect::all_of(prob_cols), na_rm = na_rm
         )
       } else {
         res <- metrics(
@@ -441,8 +444,11 @@ eval_pred_curve <- function(fit_results, vary_params = NULL, nested_data = NULL,
     truth_col <- tidyselect::vars_pull(cols, tidyselect::all_of(truth_col))
     prob_cols <- intersect(cols, prob_cols)
     group_cols <- intersect(cols, group_cols)
-    data <- data %>%
-      tidyr::unnest(tidyselect::all_of(c(truth_col, prob_cols, group_cols)))
+
+    if (is.null(nested_data)) {
+      data <- data %>%
+        tidyr::unnest(tidyselect::all_of(c(truth_col, prob_cols, group_cols)))
+    }
 
     if (!is.null(group_cols)) {
       data <- data %>%

@@ -163,10 +163,13 @@ eval_feature_selection_err <- function(fit_results, vary_params = NULL,
     imp_col <- tidyselect::vars_pull(cols, tidyselect::all_of(imp_col))
     estimate_col <- intersect(cols, estimate_col)
     group_cols <- intersect(cols, group_cols)
-    data <- data %>%
-      tidyr::unnest(
-        tidyselect::all_of(c(truth_col, imp_col, estimate_col, group_cols))
-      )
+
+    if (is.null(nested_data)) {
+      data <- data %>%
+        tidyr::unnest(
+          tidyselect::all_of(c(truth_col, imp_col, estimate_col, group_cols))
+        )
+    }
 
     if (!is.null(group_cols)) {
       data <- data %>%
@@ -188,7 +191,7 @@ eval_feature_selection_err <- function(fit_results, vary_params = NULL,
     }
     
     res <- metrics(data = data, truth = !!truth_col, estimate = !!estimate_col,
-                   !!imp_col, na_rm = na_rm,
+                   !!tidyselect::all_of(imp_col), na_rm = na_rm,
                    event_level = "second") %>%
       dplyr::select(-.estimator)
     if (na_rm) {
@@ -502,12 +505,14 @@ eval_feature_importance <- function(fit_results, vary_params = NULL,
   if (!is.null(nested_data)) {
     fit_results <- fit_results %>% 
       tidyr::unnest(tidyselect::all_of(nested_data))
+  } else {
+    fit_results <- fit_results %>%
+      tidyr::unnest(tidyselect::all_of(c(feature_col, imp_col, group_cols)))
   }
   eval_tib <- fit_results %>%
     dplyr::select(
       tidyselect::all_of(c(id_vars, feature_col, imp_col, group_cols))
-    ) %>%
-    tidyr::unnest(tidyselect::all_of(c(feature_col, imp_col, group_cols)))
+    )
   return(eval_tib)
 }
 
