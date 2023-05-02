@@ -8,11 +8,8 @@
 #' @param metrics A \code{metric_set} object indicating the metrics to plot.
 #'   See [yardstick::metric_set()] for more details. Default \code{NULL} will
 #'   use the default metrics in [yardstick::metrics()].
-#' @param ... Additional arguments to pass to \code{plot_eval_summary()}. This
-#'   includes arguments for plotting and for passing into
-#'   \code{summarize_pred_err()}.
 #' 
-#' @inherit plot_eval_summary return
+#' @inherit plot_eval_constructor return
 #' 
 #' @family prediction_error_funs
 #' 
@@ -36,55 +33,62 @@
 #' )
 #' 
 #' # create errorbar plot using pre-computed evaluation results
-#' plt <- plot_pred_err(fit_results = fit_results, eval_results = eval_results,
-#'                      evaluator_name = "Prediction Errors",
+#' plt <- plot_pred_err(eval_results = eval_results,
+#'                      eval_name = "Prediction Errors",
 #'                      show = c("point", "errorbar"))
-#' # or alternatively, create the same plot without pre-computing evaluation results
-#' plt <- plot_pred_err(fit_results, show = c("point", "errorbar"),
-#'                      truth_col = "y", estimate_col = "predictions")
+#' # or alternatively, create the same plot directly from fit results
+#' plt <- plot_pred_err(fit_results = fit_results,
+#'                      show = c("point", "errorbar"),
+#'                      eval_fun_options = list(truth_col = "y",
+#'                                              estimate_col = "predictions"))
 #' 
-#' # can customize plot (see plot_eval_summary() for possible arguments)
+#' # can customize plot (see plot_eval_constructor() for possible arguments)
 #' plt <- plot_pred_err(fit_results = fit_results, eval_results = eval_results,
-#'                      evaluator_name = "Prediction Errors",
+#'                      eval_name = "Prediction Errors",
 #'                      show = c("point", "errorbar"), 
 #'                      color_str = NULL,
 #'                      facet_formula = .method_name ~ .metric,
 #'                      facet_type = "grid")
 #' 
 #' @export
-plot_pred_err <- function(fit_results, eval_results = NULL, 
-                          evaluator_name = NULL,
+plot_pred_err <- function(fit_results = NULL,
+                          eval_results = NULL, eval_name = NULL,
+                          eval_fun = "summarize_pred_err",
+                          eval_fun_options = NULL,
                           vary_params = NULL, metrics = NULL,
                           show = c("point", "line"), ...) {
   .metric <- NULL  # to fix no visible binding for global variable error
   arg_list <- get_dot_args(
-    user_args = list(...), 
+    user_args = rlang::list2(...),
     default_args = list(eval_id = "pred_err",
-                        eval_fun = "summarize_pred_err",
                         facet_formula = ~ .metric,
                         facet_type = "wrap",
                         facet_args = list(scales = "free"))
   )
-  
-  if (!is.null(metrics) && !inherits(metrics, "metric_set")) {
-    abort("Unknown metrics. metrics must be of class 'yardstick::metric_set' or NULL.")
-  }
-  
-  eval_tib <- NULL
-  if (!is.null(evaluator_name)) {
-    eval_tib <- eval_results[[evaluator_name]]
-    if (!is.null(metrics)) {
-      metric_names <- names(attr(metrics, "metrics"))
-      eval_tib <- eval_tib %>%
-        dplyr::filter(.metric %in% metric_names)
+
+  plot_data <- get_plot_data(
+    fit_results = fit_results,
+    eval_results = eval_results,
+    eval_name = eval_name,
+    eval_fun = eval_fun,
+    eval_fun_options = c(eval_fun_options, list(metrics = metrics))
+  )
+
+  if (!is.null(metrics)) {
+    if (!inherits(metrics, "metric_set")) {
+      abort("Unknown metrics. metrics must be of class 'yardstick::metric_set' or NULL.")
     }
+    metric_names <- names(attr(metrics, "metrics"))
+    plot_data <- plot_data %>%
+      dplyr::filter(.metric %in% metric_names)
   }
   
   plt <- do.call(
-    plot_eval_summary, 
-    args = c(list(fit_results = fit_results, eval_tib = eval_tib,
-                  vary_params = vary_params, show = show, metrics = metrics),
-             arg_list)
+    plot_eval_constructor,
+    args = c(
+      list(plot_data = plot_data, vary_params = vary_params, show = show),
+      arg_list
+    )
   )
   return(plt)
 }
@@ -96,11 +100,8 @@ plot_pred_err <- function(fit_results, eval_results = NULL,
 #' 
 #' @inheritParams shared_experiment_helpers_args
 #' @inheritParams shared_viz_lib_args
-#' @param ... Additional arguments to pass to \code{plot_eval_summary()}. This
-#'   includes arguments for plotting and for passing into
-#'   \code{summarize_pred_curve()}.
 #' 
-#' @inherit plot_eval_summary return
+#' @inherit plot_eval_constructor return
 #' 
 #' @family prediction_error_funs
 #' 
@@ -130,29 +131,33 @@ plot_pred_err <- function(fit_results, eval_results = NULL,
 #' )
 #' 
 #' # create summary ROC/PR plots using pre-computed evaluation results
-#' roc_plt <- plot_pred_curve(fit_results = fit_results, eval_results = eval_results,
-#'                            evaluator_name = "ROC", curve = "ROC",
+#' roc_plt <- plot_pred_curve(eval_results = eval_results,
+#'                            eval_name = "ROC", curve = "ROC",
 #'                            show = c("line", "ribbon"))
-#' pr_plt <- plot_pred_curve(fit_results = fit_results, eval_results = eval_results,
-#'                           evaluator_name = "PR", curve = "PR",
+#' pr_plt <- plot_pred_curve(eval_results = eval_results,
+#'                           eval_name = "PR", curve = "PR",
 #'                           show = c("line", "ribbon"))
-#' # or alternatively, create the same plots without pre-computing evaluation results
-#' roc_plt <- plot_pred_curve(fit_results, show = c("line", "ribbon"),
-#'                            truth_col = "y", prob_cols = "class_probs", 
-#'                            curve = "ROC")
-#' pr_plt <- plot_pred_curve(fit_results, show = c("line", "ribbon"),
-#'                           truth_col = "y", prob_cols = "class_probs", 
-#'                           curve = "PR")
+#' # or alternatively, create the same plots directly from fit results
+#' roc_plt <- plot_pred_curve(fit_results = fit_results,
+#'                            show = c("line", "ribbon"), curve = "ROC",
+#'                            eval_fun_options = list(truth_col = "y",
+#'                                                    prob_cols = "class_probs"))
+#' pt_plt <- plot_pred_curve(fit_results = fit_results,
+#'                           show = c("line", "ribbon"), curve = "PR",
+#'                           eval_fun_options = list(truth_col = "y",
+#'                                                   prob_cols = "class_probs"))
 #' 
-#' # can customize plot (see plot_eval_summary() for possible arguments)
-#' roc_plt <- plot_pred_curve(fit_results = fit_results, eval_results = eval_results,
-#'                            evaluator_name = "ROC", curve = "ROC",
+#' # can customize plot (see plot_eval_constructor() for possible arguments)
+#' roc_plt <- plot_pred_curve(eval_results = eval_results,
+#'                            eval_name = "ROC", curve = "ROC",
 #'                            show = c("line", "ribbon"),
 #'                            plot_by = ".dgp_name")
 #' 
 #' @export
-plot_pred_curve <- function(fit_results, eval_results = NULL, 
-                            evaluator_name = NULL,
+plot_pred_curve <- function(fit_results = NULL,
+                            eval_results = NULL, eval_name = NULL,
+                            eval_fun = "summarize_pred_curve",
+                            eval_fun_options = NULL,
                             vary_params = NULL, curve = c("ROC", "PR"),
                             show = c("line", "ribbon"), ...) {
   curve <- match.arg(curve)
@@ -164,31 +169,29 @@ plot_pred_curve <- function(fit_results, eval_results = NULL,
     x_str <- "recall"
   }
   arg_list <- get_dot_args(
-    user_args = list(...), 
+    user_args = rlang::list2(...),
     default_args = list(
       eval_id = eval_id,
-      eval_fun = "summarize_pred_curve",
       x_str = x_str,
       ribbon_args = list(alpha = 0.2),
       add_ggplot_layers = list(ggplot2::coord_cartesian(ylim = c(0, 1)))
     )
   )
   
-  eval_tib <- NULL
-  if (!is.null(evaluator_name)) {
-    eval_tib <- eval_results[[evaluator_name]]
-    if (("recall" %in% colnames(eval_tib)) && (identical(curve, "ROC"))) {
-      eval_tib <- NULL
-    } else if (("FPR" %in% colnames(eval_tib)) && (identical(curve, "PR"))) {
-      eval_tib <- NULL
-    }
-  }
+  plot_data <- get_plot_data(
+    fit_results = fit_results,
+    eval_results = eval_results,
+    eval_name = eval_name,
+    eval_fun = eval_fun,
+    eval_fun_options = c(eval_fun_options, list(curve = curve))
+  )
   
   plt <- do.call(
-    plot_eval_summary, 
-    args = c(list(fit_results = fit_results, eval_tib = eval_tib,
-                  vary_params = vary_params, show = show, curve = curve),
-             arg_list)
+    plot_eval_constructor,
+    args = c(
+      list(plot_data = plot_data, vary_params = vary_params, show = show),
+      arg_list
+    )
   )
   return(plt)
 }

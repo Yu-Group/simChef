@@ -82,7 +82,7 @@ use_prediction_template <- function(experiment_name = "Prediction Experiment",
   }
   
   # set parameters for evaluators and visualizers
-  nested_pred_data <- "nested_pred_data"
+  nested_pred_cols <- "nested_pred_cols"
   true_pred_col <- "true_pred_col"
   est_pred_col <- "est_pred_col"
   if (type == "classification") {
@@ -91,13 +91,13 @@ use_prediction_template <- function(experiment_name = "Prediction Experiment",
     prob_pred_cols <- NULL
   }
   if (support) {
-    nested_feature_data <- "nested_feature_data"
+    nested_feature_cols <- "nested_feature_cols"
     feature_col <- "feature_col"
     true_feature_col <- "true_feature_col"
     feature_imp_col <- "feature_imp_col"
     feature_sel_col <- "feature_sel_col"
   } else {
-    nested_feature_data <- NULL
+    nested_feature_cols <- NULL
     feature_col <- NULL
     true_feature_col <- NULL
     feature_imp_col <- NULL
@@ -105,7 +105,7 @@ use_prediction_template <- function(experiment_name = "Prediction Experiment",
   }
   if (include_method_example) {
     create_assign_str(
-      nested_pred_data, 
+      nested_pred_cols,
       "c('y', 'predictions', 'prob_predictions')  # prediction results columns to be unnested"
     )
     create_assign_str(
@@ -119,7 +119,7 @@ use_prediction_template <- function(experiment_name = "Prediction Experiment",
     )
     cat("\n")
     create_assign_str(
-      nested_feature_data, 
+      nested_feature_cols,
       "'support_df'  # feature importance columns to be unnested"
     )
     create_assign_str(
@@ -136,8 +136,8 @@ use_prediction_template <- function(experiment_name = "Prediction Experiment",
     )
     cat("\n")
   } else {
-    create_assign_str(nested_pred_data, 
-                      use_variable_template(nested_pred_data), TRUE)
+    create_assign_str(nested_pred_cols,
+                      use_variable_template(nested_pred_cols), TRUE)
     create_assign_str(true_pred_col, 
                       use_variable_template(true_pred_col), TRUE)
     create_assign_str(est_pred_col, 
@@ -145,8 +145,8 @@ use_prediction_template <- function(experiment_name = "Prediction Experiment",
     create_assign_str(prob_pred_cols,
                       use_variable_template(prob_pred_cols), TRUE)
     cat("\n")
-    create_assign_str(nested_feature_data, 
-                      use_variable_template(nested_feature_data), TRUE)
+    create_assign_str(nested_feature_cols,
+                      use_variable_template(nested_feature_cols), TRUE)
     create_assign_str(feature_col, 
                       use_variable_template(feature_col), TRUE)
     create_assign_str(true_feature_col, 
@@ -171,16 +171,16 @@ use_prediction_template <- function(experiment_name = "Prediction Experiment",
   
   eval_names <- use_evaluator_template(
     ids = eval_ids, 
-    pred_nested_data = nested_pred_data, pred_truth_col = true_pred_col,
+    pred_nested_cols = nested_pred_cols, pred_truth_col = true_pred_col,
     pred_estimate_col = est_pred_col, pred_prob_cols = prob_pred_cols,
-    feature_nested_data = nested_feature_data, feature_col = feature_col, 
+    feature_nested_cols = nested_feature_cols, feature_col = feature_col,
     feature_truth_col = true_feature_col, feature_imp_col = feature_imp_col,
     feature_sel_col = feature_sel_col
   )
   viz_names <- use_visualizer_template(
     ids = viz_ids, 
-    pred_nested_data = nested_pred_data, pred_truth_col = true_pred_col,
-    pred_prob_cols = prob_pred_cols, feature_nested_data = nested_feature_data, 
+    pred_nested_cols = nested_pred_cols, pred_truth_col = true_pred_col,
+    pred_prob_cols = prob_pred_cols, feature_nested_cols = nested_feature_cols,
     feature_col = feature_col, feature_truth_col = true_feature_col, 
     feature_imp_col = feature_imp_col
   )
@@ -230,14 +230,14 @@ use_feature_selection_template <- function(experiment_name =
   }
   
   # set parameters for evaluators and visualizers
-  nested_feature_data <- "nested_feature_data"
+  nested_feature_cols <- "nested_feature_cols"
   feature_col <- "feature_col"
   true_feature_col <- "true_feature_col"
   feature_imp_col <- "feature_imp_col"
   feature_sel_col <- "feature_sel_col"
   if (include_method_example) {
     create_assign_str(
-      nested_feature_data, 
+      nested_feature_cols,
       "'support_df'  # feature importance columns to be unnested"
     )
     create_assign_str(
@@ -254,8 +254,8 @@ use_feature_selection_template <- function(experiment_name =
     )
     cat("\n")
   } else {
-    create_assign_str(nested_feature_data, 
-                      use_variable_template(nested_feature_data), TRUE)
+    create_assign_str(nested_feature_cols,
+                      use_variable_template(nested_feature_cols), TRUE)
     create_assign_str(feature_col, 
                       use_variable_template(feature_col), TRUE)
     create_assign_str(true_feature_col, 
@@ -273,13 +273,13 @@ use_feature_selection_template <- function(experiment_name =
   
   eval_names <- use_evaluator_template(
     ids = eval_ids, 
-    feature_nested_data = nested_feature_data, feature_col = feature_col, 
+    feature_nested_cols = nested_feature_cols, feature_col = feature_col,
     feature_truth_col = true_feature_col, feature_imp_col = feature_imp_col,
     feature_sel_col = feature_sel_col
   )
   viz_names <- use_visualizer_template(
     ids = viz_ids,
-    feature_nested_data = nested_feature_data, feature_col = feature_col,
+    feature_nested_cols = nested_feature_cols, feature_col = feature_col,
     feature_truth_col = true_feature_col, feature_imp_col = feature_imp_col
   )
   
@@ -328,14 +328,14 @@ use_inference_template <- function(experiment_name = "Inference Experiment",
   }
   
   # set parameters for evaluators and visualizers
-  nested_feature_data <- "nested_feature_data"
+  nested_feature_cols <- "nested_feature_cols"
   feature_col <- "feature_col"
   true_feature_col <- "true_feature_col"
   pval_col <- "pval_col"
   if (include_method_example) {
     
     create_assign_str(
-      nested_feature_data, 
+      nested_feature_cols,
       "'support_df'  # feature importance columns to be unnested"
     )
     create_assign_str(
@@ -349,8 +349,8 @@ use_inference_template <- function(experiment_name = "Inference Experiment",
     )
     cat("\n")
   } else {
-    create_assign_str(nested_feature_data, 
-                      use_variable_template(nested_feature_data), TRUE)
+    create_assign_str(nested_feature_cols,
+                      use_variable_template(nested_feature_cols), TRUE)
     create_assign_str(feature_col, 
                       use_variable_template(feature_col), TRUE)
     create_assign_str(true_feature_col, 
@@ -366,12 +366,12 @@ use_inference_template <- function(experiment_name = "Inference Experiment",
   
   eval_names <- use_evaluator_template(
     ids = eval_ids, 
-    feature_nested_data = nested_feature_data, feature_col = feature_col,
+    feature_nested_cols = nested_feature_cols, feature_col = feature_col,
     feature_truth_col = true_feature_col, feature_pval_col = pval_col
   )
   viz_names <- use_visualizer_template(
     ids = viz_ids, 
-    feature_nested_data = nested_feature_data, 
+    feature_nested_cols = nested_feature_cols,
     feature_col = feature_col, feature_truth_col = true_feature_col, 
     feature_pval_col = pval_col
   )
@@ -670,9 +670,9 @@ use_method_template <- function(ids = NULL) {
 #' 
 #' @keywords internal
 use_evaluator_template <- function(ids = NULL, 
-                                   pred_nested_data, pred_truth_col,
+                                   pred_nested_cols, pred_truth_col,
                                    pred_estimate_col, pred_prob_cols,
-                                   feature_nested_data, feature_col,
+                                   feature_nested_cols, feature_col,
                                    feature_truth_col, feature_imp_col,
                                    feature_sel_col, feature_pval_col) {
   if (is.null(ids)) {
@@ -695,28 +695,28 @@ use_evaluator_template <- function(ids = NULL,
       if (id == "pred_err") {
         eval_args <- list(
           .eval_fun = "summarize_pred_err", .name = "'Prediction Accuracy'",
-          nested_data = pred_nested_data, truth_col = pred_truth_col,
+          nested_cols = pred_nested_cols, truth_col = pred_truth_col,
           estimate_col = pred_estimate_col, prob_cols = pred_prob_cols
         )
       } else if (id == "fi") {
         eval_args <- list(
           .eval_fun = "summarize_feature_importance",
           .name = "'Feature Importances'",
-          nested_data = feature_nested_data,
+          nested_cols = feature_nested_cols,
           feature_col = feature_col, imp_col = feature_imp_col
         )
       } else if (id == "feature_sel") {
         eval_args <- list(
           .eval_fun = "summarize_feature_selection_err",
           .name = "'Feature Selection Error'",
-          nested_data = feature_nested_data, truth_col = feature_truth_col, 
+          nested_cols = feature_nested_cols, truth_col = feature_truth_col,
           estimate_col = feature_sel_col, imp_col = feature_imp_col
         )
       } else if (id == "inf_err") {
         eval_args <- list(
           .eval_fun = "summarize_testing_err",
           .name = "'Hypothesis Testing Error'",
-          nested_data = feature_nested_data, truth_col = feature_truth_col,
+          nested_cols = feature_nested_cols, truth_col = feature_truth_col,
           pval_col = feature_pval_col
         )
       } else if (id == "fi_pval") {
@@ -724,7 +724,7 @@ use_evaluator_template <- function(ids = NULL,
           .eval_fun = "summarize_feature_importance",
           .name = "'P-value Summary Statistics'",
           eval_id = "'pval'",
-          nested_data = feature_nested_data,
+          nested_cols = feature_nested_cols,
           feature_col = feature_col, imp_col = feature_pval_col
         )
       }
@@ -741,8 +741,8 @@ use_evaluator_template <- function(ids = NULL,
 #' 
 #' @keywords internal
 use_visualizer_template <- function(ids = NULL, 
-                                    pred_nested_data, pred_truth_col, 
-                                    pred_prob_cols, feature_nested_data,
+                                    pred_nested_cols, pred_truth_col,
+                                    pred_prob_cols, feature_nested_cols,
                                     feature_col, feature_truth_col,
                                     feature_imp_col, feature_pval_col) {
   if (is.null(ids)) {
@@ -769,62 +769,80 @@ use_visualizer_template <- function(ids = NULL,
       if (id == "pred_err_plot") {
         viz_args <- list(.viz_fun = "plot_pred_err",
                          .name = "'Prediction Accuracy Plot'",
-                         evaluator_name = "'Prediction Accuracy'")
+                         eval_name = "'Prediction Accuracy'")
       } else if (id == "roc_plot") {
         viz_args <- list(.viz_fun = "plot_pred_curve",
                          .name = "'ROC Plot'", curve = "'ROC'",
-                         nested_data = pred_nested_data, 
-                         truth_col = pred_truth_col, 
-                         prob_cols = pred_prob_cols)
+                         eval_fun_options = create_list_args_str(
+                           list(nested_cols = pred_nested_cols,
+                                truth_col = pred_truth_col,
+                                prob_cols = pred_prob_cols)
+                         ))
       } else if (id == "pr_plot") {
         viz_args <- list(.viz_fun = "plot_pred_curve",
                          .name = "'PR Plot'", curve = "'PR'",
-                         nested_data = pred_nested_data, 
-                         truth_col = pred_truth_col, 
-                         prob_cols = pred_prob_cols)
+                         eval_fun_options = create_list_args_str(
+                           list(nested_cols = pred_nested_cols,
+                                truth_col = pred_truth_col,
+                                prob_cols = pred_prob_cols)
+                         ))
       } else if (id == "fi_plot") {
         viz_args <- list(.viz_fun = "plot_feature_importance",
                          .name = "'Feature Importances Plot'",
-                         evaluator_name = "'Feature Importances'",
+                         eval_name = "'Feature Importances'",
                          feature_col = feature_col)
       } else if (id == "feature_sel_plot") {
         viz_args <- list(.viz_fun = "plot_feature_selection_err",
                          .name = "'Feature Selection Error Plot'",
-                         evaluator_name = "'Feature Selection Error'")
+                         eval_name = "'Feature Selection Error'")
       } else if (id == "feature_roc_plot") {
         viz_args <- list(.viz_fun = "plot_feature_selection_curve",
                          .name = "'Feature Selection ROC Plot'",
-                         curve = "'ROC'", nested_data = feature_nested_data, 
-                         truth_col = feature_truth_col, 
-                         imp_col = feature_imp_col)
+                         curve = "'ROC'",
+                         eval_fun_options = create_list_args_str(
+                           list(nested_cols = feature_nested_cols,
+                                truth_col = feature_truth_col,
+                                imp_col = feature_imp_col)
+                         ))
       } else if (id == "feature_pr_plot") {
         viz_args <- list(.viz_fun = "plot_feature_selection_curve",
                          .name = "'Feature Selection PR Plot'",
-                         curve = "'PR'", nested_data = feature_nested_data, 
-                         truth_col = feature_truth_col, 
-                         imp_col = feature_imp_col)
+                         curve = "'PR'",
+                         eval_fun_options = create_list_args_str(
+                           list(nested_cols = feature_nested_cols,
+                                truth_col = feature_truth_col,
+                                imp_col = feature_imp_col)
+                         ))
       } else if (id == "inf_err_plot") {
         viz_args <- list(.viz_fun = "plot_testing_err",
                          .name = "'Hypothesis Testing Error Plot'",
-                         evaluator_name = "'Hypothesis Testing Error'")
+                         eval_name = "'Hypothesis Testing Error'")
       } else if (id == "inf_roc_plot") {
         viz_args <- list(.viz_fun = "plot_testing_curve",
                          .name = "'Feature ROC Plot'",
-                         curve = "'ROC'", nested_data = feature_nested_data, 
-                         truth_col = feature_truth_col, 
-                         pval_col = feature_pval_col)
+                         curve = "'ROC'",
+                         eval_fun_options = create_list_args_str(
+                           list(nested_cols = feature_nested_cols,
+                                truth_col = feature_truth_col,
+                                pval_col = feature_pval_col)
+                         ))
       } else if (id == "inf_pr_plot") {
         viz_args <- list(.viz_fun = "plot_testing_curve",
                          .name = "'Feature Selection PR Plot'",
-                         curve = "'PR'", nested_data = feature_nested_data, 
-                         truth_col = feature_truth_col, 
-                         pval_col = feature_pval_col)
+                         curve = "'PR'",
+                         eval_fun_options = create_list_args_str(
+                           list(nested_cols = feature_nested_cols,
+                                truth_col = feature_truth_col,
+                                pval_col = feature_pval_col)
+                         ))
       } else if (id == "reject_prob_plot") {
         viz_args <- list(.viz_fun = "plot_reject_prob",
                          .name = "'Rejection Probability Curve'",
-                         nested_data = feature_nested_data,
                          feature_col = feature_col,
-                         pval_col = feature_pval_col)
+                         eval_fun_options = create_list_args_str(
+                           list(nested_cols = feature_nested_cols,
+                                pval_col = feature_pval_col)
+                         ))
       }
       viz_str <- create_fun_str(name = id, fun = "create_visualizer",
                                 args = purrr::compact(viz_args))
@@ -903,13 +921,13 @@ use_render_docs_template <- function() {
 #' @keywords internal
 use_variable_template <- function(id) {
   id <- match.arg(id, 
-                  choices = c("nested_pred_data", "true_pred_col",
+                  choices = c("nested_pred_cols", "true_pred_col",
                               "est_pred_col", "prob_pred_cols",
-                              "nested_feature_data", "feature_col",
+                              "nested_feature_cols", "feature_col",
                               "true_feature_col", "feature_imp_col",
                               "feature_sel_col", "pval_col"))
   msg <- dplyr::case_when(
-    id == "nested_pred_data" ~ 
+    id == "nested_pred_cols" ~
       "(Optional) Add name of column in `fit_results` with prediction result columns to be unnested.",
     id == "true_pred_col" ~
       "Add name of column in `fit_results` with true responses here.",
@@ -917,7 +935,7 @@ use_variable_template <- function(id) {
       "Add name of column in `fit_results` with the predicted responses here.",
     id == "prob_pred_cols" ~
       "Add name of column(s) in `fit_results` with the predicted probabilities here.",
-    id == "nested_feature_data" ~
+    id == "nested_feature_cols" ~
       "(Optional) Add name of column in `fit_results` with feature importance columns to be unnested here.",
     id == "feature_col" ~
       "Add name of column in `fit_results` containing the feature names here.",
