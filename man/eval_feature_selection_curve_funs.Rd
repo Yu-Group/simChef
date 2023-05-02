@@ -9,24 +9,22 @@
 eval_feature_selection_curve(
   fit_results,
   vary_params = NULL,
-  nested_data = NULL,
+  nested_cols = NULL,
   truth_col,
   imp_col,
   group_cols = NULL,
   curve = c("ROC", "PR"),
-  options = list(),
   na_rm = FALSE
 )
 
 summarize_feature_selection_curve(
   fit_results,
   vary_params = NULL,
-  nested_data = NULL,
+  nested_cols = NULL,
   truth_col,
   imp_col,
   group_cols = NULL,
   curve = c("ROC", "PR"),
-  options = list(),
   na_rm = FALSE,
   x_grid = seq(0, 1, by = 0.01),
   summary_funs = c("mean", "median", "min", "max", "sd", "raw"),
@@ -40,8 +38,8 @@ summarize_feature_selection_curve(
 \item{vary_params}{A vector of parameter names that are varied across in the
 \code{Experiment}.}
 
-\item{nested_data}{(Optional) Character string. If specified, should be the
-name of the column in \code{fit_results} containing columns that must be
+\item{nested_cols}{(Optional) A character string or vector specifying the
+name of the column(s) in \code{fit_results} that need to be
 unnested before evaluating results. Default is \code{NULL}, meaning no
 columns in \code{fit_results} need to be unnested prior to computation.}
 
@@ -59,17 +57,12 @@ number of features and the feature order aligns with that of
 \code{truth_col}. Elements in this array should be numeric where a higher
 magnitude indicates a more important feature.}
 
-\item{group_cols}{(Optional) A character string or vector identifying the
-column(s) to group observations by before evaluating metrics. This is
-useful for assessing within-group metrics.}
+\item{group_cols}{(Optional) A character string or vector specifying the
+column(s) to group rows by before evaluating metrics.
+This is useful for assessing within-group metrics.}
 
 \item{curve}{Either "ROC" or "PR" indicating whether to evaluate the ROC or
 Precision-Recall curve.}
-
-\item{options}{A list of named options to pass to \code{pROC::roc()} such as
-\code{smooth}. These options should not include \code{response},
-\code{predictor}, \code{levels}, \code{quiet}, or \code{direction}. This
-argument is only used when computing the ROC and is ignored otherwise.}
 
 \item{na_rm}{A \code{logical} value indicating whether \code{NA} values
 should be stripped before the computation proceeds.}
@@ -153,14 +146,14 @@ fit_results <- tibble::tibble(
 roc_results <- eval_feature_selection_curve(
   fit_results, 
   curve = "ROC",
-  nested_data = "feature_info",
+  nested_cols = "feature_info",
   truth_col = "true_support",
   imp_col = "est_importance"
 )
 pr_results <- eval_feature_selection_curve(
   fit_results, 
   curve = "PR",
-  nested_data = "feature_info",
+  nested_cols = "feature_info",
   truth_col = "true_support",
   imp_col = "est_importance"
 )
@@ -168,14 +161,14 @@ pr_results <- eval_feature_selection_curve(
 roc_summary <- summarize_feature_selection_curve(
   fit_results, 
   curve = "ROC",
-  nested_data = "feature_info",
+  nested_cols = "feature_info",
   truth_col = "true_support",
   imp_col = "est_importance"
 )
 pr_summary <- summarize_feature_selection_curve(
   fit_results, 
   curve = "PR",
-  nested_data = "feature_info",
+  nested_cols = "feature_info",
   truth_col = "true_support",
   imp_col = "est_importance"
 )

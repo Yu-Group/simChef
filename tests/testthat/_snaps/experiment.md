@@ -1138,7 +1138,7 @@
        $ vary_params : chr [1:6] "rho" "noise_level" "rho" "noise_level" ...
     Warning <simpleWarning>
       False alarm!
-    Error <rlang_error>
+    Error <purrr_error_indexed>
       i In index: 2.
       Caused by error in `.f()`:
       ! Oh no!

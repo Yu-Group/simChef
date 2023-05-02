@@ -18,18 +18,17 @@ columns. Default \code{NULL} does not add any ID to the column names.}
 \item{feature_col}{A character string identifying the column in
 \code{fit_results} with the feature names or IDs.}
 
+\item{group_cols}{(Optional) A character string or vector specifying the
+column(s) to group rows by before evaluating metrics.
+This is useful for assessing within-group metrics.}
+
 \item{na_rm}{A \code{logical} value indicating whether \code{NA} values
 should be stripped before the computation proceeds.}
 
-\item{nested_data}{(Optional) Character string. If specified, should be the
-name of the column in \code{fit_results} containing columns that must be
+\item{nested_cols}{(Optional) A character string or vector specifying the
+name of the column(s) in \code{fit_results} that need to be
 unnested before evaluating results. Default is \code{NULL}, meaning no
 columns in \code{fit_results} need to be unnested prior to computation.}
-
-\item{options}{A list of named options to pass to \code{pROC::roc()} such as
-\code{smooth}. These options should not include \code{response},
-\code{predictor}, \code{levels}, \code{quiet}, or \code{direction}. This
-argument is only used when computing the ROC and is ignored otherwise.}
 
 \item{summary_funs}{Character vector specifying how to summarize
 evaluation metrics. Must choose from a built-in library of summary

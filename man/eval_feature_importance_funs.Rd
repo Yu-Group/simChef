@@ -9,7 +9,7 @@
 eval_feature_importance(
   fit_results,
   vary_params = NULL,
-  nested_data = NULL,
+  nested_cols = NULL,
   feature_col,
   imp_col,
   group_cols = NULL
@@ -18,7 +18,7 @@ eval_feature_importance(
 summarize_feature_importance(
   fit_results,
   vary_params = NULL,
-  nested_data = NULL,
+  nested_cols = NULL,
   feature_col,
   imp_col,
   group_cols = NULL,
@@ -34,8 +34,8 @@ summarize_feature_importance(
 \item{vary_params}{A vector of parameter names that are varied across in the
 \code{Experiment}.}
 
-\item{nested_data}{(Optional) Character string. If specified, should be the
-name of the column in \code{fit_results} containing columns that must be
+\item{nested_cols}{(Optional) A character string or vector specifying the
+name of the column(s) in \code{fit_results} that need to be
 unnested before evaluating results. Default is \code{NULL}, meaning no
 columns in \code{fit_results} need to be unnested prior to computation.}
 
@@ -49,9 +49,9 @@ number of features and the feature order aligns with that of
 \code{truth_col}. Elements in this array should be numeric where a higher
 magnitude indicates a more important feature.}
 
-\item{group_cols}{(Optional) A character string or vector identifying the
-column(s) to group observations by before evaluating metrics. This is
-useful for assessing within-group metrics.}
+\item{group_cols}{(Optional) A character string or vector specifying the
+column(s) to group rows by before evaluating metrics.
+This is useful for assessing within-group metrics.}
 
 \item{na_rm}{A \code{logical} value indicating whether \code{NA} values
 should be stripped before the computation proceeds.}
@@ -114,14 +114,14 @@ fit_results <- tibble::tibble(
 # evaluate feature importances (using all default metrics) for each replicate
 eval_results <- eval_feature_importance(
   fit_results,
-  nested_data = "feature_info",
+  nested_cols = "feature_info",
   feature_col = "feature",
   imp_col = "est_importance"
 )
 # summarize feature importances (using all default metric) across replicates
 eval_results_summary <- summarize_feature_importance(
   fit_results,
-  nested_data = "feature_info",
+  nested_cols = "feature_info",
   feature_col = "feature",
   imp_col = "est_importance"
 )

@@ -12,7 +12,7 @@
       stop('Add additional arguments (if necessary) to pass to Method here.')
     ) 
     
-    nested_pred_data <- stop('(Optional) Add name of column in `fit_results` with prediction result columns to be unnested.')
+    nested_pred_cols <- stop('(Optional) Add name of column in `fit_results` with prediction result columns to be unnested.')
     true_pred_col <- stop('Add name of column in `fit_results` with true responses here.')
     est_pred_col <- stop('Add name of column in `fit_results` with the predicted responses here.')
     
@@ -20,7 +20,7 @@
     pred_err <- create_evaluator(
       .eval_fun = summarize_pred_err,
       .name = 'Prediction Accuracy',
-      nested_data = nested_pred_data,
+      nested_cols = nested_pred_cols,
       truth_col = true_pred_col,
       estimate_col = est_pred_col
     ) 
@@ -28,7 +28,7 @@
     pred_err_plot <- create_visualizer(
       .viz_fun = plot_pred_err,
       .name = 'Prediction Accuracy Plot',
-      evaluator_name = 'Prediction Accuracy'
+      eval_name = 'Prediction Accuracy'
     ) 
     
     experiment <- create_experiment(name = 'Prediction Experiment') %>% 
@@ -62,7 +62,7 @@
       stop('Add additional arguments (if necessary) to pass to Method here.')
     ) 
     
-    nested_pred_data <- stop('(Optional) Add name of column in `fit_results` with prediction result columns to be unnested.')
+    nested_pred_cols <- stop('(Optional) Add name of column in `fit_results` with prediction result columns to be unnested.')
     true_pred_col <- stop('Add name of column in `fit_results` with true responses here.')
     est_pred_col <- stop('Add name of column in `fit_results` with the predicted responses here.')
     prob_pred_cols <- stop('Add name of column(s) in `fit_results` with the predicted probabilities here.')
@@ -71,7 +71,7 @@
     pred_err <- create_evaluator(
       .eval_fun = summarize_pred_err,
       .name = 'Prediction Accuracy',
-      nested_data = nested_pred_data,
+      nested_cols = nested_pred_cols,
       truth_col = true_pred_col,
       estimate_col = est_pred_col,
       prob_cols = prob_pred_cols
@@ -80,25 +80,29 @@
     pred_err_plot <- create_visualizer(
       .viz_fun = plot_pred_err,
       .name = 'Prediction Accuracy Plot',
-      evaluator_name = 'Prediction Accuracy'
+      eval_name = 'Prediction Accuracy'
     ) 
     
     roc_plot <- create_visualizer(
       .viz_fun = plot_pred_curve,
       .name = 'ROC Plot',
       curve = 'ROC',
-      nested_data = nested_pred_data,
-      truth_col = true_pred_col,
-      prob_cols = prob_pred_cols
+      eval_fun_options = list(
+        nested_cols = nested_pred_cols,
+        truth_col = true_pred_col,
+        prob_cols = prob_pred_cols
+      )
     ) 
     
     pr_plot <- create_visualizer(
       .viz_fun = plot_pred_curve,
       .name = 'PR Plot',
       curve = 'PR',
-      nested_data = nested_pred_data,
-      truth_col = true_pred_col,
-      prob_cols = prob_pred_cols
+      eval_fun_options = list(
+        nested_cols = nested_pred_cols,
+        truth_col = true_pred_col,
+        prob_cols = prob_pred_cols
+      )
     ) 
     
     experiment <- create_experiment(name = 'Prediction Experiment') %>% 
@@ -134,11 +138,11 @@
       stop('Add additional arguments (if necessary) to pass to Method here.')
     ) 
     
-    nested_pred_data <- stop('(Optional) Add name of column in `fit_results` with prediction result columns to be unnested.')
+    nested_pred_cols <- stop('(Optional) Add name of column in `fit_results` with prediction result columns to be unnested.')
     true_pred_col <- stop('Add name of column in `fit_results` with true responses here.')
     est_pred_col <- stop('Add name of column in `fit_results` with the predicted responses here.')
     
-    nested_feature_data <- stop('(Optional) Add name of column in `fit_results` with feature importance columns to be unnested here.')
+    nested_feature_cols <- stop('(Optional) Add name of column in `fit_results` with feature importance columns to be unnested here.')
     feature_col <- stop('Add name of column in `fit_results` containing the feature names here.')
     true_feature_col <- stop('Add name of column in `fit_results` containing the true feature support here.')
     feature_imp_col <- stop('Add name of column in `fit_results` containing the feature importances here.')
@@ -147,7 +151,7 @@
     pred_err <- create_evaluator(
       .eval_fun = summarize_pred_err,
       .name = 'Prediction Accuracy',
-      nested_data = nested_pred_data,
+      nested_cols = nested_pred_cols,
       truth_col = true_pred_col,
       estimate_col = est_pred_col
     ) 
@@ -155,7 +159,7 @@
     fi <- create_evaluator(
       .eval_fun = summarize_feature_importance,
       .name = 'Feature Importances',
-      nested_data = nested_feature_data,
+      nested_cols = nested_feature_cols,
       feature_col = feature_col,
       imp_col = feature_imp_col
     ) 
@@ -163,7 +167,7 @@
     feature_sel <- create_evaluator(
       .eval_fun = summarize_feature_selection_err,
       .name = 'Feature Selection Error',
-      nested_data = nested_feature_data,
+      nested_cols = nested_feature_cols,
       truth_col = true_feature_col,
       estimate_col = feature_sel_col,
       imp_col = feature_imp_col
@@ -172,38 +176,42 @@
     pred_err_plot <- create_visualizer(
       .viz_fun = plot_pred_err,
       .name = 'Prediction Accuracy Plot',
-      evaluator_name = 'Prediction Accuracy'
+      eval_name = 'Prediction Accuracy'
     ) 
     
     fi_plot <- create_visualizer(
       .viz_fun = plot_feature_importance,
       .name = 'Feature Importances Plot',
-      evaluator_name = 'Feature Importances',
+      eval_name = 'Feature Importances',
       feature_col = feature_col
     ) 
     
     feature_sel_plot <- create_visualizer(
       .viz_fun = plot_feature_selection_err,
       .name = 'Feature Selection Error Plot',
-      evaluator_name = 'Feature Selection Error'
+      eval_name = 'Feature Selection Error'
     ) 
     
     feature_roc_plot <- create_visualizer(
       .viz_fun = plot_feature_selection_curve,
       .name = 'Feature Selection ROC Plot',
       curve = 'ROC',
-      nested_data = nested_feature_data,
-      truth_col = true_feature_col,
-      imp_col = feature_imp_col
+      eval_fun_options = list(
+        nested_cols = nested_feature_cols,
+        truth_col = true_feature_col,
+        imp_col = feature_imp_col
+      )
     ) 
     
     feature_pr_plot <- create_visualizer(
       .viz_fun = plot_feature_selection_curve,
       .name = 'Feature Selection PR Plot',
       curve = 'PR',
-      nested_data = nested_feature_data,
-      truth_col = true_feature_col,
-      imp_col = feature_imp_col
+      eval_fun_options = list(
+        nested_cols = nested_feature_cols,
+        truth_col = true_feature_col,
+        imp_col = feature_imp_col
+      )
     ) 
     
     experiment <- create_experiment(name = 'Prediction Experiment') %>% 
@@ -243,12 +251,12 @@
       stop('Add additional arguments (if necessary) to pass to Method here.')
     ) 
     
-    nested_pred_data <- stop('(Optional) Add name of column in `fit_results` with prediction result columns to be unnested.')
+    nested_pred_cols <- stop('(Optional) Add name of column in `fit_results` with prediction result columns to be unnested.')
     true_pred_col <- stop('Add name of column in `fit_results` with true responses here.')
     est_pred_col <- stop('Add name of column in `fit_results` with the predicted responses here.')
     prob_pred_cols <- stop('Add name of column(s) in `fit_results` with the predicted probabilities here.')
     
-    nested_feature_data <- stop('(Optional) Add name of column in `fit_results` with feature importance columns to be unnested here.')
+    nested_feature_cols <- stop('(Optional) Add name of column in `fit_results` with feature importance columns to be unnested here.')
     feature_col <- stop('Add name of column in `fit_results` containing the feature names here.')
     true_feature_col <- stop('Add name of column in `fit_results` containing the true feature support here.')
     feature_imp_col <- stop('Add name of column in `fit_results` containing the feature importances here.')
@@ -257,7 +265,7 @@
     pred_err <- create_evaluator(
       .eval_fun = summarize_pred_err,
       .name = 'Prediction Accuracy',
-      nested_data = nested_pred_data,
+      nested_cols = nested_pred_cols,
       truth_col = true_pred_col,
       estimate_col = est_pred_col,
       prob_cols = prob_pred_cols
@@ -266,7 +274,7 @@
     fi <- create_evaluator(
       .eval_fun = summarize_feature_importance,
       .name = 'Feature Importances',
-      nested_data = nested_feature_data,
+      nested_cols = nested_feature_cols,
       feature_col = feature_col,
       imp_col = feature_imp_col
     ) 
@@ -274,7 +282,7 @@
     feature_sel <- create_evaluator(
       .eval_fun = summarize_feature_selection_err,
       .name = 'Feature Selection Error',
-      nested_data = nested_feature_data,
+      nested_cols = nested_feature_cols,
       truth_col = true_feature_col,
       estimate_col = feature_sel_col,
       imp_col = feature_imp_col
@@ -283,56 +291,64 @@
     pred_err_plot <- create_visualizer(
       .viz_fun = plot_pred_err,
       .name = 'Prediction Accuracy Plot',
-      evaluator_name = 'Prediction Accuracy'
+      eval_name = 'Prediction Accuracy'
     ) 
     
     roc_plot <- create_visualizer(
       .viz_fun = plot_pred_curve,
       .name = 'ROC Plot',
       curve = 'ROC',
-      nested_data = nested_pred_data,
-      truth_col = true_pred_col,
-      prob_cols = prob_pred_cols
+      eval_fun_options = list(
+        nested_cols = nested_pred_cols,
+        truth_col = true_pred_col,
+        prob_cols = prob_pred_cols
+      )
     ) 
     
     pr_plot <- create_visualizer(
       .viz_fun = plot_pred_curve,
       .name = 'PR Plot',
       curve = 'PR',
-      nested_data = nested_pred_data,
-      truth_col = true_pred_col,
-      prob_cols = prob_pred_cols
+      eval_fun_options = list(
+        nested_cols = nested_pred_cols,
+        truth_col = true_pred_col,
+        prob_cols = prob_pred_cols
+      )
     ) 
     
     fi_plot <- create_visualizer(
       .viz_fun = plot_feature_importance,
       .name = 'Feature Importances Plot',
-      evaluator_name = 'Feature Importances',
+      eval_name = 'Feature Importances',
       feature_col = feature_col
     ) 
     
     feature_sel_plot <- create_visualizer(
       .viz_fun = plot_feature_selection_err,
       .name = 'Feature Selection Error Plot',
-      evaluator_name = 'Feature Selection Error'
+      eval_name = 'Feature Selection Error'
     ) 
     
     feature_roc_plot <- create_visualizer(
       .viz_fun = plot_feature_selection_curve,
       .name = 'Feature Selection ROC Plot',
       curve = 'ROC',
-      nested_data = nested_feature_data,
-      truth_col = true_feature_col,
-      imp_col = feature_imp_col
+      eval_fun_options = list(
+        nested_cols = nested_feature_cols,
+        truth_col = true_feature_col,
+        imp_col = feature_imp_col
+      )
     ) 
     
     feature_pr_plot <- create_visualizer(
       .viz_fun = plot_feature_selection_curve,
       .name = 'Feature Selection PR Plot',
       curve = 'PR',
-      nested_data = nested_feature_data,
-      truth_col = true_feature_col,
-      imp_col = feature_imp_col
+      eval_fun_options = list(
+        nested_cols = nested_feature_cols,
+        truth_col = true_feature_col,
+        imp_col = feature_imp_col
+      )
     ) 
     
     experiment <- create_experiment(name = 'Prediction Experiment') %>% 
@@ -374,7 +390,7 @@
       stop('Add additional arguments (if necessary) to pass to Method here.')
     ) 
     
-    nested_feature_data <- stop('(Optional) Add name of column in `fit_results` with feature importance columns to be unnested here.')
+    nested_feature_cols <- stop('(Optional) Add name of column in `fit_results` with feature importance columns to be unnested here.')
     feature_col <- stop('Add name of column in `fit_results` containing the feature names here.')
     true_feature_col <- stop('Add name of column in `fit_results` containing the true feature support here.')
     feature_imp_col <- stop('Add name of column in `fit_results` containing the feature importances here.')
@@ -383,7 +399,7 @@
     fi <- create_evaluator(
       .eval_fun = summarize_feature_importance,
       .name = 'Feature Importances',
-      nested_data = nested_feature_data,
+      nested_cols = nested_feature_cols,
       feature_col = feature_col,
       imp_col = feature_imp_col
     ) 
@@ -391,7 +407,7 @@
     feature_sel <- create_evaluator(
       .eval_fun = summarize_feature_selection_err,
       .name = 'Feature Selection Error',
-      nested_data = nested_feature_data,
+      nested_cols = nested_feature_cols,
       truth_col = true_feature_col,
       estimate_col = feature_sel_col,
       imp_col = feature_imp_col
@@ -400,14 +416,14 @@
     fi_plot <- create_visualizer(
       .viz_fun = plot_feature_importance,
       .name = 'Feature Importances Plot',
-      evaluator_name = 'Feature Importances',
+      eval_name = 'Feature Importances',
       feature_col = feature_col
     ) 
     
     feature_sel_plot <- create_visualizer(
       .viz_fun = plot_feature_selection_err,
       .name = 'Feature Selection Error Plot',
-      evaluator_name = 'Feature Selection Error'
+      eval_name = 'Feature Selection Error'
     ) 
     
     experiment <- create_experiment(name = 'Feature Selection Experiment') %>% 
@@ -443,7 +459,7 @@
       stop('Add additional arguments (if necessary) to pass to Method here.')
     ) 
     
-    nested_feature_data <- stop('(Optional) Add name of column in `fit_results` with feature importance columns to be unnested here.')
+    nested_feature_cols <- stop('(Optional) Add name of column in `fit_results` with feature importance columns to be unnested here.')
     feature_col <- stop('Add name of column in `fit_results` containing the feature names here.')
     true_feature_col <- stop('Add name of column in `fit_results` containing the true feature support here.')
     pval_col <- stop('Add name of column in `fit_results` containing the p-values here.')
@@ -451,7 +467,7 @@
     inf_err <- create_evaluator(
       .eval_fun = summarize_testing_err,
       .name = 'Hypothesis Testing Error',
-      nested_data = nested_feature_data,
+      nested_cols = nested_feature_cols,
       truth_col = true_feature_col,
       pval_col = pval_col
     ) 
@@ -460,7 +476,7 @@
       .eval_fun = summarize_feature_importance,
       .name = 'P-value Summary Statistics',
       eval_id = 'pval',
-      nested_data = nested_feature_data,
+      nested_cols = nested_feature_cols,
       feature_col = feature_col,
       imp_col = pval_col
     ) 
@@ -468,33 +484,39 @@
     inf_err_plot <- create_visualizer(
       .viz_fun = plot_testing_err,
       .name = 'Hypothesis Testing Error Plot',
-      evaluator_name = 'Hypothesis Testing Error'
+      eval_name = 'Hypothesis Testing Error'
     ) 
     
     inf_roc_plot <- create_visualizer(
       .viz_fun = plot_testing_curve,
       .name = 'Feature ROC Plot',
       curve = 'ROC',
-      nested_data = nested_feature_data,
-      truth_col = true_feature_col,
-      pval_col = pval_col
+      eval_fun_options = list(
+        nested_cols = nested_feature_cols,
+        truth_col = true_feature_col,
+        pval_col = pval_col
+      )
     ) 
     
     inf_pr_plot <- create_visualizer(
       .viz_fun = plot_testing_curve,
       .name = 'Feature Selection PR Plot',
       curve = 'PR',
-      nested_data = nested_feature_data,
-      truth_col = true_feature_col,
-      pval_col = pval_col
+      eval_fun_options = list(
+        nested_cols = nested_feature_cols,
+        truth_col = true_feature_col,
+        pval_col = pval_col
+      )
     ) 
     
     reject_prob_plot <- create_visualizer(
       .viz_fun = plot_reject_prob,
       .name = 'Rejection Probability Curve',
-      nested_data = nested_feature_data,
       feature_col = feature_col,
-      pval_col = pval_col
+      eval_fun_options = list(
+        nested_cols = nested_feature_cols,
+        pval_col = pval_col
+      )
     ) 
     
     experiment <- create_experiment(name = 'Inference Experiment') %>% 

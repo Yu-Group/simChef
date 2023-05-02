@@ -5,9 +5,11 @@
 \title{Plot ROC/PR curves.}
 \usage{
 plot_pred_curve(
-  fit_results,
+  fit_results = NULL,
   eval_results = NULL,
-  evaluator_name = NULL,
+  eval_name = NULL,
+  eval_fun = "summarize_pred_curve",
+  eval_fun_options = NULL,
   vary_params = NULL,
   curve = c("ROC", "PR"),
   show = c("line", "ribbon"),
@@ -20,9 +22,15 @@ plot_pred_curve(
 \item{eval_results}{A list of result tibbles, as returned by the
 \code{evaluate} method.}
 
-\item{evaluator_name}{Name of \code{Evaluator} containing results to plot.
-To compute the evaluation summary results from scratch or if the evaluation
-summary results have not yet been evaluated, set to \code{NULL}.}
+\item{eval_name}{Name of \code{Evaluator} containing results to plot. If
+\code{NULL}, the data used for plotting is computed from scratch via
+\code{eval_fun}.}
+
+\item{eval_fun}{Character string, specifying the function used to compute
+the data used for plotting if \code{eval_name = NULL}. If \code{eval_name}
+is not \code{NULL}, this argument is ignored.}
+
+\item{eval_fun_options}{List of named arguments to pass to \code{eval_fun}.}
 
 \item{vary_params}{A vector of parameter names that are varied across in the
 \code{Experiment}.}
@@ -34,9 +42,7 @@ Precision-Recall curve.}
 "line", "bar", "errorbar", "ribbon" indicating what plot layer(s) to
 construct.}
 
-\item{...}{Additional arguments to pass to \code{plot_eval_summary()}. This
-includes arguments for plotting and for passing into
-\code{summarize_pred_curve()}.}
+\item{...}{Not used.}
 }
 \value{
 If \code{interactive = TRUE}, returns a \code{plotly} object if
@@ -75,23 +81,25 @@ eval_results <- list(
 )
 
 # create summary ROC/PR plots using pre-computed evaluation results
-roc_plt <- plot_pred_curve(fit_results = fit_results, eval_results = eval_results,
-                           evaluator_name = "ROC", curve = "ROC",
+roc_plt <- plot_pred_curve(eval_results = eval_results,
+                           eval_name = "ROC", curve = "ROC",
                            show = c("line", "ribbon"))
-pr_plt <- plot_pred_curve(fit_results = fit_results, eval_results = eval_results,
-                          evaluator_name = "PR", curve = "PR",
+pr_plt <- plot_pred_curve(eval_results = eval_results,
+                          eval_name = "PR", curve = "PR",
                           show = c("line", "ribbon"))
-# or alternatively, create the same plots without pre-computing evaluation results
-roc_plt <- plot_pred_curve(fit_results, show = c("line", "ribbon"),
-                           truth_col = "y", prob_cols = "class_probs", 
-                           curve = "ROC")
-pr_plt <- plot_pred_curve(fit_results, show = c("line", "ribbon"),
-                          truth_col = "y", prob_cols = "class_probs", 
-                          curve = "PR")
+# or alternatively, create the same plots directly from fit results
+roc_plt <- plot_pred_curve(fit_results = fit_results,
+                           show = c("line", "ribbon"), curve = "ROC",
+                           eval_fun_options = list(truth_col = "y",
+                                                   prob_cols = "class_probs"))
+pt_plt <- plot_pred_curve(fit_results = fit_results,
+                          show = c("line", "ribbon"), curve = "PR",
+                          eval_fun_options = list(truth_col = "y",
+                                                  prob_cols = "class_probs"))
 
-# can customize plot (see plot_eval_summary() for possible arguments)
-roc_plt <- plot_pred_curve(fit_results = fit_results, eval_results = eval_results,
-                           evaluator_name = "ROC", curve = "ROC",
+# can customize plot (see plot_eval_constructor() for possible arguments)
+roc_plt <- plot_pred_curve(eval_results = eval_results,
+                           eval_name = "ROC", curve = "ROC",
                            show = c("line", "ribbon"),
                            plot_by = ".dgp_name")
 

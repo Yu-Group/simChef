@@ -9,26 +9,24 @@
 eval_pred_err(
   fit_results,
   vary_params = NULL,
-  nested_data = NULL,
+  nested_cols = NULL,
   truth_col,
   estimate_col,
   prob_cols = NULL,
   group_cols = NULL,
   metrics = NULL,
-  options = list(),
   na_rm = FALSE
 )
 
 summarize_pred_err(
   fit_results,
   vary_params = NULL,
-  nested_data = NULL,
+  nested_cols = NULL,
   truth_col,
   estimate_col,
   prob_cols = NULL,
   group_cols = NULL,
   metrics = NULL,
-  options = list(),
   na_rm = FALSE,
   summary_funs = c("mean", "median", "min", "max", "sd", "raw"),
   custom_summary_funs = NULL,
@@ -41,8 +39,8 @@ summarize_pred_err(
 \item{vary_params}{A vector of parameter names that are varied across in the
 \code{Experiment}.}
 
-\item{nested_data}{(Optional) Character string. If specified, should be the
-name of the column in \code{fit_results} containing columns that must be
+\item{nested_cols}{(Optional) A character string or vector specifying the
+name of the column(s) in \code{fit_results} that need to be
 unnested before evaluating results. Default is \code{NULL}, meaning no
 columns in \code{fit_results} need to be unnested prior to computation.}
 
@@ -62,18 +60,13 @@ only 1 column name should be provided. Otherwise, the length of the
 the \code{truth_col} column. This argument is not used when evaluating
 numeric metrics.}
 
-\item{group_cols}{(Optional) A character string or vector identifying the
-column(s) to group observations by before evaluating prediction errors.
-This is useful for assessing within-group prediction errors.}
+\item{group_cols}{(Optional) A character string or vector specifying the
+column(s) to group rows by before evaluating metrics.
+This is useful for assessing within-group metrics.}
 
 \item{metrics}{A \code{metric_set} object indicating the metrics to evaluate.
 See \code{\link[yardstick:metric_set]{yardstick::metric_set()}} for more details. Default \code{NULL} will
 use the default metrics in \code{\link[yardstick:metrics]{yardstick::metrics()}}.}
-
-\item{options}{A list of named options to pass to \code{pROC::roc()} such as
-\code{smooth}. These options should not include \code{response},
-\code{predictor}, \code{levels}, \code{quiet}, or \code{direction}. This
-argument is only used when computing the ROC and is ignored otherwise.}
 
 \item{na_rm}{A \code{logical} value indicating whether \code{NA} values
 should be stripped before the computation proceeds.}
@@ -249,13 +242,13 @@ eval_results <- eval_pred_err(fit_results,
                               truth_col = "y",
                               estimate_col = "predictions",
                               prob_cols = c("a", "b", "c"),
-                              nested_data = "class_probs")
+                              nested_cols = "class_probs")
 #' summarize prediction error (using all default metric) across replicates
 eval_results_summary <- summarize_pred_err(fit_results,
                                            truth_col = "y",
                                            estimate_col = "predictions",
                                            prob_cols = c("a", "b", "c"),
-                                           nested_data = "class_probs")
+                                           nested_cols = "class_probs")
 
 # can also evaluate results using only class predictions (without class probs.)
 eval_results <- eval_pred_err(fit_results,

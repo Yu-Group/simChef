@@ -9,24 +9,22 @@
 eval_pred_curve(
   fit_results,
   vary_params = NULL,
-  nested_data = NULL,
+  nested_cols = NULL,
   truth_col,
   prob_cols,
   group_cols = NULL,
   curve = c("ROC", "PR"),
-  options = list(),
   na_rm = FALSE
 )
 
 summarize_pred_curve(
   fit_results,
   vary_params = NULL,
-  nested_data = NULL,
+  nested_cols = NULL,
   truth_col,
   prob_cols,
   group_cols = NULL,
   curve = c("ROC", "PR"),
-  options = list(),
   na_rm = FALSE,
   x_grid = seq(0, 1, by = 0.01),
   summary_funs = c("mean", "median", "min", "max", "sd", "raw"),
@@ -40,8 +38,8 @@ summarize_pred_curve(
 \item{vary_params}{A vector of parameter names that are varied across in the
 \code{Experiment}.}
 
-\item{nested_data}{(Optional) Character string. If specified, should be the
-name of the column in \code{fit_results} containing columns that must be
+\item{nested_cols}{(Optional) A character string or vector specifying the
+name of the column(s) in \code{fit_results} that need to be
 unnested before evaluating results. Default is \code{NULL}, meaning no
 columns in \code{fit_results} need to be unnested prior to computation.}
 
@@ -56,17 +54,12 @@ only 1 column name should be provided. Otherwise, the length of the
 the \code{truth_col} column. This argument is not used when evaluating
 numeric metrics.}
 
-\item{group_cols}{(Optional) A character string or vector identifying the
-column(s) to group observations by before evaluating prediction errors.
-This is useful for assessing within-group prediction errors.}
+\item{group_cols}{(Optional) A character string or vector specifying the
+column(s) to group rows by before evaluating metrics.
+This is useful for assessing within-group metrics.}
 
 \item{curve}{Either "ROC" or "PR" indicating whether to evaluate the ROC or
 Precision-Recall curve.}
-
-\item{options}{A list of named options to pass to \code{pROC::roc()} such as
-\code{smooth}. These options should not include \code{response},
-\code{predictor}, \code{levels}, \code{quiet}, or \code{direction}. This
-argument is only used when computing the ROC and is ignored otherwise.}
 
 \item{na_rm}{A \code{logical} value indicating whether \code{NA} values
 should be stripped before the computation proceeds.}
@@ -177,21 +170,21 @@ fit_results <- tibble::tibble(
 
 # evaluate ROC/PR curve for each replicate
 roc_results <- eval_pred_curve(fit_results, curve = "ROC",
-                               nested_data = "class_probs",
+                               nested_cols = "class_probs",
                                truth_col = "y",
                                prob_cols = c("a", "b", "c"))
 pr_results <- eval_pred_curve(fit_results, curve = "PR",
-                              nested_data = "class_probs",
+                              nested_cols = "class_probs",
                               truth_col = "y",
                               prob_cols = c("a", "b", "c"))
 
 # summarize ROC/PR curves across replicates
 roc_summary <- summarize_pred_curve(fit_results, curve = "ROC",
-                                    nested_data = "class_probs",
+                                    nested_cols = "class_probs",
                                     truth_col = "y",
                                     prob_cols = c("a", "b", "c"))
 pr_summary <- summarize_pred_curve(fit_results, curve = "PR",
-                                   nested_data = "class_probs",
+                                   nested_cols = "class_probs",
                                    truth_col = "y",
                                    prob_cols = c("a", "b", "c"))
 

@@ -77,6 +77,14 @@ test_that("Functions in Evaluator prediction library work properly", {
     )
   )
 
+  # test with na_rm = TRUE
+  eval_results_na <- eval_pred_err(fit_results_reg,
+                                   truth_col = "y",
+                                   estimate_col = "predictions",
+                                   na_rm = TRUE) %>%
+    dplyr::filter(.metric == "num_na")
+  expect_true(all(eval_results_na$.estimate == 0))
+
   # test eval_pred_err and summarize_pred_err with group argument
   eval_results <- eval_pred_err(fit_results_reg,
                                 truth_col = "y",
@@ -141,6 +149,16 @@ test_that("Functions in Evaluator prediction library work properly", {
       raw_pred_err = rep(list(c(1, 1)), 4)
     )
   )
+
+  # test with na_rm = TRUE and group argument
+  eval_results_na <- eval_pred_err(fit_results_reg,
+                                   truth_col = "y",
+                                   estimate_col = "predictions",
+                                   group_cols = ".group",
+                                   na_rm = TRUE) %>%
+    dplyr::filter(.metric == "num_na")
+  expect_true(all(eval_results_na$.estimate == 0))
+  expect_equal(nrow(eval_results_na), max(table(eval_results$.metric)))
 
   # test eval_pred_err and summarize_pred_err with metrics argument
   metric_funs <- yardstick::metric_set(yardstick::rmse, yardstick::rsq)
@@ -564,7 +582,7 @@ test_that("Functions in Evaluator feature selection library work properly", {
   ## eval_feature_selection_err / summarize_feature_selection_err
   eval_results <- eval_feature_selection_err(
     fit_results,
-    nested_data = "feature_info",
+    nested_cols = "feature_info",
     truth_col = "true_support",
     estimate_col = "est_support",
     imp_col = "est_importance"
@@ -572,7 +590,7 @@ test_that("Functions in Evaluator feature selection library work properly", {
   eval_results_orig <- eval_results
   eval_results_summary <- summarize_feature_selection_err(
     fit_results,
-    nested_data = "feature_info",
+    nested_cols = "feature_info",
     truth_col = "true_support",
     estimate_col = "est_support",
     imp_col = "est_importance"
@@ -633,7 +651,7 @@ test_that("Functions in Evaluator feature selection library work properly", {
   metrics <- c("sens", "spec")
   eval_results <- eval_feature_selection_err(
     fit_results,
-    nested_data = "feature_info",
+    nested_cols = "feature_info",
     truth_col = "true_support",
     estimate_col = "est_support",
     imp_col = "est_importance",
@@ -641,7 +659,7 @@ test_that("Functions in Evaluator feature selection library work properly", {
   )
   eval_results_summary <- summarize_feature_selection_err(
     fit_results,
-    nested_data = "feature_info",
+    nested_cols = "feature_info",
     truth_col = "true_support",
     estimate_col = "est_support",
     imp_col = "est_importance",
@@ -660,7 +678,7 @@ test_that("Functions in Evaluator feature selection library work properly", {
   range_fun <- function(x) return(max(x) - min(x))
   eval_results_summary <- summarize_feature_selection_err(
     fit_results,
-    nested_data = "feature_info",
+    nested_cols = "feature_info",
     truth_col = "true_support",
     estimate_col = "est_support",
     imp_col = "est_importance",
@@ -674,33 +692,45 @@ test_that("Functions in Evaluator feature selection library work properly", {
   expect_equal(eval_results_summary %>% dplyr::select(-range_feature_selection),
                eval_results_summary_orig)
 
+  # test with na_rm = TRUE and group argument
+  eval_results_na <- eval_feature_selection_err(
+    fit_results,
+    nested_cols = "feature_info",
+    truth_col = "true_support",
+    estimate_col = "est_support",
+    imp_col = "est_importance",
+    na_rm = TRUE
+  ) %>%
+    dplyr::filter(.metric == "num_na")
+  expect_true(all(eval_results_na$.estimate == 0))
+
   ## eval_feature_selection_curve / summarize_feature_selection_curve
   # evaluate feature selection ROC/PR curves for each replicate
   roc_results <- eval_feature_selection_curve(
     fit_results,
     curve = "ROC",
-    nested_data = "feature_info",
+    nested_cols = "feature_info",
     truth_col = "true_support",
     imp_col = "est_importance"
   )
   pr_results <- eval_feature_selection_curve(
     fit_results,
     curve = "PR",
-    nested_data = "feature_info",
+    nested_cols = "feature_info",
     truth_col = "true_support",
     imp_col = "est_importance"
   )
   roc_summary <- summarize_feature_selection_curve(
     fit_results,
     curve = "ROC",
-    nested_data = "feature_info",
+    nested_cols = "feature_info",
     truth_col = "true_support",
     imp_col = "est_importance"
   )
   pr_summary <- summarize_feature_selection_curve(
     fit_results,
     curve = "PR",
-    nested_data = "feature_info",
+    nested_cols = "feature_info",
     truth_col = "true_support",
     imp_col = "est_importance"
   )
@@ -786,13 +816,13 @@ test_that("Functions in Evaluator feature selection library work properly", {
   ## eval_feature_importance / summarize_feature_importance
   eval_results <- eval_feature_importance(
     fit_results,
-    nested_data = "feature_info",
+    nested_cols = "feature_info",
     feature_col = "feature",
     imp_col = "est_importance"
   )
   eval_results_summary <- summarize_feature_importance(
     fit_results,
-    nested_data = "feature_info",
+    nested_cols = "feature_info",
     feature_col = "feature",
     imp_col = "est_importance"
   )
@@ -870,14 +900,14 @@ test_that("Functions in Evaluator inference library work properly", {
   ## eval_testing_err / summarize_testing_err
   eval_results <- eval_testing_err(
     fit_results,
-    nested_data = "feature_info",
+    nested_cols = "feature_info",
     truth_col = "true_support",
     pval_col = "pval"
   )
   eval_results_orig <- eval_results
   eval_results_summary <- summarize_testing_err(
     fit_results,
-    nested_data = "feature_info",
+    nested_cols = "feature_info",
     truth_col = "true_support",
     pval_col = "pval"
   )
@@ -941,14 +971,14 @@ test_that("Functions in Evaluator inference library work properly", {
   metrics <- c("sens", "spec")
   eval_results <- eval_testing_err(
     fit_results,
-    nested_data = "feature_info",
+    nested_cols = "feature_info",
     truth_col = "true_support",
     pval_col = "pval",
     metrics = metric_funs
   )
   eval_results_summary <- summarize_testing_err(
     fit_results,
-    nested_data = "feature_info",
+    nested_cols = "feature_info",
     truth_col = "true_support",
     pval_col = "pval",
     metrics = metric_funs
@@ -965,14 +995,14 @@ test_that("Functions in Evaluator inference library work properly", {
 
   eval_results <- eval_testing_err(
     fit_results,
-    nested_data = "feature_info",
+    nested_cols = "feature_info",
     truth_col = "true_support",
     pval_col = "pval",
     alphas = c(0.05, 0.1)
   )
   eval_results_summary <- summarize_testing_err(
     fit_results,
-    nested_data = "feature_info",
+    nested_cols = "feature_info",
     truth_col = "true_support",
     pval_col = "pval",
     alphas = c(0.05, 0.1)
@@ -995,7 +1025,7 @@ test_that("Functions in Evaluator inference library work properly", {
   range_fun <- function(x) return(max(x) - min(x))
   eval_results_summary <- summarize_testing_err(
     fit_results,
-    nested_data = "feature_info",
+    nested_cols = "feature_info",
     truth_col = "true_support",
     pval_col = "pval",
     custom_summary_funs = list(range_testing_err = range_fun)
@@ -1008,32 +1038,43 @@ test_that("Functions in Evaluator inference library work properly", {
   expect_equal(eval_results_summary %>% dplyr::select(-range_testing_err),
                eval_results_summary_orig)
 
+  # test with na_rm = TRUE and group argument
+  eval_results_na <- eval_testing_err(
+    fit_results,
+    nested_cols = "feature_info",
+    truth_col = "true_support",
+    pval_col = "pval",
+    na_rm = TRUE
+  ) %>%
+    dplyr::filter(.metric == "num_na")
+  expect_true(all(eval_results_na$.estimate == 0))
+
   ## eval_testing_curve / summarize_testing_curve
   roc_results <- eval_testing_curve(
     fit_results,
     curve = "ROC",
-    nested_data = "feature_info",
+    nested_cols = "feature_info",
     truth_col = "true_support",
     pval_col = "pval"
   )
   pr_results <- eval_testing_curve(
     fit_results,
     curve = "PR",
-    nested_data = "feature_info",
+    nested_cols = "feature_info",
     truth_col = "true_support",
     pval_col = "pval"
   )
   roc_summary <- summarize_testing_curve(
     fit_results,
     curve = "ROC",
-    nested_data = "feature_info",
+    nested_cols = "feature_info",
     truth_col = "true_support",
     pval_col = "pval"
   )
   pr_summary <- summarize_testing_curve(
     fit_results,
     curve = "PR",
-    nested_data = "feature_info",
+    nested_cols = "feature_info",
     truth_col = "true_support",
     pval_col = "pval"
   )
@@ -1115,7 +1156,7 @@ test_that("Functions in Evaluator inference library work properly", {
   ## eval_reject_prob / summarize_reject_prob
   eval_results <- eval_reject_prob(
     fit_results,
-    nested_data = "feature_info",
+    nested_cols = "feature_info",
     feature_col = "feature",
     pval_col = "pval"
   )
@@ -1128,7 +1169,7 @@ test_that("Functions in Evaluator inference library work properly", {
 
   eval_results <- eval_reject_prob(
     fit_results,
-    nested_data = "feature_info",
+    nested_cols = "feature_info",
     feature_col = "feature",
     pval_col = "pval",
     alphas = c(0.05, 0.1)
@@ -1166,9 +1207,9 @@ test_that("Functions in Evaluator utilities library work properly", {
                               result = 1:4) %>%
     dplyr::group_by(.dgp_name, .method_name)
 
-  ## summarize_eval_results
-  results <- summarize_eval_results(eval_data = eval_data, eval_id = "res",
-                                    value_col = "result")
+  ## eval_summarizer
+  results <- eval_summarizer(eval_data = eval_data, eval_id = "res",
+                             value_col = "result")
   results_orig <- results
   expect_equal(dplyr::group_keys(results),
                tibble::tibble(.dgp_name = c("DGP1", "DGP2"),
@@ -1187,9 +1228,9 @@ test_that("Functions in Evaluator utilities library work properly", {
     )
   )
 
-  results <- summarize_eval_results(eval_data = eval_data, eval_id = "res",
-                                    value_col = "result",
-                                    summary_funs = c("mean", "sd"))
+  results <- eval_summarizer(eval_data = eval_data, eval_id = "res",
+                             value_col = "result",
+                             summary_funs = c("mean", "sd"))
   expect_equal(dplyr::group_keys(results),
                tibble::tibble(.dgp_name = c("DGP1", "DGP2"),
                               .method_name = "Method"))
@@ -1204,8 +1245,8 @@ test_that("Functions in Evaluator utilities library work properly", {
   )
 
   range_fun <- function(x) return(max(x) - min(x))
-  results <- summarize_eval_results(eval_data = eval_data, value_col = "result",
-                                    custom_summary_funs = list(range = range_fun))
+  results <- eval_summarizer(eval_data = eval_data, value_col = "result",
+                             custom_summary_funs = list(range = range_fun))
   expect_equal(dplyr::group_keys(results),
                tibble::tibble(.dgp_name = c("DGP1", "DGP2"),
                               .method_name = "Method"))

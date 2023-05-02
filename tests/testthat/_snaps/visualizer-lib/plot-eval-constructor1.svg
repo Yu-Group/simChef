@@ -155,6 +155,6 @@
 <polyline points='31.05,43.89 33.79,43.89 ' style='stroke-width: 2.13; stroke-linecap: butt;' />
 <text x='374.15' y='568.44' text-anchor='middle' style='font-size: 10.00px; font-weight: bold; font-family: sans;' textLength='21.68px' lengthAdjust='spacingAndGlyphs'>DGP</text>
 <text transform='translate(12.36,293.08) rotate(-90)' text-anchor='middle' style='font-size: 10.00px; font-weight: bold; font-family: sans;' textLength='68.38px' lengthAdjust='spacingAndGlyphs'>mean_pred_err</text>
-<text x='33.79' y='13.74' style='font-size: 12.00px; font-weight: bold; font-family: sans;' textLength='110.74px' lengthAdjust='spacingAndGlyphs'>plot_eval_summary1</text>
+<text x='33.79' y='13.74' style='font-size: 12.00px; font-weight: bold; font-family: sans;' textLength='120.76px' lengthAdjust='spacingAndGlyphs'>plot_eval_constructor1</text>
 </g>
 </svg>

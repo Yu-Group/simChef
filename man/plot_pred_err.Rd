@@ -5,9 +5,11 @@
 \title{Plot prediction error according to various metrics.}
 \usage{
 plot_pred_err(
-  fit_results,
+  fit_results = NULL,
   eval_results = NULL,
-  evaluator_name = NULL,
+  eval_name = NULL,
+  eval_fun = "summarize_pred_err",
+  eval_fun_options = NULL,
   vary_params = NULL,
   metrics = NULL,
   show = c("point", "line"),
@@ -20,9 +22,15 @@ plot_pred_err(
 \item{eval_results}{A list of result tibbles, as returned by the
 \code{evaluate} method.}
 
-\item{evaluator_name}{Name of \code{Evaluator} containing results to plot.
-To compute the evaluation summary results from scratch or if the evaluation
-summary results have not yet been evaluated, set to \code{NULL}.}
+\item{eval_name}{Name of \code{Evaluator} containing results to plot. If
+\code{NULL}, the data used for plotting is computed from scratch via
+\code{eval_fun}.}
+
+\item{eval_fun}{Character string, specifying the function used to compute
+the data used for plotting if \code{eval_name = NULL}. If \code{eval_name}
+is not \code{NULL}, this argument is ignored.}
+
+\item{eval_fun_options}{List of named arguments to pass to \code{eval_fun}.}
 
 \item{vary_params}{A vector of parameter names that are varied across in the
 \code{Experiment}.}
@@ -35,9 +43,7 @@ use the default metrics in \code{\link[yardstick:metrics]{yardstick::metrics()}}
 "line", "bar", "errorbar", "ribbon" indicating what plot layer(s) to
 construct.}
 
-\item{...}{Additional arguments to pass to \code{plot_eval_summary()}. This
-includes arguments for plotting and for passing into
-\code{summarize_pred_err()}.}
+\item{...}{Not used.}
 }
 \value{
 If \code{interactive = TRUE}, returns a \code{plotly} object if
@@ -70,16 +76,18 @@ eval_results <- list(
 )
 
 # create errorbar plot using pre-computed evaluation results
-plt <- plot_pred_err(fit_results = fit_results, eval_results = eval_results,
-                     evaluator_name = "Prediction Errors",
+plt <- plot_pred_err(eval_results = eval_results,
+                     eval_name = "Prediction Errors",
                      show = c("point", "errorbar"))
-# or alternatively, create the same plot without pre-computing evaluation results
-plt <- plot_pred_err(fit_results, show = c("point", "errorbar"),
-                     truth_col = "y", estimate_col = "predictions")
+# or alternatively, create the same plot directly from fit results
+plt <- plot_pred_err(fit_results = fit_results,
+                     show = c("point", "errorbar"),
+                     eval_fun_options = list(truth_col = "y",
+                                             estimate_col = "predictions"))
 
-# can customize plot (see plot_eval_summary() for possible arguments)
+# can customize plot (see plot_eval_constructor() for possible arguments)
 plt <- plot_pred_err(fit_results = fit_results, eval_results = eval_results,
-                     evaluator_name = "Prediction Errors",
+                     eval_name = "Prediction Errors",
                      show = c("point", "errorbar"), 
                      color_str = NULL,
                      facet_formula = .method_name ~ .metric,
