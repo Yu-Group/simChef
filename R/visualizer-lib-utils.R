@@ -202,7 +202,9 @@ plot_eval_constructor <- function(eval_results = NULL, eval_names = NULL,
     # if varying over multiple parameters, join column strings for plotting
     if (length(vary_params) > 1) {
       plt_df <- plt_df %>%
-        tidyr::unite(col = ".vary_params", tidyselect::all_of(vary_params))
+        tidyr::unite(col = ".vary_params",
+                     tidyselect::all_of(vary_params),
+                     remove = FALSE)
     }
   }
   
@@ -628,9 +630,17 @@ get_dot_args <- function(user_args, default_args) {
   arg_list <- list()
   for (arg_name in unique(c(names(user_args), names(default_args)))) {
     if (arg_name %in% names(user_args)) {
-      arg_list[[arg_name]] <- user_args[[arg_name]]
+      if (is.null(user_args[[arg_name]])) {
+        arg_list[arg_name] <- list(NULL)
+      } else {
+        arg_list[[arg_name]] <- user_args[[arg_name]]
+      }
     } else {
-      arg_list[[arg_name]] <- default_args[[arg_name]]
+      if (is.null(default_args[[arg_name]])) {
+        arg_list[arg_name] <- list(NULL)
+      } else {
+        arg_list[[arg_name]] <- default_args[[arg_name]]
+      }
     }
   }
   return(arg_list)

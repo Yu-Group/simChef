@@ -420,6 +420,14 @@ test_that("Functions in Visualizer utilities library work properly", {
   arg_list <- get_dot_args(user_args = list(a = 1, b = 2, c = 3),
                            default_args = list(a = "a", d = "d"))
   expect_equal(arg_list, list(a = 1, b = 2, c = 3, d = "d"))
+
+  # check that NULL argument gets kept in get_dot_args()
+  arg_list <- get_dot_args(user_args = list(a = 1, b = NULL, c = 3),
+                           default_args = list(c = "d"))
+  expect_equal(arg_list, list(a = 1, b = NULL, c = 3))
+  arg_list <- get_dot_args(user_args = list(a = 1, c = 3),
+                           default_args = list(b = NULL))
+  expect_equal(arg_list, list(a = 1, c = 3, b = NULL))
 })
 
 test_that("list_col_to_chr works properly", {
