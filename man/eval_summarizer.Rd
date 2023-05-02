@@ -51,24 +51,24 @@ often used in conjunction with \code{eval_constructor()}.
 }
 \examples{
 # create example eval_data to summarize
-eval_data <- tibble::tibble(.rep = rep(1:2, times = 2), 
+eval_data <- tibble::tibble(.rep = rep(1:2, times = 2),
                             .dgp_name = c("DGP1", "DGP1", "DGP2", "DGP2"),
                             .method_name = "Method",
                             result = 1:4) \%>\%
   dplyr::group_by(.dgp_name, .method_name)
-  
+
 # summarize `result` column in eval_data
-results <- summarize_eval_results(eval_data = eval_data, eval_id = "res",
-                                  value_col = "result")
-                                  
+results <- eval_summarizer(eval_data = eval_data, eval_id = "res",
+                           value_col = "result")
+
 # only compute mean and sd of `result` column in eval_data over given groups
-results <- summarize_eval_results(eval_data = eval_data, eval_id = "res",
-                                  value_col = "result",
-                                  summary_funs = c("mean", "sd"))
-                                  
+results <- eval_summarizer(eval_data = eval_data, eval_id = "res",
+                           value_col = "result",
+                           summary_funs = c("mean", "sd"))
+
 # summarize `results` column using custom summary function
 range_fun <- function(x) return(max(x) - min(x))
-results <- summarize_eval_results(eval_data = eval_data, value_col = "result",
-                                  custom_summary_funs = list(range = range_fun))
-                                  
+results <- eval_summarizer(eval_data = eval_data, value_col = "result",
+                           custom_summary_funs = list(range = range_fun))
+
 }

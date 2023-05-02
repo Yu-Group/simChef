@@ -242,13 +242,13 @@ eval_results <- eval_pred_err(fit_results,
                               truth_col = "y",
                               estimate_col = "predictions",
                               prob_cols = c("a", "b", "c"),
-                              nested_cols = "class_probs")
+                              nested_cols = c("y", "class_probs", "predictions"))
 #' summarize prediction error (using all default metric) across replicates
 eval_results_summary <- summarize_pred_err(fit_results,
                                            truth_col = "y",
                                            estimate_col = "predictions",
                                            prob_cols = c("a", "b", "c"),
-                                           nested_cols = "class_probs")
+                                           nested_cols = c("y", "class_probs", "predictions"))
 
 # can also evaluate results using only class predictions (without class probs.)
 eval_results <- eval_pred_err(fit_results,

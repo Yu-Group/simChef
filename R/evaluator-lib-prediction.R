@@ -179,13 +179,13 @@
 #'                               truth_col = "y",
 #'                               estimate_col = "predictions",
 #'                               prob_cols = c("a", "b", "c"),
-#'                               nested_cols = "class_probs")
+#'                               nested_cols = c("y", "class_probs", "predictions"))
 #' #' summarize prediction error (using all default metric) across replicates
 #' eval_results_summary <- summarize_pred_err(fit_results,
 #'                                            truth_col = "y",
 #'                                            estimate_col = "predictions",
 #'                                            prob_cols = c("a", "b", "c"),
-#'                                            nested_cols = "class_probs")
+#'                                            nested_cols = c("y", "class_probs", "predictions"))
 #'
 #' # can also evaluate results using only class predictions (without class probs.)
 #' eval_results <- eval_pred_err(fit_results,
@@ -372,21 +372,21 @@ summarize_pred_err <- function(fit_results, vary_params = NULL,
 #'
 #' # evaluate ROC/PR curve for each replicate
 #' roc_results <- eval_pred_curve(fit_results, curve = "ROC",
-#'                                nested_cols = "class_probs",
+#'                                nested_cols = c("y", "class_probs"),
 #'                                truth_col = "y",
 #'                                prob_cols = c("a", "b", "c"))
 #' pr_results <- eval_pred_curve(fit_results, curve = "PR",
-#'                               nested_cols = "class_probs",
+#'                               nested_cols = c("y", "class_probs"),
 #'                               truth_col = "y",
 #'                               prob_cols = c("a", "b", "c"))
 #'
 #' # summarize ROC/PR curves across replicates
 #' roc_summary <- summarize_pred_curve(fit_results, curve = "ROC",
-#'                                     nested_cols = "class_probs",
+#'                                     nested_cols = c("y", "class_probs"),
 #'                                     truth_col = "y",
 #'                                     prob_cols = c("a", "b", "c"))
 #' pr_summary <- summarize_pred_curve(fit_results, curve = "PR",
-#'                                    nested_cols = "class_probs",
+#'                                    nested_cols = c("y", "class_probs"),
 #'                                    truth_col = "y",
 #'                                    prob_cols = c("a", "b", "c"))
 #'
