@@ -29,10 +29,14 @@ Imports:
     methods,
     purrr,
     R.utils,
+    assertthat,
+    usethis,
+    renv,
     R6,
     rlang,
     rmarkdown,
     stringr,
+    testthat (>= 3.1.0),
     tibble,
     tidyr,
     tidyselect,
@@ -41,6 +45,7 @@ Imports:
 Suggests:
     broom,
     callr,
+    devtools,
     fontawesome,
     fs,
     future.callr,
@@ -54,7 +59,6 @@ Suggests:
     progressr (>= 0.9.0),
     ranger,
     rstudioapi,
-    testthat (>= 3.1.0),
     vdiffr,
     withr (>= 2.5.0),
     ymlthis
@@ -79,7 +83,9 @@ Collate:
     'utils.R'
     'experiment.R'
     'globals.R'
+    'init-dir.R'
     'method.R'
+    'run-tests.R'
     'signals.R'
     'use_templates.R'
     'utils-pipe.R'

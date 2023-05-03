@@ -26,6 +26,11 @@ reference:
       - set_save_dir
       - save_experiment
       - export_visualizers
+  - title: "Simulation Experiment Directory Setup"
+    desc: >
+      Functions for automatically setting up a simulation experiment directory.
+    contents:
+      - create_sim
   - title: "R Markdown Report"
     desc: >
       Functions for summarizing and visualizing results from a simulation
@@ -112,6 +117,12 @@ reference:
       A library of minimalistic templates for running common types of simulation experiments.
     contents:
       - library_templates
+  - subtitle: "Testing Functions"
+    desc: >
+      Functions for test-driven simulation studies.
+    contents:
+      - run_tests
+      - test_sim_dir
   - subtitle: "Developer Functions"
     desc: >
       Helper functions for developers to create their own simulation experiment components.
@@ -122,3 +133,4 @@ reference:
       - plot_eval_summary
       - plot_fit_results
       - list_col_to_chr
+      - load_all
