@@ -115,6 +115,9 @@
     <loc>https://yu-group.github.io/simChef/dev/reference/create_rmd.html</loc>
   </url>
   <url>
+    <loc>https://yu-group.github.io/simChef/dev/reference/create_sim.html</loc>
+  </url>
+  <url>
     <loc>https://yu-group.github.io/simChef/dev/reference/create_visualizer.html</loc>
   </url>
   <url>
@@ -205,6 +208,9 @@
     <loc>https://yu-group.github.io/simChef/dev/reference/list_to_tibble_row.html</loc>
   </url>
   <url>
+    <loc>https://yu-group.github.io/simChef/dev/reference/load_all.html</loc>
+  </url>
+  <url>
     <loc>https://yu-group.github.io/simChef/dev/reference/metric_vec_constructor.html</loc>
   </url>
   <url>
@@ -268,6 +274,9 @@
     <loc>https://yu-group.github.io/simChef/dev/reference/run_experiment.html</loc>
   </url>
   <url>
+    <loc>https://yu-group.github.io/simChef/dev/reference/run_tests.html</loc>
+  </url>
+  <url>
     <loc>https://yu-group.github.io/simChef/dev/reference/save_experiment.html</loc>
   </url>
   <url>
@@ -296,6 +305,9 @@
   </url>
   <url>
     <loc>https://yu-group.github.io/simChef/dev/reference/summarize_eval_results.html</loc>
+  </url>
+  <url>
+    <loc>https://yu-group.github.io/simChef/dev/reference/test_sim_dir.html</loc>
   </url>
   <url>
     <loc>https://yu-group.github.io/simChef/dev/reference/tp.html</loc>

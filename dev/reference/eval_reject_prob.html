@@ -32,7 +32,7 @@ tests, one for each feature)."><meta name="robots" content="noindex"><!-- mathja
   <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
     <a class="dropdown-item" href="../articles/parallel.html">Computing experimental replicates in parallel</a>
-    <a class="dropdown-item" href="../articles/simulation-directory-setup.html">Setting Up Your Simulation</a>
+    <a class="dropdown-item" href="../articles/simulation-directory-setup.html">Setting Up Your Simulation Study</a>
   </div>
 </li>
 <li class="nav-item">
@@ -173,6 +173,13 @@ probabilities (averaged across experimental replicates).</p>
 <span class="r-in"><span>  feature_col <span class="op">=</span> <span class="st">"feature"</span>,</span></span>
 <span class="r-in"><span>  pval_col <span class="op">=</span> <span class="st">"pval"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Returning more (or less) than 1 row per `summarise()` group was deprecated in</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> dplyr 1.1.0.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Please use `reframe()` instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> When switching from `summarise()` to `reframe()`, remember that `reframe()`</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   always returns an ungrouped data frame and adjust accordingly.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The deprecated feature was likely used in the <span style="color: #0000BB;">simChef</span> package.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   Please report the issue at <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/Yu-Group/simChef/issues&gt;</span>.</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># evaluate rejection probability for each feature at specific values of alpha</span></span></span>
 <span class="r-in"><span><span class="va">eval_results</span> <span class="op">&lt;-</span> <span class="fu">eval_reject_prob</span><span class="op">(</span></span></span>
