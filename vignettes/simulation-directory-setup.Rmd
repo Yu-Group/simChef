@@ -34,7 +34,7 @@ creates the necessary folders and files. It also initializes a new project and a
 git repository. This repository can optionally be linked to GitHub using, for
 example,
 [`usethis::use_github()`](https://usethis.r-lib.org/reference/use_github.html).
-If you don't want to use git, set `create_sim()`'s `init_git` argument can to
+If you don't want to use git, set `create_sim()`'s `init_git` argument to
 `FALSE`.
 
 After creating your project with `create_sim()`, you'll find the following
