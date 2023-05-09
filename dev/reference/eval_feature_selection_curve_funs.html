@@ -79,22 +79,22 @@ across experimental replicates.</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">eval_feature_selection_curve</span><span class="op">(</span></span>
 <span>  <span class="va">fit_results</span>,</span>
 <span>  vary_params <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  nested_data <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  nested_cols <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">truth_col</span>,</span>
 <span>  <span class="va">imp_col</span>,</span>
+<span>  group_cols <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  curve <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ROC"</span>, <span class="st">"PR"</span><span class="op">)</span>,</span>
-<span>  options <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  na_rm <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">summarize_feature_selection_curve</span><span class="op">(</span></span>
 <span>  <span class="va">fit_results</span>,</span>
 <span>  vary_params <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  nested_data <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  nested_cols <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">truth_col</span>,</span>
 <span>  <span class="va">imp_col</span>,</span>
+<span>  group_cols <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  curve <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ROC"</span>, <span class="st">"PR"</span><span class="op">)</span>,</span>
-<span>  options <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  na_rm <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  x_grid <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, by <span class="op">=</span> <span class="fl">0.01</span><span class="op">)</span>,</span>
 <span>  summary_funs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"mean"</span>, <span class="st">"median"</span>, <span class="st">"min"</span>, <span class="st">"max"</span>, <span class="st">"sd"</span>, <span class="st">"raw"</span><span class="op">)</span>,</span>
@@ -114,9 +114,9 @@ across experimental replicates.</p>
 <code>Experiment</code>.</p></dd>
 
 
-<dt>nested_data</dt>
-<dd><p>(Optional) Character string. If specified, should be the
-name of the column in <code>fit_results</code> containing columns that must be
+<dt>nested_cols</dt>
+<dd><p>(Optional) A character string or vector specifying the
+name of the column(s) in <code>fit_results</code> that need to be
 unnested before evaluating results. Default is <code>NULL</code>, meaning no
 columns in <code>fit_results</code> need to be unnested prior to computation.</p></dd>
 
@@ -139,16 +139,15 @@ number of features and the feature order aligns with that of
 magnitude indicates a more important feature.</p></dd>
 
 
+<dt>group_cols</dt>
+<dd><p>(Optional) A character string or vector specifying the
+column(s) to group rows by before evaluating metrics.
+This is useful for assessing within-group metrics.</p></dd>
+
+
 <dt>curve</dt>
 <dd><p>Either "ROC" or "PR" indicating whether to evaluate the ROC or
 Precision-Recall curve.</p></dd>
-
-
-<dt>options</dt>
-<dd><p>A list of named options to pass to <code>pROC::roc()</code> such as
-<code>smooth</code>. These options should not include <code>response</code>,
-<code>predictor</code>, <code>levels</code>, <code>quiet</code>, or <code>direction</code>. This
-argument is only used when computing the ROC and is ignored otherwise.</p></dd>
 
 
 <dt>na_rm</dt>
@@ -205,19 +204,20 @@ positive rate, respectively. If <code>curve = "PR"</code>, the <code>tibble</cod
 the columns <code>.threshold</code>, <code>recall</code>, and <code>precision</code>.</p></dd>
 
 
-</dl><p>as well as any columns specified by <code>vary_params</code>.</p>
+</dl><p>as well as any columns specified by <code>group_cols</code> and <code>vary_params</code>.</p>
 
 
 <p>The output of <code>summarize_feature_selection_curve()</code> is a grouped
 <code>tibble</code> containing both identifying information and the
 feature selection curve results aggregated over experimental replicates.
 Specifically, the identifier columns include <code>.dgp_name</code>,
-<code>.method_name</code>, and any columns specified by <code>vary_params</code>. In
-addition, there are results columns corresponding to the requested statistics
-in <code>summary_funs</code> and <code>custom_summary_funs</code>. If
-<code>curve = "ROC"</code>, these results columns include <code>FPR</code> and others
-that end in the suffix "_TPR". If <code>curve = "PR"</code>, the results columns
-include <code>recall</code> and others that end in the suffix "_precision".</p>
+<code>.method_name</code>, and any columns specified by <code>group_cols</code> and
+<code>vary_params</code>. In addition, there are results columns corresponding to
+the requested statistics in <code>summary_funs</code> and
+<code>custom_summary_funs</code>. If <code>curve = "ROC"</code>, these results columns
+include <code>FPR</code> and others that end in the suffix "_TPR". If
+<code>curve = "PR"</code>, the results columns include <code>recall</code> and others
+that end in the suffix "_precision".</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
@@ -255,14 +255,14 @@ include <code>recall</code> and others that end in the suffix "_precision".</p>
 <span class="r-in"><span><span class="va">roc_results</span> <span class="op">&lt;-</span> <span class="fu">eval_feature_selection_curve</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  <span class="va">fit_results</span>, </span></span>
 <span class="r-in"><span>  curve <span class="op">=</span> <span class="st">"ROC"</span>,</span></span>
-<span class="r-in"><span>  nested_data <span class="op">=</span> <span class="st">"feature_info"</span>,</span></span>
+<span class="r-in"><span>  nested_cols <span class="op">=</span> <span class="st">"feature_info"</span>,</span></span>
 <span class="r-in"><span>  truth_col <span class="op">=</span> <span class="st">"true_support"</span>,</span></span>
 <span class="r-in"><span>  imp_col <span class="op">=</span> <span class="st">"est_importance"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">pr_results</span> <span class="op">&lt;-</span> <span class="fu">eval_feature_selection_curve</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  <span class="va">fit_results</span>, </span></span>
 <span class="r-in"><span>  curve <span class="op">=</span> <span class="st">"PR"</span>,</span></span>
-<span class="r-in"><span>  nested_data <span class="op">=</span> <span class="st">"feature_info"</span>,</span></span>
+<span class="r-in"><span>  nested_cols <span class="op">=</span> <span class="st">"feature_info"</span>,</span></span>
 <span class="r-in"><span>  truth_col <span class="op">=</span> <span class="st">"true_support"</span>,</span></span>
 <span class="r-in"><span>  imp_col <span class="op">=</span> <span class="st">"est_importance"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
@@ -270,14 +270,14 @@ include <code>recall</code> and others that end in the suffix "_precision".</p>
 <span class="r-in"><span><span class="va">roc_summary</span> <span class="op">&lt;-</span> <span class="fu">summarize_feature_selection_curve</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  <span class="va">fit_results</span>, </span></span>
 <span class="r-in"><span>  curve <span class="op">=</span> <span class="st">"ROC"</span>,</span></span>
-<span class="r-in"><span>  nested_data <span class="op">=</span> <span class="st">"feature_info"</span>,</span></span>
+<span class="r-in"><span>  nested_cols <span class="op">=</span> <span class="st">"feature_info"</span>,</span></span>
 <span class="r-in"><span>  truth_col <span class="op">=</span> <span class="st">"true_support"</span>,</span></span>
 <span class="r-in"><span>  imp_col <span class="op">=</span> <span class="st">"est_importance"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">pr_summary</span> <span class="op">&lt;-</span> <span class="fu">summarize_feature_selection_curve</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  <span class="va">fit_results</span>, </span></span>
 <span class="r-in"><span>  curve <span class="op">=</span> <span class="st">"PR"</span>,</span></span>
-<span class="r-in"><span>  nested_data <span class="op">=</span> <span class="st">"feature_info"</span>,</span></span>
+<span class="r-in"><span>  nested_cols <span class="op">=</span> <span class="st">"feature_info"</span>,</span></span>
 <span class="r-in"><span>  truth_col <span class="op">=</span> <span class="st">"true_support"</span>,</span></span>
 <span class="r-in"><span>  imp_col <span class="op">=</span> <span class="st">"est_importance"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>

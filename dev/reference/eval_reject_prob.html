@@ -70,9 +70,10 @@ tests, one for each feature).</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">eval_reject_prob</span><span class="op">(</span></span>
 <span>  <span class="va">fit_results</span>,</span>
 <span>  vary_params <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  nested_data <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  nested_cols <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  feature_col <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">pval_col</span>,</span>
+<span>  group_cols <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  alphas <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  na_rm <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -89,9 +90,9 @@ tests, one for each feature).</p>
 <code>Experiment</code>.</p></dd>
 
 
-<dt>nested_data</dt>
-<dd><p>(Optional) Character string. If specified, should be the
-name of the column in <code>fit_results</code> containing columns that must be
+<dt>nested_cols</dt>
+<dd><p>(Optional) A character string or vector specifying the
+name of the column(s) in <code>fit_results</code> that need to be
 unnested before evaluating results. Default is <code>NULL</code>, meaning no
 columns in <code>fit_results</code> need to be unnested prior to computation.</p></dd>
 
@@ -107,6 +108,12 @@ columns in <code>fit_results</code> need to be unnested prior to computation.</p
 this column should be an array of length <code>p</code>, where <code>p</code> is the
 number of features and the feature order aligns with that of
 <code>truth_col</code>.</p></dd>
+
+
+<dt>group_cols</dt>
+<dd><p>(Optional) A character string or vector specifying the
+column(s) to group rows by before evaluating metrics.
+This is useful for assessing within-group metrics.</p></dd>
 
 
 <dt>alphas</dt>
@@ -128,11 +135,12 @@ should be stripped before the computation proceeds.</p></dd>
 <p>A grouped <code>tibble</code> containing both identifying information
 and the rejection probability results aggregated over experimental
 replicates. Specifically, the identifier columns include <code>.dgp_name</code>,
-<code>.method_name</code>, any columns specified by <code>vary_params</code>, and the
-feature names given in <code>feature_col</code> if applicable. In addition, there
-are results columns <code>.alpha</code> and <code>reject_prob</code>, which
-respectively give the significance level and the estimated rejection
-probabilities (averaged across experimental replicates).</p>
+<code>.method_name</code>, any columns specified by <code>group_cols</code> and
+<code>vary_params</code>, and the feature names given in <code>feature_col</code> if
+applicable. In addition, there are results columns <code>.alpha</code> and
+<code>reject_prob</code>, which respectively give the significance level and the
+estimated rejection probabilities (averaged across experimental
+replicates).</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
@@ -169,22 +177,15 @@ probabilities (averaged across experimental replicates).</p>
 <span class="r-in"><span><span class="co"># evaluate rejection probabilities for each feature across all possible values of alpha</span></span></span>
 <span class="r-in"><span><span class="va">eval_results</span> <span class="op">&lt;-</span> <span class="fu">eval_reject_prob</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  <span class="va">fit_results</span>,</span></span>
-<span class="r-in"><span>  nested_data <span class="op">=</span> <span class="st">"feature_info"</span>,</span></span>
+<span class="r-in"><span>  nested_cols <span class="op">=</span> <span class="st">"feature_info"</span>,</span></span>
 <span class="r-in"><span>  feature_col <span class="op">=</span> <span class="st">"feature"</span>,</span></span>
 <span class="r-in"><span>  pval_col <span class="op">=</span> <span class="st">"pval"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Returning more (or less) than 1 row per `summarise()` group was deprecated in</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> dplyr 1.1.0.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Please use `reframe()` instead.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> When switching from `summarise()` to `reframe()`, remember that `reframe()`</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span>   always returns an ungrouped data frame and adjust accordingly.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The deprecated feature was likely used in the <span style="color: #0000BB;">simChef</span> package.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span>   Please report the issue at <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/Yu-Group/simChef/issues&gt;</span>.</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># evaluate rejection probability for each feature at specific values of alpha</span></span></span>
 <span class="r-in"><span><span class="va">eval_results</span> <span class="op">&lt;-</span> <span class="fu">eval_reject_prob</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  <span class="va">fit_results</span>,</span></span>
-<span class="r-in"><span>  nested_data <span class="op">=</span> <span class="st">"feature_info"</span>,</span></span>
+<span class="r-in"><span>  nested_cols <span class="op">=</span> <span class="st">"feature_info"</span>,</span></span>
 <span class="r-in"><span>  feature_col <span class="op">=</span> <span class="st">"feature"</span>,</span></span>
 <span class="r-in"><span>  pval_col <span class="op">=</span> <span class="st">"pval"</span>,</span></span>
 <span class="r-in"><span>  alphas <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.05</span>, <span class="fl">0.1</span><span class="op">)</span></span></span>

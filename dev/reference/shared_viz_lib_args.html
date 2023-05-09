@@ -62,10 +62,20 @@
 
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
-    <dl><dt>evaluator_name</dt>
-<dd><p>Name of <code>Evaluator</code> containing results to plot.
-To compute the evaluation summary results from scratch or if the evaluation
-summary results have not yet been evaluated, set to <code>NULL</code>.</p></dd>
+    <dl><dt>eval_name</dt>
+<dd><p>Name of <code>Evaluator</code> containing results to plot. If
+<code>NULL</code>, the data used for plotting is computed from scratch via
+<code>eval_fun</code>.</p></dd>
+
+
+<dt>eval_fun</dt>
+<dd><p>Character string, specifying the function used to compute
+the data used for plotting if <code>eval_name = NULL</code>. If <code>eval_name</code>
+is not <code>NULL</code>, this argument is ignored.</p></dd>
+
+
+<dt>eval_fun_options</dt>
+<dd><p>List of named arguments to pass to <code>eval_fun</code>.</p></dd>
 
 
 <dt>interactive</dt>
@@ -82,6 +92,10 @@ Precision-Recall curve.</p></dd>
 <dd><p>Character vector with elements being one of "boxplot", "point",
 "line", "bar", "errorbar", "ribbon" indicating what plot layer(s) to
 construct.</p></dd>
+
+
+<dt>...</dt>
+<dd><p>Additional arguments to pass to <code><a href="plot_eval_constructor.html">plot_eval_constructor()</a></code>.</p></dd>
 
 </dl></div>
 

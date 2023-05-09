@@ -68,9 +68,11 @@ bars.</p>
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">plot_feature_selection_err</span><span class="op">(</span></span>
-<span>  <span class="va">fit_results</span>,</span>
+<span>  fit_results <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  eval_results <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  evaluator_name <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  eval_name <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  eval_fun <span class="op">=</span> <span class="st">"summarize_feature_selection_err"</span>,</span>
+<span>  eval_fun_options <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  vary_params <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  metrics <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  show <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"point"</span>, <span class="st">"line"</span>, <span class="st">"errorbar"</span><span class="op">)</span>,</span>
@@ -89,10 +91,20 @@ bars.</p>
 <code>evaluate</code> method.</p></dd>
 
 
-<dt>evaluator_name</dt>
-<dd><p>Name of <code>Evaluator</code> containing results to plot.
-To compute the evaluation summary results from scratch or if the evaluation
-summary results have not yet been evaluated, set to <code>NULL</code>.</p></dd>
+<dt>eval_name</dt>
+<dd><p>Name of <code>Evaluator</code> containing results to plot. If
+<code>NULL</code>, the data used for plotting is computed from scratch via
+<code>eval_fun</code>.</p></dd>
+
+
+<dt>eval_fun</dt>
+<dd><p>Character string, specifying the function used to compute
+the data used for plotting if <code>eval_name = NULL</code>. If <code>eval_name</code>
+is not <code>NULL</code>, this argument is ignored.</p></dd>
+
+
+<dt>eval_fun_options</dt>
+<dd><p>List of named arguments to pass to <code>eval_fun</code>.</p></dd>
 
 
 <dt>vary_params</dt>
@@ -113,9 +125,7 @@ construct.</p></dd>
 
 
 <dt>...</dt>
-<dd><p>Additional arguments to pass to <code><a href="plot_eval_summary.html">plot_eval_summary()</a></code>. This
-includes arguments for plotting and for passing into
-<code><a href="eval_feature_selection_err_funs.html">summarize_feature_selection_err()</a></code>.</p></dd>
+<dd><p>Not used.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -166,7 +176,7 @@ a <code>ggplot</code> object if <code>plot_by</code> is <code>NULL</code> and a 
 <span class="r-in"><span><span class="va">eval_results</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>  `Feature Selection Errors` <span class="op">=</span> <span class="fu"><a href="eval_feature_selection_err_funs.html">summarize_feature_selection_err</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>    <span class="va">fit_results</span>, </span></span>
-<span class="r-in"><span>    nested_data <span class="op">=</span> <span class="st">"feature_info"</span>,</span></span>
+<span class="r-in"><span>    nested_cols <span class="op">=</span> <span class="st">"feature_info"</span>,</span></span>
 <span class="r-in"><span>    truth_col <span class="op">=</span> <span class="st">"true_support"</span>, </span></span>
 <span class="r-in"><span>    estimate_col <span class="op">=</span> <span class="st">"est_support"</span>,</span></span>
 <span class="r-in"><span>    imp_col <span class="op">=</span> <span class="st">"est_importance"</span></span></span>
@@ -174,22 +184,21 @@ a <code>ggplot</code> object if <code>plot_by</code> is <code>NULL</code> and a 
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># create bar plot using pre-computed evaluation results</span></span></span>
-<span class="r-in"><span><span class="va">plt</span> <span class="op">&lt;-</span> <span class="fu">plot_feature_selection_err</span><span class="op">(</span>fit_results <span class="op">=</span> <span class="va">fit_results</span>, </span></span>
-<span class="r-in"><span>                                  eval_results <span class="op">=</span> <span class="va">eval_results</span>,</span></span>
-<span class="r-in"><span>                                  evaluator_name <span class="op">=</span> <span class="st">"Feature Selection Errors"</span>,</span></span>
+<span class="r-in"><span><span class="va">plt</span> <span class="op">&lt;-</span> <span class="fu">plot_feature_selection_err</span><span class="op">(</span>eval_results <span class="op">=</span> <span class="va">eval_results</span>,</span></span>
+<span class="r-in"><span>                                  eval_name <span class="op">=</span> <span class="st">"Feature Selection Errors"</span>,</span></span>
 <span class="r-in"><span>                                  show <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"bar"</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="co"># or alternatively, create the same plot without pre-computing evaluation results</span></span></span>
-<span class="r-in"><span><span class="va">plt</span> <span class="op">&lt;-</span> <span class="fu">plot_feature_selection_err</span><span class="op">(</span><span class="va">fit_results</span>,</span></span>
-<span class="r-in"><span>                                  show <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"bar"</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>                                  nested_data <span class="op">=</span> <span class="st">"feature_info"</span>,</span></span>
-<span class="r-in"><span>                                  truth_col <span class="op">=</span> <span class="st">"true_support"</span>,</span></span>
-<span class="r-in"><span>                                  estimate_col <span class="op">=</span> <span class="st">"est_support"</span>,</span></span>
-<span class="r-in"><span>                                  imp_col <span class="op">=</span> <span class="st">"est_importance"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># or alternatively, create the same plot directly from fit results</span></span></span>
+<span class="r-in"><span><span class="va">plt</span> <span class="op">&lt;-</span> <span class="fu">plot_feature_selection_err</span><span class="op">(</span>fit_results <span class="op">=</span> <span class="va">fit_results</span>, show <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"bar"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                                  eval_fun_options <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>                                    nested_cols <span class="op">=</span> <span class="st">"feature_info"</span>,</span></span>
+<span class="r-in"><span>                                    truth_col <span class="op">=</span> <span class="st">"true_support"</span>,</span></span>
+<span class="r-in"><span>                                    estimate_col <span class="op">=</span> <span class="st">"est_support"</span>,</span></span>
+<span class="r-in"><span>                                    imp_col <span class="op">=</span> <span class="st">"est_importance"</span></span></span>
+<span class="r-in"><span>                                  <span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># can customize plot (see plot_eval_summary() for possible arguments)</span></span></span>
-<span class="r-in"><span><span class="va">plt</span> <span class="op">&lt;-</span> <span class="fu">plot_feature_selection_err</span><span class="op">(</span>fit_results <span class="op">=</span> <span class="va">fit_results</span>, </span></span>
-<span class="r-in"><span>                                  eval_results <span class="op">=</span> <span class="va">eval_results</span>,</span></span>
-<span class="r-in"><span>                                  evaluator_name <span class="op">=</span> <span class="st">"Feature Selection Errors"</span>,</span></span>
+<span class="r-in"><span><span class="co"># can customize plot (see plot_eval_constructor() for possible arguments)</span></span></span>
+<span class="r-in"><span><span class="va">plt</span> <span class="op">&lt;-</span> <span class="fu">plot_feature_selection_err</span><span class="op">(</span>eval_results <span class="op">=</span> <span class="va">eval_results</span>,</span></span>
+<span class="r-in"><span>                                  eval_name <span class="op">=</span> <span class="st">"Feature Selection Errors"</span>,</span></span>
 <span class="r-in"><span>                                  show <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"bar"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>                                  color_str <span class="op">=</span> <span class="st">".dgp_name"</span>,</span></span>
 <span class="r-in"><span>                                  interactive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>

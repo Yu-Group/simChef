@@ -55,6 +55,9 @@
     <loc>https://yu-group.github.io/simChef/dev/reference/add_funs.html</loc>
   </url>
   <url>
+    <loc>https://yu-group.github.io/simChef/dev/reference/add_na_counts.html</loc>
+  </url>
+  <url>
     <loc>https://yu-group.github.io/simChef/dev/reference/check_equal.html</loc>
   </url>
   <url>
@@ -109,6 +112,9 @@
     <loc>https://yu-group.github.io/simChef/dev/reference/create_fun_str.html</loc>
   </url>
   <url>
+    <loc>https://yu-group.github.io/simChef/dev/reference/create_list_args_str.html</loc>
+  </url>
+  <url>
     <loc>https://yu-group.github.io/simChef/dev/reference/create_method.html</loc>
   </url>
   <url>
@@ -122,6 +128,9 @@
   </url>
   <url>
     <loc>https://yu-group.github.io/simChef/dev/reference/do_call_handler.html</loc>
+  </url>
+  <url>
+    <loc>https://yu-group.github.io/simChef/dev/reference/eval_constructor.html</loc>
   </url>
   <url>
     <loc>https://yu-group.github.io/simChef/dev/reference/eval_feature_importance_funs.html</loc>
@@ -140,6 +149,9 @@
   </url>
   <url>
     <loc>https://yu-group.github.io/simChef/dev/reference/eval_reject_prob.html</loc>
+  </url>
+  <url>
+    <loc>https://yu-group.github.io/simChef/dev/reference/eval_summarizer.html</loc>
   </url>
   <url>
     <loc>https://yu-group.github.io/simChef/dev/reference/eval_testing_curve_funs.html</loc>
@@ -178,10 +190,13 @@
     <loc>https://yu-group.github.io/simChef/dev/reference/get_dot_args.html</loc>
   </url>
   <url>
-    <loc>https://yu-group.github.io/simChef/dev/reference/get_eval_tibble.html</loc>
+    <loc>https://yu-group.github.io/simChef/dev/reference/get_funs.html</loc>
   </url>
   <url>
-    <loc>https://yu-group.github.io/simChef/dev/reference/get_funs.html</loc>
+    <loc>https://yu-group.github.io/simChef/dev/reference/get_matching_rows.html</loc>
+  </url>
+  <url>
+    <loc>https://yu-group.github.io/simChef/dev/reference/get_plot_data.html</loc>
   </url>
   <url>
     <loc>https://yu-group.github.io/simChef/dev/reference/get_save_dir.html</loc>
@@ -229,7 +244,7 @@
     <loc>https://yu-group.github.io/simChef/dev/reference/pipe_value.html</loc>
   </url>
   <url>
-    <loc>https://yu-group.github.io/simChef/dev/reference/plot_eval_summary.html</loc>
+    <loc>https://yu-group.github.io/simChef/dev/reference/plot_eval_constructor.html</loc>
   </url>
   <url>
     <loc>https://yu-group.github.io/simChef/dev/reference/plot_feature_importance.html</loc>
@@ -241,7 +256,7 @@
     <loc>https://yu-group.github.io/simChef/dev/reference/plot_feature_selection_err.html</loc>
   </url>
   <url>
-    <loc>https://yu-group.github.io/simChef/dev/reference/plot_fit_results.html</loc>
+    <loc>https://yu-group.github.io/simChef/dev/reference/plot_fit_constructor.html</loc>
   </url>
   <url>
     <loc>https://yu-group.github.io/simChef/dev/reference/plot_pred_curve.html</loc>
@@ -302,9 +317,6 @@
   </url>
   <url>
     <loc>https://yu-group.github.io/simChef/dev/reference/simplify_tibble.html</loc>
-  </url>
-  <url>
-    <loc>https://yu-group.github.io/simChef/dev/reference/summarize_eval_results.html</loc>
   </url>
   <url>
     <loc>https://yu-group.github.io/simChef/dev/reference/test_sim_dir.html</loc>

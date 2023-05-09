@@ -79,10 +79,11 @@ selection metrics across experimental replicates.</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">eval_feature_selection_err</span><span class="op">(</span></span>
 <span>  <span class="va">fit_results</span>,</span>
 <span>  vary_params <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  nested_data <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  nested_cols <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">truth_col</span>,</span>
 <span>  estimate_col <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">imp_col</span>,</span>
+<span>  group_cols <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  metrics <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  na_rm <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span>
@@ -90,10 +91,11 @@ selection metrics across experimental replicates.</p>
 <span><span class="fu">summarize_feature_selection_err</span><span class="op">(</span></span>
 <span>  <span class="va">fit_results</span>,</span>
 <span>  vary_params <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  nested_data <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  nested_cols <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">truth_col</span>,</span>
 <span>  estimate_col <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">imp_col</span>,</span>
+<span>  group_cols <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  metrics <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  na_rm <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  summary_funs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"mean"</span>, <span class="st">"median"</span>, <span class="st">"min"</span>, <span class="st">"max"</span>, <span class="st">"sd"</span>, <span class="st">"raw"</span><span class="op">)</span>,</span>
@@ -113,9 +115,9 @@ selection metrics across experimental replicates.</p>
 <code>Experiment</code>.</p></dd>
 
 
-<dt>nested_data</dt>
-<dd><p>(Optional) Character string. If specified, should be the
-name of the column in <code>fit_results</code> containing columns that must be
+<dt>nested_cols</dt>
+<dd><p>(Optional) A character string or vector specifying the
+name of the column(s) in <code>fit_results</code> that need to be
 unnested before evaluating results. Default is <code>NULL</code>, meaning no
 columns in <code>fit_results</code> need to be unnested prior to computation.</p></dd>
 
@@ -148,6 +150,12 @@ in this column should be an array of length <code>p</code>, where <code>p</code>
 number of features and the feature order aligns with that of
 <code>truth_col</code>. Elements in this array should be numeric where a higher
 magnitude indicates a more important feature.</p></dd>
+
+
+<dt>group_cols</dt>
+<dd><p>(Optional) A character string or vector specifying the
+column(s) to group rows by before evaluating metrics.
+This is useful for assessing within-group metrics.</p></dd>
 
 
 <dt>metrics</dt>
@@ -207,17 +215,17 @@ following columns:</p><dl><dt>.rep</dt>
 <dd><p>Value of the evaluation metric.</p></dd>
 
 
-</dl><p>as well as any columns specified by <code>vary_params</code>.</p>
+</dl><p>as well as any columns specified by <code>group_cols</code> and <code>vary_params</code>.</p>
 
 
 <p>The output of <code>summarize_feature_selection_err()</code> is a grouped
 <code>tibble</code> containing both identifying information and the feature
 selection results aggregated over experimental replicates. Specifically, the
 identifier columns include <code>.dgp_name</code>, <code>.method_name</code>, any columns
-specified by <code>vary_params</code>, and <code>.metric</code>. In addition, there are
-results columns corresponding to the requested statistics in
-<code>summary_funs</code> and <code>custom_summary_funs</code>. These columns end in the
-suffix "_feature_selection".</p>
+specified by <code>group_cols</code> and <code>vary_params</code>, and <code>.metric</code>.
+In addition, there are results columns corresponding to the requested
+statistics in <code>summary_funs</code> and <code>custom_summary_funs</code>. These
+columns end in the suffix specified by <code>eval_id</code>.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
@@ -256,7 +264,7 @@ suffix "_feature_selection".</p>
 <span class="r-in"><span><span class="co"># evaluate feature selection (using all default metrics) for each replicate</span></span></span>
 <span class="r-in"><span><span class="va">eval_results</span> <span class="op">&lt;-</span> <span class="fu">eval_feature_selection_err</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  <span class="va">fit_results</span>,</span></span>
-<span class="r-in"><span>  nested_data <span class="op">=</span> <span class="st">"feature_info"</span>,</span></span>
+<span class="r-in"><span>  nested_cols <span class="op">=</span> <span class="st">"feature_info"</span>,</span></span>
 <span class="r-in"><span>  truth_col <span class="op">=</span> <span class="st">"true_support"</span>,</span></span>
 <span class="r-in"><span>  estimate_col <span class="op">=</span> <span class="st">"est_support"</span>,</span></span>
 <span class="r-in"><span>  imp_col <span class="op">=</span> <span class="st">"est_importance"</span></span></span>
@@ -264,7 +272,7 @@ suffix "_feature_selection".</p>
 <span class="r-in"><span><span class="co"># summarize feature selection error (using all default metric) across replicates</span></span></span>
 <span class="r-in"><span><span class="va">eval_results_summary</span> <span class="op">&lt;-</span> <span class="fu">summarize_feature_selection_err</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  <span class="va">fit_results</span>,</span></span>
-<span class="r-in"><span>  nested_data <span class="op">=</span> <span class="st">"feature_info"</span>,</span></span>
+<span class="r-in"><span>  nested_cols <span class="op">=</span> <span class="st">"feature_info"</span>,</span></span>
 <span class="r-in"><span>  truth_col <span class="op">=</span> <span class="st">"true_support"</span>,</span></span>
 <span class="r-in"><span>  estimate_col <span class="op">=</span> <span class="st">"est_support"</span>,</span></span>
 <span class="r-in"><span>  imp_col <span class="op">=</span> <span class="st">"est_importance"</span></span></span>
@@ -274,7 +282,7 @@ suffix "_feature_selection".</p>
 <span class="r-in"><span><span class="va">metrics</span> <span class="op">&lt;-</span> <span class="fu">yardstick</span><span class="fu">::</span><span class="fu"><a href="https://yardstick.tidymodels.org/reference/metric_set.html" class="external-link">metric_set</a></span><span class="op">(</span><span class="fu">yardstick</span><span class="fu">::</span><span class="va"><a href="https://yardstick.tidymodels.org/reference/sens.html" class="external-link">sens</a></span>, <span class="fu">yardstick</span><span class="fu">::</span><span class="va"><a href="https://yardstick.tidymodels.org/reference/spec.html" class="external-link">spec</a></span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">eval_results</span> <span class="op">&lt;-</span> <span class="fu">eval_feature_selection_err</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  <span class="va">fit_results</span>,</span></span>
-<span class="r-in"><span>  nested_data <span class="op">=</span> <span class="st">"feature_info"</span>,</span></span>
+<span class="r-in"><span>  nested_cols <span class="op">=</span> <span class="st">"feature_info"</span>,</span></span>
 <span class="r-in"><span>  truth_col <span class="op">=</span> <span class="st">"true_support"</span>,</span></span>
 <span class="r-in"><span>  estimate_col <span class="op">=</span> <span class="st">"est_support"</span>,</span></span>
 <span class="r-in"><span>  imp_col <span class="op">=</span> <span class="st">"est_importance"</span>,</span></span>
@@ -282,7 +290,7 @@ suffix "_feature_selection".</p>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">eval_results_summary</span> <span class="op">&lt;-</span> <span class="fu">summarize_feature_selection_err</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  <span class="va">fit_results</span>,</span></span>
-<span class="r-in"><span>  nested_data <span class="op">=</span> <span class="st">"feature_info"</span>,</span></span>
+<span class="r-in"><span>  nested_cols <span class="op">=</span> <span class="st">"feature_info"</span>,</span></span>
 <span class="r-in"><span>  truth_col <span class="op">=</span> <span class="st">"true_support"</span>,</span></span>
 <span class="r-in"><span>  estimate_col <span class="op">=</span> <span class="st">"est_support"</span>,</span></span>
 <span class="r-in"><span>  imp_col <span class="op">=</span> <span class="st">"est_importance"</span>,</span></span>
@@ -293,7 +301,7 @@ suffix "_feature_selection".</p>
 <span class="r-in"><span><span class="va">range_fun</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">eval_results_summary</span> <span class="op">&lt;-</span> <span class="fu">summarize_feature_selection_err</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  <span class="va">fit_results</span>,</span></span>
-<span class="r-in"><span>  nested_data <span class="op">=</span> <span class="st">"feature_info"</span>,</span></span>
+<span class="r-in"><span>  nested_cols <span class="op">=</span> <span class="st">"feature_info"</span>,</span></span>
 <span class="r-in"><span>  truth_col <span class="op">=</span> <span class="st">"true_support"</span>,</span></span>
 <span class="r-in"><span>  estimate_col <span class="op">=</span> <span class="st">"est_support"</span>,</span></span>
 <span class="r-in"><span>  imp_col <span class="op">=</span> <span class="st">"est_importance"</span>,</span></span>

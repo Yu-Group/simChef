@@ -84,23 +84,22 @@ columns. Default <code>NULL</code> does not add any ID to the column names.</p><
 <code>fit_results</code> with the feature names or IDs.</p></dd>
 
 
+<dt>group_cols</dt>
+<dd><p>(Optional) A character string or vector specifying the
+column(s) to group rows by before evaluating metrics.
+This is useful for assessing within-group metrics.</p></dd>
+
+
 <dt>na_rm</dt>
 <dd><p>A <code>logical</code> value indicating whether <code>NA</code> values
 should be stripped before the computation proceeds.</p></dd>
 
 
-<dt>nested_data</dt>
-<dd><p>(Optional) Character string. If specified, should be the
-name of the column in <code>fit_results</code> containing columns that must be
+<dt>nested_cols</dt>
+<dd><p>(Optional) A character string or vector specifying the
+name of the column(s) in <code>fit_results</code> that need to be
 unnested before evaluating results. Default is <code>NULL</code>, meaning no
 columns in <code>fit_results</code> need to be unnested prior to computation.</p></dd>
-
-
-<dt>options</dt>
-<dd><p>A list of named options to pass to <code>pROC::roc()</code> such as
-<code>smooth</code>. These options should not include <code>response</code>,
-<code>predictor</code>, <code>levels</code>, <code>quiet</code>, or <code>direction</code>. This
-argument is only used when computing the ROC and is ignored otherwise.</p></dd>
 
 
 <dt>summary_funs</dt>

@@ -140,7 +140,7 @@ Method example, rather than a fill-in-the-blank template.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   stop('Add additional arguments (if necessary) to pass to Method here.')</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ) </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> nested_pred_data &lt;- stop('(Optional) Add name of column in `fit_results` with prediction result columns to be unnested.')</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> nested_pred_cols &lt;- stop('(Optional) Add name of column in `fit_results` with prediction result columns to be unnested.')</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> true_pred_col &lt;- stop('Add name of column in `fit_results` with true responses here.')</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> est_pred_col &lt;- stop('Add name of column in `fit_results` with the predicted responses here.')</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -148,7 +148,7 @@ Method example, rather than a fill-in-the-blank template.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> pred_err &lt;- create_evaluator(</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   .eval_fun = summarize_pred_err,</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   .name = 'Prediction Accuracy',</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   nested_data = nested_pred_data,</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   nested_cols = nested_pred_cols,</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   truth_col = true_pred_col,</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   estimate_col = est_pred_col</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ) </span>
@@ -156,7 +156,7 @@ Method example, rather than a fill-in-the-blank template.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> pred_err_plot &lt;- create_visualizer(</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   .viz_fun = plot_pred_err,</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   .name = 'Prediction Accuracy Plot',</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   evaluator_name = 'Prediction Accuracy'</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   eval_name = 'Prediction Accuracy'</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ) </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> experiment &lt;- create_experiment(name = 'Prediction Experiment') %&gt;% </span>
@@ -188,7 +188,7 @@ Method example, rather than a fill-in-the-blank template.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   stop('Add additional arguments (if necessary) to pass to Method here.')</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ) </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> nested_pred_data &lt;- stop('(Optional) Add name of column in `fit_results` with prediction result columns to be unnested.')</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> nested_pred_cols &lt;- stop('(Optional) Add name of column in `fit_results` with prediction result columns to be unnested.')</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> true_pred_col &lt;- stop('Add name of column in `fit_results` with true responses here.')</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> est_pred_col &lt;- stop('Add name of column in `fit_results` with the predicted responses here.')</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> prob_pred_cols &lt;- stop('Add name of column(s) in `fit_results` with the predicted probabilities here.')</span>
@@ -197,7 +197,7 @@ Method example, rather than a fill-in-the-blank template.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> pred_err &lt;- create_evaluator(</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   .eval_fun = summarize_pred_err,</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   .name = 'Prediction Accuracy',</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   nested_data = nested_pred_data,</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   nested_cols = nested_pred_cols,</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   truth_col = true_pred_col,</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   estimate_col = est_pred_col,</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   prob_cols = prob_pred_cols</span>
@@ -206,25 +206,29 @@ Method example, rather than a fill-in-the-blank template.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> pred_err_plot &lt;- create_visualizer(</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   .viz_fun = plot_pred_err,</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   .name = 'Prediction Accuracy Plot',</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   evaluator_name = 'Prediction Accuracy'</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   eval_name = 'Prediction Accuracy'</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ) </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> roc_plot &lt;- create_visualizer(</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   .viz_fun = plot_pred_curve,</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   .name = 'ROC Plot',</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   curve = 'ROC',</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   nested_data = nested_pred_data,</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   truth_col = true_pred_col,</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   prob_cols = prob_pred_cols</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   eval_fun_options = list(</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     nested_cols = nested_pred_cols,</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     truth_col = true_pred_col,</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     prob_cols = prob_pred_cols</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   )</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ) </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> pr_plot &lt;- create_visualizer(</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   .viz_fun = plot_pred_curve,</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   .name = 'PR Plot',</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   curve = 'PR',</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   nested_data = nested_pred_data,</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   truth_col = true_pred_col,</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   prob_cols = prob_pred_cols</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   eval_fun_options = list(</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     nested_cols = nested_pred_cols,</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     truth_col = true_pred_col,</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     prob_cols = prob_pred_cols</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   )</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ) </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> experiment &lt;- create_experiment(name = 'Prediction Experiment') %&gt;% </span>
@@ -340,7 +344,7 @@ Method example, rather than a fill-in-the-blank template.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   .name = 'RF'</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ) </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> nested_pred_data &lt;- c('y', 'predictions', 'prob_predictions')  # prediction results columns to be unnested</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> nested_pred_cols &lt;- c('y', 'predictions', 'prob_predictions')  # prediction results columns to be unnested</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> true_pred_col &lt;- 'y'  # true response column</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> est_pred_col &lt;- 'predictions'  # predicted response column</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -348,7 +352,7 @@ Method example, rather than a fill-in-the-blank template.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> pred_err &lt;- create_evaluator(</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   .eval_fun = summarize_pred_err,</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   .name = 'Prediction Accuracy',</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   nested_data = nested_pred_data,</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   nested_cols = nested_pred_cols,</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   truth_col = true_pred_col,</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   estimate_col = est_pred_col</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ) </span>
@@ -356,7 +360,7 @@ Method example, rather than a fill-in-the-blank template.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> pred_err_plot &lt;- create_visualizer(</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   .viz_fun = plot_pred_err,</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   .name = 'Prediction Accuracy Plot',</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   evaluator_name = 'Prediction Accuracy'</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   eval_name = 'Prediction Accuracy'</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ) </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> experiment &lt;- create_experiment(name = 'Prediction Experiment') %&gt;% </span>
@@ -469,7 +473,7 @@ Method example, rather than a fill-in-the-blank template.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   .name = 'RF'</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ) </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> nested_pred_data &lt;- c('y', 'predictions', 'prob_predictions')  # prediction results columns to be unnested</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> nested_pred_cols &lt;- c('y', 'predictions', 'prob_predictions')  # prediction results columns to be unnested</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> true_pred_col &lt;- 'y'  # true response column</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> est_pred_col &lt;- 'predictions'  # predicted response column</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> prob_pred_cols &lt;- '1'  # predicted probability columns</span>
@@ -478,7 +482,7 @@ Method example, rather than a fill-in-the-blank template.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> pred_err &lt;- create_evaluator(</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   .eval_fun = summarize_pred_err,</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   .name = 'Prediction Accuracy',</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   nested_data = nested_pred_data,</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   nested_cols = nested_pred_cols,</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   truth_col = true_pred_col,</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   estimate_col = est_pred_col,</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   prob_cols = prob_pred_cols</span>
@@ -487,25 +491,29 @@ Method example, rather than a fill-in-the-blank template.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> pred_err_plot &lt;- create_visualizer(</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   .viz_fun = plot_pred_err,</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   .name = 'Prediction Accuracy Plot',</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   evaluator_name = 'Prediction Accuracy'</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   eval_name = 'Prediction Accuracy'</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ) </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> roc_plot &lt;- create_visualizer(</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   .viz_fun = plot_pred_curve,</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   .name = 'ROC Plot',</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   curve = 'ROC',</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   nested_data = nested_pred_data,</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   truth_col = true_pred_col,</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   prob_cols = prob_pred_cols</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   eval_fun_options = list(</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     nested_cols = nested_pred_cols,</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     truth_col = true_pred_col,</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     prob_cols = prob_pred_cols</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   )</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ) </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> pr_plot &lt;- create_visualizer(</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   .viz_fun = plot_pred_curve,</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   .name = 'PR Plot',</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   curve = 'PR',</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   nested_data = nested_pred_data,</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   truth_col = true_pred_col,</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   prob_cols = prob_pred_cols</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   eval_fun_options = list(</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     nested_cols = nested_pred_cols,</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     truth_col = true_pred_col,</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     prob_cols = prob_pred_cols</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   )</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ) </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> experiment &lt;- create_experiment(name = 'Prediction Experiment') %&gt;% </span>
@@ -541,7 +549,7 @@ Method example, rather than a fill-in-the-blank template.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   stop('Add additional arguments (if necessary) to pass to Method here.')</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ) </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> nested_feature_data &lt;- stop('(Optional) Add name of column in `fit_results` with feature importance columns to be unnested here.')</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> nested_feature_cols &lt;- stop('(Optional) Add name of column in `fit_results` with feature importance columns to be unnested here.')</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> feature_col &lt;- stop('Add name of column in `fit_results` containing the feature names here.')</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> true_feature_col &lt;- stop('Add name of column in `fit_results` containing the true feature support here.')</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> feature_imp_col &lt;- stop('Add name of column in `fit_results` containing the feature importances here.')</span>
@@ -550,7 +558,7 @@ Method example, rather than a fill-in-the-blank template.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> fi &lt;- create_evaluator(</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   .eval_fun = summarize_feature_importance,</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   .name = 'Feature Importances',</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   nested_data = nested_feature_data,</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   nested_cols = nested_feature_cols,</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   feature_col = feature_col,</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   imp_col = feature_imp_col</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ) </span>
@@ -558,7 +566,7 @@ Method example, rather than a fill-in-the-blank template.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> feature_sel &lt;- create_evaluator(</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   .eval_fun = summarize_feature_selection_err,</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   .name = 'Feature Selection Error',</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   nested_data = nested_feature_data,</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   nested_cols = nested_feature_cols,</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   truth_col = true_feature_col,</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   estimate_col = feature_sel_col,</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   imp_col = feature_imp_col</span>
@@ -567,14 +575,14 @@ Method example, rather than a fill-in-the-blank template.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> fi_plot &lt;- create_visualizer(</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   .viz_fun = plot_feature_importance,</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   .name = 'Feature Importances Plot',</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   evaluator_name = 'Feature Importances',</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   eval_name = 'Feature Importances',</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   feature_col = feature_col</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ) </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> feature_sel_plot &lt;- create_visualizer(</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   .viz_fun = plot_feature_selection_err,</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   .name = 'Feature Selection Error Plot',</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   evaluator_name = 'Feature Selection Error'</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   eval_name = 'Feature Selection Error'</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ) </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> experiment &lt;- create_experiment(name = 'Feature Selection Experiment') %&gt;% </span>
@@ -688,7 +696,7 @@ Method example, rather than a fill-in-the-blank template.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   .name = 'RF'</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ) </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> nested_feature_data &lt;- 'support_df'  # feature importance columns to be unnested</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> nested_feature_cols &lt;- 'support_df'  # feature importance columns to be unnested</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> feature_col &lt;- 'feature'  # feature names column</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> true_feature_col &lt;- 'true_support'  # true feature support column</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> feature_imp_col &lt;- 'imp'  # feature importance column</span>
@@ -697,7 +705,7 @@ Method example, rather than a fill-in-the-blank template.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> fi &lt;- create_evaluator(</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   .eval_fun = summarize_feature_importance,</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   .name = 'Feature Importances',</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   nested_data = nested_feature_data,</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   nested_cols = nested_feature_cols,</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   feature_col = feature_col,</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   imp_col = feature_imp_col</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ) </span>
@@ -705,7 +713,7 @@ Method example, rather than a fill-in-the-blank template.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> feature_sel &lt;- create_evaluator(</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   .eval_fun = summarize_feature_selection_err,</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   .name = 'Feature Selection Error',</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   nested_data = nested_feature_data,</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   nested_cols = nested_feature_cols,</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   truth_col = true_feature_col,</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   estimate_col = feature_sel_col,</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   imp_col = feature_imp_col</span>
@@ -714,14 +722,14 @@ Method example, rather than a fill-in-the-blank template.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> fi_plot &lt;- create_visualizer(</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   .viz_fun = plot_feature_importance,</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   .name = 'Feature Importances Plot',</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   evaluator_name = 'Feature Importances',</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   eval_name = 'Feature Importances',</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   feature_col = feature_col</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ) </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> feature_sel_plot &lt;- create_visualizer(</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   .viz_fun = plot_feature_selection_err,</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   .name = 'Feature Selection Error Plot',</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   evaluator_name = 'Feature Selection Error'</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   eval_name = 'Feature Selection Error'</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ) </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> experiment &lt;- create_experiment(name = 'Feature Selection Experiment') %&gt;% </span>
@@ -757,7 +765,7 @@ Method example, rather than a fill-in-the-blank template.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   stop('Add additional arguments (if necessary) to pass to Method here.')</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ) </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> nested_feature_data &lt;- stop('(Optional) Add name of column in `fit_results` with feature importance columns to be unnested here.')</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> nested_feature_cols &lt;- stop('(Optional) Add name of column in `fit_results` with feature importance columns to be unnested here.')</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> feature_col &lt;- stop('Add name of column in `fit_results` containing the feature names here.')</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> true_feature_col &lt;- stop('Add name of column in `fit_results` containing the true feature support here.')</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> pval_col &lt;- stop('Add name of column in `fit_results` containing the p-values here.')</span>
@@ -765,7 +773,7 @@ Method example, rather than a fill-in-the-blank template.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> inf_err &lt;- create_evaluator(</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   .eval_fun = summarize_testing_err,</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   .name = 'Hypothesis Testing Error',</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   nested_data = nested_feature_data,</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   nested_cols = nested_feature_cols,</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   truth_col = true_feature_col,</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   pval_col = pval_col</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ) </span>
@@ -774,7 +782,7 @@ Method example, rather than a fill-in-the-blank template.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   .eval_fun = summarize_feature_importance,</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   .name = 'P-value Summary Statistics',</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   eval_id = 'pval',</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   nested_data = nested_feature_data,</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   nested_cols = nested_feature_cols,</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   feature_col = feature_col,</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   imp_col = pval_col</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ) </span>
@@ -782,33 +790,39 @@ Method example, rather than a fill-in-the-blank template.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> inf_err_plot &lt;- create_visualizer(</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   .viz_fun = plot_testing_err,</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   .name = 'Hypothesis Testing Error Plot',</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   evaluator_name = 'Hypothesis Testing Error'</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   eval_name = 'Hypothesis Testing Error'</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ) </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> inf_roc_plot &lt;- create_visualizer(</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   .viz_fun = plot_testing_curve,</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   .name = 'Feature ROC Plot',</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   curve = 'ROC',</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   nested_data = nested_feature_data,</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   truth_col = true_feature_col,</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   pval_col = pval_col</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   eval_fun_options = list(</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     nested_cols = nested_feature_cols,</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     truth_col = true_feature_col,</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     pval_col = pval_col</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   )</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ) </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> inf_pr_plot &lt;- create_visualizer(</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   .viz_fun = plot_testing_curve,</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   .name = 'Feature Selection PR Plot',</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   curve = 'PR',</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   nested_data = nested_feature_data,</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   truth_col = true_feature_col,</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   pval_col = pval_col</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   eval_fun_options = list(</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     nested_cols = nested_feature_cols,</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     truth_col = true_feature_col,</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     pval_col = pval_col</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   )</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ) </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> reject_prob_plot &lt;- create_visualizer(</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   .viz_fun = plot_reject_prob,</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   .name = 'Rejection Probability Curve',</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   nested_data = nested_feature_data,</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   feature_col = feature_col,</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   pval_col = pval_col</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   eval_fun_options = list(</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     nested_cols = nested_feature_cols,</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     pval_col = pval_col</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   )</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ) </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> experiment &lt;- create_experiment(name = 'Inference Experiment') %&gt;% </span>
@@ -900,7 +914,7 @@ Method example, rather than a fill-in-the-blank template.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   .name = 'OLS'</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ) </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> nested_feature_data &lt;- 'support_df'  # feature importance columns to be unnested</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> nested_feature_cols &lt;- 'support_df'  # feature importance columns to be unnested</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> feature_col &lt;- 'feature'  # feature names column</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> true_feature_col &lt;- 'true_support'  # true feature support column</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> pval_col &lt;- 'pval'  # p-values column</span>
@@ -908,7 +922,7 @@ Method example, rather than a fill-in-the-blank template.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> inf_err &lt;- create_evaluator(</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   .eval_fun = summarize_testing_err,</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   .name = 'Hypothesis Testing Error',</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   nested_data = nested_feature_data,</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   nested_cols = nested_feature_cols,</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   truth_col = true_feature_col,</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   pval_col = pval_col</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ) </span>
@@ -917,7 +931,7 @@ Method example, rather than a fill-in-the-blank template.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   .eval_fun = summarize_feature_importance,</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   .name = 'P-value Summary Statistics',</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   eval_id = 'pval',</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   nested_data = nested_feature_data,</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   nested_cols = nested_feature_cols,</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   feature_col = feature_col,</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   imp_col = pval_col</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ) </span>
@@ -925,33 +939,39 @@ Method example, rather than a fill-in-the-blank template.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> inf_err_plot &lt;- create_visualizer(</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   .viz_fun = plot_testing_err,</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   .name = 'Hypothesis Testing Error Plot',</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   evaluator_name = 'Hypothesis Testing Error'</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   eval_name = 'Hypothesis Testing Error'</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ) </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> inf_roc_plot &lt;- create_visualizer(</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   .viz_fun = plot_testing_curve,</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   .name = 'Feature ROC Plot',</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   curve = 'ROC',</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   nested_data = nested_feature_data,</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   truth_col = true_feature_col,</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   pval_col = pval_col</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   eval_fun_options = list(</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     nested_cols = nested_feature_cols,</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     truth_col = true_feature_col,</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     pval_col = pval_col</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   )</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ) </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> inf_pr_plot &lt;- create_visualizer(</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   .viz_fun = plot_testing_curve,</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   .name = 'Feature Selection PR Plot',</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   curve = 'PR',</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   nested_data = nested_feature_data,</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   truth_col = true_feature_col,</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   pval_col = pval_col</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   eval_fun_options = list(</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     nested_cols = nested_feature_cols,</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     truth_col = true_feature_col,</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     pval_col = pval_col</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   )</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ) </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> reject_prob_plot &lt;- create_visualizer(</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   .viz_fun = plot_reject_prob,</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   .name = 'Rejection Probability Curve',</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   nested_data = nested_feature_data,</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   feature_col = feature_col,</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   pval_col = pval_col</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   eval_fun_options = list(</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     nested_cols = nested_feature_cols,</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     pval_col = pval_col</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   )</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ) </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> experiment &lt;- create_experiment(name = 'Inference Experiment') %&gt;% </span>
