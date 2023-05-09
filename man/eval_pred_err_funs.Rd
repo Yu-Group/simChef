@@ -9,26 +9,24 @@
 eval_pred_err(
   fit_results,
   vary_params = NULL,
-  nested_data = NULL,
+  nested_cols = NULL,
   truth_col,
   estimate_col,
   prob_cols = NULL,
+  group_cols = NULL,
   metrics = NULL,
-  groups = NULL,
-  options = list(),
   na_rm = FALSE
 )
 
 summarize_pred_err(
   fit_results,
   vary_params = NULL,
-  nested_data = NULL,
+  nested_cols = NULL,
   truth_col,
   estimate_col,
   prob_cols = NULL,
+  group_cols = NULL,
   metrics = NULL,
-  groups = NULL,
-  options = list(),
   na_rm = FALSE,
   summary_funs = c("mean", "median", "min", "max", "sd", "raw"),
   custom_summary_funs = NULL,
@@ -41,8 +39,8 @@ summarize_pred_err(
 \item{vary_params}{A vector of parameter names that are varied across in the
 \code{Experiment}.}
 
-\item{nested_data}{(Optional) Character string. If specified, should be the
-name of the column in \code{fit_results} containing columns that must be
+\item{nested_cols}{(Optional) A character string or vector specifying the
+name of the column(s) in \code{fit_results} that need to be
 unnested before evaluating results. Default is \code{NULL}, meaning no
 columns in \code{fit_results} need to be unnested prior to computation.}
 
@@ -62,20 +60,13 @@ only 1 column name should be provided. Otherwise, the length of the
 the \code{truth_col} column. This argument is not used when evaluating
 numeric metrics.}
 
+\item{group_cols}{(Optional) A character string or vector specifying the
+column(s) to group rows by before evaluating metrics.
+This is useful for assessing within-group metrics.}
+
 \item{metrics}{A \code{metric_set} object indicating the metrics to evaluate.
 See \code{\link[yardstick:metric_set]{yardstick::metric_set()}} for more details. Default \code{NULL} will
 use the default metrics in \code{\link[yardstick:metrics]{yardstick::metrics()}}.}
-
-\item{groups}{(Optional) vector of group IDs to group observations by before
-evaluating prediction errors. This is useful for assessing within-group
-prediction errors. Note: the (unstratified) prediction errors, aggregated
-across the full data set, are computed in addition to these stratified
-within-group errors.}
-
-\item{options}{A list of named options to pass to \code{pROC::roc()} such as
-\code{smooth}. These options should not include \code{response},
-\code{predictor}, \code{levels}, \code{quiet}, or \code{direction}. This
-argument is only used when computing the ROC and is ignored otherwise.}
 
 \item{na_rm}{A \code{logical} value indicating whether \code{NA} values
 should be stripped before the computation proceeds.}
@@ -100,20 +91,19 @@ columns:
 \item{.rep}{Replicate ID.}
 \item{.dgp_name}{Name of DGP.}
 \item{.method_name}{Name of Method.}
-\item{.group}{If \code{groups} is not \code{NULL}, this column specifies the
-name of the group under evaluation. Otherwise, this column is not returned.}
 \item{.metric}{Name of the evaluation metric.}
 \item{.estimate}{Value of the evaluation metric.}
 }
-as well as any columns specified by \code{vary_params}.
+as well as any columns specified by \code{group_cols} and \code{vary_params}.
 
 The output of \code{summarize_pred_err()} is a grouped \code{tibble}
 containing both identifying information and the prediction error results
 aggregated over experimental replicates. Specifically, the identifier columns
 include \code{.dgp_name}, \code{.method_name}, any columns specified by
-\code{vary_params}, and  \code{.metric}. In addition, there are results
-columns corresponding to the requested statistics in \code{summary_funs} and
-\code{custom_summary_funs}. These columns end in the suffix "_pred_err".
+\code{group_cols} and \code{vary_params}, and  \code{.metric}. In addition,
+there are results columns corresponding to the requested statistics in
+\code{summary_funs} and \code{custom_summary_funs}. These columns end in the
+suffix specified by \code{eval_id}.
 }
 \description{
 Evaluate various prediction error metrics, given the true
@@ -136,7 +126,8 @@ fit_results <- tibble::tibble(
   # true response
   y = lapply(1:4, FUN = function(x) rnorm(100)),
   # predicted response
-  predictions = lapply(1:4, FUN = function(x) rnorm(100))
+  predictions = lapply(1:4, FUN = function(x) rnorm(100)),
+  group = lapply(1:4, FUN = function(x) rep(c("a", "b"), length.out = 100))
 )
 
 # evaluate prediction error (using all default metrics) for each replicate
@@ -149,15 +140,14 @@ eval_results_summary <- summarize_pred_err(fit_results,
                                            estimate_col = "predictions")
 
 # evaluate/summarize prediction error within subgroups
-group_ids <- rep(c("a", "b"), length.out = 100)
 eval_results <- eval_pred_err(fit_results,
                               truth_col = "y",
                               estimate_col = "predictions",
-                              groups = group_ids)
+                              group_cols = "group")
 eval_results_summary <- summarize_pred_err(fit_results,
                                            truth_col = "y",
                                            estimate_col = "predictions",
-                                           groups = group_ids)
+                                           group_cols = "group")
 
 # evaluate/summarize prediction errors using specific yardstick metrics
 metrics <- yardstick::metric_set(yardstick::rmse, yardstick::rsq)
@@ -252,13 +242,13 @@ eval_results <- eval_pred_err(fit_results,
                               truth_col = "y",
                               estimate_col = "predictions",
                               prob_cols = c("a", "b", "c"),
-                              nested_data = "class_probs")
+                              nested_cols = c("y", "class_probs", "predictions"))
 #' summarize prediction error (using all default metric) across replicates
 eval_results_summary <- summarize_pred_err(fit_results,
                                            truth_col = "y",
                                            estimate_col = "predictions",
                                            prob_cols = c("a", "b", "c"),
-                                           nested_data = "class_probs")
+                                           nested_cols = c("y", "class_probs", "predictions"))
 
 # can also evaluate results using only class predictions (without class probs.)
 eval_results <- eval_pred_err(fit_results,

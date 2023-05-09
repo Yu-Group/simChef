@@ -5,11 +5,8 @@
 #'   bars. 
 #' 
 #' @inheritParams plot_pred_err
-#' @param ... Additional arguments to pass to \code{plot_eval_summary()}. This
-#'   includes arguments for plotting and for passing into
-#'   \code{summarize_testing_err()}.
 #' 
-#' @inherit plot_eval_summary return
+#' @inherit plot_eval_constructor return
 #' 
 #' @family inference_funs
 #' 
@@ -38,47 +35,50 @@
 #' eval_results <- list(
 #'   `Testing Errors` = summarize_testing_err(
 #'     fit_results, 
-#'     nested_data = "feature_info",
+#'     nested_cols = "feature_info",
 #'     truth_col = "true_support", 
 #'     pval_col = "pval"
 #'   )
 #' )
 #' 
 #' # create bar plot using pre-computed evaluation results
-#' plt <- plot_testing_err(fit_results = fit_results,
-#'                         eval_results = eval_results,
-#'                         evaluator_name = "Testing Errors",
+#' plt <- plot_testing_err(eval_results = eval_results,
+#'                         eval_name = "Testing Errors",
 #'                         show = c("bar", "errorbar"))
-#' # or alternatively, create the same plot without pre-computing evaluation results
-#' plt <- plot_testing_err(fit_results, 
-#'                         show = c("bar", "errorbar"),
-#'                         nested_data = "feature_info",
-#'                         truth_col = "true_support",
-#'                         pval_col = "pval")
+#' # or alternatively, create the same plot directly from fit results
+#' plt <- plot_testing_err(fit_results = fit_results, show = c("bar", "errorbar"),
+#'                         eval_fun_options = list(
+#'                           nested_cols = "feature_info",
+#'                           truth_col = "true_support",
+#'                           pval_col = "pval"
+#'                         ))
 #' 
-#' # can customize plot (see plot_eval_summary() for possible arguments)
-#' plt <- plot_testing_err(fit_results = fit_results,
-#'                         eval_results = eval_results,
-#'                         evaluator_name = "Testing Errors",
+#' # can customize plot (see plot_eval_constructor() for possible arguments)
+#' plt <- plot_testing_err(eval_results = eval_results,
+#'                         eval_name = "Testing Errors",
 #'                         show = c("bar", "errorbar"),
 #'                         plot_by = ".alpha")
 #' 
 #' @export
-plot_testing_err <- function(fit_results, eval_results = NULL,
-                             evaluator_name = NULL,
+plot_testing_err <- function(fit_results = NULL,
+                             eval_results = NULL, eval_name = NULL,
+                             eval_fun = "summarize_testing_err",
+                             eval_fun_options = NULL,
                              vary_params = NULL, metrics = NULL, 
                              show = c("point", "line", "errorbar"), ...) {
   arg_list <- get_dot_args(
-    user_args = list(...),
-    default_args = list(eval_id = "testing_err",
-                        eval_fun = "summarize_testing_err")
+    user_args = rlang::list2(...),
+    default_args = list(eval_id = "testing_err")
   )
   plt <- do.call(
     plot_pred_err,
-    c(list(fit_results = fit_results, eval_results = eval_results,
-           evaluator_name = evaluator_name, vary_params = vary_params,
-           metrics = metrics, show = show),
-      arg_list)
+    args = c(
+      list(fit_results = fit_results,
+           eval_results = eval_results, eval_name = eval_name,
+           eval_fun = eval_fun, eval_fun_options = eval_fun_options,
+           vary_params = vary_params, metrics = metrics, show = show),
+      arg_list
+    )
   )
   return(plt)
 }
@@ -89,11 +89,8 @@ plot_testing_err <- function(fit_results, eval_results = NULL,
 #'   p-values or some summary thereof across experimental replicates.
 #' 
 #' @inheritParams plot_pred_curve
-#' @param ... Additional arguments to pass to \code{plot_eval_summary()}. This
-#'   includes arguments for plotting and for passing into
-#'   \code{summarize_testing_curve()}.
 #' 
-#' @inherit plot_eval_summary return
+#' @inherit plot_eval_constructor return
 #' 
 #' @family inference_funs
 #' 
@@ -123,62 +120,67 @@ plot_testing_err <- function(fit_results, eval_results = NULL,
 #'   `ROC` = summarize_testing_curve(
 #'     fit_results, 
 #'     curve = "ROC",
-#'     nested_data = "feature_info",
+#'     nested_cols = "feature_info",
 #'     truth_col = "true_support", 
 #'     pval_col = "pval"
 #'   ),
 #'   `PR` = summarize_testing_curve(
 #'     fit_results, 
 #'     curve = "PR",
-#'     nested_data = "feature_info",
+#'     nested_cols = "feature_info",
 #'     truth_col = "true_support", 
 #'     pval_col = "pval"
 #'   )
 #' ) 
 #' 
 #' # create summary ROC/PR plots using pre-computed evaluation results
-#' roc_plt <- plot_testing_curve(fit_results = fit_results,
-#'                               eval_results = eval_results,
-#'                               evaluator_name = "ROC", curve = "ROC",
+#' roc_plt <- plot_testing_curve(eval_results = eval_results,
+#'                               eval_name = "ROC", curve = "ROC",
 #'                               show = c("line", "ribbon"))
-#' pr_plt <- plot_testing_curve(fit_results = fit_results,
-#'                              eval_results = eval_results,
-#'                              evaluator_name = "PR", curve = "PR",
+#' pr_plt <- plot_testing_curve(eval_results = eval_results,
+#'                              eval_name = "PR", curve = "PR",
 #'                              show = c("line", "ribbon"))
-#' # or alternatively, create the same plots without pre-computing evaluation results
-#' roc_plt <- plot_testing_curve(fit_results, show = c("line", "ribbon"),
-#'                               nested_data = "feature_info",
-#'                               truth_col = "true_support",
-#'                               pval_col = "pval",
-#'                               curve = "ROC")
-#' pr_plt <- plot_testing_curve(fit_results, show = c("line", "ribbon"),
-#'                              nested_data = "feature_info",
-#'                              truth_col = "true_support",
-#'                              pval_col = "pval",
-#'                              curve = "PR")
-#' 
-#' # can customize plot (see plot_eval_summary() for possible arguments)
+#' # or alternatively, create the same plots directly from fit results
 #' roc_plt <- plot_testing_curve(fit_results = fit_results,
-#'                               eval_results = eval_results,
-#'                               evaluator_name = "ROC", curve = "ROC",
+#'                               show = c("line", "ribbon"),
+#'                               curve = "ROC",
+#'                               eval_fun_options = list(
+#'                                 nested_cols = "feature_info",
+#'                                 truth_col = "true_support",
+#'                                 pval_col = "pval"
+#'                               ))
+#' pr_plt <- plot_testing_curve(fit_results = fit_results,
+#'                              show = c("line", "ribbon"),
+#'                              curve = "PR",
+#'                              eval_fun_options = list(
+#'                                nested_cols = "feature_info",
+#'                                truth_col = "true_support",
+#'                                pval_col = "pval"
+#'                              ))
+#'
+#' # can customize plot (see plot_eval_constructor() for possible arguments)
+#' roc_plt <- plot_testing_curve(eval_results = eval_results,
+#'                               eval_name = "ROC", curve = "ROC",
 #'                               show = c("line", "ribbon"),
 #'                               plot_by = ".dgp_name")
 #' 
 #' @export
-plot_testing_curve <- function(fit_results, eval_results = NULL,
-                               evaluator_name = NULL, vary_params = NULL, 
-                               curve = c("ROC", "PR"),
+plot_testing_curve <- function(fit_results = NULL,
+                               eval_results = NULL, eval_name = NULL,
+                               eval_fun = "summarize_testing_curve",
+                               eval_fun_options = NULL,
+                               vary_params = NULL, curve = c("ROC", "PR"),
                                show = c("line", "ribbon"), ...) {
-  arg_list <- get_dot_args(
-    user_args = list(...),
-    default_args = list(eval_fun = "summarize_testing_curve")
-  )
+  arg_list <- rlang::list2(...)
   plt <- do.call(
     plot_pred_curve,
-    args = c(list(fit_results = fit_results, eval_results = eval_results,
-                  evaluator_name = evaluator_name, vary_params = vary_params,
-                  curve = curve, show = show),
-             arg_list)
+    args = c(
+      list(fit_results = fit_results,
+           eval_results = eval_results, eval_name = eval_name,
+           eval_fun = eval_fun, eval_fun_options = eval_fun_options,
+           vary_params = vary_params, curve = curve, show = show),
+      arg_list
+    )
   )
   return(plt)
 }
@@ -196,11 +198,8 @@ plot_testing_curve <- function(fit_results, eval_results = NULL,
 #'   data.
 #' @param show_identity_line Logical indicating whether or not to plot the
 #'   y = x line.
-#' @param ... Additional arguments to pass to \code{plot_eval_summary()}. This
-#'   includes arguments for plotting and for passing into
-#'   \code{eval_reject_prob()}.
 #'   
-#' @inherit plot_eval_summary return
+#' @inherit plot_eval_constructor return
 #'
 #' @family inference_funs
 #'
@@ -227,44 +226,46 @@ plot_testing_curve <- function(fit_results, eval_results = NULL,
 #' eval_results <- list(
 #'   `Reject Prob.` = eval_reject_prob(
 #'     fit_results, 
-#'     nested_data = "feature_info",
+#'     nested_cols = "feature_info",
 #'     feature_col = "feature", 
 #'     pval_col = "pval"
 #'   )
 #' )
 #'
 #' # create bar plot using pre-computed evaluation results
-#' plt <- plot_reject_prob(fit_results = fit_results,
-#'                         eval_results = eval_results,
-#'                         evaluator_name = "Reject Prob.",
+#' plt <- plot_reject_prob(eval_results = eval_results,
+#'                         eval_name = "Reject Prob.",
 #'                         feature_col = "feature")
-#' # or alternatively, create the same plot without pre-computing evaluation results
-#' plt <- plot_reject_prob(fit_results, 
-#'                         nested_data = "feature_info",
-#'                         feature_col = "feature",
-#'                         pval_col = "pval")
-#' 
-#' # can customize plot (see plot_eval_summary() for possible arguments)
+#' # or alternatively, create the same plot directly from fit results
 #' plt <- plot_reject_prob(fit_results = fit_results,
-#'                         eval_results = eval_results,
-#'                         evaluator_name = "Reject Prob.",
+#'                         feature_col = "feature",
+#'                         eval_fun_options = list(
+#'                           nested_cols = "feature_info",
+#'                           pval_col = "pval"
+#'                         ))
+#' 
+#' # can customize plot (see plot_eval_constructor() for possible arguments)
+#' plt <- plot_reject_prob(eval_results = eval_results,
+#'                         eval_name = "Reject Prob.",
 #'                         facet_formula = NULL,
 #'                         plot_by = "feature")
 #'
 #' @importFrom rlang .data
 #' @export
-plot_reject_prob <- function(fit_results, eval_results = NULL, 
-                             evaluator_name = NULL,
-                             vary_params = NULL, feature_col = NULL,
-                             show_features = NULL, show_identity_line = FALSE,
-                             show = c("line"), ...) {
+plot_reject_prob <- function(fit_results = NULL,
+                             eval_results = NULL, eval_name = NULL,
+                             eval_fun = "eval_reject_prob",
+                             eval_fun_options = NULL,
+                             vary_params = NULL,
+                             feature_col = NULL, show_features = NULL,
+                             show_identity_line = FALSE, show = c("line"),
+                             ...) {
   .alpha <- NULL  # to fix no visible binding for global variable error
   show <- match.arg(show, choices = c("point", "line", "bar"))
   if (!is.null(feature_col)) {
     arg_list <- get_dot_args(
-      user_args = list(...), 
+      user_args = rlang::list2(...),
       default_args = list(eval_id = "",
-                          eval_fun = "eval_reject_prob",
                           x_str = ".alpha",
                           y_str = "reject_prob",
                           facet_formula = substitute(
@@ -275,9 +276,8 @@ plot_reject_prob <- function(fit_results, eval_results = NULL,
     )
   } else {
     arg_list <- get_dot_args(
-      user_args = list(...), 
+      user_args = rlang::list2(...),
       default_args = list(eval_id = "",
-                          eval_fun = "eval_reject_prob",
                           x_str = ".alpha",
                           y_str = "reject_prob")
     )
@@ -290,33 +290,28 @@ plot_reject_prob <- function(fit_results, eval_results = NULL,
     )
   }
 
-  if (!is.null(evaluator_name)) {
-    eval_tib <- eval_results[[evaluator_name]]
-  } else {
-    eval_tib <- NULL
-  }
-  eval_tib <- get_eval_tibble(fit_results = fit_results, eval_tib = eval_tib,
-                              eval_id = arg_list$eval_id, 
-                              eval_fun = arg_list$eval_fun, 
-                              vary_params = vary_params, show = show, 
-                              y_str = arg_list$y_str, feature_col = feature_col,
-                              ...)
-  
-  if (identical(show, "bar")) {
-    eval_tib <- eval_tib %>% dplyr::mutate(.alpha = as.factor(.alpha))
-  }
+  plot_data <- get_plot_data(
+    fit_results = fit_results,
+    eval_results = eval_results,
+    eval_name = eval_name,
+    eval_fun = eval_fun,
+    eval_fun_options = c(eval_fun_options, list(feature_col = feature_col))
+  )
 
+  if (identical(show, "bar")) {
+    plot_data <- plot_data %>% dplyr::mutate(.alpha = as.factor(.alpha))
+  }
   if (!is.null(show_features)) {
-    eval_tib <- eval_tib %>%
+    plot_data <- plot_data %>%
       dplyr::filter(.data[[feature_col]] %in% show_features)
   }
 
   plt <- do.call(
-    plot_eval_summary, 
-    args = c(list(fit_results = fit_results, eval_tib = eval_tib,
-                  vary_params = vary_params, show = show, 
-                  feature_col = feature_col),
-             arg_list)
+    plot_eval_constructor,
+    args = c(
+      list(plot_data = plot_data, vary_params = vary_params, show = show),
+      arg_list
+    )
   )
   return(plt)
 }

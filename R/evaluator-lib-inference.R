@@ -36,15 +36,16 @@
 #' \item{.metric}{Name of the evaluation metric.}
 #' \item{.estimate}{Value of the evaluation metric.}
 #' }
-#' as well as any columns specified by \code{vary_params}.
+#' as well as any columns specified by \code{group_cols} and \code{vary_params}.
 #' 
 #' The output of \code{summarize_testing_err()} is a grouped \code{tibble}
 #' containing both identifying information and the evaluation results 
 #' aggregated over experimental replicates. Specifically, the identifier columns
 #' include \code{.dgp_name}, \code{.method_name}, any columns specified by
-#' \code{vary_params}, and \code{.metric}. In addition, there are results columns
-#' corresponding to the requested statistics in \code{summary_funs} and 
-#' \code{custom_summary_funs}. These columns end in the suffix "_testing_err".
+#' \code{group_cols} and \code{vary_params}, and \code{.metric}. In addition,
+#' there are results columns corresponding to the requested statistics in
+#' \code{summary_funs} and \code{custom_summary_funs}. These columns end in the
+#' suffix specified by \code{eval_id}.
 #' 
 #' @family inference_funs
 #' 
@@ -72,14 +73,14 @@
 #' # evaluate feature selection (using all default metrics and alpha = 0.05) for each replicate
 #' eval_results <- eval_testing_err(
 #'   fit_results,
-#'   nested_data = "feature_info",
+#'   nested_cols = "feature_info",
 #'   truth_col = "true_support",
 #'   pval_col = "pval"
 #' )
 #' # summarize feature selection error (using all default metric and alpha = 0.05) across replicates
 #' eval_results_summary <- summarize_testing_err(
 #'   fit_results,
-#'   nested_data = "feature_info",
+#'   nested_cols = "feature_info",
 #'   truth_col = "true_support",
 #'   pval_col = "pval"
 #' )
@@ -88,14 +89,14 @@
 #' metrics <- yardstick::metric_set(yardstick::sens, yardstick::spec)
 #' eval_results <- eval_testing_err(
 #'   fit_results,
-#'   nested_data = "feature_info",
+#'   nested_cols = "feature_info",
 #'   truth_col = "true_support",
 #'   pval_col = "pval",
 #'   metrics = metrics
 #' )
 #' eval_results_summary <- summarize_testing_err(
 #'   fit_results,
-#'   nested_data = "feature_info",
+#'   nested_cols = "feature_info",
 #'   truth_col = "true_support",
 #'   pval_col = "pval",
 #'   metrics = metrics
@@ -104,14 +105,14 @@
 #' # can evaluate/summarize feature selection at multiple values of alpha
 #' eval_results <- eval_testing_err(
 #'   fit_results,
-#'   nested_data = "feature_info",
+#'   nested_cols = "feature_info",
 #'   truth_col = "true_support",
 #'   pval_col = "pval",
 #'   alphas = c(0.05, 0.1)
 #' )
 #' eval_results_summary <- summarize_testing_err(
 #'   fit_results,
-#'   nested_data = "feature_info",
+#'   nested_cols = "feature_info",
 #'   truth_col = "true_support",
 #'   pval_col = "pval",
 #'   alphas = c(0.05, 0.1)
@@ -121,7 +122,7 @@
 #' range_fun <- function(x) return(max(x) - min(x))
 #' eval_results_summary <- summarize_testing_err(
 #'   fit_results,
-#'   nested_data = "feature_info",
+#'   nested_cols = "feature_info",
 #'   truth_col = "true_support",
 #'   pval_col = "pval",
 #'   custom_summary_funs = list(range_testing_err = range_fun)
@@ -134,26 +135,17 @@ NULL
 #' @importFrom rlang .data
 #' @export
 eval_testing_err <- function(fit_results, vary_params = NULL,
-                             nested_data = NULL, truth_col, pval_col = NULL,
-                             metrics = NULL, alphas = 0.05, na_rm = FALSE) {
-  .estimate <- NULL  # to fix no visible binding for global variable error
-  .alpha <- NULL
-  .metric <- NULL
-  .eval_res <- NULL
+                             nested_cols = NULL, truth_col, pval_col = NULL,
+                             group_cols = NULL, metrics = NULL, alphas = 0.05,
+                             na_rm = FALSE) {
+
   if (!is.null(metrics) && !inherits(metrics, "metric_set")) {
     abort("Unknown metrics. metrics must be of class 'yardstick::metric_set' or NULL.")
   }
   
-  eval_testing_err_rowwise <- function(data) {
-    if (!is.null(nested_data)) {
-      data <- data %>% tidyr::unnest(tidyselect::all_of(nested_data))
-    }
-    cols <- colnames(data)
-    truth_col <- tidyselect::vars_pull(cols, tidyselect::all_of(truth_col))
-    pval_col <- tidyselect::vars_pull(cols, tidyselect::all_of(pval_col))
-    data <- data %>%
-      tidyr::unnest(tidyselect::all_of(c(truth_col, pval_col)))
-    
+  eval_testing_err_fun <- function(data, truth_col, pval_col,
+                                   metrics, alphas, na_rm) {
+
     data <- data %>%
       dplyr::mutate(
         {{truth_col}} := factor(as.integer(as.numeric(.data[[truth_col]]) != 0), 
@@ -173,7 +165,7 @@ eval_testing_err <- function(fit_results, vary_params = NULL,
                                        yardstick::roc_auc, yardstick::pr_auc)
     }
     
-    res <- purrr::list_rbind(purrr::map(
+    out <- purrr::map(
       alphas,
       function(alpha) {
         data_alpha <- data %>%
@@ -181,33 +173,27 @@ eval_testing_err <- function(fit_results, vary_params = NULL,
             {{pval_col}} := factor(as.integer(.data[[pval_col]] <= !!alpha),
                                    levels = 0:1)
           )
-        res <- metrics(data = data_alpha, truth = !!truth_col, 
-                       estimate = !!pval_col, tidyselect::all_of(".pval_imp"),
+        out <- metrics(data = data_alpha, truth = !!truth_col,
+                       estimate = !!pval_col, .pval_imp,
                        na_rm = na_rm, event_level = "second") %>%
           dplyr::mutate(.alpha = !!alpha) %>%
+          add_na_counts(data = data, value_col = pval_col, na_rm = na_rm,
+                        .alpha = !!alpha) %>%
           dplyr::select(.alpha, .metric, .estimate)
-        if (na_rm) {
-          res <- res %>%
-            dplyr::add_row(.alpha = !!alpha, 
-                           .metric = "num_na", 
-                           .estimate = sum(is.na(data_alpha[[pval_col]])))
-        }
-        return(res)
+        return(out)
       }
-    ))
-    return(res)
+    ) %>%
+      purrr::list_rbind()
+    return(out)
   }
   
-  id_vars <- c(".rep", ".dgp_name", ".method_name", vary_params)
-  eval_tib <- fit_results %>%
-    dplyr::mutate(
-      .eval_res = purrr::map(
-        1:nrow(fit_results),
-        ~eval_testing_err_rowwise(data = fit_results[.x, ])
-      )
-    ) %>%
-    dplyr::select(tidyselect::all_of(id_vars), .eval_res) %>%
-    tidyr::unnest(.eval_res)
+  eval_tib <- eval_constructor(
+    fit_results = fit_results, vary_params = vary_params,
+    fun = eval_testing_err_fun, nested_cols = nested_cols,
+    truth_col = truth_col, pval_col = pval_col, group_cols = group_cols,
+    fun_options = list(metrics = metrics, alphas = alphas), na_rm = na_rm
+  ) %>%
+    tidyr::unnest(.eval_result)
   return(eval_tib)
 }
 
@@ -217,22 +203,23 @@ eval_testing_err <- function(fit_results, vary_params = NULL,
 #' @importFrom rlang .data
 #' @export
 summarize_testing_err <- function(fit_results, vary_params = NULL,
-                                  nested_data = NULL, truth_col, 
-                                  pval_col = NULL, metrics = NULL, 
-                                  alphas = 0.05, na_rm = FALSE,
+                                  nested_cols = NULL, truth_col,
+                                  pval_col = NULL, group_cols = NULL,
+                                  metrics = NULL, alphas = 0.05, na_rm = FALSE,
                                   summary_funs = c("mean", "median", "min",
                                                    "max", "sd", "raw"),
                                   custom_summary_funs = NULL,
                                   eval_id = "testing_err") {
-  group_vars <- c(".dgp_name", ".method_name", vary_params, ".metric", ".alpha")
+  group_vars <- c(".dgp_name", ".method_name", vary_params, group_cols,
+                  ".metric", ".alpha")
   eval_tib <- eval_testing_err(
     fit_results = fit_results, vary_params = vary_params,
-    nested_data = nested_data, truth_col = truth_col, pval_col = pval_col,
-    metrics = metrics, alphas = alphas, na_rm = na_rm
+    nested_cols = nested_cols, truth_col = truth_col, pval_col = pval_col,
+    group_cols = group_cols, metrics = metrics, alphas = alphas, na_rm = na_rm
   ) %>%
-    dplyr::group_by(dplyr::across({{group_vars}})) 
+    dplyr::group_by(dplyr::across(tidyselect::any_of(group_vars)))
   
-  eval_summary <- summarize_eval_results(
+  eval_summary <- eval_summarizer(
     eval_data = eval_tib, eval_id = eval_id, value_col = ".estimate",
     summary_funs = summary_funs, custom_summary_funs = custom_summary_funs,
     na_rm = na_rm
@@ -267,18 +254,18 @@ summarize_testing_err <- function(fit_results, vary_params = NULL,
 #'   positive rate, respectively. If \code{curve = "PR"}, the \code{tibble} has 
 #'   the columns \code{.threshold}, \code{recall}, and \code{precision}.}
 #' }
-#' as well as any columns specified by \code{vary_params}.
-#' 
-#' The output of \code{summarize_testing_curve()} is a grouped \code{tibble} 
-#' containing both identifying information and the evaluation curve 
+#' as well as any columns specified by \code{group_cols} and \code{vary_params}.
+#'
+#' The output of \code{summarize_testing_curve()} is a grouped \code{tibble}
+#' containing both identifying information and the evaluation curve
 #' results aggregated over experimental replicates. Specifically, the identifier
 #' columns include \code{.dgp_name}, \code{.method_name}, and any columns 
-#' specified by \code{vary_params}. In addition, there are results columns 
-#' corresponding to the requested statistics in \code{summary_funs} and 
-#' \code{custom_summary_funs}. If \code{curve = "ROC"}, these results columns 
-#' include \code{FPR} and others that end in the suffix "_TPR". If 
-#' \code{curve = "PR"}, the results columns include \code{recall} and others 
-#' that end in the suffix "_precision".
+#' specified by \code{group_cols} and \code{vary_params}. In addition, there are
+#' results columns corresponding to the requested statistics in
+#' \code{summary_funs} and \code{custom_summary_funs}. If \code{curve = "ROC"},
+#' these results columns include \code{FPR} and others that end in the suffix
+#' "_TPR". If \code{curve = "PR"}, the results columns include \code{recall} and
+#' others that end in the suffix "_precision".
 #' 
 #' @family inference_funs
 #' 
@@ -307,14 +294,14 @@ summarize_testing_err <- function(fit_results, vary_params = NULL,
 #' roc_results <- eval_testing_curve(
 #'   fit_results,
 #'   curve = "ROC",
-#'   nested_data = "feature_info",
+#'   nested_cols = "feature_info",
 #'   truth_col = "true_support",
 #'   pval_col = "pval"
 #' )
 #' pr_results <- eval_testing_curve(
 #'   fit_results,
 #'   curve = "PR",
-#'   nested_data = "feature_info",
+#'   nested_cols = "feature_info",
 #'   truth_col = "true_support",
 #'   pval_col = "pval"
 #' )
@@ -322,14 +309,14 @@ summarize_testing_err <- function(fit_results, vary_params = NULL,
 #' roc_summary <- summarize_testing_curve(
 #'   fit_results,
 #'   curve = "ROC",
-#'   nested_data = "feature_info",
+#'   nested_cols = "feature_info",
 #'   truth_col = "true_support",
 #'   pval_col = "pval"
 #' )
 #' pr_summary <- summarize_testing_curve(
 #'   fit_results,
 #'   curve = "PR",
-#'   nested_data = "feature_info",
+#'   nested_cols = "feature_info",
 #'   truth_col = "true_support",
 #'   pval_col = "pval"
 #' )
@@ -341,25 +328,25 @@ NULL
 #' @importFrom rlang .data
 #' @export
 eval_testing_curve <- function(fit_results, vary_params = NULL,
-                               nested_data = NULL, truth_col, pval_col,
-                               curve = c("ROC", "PR"), options = list(), 
+                               nested_cols = NULL, truth_col, pval_col,
+                               group_cols = NULL, curve = c("ROC", "PR"),
                                na_rm = FALSE) {
   curve_estimate <- NULL  # to fix no visible binding for global variable error
-  if (is.null(nested_data) || (pval_col %in% names(fit_results))) {
+  if (is.null(nested_cols) || (pval_col %in% names(fit_results))) {
     fit_results <- fit_results %>%
       dplyr::rowwise() %>%
       dplyr::mutate({{pval_col}} := -.data[[pval_col]])
   } else {
-    fit_results[[nested_data]] <- purrr::map(
-      fit_results[[nested_data]],
+    fit_results[[nested_cols]] <- purrr::map(
+      fit_results[[nested_cols]],
       ~.x %>% dplyr::mutate({{pval_col}} := -.data[[pval_col]])
     )
   }
   
   eval_tib <- eval_feature_selection_curve(
     fit_results = fit_results, vary_params = vary_params,
-    nested_data = nested_data, truth_col = truth_col, imp_col = pval_col,
-    curve = curve, options = options, na_rm = na_rm
+    nested_cols = nested_cols, truth_col = truth_col, imp_col = pval_col,
+    group_cols = group_cols, curve = curve, na_rm = na_rm
   ) %>%
     dplyr::mutate(
       curve_estimate = purrr::map(
@@ -374,11 +361,11 @@ eval_testing_curve <- function(fit_results, vary_params = NULL,
 #' 
 #' @export
 summarize_testing_curve <- function(fit_results, vary_params = NULL,
-                                    nested_data = NULL, truth_col, pval_col, 
-                                    curve = c("ROC", "PR"), 
-                                    options = list(), na_rm = FALSE, 
+                                    nested_cols = NULL, truth_col, pval_col,
+                                    group_cols = NULL, curve = c("ROC", "PR"),
+                                    na_rm = FALSE,
                                     x_grid = seq(0, 1, by = 1e-2),
-                                    summary_funs = c("mean", "median", "min", 
+                                    summary_funs = c("mean", "median", "min",
                                                      "max", "sd", "raw"),
                                     custom_summary_funs = NULL,
                                     eval_id = ifelse(curve == "PR", 
@@ -391,12 +378,12 @@ summarize_testing_curve <- function(fit_results, vary_params = NULL,
     xvar <- "FPR"
     yvar <- "TPR"
   }
-  group_vars <- c(".dgp_name", ".method_name", vary_params, xvar)
+  group_vars <- c(".dgp_name", ".method_name", vary_params, group_cols, xvar)
   
   eval_tib <- eval_testing_curve(
     fit_results = fit_results, vary_params = vary_params,
-    nested_data = nested_data, truth_col = truth_col, pval_col = pval_col, 
-    curve = curve, options = options, na_rm = na_rm
+    nested_cols = nested_cols, truth_col = truth_col, pval_col = pval_col,
+    group_cols = group_cols, curve = curve, na_rm = na_rm
   ) %>%
     dplyr::rowwise() %>%
     dplyr::mutate(curve_estimate = list(rescale_curve(curve_estimate,
@@ -404,9 +391,9 @@ summarize_testing_curve <- function(fit_results, vary_params = NULL,
                                                       xvar = xvar,
                                                       yvar = yvar))) %>%
     tidyr::unnest(curve_estimate) %>%
-    dplyr::group_by(dplyr::across({{group_vars}})) 
+    dplyr::group_by(dplyr::across(tidyselect::all_of(group_vars)))
   
-  eval_summary <- summarize_eval_results(
+  eval_summary <- eval_summarizer(
     eval_data = eval_tib, eval_id = eval_id, value_col = yvar,
     summary_funs = summary_funs, custom_summary_funs = custom_summary_funs,
     na_rm = na_rm
@@ -430,11 +417,12 @@ summarize_testing_curve <- function(fit_results, vary_params = NULL,
 #' @return A grouped \code{tibble} containing both identifying information
 #'   and the rejection probability results aggregated over experimental 
 #'   replicates. Specifically, the identifier columns include \code{.dgp_name},
-#'   \code{.method_name}, any columns specified by \code{vary_params}, and the
-#'   feature names given in \code{feature_col} if applicable. In addition, there
-#'   are results columns \code{.alpha} and \code{reject_prob}, which 
-#'   respectively give the significance level and the estimated rejection 
-#'   probabilities (averaged across experimental replicates).
+#'   \code{.method_name}, any columns specified by \code{group_cols} and
+#'   \code{vary_params}, and the feature names given in \code{feature_col} if
+#'   applicable. In addition, there are results columns \code{.alpha} and
+#'   \code{reject_prob}, which respectively give the significance level and the
+#'   estimated rejection probabilities (averaged across experimental
+#'   replicates).
 #'
 #' @family inference_funs
 #'
@@ -462,7 +450,7 @@ summarize_testing_curve <- function(fit_results, vary_params = NULL,
 #' # evaluate rejection probabilities for each feature across all possible values of alpha
 #' eval_results <- eval_reject_prob(
 #'   fit_results,
-#'   nested_data = "feature_info",
+#'   nested_cols = "feature_info",
 #'   feature_col = "feature",
 #'   pval_col = "pval"
 #' )
@@ -470,7 +458,7 @@ summarize_testing_curve <- function(fit_results, vary_params = NULL,
 #' # evaluate rejection probability for each feature at specific values of alpha
 #' eval_results <- eval_reject_prob(
 #'   fit_results,
-#'   nested_data = "feature_info",
+#'   nested_cols = "feature_info",
 #'   feature_col = "feature",
 #'   pval_col = "pval",
 #'   alphas = c(0.05, 0.1)
@@ -479,32 +467,35 @@ summarize_testing_curve <- function(fit_results, vary_params = NULL,
 #' @importFrom rlang .data
 #' @export
 eval_reject_prob <- function(fit_results, vary_params = NULL,
-                             nested_data = NULL, feature_col = NULL, pval_col,
-                             alphas = NULL, na_rm = FALSE) {
+                             nested_cols = NULL, feature_col = NULL, pval_col,
+                             group_cols = NULL, alphas = NULL, na_rm = FALSE) {
   .alpha <- NULL  # to fix no visible binding for global variable error
-  group_vars <- c(".dgp_name", ".method_name", vary_params, feature_col)
-  if (!is.null(nested_data)) {
-    fit_results <- fit_results %>% 
-      tidyr::unnest(tidyselect::all_of(nested_data))
+  group_vars <- c(".dgp_name", ".method_name", vary_params,
+                  group_cols, feature_col)
+  if (!is.null(nested_cols)) {
+    fit_results <- fit_results %>%
+      tidyr::unnest(tidyselect::all_of(nested_cols))
+  } else {
+    fit_results <- fit_results %>%
+      tidyr::unnest(tidyselect::all_of(c(feature_col, pval_col, group_cols)))
   }
-  fit_results <- fit_results %>%
-    tidyr::unnest(tidyselect::all_of(c(feature_col, pval_col)))
+
   if (is.null(alphas)) {
     eval_tib <- fit_results %>%
-      dplyr::group_by(dplyr::across({{group_vars}})) %>%
-      dplyr::summarise(
+      dplyr::group_by(dplyr::across(tidyselect::all_of(group_vars))) %>%
+      dplyr::reframe(
         .alpha = sort(unique(c(0, .data[[pval_col]], 1))),
-        reject_prob = stats::ecdf(.data[[pval_col]])(.alpha),
-        .groups = "keep"
-      )
+        reject_prob = stats::ecdf(.data[[pval_col]])(.alpha)
+      ) %>%
+      dplyr::group_by(dplyr::across(tidyselect::all_of(group_vars)))
   } else {
     eval_tib <- fit_results %>%
-      dplyr::group_by(dplyr::across({{group_vars}})) %>%
-      dplyr::summarise(
+      dplyr::group_by(dplyr::across(tidyselect::all_of(group_vars))) %>%
+      dplyr::reframe(
         .alpha = sort(alphas),
-        reject_prob = purrr::map_dbl(.alpha, ~mean(.data[[pval_col]] <= .x)),
-        .groups = "keep"
-      )
+        reject_prob = purrr::map_dbl(.alpha, ~mean(.data[[pval_col]] <= .x))
+      ) %>%
+      dplyr::group_by(dplyr::across(tidyselect::all_of(group_vars)))
   }
   return(eval_tib)
 }

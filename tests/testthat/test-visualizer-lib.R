@@ -39,46 +39,52 @@ test_that("Functions in Visualizer prediction library work properly", {
   )
 
   ## plot_pred_err
-  plt <- plot_pred_err(fit_results = fit_results_reg,
-                       eval_results = eval_results_reg,
-                       evaluator_name = "Prediction Errors",
+  plt <- plot_pred_err(eval_results = eval_results_reg,
+                       eval_name = "Prediction Errors",
                        show = c("point", "errorbar"))
-
-  vdiffr::expect_doppelganger("plot_pred_err1", plt)
-  plt <- plot_pred_err(fit_results_reg, show = c("point", "errorbar"),
-                       truth_col = "y", estimate_col = "predictions")
   vdiffr::expect_doppelganger("plot_pred_err1", plt)
   plt <- plot_pred_err(fit_results = fit_results_reg,
-                       eval_results = eval_results_reg,
-                       evaluator_name = "Prediction Errors",
+                       show = c("point", "errorbar"),
+                       eval_fun_options = list(truth_col = "y",
+                                               estimate_col = "predictions"))
+  vdiffr::expect_doppelganger("plot_pred_err1", plt)
+  plt <- plot_pred_err(eval_results = eval_results_reg,
+                       eval_name = "Prediction Errors",
                        show = c("point", "errorbar"),
                        color_str = NULL,
                        facet_formula = .method_name ~ .metric,
                        facet_type = "grid")
   vdiffr::expect_doppelganger("plot_pred_err2", plt)
+  plt <- plot_pred_err(eval_results = eval_results_reg,
+                       eval_name = "Prediction Errors",
+                       show = "boxplot")
+  vdiffr::expect_doppelganger("plot_pred_err3", plt)
+  plt <- plot_pred_err(eval_results = eval_results_reg,
+                       eval_name = "Prediction Errors",
+                       show = "boxplot", color_str = ".method_name")
+  vdiffr::expect_doppelganger("plot_pred_err4", plt)
 
   ## plot_pred_curve
-  roc_plt <- plot_pred_curve(fit_results = fit_results_bin,
-                             eval_results = eval_results_bin,
-                             evaluator_name = "ROC", curve = "ROC",
+  roc_plt <- plot_pred_curve(eval_results = eval_results_bin,
+                             eval_name = "ROC", curve = "ROC",
                              show = c("line", "ribbon"))
-  pr_plt <- plot_pred_curve(fit_results = fit_results_bin,
-                            eval_results = eval_results_bin,
-                            evaluator_name = "PR", curve = "PR",
+  pr_plt <- plot_pred_curve(eval_results = eval_results_bin,
+                            eval_name = "PR", curve = "PR",
                             show = c("line", "ribbon"))
   vdiffr::expect_doppelganger("plot_pred_curve_roc1", roc_plt)
   vdiffr::expect_doppelganger("plot_pred_curve_pr1", pr_plt)
-  roc_plt <- plot_pred_curve(fit_results_bin, show = c("line", "ribbon"),
-                             truth_col = "y", prob_cols = "class_probs",
-                             curve = "ROC")
-  pr_plt <- plot_pred_curve(fit_results_bin, show = c("line", "ribbon"),
-                            truth_col = "y", prob_cols = "class_probs",
-                            curve = "PR")
+  roc_plt <- plot_pred_curve(fit_results = fit_results_bin,
+                             show = c("line", "ribbon"), curve = "ROC",
+                             eval_fun_options = list(truth_col = "y",
+                                                     prob_cols = "class_probs"))
+  pr_plt <- plot_pred_curve(fit_results = fit_results_bin,
+                            show = c("line", "ribbon"), curve = "PR",
+                            eval_fun_options = list(truth_col = "y",
+                                                    prob_cols = "class_probs"))
   vdiffr::expect_doppelganger("plot_pred_curve_roc1", roc_plt)
   vdiffr::expect_doppelganger("plot_pred_curve_pr1", pr_plt)
-  roc_plt <- plot_pred_curve(fit_results = fit_results_bin,
-                             eval_results = eval_results_bin,
-                             evaluator_name = "ROC", curve = "ROC",
+  roc_plt <- plot_pred_curve(eval_results = eval_results_bin,
+                             eval_name = "ROC", curve = "ROC",
                              show = c("line", "ribbon"),
                              plot_by = ".dgp_name")
   vdiffr::expect_doppelganger("plot_pred_curve_roc2", roc_plt)
@@ -110,13 +116,13 @@ test_that("Functions in Visualizer feature selection library work properly", {
   eval_results <- list(
     `Feature Importance` = summarize_feature_importance(
       fit_results,
-      nested_data = "feature_info",
+      nested_cols = "feature_info",
       feature_col = "feature",
       imp_col = "est_importance"
     ),
     `Feature Selection Errors` = summarize_feature_selection_err(
       fit_results,
-      nested_data = "feature_info",
+      nested_cols = "feature_info",
       truth_col = "true_support",
       estimate_col = "est_support",
       imp_col = "est_importance"
@@ -124,85 +130,87 @@ test_that("Functions in Visualizer feature selection library work properly", {
     ROC = summarize_feature_selection_curve(
       fit_results,
       curve = "ROC",
-      nested_data = "feature_info",
+      nested_cols = "feature_info",
       truth_col = "true_support",
       imp_col = "est_importance"
     ),
     PR = summarize_feature_selection_curve(
       fit_results,
       curve = "PR",
-      nested_data = "feature_info",
+      nested_cols = "feature_info",
       truth_col = "true_support",
       imp_col = "est_importance"
     )
   )
 
   ## plot_feature_importance
-  plt <- plot_feature_importance(fit_results = fit_results,
-                                 eval_results = eval_results,
-                                 evaluator_name = "Feature Importance",
+  plt <- plot_feature_importance(eval_results = eval_results,
+                                 eval_name = "Feature Importance",
                                  feature_col = "feature")
   vdiffr::expect_doppelganger("plot_feature_importance1", plt)
-  plt <- plot_feature_importance(fit_results,
-                                 nested_data = "feature_info",
-                                 feature_col = "feature",
-                                 imp_col = "est_importance")
-  vdiffr::expect_doppelganger("plot_feature_importance1", plt)
   plt <- plot_feature_importance(fit_results = fit_results,
-                                 eval_results = eval_results,
-                                 evaluator_name = "Feature Importance",
+                                 feature_col = "feature",
+                                 eval_fun_options = list(
+                                   nested_cols = "feature_info",
+                                   imp_col = "est_importance"
+                                 ))
+  vdiffr::expect_doppelganger("plot_feature_importance1", plt)
+  plt <- plot_feature_importance(eval_results = eval_results,
+                                 eval_name = "Feature Importance",
                                  feature_col = "feature",
                                  errorbar_args = list(width = .5, position = "dodge"),
                                  bar_args = list(width = .5))
   vdiffr::expect_doppelganger("plot_feature_importance2", plt)
 
   ## plot_feature_selection_err
-  plt <- plot_feature_selection_err(fit_results = fit_results,
-                                    eval_results = eval_results,
-                                    evaluator_name = "Feature Selection Errors",
+  plt <- plot_feature_selection_err(eval_results = eval_results,
+                                    eval_name = "Feature Selection Errors",
                                     show = c("bar"))
   vdiffr::expect_doppelganger("plot_feature_selection_err1", plt)
-  plt <- plot_feature_selection_err(fit_results,
-                                    show = c("bar"),
-                                    nested_data = "feature_info",
-                                    truth_col = "true_support",
-                                    estimate_col = "est_support",
-                                    imp_col = "est_importance")
+  plt <- plot_feature_selection_err(fit_results = fit_results, show = c("bar"),
+                                    eval_fun_options = list(
+                                      nested_cols = "feature_info",
+                                      truth_col = "true_support",
+                                      estimate_col = "est_support",
+                                      imp_col = "est_importance"
+                                    ))
   vdiffr::expect_doppelganger("plot_feature_selection_err1", plt)
-  plt <- plot_feature_selection_err(fit_results = fit_results,
-                                    eval_results = eval_results,
-                                    evaluator_name = "Feature Selection Errors",
+  plt <- plot_feature_selection_err(eval_results = eval_results,
+                                    eval_name = "Feature Selection Errors",
                                     show = c("bar"),
                                     color_str = ".dgp_name",
                                     interactive = TRUE)
   expect_true("plotly" %in% class(plt))
 
   ## plot_feature_selection_curve
-  roc_plt <- plot_feature_selection_curve(fit_results = fit_results,
-                                          eval_results = eval_results,
-                                          evaluator_name = "ROC", curve = "ROC",
+  roc_plt <- plot_feature_selection_curve(eval_results = eval_results,
+                                          eval_name = "ROC", curve = "ROC",
                                           show = c("line", "ribbon"))
-  pr_plt <- plot_feature_selection_curve(fit_results = fit_results,
-                                         eval_results = eval_results,
-                                         evaluator_name = "PR", curve = "PR",
+  pr_plt <- plot_feature_selection_curve(eval_results = eval_results,
+                                         eval_name = "PR", curve = "PR",
                                          show = c("line", "ribbon"))
   vdiffr::expect_doppelganger("plot_feature_selection_curve_roc1", roc_plt)
   vdiffr::expect_doppelganger("plot_feature_selection_curve_pr1", pr_plt)
-  roc_plt <- plot_feature_selection_curve(fit_results, show = c("line", "ribbon"),
-                                          nested_data = "feature_info",
-                                          truth_col = "true_support",
-                                          imp_col = "est_importance",
-                                          curve = "ROC")
-  pr_plt <- plot_feature_selection_curve(fit_results, show = c("line", "ribbon"),
-                                         nested_data = "feature_info",
-                                         truth_col = "true_support",
-                                         imp_col = "est_importance",
-                                         curve = "PR")
+  roc_plt <- plot_feature_selection_curve(fit_results = fit_results,
+                                          show = c("line", "ribbon"),
+                                          curve = "ROC",
+                                          eval_fun_options = list(
+                                            nested_cols = "feature_info",
+                                            truth_col = "true_support",
+                                            imp_col = "est_importance"
+                                          ))
+  pr_plt <- plot_feature_selection_curve(fit_results = fit_results,
+                                         show = c("line", "ribbon"),
+                                         curve = "PR",
+                                         eval_fun_options = list(
+                                           nested_cols = "feature_info",
+                                           truth_col = "true_support",
+                                           imp_col = "est_importance"
+                                         ))
   vdiffr::expect_doppelganger("plot_feature_selection_curve_roc1", roc_plt)
   vdiffr::expect_doppelganger("plot_feature_selection_curve_pr1", pr_plt)
-  roc_plt <- plot_feature_selection_curve(fit_results = fit_results,
-                                          eval_results = eval_results,
-                                          evaluator_name = "ROC", curve = "ROC",
+  roc_plt <- plot_feature_selection_curve(eval_results = eval_results,
+                                          eval_name = "ROC", curve = "ROC",
                                           show = c("line", "ribbon"),
                                           plot_by = ".dgp_name")
   vdiffr::expect_doppelganger("plot_feature_selection_curve_roc2", roc_plt)
@@ -232,95 +240,98 @@ test_that("Functions in Visualizer inference library work properly", {
   eval_results <- list(
     `Testing Errors` = summarize_testing_err(
       fit_results,
-      nested_data = "feature_info",
+      nested_cols = "feature_info",
       truth_col = "true_support",
       pval_col = "pval"
     ),
     `ROC` = summarize_testing_curve(
       fit_results,
       curve = "ROC",
-      nested_data = "feature_info",
+      nested_cols = "feature_info",
       truth_col = "true_support",
       pval_col = "pval"
     ),
     `PR` = summarize_testing_curve(
       fit_results,
       curve = "PR",
-      nested_data = "feature_info",
+      nested_cols = "feature_info",
       truth_col = "true_support",
       pval_col = "pval"
     ),
     `Reject Prob.` = eval_reject_prob(
       fit_results,
-      nested_data = "feature_info",
+      nested_cols = "feature_info",
       feature_col = "feature",
       pval_col = "pval"
     )
   )
 
   ## plot_testing_err
-  plt <- plot_testing_err(fit_results = fit_results,
-                          eval_results = eval_results,
-                          evaluator_name = "Testing Errors",
+  plt <- plot_testing_err(eval_results = eval_results,
+                          eval_name = "Testing Errors",
                           show = c("bar", "errorbar"))
   vdiffr::expect_doppelganger("plot_testing_err1", plt)
-  plt <- plot_testing_err(fit_results,
-                          show = c("bar", "errorbar"),
-                          nested_data = "feature_info",
-                          truth_col = "true_support",
-                          pval_col = "pval")
-  vdiffr::expect_doppelganger("plot_testing_err1", plt)
   plt <- plot_testing_err(fit_results = fit_results,
-                          eval_results = eval_results,
-                          evaluator_name = "Testing Errors",
+                          show = c("bar", "errorbar"),
+                          eval_fun_options = list(
+                            nested_cols = "feature_info",
+                            truth_col = "true_support",
+                            pval_col = "pval"
+                          ))
+  vdiffr::expect_doppelganger("plot_testing_err1", plt)
+  plt <- plot_testing_err(eval_results = eval_results,
+                          eval_name = "Testing Errors",
                           show = c("bar", "errorbar"),
                           plot_by = ".alpha")
   vdiffr::expect_doppelganger("plot_testing_err2", plt)
 
   ## plot_testing_curve
-  roc_plt <- plot_testing_curve(fit_results = fit_results,
-                                eval_results = eval_results,
-                                evaluator_name = "ROC", curve = "ROC",
+  roc_plt <- plot_testing_curve(eval_results = eval_results,
+                                eval_name = "ROC", curve = "ROC",
                                 show = c("line", "ribbon"))
-  pr_plt <- plot_testing_curve(fit_results = fit_results,
-                               eval_results = eval_results,
-                               evaluator_name = "PR", curve = "PR",
+  pr_plt <- plot_testing_curve(eval_results = eval_results,
+                               eval_name = "PR", curve = "PR",
                                show = c("line", "ribbon"))
   vdiffr::expect_doppelganger("plot_testing_curve_roc1", roc_plt)
   vdiffr::expect_doppelganger("plot_testing_curve_pr1", pr_plt)
-  roc_plt <- plot_testing_curve(fit_results, show = c("line", "ribbon"),
-                                nested_data = "feature_info",
-                                truth_col = "true_support",
-                                pval_col = "pval",
-                                curve = "ROC")
-  pr_plt <- plot_testing_curve(fit_results, show = c("line", "ribbon"),
-                               nested_data = "feature_info",
-                               truth_col = "true_support",
-                               pval_col = "pval",
-                               curve = "PR")
+  roc_plt <- plot_testing_curve(fit_results = fit_results,
+                                show = c("line", "ribbon"),
+                                curve = "ROC",
+                                eval_fun_options = list(
+                                  nested_cols = "feature_info",
+                                  truth_col = "true_support",
+                                  pval_col = "pval"
+                                ))
+  pr_plt <- plot_testing_curve(fit_results = fit_results,
+                               show = c("line", "ribbon"),
+                               curve = "PR",
+                               eval_fun_options = list(
+                                 nested_cols = "feature_info",
+                                 truth_col = "true_support",
+                                 pval_col = "pval"
+                               ))
   vdiffr::expect_doppelganger("plot_testing_curve_roc1", roc_plt)
   vdiffr::expect_doppelganger("plot_testing_curve_pr1", pr_plt)
-  roc_plt <- plot_testing_curve(fit_results = fit_results,
-                                eval_results = eval_results,
-                                evaluator_name = "ROC", curve = "ROC",
+  roc_plt <- plot_testing_curve(eval_results = eval_results,
+                                eval_name = "ROC", curve = "ROC",
                                 show = c("line", "ribbon"),
                                 plot_by = ".dgp_name")
   vdiffr::expect_doppelganger("plot_testing_curve_roc2", roc_plt)
 
   ## plot_reject_prob
-  plt <- plot_reject_prob(fit_results = fit_results,
-                          eval_results = eval_results,
-                          evaluator_name = "Reject Prob.",
+  plt <- plot_reject_prob(eval_results = eval_results,
+                          eval_name = "Reject Prob.",
                           feature_col = "feature")
   vdiffr::expect_doppelganger("plot_reject_prob1", plt)
-  plt <- plot_reject_prob(fit_results,
-                          nested_data = "feature_info",
-                          feature_col = "feature",
-                          pval_col = "pval")
-  vdiffr::expect_doppelganger("plot_reject_prob1", plt)
   plt <- plot_reject_prob(fit_results = fit_results,
-                          eval_results = eval_results,
-                          evaluator_name = "Reject Prob.",
+                          feature_col = "feature",
+                          eval_fun_options = list(
+                            nested_cols = "feature_info",
+                            pval_col = "pval"
+                          ))
+  vdiffr::expect_doppelganger("plot_reject_prob1", plt)
+  plt <- plot_reject_prob(eval_results = eval_results,
+                          eval_name = "Reject Prob.",
                           facet_formula = NULL,
                           plot_by = "feature")
   vdiffr::expect_doppelganger("plot_reject_prob2", plt)
@@ -348,54 +359,48 @@ test_that("Functions in Visualizer utilities library work properly", {
     )
   )
 
-  ## plot_eval_summary
-  plt <- plot_eval_summary(fit_results = fit_results,
-                           eval_tib = eval_results[["Prediction Errors"]],
-                           eval_id = "pred_err",
-                           show = c("point", "errorbar"),
-                           facet_formula = ~ .metric)
-  vdiffr::expect_doppelganger("plot_eval_summary1", plt)
-  plt <- plot_eval_summary(fit_results = fit_results,
-                           eval_tib = eval_results[["Prediction Errors"]],
-                           eval_id = "pred_err",
-                           show = c("point", "errorbar"),
-                           facet_formula = ~ .metric,
-                           facet_type = "wrap",
-                           errorbar_args = list(width = 0.5),
-                           facet_args = list(scales = "free")) +
+  ## plot_eval_constructor
+  plt <- plot_eval_constructor(plot_data = eval_results[["Prediction Errors"]],
+                               eval_id = "pred_err",
+                               show = c("point", "errorbar"),
+                               facet_formula = ~ .metric)
+  vdiffr::expect_doppelganger("plot_eval_constructor1", plt)
+  plt <- plot_eval_constructor(plot_data = eval_results[["Prediction Errors"]],
+                               eval_id = "pred_err",
+                               show = c("point", "errorbar"),
+                               facet_formula = ~ .metric,
+                               facet_type = "wrap",
+                               errorbar_args = list(width = 0.5),
+                               facet_args = list(scales = "free")) +
     ggplot2::labs(y = "Mean Prediction Error")
-  vdiffr::expect_doppelganger("plot_eval_summary2", plt)
-  plt <- plot_eval_summary(fit_results = fit_results,
-                           eval_tib = eval_results[["Prediction Errors"]],
-                           eval_id = "pred_err",
-                           show = c("point", "errorbar"),
-                           facet_formula = ~ .metric,
-                           interactive = TRUE)
+  vdiffr::expect_doppelganger("plot_eval_constructor2", plt)
+  plt <- plot_eval_constructor(plot_data = eval_results[["Prediction Errors"]],
+                               eval_id = "pred_err",
+                               show = c("point", "errorbar"),
+                               facet_formula = ~ .metric,
+                               interactive = TRUE)
   expect_true("plotly" %in% class(plt))
-  plt <- plot_eval_summary(fit_results = fit_results,
-                           eval_id = "pred_err",
-                           eval_fun = "summarize_pred_err",
-                           truth_col = "y",
-                           estimate_col = "predictions",
-                           show = c("point", "errorbar"),
-                           facet_formula = ~ .metric)
-  vdiffr::expect_doppelganger("plot_eval_summary1", plt)
+  plt <- plot_eval_constructor(eval_results = eval_results,
+                               eval_name = "Prediction Errors",
+                               eval_id = "pred_err",
+                               show = c("point", "errorbar"),
+                               facet_formula = ~ .metric)
+  vdiffr::expect_doppelganger("plot_eval_constructor1", plt)
 
-  ## plot_eval_summary with vector vary_param and grouped variables
+  ## plot_eval_constructor with vector vary_param and grouped variables
   eval_results[["Prediction Errors"]] <- eval_results[["Prediction Errors"]] %>%
     dplyr::mutate(vary_param = list(1:2)) %>%
     dplyr::group_by(.dgp_name, vary_param)
   expect_error(
-    plot_eval_summary(fit_results = fit_results,
-                      vary_params = "vary_param",
-                      eval_tib = eval_results[["Prediction Errors"]],
-                      eval_id = "pred_err",
-                      show = c("point", "errorbar"),
-                      facet_formula = ~ .metric),
+    plot_eval_constructor(plot_data = eval_results[["Prediction Errors"]],
+                          vary_params = "vary_param",
+                          eval_id = "pred_err",
+                          show = c("point", "errorbar"),
+                          facet_formula = ~ .metric),
     NA
   )
 
-  ## plot_fit_results
+  ## plot_fit_constructor
   plot_fun <- function(fit_results, vary_params = NULL) {
     plt <- fit_results %>%
       tidyr::unnest(c("y", "predictions")) %>%
@@ -408,49 +413,21 @@ test_that("Functions in Visualizer utilities library work properly", {
                                     fit_results$.rep))
     return(plt)
   }
-  plt <- plot_fit_results(fit_results, reps = 1, plot_fun = plot_fun)
-  vdiffr::expect_doppelganger("plot_fit_results1", plt)
-
-  ## get_eval_tibble
-  eval_tib <- get_eval_tibble(fit_results = fit_results,
-                              eval_tib = NULL,
-                              eval_id = "pred_err",
-                              eval_fun = "summarize_pred_err",
-                              show = c("point", "errorbar"),
-                              y_str = NULL,
-                              truth_col = "y",
-                              estimate_col = "predictions")
-  eval_tib2 <- summarize_pred_err(
-    fit_results = fit_results,
-    truth_col = "y",
-    estimate_col = "predictions",
-    summary_funs = c("mean", "sd")
-  )
-  expect_equal(eval_tib, eval_tib2)
-
-  eval_tib <- get_eval_tibble(fit_results = fit_results,
-                              eval_tib = eval_tib,
-                              eval_id = "pred_err",
-                              eval_fun = "summarize_pred_err",
-                              show = c("point", "errorbar"),
-                              y_str = NULL)
-  expect_equal(eval_tib, eval_tib2)
-
-  eval_tib <- get_eval_tibble(fit_results = fit_results,
-                              eval_tib = eval_tib %>%
-                                dplyr::select(-mean_pred_err),
-                              eval_id = "pred_err",
-                              eval_fun = "summarize_pred_err",
-                              show = c("point", "errorbar"),
-                              y_str = NULL,
-                              truth_col = "y",
-                              estimate_col = "predictions")
-  expect_equal(eval_tib, eval_tib2)
+  plt <- plot_fit_constructor(fit_results, reps = 1, plot_fun = plot_fun)
+  vdiffr::expect_doppelganger("plot_fit_constructor1", plt)
 
   ## get_dot_args
   arg_list <- get_dot_args(user_args = list(a = 1, b = 2, c = 3),
                            default_args = list(a = "a", d = "d"))
   expect_equal(arg_list, list(a = 1, b = 2, c = 3, d = "d"))
+
+  # check that NULL argument gets kept in get_dot_args()
+  arg_list <- get_dot_args(user_args = list(a = 1, b = NULL, c = 3),
+                           default_args = list(c = "d"))
+  expect_equal(arg_list, list(a = 1, b = NULL, c = 3))
+  arg_list <- get_dot_args(user_args = list(a = 1, c = 3),
+                           default_args = list(b = NULL))
+  expect_equal(arg_list, list(a = 1, c = 3, b = NULL))
 })
 
 test_that("list_col_to_chr works properly", {

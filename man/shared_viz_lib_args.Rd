@@ -4,9 +4,15 @@
 \alias{shared_viz_lib_args}
 \title{Arguments that are shared by multiple \code{Visualizer} library functions.}
 \arguments{
-\item{evaluator_name}{Name of \code{Evaluator} containing results to plot.
-To compute the evaluation summary results from scratch or if the evaluation
-summary results have not yet been evaluated, set to \code{NULL}.}
+\item{eval_name}{Name of \code{Evaluator} containing results to plot. If
+\code{NULL}, the data used for plotting is computed from scratch via
+\code{eval_fun}.}
+
+\item{eval_fun}{Character string, specifying the function used to compute
+the data used for plotting if \code{eval_name = NULL}. If \code{eval_name}
+is not \code{NULL}, this argument is ignored.}
+
+\item{eval_fun_options}{List of named arguments to pass to \code{eval_fun}.}
 
 \item{interactive}{Logical. If \code{TRUE}, returns interactive \code{plotly}
 plots. If \code{FALSE}, returns static \code{ggplot} plots.}
@@ -17,6 +23,8 @@ Precision-Recall curve.}
 \item{show}{Character vector with elements being one of "boxplot", "point",
 "line", "bar", "errorbar", "ribbon" indicating what plot layer(s) to
 construct.}
+
+\item{...}{Additional arguments to pass to \code{plot_eval_constructor()}.}
 }
 \description{
 Arguments that are shared by multiple \code{Visualizer} library functions.

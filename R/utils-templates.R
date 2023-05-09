@@ -31,6 +31,16 @@ create_fun_str <- function(name, fun, args) {
   return(fun_str)
 }
 
+#' Create a string with list arguments
+#' @keywords internal
+create_list_args_str <- function(list_args) {
+  list_args <- purrr::compact(list_args)
+  arg_str <- paste(names(list_args), " = ", list_args,
+                   sep = "", collapse = ",\n    ")
+  list_str <- paste0("list(\n  ", "  ", arg_str, "\n  )")
+  return(list_str)
+}
+
 #' Create an assignment string and print to console.
 #' @keywords internal
 create_assign_str <- function(name, value, throw_error = FALSE) {

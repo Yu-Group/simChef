@@ -53,12 +53,12 @@
 <polyline points='531.82,239.61 580.46,239.61 ' style='stroke-width: 1.07; stroke: #1B9E77; stroke-linecap: butt;' />
 <polyline points='556.14,239.61 556.14,239.61 ' style='stroke-width: 1.07; stroke: #1B9E77; stroke-linecap: butt;' />
 <polyline points='531.82,239.61 580.46,239.61 ' style='stroke-width: 1.07; stroke: #1B9E77; stroke-linecap: butt;' />
-<rect x='94.09' y='353.25' width='48.64' height='170.46' style='stroke-width: 1.07; stroke: #FF9300; stroke-linecap: square; stroke-linejoin: miter; fill: #FF9300;' />
-<rect x='288.64' y='353.25' width='48.64' height='170.46' style='stroke-width: 1.07; stroke: #FF9300; stroke-linecap: square; stroke-linejoin: miter; fill: #FF9300;' />
-<rect x='483.19' y='239.61' width='48.64' height='284.10' style='stroke-width: 1.07; stroke: #FF9300; stroke-linecap: square; stroke-linejoin: miter; fill: #FF9300;' />
-<rect x='142.73' y='125.97' width='48.64' height='397.75' style='stroke-width: 1.07; stroke: #1B9E77; stroke-linecap: square; stroke-linejoin: miter; fill: #1B9E77;' />
-<rect x='337.28' y='353.25' width='48.64' height='170.46' style='stroke-width: 1.07; stroke: #1B9E77; stroke-linecap: square; stroke-linejoin: miter; fill: #1B9E77;' />
-<rect x='531.82' y='239.61' width='48.64' height='284.10' style='stroke-width: 1.07; stroke: #1B9E77; stroke-linecap: square; stroke-linejoin: miter; fill: #1B9E77;' />
+<rect x='94.09' y='353.25' width='48.64' height='170.46' style='stroke-width: 1.07; stroke: #FF9300; stroke-linecap: butt; stroke-linejoin: miter; fill: #FF9300;' />
+<rect x='288.64' y='353.25' width='48.64' height='170.46' style='stroke-width: 1.07; stroke: #FF9300; stroke-linecap: butt; stroke-linejoin: miter; fill: #FF9300;' />
+<rect x='483.19' y='239.61' width='48.64' height='284.10' style='stroke-width: 1.07; stroke: #FF9300; stroke-linecap: butt; stroke-linejoin: miter; fill: #FF9300;' />
+<rect x='142.73' y='125.97' width='48.64' height='397.75' style='stroke-width: 1.07; stroke: #1B9E77; stroke-linecap: butt; stroke-linejoin: miter; fill: #1B9E77;' />
+<rect x='337.28' y='353.25' width='48.64' height='170.46' style='stroke-width: 1.07; stroke: #1B9E77; stroke-linecap: butt; stroke-linejoin: miter; fill: #1B9E77;' />
+<rect x='531.82' y='239.61' width='48.64' height='284.10' style='stroke-width: 1.07; stroke: #1B9E77; stroke-linecap: butt; stroke-linejoin: miter; fill: #1B9E77;' />
 </g>
 <g clip-path='url(#cpMC4wMHw3MjAuMDB8MC4wMHw1NzYuMDA=)'>
 <polyline points='26.00,547.62 26.00,21.71 ' style='stroke-width: 2.13; stroke-linecap: butt;' />
@@ -85,10 +85,10 @@
 <text x='664.99' y='268.33' style='font-size: 10.00px; font-weight: bold; font-family: sans;' textLength='21.68px' lengthAdjust='spacingAndGlyphs'>DGP</text>
 <rect x='664.99' y='274.35' width='17.28' height='17.28' style='stroke-width: 1.07; stroke: none; fill: #FAFAFA;' />
 <line x1='666.72' y1='282.99' x2='680.54' y2='282.99' style='stroke-width: 1.07; stroke: #FF9300; stroke-linecap: butt;' />
-<rect x='665.70' y='275.06' width='15.86' height='15.86' style='stroke-width: 1.07; stroke: #FF9300; stroke-linecap: square; stroke-linejoin: miter; fill: #FF9300;' />
+<rect x='665.70' y='275.06' width='15.86' height='15.86' style='stroke-width: 1.07; stroke: #FF9300; stroke-linecap: butt; stroke-linejoin: miter; fill: #FF9300;' />
 <rect x='664.99' y='291.63' width='17.28' height='17.28' style='stroke-width: 1.07; stroke: none; fill: #FAFAFA;' />
 <line x1='666.72' y1='300.27' x2='680.54' y2='300.27' style='stroke-width: 1.07; stroke: #1B9E77; stroke-linecap: butt;' />
-<rect x='665.70' y='292.34' width='15.86' height='15.86' style='stroke-width: 1.07; stroke: #1B9E77; stroke-linecap: square; stroke-linejoin: miter; fill: #1B9E77;' />
+<rect x='665.70' y='292.34' width='15.86' height='15.86' style='stroke-width: 1.07; stroke: #1B9E77; stroke-linecap: butt; stroke-linejoin: miter; fill: #1B9E77;' />
 <text x='687.25' y='285.75' style='font-size: 8.00px; font-family: sans;' textLength='21.79px' lengthAdjust='spacingAndGlyphs'>DGP1</text>
 <text x='687.25' y='303.03' style='font-size: 8.00px; font-family: sans;' textLength='21.79px' lengthAdjust='spacingAndGlyphs'>DGP2</text>
 <text x='26.00' y='13.74' style='font-size: 12.00px; font-weight: bold; font-family: sans;' textLength='136.10px' lengthAdjust='spacingAndGlyphs'>plot_feature_importance2</text>

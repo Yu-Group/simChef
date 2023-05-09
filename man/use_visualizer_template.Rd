@@ -6,10 +6,10 @@
 \usage{
 use_visualizer_template(
   ids = NULL,
-  pred_nested_data,
+  pred_nested_cols,
   pred_truth_col,
   pred_prob_cols,
-  feature_nested_data,
+  feature_nested_cols,
   feature_col,
   feature_truth_col,
   feature_imp_col,

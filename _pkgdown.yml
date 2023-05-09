@@ -127,10 +127,12 @@ reference:
     desc: >
       Helper functions for developers to create their own simulation experiment components.
     contents:
+      - eval_constructor
+      - eval_summarizer
+      - plot_eval_constructor
+      - plot_fit_constructor
       - get_dot_args
-      - get_eval_tibble
-      - summarize_eval_results
-      - plot_eval_summary
-      - plot_fit_results
+      - get_plot_data
       - list_col_to_chr
       - load_all
+      - add_na_counts

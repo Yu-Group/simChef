@@ -9,17 +9,19 @@
 eval_feature_importance(
   fit_results,
   vary_params = NULL,
-  nested_data = NULL,
+  nested_cols = NULL,
   feature_col,
-  imp_col
+  imp_col,
+  group_cols = NULL
 )
 
 summarize_feature_importance(
   fit_results,
   vary_params = NULL,
-  nested_data = NULL,
+  nested_cols = NULL,
   feature_col,
   imp_col,
+  group_cols = NULL,
   na_rm = FALSE,
   summary_funs = c("mean", "median", "min", "max", "sd", "raw"),
   custom_summary_funs = NULL,
@@ -32,8 +34,8 @@ summarize_feature_importance(
 \item{vary_params}{A vector of parameter names that are varied across in the
 \code{Experiment}.}
 
-\item{nested_data}{(Optional) Character string. If specified, should be the
-name of the column in \code{fit_results} containing columns that must be
+\item{nested_cols}{(Optional) A character string or vector specifying the
+name of the column(s) in \code{fit_results} that need to be
 unnested before evaluating results. Default is \code{NULL}, meaning no
 columns in \code{fit_results} need to be unnested prior to computation.}
 
@@ -46,6 +48,10 @@ in this column should be an array of length \code{p}, where \code{p} is the
 number of features and the feature order aligns with that of
 \code{truth_col}. Elements in this array should be numeric where a higher
 magnitude indicates a more important feature.}
+
+\item{group_cols}{(Optional) A character string or vector specifying the
+column(s) to group rows by before evaluating metrics.
+This is useful for assessing within-group metrics.}
 
 \item{na_rm}{A \code{logical} value indicating whether \code{NA} values
 should be stripped before the computation proceeds.}
@@ -66,18 +72,18 @@ columns. Default \code{NULL} does not add any ID to the column names.}
 \value{
 The output of \code{eval_feature_importance()} is a \code{tibble} with
 the columns \code{.rep}, \code{.dgp_name}, and \code{.method_name} in
-addition to the columns specified by \code{vary_params}, \code{feature_col},
-and \code{imp_col}.
+addition to the columns specified by \code{group_cols}, \code{vary_params},
+\code{feature_col}, and \code{imp_col}.
 
 The output of \code{summarize_feature_importance()} is a grouped
 \code{tibble} containing both identifying information and the feature
 importance results aggregated over experimental replicates. Specifically, the
 identifier columns include \code{.dgp_name}, \code{.method_name}, any columns
-specified by \code{vary_params}, and the column specified by
-\code{feature_col}. In addition, there are results columns corresponding to
-the requested statistics in \code{summary_funs} and
+specified by \code{group_cols} and \code{vary_params}, and the column
+specified by \code{feature_col}. In addition, there are results columns
+corresponding to the requested statistics in \code{summary_funs} and
 \code{custom_summary_funs}. These columns end in the suffix
-"_feature_importance".
+specified by \code{eval_id}.
 }
 \description{
 Evaluate the estimated feature importance scores against the
@@ -108,14 +114,14 @@ fit_results <- tibble::tibble(
 # evaluate feature importances (using all default metrics) for each replicate
 eval_results <- eval_feature_importance(
   fit_results,
-  nested_data = "feature_info",
+  nested_cols = "feature_info",
   feature_col = "feature",
   imp_col = "est_importance"
 )
 # summarize feature importances (using all default metric) across replicates
 eval_results_summary <- summarize_feature_importance(
   fit_results,
-  nested_data = "feature_info",
+  nested_cols = "feature_info",
   feature_col = "feature",
   imp_col = "est_importance"
 )

@@ -9,10 +9,11 @@
 eval_feature_selection_err(
   fit_results,
   vary_params = NULL,
-  nested_data = NULL,
+  nested_cols = NULL,
   truth_col,
   estimate_col = NULL,
   imp_col,
+  group_cols = NULL,
   metrics = NULL,
   na_rm = FALSE
 )
@@ -20,10 +21,11 @@ eval_feature_selection_err(
 summarize_feature_selection_err(
   fit_results,
   vary_params = NULL,
-  nested_data = NULL,
+  nested_cols = NULL,
   truth_col,
   estimate_col = NULL,
   imp_col,
+  group_cols = NULL,
   metrics = NULL,
   na_rm = FALSE,
   summary_funs = c("mean", "median", "min", "max", "sd", "raw"),
@@ -37,8 +39,8 @@ summarize_feature_selection_err(
 \item{vary_params}{A vector of parameter names that are varied across in the
 \code{Experiment}.}
 
-\item{nested_data}{(Optional) Character string. If specified, should be the
-name of the column in \code{fit_results} containing columns that must be
+\item{nested_cols}{(Optional) A character string or vector specifying the
+name of the column(s) in \code{fit_results} that need to be
 unnested before evaluating results. Default is \code{NULL}, meaning no
 columns in \code{fit_results} need to be unnested prior to computation.}
 
@@ -65,6 +67,10 @@ in this column should be an array of length \code{p}, where \code{p} is the
 number of features and the feature order aligns with that of
 \code{truth_col}. Elements in this array should be numeric where a higher
 magnitude indicates a more important feature.}
+
+\item{group_cols}{(Optional) A character string or vector specifying the
+column(s) to group rows by before evaluating metrics.
+This is useful for assessing within-group metrics.}
 
 \item{metrics}{A \code{metric_set} object indicating the metrics to evaluate.
 See \code{\link[yardstick:metric_set]{yardstick::metric_set()}} for more details. Default \code{NULL} will
@@ -102,16 +108,16 @@ following columns:
 \item{.metric}{Name of the evaluation metric.}
 \item{.estimate}{Value of the evaluation metric.}
 }
-as well as any columns specified by \code{vary_params}.
+as well as any columns specified by \code{group_cols} and \code{vary_params}.
 
 The output of \code{summarize_feature_selection_err()} is a grouped
 \code{tibble} containing both identifying information and the feature
 selection results aggregated over experimental replicates. Specifically, the
 identifier columns include \code{.dgp_name}, \code{.method_name}, any columns
-specified by \code{vary_params}, and \code{.metric}. In addition, there are
-results columns corresponding to the requested statistics in
-\code{summary_funs} and \code{custom_summary_funs}. These columns end in the
-suffix "_feature_selection".
+specified by \code{group_cols} and \code{vary_params}, and \code{.metric}.
+In addition, there are results columns corresponding to the requested
+statistics in \code{summary_funs} and \code{custom_summary_funs}. These
+columns end in the suffix specified by \code{eval_id}.
 }
 \description{
 Evaluate various feature selection metrics, given the true
@@ -147,7 +153,7 @@ fit_results <- tibble::tibble(
 # evaluate feature selection (using all default metrics) for each replicate
 eval_results <- eval_feature_selection_err(
   fit_results,
-  nested_data = "feature_info",
+  nested_cols = "feature_info",
   truth_col = "true_support",
   estimate_col = "est_support",
   imp_col = "est_importance"
@@ -155,7 +161,7 @@ eval_results <- eval_feature_selection_err(
 # summarize feature selection error (using all default metric) across replicates
 eval_results_summary <- summarize_feature_selection_err(
   fit_results,
-  nested_data = "feature_info",
+  nested_cols = "feature_info",
   truth_col = "true_support",
   estimate_col = "est_support",
   imp_col = "est_importance"
@@ -165,7 +171,7 @@ eval_results_summary <- summarize_feature_selection_err(
 metrics <- yardstick::metric_set(yardstick::sens, yardstick::spec)
 eval_results <- eval_feature_selection_err(
   fit_results,
-  nested_data = "feature_info",
+  nested_cols = "feature_info",
   truth_col = "true_support",
   estimate_col = "est_support",
   imp_col = "est_importance",
@@ -173,7 +179,7 @@ eval_results <- eval_feature_selection_err(
 )
 eval_results_summary <- summarize_feature_selection_err(
   fit_results,
-  nested_data = "feature_info",
+  nested_cols = "feature_info",
   truth_col = "true_support",
   estimate_col = "est_support",
   imp_col = "est_importance",
@@ -184,7 +190,7 @@ eval_results_summary <- summarize_feature_selection_err(
 range_fun <- function(x) return(max(x) - min(x))
 eval_results_summary <- summarize_feature_selection_err(
   fit_results,
-  nested_data = "feature_info",
+  nested_cols = "feature_info",
   truth_col = "true_support",
   estimate_col = "est_support",
   imp_col = "est_importance",

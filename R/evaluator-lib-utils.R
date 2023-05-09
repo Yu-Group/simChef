@@ -12,16 +12,15 @@
 #'   columns. Default \code{NULL} does not add any ID to the column names.
 #' @param feature_col A character string identifying the column in 
 #'   \code{fit_results} with the feature names or IDs.
+#' @param group_cols (Optional) A character string or vector specifying the
+#'   column(s) to group rows by before evaluating metrics.
+#'   This is useful for assessing within-group metrics.
 #' @param na_rm A \code{logical} value indicating whether \code{NA} values 
 #'   should be stripped before the computation proceeds.
-#' @param nested_data (Optional) Character string. If specified, should be the
-#'   name of the column in \code{fit_results} containing columns that must be
+#' @param nested_cols (Optional) A character string or vector specifying the
+#'   name of the column(s) in \code{fit_results} that need to be
 #'   unnested before evaluating results. Default is \code{NULL}, meaning no
 #'   columns in \code{fit_results} need to be unnested prior to computation.
-#' @param options A list of named options to pass to \code{pROC::roc()} such as 
-#'   \code{smooth}. These options should not include \code{response}, 
-#'   \code{predictor}, \code{levels}, \code{quiet}, or \code{direction}. This
-#'   argument is only used when computing the ROC and is ignored otherwise.
 #' @param summary_funs Character vector specifying how to summarize 
 #'   evaluation metrics. Must choose from a built-in library of summary
 #'   functions - elements of the vector must be one of "mean", "median",
@@ -34,11 +33,104 @@
 #' @keywords internal
 NULL
 
+
+#' Developer function to construct basic Evaluator.
+#'
+#' @description Helper function for developing a new \code{Evaluator}
+#'   that evaluates some function (e.g., metric) for each row in
+#'   \code{fit_results}.
+#'
+#' @inheritParams shared_experiment_helpers_args
+#' @inheritParams shared_eval_lib_args
+#' @param fun Function to compute for each row in \code{fit_results}. This
+#'   function can take in the following optional arguments: (1) \code{data} =
+#'   \code{fit_results[i, ]}; (2) na_rm; (3) arguments specified via \code{...}
+#'   and \code{fun_options}.
+#' @param ... Named arguments, containing names of columns to pass to
+#'   \code{fun}.
+#' @param fun_options Named list of additional arguments to pass to \code{fun}.
+#'
+#' @export
+eval_constructor <- function(fit_results, vary_params = NULL, fun,
+                             nested_cols = NULL, ..., group_cols = NULL,
+                             fun_options = NULL, na_rm = FALSE) {
+
+  eval_rowwise <- function(data) {
+    if (!is.null(nested_cols)) {
+      data <- data %>% tidyr::unnest(tidyselect::all_of(nested_cols))
+    }
+
+    key_cols_ls <- rlang::list2(...)
+    for (col in key_cols_ls) {
+      if (!all(col %in% colnames(data))) {
+        missing_col <- col[which(!(col %in% colnames(data)))[1]]
+        stop(sprintf("No column named %s in fit_results.", missing_col))
+      }
+    }
+    key_cols_vec <- purrr::reduce(key_cols_ls, c)
+
+    if (is.null(nested_cols)) {
+      data <- data %>%
+        tidyr::unnest(tidyselect::all_of(c(key_cols_vec, group_cols)))
+    }
+    if (!is.null(group_cols)) {
+      data <- data %>%
+        dplyr::group_by(dplyr::across(tidyselect::all_of(group_cols)))
+    }
+
+    out <- R.utils::doCall(
+      fun,
+      args = c(list(data = data, na_rm = na_rm), key_cols_ls, fun_options)
+    )
+    return(out)
+  }
+
+  id_vars <- c(".rep", ".dgp_name", ".method_name", vary_params)
+  eval_tib <- fit_results %>%
+    dplyr::mutate(
+      .eval_result = purrr::map(
+        1:nrow(fit_results), ~eval_rowwise(data = fit_results[.x, ])
+      )
+    ) %>%
+    dplyr::select(tidyselect::all_of(id_vars), .eval_result)
+  return(eval_tib)
+}
+
+
+#' Developer function to add number of NAs to evaluator results
+#'
+#' @description A helper function to append rows with number of NAs (per group,
+#'   if applicable) to evaluator results tibble.
+#'
+#' @inheritParams shared_eval_lib_args
+#' @param out Evaluator results tibble to append number of NA results to.
+#' @param data Data used to compute number of NAs.
+#' @param value_col Character string, specifying the column used to compute
+#'   the number of NAs.
+#' @param ... Additional name-value pairs to pass to dplyr::mutate() to append
+#'   columns.
+#'
+#' @returns Tibble with additional rows containing the new metric "num_na" and
+#'   its corresponding ".estimate"
+#' @export
+add_na_counts <- function(out, data, value_col, na_rm, ...) {
+  if (na_rm) {
+    na_counts <- data %>%
+      dplyr::summarise(.estimate = sum(is.na(!!value_col))) %>%
+      dplyr::mutate(.metric = "num_na", ...)
+    out <- out %>%
+      dplyr::bind_rows(na_counts)
+  }
+  return(out)
+}
+
+
 #' Developer function for summarizing evaluation results.
 #' 
 #' @description A helper function for developing new \code{Evaluator} functions
 #'   that summarize results over pre-specified groups in a grouped
-#'   \code{data.frame} (e.g., over multiple experimental replicates).
+#'   \code{data.frame} (e.g., over multiple experimental replicates). This is
+#'   often used in conjunction with \code{eval_constructor()}.
 #'
 #' @inheritParams shared_eval_lib_args
 #' @param eval_data A grouped \code{data.frame} of evaluation results to 
@@ -63,25 +155,25 @@ NULL
 #'   dplyr::group_by(.dgp_name, .method_name)
 #'   
 #' # summarize `result` column in eval_data
-#' results <- summarize_eval_results(eval_data = eval_data, eval_id = "res",
-#'                                   value_col = "result")
-#'                                   
+#' results <- eval_summarizer(eval_data = eval_data, eval_id = "res",
+#'                            value_col = "result")
+#'
 #' # only compute mean and sd of `result` column in eval_data over given groups
-#' results <- summarize_eval_results(eval_data = eval_data, eval_id = "res",
-#'                                   value_col = "result",
-#'                                   summary_funs = c("mean", "sd"))
+#' results <- eval_summarizer(eval_data = eval_data, eval_id = "res",
+#'                            value_col = "result",
+#'                            summary_funs = c("mean", "sd"))
 #'                                   
 #' # summarize `results` column using custom summary function
 #' range_fun <- function(x) return(max(x) - min(x))
-#' results <- summarize_eval_results(eval_data = eval_data, value_col = "result",
-#'                                   custom_summary_funs = list(range = range_fun))
+#' results <- eval_summarizer(eval_data = eval_data, value_col = "result",
+#'                            custom_summary_funs = list(range = range_fun))
 #'                                   
 #' @export
-summarize_eval_results <- function(eval_data, eval_id = NULL, value_col,
-                                   summary_funs = c("mean", "median", "min",
-                                                    "max", "sd", "raw"), 
-                                   custom_summary_funs = NULL,
-                                   na_rm = FALSE) {
+eval_summarizer <- function(eval_data, eval_id = NULL, value_col,
+                            summary_funs = c("mean", "median", "min",
+                                             "max", "sd", "raw"),
+                            custom_summary_funs = NULL,
+                            na_rm = FALSE) {
   summary_funs <- match.arg(summary_funs, several.ok = TRUE)
   group_ids <- dplyr::group_vars(eval_data)
   if (length(group_ids) == 0) {
@@ -137,8 +229,9 @@ summarize_eval_results <- function(eval_data, eval_id = NULL, value_col,
   }
   
   return(tibble::tibble(eval_out) %>% 
-           dplyr::group_by(dplyr::across({{group_ids}})))
+           dplyr::group_by(dplyr::across(tidyselect::all_of(group_ids))))
 }
+
 
 #' Rescale ROC/PR curves onto the same x-axis grid
 #' 

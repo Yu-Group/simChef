@@ -5,9 +5,11 @@
 \title{Plot the rejection probability of a hypothesis test.}
 \usage{
 plot_reject_prob(
-  fit_results,
+  fit_results = NULL,
   eval_results = NULL,
-  evaluator_name = NULL,
+  eval_name = NULL,
+  eval_fun = "eval_reject_prob",
+  eval_fun_options = NULL,
   vary_params = NULL,
   feature_col = NULL,
   show_features = NULL,
@@ -22,9 +24,15 @@ plot_reject_prob(
 \item{eval_results}{A list of result tibbles, as returned by the
 \code{evaluate} method.}
 
-\item{evaluator_name}{Name of \code{Evaluator} containing results to plot.
-To compute the evaluation summary results from scratch or if the evaluation
-summary results have not yet been evaluated, set to \code{NULL}.}
+\item{eval_name}{Name of \code{Evaluator} containing results to plot. If
+\code{NULL}, the data used for plotting is computed from scratch via
+\code{eval_fun}.}
+
+\item{eval_fun}{Character string, specifying the function used to compute
+the data used for plotting if \code{eval_name = NULL}. If \code{eval_name}
+is not \code{NULL}, this argument is ignored.}
+
+\item{eval_fun_options}{List of named arguments to pass to \code{eval_fun}.}
 
 \item{vary_params}{A vector of parameter names that are varied across in the
 \code{Experiment}.}
@@ -43,9 +51,7 @@ y = x line.}
 "line", "bar", "errorbar", "ribbon" indicating what plot layer(s) to
 construct.}
 
-\item{...}{Additional arguments to pass to \code{plot_eval_summary()}. This
-includes arguments for plotting and for passing into
-\code{eval_reject_prob()}.}
+\item{...}{Not used.}
 }
 \value{
 If \code{interactive = TRUE}, returns a \code{plotly} object if
@@ -81,27 +87,27 @@ fit_results <- tibble::tibble(
 eval_results <- list(
   `Reject Prob.` = eval_reject_prob(
     fit_results, 
-    nested_data = "feature_info",
+    nested_cols = "feature_info",
     feature_col = "feature", 
     pval_col = "pval"
   )
 )
 
 # create bar plot using pre-computed evaluation results
-plt <- plot_reject_prob(fit_results = fit_results,
-                        eval_results = eval_results,
-                        evaluator_name = "Reject Prob.",
+plt <- plot_reject_prob(eval_results = eval_results,
+                        eval_name = "Reject Prob.",
                         feature_col = "feature")
-# or alternatively, create the same plot without pre-computing evaluation results
-plt <- plot_reject_prob(fit_results, 
-                        nested_data = "feature_info",
-                        feature_col = "feature",
-                        pval_col = "pval")
-
-# can customize plot (see plot_eval_summary() for possible arguments)
+# or alternatively, create the same plot directly from fit results
 plt <- plot_reject_prob(fit_results = fit_results,
-                        eval_results = eval_results,
-                        evaluator_name = "Reject Prob.",
+                        feature_col = "feature",
+                        eval_fun_options = list(
+                          nested_cols = "feature_info",
+                          pval_col = "pval"
+                        ))
+
+# can customize plot (see plot_eval_constructor() for possible arguments)
+plt <- plot_reject_prob(eval_results = eval_results,
+                        eval_name = "Reject Prob.",
                         facet_formula = NULL,
                         plot_by = "feature")
 

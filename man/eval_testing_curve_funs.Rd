@@ -10,22 +10,22 @@ p-value.}
 eval_testing_curve(
   fit_results,
   vary_params = NULL,
-  nested_data = NULL,
+  nested_cols = NULL,
   truth_col,
   pval_col,
+  group_cols = NULL,
   curve = c("ROC", "PR"),
-  options = list(),
   na_rm = FALSE
 )
 
 summarize_testing_curve(
   fit_results,
   vary_params = NULL,
-  nested_data = NULL,
+  nested_cols = NULL,
   truth_col,
   pval_col,
+  group_cols = NULL,
   curve = c("ROC", "PR"),
-  options = list(),
   na_rm = FALSE,
   x_grid = seq(0, 1, by = 0.01),
   summary_funs = c("mean", "median", "min", "max", "sd", "raw"),
@@ -39,8 +39,8 @@ summarize_testing_curve(
 \item{vary_params}{A vector of parameter names that are varied across in the
 \code{Experiment}.}
 
-\item{nested_data}{(Optional) Character string. If specified, should be the
-name of the column in \code{fit_results} containing columns that must be
+\item{nested_cols}{(Optional) A character string or vector specifying the
+name of the column(s) in \code{fit_results} that need to be
 unnested before evaluating results. Default is \code{NULL}, meaning no
 columns in \code{fit_results} need to be unnested prior to computation.}
 
@@ -57,13 +57,12 @@ this column should be an array of length \code{p}, where \code{p} is the
 number of features and the feature order aligns with that of
 \code{truth_col}.}
 
+\item{group_cols}{(Optional) A character string or vector specifying the
+column(s) to group rows by before evaluating metrics.
+This is useful for assessing within-group metrics.}
+
 \item{curve}{Either "ROC" or "PR" indicating whether to evaluate the ROC or
 Precision-Recall curve.}
-
-\item{options}{A list of named options to pass to \code{pROC::roc()} such as
-\code{smooth}. These options should not include \code{response},
-\code{predictor}, \code{levels}, \code{quiet}, or \code{direction}. This
-argument is only used when computing the ROC and is ignored otherwise.}
 
 \item{na_rm}{A \code{logical} value indicating whether \code{NA} values
 should be stripped before the computation proceeds.}
@@ -100,18 +99,18 @@ the ROC/PR curve for the given experimental replicate. If
 positive rate, respectively. If \code{curve = "PR"}, the \code{tibble} has
 the columns \code{.threshold}, \code{recall}, and \code{precision}.}
 }
-as well as any columns specified by \code{vary_params}.
+as well as any columns specified by \code{group_cols} and \code{vary_params}.
 
 The output of \code{summarize_testing_curve()} is a grouped \code{tibble}
 containing both identifying information and the evaluation curve
 results aggregated over experimental replicates. Specifically, the identifier
 columns include \code{.dgp_name}, \code{.method_name}, and any columns
-specified by \code{vary_params}. In addition, there are results columns
-corresponding to the requested statistics in \code{summary_funs} and
-\code{custom_summary_funs}. If \code{curve = "ROC"}, these results columns
-include \code{FPR} and others that end in the suffix "_TPR". If
-\code{curve = "PR"}, the results columns include \code{recall} and others
-that end in the suffix "_precision".
+specified by \code{group_cols} and \code{vary_params}. In addition, there are
+results columns corresponding to the requested statistics in
+\code{summary_funs} and \code{custom_summary_funs}. If \code{curve = "ROC"},
+these results columns include \code{FPR} and others that end in the suffix
+"_TPR". If \code{curve = "PR"}, the results columns include \code{recall} and
+others that end in the suffix "_precision".
 }
 \description{
 Evaluate the ROC or PR curves corresponding to the feature
@@ -145,14 +144,14 @@ fit_results <- tibble::tibble(
 roc_results <- eval_testing_curve(
   fit_results,
   curve = "ROC",
-  nested_data = "feature_info",
+  nested_cols = "feature_info",
   truth_col = "true_support",
   pval_col = "pval"
 )
 pr_results <- eval_testing_curve(
   fit_results,
   curve = "PR",
-  nested_data = "feature_info",
+  nested_cols = "feature_info",
   truth_col = "true_support",
   pval_col = "pval"
 )
@@ -160,14 +159,14 @@ pr_results <- eval_testing_curve(
 roc_summary <- summarize_testing_curve(
   fit_results,
   curve = "ROC",
-  nested_data = "feature_info",
+  nested_cols = "feature_info",
   truth_col = "true_support",
   pval_col = "pval"
 )
 pr_summary <- summarize_testing_curve(
   fit_results,
   curve = "PR",
-  nested_data = "feature_info",
+  nested_cols = "feature_info",
   truth_col = "true_support",
   pval_col = "pval"
 )

@@ -7,9 +7,10 @@
 eval_reject_prob(
   fit_results,
   vary_params = NULL,
-  nested_data = NULL,
+  nested_cols = NULL,
   feature_col = NULL,
   pval_col,
+  group_cols = NULL,
   alphas = NULL,
   na_rm = FALSE
 )
@@ -20,8 +21,8 @@ eval_reject_prob(
 \item{vary_params}{A vector of parameter names that are varied across in the
 \code{Experiment}.}
 
-\item{nested_data}{(Optional) Character string. If specified, should be the
-name of the column in \code{fit_results} containing columns that must be
+\item{nested_cols}{(Optional) A character string or vector specifying the
+name of the column(s) in \code{fit_results} that need to be
 unnested before evaluating results. Default is \code{NULL}, meaning no
 columns in \code{fit_results} need to be unnested prior to computation.}
 
@@ -33,6 +34,10 @@ columns in \code{fit_results} need to be unnested prior to computation.}
 this column should be an array of length \code{p}, where \code{p} is the
 number of features and the feature order aligns with that of
 \code{truth_col}.}
+
+\item{group_cols}{(Optional) A character string or vector specifying the
+column(s) to group rows by before evaluating metrics.
+This is useful for assessing within-group metrics.}
 
 \item{alphas}{(Optional) Vector of significance levels at which to evaluate
 the rejection probability. By default, \code{alphas} is \code{NULL}, which
@@ -46,11 +51,12 @@ should be stripped before the computation proceeds.}
 A grouped \code{tibble} containing both identifying information
 and the rejection probability results aggregated over experimental
 replicates. Specifically, the identifier columns include \code{.dgp_name},
-\code{.method_name}, any columns specified by \code{vary_params}, and the
-feature names given in \code{feature_col} if applicable. In addition, there
-are results columns \code{.alpha} and \code{reject_prob}, which
-respectively give the significance level and the estimated rejection
-probabilities (averaged across experimental replicates).
+\code{.method_name}, any columns specified by \code{group_cols} and
+\code{vary_params}, and the feature names given in \code{feature_col} if
+applicable. In addition, there are results columns \code{.alpha} and
+\code{reject_prob}, which respectively give the significance level and the
+estimated rejection probabilities (averaged across experimental
+replicates).
 }
 \description{
 Evaluate the probability of rejecting the null hypothesis
@@ -81,7 +87,7 @@ fit_results <- tibble::tibble(
 # evaluate rejection probabilities for each feature across all possible values of alpha
 eval_results <- eval_reject_prob(
   fit_results,
-  nested_data = "feature_info",
+  nested_cols = "feature_info",
   feature_col = "feature",
   pval_col = "pval"
 )
@@ -89,7 +95,7 @@ eval_results <- eval_reject_prob(
 # evaluate rejection probability for each feature at specific values of alpha
 eval_results <- eval_reject_prob(
   fit_results,
-  nested_data = "feature_info",
+  nested_cols = "feature_info",
   feature_col = "feature",
   pval_col = "pval",
   alphas = c(0.05, 0.1)

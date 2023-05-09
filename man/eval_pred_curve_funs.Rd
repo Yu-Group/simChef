@@ -9,24 +9,22 @@
 eval_pred_curve(
   fit_results,
   vary_params = NULL,
-  nested_data = NULL,
+  nested_cols = NULL,
   truth_col,
   prob_cols,
+  group_cols = NULL,
   curve = c("ROC", "PR"),
-  groups = NULL,
-  options = list(),
   na_rm = FALSE
 )
 
 summarize_pred_curve(
   fit_results,
   vary_params = NULL,
-  nested_data = NULL,
+  nested_cols = NULL,
   truth_col,
   prob_cols,
+  group_cols = NULL,
   curve = c("ROC", "PR"),
-  groups = NULL,
-  options = list(),
   na_rm = FALSE,
   x_grid = seq(0, 1, by = 0.01),
   summary_funs = c("mean", "median", "min", "max", "sd", "raw"),
@@ -40,8 +38,8 @@ summarize_pred_curve(
 \item{vary_params}{A vector of parameter names that are varied across in the
 \code{Experiment}.}
 
-\item{nested_data}{(Optional) Character string. If specified, should be the
-name of the column in \code{fit_results} containing columns that must be
+\item{nested_cols}{(Optional) A character string or vector specifying the
+name of the column(s) in \code{fit_results} that need to be
 unnested before evaluating results. Default is \code{NULL}, meaning no
 columns in \code{fit_results} need to be unnested prior to computation.}
 
@@ -56,19 +54,12 @@ only 1 column name should be provided. Otherwise, the length of the
 the \code{truth_col} column. This argument is not used when evaluating
 numeric metrics.}
 
+\item{group_cols}{(Optional) A character string or vector specifying the
+column(s) to group rows by before evaluating metrics.
+This is useful for assessing within-group metrics.}
+
 \item{curve}{Either "ROC" or "PR" indicating whether to evaluate the ROC or
 Precision-Recall curve.}
-
-\item{groups}{(Optional) vector of group IDs to group observations by before
-evaluating prediction errors. This is useful for assessing within-group
-prediction errors. Note: the (unstratified) prediction errors, aggregated
-across the full data set, are computed in addition to these stratified
-within-group errors.}
-
-\item{options}{A list of named options to pass to \code{pROC::roc()} such as
-\code{smooth}. These options should not include \code{response},
-\code{predictor}, \code{levels}, \code{quiet}, or \code{direction}. This
-argument is only used when computing the ROC and is ignored otherwise.}
 
 \item{na_rm}{A \code{logical} value indicating whether \code{NA} values
 should be stripped before the computation proceeds.}
@@ -98,8 +89,6 @@ columns:
 \item{.rep}{Replicate ID.}
 \item{.dgp_name}{Name of DGP.}
 \item{.method_name}{Name of Method.}
-\item{.group}{If \code{groups} is not \code{NULL}, this column specifies the
-name of the group under evaluation. Otherwise, this column is not returned.}
 \item{curve_estimate}{A list of tibbles with x and y coordinate values for
 the ROC/PR curve for the given experimental replicate. If
 \code{curve = "ROC"}, the \code{tibble} has the columns \code{.threshold},
@@ -107,14 +96,14 @@ the ROC/PR curve for the given experimental replicate. If
 positive rate, respectively. If \code{curve = "PR"}, the \code{tibble} has
 the columns \code{.threshold}, \code{recall}, and \code{precision}.}
 }
-as well as any columns specified by \code{vary_params}.
+as well as any columns specified by \code{group_cols} and \code{vary_params}.
 
 The output of \code{summarize_pred_curve()} is a grouped \code{tibble}
 containing both identifying information and the prediction curve results
 aggregated over experimental replicates. Specifically, the identifier columns
 include \code{.dgp_name}, \code{.method_name}, and any columns specified by
-\code{vary_params}. In addition, there are results columns corresponding to
-the requested statistics in \code{summary_funs} and
+\code{group_cols} and \code{vary_params}. In addition, there are results
+columns corresponding to the requested statistics in \code{summary_funs} and
 \code{custom_summary_funs}. If \code{curve = "ROC"}, these results columns
 include \code{FPR} and others that end in the suffix "_TPR". If
 \code{curve = "PR"}, the results columns include \code{recall} and others
@@ -181,21 +170,21 @@ fit_results <- tibble::tibble(
 
 # evaluate ROC/PR curve for each replicate
 roc_results <- eval_pred_curve(fit_results, curve = "ROC",
-                               nested_data = "class_probs",
+                               nested_cols = c("y", "class_probs"),
                                truth_col = "y",
                                prob_cols = c("a", "b", "c"))
 pr_results <- eval_pred_curve(fit_results, curve = "PR",
-                              nested_data = "class_probs",
+                              nested_cols = c("y", "class_probs"),
                               truth_col = "y",
                               prob_cols = c("a", "b", "c"))
 
 # summarize ROC/PR curves across replicates
 roc_summary <- summarize_pred_curve(fit_results, curve = "ROC",
-                                    nested_data = "class_probs",
+                                    nested_cols = c("y", "class_probs"),
                                     truth_col = "y",
                                     prob_cols = c("a", "b", "c"))
 pr_summary <- summarize_pred_curve(fit_results, curve = "PR",
-                                   nested_data = "class_probs",
+                                   nested_cols = c("y", "class_probs"),
                                    truth_col = "y",
                                    prob_cols = c("a", "b", "c"))
 
