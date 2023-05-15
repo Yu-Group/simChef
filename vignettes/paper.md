@@ -68,6 +68,10 @@ automated interactive R Markdown documentation.
 
 # A powerful grammar of data science simulations
 
+![`simChef` provides four classes which implement distinct simulation objects in
+an intuitive and modular manner: `DGP`, `Method`, `Evaluator`, and `Visualizer`.
+\label{fig:api}](api_overview.png){ width=100% }
+
 Inspired by the tidyverse [@wickham-welcome-2019], `simChef` develops an
 intuitive grammar of simulation studies:
 
@@ -118,13 +122,13 @@ render_docs(exper)
 ```
 
 Internally, `simChef` provides a modular conceptualization of data science
-simulations using four `R6` [@chang-r6-2022] classes, portrayed on the right
-half of \autoref{fig:api}: `DGP`, `Method`, `Evaluator`, and `Visualizer`. Users
-create or reuse custom functions (`dgp_fun`, `method_fun`, `eval_fun`, and
-`viz_fun` above) aligned with their scientific goals. The custom functions are
-then optionally parameterized and encapsulated in one of the corresponding
-classes via a `create_*` method together with optional constant parameters
-(e.g., `sd` above).
+simulations using four `R6` [@chang-r6-2022] classes, portrayed
+\autoref{fig:api}: `DGP`, `Method`, `Evaluator`, and `Visualizer`. Users create
+or reuse custom functions (`dgp_fun`, `method_fun`, `eval_fun`, and `viz_fun`
+above) aligned with their scientific goals. The custom functions are then
+optionally parameterized and encapsulated in one of the corresponding classes
+via a `create_*` method together with optional constant parameters (e.g., `sd`
+above).
 
 A fifth `R6` class, `Experiment`, serves as a concrete implementation of the
 user's intent to answer a specific scientific question. The `Experiment` stores
@@ -135,13 +139,20 @@ is the case for the `n` parameter to `dgp_fun1` and `dgp_fun2` above) and can
 have arbitrary data type (such as `scalar_valued_param` and
 `vector_valued_param` to `method_fun`).
 
+![The `Experiment` class handles relationships between the four classes
+portrayed in \autoref{fig:api}. Experiments may have multiple `DGP` and `Method`
+objects, which are combined across the Cartesian product of their varying
+parameters (represented by `\*`). Once computed, each `Evaluator` and
+`Visualizer` take in simulation replicates, while `Visualizer` additionally
+receives evaluation summaries.\label{fig:run-exper}](run_experiment.png){ width=100% }
+
 The `Experiment` class flexibly handles the computation of simulation replicates
 in parallel using `future` [@bengtsson-unifying-2021]. The number of replicates
 per combination of `DGP`, `Method`, and parameters specified via
-`add_vary_across` is determined by the `n_reps` argument to `run_experiment`.
-Because replication happens at the per-combination level, the effective total
-number of replicates in the `Experiment` depends on the number of DGPs, methods,
-and varied parameters. 
+`add_vary_across` is determined by the `n_reps` argument to `run_experiment`
+(\autoref{fig:run-exper}). Because replication happens at the per-combination
+level, the effective total number of replicates in the `Experiment` depends on
+the number of DGPs, methods, and varied parameters.
 
 In the first call to `run_experiment` in the above example, there are two `DGP`
 instances, both of which are varied across three values of `n` and one of which
@@ -151,6 +162,9 @@ the experiment, we use three values of `scalar_valued_param`, two of
 `vector_valued_param`, and another two of `list_valued_param`, giving 12
 distinct configurations. Thus, there are a total of 108 DGP-method-parameter
 combinations in the experiment, each of which is replicated 100 times.
+\autoref{fig:exper-schematic} provides a detailed schematic of the
+`run_experiment` workflow, along with the expected inputs to and outputs from
+user-defined functions.
 
 Users can also choose to save the experiment's results to disk by passing `save
 = TRUE` to `run_experiment`. Once saved, the user can add new `DGP` and `Method`
@@ -177,7 +191,8 @@ link](https://philboileau.github.io/simChef-case-study/results/empirical-fdr-com
 and corresponding source code is available on GitHub at
 [PhilBoileau/simChef-case-study](https://github.com/PhilBoileau/simChef-case-study).
 
-![Conceptual overview of the `simChef` API.\label{fig:api}](api_overview.png){ width=100% }
+![Detailed schematic of the `run_experiment`
+workflow.\label{fig:exper-schematic}](fit_eval_viz.png){ width=100% }
 
 # Acknowledgements
 
