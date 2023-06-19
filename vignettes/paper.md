@@ -66,14 +66,36 @@ many of the administrative burdens of simulation design with an intuitive [tidy
 grammar](https://design.tidyverse.org/) of data science simulations and
 automated interactive R Markdown documentation.
 
-# A powerful grammar of data science simulations
+# Core abstractions of data science simulations
 
-![`simChef` provides four classes which implement distinct simulation objects in
+At its core, `simChef` breaks down a simulation experiment into four modular components (\autoref{fig:api}), each implemented as an `R6` class [@chang-r6-2022]:
+
+- `DGP`: the data-generating processes from which to *generate* data
+- `Method`: the methods (or models) to *fit* in the experiment
+- `Evaluator`: the evaluation metrics used to *evaluate* the methods performance
+- `Visualizer`: the visualization functions used to *visualize* outputs from the method fits or evaluation results (can be tables, plots, or even R Markdown snippets to display)
+
+![Overview of the four core components in a `simChef` `Experiment`. `simChef` 
+provides four classes which implement distinct simulation objects in
 an intuitive and modular manner: `DGP`, `Method`, `Evaluator`, and `Visualizer`.
 \label{fig:api}](api_overview.png){ width=100% }
 
+Using these classes, users can create or reuse custom functions (i.e., `dgp_fun`, `method_fun`, `eval_fun`, and `viz_fun` in \autoref{fig:api}) aligned with their scientific goals. 
+The custom functions are then optionally parameterized and encapsulated in one of the corresponding classes via a `create_*` method together with optional constant parameters.
+
+A fifth `R6` class, `Experiment`, unites the four components above and serves as a concrete implementation of the
+user's intent to answer a specific scientific question. Specifically, the `Experiment` stores
+references to the `DGP`(s), `Method`(s), `Evaluator`(s), and `Visualizer`(s) along with the `DGP` and `Method`
+parameters that should be varied and combined during the simulation run. 
+
+![Overview of running a `simChef` `Experiment`. The `Experiment` class handles relationships between the four classes portrayed in \autoref{fig:api}. Experiments may have multiple `DGP`s and `Method`s, which are combined across the Cartesian product of their varying parameters (represented by `\*`). Once computed, each `Evaluator` and `Visualizer` takes in the fitted simulation replicates, while `Visualizer` additionally receives evaluation summaries.
+\label{fig:run-exper}](run_experiment.png){ width=100% }
+
+# A powerful grammar of data science simulations
+
 Inspired by the tidyverse [@wickham-welcome-2019], `simChef` develops an
-intuitive grammar of simulation studies:
+intuitive grammar for running simulation studies using the aforementioned `R6` classes. 
+We provide an illustrative example usage next.
 
 ```r
 library(simChef)
@@ -121,78 +143,48 @@ init_docs(exper)
 render_docs(exper)
 ```
 
-Internally, `simChef` provides a modular conceptualization of data science
-simulations using four `R6` [@chang-r6-2022] classes, portrayed
-\autoref{fig:api}: `DGP`, `Method`, `Evaluator`, and `Visualizer`. Users create
-or reuse custom functions (`dgp_fun`, `method_fun`, `eval_fun`, and `viz_fun`
-above) aligned with their scientific goals. The custom functions are then
-optionally parameterized and encapsulated in one of the corresponding classes
-via a `create_*` method together with optional constant parameters (e.g., `sd`
-above).
+In the example usage, `DGP`(s), `Method`(s), `Evaluator`(s), and `Visualizer`(s) are first created via `create_*()`. 
+These simulation objects can then be combined into an `Experiment` using either `create_experiment()` and/or `add_*()`. 
 
-A fifth `R6` class, `Experiment`, serves as a concrete implementation of the
-user's intent to answer a specific scientific question. The `Experiment` stores
-references to the first four objects along with the `DGP` and `Method`
-parameters that should be varied and combined during the simulation run.
-Parameters that are common across the users functions can be added jointly (as
-is the case for the `n` parameter to `dgp_fun1` and `dgp_fun2` above) and can
-have arbitrary data type (such as `scalar_valued_param` and
-`vector_valued_param` to `method_fun`).
+In an `Experiment`, `DGP`(s) and `Method`(s) can also be varied across one or multiple parameters via `add_vary_across()`. 
+For instance, in the example `Experiment`, there are two `DGP` instances, both of which are varied across three values of `n` and one of which is additionally varied across two values of `sparse`. 
+This effectively results in nine distinct configurations for data generation. 
+For the single `Method` in the experiment, we use three values of `scalar_valued_param`, two of `vector_valued_param`, and another two of `list_valued_param`, giving 12 distinct configurations. 
+Hence, there are a total of 108 DGP-method-parameter combinations in the `Experiment`.
 
-![The `Experiment` class handles relationships between the four classes
-portrayed in \autoref{fig:api}. Experiments may have multiple `DGP` and `Method`
-objects, which are combined across the Cartesian product of their varying
-parameters (represented by `\*`). Once computed, each `Evaluator` and
-`Visualizer` take in simulation replicates, while `Visualizer` additionally
-receives evaluation summaries.\label{fig:run-exper}](run_experiment.png){ width=100% }
-
-The `Experiment` class flexibly handles the computation of simulation replicates
-in parallel using `future` [@bengtsson-unifying-2021]. The number of replicates
-per combination of `DGP`, `Method`, and parameters specified via
-`add_vary_across` is determined by the `n_reps` argument to `run_experiment`
-(\autoref{fig:run-exper}). Because replication happens at the per-combination
-level, the effective total number of replicates in the `Experiment` depends on
-the number of DGPs, methods, and varied parameters.
-
-In the first call to `run_experiment` in the above example, there are two `DGP`
-instances, both of which are varied across three values of `n` and one of which
-is additionally varied across two values of `sparse`. This effectively results
-in nine distinct configurations for data generation. For the single `Method` in
-the experiment, we use three values of `scalar_valued_param`, two of
-`vector_valued_param`, and another two of `list_valued_param`, giving 12
-distinct configurations. Thus, there are a total of 108 DGP-method-parameter
-combinations in the experiment, each of which is replicated 100 times.
+Thus far, we have simply instantiated an `Experiment` object (akin to creating a recipe for an experiment). 
+To compute and run the simulation experiment, we next call `run_experiment` with the desired number of replicates. 
+As summarized in \autoref{fig:run-exper}, running the experiment will 
+(1) *fit* each `Method` on each `DGP` (and for each of the varying parameter configurations), 
+(2) *evaluate* the experiment according to the given `Evaluator`(s), and 
+(3) *visualize* the experiment according to the given `Visualizer`(s).
+Furthermore, the number of replicates per combination of `DGP`, `Method`, and parameters specified via `add_vary_across` is determined by the `n_reps` argument to `run_experiment`. 
+Because replication happens at the per-combination level, the effective total number of replicates in the `Experiment` depends on the number of DGPs, methods, and varied parameters. 
+In the given example, there are 108 DGP-method-parameter combinations, each of which is replicated 100 times. 
+To reduce the computational burden, the `Experiment` class flexibly handles the computation of simulation replicates in parallel using the `future` package [@bengtsson-unifying-2021]. 
 \autoref{fig:exper-schematic} provides a detailed schematic of the
 `run_experiment` workflow, along with the expected inputs to and outputs from
 user-defined functions.
 
-Users can also choose to save the experiment's results to disk by passing `save
-= TRUE` to `run_experiment`. Once saved, the user can add new `DGP` and `Method`
-objects to the experiment and compute additional replicates without re-computing
-existing results via the the `use_cached` option. Considering the example above,
-when we add `new_method` and call `run_experiment` with `use_cached = TRUE`,
-`simChef` finds that the cached results are missing combinations of
-`new_method`, existing DGPs, and their associated parameters, giving nine new
-configurations. Replicates for the new combinations are then appended to the
-cached results.
-
-Automated documentation in an interactive R Markdown template gathers the
-scientific details, summary tables, and visualizations side-by-side with the
-user's custom source code and parameters for data-generating processes,
-statistical methods, evaluation metrics, and plots. A call to `init_docs`
-generates empty markdown files for the user to populate with their overarching
-simulation objectives and with descriptions of each of the `DGP`, `Method`,
-`Evaluator`, and `Visualizer` objects included in the `Experiment`. Finally, a
-call to `render_docs` prepares the interactive R Markdown document, either for
-iterative design and analysis of the simulation or to provide a high-quality
-overview that can be easily shared. We provide an example of the simulation
-documentation at [this
-link](https://philboileau.github.io/simChef-case-study/results/empirical-fdr-comparison/empirical-fdr-comparison.html)
-and corresponding source code is available on GitHub at
-[PhilBoileau/simChef-case-study](https://github.com/PhilBoileau/simChef-case-study).
-
 ![Detailed schematic of the `run_experiment`
-workflow.\label{fig:exper-schematic}](fit_eval_viz.png){ width=100% }
+workflow using `simChef`. Expected inputs to and outputs from user-defined functions are also provided.\label{fig:exper-schematic}](fit_eval_viz.png){ width=100% }
+
+
+# Additional Features
+
+In addition to the ease of parallelization, `simChef` enables caching of results to further alleviate the computational burden. 
+Here, users can choose to save the experiment's results to disk by passing `save = TRUE` to `run_experiment`. 
+Once saved, the user can add new `DGP` and `Method` objects to the experiment and compute additional replicates without re-computing existing results via the `use_cached` option. 
+Considering the example above, when we add `new_method` and call `run_experiment` with `use_cached = TRUE`, `simChef` finds that the cached results are missing combinations of `new_method`, existing DGPs, and their associated parameters, giving nine new configurations. 
+Replicates for the new combinations are then appended to the cached results.
+
+`simChef` also provides users with a convenient API to automatically generate an R Markdown document. 
+This documentation gathers the scientific details, summary tables, and visualizations side-by-side with the user's custom source code and parameters for data-generating processes, statistical methods, evaluation metrics, and plots. 
+A call to `init_docs` generates empty markdown files for the user to populate with their overarching simulation objectives and with descriptions of each of the `DGP`, `Method`, `Evaluator`, and `Visualizer` objects included in the `Experiment`. 
+Finally, a call to `render_docs` prepares the R Markdown document, either for iterative design and analysis of the simulation or to provide a high-quality overview that can be easily shared. 
+We provide an example of the simulation documentation [here](https://philboileau.github.io/simChef-case-study/results/empirical-fdr-comparison/empirical-fdr-comparison.html).
+Corresponding R source code is available on [GitHub](https://github.com/PhilBoileau/simChef-case-study).
+
 
 # Acknowledgements
 
