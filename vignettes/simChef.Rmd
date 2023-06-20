@@ -8,7 +8,9 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r include = FALSE}
+```{r setup, include = FALSE}
+not_macos <- Sys.getenv("RUNNER_OS") != "macOS"
+
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
@@ -16,18 +18,17 @@ knitr::opts_chunk$set(
   # see https://github.com/tidyverse/ggplot2/issues/2252#issuecomment-1006713187
   # and https://github.com/lcolladotor/biocthis/issues/27 and
   # https://github.com/bodkan/slendr/commit/f0f5ae18452cc9df5d151874e41b0b8fd5f29aa2#
-  eval = Sys.getenv("RUNNER_OS") != "macOS"
+  eval = not_macos
 )
 
 library(simChef)
 
 set.seed(12345)
 
-# remove old cached results to start fresh
-for (fname in list.files(file.path("results", "Linear Regression Experiment"),
-                         pattern = ".rds", recursive = T, full.names = T)) {
-  file.remove(fname)
-}
+# remove any old results to start fresh
+unlink("results", recursive = TRUE)
+
+eval_render_docs <- not_macos && Sys.getenv("GITHUB_JOB") != "R-CMD-check"
 ```
 
 # Overview
@@ -319,11 +320,11 @@ The experiment can also be run in parallel. For a more detailed walkthrough on h
 
 Finally, we can easily visualize all results from the simulation experiment in an html file (generated using R Markdown) or browser.
 
-```{r render_docs1, eval = FALSE}
+```{r render_docs1, eval = eval_render_docs, warning = FALSE}
 render_docs(experiment)
 ```
 
-```{r cp_html1, echo = FALSE, warning = FALSE, message = FALSE, results = "hide"}
+```{r cp_html1, eval = eval_render_docs, echo = FALSE, warning = FALSE, message = FALSE, results = "hide"}
 # create pkgdown/assets directory, which will be copied to the gh-pages branch
 # during the pkgdown workflow (see .github/workflows/pkgdown.yaml)
 assets_dir <- here::here("pkgdown/assets")
@@ -482,11 +483,11 @@ vary_cor_results <- experiment %>%
 ```
 Now when generating the R Markdown report summary for an `Experiment`, the R Markdown will compile results (both evaluation and visualization results) from all saved `Experiments` under the root results directory `experiment$get_save_dir()`. Since the results from the many `vary_across` runs above are all saved under the original `experiment`'s results directory, then the following will include all of the above results in a single document.
 
-```{r render_docs2, warning = FALSE}
+```{r render_docs2, eval = eval_render_docs, warning = FALSE}
 render_docs(experiment)
 ```
 
-```{r cp_html2, echo = FALSE, warning = FALSE, message = FALSE, results = "hide"}
+```{r cp_html2, eval = eval_render_docs, echo = FALSE, warning = FALSE, message = FALSE, results = "hide"}
 # copy html output to pkgdown/assets directory for website
 file.copy(from = file.path(experiment$get_save_dir(),
                            paste0(experiment$name, ".html")),
@@ -750,7 +751,7 @@ All results from `experiment$run(..., save = TRUE)` without a `vary_across` comp
 
 Here's the directory tree of the "Linear Regression Experiment" example:
 
-```{r, eval = FALSE}
+```{r eval = FALSE}
 fs::dir_tree(get_save_dir(experiment))
 #> results
 #> ├── Linear Gaussian DGP
@@ -889,4 +890,8 @@ Note that the error tibble contains the `DGP` and `Method` (if the `DGP` was not
 err_fun <- results$errors$.dgp[[1]]$dgp_fun
 # reproduce error via a direct call to the DGP function that raised the error
 err_fun()
+```
+
+```{r teardown, include = FALSE}
+unlink("results", recursive = TRUE)
 ```
