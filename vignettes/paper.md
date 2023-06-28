@@ -58,8 +58,8 @@ scientist must navigate a number of important judgment calls such as the choice
 of DGPs, baseline statistical methods, associated parameters, and
 evaluation metrics for scientific relevancy. The scientific context varies
 drastically from one study to the next while the simulation scaffolding remains
-largely similar; yet simulation code repositories often lack the flexibility to
-easily allow for reuse in novel settings or even simple extension when new
+largely similar; yet simulation code repositories often lack the flexibility to 
+allow for facile reuse in novel settings or even for simple extension when new
 questions arise in the original context.
 
 `simChef` addresses the need for an intuitive, extensible, and reusable
@@ -77,25 +77,26 @@ At its core, `simChef` breaks down a simulation experiment into four modular com
 
 - `DGP`: the data-generating processes from which to *generate* data
 - `Method`: the methods (or models) to *fit* in the experiment
-- `Evaluator`: the evaluation metrics used to *evaluate* the methods performance
+- `Evaluator`: the evaluation metrics used to *evaluate* the methods' performance
 - `Visualizer`: the visualization functions used to *visualize* outputs from the method fits or evaluation results (can be tables, plots, or even R Markdown snippets to display)
 
 ![Overview of the four core components in a `simChef` `Experiment`. `simChef` 
-provides four classes which implement distinct simulation objects in
+provides four classes that implement distinct simulation objects in
 an intuitive and modular manner: `DGP`, `Method`, `Evaluator`, and `Visualizer`. 
 Using these classes, users can easily build a `simChef` `Experiment` using reusable, customizable functions 
-(i.e., `dgp_fun`, `method_fun`, `eval_fun`, and `viz_fun`).
+(i.e., `dgp_fun`, `method_fun`, `eval_fun`, and `viz_fun`). 
+Optional named parameters can be set in these custom function via the `...` arguments in the `create_*()` methods.
 \label{fig:api}](api_overview.png){ width=100% }
 
 Using these classes, users can create or reuse custom functions (i.e., `dgp_fun`, `method_fun`, `eval_fun`, and `viz_fun` in \autoref{fig:api}) aligned with their scientific goals. 
-The custom functions are then optionally parameterized and encapsulated in one of the corresponding classes via a `create_*` method together with optional constant parameters.
+The custom functions then can be parameterized and encapsulated in one of the corresponding classes via a `create_*` method, together with optional named parameters (see \autoref{fig:api}).
 
 A fifth `R6` class, `Experiment`, unites the four components above and serves as a concrete implementation of the
 user's intent to answer a specific scientific question. Specifically, the `Experiment` stores
 references to the `DGP`(s), `Method`(s), `Evaluator`(s), and `Visualizer`(s) along with the `DGP` and `Method`
 parameters that should be varied and combined during the simulation run. 
 
-![Overview of running a `simChef` `Experiment`. The `Experiment` class handles relationships between the four classes portrayed in \autoref{fig:api}. Experiments may have multiple `DGP`s and `Method`s, which are combined across the Cartesian product of their varying parameters (represented by `\*`). Once computed, each `Evaluator` and `Visualizer` takes in the fitted simulation replicates, while `Visualizer` additionally receives evaluation summaries.
+![Overview of running a `simChef` `Experiment`. The `Experiment` class handles relationships among the four classes portrayed in \autoref{fig:api}. Experiments may have multiple `DGP`s and `Method`s, which are combined across the Cartesian product of their varying parameters (represented by `\*`). Once computed, each `Evaluator` and `Visualizer` takes in the fitted simulation replicates, while `Visualizer` additionally receives evaluation summaries.
 \label{fig:run-exper}](run_experiment.png){ width=100% }
 
 # A powerful grammar of data science simulations
@@ -155,9 +156,9 @@ These simulation objects can then be combined into an `Experiment` using either 
 
 In an `Experiment`, `DGP`(s) and `Method`(s) can also be varied across one or multiple parameters via `add_vary_across()`. 
 For instance, in the example `Experiment`, there are two `DGP` instances, both of which are varied across three values of `n` and one of which is additionally varied across two values of `sparse`. 
-This effectively results in nine distinct configurations for data generation. 
+This effectively results in nine distinct configurations for data generation (i.e., 3 variations on `dgp1` + 3x2 variations on `dgp2`). 
 For the single `Method` in the experiment, we use three values of `scalar_valued_param`, two of `vector_valued_param`, and another two of `list_valued_param`, giving 12 distinct configurations. 
-Hence, there are a total of 108 DGP-method-parameter combinations in the `Experiment`.
+Hence, there are a total of 9x12 = 108 DGP-method-parameter combinations in the `Experiment`.
 
 Thus far, we have simply instantiated an `Experiment` object (akin to creating a recipe for an experiment). 
 To compute and run the simulation experiment, we next call `run_experiment` with the desired number of replicates. 
@@ -188,7 +189,7 @@ Replicates for the new combinations are then appended to the cached results.
 `simChef` also provides users with a convenient API to automatically generate an R Markdown document. 
 This documentation gathers the scientific details, summary tables, and visualizations side-by-side with the user's custom source code and parameters for data-generating processes, statistical methods, evaluation metrics, and plots. 
 A call to `init_docs` generates empty markdown files for the user to populate with their overarching simulation objectives and with descriptions of each of the `DGP`, `Method`, `Evaluator`, and `Visualizer` objects included in the `Experiment`. 
-Finally, a call to `render_docs` prepares the R Markdown document, either for iterative design and analysis of the simulation or to provide a high-quality overview that can be easily shared. 
+Finally, a call to `render_docs` prepares the R Markdown document, either for iterative design and analysis of the simulation or to provide a high-quality overview that can be shared easily. 
 We provide an example of the simulation documentation [here](https://philboileau.github.io/simChef-case-study/results/empirical-fdr-comparison/empirical-fdr-comparison.html).
 Corresponding R source code is available on [GitHub](https://github.com/PhilBoileau/simChef-case-study).
 
