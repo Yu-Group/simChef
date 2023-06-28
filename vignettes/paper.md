@@ -21,13 +21,17 @@ authors:
     orcid: 0000-0002-4850-2507
     affiliation: 1
   - name: Bin Yu
-    affiliation: "1, 2"    
+    affiliation: "1, 2, 3, 4"    
 affiliations:
  - name: Graduate Group in Biostatistics, University of California, Berkeley
    index: 1
  - name: Department of Statistics, University of California, Berkeley
    index: 2
-date: 19 April 2023
+ - name: Department of Electrical Engineering and Computer Sciences, University of California, Berkeley
+   index: 3
+ - name: Center for Computational Biology, University of California, Berkeley
+   index: 4
+date: 28 June 2023
 bibliography: paper.bib
 
 ---
@@ -38,19 +42,20 @@ bibliography: paper.bib
 
 Data science simulation studies occupy an important role in data science
 research as a means to gain insight into new and existing statistical methods.
-Whether as a means to establish comprehensive benchmarks of existing procedures
+In particular, simulations serve as statistical sandboxes that open
+a path toward otherwise inaccessible discoveries. For example, they can 
+be used to establish comprehensive benchmarks of existing procedures
 for a common task, to demonstrate the strengths and weaknesses of novel
 methodology applied to synthetic and real-world data, or to probe the validity
-of a theoretical analysis, simulations serve as statistical sandboxes that open
-a path toward otherwise inaccessible discoveries. Yet creating high-quality
+of a theoretical analysis. Yet creating high-quality
 simulation studies typically involves a number of repetitive and error-prone
 coding tasks, such as implementing data-generating processes (DGPs) and
 statistical methods, sampling from these DGPs, parallelizing computation of
-simulation replicates, summarizing metrics, and visualizing, documenting, and
+simulation replicates, summarizing metrics, and visualizing, documenting, presenting, and
 saving results. While this administrative overhead is necessary to reach the end
 goals of a given data science simulation, it is not sufficient, as the data
 scientist must navigate a number of important judgment calls such as the choice
-of data settings, baseline statistical methods, associated parameters, and
+of DGPs, baseline statistical methods, associated parameters, and
 evaluation metrics for scientific relevancy. The scientific context varies
 drastically from one study to the next while the simulation scaffolding remains
 largely similar; yet simulation code repositories often lack the flexibility to
@@ -77,7 +82,9 @@ At its core, `simChef` breaks down a simulation experiment into four modular com
 
 ![Overview of the four core components in a `simChef` `Experiment`. `simChef` 
 provides four classes which implement distinct simulation objects in
-an intuitive and modular manner: `DGP`, `Method`, `Evaluator`, and `Visualizer`.
+an intuitive and modular manner: `DGP`, `Method`, `Evaluator`, and `Visualizer`. 
+Using these classes, users can easily build a `simChef` `Experiment` using reusable, customizable functions 
+(i.e., `dgp_fun`, `method_fun`, `eval_fun`, and `viz_fun`).
 \label{fig:api}](api_overview.png){ width=100% }
 
 Using these classes, users can create or reuse custom functions (i.e., `dgp_fun`, `method_fun`, `eval_fun`, and `viz_fun` in \autoref{fig:api}) aligned with their scientific goals. 
