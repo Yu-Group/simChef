@@ -36,9 +36,9 @@ bibliography: paper.bib
 
 ---
 
-# Summary
-
 ![](simChef-logo.png){ width=30% }
+
+# Statement of need
 
 Data science simulation studies occupy an important role in data science
 research as a means to gain insight into new and existing statistical methods.
@@ -61,6 +61,8 @@ drastically from one study to the next while the simulation scaffolding remains
 largely similar; yet simulation code repositories often lack the flexibility to 
 allow for facile reuse in novel settings or even for simple extension when new
 questions arise in the original context.
+
+# Summary
 
 `simChef` addresses the need for an intuitive, extensible, and reusable
 framework for data science simulations. Drawing substantially from the
