@@ -193,6 +193,19 @@ Finally, a call to `render_docs` prepares the R Markdown document, either for it
 We provide an example of the simulation documentation [here](https://philboileau.github.io/simChef-case-study/results/empirical-fdr-comparison/empirical-fdr-comparison.html).
 Corresponding R source code is available on [GitHub](https://github.com/PhilBoileau/simChef-case-study).
 
+# Discussion
+
+While `simChef`'s core functionality focuses on computability (C) --
+encompassing efficient usage of computational resources, ease of user
+interaction, reproducibility, and documentation -- we emphasize the importance
+of predictability (P) and stability (S) in data science simulations. The
+principal goal of `simChef` is to provide a tool for data scientists to create
+simulations that incorporate predictability (through fit to real-world data) and
+stability (through sufficient exploration of uncertainty) in their simulations.
+In future work, we intend to provide tools that further these goals through
+automated predictability and stability summaries and documentation that can be
+flexibly tailored to a user's particular scientific needs.
+
 # Acknowledgements
 
 The authors gratefully acknowledge partial support from (a) the NSF under awards
