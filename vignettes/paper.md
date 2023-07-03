@@ -202,9 +202,9 @@ of predictability (P) and stability (S) in data science simulations. The
 principal goal of `simChef` is to provide a tool for data scientists to create
 simulations that incorporate predictability (through fit to real-world data) and
 stability (through sufficient exploration of uncertainty) in their simulations.
-In future work, we intend to provide tools that further these goals through
-automated predictability and stability summaries and documentation that can be
-flexibly tailored to a user's particular scientific needs.
+In future work, we intend to provide tools that can be flexibly tailored to a
+user's particular scientific needs and further these goals through automated
+predictability and stability summaries and documentation.
 
 # Acknowledgements
 
