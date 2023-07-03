@@ -195,13 +195,11 @@ Corresponding R source code is available on [GitHub](https://github.com/PhilBoil
 
 # Acknowledgements
 
-The authors gratefully acknowledge partial support from (a) the NSF under
-TRIPODS Grant 1740855; awards DMS-2209975, 1613002, 1953191, 2015341, and IIS
-1741340; and grant 2023505 supporting the Foundations of Data Science Institute
-(FODSI); (b) the ONR under grant N00014-17-1-2176; (c) the Center for Science of
-Information (CSoI) under grant CCF-0939370; (d) the NSF and the Simons
-Foundation under awards DMS-2031883 and 814639; (e) the Weill Neurohub; and (f)
-the Chan Zuckerberg Biohub under an Intercampus Research Award. TMT acknowledges
-support from the NSF Graduate Research Fellowship Program DGE-2146752.
+The authors gratefully acknowledge partial support from (a) the NSF under awards
+DMS-2209975, 1613002, 1953191, 2015341, and IIS 1741340; and grant 2023505
+supporting the Foundations of Data Science Institute (FODSI); (b) the Weill
+Neurohub; and (c) the Chan Zuckerberg Biohub under an Intercampus Research
+Award. TMT acknowledges support from the NSF Graduate Research Fellowship
+Program DGE-2146752.
 
 # References
