@@ -4,7 +4,8 @@
 
   op <- options()
   op.simChef <- list(
-    simChef.debug = FALSE
+    simChef.debug = FALSE,
+    simChef.plot_theme = "default"
     # TODO: simChef.verbosity
   )
   toset <- !(names(op.simChef) %in% names(op))

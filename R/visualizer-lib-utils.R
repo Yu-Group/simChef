@@ -402,12 +402,19 @@ plot_eval_constructor <- function(eval_results = NULL, eval_names = NULL,
       }
     }
     # add theme
-    plt <- plt + vthemes::theme_vmodern()
-    if (!is.null(color_str)) {
-      discrete <- !is.numeric(plt_df[[color_str]])
-      plt <- plt + 
-        vthemes::scale_color_vmodern(discrete = discrete) +
-        vthemes::scale_fill_vmodern(discrete = discrete)
+    plot_theme <- getOption("simChef.plot_theme", "default")
+    if (!identical(plot_theme, "default")) {
+      if (identical(plot_theme, "vthemes")) {
+        plt <- plt + vthemes::theme_vmodern()
+        if (!is.null(color_str)) {
+          discrete <- !is.numeric(plt_df[[color_str]])
+          plt <- plt +
+            vthemes::scale_color_vmodern(discrete = discrete) +
+            vthemes::scale_fill_vmodern(discrete = discrete)
+        }
+      } else {
+        plt <- plt + plot_theme
+      }
     }
     # add labels
     labels_ls <- purrr::map(
