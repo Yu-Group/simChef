@@ -203,6 +203,12 @@ of years.
   the `parallel` and `snow` packages, it also provides a number of utilities for
   working with high performance computing batch systems such as Slurm and
   Torque, which `simChef` supports via the `future.batchtools` package.
+- [`simulator`](https://cran.r-project.org/web/packages/simulator/index.html)
+  provides a similar tidy human-readable framework for performing simulations 
+  such as those common in methodological statistics papers. `simulator` includes
+  code for running simulations in parallel, storing simulation outputs, 
+  summarizing simulation results with plots and tables, and generating reports,
+  among many other features.
 - [`SimDesign`](https://cran.r-project.org/web/packages/SimDesign/index.html)
   provides helper functions to define experimental conditions and then pass
   those experimental conditions to a user-defined data generation function,
