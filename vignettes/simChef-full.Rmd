@@ -1,9 +1,9 @@
 ---
-title: "Getting started with simChef - Full Guide"
+title: "simChef: A comprehensive guide"
 output:
   rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{simChef Vignette}
+  %\VignetteIndexEntry{simChef: A comprehensive guide}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
