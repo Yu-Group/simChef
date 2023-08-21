@@ -1,0 +1,82 @@
+---
+title: "Cheat sheet: Inputs/outputs for user-defined functions"
+output:
+  rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Cheat sheet: Inputs/outputs for user-defined functions}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  # disable R chunk evaluation when using macOS in GH Actions
+  # see https://github.com/tidyverse/ggplot2/issues/2252#issuecomment-1006713187
+  # and https://github.com/lcolladotor/biocthis/issues/27 and
+  # https://github.com/bodkan/slendr/commit/f0f5ae18452cc9df5d151874e41b0b8fd5f29aa2#
+  eval = Sys.getenv("RUNNER_OS") != "macOS"
+)
+
+library(simChef)
+
+set.seed(12345)
+```
+
+```{r fit-eval-viz-figure, fig.cap = "Overview of inputs and outputs for user-defined functions when running a `simChef` `Experiment`. Dotted boxes denote optional input arguments that are automatically passed through in a `run_experiment()` call if specified. ", out.width = "100%", echo = FALSE}
+knitr::include_graphics(path = "figures/fit_eval_viz.png")
+```
+
+
+### DGP 
+
+- **Inputs**
+  - Any number of named parameters (e.g., `dgp_param1`, `dgp_param2`, ...)
+- **Outputs**
+  - A list of named elements to be passed onto the method(s) (e.g., `dgp_out1`, `dgp_out2`, ...)
+
+### Method
+
+- **Inputs**
+  - Named parameters matching all names in the list returned by the DGP function (e.g., `dgp_out1`, `dgp_out2`, ...)
+  - Any number of additional named parameters (e.g., `method_param1`, `method_param2`, ...)
+- **Outputs**
+  - A list of named elements (e.g., `method_out1`, `method_out2`, ...)
+  
+### Evaluator
+
+- **Inputs**
+  - `fit_results` (optional): output of `fit_experiment()`
+  - `vary_params` (optional): character vector of parameter names that are varied across in the experiment
+  - Any number of additional named parameters (e.g., `eval_param1`, `eval_param2`, ...)
+- **Outputs**
+  - Typically a `tibble` or `data.frame`
+  
+### Visualizer
+
+- **Inputs**
+  - `fit_results` (optional): output of `fit_experiment()`
+  - `eval_results` (optional): output of `evaluate_experiment()`
+  - `vary_params` (optional): character vector of parameter names that are varied across in the experiment
+  - Any number of additional named parameters (e.g., `viz_param1`, `viz_param2`, ...)
+- **Outputs**
+  - Typically a plot (e.g., a `ggplot` or `plotly` object). Can also return tables or more generally, any R Markdown snippet (e.g., verbatim text)
+  
+### Outputs of `*_experiment`
+
+- `fit_results`: output of `fit_experiment()`
+  - A tibble of results from each (replicate, DGP, Method) combination with the following columns:
+    - `.rep`: replicate ID
+    - `.dgp_name`: name of DGP
+    - `.method_name`: name of Method
+    - `vary_across` parameter columns (if applicable): value of the specified `vary_across` parameter
+    - A column corresponding to each named component in the list returned by `Method` (e.g., `method_out1`, `method_out2`, ...)
+- `eval_results`: output of `evaluate_experiment()`
+  - A named list of elements, with one element for each `Evaluator` in the `Experiment`
+    - The list names correspond to the names given to each `Evaluator` in `create_evaluator(.name = ...)`
+    - The list elements are exactly the return values from each `Evaluator` function
+- `viz_results`: output of `visualize_experiment()`
+  - A named list of elements, with one element for each `Visualizer` in the `Experiment`
+    - The list names correspond to the names given to each `Visualizer` in `create_visualizer(.name = ...)`
+    - The list elements are exactly the return values from each `Visualizer` function
