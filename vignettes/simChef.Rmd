@@ -38,7 +38,7 @@ grammar](https://design.tidyverse.org/). The core features of `simChef` include:
 
 1. A tidyverse-inspired grammar of data-driven simulation experiments
 2. A growing built-in library of composable building blocks for evaluation metrics and visualization utilities
-3. Flexible and seamless integration with distributed computation, caching, and checkpointing
+3. Flexible and seamless integration with distributed computation, caching, checkpointing, and debugging tools
 4. Automated generation of an R Markdown document to easily navigate, visualize, and interpret simulation results (see example [here](../example_experiment.html))
 
 To highlight the ease of running simulation studies using `simChef`, we will begin by showcasing a basic example usage in Section \@ref(example-usage). Then, in Section \@ref(writing-your-own-simulation-experiment), we will provide additional details on how to create your own simulation experiment using `simChef`.
@@ -49,14 +49,14 @@ To highlight the ease of running simulation studies using `simChef`, we will beg
 
 At its core, `simChef` breaks down a simulation experiment into four components:
 
-- `DGP`: the data-generating processes from which to *generate* data
+- `DGP`: the data-generating processes (DGPs) from which to *generate* data
 - `Method`: the methods (or models) to *fit* on the data in the experiment
 - `Evaluator`: the evaluation metrics used to *evaluate* the methods' performance
-- `Visualizer`: the visualization functions used to *visualize* outputs from the method fits or evaluation results (can be tables, plots, or even R Markdown snippets to display)
+- `Visualizer`: the visualization procedures used to *visualize* outputs from the method fits or evaluation results (can be tables, plots, or even R Markdown snippets to display)
 
 Using these components, users can easily run a simulation experiment in six simple steps. Below, we summarize these steps and provide code for our running example.
 
-### Step 1. Specify/write DGP, method, evaluation, and visualization functions of interest. {-}
+### Step 1. Define DGP, method, evaluation, and visualization functions of interest. {-}
 
 Recall that in our simulation example, we would like to study two methods (linear regression and random forests) under a linear DGP. We code this DGP (`linear_dgp_fun`) and methods (`linear_reg_fun` and `rf_fun`) via custom functions below. 
 
@@ -197,10 +197,13 @@ init_docs(experiment)
 ```
 
 ```{r cp-docs, echo = FALSE, warning = FALSE, message = FALSE, results = "hide"}
-# copy pre-written .md files in vignettes/docs to the experiment's docs dir
-file.copy(from = here::here("vignettes/docs"),
-          to = file.path(experiment$get_save_dir()),
-          recursive = TRUE)
+# copy pre-written .md files in vignettes/example-docs/ to the experiment's docs dir
+file.copy(
+  from = here::here(file.path("vignettes", "example-docs", experiment$name, "docs")),
+  to = file.path(experiment$get_save_dir()),
+  recursive = TRUE
+)
+file.remove(file.path(experiment$get_save_dir(), "experiment.rds"))
 ```
 
 ### Step 5. Run the experiment. {-}
@@ -334,7 +337,7 @@ knitr::include_graphics(path = "figures/viz_experiment.png")
 
 ## Putting it all together {-}
 
-As alluded to previously, once the `DGP`, `Method`, `Evaluator`, and `Visualizer` functions have been defined, the hard work has been done. For convenience, we provide below a template that can be used to run an experiment, assuming that `dgp_fun`, `method_fun`, `eval_fun`, and `viz_fun` have been appropriately defined.
+As alluded to previously, once the `DGP`, `Method`, `Evaluator`, and `Visualizer` functions have been defined, the hard work has been done. For convenience, we provide below a template that can be used to run an experiment, assuming that `dgp_fun`, `method_fun`, `evaluator_fun`, and `visualizer_fun` have been appropriately defined.
 
 ```{r experiment-template, eval = FALSE}
 ## Step 2: Create DGP, Method, Evaluator, Visualizer class objects
@@ -348,13 +351,13 @@ method <- create_method(
   # additional named parameters to pass to .method_fun()
   method_param1 = XXX, method_param2 = XXX, ...
 )
-eval <- create_evaluator(
-  .eval_fun = eval_fun, .name = "Evaluator Name",
+evaluator <- create_evaluator(
+  .eval_fun = evaluator_fun, .name = "Evaluator Name",
   # additional named parameters to pass to .eval_fun()
   eval_param1 = XXX, eval_param2 = XXX, ...
 )
-viz <- create_visualizer(
-  .viz_fun = viz_fun, .name = "Visualizer Name",
+visualizer <- create_visualizer(
+  .viz_fun = visualizer_fun, .name = "Visualizer Name",
   # additional named parameters to pass to .viz_fun()
   viz_param1 = XXX, viz_param2 = XXX, ...
 )
@@ -363,8 +366,8 @@ viz <- create_visualizer(
 experiment <- create_experiment(name = "Experiment Name") %>%
   add_dgp(dgp) %>%
   add_method(method) %>%
-  add_evaluator(eval) %>%
-  add_visualizer(viz) %>%
+  add_evaluator(evaluator) %>%
+  add_visualizer(visualizer) %>%
   # optionally vary across DGP parameter(s)
   add_vary_across(.dgp = "DGP Name", dgp_param1 = list(XXX, XXX, ...)) %>%
   # optionally vary across Method parameter(s)
