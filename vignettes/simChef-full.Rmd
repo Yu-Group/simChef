@@ -3,10 +3,13 @@ title: "simChef: A comprehensive guide"
 output:
   bookdown::html_document2:
     base_format: rmarkdown::html_vignette
+    toc: true
 vignette: >
   %\VignetteIndexEntry{simChef: A comprehensive guide}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
+pkgdown: 
+  as_is: true
 bibliography: references.bib
 ---
 
@@ -43,17 +46,23 @@ for (exp_name in exp_names) {
 
 ```{css echo = FALSE}
 .infobox {
-  padding: .5em 1em .5em 1.5em;
+  padding: .5em 1em 0em 1.5em;
   border: 2px solid orange;
   border-radius: 10px;
   background: #f5f5f5 5px center/3em no-repeat;
+  margin-bottom: 1em;
 }
 
 .infobox-blue {
-  padding: .5em 1em .5em 1.5em;
+  padding: .5em 1em 0em 1.5em;
   border: 2px solid cornflowerblue;
   border-radius: 10px;
   background: #f5f5f5 5px center/3em no-repeat;
+  margin-bottom: 1em;
+}
+
+details {
+  margin-bottom: unset
 }
 ```
 
@@ -104,7 +113,7 @@ The goal of `simChef` is to seamlessly and efficiently run simulation experiment
         geom_smooth()
     }
     ```
-2. **Convert functions into `DGP`, `Method`, `Evaluator`, and `Visualizer` class objects.**
+2. **Convert functions into `DGP()`, `Method()`, `Evaluator()`, and `Visualizer()` class objects.**
     ```{r overview-class, eval = FALSE}
     dgp <- create_dgp(.dgp_fun = dgp_fun, .name = "DGP1")
     method <- create_method(.method_fun = method_fun, .name = "Method1")
@@ -140,7 +149,7 @@ In this vignette, we will provide an overview of the core features of `simChef`:
 3. Flexible and seamless integration with distributed computation, caching, checkpointing, and debugging tools
 4. Automated generation of an R Markdown document to easily navigate, visualize, and interpret simulation results (see example [here](../linear_regression_output.html))
     
-Note: Before proceeding through this guide, we recommend first checking out our introductory vignette: [Getting started with simChef](`simChef.html`).
+Note: Before proceeding through this guide, we recommend first checking out our introductory vignette: [Getting started with simChef](simChef.html).
 
 # A tidy grammar for simulation experiments
 
@@ -168,7 +177,7 @@ There is also a fifth and final noun:
 Leveraging this grammar, we can easily use `simChef` to run a simulation experiment in six steps.
 
 1. Define DGP, method, evaluation, and visualization functions of interest.
-2. Convert functions into `DGP`, `Method`, `Evaluator`, and `Visualizer` class objects.
+2. Convert functions into `DGP()`, `Method()`, `Evaluator()`, and `Visualizer()` class objects.
 3. Assemble objects into a complete simulation experiment.
 4. Document and describe the simulation experiment in text.
 5. Run the experiment.
@@ -180,11 +189,11 @@ Leveraging this grammar, we can easily use `simChef` to run a simulation experim
 
 To begin, we first need to define the individual parts of the simulation experiment, namely, the data-generation, method, evaluation, and visualization functions under study. 
 We also need to write these functions such that they "play nicely" with one another under the `simChef` API.
-We will make note of these requirements as we go, but for an introductory overview, please refer to the *Writing your own simulation experiment* section in [Getting started with simChef](`simChef.html`) or our [Cheat sheet: Inputs/outputs for user-defined functions](`cheat-sheet.html`).
+We will make note of these requirements as we go, but for an introductory overview, please refer to the *Writing your own simulation experiment* section in [Getting started with simChef](simChef.html) or our [Cheat sheet: Inputs/outputs for user-defined functions](cheat-sheet.html).
 
 *Note*: Step 1 requires the most user-written code. After this step, there is minimal coding on the user end as we turn to leverage the `simChef` grammar for experiments.
 
-##### Step 1a. Define data-generating process (DGP) function(s) {-}
+#### Step 1a. Define data-generating process (DGP) function(s) {-}
 
 As a toy DGP example, let us create a function to simulate a random Gaussian data matrix $\mathbf{X}$ of size $n \times 2$ and a linear response vector $\mathbf{y}$ of size $n \times 1$, where
 
@@ -218,7 +227,7 @@ linear_dgp_fun <- function(n, beta, rho, sigma) {
 </details>
 ::::
 
-##### Step 1b. Define method function(s) {-}
+#### Step 1b. Define method function(s) {-}
 
 Given the above DGP, suppose we want to investigate the performance of linear regression, specifically the p-values corresponding to the non-intercept coefficients from `summary.lm()`.
 
@@ -246,7 +255,7 @@ lm_fun <- function(X, y, cols = c("X1", "X2")) {
 </details>
 ::::
 
-##### Step 1c. Define evaluation function(s) {-}
+#### Step 1c. Define evaluation function(s) {-}
 
 To evaluate performance here, one metric (or statistic) of interest could be the rejection probability at some level $\alpha$, which we compute in the following function `reject_prob_fun`.
 
@@ -284,7 +293,7 @@ reject_prob_fun <- function(fit_results, alpha = 0.05) {
 </details>
 ::::
 
-##### Step 1d. Define visualization function(s) {-}
+#### Step 1d. Define visualization function(s) {-}
 
 Lastly, we may want to plot the results from the method fits (stored in `fit_results`) and/or the outputs from our evaluation metrics (stored in `eval_results`). For example, we could plot the power of the hypothesis test as in `power_plot_fun`.
 
@@ -326,9 +335,9 @@ power_plot_fun <- function(fit_results, col = "X1") {
 ::::
 
 
-### Step 2. Convert functions into `DGP`, `Method`, `Evaluator`, and `Visualizer` class objects {-}
+### Step 2. Convert functions into `DGP()`, `Method()`, `Evaluator()`, and `Visualizer()` class objects {-}
 
-Once we have specified the relevant DGP, method, evaluation, and visualization functions, the next step is to convert these functions into `DGP`, `Method`, `Evaluator`, and `Visualizer` class objects for `simChef`. To do so, we simply wrap the functions in `create_dgp()`, `create_method()`, `create_evaluator()`, or `create_visualizer()`, while specifying an intelligible name for the object and any input parameters to pass to the function. 
+Once we have specified the relevant DGP, method, evaluation, and visualization functions, the next step is to convert these functions into `DGP()`, `Method()`, `Evaluator()`, and `Visualizer()` class objects for `simChef`. To do so, we simply wrap the functions in `create_dgp()`, `create_method()`, `create_evaluator()`, or `create_visualizer()`, while specifying an intelligible name for the object and any input parameters to pass to the function. 
 
 Each `create_*()` function follows the same syntax and takes in the inputs:
 
@@ -336,9 +345,7 @@ Each `create_*()` function follows the same syntax and takes in the inputs:
 - `.name`: an (intelligible) object name, which will be used in creating the R Markdown report.
 - `...`: additional arguments to pass to `.*_fun` above.
 
-```{r api-overview, fig.cap = "Overview of the four core components (`DGP`, `Method`, `Evaluator`, `Visualizer`) in a `simChef` `Experiment`. Using these classes, users can easily build a `simChef` `Experiment` using reusable, custom user-defined functions (i.e., `dgp_fun`, `method_fun`, `eval_fun`, and `viz_fun`). Optional named parameters can be set in these user-defined functions via the `...` arguments in the `create_*()` methods.", out.width = "80%", echo = FALSE}
-knitr::include_graphics(path = "figures/api_overview.png")
-```
+![Overview of the four core components (`DGP()`, `Method()`, `Evaluator()`, `Visualizer()`) in a `simChef` `Experiment`. Using these classes, users can easily build a `simChef` `Experiment` using reusable, custom user-defined functions (i.e., `dgp_fun`, `method_fun`, `eval_fun`, and `viz_fun`). Optional named parameters can be set in these user-defined functions via the `...` arguments in the `create_*()` methods.](figures/api_overview.png){width=100% #fig:api-overview}
 
 For example,
 
@@ -381,7 +388,7 @@ Some notes on the use of `...` arguments in `create_*()`:
 
 ### Step 3. Assemble objects into a complete simulation experiment {-}
 
-At this point, we have created a `DGP` (`dgp`), `Method` (`lm_method`), `Evaluator` (`reject_prob_eval`), and `Visualizer` (`power_plot`) for our simulation experiment. 
+At this point, we have created a `DGP()` (`dgp`), `Method()` (`lm_method`), `Evaluator()` (`reject_prob_eval`), and `Visualizer()` (`power_plot`) for our simulation experiment. 
 The next step is to create a simulation experiment recipe and `add` each component to the recipe via:
 
 ```{r create-experiment}
@@ -424,12 +431,12 @@ init_docs(experiment)
 # copy pre-written .md files in vignettes/example-docs to the experiment's docs dir
 file.copy(
   from = here::here(file.path("vignettes", "example-docs", experiment$name, "docs")),
-  to = file.path(experiment$get_save_dir()),
+  to = file.path(get_save_dir(experiment)),
   recursive = TRUE
 )
 ```
 
-This creates a series of blank .md files for the user to fill out with descriptions of the simulation experiment and its recipe components. These blank .md files can be found in the experiment's root results directory under docs/. To find the experiment's root results directory, use `experiment$get_save_dir()`. You can find example .md files corresponding to the current experiment and others [here](https://github.com/Yu-Group/simChef/tree/main/vignettes/example-docs/).
+This creates a series of blank .md files for the user to fill out with descriptions of the simulation experiment and its recipe components. These blank .md files can be found in the experiment's root results directory under docs/. To find the experiment's root results directory, use `get_save_dir(experiment)`. You can find example .md files corresponding to the current experiment and others [here](https://github.com/Yu-Group/simChef/tree/main/vignettes/example-docs/).
 
 ### Step 5. Run the experiment {-}
 
@@ -477,7 +484,7 @@ str(results, max.level = 2)
       - The list names correspond to the names given to each `Visualizer` in `create_visualizer(.name = ...)`
       - The list elements are exactly the return values from each `Visualizer` function
       
-      ```{r viz-results-output, fig.width = 4}
+      ```{r viz-results-output, fig.width = 6}
       results$viz_results
       ```
 
@@ -490,7 +497,7 @@ Notes:
 
 Finally, to visualize and report all results from the simulation experiment, we can render the R Markdown documentation. This will generate a single html document, including the code, documentation (from Step 4), and simulation results.
 
-```{r render-docs-1, eval = FALSE}
+```{r render-docs-1, eval = FALSE, warning = FALSE}
 render_docs(experiment)
 ```
 
@@ -501,7 +508,7 @@ assets_dir <- here::here("pkgdown/assets")
 dir.create(assets_dir, recursive = TRUE)
 
 # copy html output to pkgdown/assets directory for website
-file.copy(from = file.path(experiment$get_save_dir(),
+file.copy(from = file.path(get_save_dir(experiment),
                            paste0(experiment$name, ".html")),
           to = file.path(assets_dir, "linear_regression_base_output.html"),
           overwrite = TRUE)
@@ -554,7 +561,7 @@ Some notes on varying across multiple parameters:
 However, when we run the experiment, the results are not quite what we want. 
 While `fit_results` yields a tibble with 40 rows (= 10 replicates $\times$ 4 `DGP` variations $\times$ 1 `Method`) as desired, the evaluation results in `eval_results` have been summarized/aggregated across all values of `sigma`.
 
-```{r vary-across-results-1, fig.width = 4}
+```{r vary-across-results-1, fig.width = 6}
 vary_results <- run_experiment(experiment, n_reps = 10, save = TRUE)
 vary_results$fit_results
 vary_results$eval_results
@@ -614,7 +621,7 @@ power_plot <- create_visualizer(.viz_fun = power_plot_fun, .name = "Power")
 
 Now, we are ready to update our experiment with the corrected `Evaluator` and `Visualizer` and run the experiment via:
 
-```{r vary-across-results-2, fig.width = 6, fig.height = 6}
+```{r vary-across-results-2, fig.width = 8, fig.height = 6}
 vary_results <- experiment %>%
   update_evaluator(reject_prob_eval, name = "Rejection Prob. (alpha = 0.1)") %>%
   update_visualizer(power_plot, name = "Power") %>%
@@ -732,7 +739,7 @@ render_docs(experiment)
 
 ```{r cp-html-2, echo = FALSE, warning = FALSE, message = FALSE, results = "hide"}
 # copy html output to pkgdown/assets directory for website
-file.copy(from = file.path(experiment$get_save_dir(),
+file.copy(from = file.path(get_save_dir(experiment),
                            paste0(experiment$name, ".html")),
           to = file.path(assets_dir, "linear_regression_output.html"),
           overwrite = TRUE)
@@ -796,7 +803,7 @@ n_workers <- availableCores() - 1
 plan(multisession, workers = n_workers)
 ```
 
-For more information on parallelization, please refer to [Computing experimental replicates in parallel](`parallel.html`).
+For more information on parallelization, please refer to [Computing experimental replicates in parallel](parallel.html).
 
 ## Caching
 
@@ -1156,7 +1163,7 @@ data_list <- generate_data(experiment, n_reps = 1)
 str(data_list)
 ```
 
-It may also be helpful to work with individual `DGP`, `Method`, `Evaluator`, and `Visualizer` objects outside of running an `Experiment`. This can be done by leveraging the verbs and grammar laid out in Section \@ref(a-tidy-grammar-for-simulation-experiments). The API is as follows:
+It may also be helpful to work with individual `DGP()`, `Method()`, `Evaluator()`, and `Visualizer()` objects outside of running an `Experiment`. This can be done by leveraging the verbs and grammar laid out in Section \@ref(a-tidy-grammar-for-simulation-experiments). The API is as follows:
 
 ```{r handling-3, eval = FALSE}
 data_list <- DGP$generate()
@@ -1248,6 +1255,6 @@ create_sim(path = "path/to/sim/dir")
 ```
 
 `create_sim()` initializes a ready-to-use directory for your `simChef` simulation study.
-For more information and other best practices to improve reproducibility and replicability of your simulation study, please checkout [Setting up your simulation study](`simulation-directory-setup.html`).
+For more information and other best practices to improve reproducibility and replicability of your simulation study, please checkout [Setting up your simulation study](simulation-directory-setup.html).
 
 # References

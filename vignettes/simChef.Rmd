@@ -3,10 +3,13 @@ title: "Getting started with simChef"
 output:
   bookdown::html_document2:
     base_format: rmarkdown::html_vignette
+    toc: true
 vignette: >
   %\VignetteIndexEntry{Getting started with simChef}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
+pkgdown: 
+  as_is: true
 ---
 
 ```{r include = FALSE}
@@ -49,14 +52,14 @@ To highlight the ease of running simulation studies using `simChef`, we will beg
 
 At its core, `simChef` breaks down a simulation experiment into four components:
 
-- `DGP`: the data-generating processes (DGPs) from which to *generate* data
-- `Method`: the methods (or models) to *fit* on the data in the experiment
-- `Evaluator`: the evaluation metrics used to *evaluate* the methods' performance
-- `Visualizer`: the visualization procedures used to *visualize* outputs from the method fits or evaluation results (can be tables, plots, or even R Markdown snippets to display)
+- `DGP()`: the data-generating processes (DGPs) from which to *generate* data
+- `Method()`: the methods (or models) to *fit* on the data in the experiment
+- `Evaluator()`: the evaluation metrics used to *evaluate* the methods' performance
+- `Visualizer()`: the visualization procedures used to *visualize* outputs from the method fits or evaluation results (can be tables, plots, or even R Markdown snippets to display)
 
 Using these components, users can easily run a simulation experiment in six simple steps. Below, we summarize these steps and provide code for our running example.
 
-### Step 1. Define DGP, method, evaluation, and visualization functions of interest. {-}
+## Step 1. Define DGP, method, evaluation, and visualization functions of interest. {-}
 
 Recall that in our simulation example, we would like to study two methods (linear regression and random forests) under a linear DGP. We code this DGP (`linear_dgp_fun`) and methods (`linear_reg_fun` and `rf_fun`) via custom functions below. 
 
@@ -118,9 +121,9 @@ We can similarly write custom functions to evaluate the prediction accuracy of t
 
 *Note*: Most of the user-written code is encapsulated by Step 1. From here, there is minimal coding on the user end as we turn to leverage the `simChef` grammar for experiments.
 
-### Step 2. Convert functions into `DGP`, `Method`, `Evaluator`, and `Visualizer` class objects. {-}
+## Step 2. Convert functions into `DGP()`, `Method()`, `Evaluator()`, and `Visualizer()` class objects. {-}
 
-Once we have specified the relevant DGP, method, evaluation, and visualization functions, the next step is to convert these functions into `DGP`, `Method`, `Evaluator`, and `Visualizer` class objects (`R6`) for `simChef`. To do so, we simply wrap the functions in `create_dgp()`, `create_method()`, `create_evaluator()`, or `create_visualizer()`, while specifying (a) an intelligible name for the object and (b) any input parameters to pass to the function. For example, 
+Once we have specified the relevant DGP, method, evaluation, and visualization functions, the next step is to convert these functions into `DGP()`, `Method()`, `Evaluator()`, and `Visualizer()` class objects (`R6`) for `simChef`. To do so, we simply wrap the functions in `create_dgp()`, `create_method()`, `create_evaluator()`, or `create_visualizer()`, while specifying (a) an intelligible name for the object and (b) any input parameters to pass to the function. For example, 
 
 ```{r create-classes}
 ## DGPs
@@ -156,7 +159,7 @@ pred_err_plot <- create_visualizer(
 ) 
 ```
 
-### Step 3. Assemble recipe parts into a complete simulation experiment. {-}
+## Step 3. Assemble recipe parts into a complete simulation experiment. {-}
 
 Thus far, we have created the many individual components (i.e., `DGP(s)`, `Method(s)`, `Evaluator(s)`, and `Visualizer(s)`) for our simulation experiment. We next assemble or `add` these components together to create a complete simulation experiment recipe via:
 
@@ -182,7 +185,7 @@ experiment <- experiment %>%
 print(experiment)
 ```
 
-### Step 4. Document and describe the simulation experiment in text. {-}
+## Step 4. Document and describe the simulation experiment in text. {-}
 
 A crucial component when running veridical simulations is **documentation**. We highly encourage practitioners to document:
 
@@ -206,7 +209,7 @@ file.copy(
 file.remove(file.path(experiment$get_save_dir(), "experiment.rds"))
 ```
 
-### Step 5. Run the experiment. {-}
+## Step 5. Run the experiment. {-}
 
 At this point, we have created and documented the simulation experiment recipe, but we have not generated any results from the experiment. That is, we have only given the simulation experiment instructions on what to do. To run the experiment, say over 100 replicates, we can do so via
 
@@ -214,11 +217,11 @@ At this point, we have created and documented the simulation experiment recipe, 
 results <- run_experiment(experiment, n_reps = 100, save = TRUE)
 ```
 
-### Step 6. Visualize results via an automated R Markdown report. {-}
+## Step 6. Visualize results via an automated R Markdown report. {-}
 
 Finally, to visualize and report all results from the simulation experiment, we can render the documentation. This will generate a single html document, including the code, documentation (from Step 4), and simulation results.
 
-```{r render-docs, message = FALSE}
+```{r render-docs, message = FALSE, warning = FALSE}
 render_docs(experiment)
 ```
 
@@ -246,8 +249,6 @@ Once these functions are appropriately written/specified, `simChef` takes care o
 
 Thus, focusing on step 1, it is helpful to understand the inputs and outputs that are necessary for writing each user-defined function. To do so, let us walk through what happens when we run a `simChef` `Experiment` and highlight the necessary inputs and outputs to these functions as we go.
 
-<!-- Thus, focusing on step 1, it is important to understand (1) at a high-level, how `DGPs`, `Methods`, `Evaluators`, and `Visualizers` play together when running an `Experiment` via `run_experiment()` and (2) the inputs and outputs that are necessary for writing each user-defined function. We discuss these two points in turn. -->
-
 ## Overivew of running an experiment {-}
 
 At the highest level, running an experiment (via `run_experiment()`) consists of three main steps (see Figure \@ref(fig:run-experiment-figure)): 
@@ -258,9 +259,7 @@ At the highest level, running an experiment (via `run_experiment()`) consists of
 
 `run_experiment()` is simply a wrapper around these three functions: `fit_experiment()`, `evaluate_experiment()`, and `visualize_experiment()`.
 
-```{r run-experiment-figure, fig.cap = "Overview of running a `simChef` `Experiment`. The `Experiment` class handles relationships among the four classes: `DGP`, `Method`, `Evaluator`, and `Visualizer`. Experiments may have multiple `DGPs` and `Methods`, which are combined across the Cartesian product of their varying parameters (represented by *). Once computed, each `Evaluator` and `Visualizer` takes in the fitted simulation replicates, while `Visualizer` additionally receives evaluation summaries.", out.width = "100%", echo = FALSE}
-knitr::include_graphics(path = "figures/run_experiment.png")
-```
+![Overview of running a `simChef` `Experiment`. The `Experiment` class handles relationships among the four classes: `DGP()`, `Method()`, `Evaluator()`, and `Visualizer()`. Experiments may have multiple `DGPs` and `Methods`, which are combined across the Cartesian product of their varying parameters (represented by *). Once computed, each `Evaluator` and `Visualizer` takes in the fitted simulation replicates, while `Visualizer` additionally receives evaluation summaries.](figures/run_experiment.png){width=100% #fig:run-experiment-figure}
 
 In what follows, we will discuss fitting, evaluating, and visualizing the experiment, each in turn.
 
@@ -272,8 +271,6 @@ When fitting an experiment, each `Method` is fit on each `DGP` (for each specifi
   - Any number of named parameters (e.g., `dgp_param1`, `dgp_param2`, ...)
 - **DGP outputs**:
   - A list of named elements to be passed onto the method(s) (e.g., `dgp_out1`, `dgp_out2`, ...)
-
-
 - **Method inputs**:
   - Named parameters matching all names in the list returned by the DGP function (e.g., `dgp_out1`, `dgp_out2`, ...)
   - Any number of additional named parameters (e.g., `method_param1`, `method_param2`, ...)
@@ -292,9 +289,7 @@ Finally, `fit_experiment()` returns the fitted results across all experimental r
   
 We summarize these inputs and outputs in Figure \@ref(fig:fit-experiment-figure).
 
-```{r fit-experiment-figure, fig.cap = "Overview of fitting a `simChef` `Experiment`. Inputs and outputs for user-defined functions are also provided.", out.width = "100%", echo = FALSE}
-knitr::include_graphics(path = "figures/fit_experiment.png")
-```
+![Overview of fitting a `simChef` `Experiment`. Inputs and outputs for user-defined functions are also provided.](figures/fit_experiment.png){width=100% #fig:fit-experiment-figure}
 
 ## Evaluating an experiment {-}
 
@@ -311,9 +306,7 @@ We summarize the relevant inputs and outputs below and in Figure \@ref(fig:eval-
   
 The output of `evaluate_experiment` is a named list of evaluation result tibbles, one component for each `Evaluator` in the experiment. Here, the list names correspond to the names given to each `Evaluator` in `create_evaluator(.name = ...)`, and the list elements are exactly the return value from the `Evaluator` function.
 
-```{r eval-experiment-figure, fig.cap = "Overview of evaluating a `simChef` `Experiment`. Inputs and outputs for user-defined functions are also provided. Dotted boxes denote optional input arguments.", out.width = "100%", echo = FALSE}
-knitr::include_graphics(path = "figures/eval_experiment.png")
-```
+![Overview of evaluating a `simChef` `Experiment`. Inputs and outputs for user-defined functions are also provided. Dotted boxes denote optional input arguments.](figures/eval_experiment.png){width=100% #fig:eval-experiment-figure}
 
 ## Visualizing an experiment {-}
 
@@ -331,9 +324,7 @@ We summarize the relevant inputs and outputs below and in Figure \@ref(fig:viz-e
   
 The output of `visualize_experiment` is a named list of visualizations or plots, one component for each `Visualizer` in the experiment. Here, the list names correspond to the names given to each `Visualizer` in `create_visualizer(.name = ...)`, and the list elements are exactly the return value from the `Visualizer` function.
 
-```{r viz-experiment-figure, fig.cap = "Overview of visualizing a `simChef` `Experiment`. Inputs and outputs for user-defined functions are also provided. Dotted boxes denote optional input arguments.", out.width = "100%", echo = FALSE}
-knitr::include_graphics(path = "figures/viz_experiment.png")
-```
+![Overview of visualizing a `simChef` `Experiment`. Inputs and outputs for user-defined functions are also provided. Dotted boxes denote optional input arguments.](figures/viz_experiment.png){width=100% #fig:viz-experiment-figure}
 
 ## Putting it all together {-}
 
@@ -388,10 +379,11 @@ render_docs(experiment)
 
 For more information on `simChef` and additional features, check out:
 
-- [simChef culinary school (tutorial slides)](https://jpdunc23.github.io/simChef-culinary-school/slides/slides.html)
-- [Computing experimental replicates in parallel (vignette)](`parallel.html`)
-- [Setting up your simulation study (vignette)](`simulation-directory-setup.html`)
-- [simChef: A comprehensive guide (vignette)](`simChef-full.html`) for information on caching, checkpointing, error debugging, common simulation experiment templates, and more
+- [simChef culinary school](https://jpdunc23.github.io/simChef-culinary-school/slides/slides.html) (tutorial slides)
+- [Computing experimental replicates in parallel](parallel.html) (vignette)
+- [Setting up your simulation study](simulation-directory-setup.html) (vignette)
+- [Cheat sheet: Inputs/outputs for user-defined functions](cheat-sheet.Rmd) (vignette)
+- [simChef: A comprehensive guide](simChef-full.html) (vignette) for information on caching, checkpointing, error debugging, common simulation experiment templates, and more
 - [Case Study #1](https://github.com/PhilBoileau/simChef-case-study) using `simChef` to develop a new flexible approach for predictive biomarker discovery with rendered documentation [here](https://philboileau.github.io/simChef-case-study/results/empirical-fdr-comparison/empirical-fdr-comparison.html)
 
 Additional `simChef` examples/case studies and built-in library functions are still to come. Stay tuned!
