@@ -1,17 +1,20 @@
 ---
 title: "simChef: A comprehensive guide"
 output:
-  rmarkdown::html_vignette
+  bookdown::html_document2:
+    base_format: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{simChef: A comprehensive guide}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
+bibliography: references.bib
 ---
 
 ```{r include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
+  fig.align = "center",
   # disable R chunk evaluation when using macOS in GH Actions
   # see https://github.com/tidyverse/ggplot2/issues/2252#issuecomment-1006713187
   # and https://github.com/lcolladotor/biocthis/issues/27 and
@@ -24,115 +27,164 @@ library(simChef)
 set.seed(12345)
 
 # remove old cached results to start fresh
-for (fname in list.files(file.path("results", "Linear Regression Experiment"),
-                         pattern = ".rds", recursive = T, full.names = T)) {
-  file.remove(fname)
+exp_names <- c(
+  "Linear Regression Experiment", "checkpoint-exper", "debugging-exper"
+)
+for (exp_name in exp_names) {
+  fnames <- list.files(
+    file.path("results", exp_name), pattern = ".rds", 
+    recursive = TRUE, full.names = TRUE
+  )
+  for (fname in fnames) {
+    file.remove(fname)
+  }
 }
 ```
 
-# Overview
+```{css echo = FALSE}
+.infobox {
+  padding: .5em 1em .5em 1.5em;
+  border: 2px solid orange;
+  border-radius: 10px;
+  background: #f5f5f5 5px center/3em no-repeat;
+}
+
+.infobox-blue {
+  padding: .5em 1em .5em 1.5em;
+  border: 2px solid cornflowerblue;
+  border-radius: 10px;
+  background: #f5f5f5 5px center/3em no-repeat;
+}
+```
+
+
+# Overview {-}
 
 The goal of `simChef` is to seamlessly and efficiently run simulation experiments using a simple grammar. The results of these simulation experiments can also be conveniently viewed in an organized and interactive browser (or html file) (e.g., [here](../linear_regression_output.html)). The basic usage of `simChef` can be summarized as follows:
 
-1. Create individual parts of the simulation experiment recipe
-    a. Create DGP(s) (data-generating processes) via `create_dgp()`
-        ```{r overview1}
-        dgp <- create_dgp(
-            function(n = 100, p = 10, noise_max = 5) {
-            noise_level <- runif(1, max = noise_max)
-            X <- matrix(rnorm(n*p), nrow = n)
-            y <- X %*% rnorm(p, sd = 2) + rnorm(n, sd = noise_level)
-            # dgp's should return a named list
-            return(list(X = X, y = y, noise_level = noise_level))
-            }
+1. **Define data-generation, method, evaluation, and visualization functions of interest.**
+    ```{r overview-define, eval = FALSE}
+    ## Define data-generating process (DGP) function(s)
+    dgp_fun <- function(n = 100, p = 10, noise_sd = 1) {
+      X <- matrix(rnorm(n*p), nrow = n)
+      betas <- rnorm(p, sd = 2)
+      noise <- rnorm(n, sd = noise_sd)
+      y <- X %*% betas + noise
+      # dgp function should return a named list
+      return(list(X = X, y = y, noise_sd = noise_sd))
+    }
+    
+    ## Define method function(s)
+    # method function args include the names in the dgp output list (`X` and `y` here)
+    method_fun <- function(X, y, ...) {
+      fit <- lm(y ~ X)
+      # by concatenating ... with the list output, we can easily pass through 
+      # other outputs from the dgp to later stages of the simulation 
+      # (evaluation and visualization)
+      return(list(fit = fit, ...))
+    }
+
+    ## Define evaluation function(s)
+    # the main computational loop of the simulation will return a `tibble::tibble`
+    # which is passed as 'fit_results' to our evaluation functions
+    evaluator_fun <- function(fit_results) {
+      # calculate R-squared
+      fit_results %>%
+        dplyr::mutate(
+          rsq = sapply(fit, function(.fit) summary(.fit)$r.squared)
         )
-        dgp
-        ```
-    b. Create Method(s) via `create_method()`
-        ```{r overview2}
-        method <- create_method(
-          # method function args include the names in the dgp output list (`X` and `y` here)
-          function(X, y, ...) {
-            # by concatenating ... with the list output, we can pass through other
-            # outputs from the dgp to later stages of the simulation (evaluation and
-            # visualization)
-            return(c(list(fit = lm(y ~ X)), ...))
-          }
-        )
-        method
-        ```
-    c. Create Evaluator(s) via `create_evaluator()`
-        ```{r overview3}
-        evaluator <- create_evaluator(
-          # the main computational loop of the simulation will return a `tibble::tibble`
-          # which is passed as 'fit_results' to our evaluation functions
-          function(fit_results) {
-            # calculate R-squared
-            fit_results %>%
-              dplyr::mutate(
-                rsq = sapply(fit, function(.fit) summary(.fit)$r.squared)
-              )
-          }
-        )
-        evaluator
-        ```
-    d. Create Visualizer(s) via `create_visualizer()`
-        ```{r overview4}
-        visualizer <- create_visualizer(
-          # you can use 'fit_results' as well here by adding it as an argument
-          function(eval_results) {
-            require(ggplot2)
-            # return a plot r-squared vs noise level
-            ggplot(aes(x = noise_level, y = rsq), data = eval_results[[1]]) +
-              geom_point() +
-              geom_smooth()
-          }
-        )
-        visualizer
-        ```
-2. Assemble these recipe parts into a complete simulation experiment, e.g.:
-    ```{r overview5}
+    }
+    
+    ## d. Define visualization function(s)
+    visualizer_fun <- function(eval_results) {
+      require(ggplot2)
+      # return a plot r-squared vs noise level
+      ggplot(aes(x = noise_sd, y = rsq), data = eval_results[[1]]) +
+        geom_point() +
+        geom_smooth()
+    }
+    ```
+2. **Convert functions into `DGP`, `Method`, `Evaluator`, and `Visualizer` class objects.**
+    ```{r overview-class, eval = FALSE}
+    dgp <- create_dgp(.dgp_fun = dgp_fun, .name = "DGP1")
+    method <- create_method(.method_fun = method_fun, .name = "Method1")
+    evaluator <- create_evaluator(.eval_fun = evaluator_fun, .name = "Evaluator1")
+    visualizer <- create_visualizer(.viz_fun = visualizer_fun, .name = "Visualizer1")
+    ```
+3. **Assemble these recipe parts into a complete simulation experiment.**
+    ```{r overview-experiment, eval = FALSE}
     experiment <- create_experiment(name = "Experiment") %>%
-      add_dgp(dgp, name = "DGP1") %>%
-      add_method(method, name = "Method1") %>%
-      add_evaluator(evaluator, name = "Evaluator1") %>%
-      add_visualizer(visualizer, name = "Visualizer1")
+      add_dgp(dgp) %>%
+      add_method(method) %>%
+      add_evaluator(evaluator) %>%
+      add_visualizer(visualizer)
     experiment
     ```
-3. Document and describe the simulation experiment in text
-    ```{r eval = FALSE}
+4. **Document and describe the simulation experiment in text.**
+    ```{r overview-init-docs, eval = FALSE}
     init_docs(experiment)
     ```
-4. Run the experiment
-    ```{r eval = FALSE}
-    results <- run_experiment(experiment, n_reps = 100, save = T)
-    # or alternatively, `results <- experiment$run(n_reps = 100, save = T)`
+5. **Run the experiment.**
+    ```{r overview-run, eval = FALSE}
+    results <- run_experiment(experiment, n_reps = 100, save = TRUE)
     ```
-5. Visualize results via an automated R Markdown report
-    ```{r eval = FALSE}
+6. **Visualize results via an automated R Markdown report.**
+    ```{r overview-render-docs, eval = FALSE}
     render_docs(experiment)
     ```
+    
+In this vignette, we will provide an overview of the core features of `simChef`:
 
-We will next go through a toy example simulation using linear regression.
+1. A tidyverse-inspired grammar of data-driven simulation experiments
+2. A growing built-in library of composable building blocks for evaluation metrics and visualization utilities
+3. Flexible and seamless integration with distributed computation, caching, checkpointing, and debugging tools
+4. Automated generation of an R Markdown document to easily navigate, visualize, and interpret simulation results (see example [here](../linear_regression_output.html))
+    
+Note: Before proceeding through this guide, we recommend first checking out our introductory vignette: [Getting started with simChef](`simChef.html`).
 
-# Basic usage
+# A tidy grammar for simulation experiments
 
-## Create individual parts of the simulation experiment recipe
+Inspired by the tidyverse [@wickham-welcome-2019], `simChef` develops an intuitive grammar for running simulation studies.
+To this end, `simChef` conceptualizes a simulation experiment into a set of core nouns, each with a corresponding verb (or verbs).
 
-To begin, we first need to create the individual parts of the simulation experiment recipe. There are four main components/classes and verbs in the simulation experiment:
+More specifically, `simChef` first breaks down a simulation experiment into four modular components (or nouns), each implemented as an `R6` class object [@chang-r6-2022]. 
+Further, each of these classes is associated with a particular action or verb (italicized below).
 
-1. **DGP** (data-generating process): the data-generating processes from which to **generate** data
-2. **Method**: the methods (or models) to **fit** in the experiment
-3. **Evaluator**: the evaluation metrics used to **evaluate** the methods performance
-4. **Visualizer**: the visualization functions used to **visualize** outputs from the method fits or evaluation results (can be tables, plots, or even R Markdown snippets to display)
+1. **DGP**: the data-generating process from which to *generate* data.
+2. **Method**: the methods (or models) to *fit* in the experiment.
+3. **Evaluator**: the evaluation metrics used to *evaluate* the methods' performance.
+4. **Visualizer**: the visualization procedure used to *visualize* outputs from the method fits or evaluation results (can be tables, plots, or even R Markdown snippets to display).
 
-To create a `DGP()`, `Method()`, `Evaluator()`, or `Visualizer()`, we can respectively use the `create_dgp()`, `create_method()`, `create_evaluator()`, or `create_visualizer()` functions. Each `create_*()` function follows the same syntax and takes in the inputs:
+There is also a fifth and final noun:
 
-- `.*_fun`: the first input is a function from which to simulate data, fit the method, evaluate the metrics, or create a visualization (depending on `*`).
-- `.name`: (optional) name of the component. Can be specified either here in `create_*()` or when creating the experiment as we will see later.
-- `...`: additional arguments get passed into the `*_fun` above.
+5. **Experiment**: an `R6` class which unites the four components above (DGP(s), Method(s), Evaluator(s), and Visualizer(s)) and stores references to these objects along with the DGP and Method parameters that should be varied in the study. There are four verbs associated with an Experiment:
+    a. *Fit* the Experiment: each Method in the Experiment is fit on each DGP in the Experiment.
+    b. *Evaluate* the Experiment: each Evaluator in the Experiment is evaluated on the fitted experiment results.
+    c. *Visualize* the Experiment: each Visualizer in the Experiment is visualized using the fitted and/or evaluated experiment results.
+    d. *Run* the Experiment: wrapper to fit, evaluate, and visualize the Experiment all at once.
 
-### Create data-generating process (DGP)
+## Basic example usage
+
+Leveraging this grammar, we can easily use `simChef` to run a simulation experiment in six steps.
+
+1. Define DGP, method, evaluation, and visualization functions of interest.
+2. Convert functions into `DGP`, `Method`, `Evaluator`, and `Visualizer` class objects.
+3. Assemble objects into a complete simulation experiment.
+4. Document and describe the simulation experiment in text.
+5. Run the experiment.
+6. Visualize results via an automated R Markdown report.
+
+> For concreteness, suppose that we would like to run an experiment, studying the performance of linear regression under a linear Gaussian data-generating process.
+
+### Step 1. Define DGP, method, evaluation, and visualization functions of interest {-}
+
+To begin, we first need to define the individual parts of the simulation experiment, namely, the data-generation, method, evaluation, and visualization functions under study. 
+We also need to write these functions such that they "play nicely" with one another under the `simChef` API.
+We will make note of these requirements as we go, but for an introductory overview, please refer to the *Writing your own simulation experiment* section in [Getting started with simChef](`simChef.html`) or our [Cheat sheet: Inputs/outputs for user-defined functions](`cheat-sheet.html`).
+
+*Note*: Step 1 requires the most user-written code. After this step, there is minimal coding on the user end as we turn to leverage the `simChef` grammar for experiments.
+
+##### Step 1a. Define data-generating process (DGP) function(s) {-}
 
 As a toy DGP example, let us create a function to simulate a random Gaussian data matrix $\mathbf{X}$ of size $n \times 2$ and a linear response vector $\mathbf{y}$ of size $n \times 1$, where
 
@@ -142,8 +194,8 @@ As a toy DGP example, let us create a function to simulate a random Gaussian dat
 \boldsymbol{\epsilon} \sim N(\mathbf{0}, \sigma^2 \mathbf{I}_n)
 \end{gather*}
 
-```{r basics1}
-dgp_fun <- function(n, beta, rho, sigma) {
+```{r create-dgp-fun}
+linear_dgp_fun <- function(n, beta, rho, sigma) {
   cov_mat <- matrix(c(1, rho, rho, 1), byrow = T, nrow = 2, ncol = 2)
   X <- MASS::mvrnorm(n = n, mu = rep(0, 2), Sigma = cov_mat)
   y <- X %*% beta + rnorm(n, sd = sigma)
@@ -151,75 +203,92 @@ dgp_fun <- function(n, beta, rho, sigma) {
 }
 ```
 
-We can create an object of class `DGP()` from this function via
+:::: {.infobox}
+<details>
+<summary>*Requirements for DGP function syntax*</summary>
 
-```{r basics2}
-dgp <- create_dgp(.dgp_fun = dgp_fun, .name = "Linear Gaussian DGP",
-                  # additional named parameters to pass to dgp_fun()
-                  n = 200, beta = c(1, 0), rho = 0, sigma = 1)
-```
+**DGP inputs**:
 
-Note that the additional arguments in `create_dgp()` must be named arguments that match those in `dgp_fun()`.
+- Any number of named parameters.
 
-### Create method
+**DGP outputs**:
 
-Given the above DGP, suppose we want to investigate the performance of linear regression, specifically the p-values that are outputted for the non-intercept coefficients from `summary.lm()`.
+- A named list with all data necessary to fit the method, evaluate the method, and visualize results.
+  - Note: This returned list of elements will be automatically passed onto the method function(s) as input arguments of the same name.
+</details>
+::::
 
-```{r basics3}
+##### Step 1b. Define method function(s) {-}
+
+Given the above DGP, suppose we want to investigate the performance of linear regression, specifically the p-values corresponding to the non-intercept coefficients from `summary.lm()`.
+
+```{r create-method-fun}
 lm_fun <- function(X, y, cols = c("X1", "X2")) {
   lm_fit <- lm(y ~ X)
-  pvals <- summary(lm_fit)$coefficients[cols, "Pr(>|t|)"] %>%
+  pvals_tib <- summary(lm_fit)$coefficients[cols, "Pr(>|t|)"] %>%
     setNames(paste(names(.), "p-value"))
-  return(pvals)
+  return(pvals_tib)
 }
 ```
 
-We can create an object of class `Method()` from this function via
+:::: {.infobox}
+<details>
+<summary>*Requirements for method function syntax*</summary>
 
-```{r basics4}
-lm_method <- create_method(.method_fun = lm_fun)
-```
+**Method inputs**:
+  
+- Named parameters matching all names in the list returned by the DGP function `linear_dgp_fun` (in this case, `X` and `y`).
+- Any number of additional named parameters (in this case, `cols`).
 
-A couple notes here:
+**Method outputs**:
 
-- The inputs into the method function `lm_fun()` should include the named outputs from the DGP function `dgp_fun()` (in this case, `X` and `y`), as the data generated from the DGP will be automatically passed into the Method.
-- Additional arguments can be passed into `create_method()` as was done previously in `create_dgp()`. However, this is not necessary in this case if we are happy with the default argument for `cols` in `lm_fun()`.
+- A list (or array-like object) of named elements with all data necessary to evaluate the method and visualize results.
+</details>
+::::
 
-### Create evaluator
+##### Step 1c. Define evaluation function(s) {-}
 
-To evaluate the performance of linear regression, one metric (or statistic) of interest could be the rejection probability at some level $\alpha$, which we compute in the following function.
+To evaluate performance here, one metric (or statistic) of interest could be the rejection probability at some level $\alpha$, which we compute in the following function `reject_prob_fun`.
 
-```{r basics5}
+```{r create-eval-fun}
 reject_prob_fun <- function(fit_results, alpha = 0.05) {
   group_vars <- c(".dgp_name", ".method_name")
   eval_out <- fit_results %>%
     dplyr::group_by(across({{group_vars}})) %>%
     dplyr::summarise(
       `X1 Reject Prob.` = mean(`X1 p-value` < alpha),
-      `X2 Reject Prob.` = mean(`X2 p-value` < alpha)
+      `X2 Reject Prob.` = mean(`X2 p-value` < alpha),
+      .groups = "keep"
     )
   return(eval_out)
 }
 ```
 
-We can create an object of class `Evaluator()` from this function via
+:::: {.infobox}
+<details>
+<summary>*Requirements for evaluation function syntax*</summary>
 
-```{r basics6}
-reject_prob_eval <- create_evaluator(.eval_fun = reject_prob_fun, alpha = 0.1)
-```
+**Evaluator inputs**:
 
-There are a few key points to keep in mind when writing a custom Evaluator function such as `reject_prob_fun()`.
+- `fit_results` (optional, but almost always necessary): output of `fit_experiment()`, which automatically gets passed to the evaluation function(s).
+  - More specifically, `fit_results` is a tibble containing the method outputs of all (replicate, DGP, method) combinations fitted in the experiment.
+  `fit_results` will have columns named `.rep`, `.dgp_name`, `.method_name`, and any other named arguments that were outputted from the method function (i.e., `lm_fun`). 
+  - Note: This argument must be exactly named `fit_results` or else the evaluation function will not receive the results from the fitted experiment.
+  - Tip: Many evaluation metrics are most naturally computed across replicates, so it is common to group the `fit_results` by `.dgp_name` and `.method_name` as seen in `reject_prob_fun()` above. In doing so, the rejection probability (across replicates) will be computed for each (DGP, Method) combination separately. However, depending on the goal of the Evaluator function, grouping by `.dgp_name` and `.method_name` might not be necessary.
+- `vary_params` (optional): character vector of parameter names that are varied across in the experiment and automatically passed to the evaluation function(s); discussed further in \@ref(example-usage-with-varying-across-component).
+- Any number of additional named parameters (in this case, `alpha`).
 
-- First, the Evaluator function should almost always take in the named argument `fit_results`. `fit_results` is a placeholder for the tibble that will be outputted by `Experiment$fit()` and automatically passed in when the experiment is fitted. Note that this argument must be exactly named `fit_results` or else the Evaluator function will not receive the results from `Experiment$fit()`. We will see `Experiment$fit()` in action later, but for now, we can think of `fit_results` as a tibble containing the results of all (replicate, DGP, method) combinations fitted in the experiment. Naturally, `fit_results` will have columns named `.rep`, `.dgp_name`, `.method_name`, and any other named arguments that were outputted from the method function (i.e., `lm_fun`).
-- Many evaluation metrics are most naturally computed across replicates, so it is common to group the `fit_results` by `.dgp_name` and `.method_name` as seen in `reject_prob_fun()` above. In doing so, the rejection probability (across replicates) will be computed for each (DGP, Method) combination separately. However, depending on the goal of the Evaluator function, grouping by `.dgp_name` and `.method_name` might not be necessary.
+**Evaluator outputs**:
 
-As before, additional arguments can be passed into `create_evaluator()`, and in this case, we have overwritten the default value of `alpha` with `alpha = 0.1`.
+- Typically a `tibble` or `data.frame` with the evaluated metrics or performance of the method.
+</details>
+::::
 
-### Create visualizer
+##### Step 1d. Define visualization function(s) {-}
 
-Lastly, we may want to plot the results from the `Method` fits (stored in `fit_results`) and/or the outputs from our `Evaluators` (stored in `eval_results`). For example, we could plot the power of the hypothesis test.
+Lastly, we may want to plot the results from the method fits (stored in `fit_results`) and/or the outputs from our evaluation metrics (stored in `eval_results`). For example, we could plot the power of the hypothesis test as in `power_plot_fun`.
 
-```{r basics7}
+```{r create-viz-fun}
 power_plot_fun <- function(fit_results, col = "X1") {
   plt <- ggplot2::ggplot(fit_results) +
     ggplot2::aes(x = .data[[paste(col, "p-value")]],
@@ -234,96 +303,198 @@ power_plot_fun <- function(fit_results, col = "X1") {
 }
 ```
 
-We can create an object of class `Visualizer()` from this function via
+:::: {.infobox}
+<details>
+<summary>*Requirements for visualization function syntax*</summary>
 
-```{r basics8}
-power_plot <- create_visualizer(.viz_fun = power_plot_fun)
+**Visualizer inputs**:
+
+- `fit_results` (optional): output of `fit_experiment()`, which automatically gets passed to the visualization function(s).
+  - Note: This argument must be exactly named `fit_results` or else the visualization function will not receive the results from the fitted experiment.
+  - Tip: Include `fit_results` as an input parameter if the visualization is to be computed using the method outputs.
+- `eval_results` (optional): output of `evaluate_experiment()`, which automatically gets passed to the visualization function(s).
+  - More specifically, `eval_results` is a list of named elements, one element for each Evaluator in the experiment.
+  - Note: This argument must be exactly named `eval_results` or else the visualization function will not receive the results from the evaluated experiment.
+  - Tip: Include `eval_results` as an input parameter if the visualization is to be computed using the evaluation outputs.
+- `vary_params` (optional): character vector of parameter names that are varied across in the experiment and automatically passed to the visualization function(s); discussed further in \@ref(example-usage-with-varying-across-component).
+- Any number of additional named parameters (in this case, `col`).
+  
+**Visualizer outputs**:
+
+- Typically a plot. We highly recommend using `ggplot` or `plotly`. On rarer occasions, can also return tables or more generally, any R Markdown snippet.
+</details>
+::::
+
+
+### Step 2. Convert functions into `DGP`, `Method`, `Evaluator`, and `Visualizer` class objects {-}
+
+Once we have specified the relevant DGP, method, evaluation, and visualization functions, the next step is to convert these functions into `DGP`, `Method`, `Evaluator`, and `Visualizer` class objects for `simChef`. To do so, we simply wrap the functions in `create_dgp()`, `create_method()`, `create_evaluator()`, or `create_visualizer()`, while specifying an intelligible name for the object and any input parameters to pass to the function. 
+
+Each `create_*()` function follows the same syntax and takes in the inputs:
+
+- `.*_fun`: the function from which to simulate data, fit the method, evaluate metrics, or create a visualization (depending on `*`).
+- `.name`: an (intelligible) object name, which will be used in creating the R Markdown report.
+- `...`: additional arguments to pass to `.*_fun` above.
+
+```{r api-overview, fig.cap = "Overview of the four core components (`DGP`, `Method`, `Evaluator`, `Visualizer`) in a `simChef` `Experiment`. Using these classes, users can easily build a `simChef` `Experiment` using reusable, custom user-defined functions (i.e., `dgp_fun`, `method_fun`, `eval_fun`, and `viz_fun`). Optional named parameters can be set in these user-defined functions via the `...` arguments in the `create_*()` methods.", out.width = "80%", echo = FALSE}
+knitr::include_graphics(path = "figures/api_overview.png")
 ```
 
-Like the custom `Evaluator` functions, custom `Visualizer` functions such as `power_plot_fun()` can take in the argument `fit_results` if we want to construct a plot from the method fit outputs. If we want to construct a visualization using the output of our `Evaluators` (e.g., the output from `reject_prob_fun()`), the `Visualizer` function can also take the argument `eval_results` as input. Note again that the arguments must be exactly named `fit_results` and `eval_results` in order to work properly. Beyond creating plots, `Visualizers` can return tables and more generally, any R Markdown snippet containing results.
+For example,
 
-As with the other `create_*` functions, additional arguments that need to pass into the custom `Visualizer` function can be passed into `create_visualizer()`.
+```{r create-classes}
+## DGPs
+linear_dgp <- create_dgp(
+  .dgp_fun = linear_dgp_fun, .name = "Linear Gaussian DGP",
+  # additional named parameters to pass to .dgp_fun()
+  n = 200, beta = c(1, 0), rho = 0, sigma = 1
+)
 
-## Assemble simulation experiment recipe
+## Methods
+lm_method <- create_method(
+  .method_fun = lm_fun, .name = "OLS"
+  # additional named parameters to pass to .method_fun()
+)
 
-At this point, we have created a `DGP` (`dgp`), `Method` (`lm_method`), `Evaluator` (`reject_prob_eval`), and `Visualizer` (`power_plot`). The next step is to create the simulation experiment recipe and `add` each component to the recipe via
+## Evaluators
+reject_prob_eval <- create_evaluator(
+  .eval_fun = reject_prob_fun, .name = "Rejection Prob. (alpha = 0.1)",
+  # additional named parameters to pass to .eval_fun()
+  alpha = 0.1
+)
 
-```{r basics9}
+## Visualizers
+power_plot <- create_visualizer(
+  .viz_fun = power_plot_fun, .name = "Power"
+  # additional named parameters to pass to .viz_fun()
+)
+```
+
+Some notes on the use of `...` arguments in `create_*()`:
+
+- `...` arguments in `create_*()` must be named arguments that match those in `.*_fun()`.
+- `...` arguments in `create_*()` will override any default arguments set in `.*_fun()`.
+  - E.g., In `reject_prob_eval`, `alpha = 0.1`, not `0.05`.
+- If `...` arguments in `create_*()` are not specified, the default arguments in `.*_fun()` are used.
+  - E.g., In `lm_method`, `cols = c("X1", "X2")`.
+
+
+### Step 3. Assemble objects into a complete simulation experiment {-}
+
+At this point, we have created a `DGP` (`dgp`), `Method` (`lm_method`), `Evaluator` (`reject_prob_eval`), and `Visualizer` (`power_plot`) for our simulation experiment. 
+The next step is to create a simulation experiment recipe and `add` each component to the recipe via:
+
+```{r create-experiment}
 experiment <- create_experiment(name = "Linear Regression Experiment") %>%
-  add_dgp(dgp, name = "Linear Gaussian DGP") %>%
-  add_method(lm_method, name = "OLS") %>%
-  add_evaluator(reject_prob_eval, name = "Rejection Prob. (alpha = 0.1)") %>%
-  add_visualizer(power_plot, name = "Power")
+  add_dgp(linear_dgp) %>%
+  add_method(lm_method) %>%
+  add_evaluator(reject_prob_eval) %>%
+  add_visualizer(power_plot)
 ```
 
-Any number of DGPs, Methods, Evaluators, and Visualizers can be added to the simulation experiment recipe, but each added element to the experiment should have an intelligible name as this will be used in creating the R Markdown results report.
+*Tip*: We can easily see the individual parts of the simulation experiment recipe by printing the experiment.
 
-We can easily see the individual parts of the simulation experiment recipe by printing the experiment.
-
-```{r basics10}
+```{r print-experiment}
 print(experiment)
 ```
 
-Once a DGP, Method, Evaluator, or Visualizer has been added to the simulation experiment recipe, the component can be updated using `update_dgp()`, `update_method()`, `update_evaluator()`, or `update_visualizer()` and removed using `remove_dgp()`, `remove_method()`, `remove_evaluator()`, or `remove_visualizer()`.
+*Notes*: 
 
-## Document the simulation experiment
+- Any number of DGPs, Methods, Evaluators, and Visualizers can be added to the simulation experiment recipe.
+- Once a DGP, Method, Evaluator, or Visualizer has been added to the simulation experiment recipe, the component can be updated using `update_dgp()`, `update_method()`, `update_evaluator()`, or `update_visualizer()` and removed using `remove_dgp()`, `remove_method()`, `remove_evaluator()`, or `remove_visualizer()`.
 
-A crucial component when running veridical simulations is **documentation**. We highly encourage practitioners to document the purpose or objective of the simulation experiment, what DGPs, Methods, Evaluators, and Visualizers were used, and why these DGPs, Methods, Evaluators, and Visualizers were chosen. This can and should be done before even running the simulation experiment. To facilitate this tedious but important process, we can easily create a documentation template to fill out using
 
-```{r}
+### Step 4. Document and describe the simulation experiment in text {-}
+
+A crucial component when running veridical simulations is **documentation**. 
+We highly encourage practitioners to document:
+
+- the purpose or objective of the simulation experiment,
+- what `DGP(s)`, `Method(s)`, `Evaluator(s)`, and `Visualizer(s)` were used, and
+- why these `DGP(s)`, `Method(s)`, `Evaluator(s)`, and `Visualizer(s)` were chosen. 
+
+This can and should be done before even running the simulation experiment. 
+To facilitate this tedious but important process, we have provided a convenient helper function `init_docs()` to initialize/create a documentation template:
+
+```{r init-docs}
 init_docs(experiment)
 ```
 
-```{r cp_docs, echo = FALSE, warning = FALSE, message = FALSE, results = "hide"}
-# copy pre-written .md files in vignettes/docs to the experiment's docs dir
-file.copy(from = here::here("vignettes/docs"),
-          to = file.path(experiment$get_save_dir()),
-          recursive = TRUE)
+```{r cp-docs, echo = FALSE, warning = FALSE, message = FALSE, results = "hide"}
+# copy pre-written .md files in vignettes/example-docs to the experiment's docs dir
+file.copy(
+  from = here::here(file.path("vignettes", "example-docs", experiment$name, "docs")),
+  to = file.path(experiment$get_save_dir()),
+  recursive = TRUE
+)
 ```
 
-This creates a series of blank .md files for the user to fill out with descriptions of the simulation experiment and its recipe components. These blank .md files can be found in the experiment's root results directory under docs/. To find the experiment's root results directory, use `experiment$get_save_dir()`. You can find example .md files corresponding to the current experiment [here](https://github.com/Yu-Group/simChef/tree/main/vignettes/docs). 
+This creates a series of blank .md files for the user to fill out with descriptions of the simulation experiment and its recipe components. These blank .md files can be found in the experiment's root results directory under docs/. To find the experiment's root results directory, use `experiment$get_save_dir()`. You can find example .md files corresponding to the current experiment and others [here](https://github.com/Yu-Group/simChef/tree/main/vignettes/example-docs/).
 
-## Run the simulation experiment
+### Step 5. Run the experiment {-}
 
 Thus far, we have created and documented the simulation experiment recipe, but we have not generated any results from the experiment. That is, we have only given the simulation experiment instructions on what to do. To run the experiment, say over 10 replicates, we can do so via
 
-```{r basics11}
-results <- experiment$run(n_reps = 10, save = TRUE)
+```{r run-experiment}
+results <- run_experiment(experiment, n_reps = 10, save = TRUE)
 ```
 
-or alternatively,
+`run_experiment()` is a convenient wrapper function that:
 
-```{r eval = FALSE}
-results <- experiment %>%
-  run_experiment(n_reps = 10, save = TRUE)
-```
+1. Fits the experiment (`fit_experiment()`), which fits each `Method` on each `DGP` in the `Experiment`,
+2. Evaluates the experiment (`evaluate_experiment()`), which evaluates each `Evaluator` on the fitted results, and
+3. Visualizes the experiment (`visualize_experiment()`), which visualizes each `Visualizer` on the fitted and/or evaluated results.
 
-The output of `experiment$run()` is a list of length three:
+Consequently, the output of `run_experiment()` is a list of length three:
 
-- `fit_results`: output of `Method` fits (see `experiment$fit()`)
-- `eval_results`: output of `Evaluators` (see `experiment$evaluate()`)
-- `viz_results`: output of `Visualizers` (see `experiment$visualize()`)
-
-```{r basics12}
+```{r run-experiment-str}
 str(results, max.level = 2)
-results$fit_results
-results$eval_results
-results$viz_results
 ```
 
-By default, the results are not saved to disk. However, to generate the R Markdown report, we will need to save the results to disk and hence set `save = TRUE` above.
+1. `fit_results`: output of `fit_experiment()`
+    - A tibble of results from each (replicate, DGP, Method) combination with the following columns:
+      - `.rep`: replicate ID
+      - `.dgp_name`: name of DGP
+      - `.method_name`: name of Method
+      - `vary_across` parameter columns (if applicable): value of the specified `vary_across` parameter
+      - A column corresponding to each named component in the list returned by `Method` (e.g., `method_out1`, `method_out2`, ...)
+      
+      ```{r fit-results-output}
+      results$fit_results
+      ```
 
-The experiment can also be run in parallel. For a more detailed walkthrough on how to parallelize the experiment, please see `vignette("parallel")`.
+2. `eval_results`: output of `evaluate_experiment()`
+    - A named list of elements, with one element for each `Evaluator` in the `Experiment`
+      - The list names correspond to the names given to each `Evaluator` in `create_evaluator(.name = ...)`
+      - The list elements are exactly the return values from each `Evaluator` function
+      
+      ```{r eval-results-output}
+      results$eval_results
+      ```
+      
+3. `viz_results`: output of `visualize_experiment()`
+    - A named list of elements, with one element for each `Visualizer` in the `Experiment`
+      - The list names correspond to the names given to each `Visualizer` in `create_visualizer(.name = ...)`
+      - The list elements are exactly the return values from each `Visualizer` function
+      
+      ```{r viz-results-output, fig.width = 4}
+      results$viz_results
+      ```
 
-## Visualize results
+Notes:
 
-Finally, we can easily visualize all results from the simulation experiment in an html file (generated using R Markdown) or browser.
+- By default, the results are not saved to disk. However, to generate the R Markdown report, we will need to save the results to disk and hence set `save = TRUE` in the call to `run_experiment()` above.
+- The experiment can also be run in parallel. For a more detailed walkthrough on how to parallelize the experiment, please see `vignette("parallel")`.
 
-```{r render_docs1, eval = FALSE}
+### Step 6. Visualize results via an automated R Markdown report {-}
+
+Finally, to visualize and report all results from the simulation experiment, we can render the R Markdown documentation. This will generate a single html document, including the code, documentation (from Step 4), and simulation results.
+
+```{r render-docs-1, eval = FALSE}
 render_docs(experiment)
 ```
 
-```{r cp_html1, echo = FALSE, warning = FALSE, message = FALSE, results = "hide"}
+```{r cp-html-1, echo = FALSE, warning = FALSE, message = FALSE, results = "hide"}
 # create pkgdown/assets directory, which will be copied to the gh-pages branch
 # during the pkgdown workflow (see .github/workflows/pkgdown.yaml)
 assets_dir <- here::here("pkgdown/assets")
@@ -340,60 +511,173 @@ The results can be found [here](../linear_regression_base_output.html).
 
 Note that if the documentation template has not yet been created for `experiment` (e.g., via `init_docs(experiment)`), then `render_docs()` will automatically create the documentation template for the user to fill out. Again, we highly encourage practitioners to document their simulation experiments in the spirit of transparency and reproducibility.
 
-## Running an experiment across varying parameters in the DGP/Method
 
-Now, going slightly beyond the most basic usage of `simChef`, it is often helpful to understand how a method's performance is affected as we vary a single parameter in the DGP across different values. For instance, what happens to the power as the amount of noise in the linear model increases?
+## Example usage with varying across component
 
-Using the simple grammar of `simChef`, we can investigate this question by adding a `vary_across` component to the simulation experiment.
-```{r vary1}
+Now, moving slightly beyond the most basic usage of `simChef`, it is often helpful to understand how a method's performance is affected as we vary parameter(s) in the DGP and/or method across different values. 
+
+For instance, what happens to the power as the amount of noise in the linear model increases?
+
+Using the grammar of `simChef`, we can investigate this question by adding a `vary_across` component to the `Experiment`. In this example, we are varying the `sigma` (i.e,. the noise level) parameter in the Linear Gaussian DGP across four different values (i.e,. 1, 2, 4, and 8) while keeping all other parameters fixed at their baseline value.
+
+```{r add-vary-across-1}
 experiment <- experiment %>%
   add_vary_across(.dgp = "Linear Gaussian DGP", sigma = c(1, 2, 4, 8))
 ```
 
-```{r vary2}
+```{r print-vary-across-experiment-1}
 print(experiment)
 ```
 
-In `add_vary_across()`, the `dgp` argument is the name of the DGP to vary or the DGP object itself. All subsequent arguments should be of the form `[param_name] = [param_values]`, where `param_name` is the name of the argument/parameter in the `DGP` function that will be varied, and `param_values` is a list or atomic vector of values that `param_name` will take and vary across while all other arguments are kept constant at their base value (see `dgp$dgp_params`). Here, we are varying the `sigma` parameter (i.e., the SD of the additive noise term) over values of 1, 2, 4, and 8 within the Linear Gaussian DGP. (Note: we can also vary across parameters in a `Method` by inputting the `method` argument instead of the `dgp` argument in `add_vary_across()`.)
 
-However, when we run the experiment, the results are not quite what we expect. The results are summarized/aggregated across all values of `sigma`.
+:::: {.infobox-blue}
+<details>
+<summary>**About `add_vary_across()`**</summary>
 
-```{r vary3}
-vary_results <- experiment$run(n_reps = 10, save = TRUE)
+More generally, `add_vary_across()` can be used to vary across one or more parameters in a `DGP` or `Method` while keeping all other parameters fixed at their baseline value. The inputs to `add_vary_across` are as follows:
+
+- `.dgp`, `.method`: Name of the `DGP`/`Method` to vary or the `DGP`/`Method` object itself.
+  - Note: Only one of `.dgp` or `.method` can be specified at a time. To vary across more than one `DGP` and/or `Method`, use a separate `add_vary_across()` call for each.
+- `...`: Any number of named arguments of the form `[param_name] = [param_values]`.
+  - `[param_name]` should be the name of the argument/parameter in the `DGP`/`Method` function that will be varied.
+  - `[param_values]` should be a vector or list of values that `[param_name]` will take on, while all other arguments are kept constant at their baseline value (see `DGP$dgp_params` or `Method$method_params` for these baseline values).
+  
+Some notes on varying across multiple parameters:
+
+  - If multiple arguments of `[param_name] = [param_values]` are provided within a call to `add_vary_across()`, the cross-product of parameter values is taken.
+    - E.g., `add_vary_across(.dgp = "Linear Gaussian DGP", sigma = c(1, 2, 4, 8), n = c(100, 200, 300))` will result in $4 \times 3 = 12$ distinct configurations of the `DGP`.
+  - It is possible to vary across both `DGP` and `Method` parameters in an `Experiment`. Here, all DGP-method combinations are fitted.
+    - E.g., `add_vary_across(.dgp = "Linear Gaussian DGP", sigma = c(1, 2, 4, 8)) %>% add_vary_across(.method = "OLS", cols = c("X1", "X2"))` results in 8 DGP-method combinations to be fitted in the `Experiment` (4 variations on the `DGP` $\times$ 2 variations on the `Method`).
+</details>
+::::
+
+However, when we run the experiment, the results are not quite what we want. 
+While `fit_results` yields a tibble with 40 rows (= 10 replicates $\times$ 4 `DGP` variations $\times$ 1 `Method`) as desired, the evaluation results in `eval_results` have been summarized/aggregated across all values of `sigma`.
+
+```{r vary-across-results-1, fig.width = 4}
+vary_results <- run_experiment(experiment, n_reps = 10, save = TRUE)
+vary_results$fit_results
 vary_results$eval_results
 vary_results$viz_results
 ```
 
-To see how different values of `sigma` affect the experiment results, we need to modify our `Evaluator` and `Visualizer` functions. Specifically, in `reject_prob_eval`, we want to group `fit_results` by `sigma` in addition to `.dgp_name` and `.method_name`. To do this, we need to add a `vary_params` argument to our custom `Evaluator` function. When we run the experiment, `vary_params` will be auto-filled by a vector of the parameter names that are varied (i.e., those that have been added via `add_vary_across()`). In this case, `vary_params` will be auto-filled by `c("sigma")`.
+To see how different values of `sigma` impact the OLS results, we need to modify our `Evaluator` and `Visualizer` functions.
+Specifically, in `reject_prob_fun()`, we want to group `fit_results` by `sigma` in addition to `.dgp_name` and `.method_name`. 
+To do this, we can manually set `group_vars <- c(".dgp_name", ".method_name", "sigma")`.
+However, it would be better practice to make use of an input argument named `vary_params` like below. 
+When we run the experiment (via `run_experiment()`), `vary_params` will be auto-filled by a vector of the parameter names that are varied (i.e., those that have been added via `add_vary_across()`). 
+In this case, `vary_params` will be auto-filled by `c("sigma")`.
+Thus, by using this `vary_params` argument, the `Evaluator` will work more generally, even if other parameters besides `sigma` are varied in the `Experiment`.
 
-```{r vary4}
+```{r vary-across-evaluator-fun}
 reject_prob_fun <- function(fit_results, vary_params = NULL, alpha = 0.05) {
-  group_vars <- c(".dgp_name", ".method_name", vary_params)
+  group_vars <- c(".dgp_name", ".method_name", vary_params)  # MODIFIED!
   eval_out <- fit_results %>%
     dplyr::group_by(across({{group_vars}})) %>%
     dplyr::summarise(
       `X1 Reject Prob.` = mean(`X1 p-value` < alpha),
-      `X2 Reject Prob.` = mean(`X2 p-value` < alpha)
+      `X2 Reject Prob.` = mean(`X2 p-value` < alpha),
+      .groups = "keep"
     )
   return(eval_out)
 }
-reject_prob_eval <- create_evaluator(.eval_fun = reject_prob_fun, alpha = 0.1)
+
+reject_prob_eval <- create_evaluator(
+  .eval_fun = reject_prob_fun, .name = "Rejection Prob. (alpha = 0.1)",
+  # additional named parameters to pass to .eval_fun()
+  alpha = 0.1
+)
 ```
 
-Similarly in `power_plot_fun`, we need to add a `vary_params` argument to plot the results across different values of `sigma`.
+Similarly in `power_plot_fun()`, we need to add `vary_params` as an input argument to plot the results across different values of `sigma`.
 
-```{r vary5}
+```{r vary-across-visualizer-fun}
 power_plot_fun <- function(fit_results, vary_params = NULL, col = "X1") {
-
+  plt <- ggplot2::ggplot(fit_results) +
+    ggplot2::aes(x = .data[[paste(col, "p-value")]],
+                 color = as.factor(.method_name)) +
+    ggplot2::geom_abline(slope = 1, intercept = 0,
+                         color = "darkgray", linetype = "solid", linewidth = 1) +
+    ggplot2::stat_ecdf(size = 1) +
+    ggplot2::scale_x_continuous(limits = c(0, 1)) +
+    ggplot2::labs(x = "t", y = "P( p-value \u2264 t )",
+                  linetype = "", color = "Method")
+  # MODIFIED!
   if (!is.null(vary_params)) {
-    # deal with the case when we vary across a parameter that is vector-valued
-    if (is.list(fit_results[[vary_params]])) {
-      fit_results[[vary_params]] <- list_col_to_chr(fit_results[[vary_params]],
-                                                    name = vary_params,
-                                                    verbatim = TRUE)
-    }
+    plt <- plt + ggplot2::facet_wrap(~ .data[[vary_params]])
   }
+  return(plt)
+}
 
+power_plot <- create_visualizer(.viz_fun = power_plot_fun, .name = "Power")
+```
+
+Now, we are ready to update our experiment with the corrected `Evaluator` and `Visualizer` and run the experiment via:
+
+```{r vary-across-results-2, fig.width = 6, fig.height = 6}
+vary_results <- experiment %>%
+  update_evaluator(reject_prob_eval, name = "Rejection Prob. (alpha = 0.1)") %>%
+  update_visualizer(power_plot, name = "Power") %>%
+  run_experiment(n_reps = 10, save = TRUE)
+vary_results$fit_results
+vary_results$eval_results
+vary_results$viz_results
+```
+
+Note here we need to use `update_*` instead of `add_*` since an `Evaluator` named "Rejection Prob. (alpha = 0.1)" and a `Visualizer` named "Power" already exist in the  `Experiment`. Using `add_*` will throw an error.
+
+## More example usages with varying across component
+
+To further showcase the power of `simChef` and to provide additional examples, let's add another plot (in fact, an interactive plot using `plotly::ggplotly`) to our `Experiment` and run the `Experiment` (a) across various values of the coefficient $\boldsymbol{\beta}_2$ and (b) across the correlation $\rho$ between features in $\mathbf{X}$. 
+
+Notes:
+
+- The visualizer function below (`reject_prob_plot_fun`) takes in the `Evaluator` results, stored as `eval_results`, and plots the rejection probability for the $\boldsymbol{\beta}_1$ at $\alpha = 0.1$.
+- In order to vary the coefficient $\boldsymbol{\beta}_2$, we must specify this through the argument `beta`, which is vector-valued. To plot this vector-valued parameter on the x-axis (or any axis) in our plots, an additional pre-processing step must be performed since these values are not directly compatible with `ggplot`. Here, we leverage a built-in helper function `list_col_to_chr()`, which converts a list-type tibble column to a character-type tibble column that is amenable for plotting (unlike the list-type column). This preprocessing step using `list_col_to_chr()` is included in both `reject_prob_plot_fun()` and our updated version of `power_plot_fun()` below.
+- To reduce the computational burden in this vignette, we choose not to vary across multiple parameters simultaneously and instead, choose to vary only a single `DGP` argument in each run of the experiment (hence, the use of `remove_vary_across()` below).
+
+
+```{r add-reject-prob-visualizer}
+# create rejection probability plot
+reject_prob_plot_fun <- function(eval_results, vary_params = NULL) {
+  eval_name <- "Rejection Prob. (alpha = 0.1)"
+  eval_results_df <- eval_results[[eval_name]]
+  if (is.list(eval_results_df[[vary_params]])) {
+    # deal with the case when we vary across a parameter that is vector-valued
+    eval_results_df[[vary_params]] <- list_col_to_chr(
+      eval_results_df[[vary_params]], name = vary_params, verbatim = TRUE
+    )
+  }
+  plt <- ggplot2::ggplot(eval_results_df) +
+    ggplot2::aes(x = .data[[vary_params]], y = `X1 Reject Prob.`,
+                 color = as.factor(.method_name),
+                 fill = as.factor(.method_name)) +
+    ggplot2::labs(x = vary_params, y = eval_name, 
+                  color = "Method", fill = "Method") +
+    ggplot2::scale_y_continuous(limits = c(0, 1))
+  if (is.numeric(eval_results_df[[vary_params]])) {
+    plt <- plt +
+      ggplot2::geom_line() +
+      ggplot2::geom_point(size = 2)
+  } else {
+    plt <- plt +
+      ggplot2::geom_bar(stat = "identity")
+  }
+  return(plotly::ggplotly(plt))
+}
+
+reject_prob_plot <- create_visualizer(
+  .viz_fun = reject_prob_plot_fun, .name = "Rejection Prob. (alpha = 0.1) Plot"
+)
+
+# update power plot to work for vector-valued vary_params
+power_plot_fun <- function(fit_results, vary_params = NULL, col = "X1") {
+  if (is.list(fit_results[[vary_params]])) {
+    # deal with the case when we vary across a parameter that is vector-valued
+    fit_results[[vary_params]] <- list_col_to_chr(
+      fit_results[[vary_params]], name = vary_params, verbatim = TRUE
+    )
+  }
   plt <- ggplot2::ggplot(fit_results) +
     ggplot2::aes(x = .data[[paste(col, "p-value")]],
                  color = as.factor(.method_name)) +
@@ -408,85 +692,45 @@ power_plot_fun <- function(fit_results, vary_params = NULL, col = "X1") {
   }
   return(plt)
 }
-power_plot <- create_visualizer(.viz_fun = power_plot_fun)
 
-```
+power_plot <- create_visualizer(.viz_fun = power_plot_fun, .name = "Power")
 
-Here, we have also added a pre-processing step to deal with the potential case when we vary across a *list* of parameter values. This pre-processing step uses a helper function, `list_col_to_chr()`, to convert a list-type tibble column to a character-type tibble column that is amenable for plotting (unlike the list-type column).
-
-Now, we are ready to update our experiment and run the experiment via
-```{r vary6}
-vary_results <- experiment %>%
-  update_evaluator(reject_prob_eval, name = "Rejection Prob. (alpha = 0.1)") %>%
-  update_visualizer(power_plot, name = "Power") %>%
-  run_experiment(n_reps = 10, save = TRUE)
-vary_results$eval_results
-vary_results$viz_results
-```
-
-Note here we need to use `update_*` instead of `add_*` since an `Evaluator` named "Rejection Prob. (alpha = 0.1)" and a `Visualizer` named "Power" already exist in the  `Experiment`. Using `add_*` will throw an error.
-
-For fun, let's add another plot (in fact, an interactive plot using `plotly::ggplotly`) to our `Experiment` and run the `Experiment` across various values of the coefficient $\boldsymbol{\beta}_2$ and the correlation $\rho$ between features in $\mathbf{X}$. (Note: the visualizer function below (`reject_prob_plot_fun`) takes in the `Evaluator` results, stored as `eval_results`, and plots the rejection probability for the $\boldsymbol{\beta}_1$ at $\alpha = 0.1$.)
-
-```{r vary7}
-# create rejection probability plot
-reject_prob_plot_fun <- function(eval_results, vary_params = NULL,
-                                 alpha = 0.05) {
-  eval_results <- eval_results$`Rejection Prob. (alpha = 0.1)`
-  if (is.list(eval_results[[vary_params]])) {
-    # deal with the case when we vary across a parameter that is vector-valued
-    eval_results[[vary_params]] <- list_col_to_chr(eval_results[[vary_params]],
-                                                   name = vary_params,
-                                                   verbatim = TRUE)
-  }
-  plt <- ggplot2::ggplot(eval_results) +
-    ggplot2::aes(x = .data[[vary_params]], y = `X1 Reject Prob.`,
-                 color = as.factor(.method_name),
-                 fill = as.factor(.method_name)) +
-    ggplot2::labs(x = vary_params,
-                  y = sprintf("Rejection Probability (alpha = %s)", alpha),
-                  color = "Method", fill = "Method") +
-    ggplot2::scale_y_continuous(limits = c(0, 1))
-  if (is.numeric(eval_results[[vary_params]])) {
-    plt <- plt +
-      ggplot2::geom_line() +
-      ggplot2::geom_point(size = 2)
-  } else {
-    plt <- plt +
-      ggplot2::geom_bar(stat = "identity")
-  }
-  return(plotly::ggplotly(plt))
-}
-reject_prob_plot <- create_visualizer(.viz_fun = reject_prob_plot_fun, alpha = 0.1)
-
+# update experiment
 experiment <- experiment %>%
-  add_visualizer(reject_prob_plot, name = "Rejection Prob. (alpha = 0.1) Plot")
+  update_visualizer(power_plot, name = "Power") %>%
+  add_visualizer(reject_prob_plot)
+```
 
-# run experiment across values of beta_2
+```{r run-more-experiments}
+# (a) run experiment across varying values of beta_2
 vary_beta2_results <- experiment %>%
   remove_vary_across(dgp = "Linear Gaussian DGP") %>%
-  add_vary_across(.dgp = "Linear Gaussian DGP",
-                  beta = list(c(1, 0),
-                              c(1, 0.5),
-                              c(1, 1),
-                              c(1, 1.5),
-                              c(1, 2))) %>%
+  add_vary_across(
+    .dgp = "Linear Gaussian DGP",
+    beta = list(
+      c(1, 0),
+      c(1, 0.5),
+      c(1, 1),
+      c(1, 1.5),
+      c(1, 2)
+    )
+  ) %>%
   run_experiment(n_reps = 10, save = TRUE)
 
-# run experiment across values of rho (correlation)
+# (b) run experiment across varying values of rho (correlation)
 vary_cor_results <- experiment %>%
   remove_vary_across(dgp = "Linear Gaussian DGP") %>%
-  add_vary_across(.dgp = "Linear Gaussian DGP",
-                  rho = c(0, 0.2, 0.5, 0.9)) %>%
+  add_vary_across(.dgp = "Linear Gaussian DGP", rho = c(0, 0.2, 0.5, 0.9)) %>%
   run_experiment(n_reps = 10, save = TRUE)
 ```
-Now when generating the R Markdown report summary for an `Experiment`, the R Markdown will compile results (both evaluation and visualization results) from all saved `Experiments` under the root results directory `experiment$get_save_dir()`. Since the results from the many `vary_across` runs above are all saved under the original `experiment`'s results directory, then the following will include all of the above results in a single document.
 
-```{r render_docs2, warning = FALSE}
+Rather than printing all results from these experiment runs here, let's generate the R Markdown report summary:
+
+```{r render-docs-2, warning = FALSE, message = FALSE}
 render_docs(experiment)
 ```
 
-```{r cp_html2, echo = FALSE, warning = FALSE, message = FALSE, results = "hide"}
+```{r cp-html-2, echo = FALSE, warning = FALSE, message = FALSE, results = "hide"}
 # copy html output to pkgdown/assets directory for website
 file.copy(from = file.path(experiment$get_save_dir(),
                            paste0(experiment$name, ".html")),
@@ -494,22 +738,17 @@ file.copy(from = file.path(experiment$get_save_dir(),
           overwrite = TRUE)
 ```
 
-Equivalently, we can create the same R Markdown report summary by directly specifying the experiment's root results directory.
-
-```{r eval = FALSE}
-render_docs(save_dir = experiment$get_save_dir())
-```
-
-
 The results can be found [here](../linear_regression_output.html).
 
-In addition to showing all results under the root results directory, `render_docs()` will automatically generate a blank documentation template for every `DGP()`, `Method()`, `Evaluator()`, and `Visualizer()` found in any one of the `Experiments` under the root results directory. If one would like to generate the documentation template but not create the R Markdown report, see `init_docs()`.
+# Simulation experiment templates and library
 
-# Simulation Experiment Templates
+In addition to the grammar of simulation experiments, `simChef` also offers a growing built-in library of composable building blocks and templates to meet common simulation needs.
 
-We have also provided boilerplate code templates for running common *types* of simulation experiments, namely, those focused on prediction (regression and classification), feature selection, or inference. These templates provide (1) a quick starting point with Evaluators and Visualizers that are commonly used for the specified type of simulation experiment and (2) a concrete example of how to get started using functions from the `simChef` library.
+## Boilerplate code templates
 
-Currently, we have implemented the following templates:
+In particular, we have created boilerplate code templates for running common types of simulation experiments, namely, those focused on prediction (regression and classification), feature selection, and inference. These templates provide (1) a quick starting point with Evaluators and Visualizers that are commonly used for the specified type of simulation experiment and (2) a concrete example of how to get started using functions from the `simChef` library.
+
+In particular, we have implemented the following templates:
 
 - `use_prediction_template(type = "regression")`
 - `use_prediction_template(type = "classification")`
@@ -518,121 +757,127 @@ Currently, we have implemented the following templates:
 
 These functions will print out code to the console that can be easily copied and/or run. For example,
 
-```{r templates1}
+```{r prediction-template}
 use_prediction_template(type = "regression")
 ```
 
 For more guidance, we can also include concrete examples of a DGP and Method via:
 
-```{r templates2}
-use_prediction_template(type = "regression",
-                        include_dgp_example = TRUE,
-                        include_method_example = TRUE)
+```{r prediction-template-with-examples}
+use_prediction_template(
+  type = "regression", include_dgp_example = TRUE, include_method_example = TRUE
+)
 ```
 
-# Additional notes and usage
+A complete list of boilerplate templates can be found [here](https://yu-group.github.io/simChef/reference/index.html#boilerplate-templates).
 
-## The Experiment R6 Class
+## Library of DGPs, Evaluators, and Visualizers
 
-It is important to note that the `Experiment()` class is an `R6`. With this, we need to be careful about clones versus pointers. In the following, it may look like the `vary_experiment` object has a `vary_across` component while the `experiment` object does not have a `vary_across` component. However, when `experiment` is piped into `add_vary_across()`, this is in itself modifying `experiment`, and `vary_experiment` is simply pointing to this modified `experiment`.
+Beyond these templates, there is also a growing library of built-in evaluation metrics, visualization utilities, and other helper developer functions within `simChef`. 
+These built-in functions can sometimes greatly reduce the amount of user-written code in Step 1 (from Section \@ref(basic-example-usage)).
+For more information on available functions in this built-in library, please see the following:
 
-```{r notes1}
-experiment <- experiment %>%
-  remove_vary_across(dgp = "Linear Gaussian DGP")
-experiment
-vary_experiment <- experiment %>%
-  add_vary_across(.dgp = "Linear Gaussian DGP", sigma = c(1, 2, 4, 8))
-all.equal(vary_experiment, experiment)
-data.table::address(experiment) == data.table::address(vary_experiment)
-experiment
+- [Evaluator library](https://yu-group.github.io/simChef/reference/index.html#evaluator-library-prediction)
+- [Visualizer library](https://yu-group.github.io/simChef/reference/index.html#visualizer-library-prediction)
+- [Developer library](https://yu-group.github.io/simChef/reference/index.html#developer-functions)
+
+A library of DGPs is in the works as part of the [`dgpoix`](https://yu-group.github.io/dgpoix/) R package (currently, in very early development stages).
+
+# Tools for faster development and computation of simulation experiments
+
+## Parallelization
+
+Given the large amount of computation that simulation studies require, one of the main goals of `simChef` is to make it easy to parallelize your simulations.
+`simChef` uses the R package [`future`](https://future.futureverse.org/) to distribute simulation replicates across whatever available resources the user specifies. 
+All you have to do to start running your simulations in parallel is set the `future` plan before calling `run_experiment()`:
+
+```{r plan-parallelization, eval = FALSE}
+n_workers <- availableCores() - 1
+plan(multisession, workers = n_workers)
 ```
 
-## Creating an experiment from another experiment
+For more information on parallelization, please refer to [Computing experimental replicates in parallel](`parallel.html`).
 
-To modify `vary_experiment` without making changes to `experiment`, we need to create `vary_experiment` as a new experiment by explicitly *cloning* from the old experiment `experiment`.
+## Caching
 
-```{r notes2}
-vary_experiment <- create_experiment(name = "I am a clone",
-                                     clone_from = experiment)
-data.table::address(experiment) == data.table::address(vary_experiment)
-```
-
-```{r notes3}
-vary_experiment
-```
-
-When creating an `Experiment` from a clone, we are making a deep clone of the parent experiment's `DGPs`, `Methods`, `Evaluators`, and `Visualizers`, but not the `vary_across` component. We thus need to add a `vary_across` component to `vary_experiment` using `add_vary_across()`.
-
-```{r notes4}
-# this works without an error
-vary_experiment <- vary_experiment %>%
-  add_vary_across(.dgp = "Linear Gaussian DGP", sigma = c(1, 2, 4, 8))
-```
-
-We can also add/update DGPs, Methods, Evaluators, and Visualizers to the cloned experiment without modifying the parent `experiment`.
-
-```{r notes5}
-# add DGP
-dgp_new <- create_dgp(.dgp_fun = dgp_fun, .name = "Linear Gaussian DGP (large n)",
-                      n = 500, beta = c(1, 0), rho = 0, sigma = 1)
-vary_experiment <- vary_experiment %>%
-  add_dgp(dgp_new, "Linear Gaussian DGP (large n)")
-vary_experiment
-experiment
-```
-
-## Using cached results from an experiment
-
-To reduce computation, one may want to avoid re-running previously computed and saved components of an Experiment. This can be done by setting the argument `use_cached` to `TRUE` in `run_experiment()`. More specifically, when an Experiment is run with `use_cached = TRUE`, all previously cached results (i.e., those that have been previously saved to disk with `save = TRUE`) are loaded in and checked if their corresponding Experiment matches the configurations of the current Experiment. If the cached Experiment configurations indeed match that of the current Experiment, the cached results are used and only the uncached components of the Experiment are run.
+To reduce redundant computations, one may want to avoid re-running previously computed and saved components of an `Experiment`. 
+This can be done by setting the argument `use_cached` to `TRUE` in `run_experiment()`. 
+More specifically, when an `Experiment` is run with `use_cached = TRUE`, all previously cached results (i.e., those that have been previously saved to disk with `save = TRUE`) are loaded in and checked if their corresponding `Experiment` matches the configurations of the current `Experiment`. 
+If the cached `Experiment` configurations match that of the current `Experiment`, the cached results are used and only the uncached components of the `Experiment` are run.
 
 As an example, let us run the following experiment and save its results.
 
-```{r caching1}
-orig_results <- experiment$run(n_reps = 10, save = TRUE)
+```{r caching-1}
+experiment <- create_experiment(name = "Linear Regression Experiment") %>%
+  add_dgp(linear_dgp) %>%
+  add_method(lm_method) %>%
+  add_evaluator(reject_prob_eval) %>%
+  add_visualizer(power_plot) %>%
+  add_visualizer(reject_prob_plot) %>%
+  add_vary_across(.dgp = "Linear Gaussian DGP", sigma = c(1, 2, 4, 8))
+
+orig_results <- run_experiment(experiment, n_reps = 10, save = TRUE)
 ```
 
-When setting `use_cached = TRUE`, the following line of code will not generate any new results but will instead simply read in the saved or cached results from disk.
+When setting `use_cached = TRUE`, the following line of code will not generate any new results but will instead read in the saved or cached results from disk.
 
-```{r caching2}
-cached_results <- experiment$run(n_reps = 10, use_cached = TRUE)
-all.equal(orig_results, cached_results)
+```{r caching-2}
+cached_results <- run_experiment(experiment, n_reps = 10, use_cached = TRUE)
+
+all.equal(cached_results, orig_results)
 ```
 
-We can also choose to read in a smaller number of the cached replicates
+We can also choose to read in a smaller number of the cached replicates,
 
-```{r caching3}
-smaller_results <- experiment$run(n_reps = 5, use_cached = TRUE)
-max(as.numeric(smaller_results$fit_results$.rep))
+```{r caching-3}
+smaller_results <- run_experiment(experiment, n_reps = 5, use_cached = TRUE)
+
+all.equal(
+  smaller_results$fit_results,
+  orig_results$fit_results %>% dplyr::filter(as.numeric(.rep) <= 5)
+)
 ```
 
-or increase the number of replicates without re-doing computation for the previously cached replicates
+or increase the number of replicates without re-doing computation for the previously cached replicates.
 
-```{r caching4}
-larger_results <- experiment$run(n_reps = 15, use_cached = TRUE)
-all.equal(orig_results$fit_results,
-          larger_results$fit_results %>% dplyr::filter(as.numeric(.rep) <= 10))
+```{r caching-4}
+larger_results <- run_experiment(experiment, n_reps = 15, use_cached = TRUE)
+
+all.equal(
+  larger_results$fit_results %>% dplyr::filter(as.numeric(.rep) <= 10),
+  orig_results$fit_results
+)
 ```
 
-In addition, caching works intuitively when adding or modifying components of an Experiment. In the following, we add a new DGP to the Experiment, so when we run the Experiment with `use_cached = TRUE`, only the replicates involving the new DGP are run while the replicates involving the old DGP (i.e., the `Linear Gaussian DGP`) are loaded in from the cache.
+In addition, caching works when adding or modifying components of an `Experiment`. 
+In the following, we add a new `DGP` to the `Experiment`.
+As a result, when we run the `Experiment` with `use_cached = TRUE`, only the replicates involving the new `DGP` are run while the replicates involving the old `DGP` (i.e., the `Linear Gaussian DGP`) are loaded in from the cache.
 
-```{r caching5}
-experiment <- experiment %>% add_dgp(dgp = dgp_new, name = "New DGP")
-new_results <- experiment$run(n_reps = 10, use_cached = TRUE)
-all.equal(new_results$fit_results %>% dplyr::filter(.dgp_name == "Linear Gaussian DGP"),
-          orig_results$fit_results)
+```{r caching-5}
+new_dgp <- create_dgp(
+  .dgp_fun = linear_dgp_fun, .name = "Linear Gaussian DGP (large n)",
+  n = 500, beta = c(1, 0), rho = 0, sigma = 1
+)
+
+experiment <- experiment %>% 
+  add_dgp(new_dgp)
+new_results <- run_experiment(experiment, n_reps = 10, use_cached = TRUE)
+
+all.equal(
+  new_results$fit_results %>% dplyr::filter(.dgp_name == "Linear Gaussian DGP"),
+  orig_results$fit_results
+)
 ```
 
-Note that since we did not save the Experiment results above, then the following will re-run the replicates corresponding to the new DGP as above. Please set `save = TRUE` in order to cache the results for future use.
+Note that since we did not save the `Experiment` results above, then the following will recompute the replicates corresponding to the new `DGP`. Please set `save = TRUE` in order to cache the results for future use.
 
-```{r caching6}
-new_results2 <- experiment$run(n_reps = 10, use_cached = TRUE)
-identical(new_results$fit_results %>% dplyr::filter(.dgp_name == "New DGP"),
-          new_results2$fit_results %>% dplyr::filter(.dgp_name == "New DGP"))
+```{r caching-6}
+new_results2 <- run_experiment(experiment, n_reps = 10, use_cached = TRUE)
 ```
 
-Some helpful functions regarding caching include:
+Some other helpful functions regarding caching include:
 
-```{r caching7}
+```{r caching-7}
 # to load in the cached fit results for an experiment
 fit_results <- get_cached_results(experiment, "fit")
 # to load in the cached evaluation results for an experiment
@@ -648,127 +893,313 @@ cached_exp_params <- get_cached_results(experiment, "experiment_cached_params")
 clear_cache(experiment)
 ```
 
-## Using checkpoints within an experiment
+## Checkpointing
 
 A checkpoint is a periodic snapshot of the simulation results, saved to disk.
-Checkpoints help guard against lost progress in the case of unexpected problems,
-such as node failures when running on a cluster, at the cost of longer
-simulation running times. Checkpoints are most useful for long-running
-simulations where the cost of creating the checkpoints is small relative to the
-total cost of the simulation. As a result, users should be careful not to create
-checkpoints more often than necessary.
+Checkpoints help guard against lost progress in the case of unexpected problems, such as node failures when running on a cluster, at the cost of longer simulation running times. 
+Checkpoints are most useful for long-running simulations where the cost of creating the checkpoints is small relative to the total cost of the simulation. 
+As a result, users should be careful not to create checkpoints more often than necessary.
 
-To enable checkpointing, use a positive value for the argument
-`checkpoint_n_reps` passed to `Experiment$run()` or `Experiment$fit()`. Below is
-an example simulation run in which we use checkpointing and encounter errors as
-the simulation progresses past the first checkpoint:
+To enable checkpointing, use a positive value for the argument `checkpoint_n_reps` passed to `run_experiment()`. 
+Below is an artificial example in which we use checkpointing and encounter errors as the simulation progresses past the first checkpoint:
 
-```{r, eval=FALSE}
-# create a new experiment
-experiment <- create_experiment(name = "checkpoint-exper") %>%
-  ... # add dgps, methods, etc.
+```{r checkpoint-1, error = TRUE}
+counter <- 0
 
-# run 100 reps of the experiment, checkpointing every 25 reps
-experiment$fit(n_reps = 100, checkpoint_n_reps = 25)
-#> Fitting checkpoint-exper...
-#> 25 reps completed (totals: 25/100) | time taken: 0.060645 minutes
-#> Saving fit results checkpoint...
-#> Fit results saved | time taken: 0.080968 seconds
+# a DGP which returns an error on its 26th call (i.e., when counter hits 26)
+checkpoint_dgp_fun <- function() {
+  counter <<- counter + 1
+  if (counter == 26) stop("Unexpected error!")
+  return("data")
+}
+checkpoint_dgp <- create_dgp(checkpoint_dgp_fun, .name = "Checkpoint DGP")
 
-# the simulation fails here!
+# a toy Method
+checkpoint_method_fun <- function(...) return("result")
+checkpoint_method <- create_method(checkpoint_method_fun, .name = "Method")
+
+# create checkpoint experiment
+checkpoint_experiment <- create_experiment(name = "checkpoint-exper") %>%
+  add_dgp(checkpoint_dgp) %>%
+  add_method(checkpoint_method)
+
+# run 100 reps, checkpointing every 25 reps, though it should return an error
+checkpoint_results <- run_experiment(
+  checkpoint_experiment, n_reps = 100, checkpoint_n_reps = 25
+)
 ```
 
-Since a full 25 replicates completed before the simulation failed, the first
-checkpoint was successful. You can use `get_cached_results(experiment, "fit")`
-to examine the completed replicates, or simply continue the simulation using the
-same code you already ran:
+Since a full 25 replicates completed before the simulation failed, the first checkpoint was successful. 
+You can use `get_cached_results(checkpoint_experiment, "fit")` to examine the completed replicates, or simply continue the simulation using the same code you already ran (since the error will not be returned again by design).
 
-```{r, eval=FALSE}
-experiment$fit(n_reps = 100, checkpoint_n_reps = 25)
-#> Reading in cached fit results...
-#> Fitting checkpoint-exper...
-#> 25 reps completed (totals: 50/100) | time taken: 0.066513 minutes
-#> Saving fit results checkpoint...
-#> Fit results saved | time taken: 0.133003 seconds
-#> 25 reps completed (totals: 75/100) | time taken: 0.125143 minutes
-#> Saving fit results checkpoint...
-#> Fit results saved | time taken: 0.107203 seconds
-#> 25 reps completed (totals: 100/100) | time taken: 0.184656 minutes
-#> Saving fit results...
-#> Fit results saved | time taken: 0.124632 seconds
-#> ==============================
+```{r checkpoint-2}
+checkpoint_results <- run_experiment(
+  checkpoint_experiment, n_reps = 100, checkpoint_n_reps = 25
+)
 ```
 
 
-## Setting global plotting theme for built-in `Visualizers`
+## Error debugging
 
-By default, all `Visualizers` in the built-in `simChef` library use the default `ggplot` theme when plotting. To modify this plotting theme (for all built-in `Visualizers` and any `Visualizer` built upon `plot_eval_constructor()`), one can change the `simChef.plot_theme` global option.
+In the event of an error, `simChef` makes it possible to both retrieve results from completed replicates (before the error occurred) and to gracefully debug errors in user-defined functions. For the sake of demonstration, let us create an artificial example.
 
-In particular, to use the [vthemes](https://yu-group.github.io/vthemes/) plotting theme:
+```{r debug-1, error = TRUE}
+# create experiment
+dgp_fun <- function() return("data")
+dgp_fun_err <- function() { stop("Uh oh!") }
+dgp <- create_dgp(dgp_fun, .name = "Working DGP")
+dgp_err <- create_dgp(dgp_fun_err, .name = "Buggy DGP")
+method_fun <- function(x) return("result")
+method <- create_method(method_fun, .name = "Method")
+buggy_experiment <- create_experiment(name = "debugging-exper") %>%
+  add_dgp(dgp) %>%
+  add_dgp(dgp_err) %>%
+  add_method(method)
 
-```{r eval = FALSE}
-options(simChef.plot_theme = "vthemes")  # to use the vthemes plotting theme
+# run experiment though it should return an error
+results <- run_experiment(buggy_experiment, n_reps = 2)
 ```
 
-More generally, one can specify any `ggplot::theme()` object.
+If working interactively, the error can be inspected using the usual call to `rlang::last_error()`. Results that were run and completed before the error can be recovered via `rlang::last_error()$partial_results` and you can find errors that occurred within the simulation loop via `rlang::last_error()$errors`.
 
-```{r eval = FALSE}
-options(simChef.plot_theme = ggplot2::theme_minimal())
+Alternatively, we can wrap the call that ran the error (in this case, `run_experiment()`) in `tryCatch()` as follows:
+
+```{r debug-2, error = TRUE}
+results <- tryCatch(
+  run_experiment(buggy_experiment, n_reps = 2),
+  error = identity
+)
+results
+```
+
+From this, we can view the results that were completed before we ran into the error via
+
+```{r debug-3}
+results$partial_results
+```
+
+and extract the error object(s) via
+
+```{r debug-4}
+results$errors
+```
+
+Note that the error tibble contains the `DGP` and `Method` (if the `DGP` was not the error cause) that were being processed when the error occurred in the `.dgp` and `.method` columns, respectively. 
+The corresponding input parameters are in the `.dgp_params` and `.method_params` columns (both `NA` here since no parameters were varied in the experiment). 
+Finally, the captured error itself is in the `.err` column. 
+Using this, we can easily investigate and reproduce the error and if desired, work directly with the user-specified function that raised the error, e.g.,
+
+```{r debug5, error = TRUE}
+# get dgp that ran the error
+err_fun <- results$errors$.dgp[[1]]$dgp_fun
+# reproduce error via a direct call to the DGP function that raised the error
+err_fun()
 ```
 
 
-## Additional R Markdown notes and options
+# R Markdown documentation
 
-There are several customizable options regarding the aesthetics of Evaluators and Visualizers displayed in the Rmd report. These can be modified using the `doc_options` argument in `create_evaluator()` and `create_visualizer()`. For example, we can customize the height and width of the Power plot via
-```{r rmd_notes1}
-power_plot <- create_visualizer(.viz_fun = power_plot_fun,
-                                .doc_options = list(height = 10, width = 8))
+One of the key features of `simChef` is the ease of generating an R Markdown report via `render_docs()` as shown below. This automated documentation gathers the scientific details, summary tables, and plots side-by-side with the user's custom source code and parameters for DGPs, methods, evaluation metrics, and visualization procedures.
+
+```{r rmd-1, eval = FALSE}
+render_docs(experiment)
+```
+
+To be more precise, this call to `render_docs(experiment)` will compile the documentation and results (both evaluation and visualization results) from all saved `Experiments` under the experiment's root results directory (specified by `get_save_dir(experiment)`).
+
+Equivalently, we can create the same R Markdown report summary by directly specifying the experiment's root results directory.
+
+```{r rmd-2, eval = FALSE}
+render_docs(save_dir = get_save_dir(experiment))
+```
+
+## Customizing document options for Evaluators and Visualizers
+
+There are several options to customize the aesthetics of `Evaluators` and `Visualizers` displayed in the R Markdown report.
+These can be set using the `.doc_options` argument in `create_evaluator()` and `create_visualizer()`. 
+For example, we can customize the height and width of the Power plot via
+
+```{r rmd-doc-options-1}
+power_plot <- create_visualizer(
+  .viz_fun = power_plot_fun, .name = "Power",
+  .doc_options = list(height = 10, width = 8)
+)
 experiment <- experiment %>%
-  update_visualizer(power_plot, "Power")
+  update_visualizer(power_plot, name = "Power")
 ```
 
 and the number of digits in the evaluation table outputs via
-```{r rmd_notes2}
-reject_prob_eval <- create_evaluator(.eval_fun = reject_prob_fun, alpha = 0.1,
-                                     .doc_options = list(digits = 3))
+
+```{r rmd-doc-options-2}
+reject_prob_eval <- create_evaluator(
+  .eval_fun = reject_prob_fun, .name = "Rejection Prob. (alpha = 0.1)",
+  alpha = 0.1, .doc_options = list(digits = 3)
+)
 experiment <- experiment %>%
-  update_evaluator(reject_prob_eval, "Rejection Prob. (alpha = 0.1)")
+  update_evaluator(reject_prob_eval, name = "Rejection Prob. (alpha = 0.1)")
 ```
 
-Alternatively, `set_doc_options()` can be used to update the R Markdown option for an existing object, rather than having to recreate the `Evaluator()` or `Visualizer()` from scratch, e.g.,
-```{r rmd_notes3}
+Alternatively, `set_doc_options()` can be used to update the R Markdown option for an existing object, e.g.,
+
+```{r rmd-doc-options-3}
 experiment <- experiment %>%
-  set_doc_options(field_name = "visualizer", name = "Power", show = TRUE,
-                  height = 10, width = 8)
+  set_doc_options(
+    field_name = "visualizer", name = "Power", height = 10, width = 8
+  )
 save_experiment(experiment)
 ```
 
-To hide the output of an `Evaluator()` or `Visualizer()` in the R Markdown report, set `show = FALSE` in `set_doc_options()` or `create_*`. 
+To hide the output of an `Evaluator` or `Visualizer` in the R Markdown report, use `set_doc_options(show = FALSE, ...)` or `create_*(.doc_show = FALSE, ...)`.
 Note that if document options are set after running the experiment, the experiment must be manually saved via `save_experiment(experiment)` in order for these changes to appear in the R Markdown output.
 
-There are additional customization options that can be set in `render_docs()` including the order in which results of Evaluators and Visualizers are displayed (via the `eval_order` and `viz_order` arguments) and the Rmd output type or theme. For example,
+## Customizing aesthetics of R Markdown documentation
 
-```{r eval = FALSE}
+There are additional customization options that can be set in `render_docs()` including the order in which results of `Evaluators` and `Visualizers` are displayed (via the `eval_order` and `viz_order` arguments) and the R Markdown output type or theme. For example,
+
+```{r rmd-custom-options-1, eval = FALSE}
 # use html_document instead of vthemes::vmodern (default)
-render_docs(experiment,
-            output_format = rmarkdown::html_document())
+render_docs(experiment, output_format = rmarkdown::html_document())
 
 # add custom css style
-render_docs(experiment,
-            output_options = list(css = "path/to/file.css"))
+render_docs(experiment, output_options = list(css = "path/to/file.css"))
+```
+
+To modify the R Markdown file directly, set `write_rmd = TRUE` in `render_docs()`:
+
+```{r rmd-custom-options-2, eval = FALSE}
+render_docs(experiment, write_rmd = TRUE)
+```
+
+This will write/save the raw R Markdown file used to generate the automated `simChef` documentation to your disk. 
+The file can be found in the experiment's root results directory (specified by `get_save_dir(experiment)`) and can be directly modified to your liking.
+
+
+# Additional notes and usage
+
+## The Experiment R6 class
+
+It is important to note that the `Experiment` class is an `R6`. 
+With this, we need to be careful about clones versus pointers. 
+In the following, it may look like the `new_experiment` object has a `vary_across` component while the `old_experiment` object does not have a `vary_across` component. 
+However, due to the use of the `R6` class, when `old_experiment` is piped into `add_vary_across()`, this is in itself modifying `old_experiment`, and `new_experiment` is simply pointing to this modified `old_experiment`.
+
+```{r notes-1}
+old_experiment <- create_experiment(name = "Old Experiment") %>%
+  add_dgp(linear_dgp) %>%
+  add_method(lm_method) %>%
+  add_evaluator(reject_prob_eval) %>%
+  add_visualizer(power_plot)
+old_experiment
+
+new_experiment <- old_experiment %>%
+  add_vary_across(.dgp = "Linear Gaussian DGP", sigma = c(1, 2, 4, 8))
+old_experiment
+
+all.equal(new_experiment, old_experiment)
+data.table::address(new_experiment) == data.table::address(old_experiment)
+```
+
+## Creating an experiment from another experiment
+
+To modify `new_experiment` without changing `old_experiment`, we need to create `new_experiment` as a *clone* of the `old_experiment` as follows:
+
+```{r notes-2}
+new_experiment <- create_experiment(
+  name = "I am a clone", clone_from = old_experiment
+)
+
+data.table::address(new_experiment) == data.table::address(old_experiment)
+new_experiment
+```
+
+When creating an `Experiment` from a clone, we are making a deep clone of the parent experiment's `DGPs`, `Methods`, `Evaluators`, and `Visualizers`, but not the `vary_across` component. 
+Thus, if we want a `vary_across` component in `new_experiment`, we must add this `vary_across` component ourselves:
+
+```{r notes-3}
+new_experiment <- new_experiment %>%
+  add_vary_across(.dgp = "Linear Gaussian DGP", sigma = c(1, 2, 4, 8))
+```
+
+We can also add/update DGPs, Methods, Evaluators, and Visualizers to the cloned experiment without modifying the parent `old_experiment`.
+
+```{r notes-4}
+# add DGP
+new_dgp <- create_dgp(
+  .dgp_fun = linear_dgp_fun, .name = "Linear Gaussian DGP (large n)",
+  n = 500, beta = c(1, 0), rho = 0, sigma = 1
+)
+new_experiment <- new_experiment %>%
+  add_dgp(new_dgp)
+
+new_experiment
+old_experiment
+```
+
+
+## Additional handling of the experiment
+
+`run_experiment()` is the easiest and most concise way of running the simulation experiment from start to finish. 
+However, when debugging and developing the simulation experiment, it may be helpful to run only parts of the experiment so as to not repeat time-consuming, redundant computations. 
+As discussed in Section \@ref(a-tidy-grammar-for-simulation-experiments), `run_experiment()` is a wrapper around `fit_experiment()`, `evaluate_experiment()`, and `visualize_experiment()`.
+Although generally not necessary, sometimes it can be helpful to call each of these functions separately:
+
+```{r handling-1}
+fit_results <- fit_experiment(experiment, n_reps = 10)
+eval_results <- evaluate_experiment(experiment, fit_results)
+viz_results <- visualize_experiment(experiment, fit_results, eval_results)
+```
+
+Similarly, although it is not usually necessary, there may be some instances (e.g., for exploratory data analysis or further diagnosis of the experiment results), in which one would like to generate small samples of data from the `DGPs` in the experiment via
+
+```{r handling-2}
+data_list <- generate_data(experiment, n_reps = 1)
+str(data_list)
+```
+
+It may also be helpful to work with individual `DGP`, `Method`, `Evaluator`, and `Visualizer` objects outside of running an `Experiment`. This can be done by leveraging the verbs and grammar laid out in Section \@ref(a-tidy-grammar-for-simulation-experiments). The API is as follows:
+
+```{r handling-3, eval = FALSE}
+data_list <- DGP$generate()
+method_results <- Method$fit(data_list = data_list)
+eval_results <- Evaluator$evaluate(
+  fit_results = fit_results, 
+  vary_params = vary_params
+)
+viz_results <- Visualizer$visualize(
+  fit_results = fit_results, 
+  eval_results = eval_results, 
+  vary_params = vary_params
+)
+```
+
+Here, `fit_results` is the output of `fit_experiment()`, `eval_results` is the output of `evaluate_experiment()`, and `vary_params` is a character vector of the parameter names that are being varied in the experiment.
+
+Other helpful methods for handling the experiment include the `get_*` family of methods, i.e.,
+
+```{r handling-4}
+get_dgps(experiment)
+get_methods(experiment)
+get_evaluators(experiment)
+get_visualizers(experiment)
+get_vary_across(experiment)
+```
+
+```{r handling-5, results = "hide"}
+get_save_dir(experiment)
+#> [1] "./results/Linear Regression Experiment"
 ```
 
 ## Saving results
 
 Since the R Markdown report heavily relies on the results file structure to organize the report summary, it may be helpful to understand the default saving structure utilized in `simChef`.
 
-By default, the root results directory is ./results/\{EXPERIMENT_NAME\}. If the experiment was created by cloning another experiment, then the default results directory is the same as the parent experiment. To change the root results directory, one can specify the desired directory via the `save_dir` argument in `create_experiment()` or use the `set_save_dir()` helper function.
+By default, the experiment's root results directory is ./results/\{EXPERIMENT_NAME\}. To change the root results directory, one can specify the desired directory via the `save_dir` argument in `create_experiment()` or use the `set_save_dir()` helper function.
 
-All results from `experiment$run(..., save = TRUE)` without a `vary_across` component are then saved under the root results directory. If `experiment` has a `vary_across` component, then the results of `experiment$run(..., save = TRUE)` are saved under ./\{ROOT_RESULTS_DIR\}/\{DGP_OR_METHOD_NAME\}/Varying \{PARAM_NAME\}/.
+All results from `run_experiment(experiment, ..., save = TRUE)` without a `vary_across` component are then saved under the root results directory. If `experiment` has a `vary_across` component, then the results of `run_experiment(experiment, ..., save = TRUE)` are saved under ./\{ROOT_RESULTS_DIR\}/\{DGP_OR_METHOD_NAME\}/Varying \{PARAM_NAME\}/.
 
 Here's the directory tree of the "Linear Regression Experiment" example:
 
-```{r, eval = FALSE}
+```{r file-str, eval = FALSE}
 fs::dir_tree(get_save_dir(experiment))
 #> results
 #> ├── Linear Gaussian DGP
@@ -808,103 +1239,15 @@ fs::dir_tree(get_save_dir(experiment))
 #> └── viz_results.rds
 ```
 
-## Additional handling of the experiment
+## Simulation directory template
 
-`Experiment$run()` is the easiest and most concise way of running the simulation experiment from start to finish. However, when debugging and developing the simulation experiment, it may be helpful to run only parts of the experiment so as to not repeat time-consuming, redundant computations. We split up the experimental run into the following three parts:
+To help with onboarding and setting up your simulation study, we have provided a helper function `create_sim()`.
 
-1. `experiment$fit()`: fit the Method(s) in the experiment on multiple replicates of the DGP(s) and return the results from the fits
-2. `experiment$evaluate()`: evaluate the experiment through the Evaluator(s) and return the evaluation results
-3. `experiment$visualize()`: create visualizations of the fit/evaluation results from the experiment using the Visualizer(s) and return the visualization results
-
-```{r handling1}
-fit_results <- experiment$fit(n_reps = 10)
-eval_results <- experiment$evaluate(fit_results)
-viz_results <- experiment$visualize(fit_results, eval_results)
+```{r create-sim, eval = FALSE}
+create_sim(path = "path/to/sim/dir")
 ```
 
-or alternatively,
+`create_sim()` initializes a ready-to-use directory for your `simChef` simulation study.
+For more information and other best practices to improve reproducibility and replicability of your simulation study, please checkout [Setting up your simulation study](`simulation-directory-setup.html`).
 
-```{r eval = FALSE}
-fit_results <- fit_experiment(experiment, n_reps = 10)
-eval_results <- evaluate_experiment(experiment, fit_results)
-viz_results <- visualize_experiment(experiment, fit_results, eval_results)
-```
-
-`Experiment$run()` is simply a wrapper around these three functions: `fit()`, `evaluate()`, and `visualize()`.
-
-Thus far, we have neither stored nor returned any data from the `DGPs` since these can be large objects that require high memory loads when `n_reps` is large. However, one can generate small samples of data from the `DGPs` in the experiment via
-
-```{r handling2}
-data_list <- experiment$generate_data(n_reps = 1)
-str(data_list)
-```
-
-or alternatively,
-
-```{r eval = FALSE}
-data_list <- generate_data(experiment, n_reps = 1)
-```
-
-This might be helpful for exploratory data analysis or further diagnosis of the experiment results.
-
-Other helpful methods for handling the experiment include the `get_*` family of methods, i.e.,
-```{r handling3}
-get_dgps(experiment)         # or `experiment$get_dgps()`
-get_methods(experiment)      # or `experiment$get_methods()`
-get_evaluators(experiment)   # or `experiment$get_evaluators()`
-get_visualizers(experiment)  # or `experiment$get_visualizers()`
-get_vary_across(experiment)  # or `experiment$get_vary_across()`
-```
-
-```{r handling4, results = "hide"}
-get_save_dir(experiment)     # or `experiment$get_save_dir()`
-#> [1] "./results/Linear Regression Experiment"
-```
-
-## Error debugging
-
-In the event of an error, `simChef` makes it possible to both retrieve results from completed replicates (before the error occurred) and to gracefully debug errors in user-defined functions. For the sake of demonstration, let us create an artificial example.
-
-```{r debug1, error = TRUE}
-# create experiment
-dgp_fun <- function() return("data")
-dgp_fun_err <- function() { stop("Uh oh!") }
-dgp <- create_dgp(dgp_fun)
-dgp_err <- create_dgp(dgp_fun_err)
-method_fun <- function(x) return("result")
-method <- create_method(method_fun)
-experiment <- create_experiment(
-  dgp_list = list("Working DGP" = dgp, "Buggy DGP" = dgp_err),
-  method_list = list("Method" = method)
-)
-
-# run experiment though it should return an error
-results <- run_experiment(experiment, n_reps = 2)
-```
-
-If working interactively, the error can be inspected using the usual call to `rlang::last_error()`. Results that were run and completed before the error can be recovered via `rlang::last_error()$partial_results` and you can find errors that occurred within the simulation loop via `rlang::last_error()$errors`.
-
-Alternatively, we can wrap the call that ran the error (in this case, `run_experiment()`) in `tryCatch()` as follows:
-```{r debug2, error = TRUE}
-results <- tryCatch(run_experiment(experiment, n_reps = 2),
-                    error = identity)
-results
-```
-
-From this, we can view the results that were completed before we ran into the error via
-```{r debug3}
-results$partial_results
-```
-and extract the error object(s) via
-```{r debug4}
-results$errors
-```
-
-Note that the error tibble contains the `DGP` and `Method` (if the `DGP` was not the error cause) that were being processed when the error occurred in the `.dgp` and `.method` columns, respectively. The corresponding input parameters are in the `.dgp_params` and `.method_params` columns (both `NA` here since no parameters were varied in the experiment). Finally, the captured error itself is in the `.err` column. Using this, we can easily investigate and reproduce the error and if desired, work directly with the user-specified function that raised the error, e.g.,
-
-```{r debug5, error = TRUE}
-# get dgp that ran the error
-err_fun <- results$errors$.dgp[[1]]$dgp_fun
-# reproduce error via a direct call to the DGP function that raised the error
-err_fun()
-```
+# References
