@@ -48,7 +48,9 @@
 <li class="nav-item dropdown">
   <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
+    <a class="dropdown-item" href="articles/cheat-sheet.html">Cheat sheet: Inputs/outputs for user-defined functions</a>
     <a class="dropdown-item" href="articles/parallel.html">Computing experimental replicates in parallel</a>
+    <a class="dropdown-item" href="articles/simChef-full.html">simChef: A comprehensive guide</a>
     <a class="dropdown-item" href="articles/simulation-directory-setup.html">Setting Up Your Simulation Study</a>
   </div>
 </li>
@@ -86,6 +88,8 @@
 <span>  <span class="fu"><a href="reference/add_funs.html">add_dgp</a></span><span class="op">(</span><span class="va">dgp1</span><span class="op">)</span> <span class="op"><a href="reference/pipe.html">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="reference/add_funs.html">add_dgp</a></span><span class="op">(</span><span class="va">dgp2</span><span class="op">)</span> <span class="op"><a href="reference/pipe.html">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="reference/add_funs.html">add_method</a></span><span class="op">(</span><span class="va">method1</span><span class="op">)</span> <span class="op"><a href="reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="reference/add_funs.html">add_evaluator</a></span><span class="op">(</span><span class="va">evaluator1</span><span class="op">)</span> <span class="op"><a href="reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="reference/add_funs.html">add_visualizer</a></span><span class="op">(</span><span class="va">visualizer1</span><span class="op">)</span> <span class="op"><a href="reference/pipe.html">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="reference/vary_across.html">add_vary_across</a></span><span class="op">(</span></span>
 <span>    dgp <span class="op">=</span> <span class="va">dgp1</span>,</span>
 <span>    n <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">100</span>, <span class="fl">1000</span>, <span class="fl">10000</span><span class="op">)</span></span>
@@ -96,7 +100,7 @@
 <span>  <span class="op">)</span></span>
 <span></span>
 <span><span class="va">results</span> <span class="op">&lt;-</span> <span class="va">experiment</span> <span class="op"><a href="reference/pipe.html">%&gt;%</a></span></span>
-<span>  <span class="fu"><a href="reference/run_experiment.html">run_experiment</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<span>  <span class="fu"><a href="reference/run_experiment.html">run_experiment</a></span><span class="op">(</span>n_reps <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span></code></pre></div>
 <div class="section level3">
 <h3 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h3>

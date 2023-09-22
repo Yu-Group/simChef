@@ -2,10 +2,12 @@ pandoc: 2.19.2
 pkgdown: 2.0.7
 pkgdown_sha: ~
 articles:
+  cheat-sheet: cheat-sheet.html
   parallel: parallel.html
+  simChef-full: simChef-full.html
   simChef: simChef.html
   simulation-directory-setup: simulation-directory-setup.html
-last_built: 2023-08-14T18:09Z
+last_built: 2023-09-22T20:53Z
 urls:
   reference: https://yu-group.github.io/simChef/reference
   article: https://yu-group.github.io/simChef/articles
