@@ -11,6 +11,8 @@ experiment <- create_experiment() %>%
   add_dgp(dgp1) %>%
   add_dgp(dgp2) %>%
   add_method(method1) %>%
+  add_evaluator(evaluator1) %>%
+  add_visualizer(visualizer1) %>%
   add_vary_across(
     dgp = dgp1,
     n = c(100, 1000, 10000)
@@ -21,7 +23,7 @@ experiment <- create_experiment() %>%
   )
 
 results <- experiment %>%
-  run_experiment()
+  run_experiment(n_reps = 100)
 ```
 
 ### Installation

@@ -6,7 +6,7 @@
 ^LICENSE\.md$
 ^\.github$
 ^vignettes/results$
-^vignettes/docs$
+^vignettes/example-docs$
 ^man-roxygen
 ^.*\.Rproj$
 ^\.Rproj\.user$
