@@ -24,7 +24,7 @@ library(simChef)
 set.seed(12345)
 ```
 
-![Overview of inputs and outputs for user-defined functions when running a `simChef` `Experiment`. Dotted boxes denote optional input arguments that are automatically passed through in a `run_experiment()` call if specified.](figures/fit_eval_viz.png){width=100%" #fig:fit-eval-viz-figure}
+![Overview of inputs and outputs for user-defined functions when running a `simChef` `Experiment`. Dotted boxes denote optional input arguments that are automatically passed through in a `run_experiment()` call if specified.](figures/fit_eval_viz.png){width="100%" #fig:fit-eval-viz-figure}
 
 ### DGP 
 
