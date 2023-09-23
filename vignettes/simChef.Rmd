@@ -259,7 +259,7 @@ At the highest level, running an experiment (via `run_experiment()`) consists of
 
 `run_experiment()` is simply a wrapper around these three functions: `fit_experiment()`, `evaluate_experiment()`, and `visualize_experiment()`.
 
-![Overview of running a `simChef` `Experiment`. The `Experiment` class handles relationships among the four classes: `DGP()`, `Method()`, `Evaluator()`, and `Visualizer()`. Experiments may have multiple `DGPs` and `Methods`, which are combined across the Cartesian product of their varying parameters (represented by *). Once computed, each `Evaluator` and `Visualizer` takes in the fitted simulation replicates, while `Visualizer` additionally receives evaluation summaries.](figures/run_experiment.png){width=100% #fig:run-experiment-figure}
+![(\#fig:run-experiment-figure) Overview of running a `simChef` `Experiment`. The `Experiment` class handles relationships among the four classes: `DGP()`, `Method()`, `Evaluator()`, and `Visualizer()`. Experiments may have multiple `DGPs` and `Methods`, which are combined across the Cartesian product of their varying parameters (represented by *). Once computed, each `Evaluator` and `Visualizer` takes in the fitted simulation replicates, while `Visualizer` additionally receives evaluation summaries.](figures/run_experiment.png){width=100%}
 
 In what follows, we will discuss fitting, evaluating, and visualizing the experiment, each in turn.
 
@@ -289,7 +289,7 @@ Finally, `fit_experiment()` returns the fitted results across all experimental r
   
 We summarize these inputs and outputs in Figure \@ref(fig:fit-experiment-figure).
 
-![Overview of fitting a `simChef` `Experiment`. Inputs and outputs for user-defined functions are also provided.](figures/fit_experiment.png){width=100% #fig:fit-experiment-figure}
+![(\#fig:fit-experiment-figure) Overview of fitting a `simChef` `Experiment`. Inputs and outputs for user-defined functions are also provided.](figures/fit_experiment.png){width=100%}
 
 ## Evaluating an experiment {-}
 
@@ -306,7 +306,7 @@ We summarize the relevant inputs and outputs below and in Figure \@ref(fig:eval-
   
 The output of `evaluate_experiment` is a named list of evaluation result tibbles, one component for each `Evaluator` in the experiment. Here, the list names correspond to the names given to each `Evaluator` in `create_evaluator(.name = ...)`, and the list elements are exactly the return value from the `Evaluator` function.
 
-![Overview of evaluating a `simChef` `Experiment`. Inputs and outputs for user-defined functions are also provided. Dotted boxes denote optional input arguments.](figures/eval_experiment.png){width=100% #fig:eval-experiment-figure}
+![(\#fig:eval-experiment-figure) Overview of evaluating a `simChef` `Experiment`. Inputs and outputs for user-defined functions are also provided. Dotted boxes denote optional input arguments.](figures/eval_experiment.png){width=100%}
 
 ## Visualizing an experiment {-}
 
@@ -324,7 +324,7 @@ We summarize the relevant inputs and outputs below and in Figure \@ref(fig:viz-e
   
 The output of `visualize_experiment` is a named list of visualizations or plots, one component for each `Visualizer` in the experiment. Here, the list names correspond to the names given to each `Visualizer` in `create_visualizer(.name = ...)`, and the list elements are exactly the return value from the `Visualizer` function.
 
-![Overview of visualizing a `simChef` `Experiment`. Inputs and outputs for user-defined functions are also provided. Dotted boxes denote optional input arguments.](figures/viz_experiment.png){width=100% #fig:viz-experiment-figure}
+![(\#fig:viz-experiment-figure) Overview of visualizing a `simChef` `Experiment`. Inputs and outputs for user-defined functions are also provided. Dotted boxes denote optional input arguments.](figures/viz_experiment.png){width=100%}
 
 ## Putting it all together {-}
 
