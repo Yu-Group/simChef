@@ -267,18 +267,18 @@ grammar</a>. The core features of <code>simChef</code> include:</p>
 <code class="sourceCode R"><span><span class="va">results</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_experiment.html">run_experiment</a></span><span class="op">(</span><span class="va">experiment</span>, n_reps <span class="op">=</span> <span class="fl">100</span>, save <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Fitting Example Experiment...</span></span>
 <span><span class="co">#&gt; Saving fit results...</span></span>
-<span><span class="co">#&gt; Fit results saved | time taken: 0.136762 seconds</span></span>
-<span><span class="co">#&gt; 100 reps completed (totals: 100/100) | time taken: 4.016239 minutes</span></span>
+<span><span class="co">#&gt; Fit results saved | time taken: 0.143610 seconds</span></span>
+<span><span class="co">#&gt; 100 reps completed (totals: 100/100) | time taken: 3.618629 minutes</span></span>
 <span><span class="co">#&gt; ==============================</span></span>
 <span><span class="co">#&gt; Evaluating Example Experiment...</span></span>
-<span><span class="co">#&gt; Evaluation completed | time taken: 0.287143 minutes</span></span>
+<span><span class="co">#&gt; Evaluation completed | time taken: 0.268809 minutes</span></span>
 <span><span class="co">#&gt; Saving eval results...</span></span>
-<span><span class="co">#&gt; Eval results saved | time taken: 0.073700 seconds</span></span>
+<span><span class="co">#&gt; Eval results saved | time taken: 0.068974 seconds</span></span>
 <span><span class="co">#&gt; ==============================</span></span>
 <span><span class="co">#&gt; Visualizing Example Experiment...</span></span>
-<span><span class="co">#&gt; Visualization completed | time taken: 0.001773 minutes</span></span>
+<span><span class="co">#&gt; Visualization completed | time taken: 0.001669 minutes</span></span>
 <span><span class="co">#&gt; Saving viz results...</span></span>
-<span><span class="co">#&gt; Viz results saved | time taken: 0.593046 seconds</span></span>
+<span><span class="co">#&gt; Viz results saved | time taken: 0.607106 seconds</span></span>
 <span><span class="co">#&gt; ==============================</span></span></code></pre></div>
 </div>
 <div class="section level3">
@@ -301,7 +301,7 @@ Once these functions are appropriately written/specified, <code>simChef</code> t
 <div class="section level3">
 <h3 id="overivew-of-running-an-experiment">Overivew of running an experiment<a class="anchor" aria-label="anchor" href="#overivew-of-running-an-experiment"></a>
 </h3>
-<p>At the highest level, running an experiment (via <code><a href="../reference/run_experiment.html">run_experiment()</a></code>) consists of three main steps (see Figure <a href="#fig:run-experiment-figure"><strong>??</strong></a>):</p>
+<p>At the highest level, running an experiment (via <code><a href="../reference/run_experiment.html">run_experiment()</a></code>) consists of three main steps (see Figure <a href="#fig:run-experiment-figure">3.1</a>):</p>
 <ol style="list-style-type: decimal">
 <li>
 <strong>Fit</strong> each <code>Method</code> on each <code>DGP</code> (and for each of the varying parameter configurations specified in <code>vary_across</code>) via <code><a href="../reference/fit_experiment.html">fit_experiment()</a></code>.</li>
@@ -312,7 +312,8 @@ Once these functions are appropriately written/specified, <code>simChef</code> t
 </ol>
 <p><code><a href="../reference/run_experiment.html">run_experiment()</a></code> is simply a wrapper around these three functions: <code><a href="../reference/fit_experiment.html">fit_experiment()</a></code>, <code><a href="../reference/evaluate_experiment.html">evaluate_experiment()</a></code>, and <code><a href="../reference/visualize_experiment.html">visualize_experiment()</a></code>.</p>
 <div class="figure">
-<img src="figures/run_experiment.png" id="fig:run-experiment-figure" style="width:100.0%" alt=""><p class="caption">Overview of running a <code>simChef</code> <code>Experiment</code>. The <code>Experiment</code> class handles relationships among the four classes: <code><a href="../reference/DGP.html">DGP()</a></code>, <code><a href="../reference/Method.html">Method()</a></code>, <code><a href="../reference/Evaluator.html">Evaluator()</a></code>, and <code><a href="../reference/Visualizer.html">Visualizer()</a></code>. Experiments may have multiple <code>DGPs</code> and <code>Methods</code>, which are combined across the Cartesian product of their varying parameters (represented by *). Once computed, each <code>Evaluator</code> and <code>Visualizer</code> takes in the fitted simulation replicates, while <code>Visualizer</code> additionally receives evaluation summaries.</p>
+<span style="display:block;" id="fig:run-experiment-figure"></span>
+<img src="figures/run_experiment.png" style="width:100.0%" alt=""><p class="caption">Figure 3.1:  Overview of running a <code>simChef</code> <code>Experiment</code>. The <code>Experiment</code> class handles relationships among the four classes: <code><a href="../reference/DGP.html">DGP()</a></code>, <code><a href="../reference/Method.html">Method()</a></code>, <code><a href="../reference/Evaluator.html">Evaluator()</a></code>, and <code><a href="../reference/Visualizer.html">Visualizer()</a></code>. Experiments may have multiple <code>DGPs</code> and <code>Methods</code>, which are combined across the Cartesian product of their varying parameters (represented by *). Once computed, each <code>Evaluator</code> and <code>Visualizer</code> takes in the fitted simulation replicates, while <code>Visualizer</code> additionally receives evaluation summaries.</p>
 </div>
 <p>In what follows, we will discuss fitting, evaluating, and visualizing the experiment, each in turn.</p>
 </div>
@@ -364,17 +365,18 @@ Once these functions are appropriately written/specified, <code>simChef</code> t
 </li>
 <li>A column corresponding to each named component in the list returned by the <code>Method</code> (e.g., <code>method_out1</code>, <code>method_out2</code>, …)</li>
 </ul>
-<p>We summarize these inputs and outputs in Figure <a href="#fig:fit-experiment-figure"><strong>??</strong></a>.</p>
+<p>We summarize these inputs and outputs in Figure <a href="#fig:fit-experiment-figure">3.2</a>.</p>
 <div class="figure">
-<img src="figures/fit_experiment.png" id="fig:fit-experiment-figure" style="width:100.0%" alt=""><p class="caption">Overview of fitting a <code>simChef</code> <code>Experiment</code>. Inputs and outputs for user-defined functions are also provided.</p>
+<span style="display:block;" id="fig:fit-experiment-figure"></span>
+<img src="figures/fit_experiment.png" style="width:100.0%" alt=""><p class="caption">Figure 3.2:  Overview of fitting a <code>simChef</code> <code>Experiment</code>. Inputs and outputs for user-defined functions are also provided.</p>
 </div>
 </div>
 <div class="section level3">
 <h3 id="evaluating-an-experiment">Evaluating an experiment<a class="anchor" aria-label="anchor" href="#evaluating-an-experiment"></a>
 </h3>
-<p>Next, when evaluating an experiment, the output of <code><a href="../reference/fit_experiment.html">fit_experiment()</a></code> (i.e., <code>fit_results</code> from Figure <a href="#fig:fit-experiment-figure"><strong>??</strong></a>) as well as a character vector of the <code>vary_across</code> parameter names (i.e., <code>vary_params</code>) are automatically passed to each <code>Evaluator</code> function.
+<p>Next, when evaluating an experiment, the output of <code><a href="../reference/fit_experiment.html">fit_experiment()</a></code> (i.e., <code>fit_results</code> from Figure <a href="#fig:fit-experiment-figure">3.2</a>) as well as a character vector of the <code>vary_across</code> parameter names (i.e., <code>vary_params</code>) are automatically passed to each <code>Evaluator</code> function.
 Typically, an <code>Evaluator</code> takes the <code>fit_results</code> tibble in as input, evaluates some metric(s) on each row or group of rows (e.g., summarizing across replicates), and returns the resulting <code>tibble</code> or <code>data.frame</code>.
-We summarize the relevant inputs and outputs below and in Figure <a href="#fig:eval-experiment-figure"><strong>??</strong></a>.</p>
+We summarize the relevant inputs and outputs below and in Figure <a href="#fig:eval-experiment-figure">3.3</a>.</p>
 <ul>
 <li>
 <strong>Evaluator inputs</strong>:
@@ -397,7 +399,8 @@ We summarize the relevant inputs and outputs below and in Figure <a href="#fig:e
 </ul>
 <p>The output of <code>evaluate_experiment</code> is a named list of evaluation result tibbles, one component for each <code>Evaluator</code> in the experiment. Here, the list names correspond to the names given to each <code>Evaluator</code> in <code>create_evaluator(.name = ...)</code>, and the list elements are exactly the return value from the <code>Evaluator</code> function.</p>
 <div class="figure">
-<img src="figures/eval_experiment.png" id="fig:eval-experiment-figure" style="width:100.0%" alt=""><p class="caption">Overview of evaluating a <code>simChef</code> <code>Experiment</code>. Inputs and outputs for user-defined functions are also provided. Dotted boxes denote optional input arguments.</p>
+<span style="display:block;" id="fig:eval-experiment-figure"></span>
+<img src="figures/eval_experiment.png" style="width:100.0%" alt=""><p class="caption">Figure 3.3:  Overview of evaluating a <code>simChef</code> <code>Experiment</code>. Inputs and outputs for user-defined functions are also provided. Dotted boxes denote optional input arguments.</p>
 </div>
 </div>
 <div class="section level3">
@@ -405,7 +408,7 @@ We summarize the relevant inputs and outputs below and in Figure <a href="#fig:e
 </h3>
 <p>In the last step, when visualizing an experiment, the output of <code><a href="../reference/fit_experiment.html">fit_experiment()</a></code> and <code>evaluate_experiment</code> (<code>fit_results</code> and <code>eval_results</code>, respectively) as well as <code>vary_params</code> are automatically passed to each <code>Visualizer</code> function.
 Typically, a <code>Visualizer</code> takes in the <code>fit_results</code> and/or <code>eval_results</code> and constructs a plot to visualize the performance of various methods (perhaps, across the varying parameter specified by <code>vary_params</code>).
-We summarize the relevant inputs and outputs below and in Figure <a href="#fig:viz-experiment-figure"><strong>??</strong></a>.</p>
+We summarize the relevant inputs and outputs below and in Figure <a href="#fig:viz-experiment-figure">3.4</a>.</p>
 <ul>
 <li>
 <strong>Visualizer inputs</strong>:
@@ -430,7 +433,8 @@ We summarize the relevant inputs and outputs below and in Figure <a href="#fig:v
 </ul>
 <p>The output of <code>visualize_experiment</code> is a named list of visualizations or plots, one component for each <code>Visualizer</code> in the experiment. Here, the list names correspond to the names given to each <code>Visualizer</code> in <code>create_visualizer(.name = ...)</code>, and the list elements are exactly the return value from the <code>Visualizer</code> function.</p>
 <div class="figure">
-<img src="figures/viz_experiment.png" id="fig:viz-experiment-figure" style="width:100.0%" alt=""><p class="caption">Overview of visualizing a <code>simChef</code> <code>Experiment</code>. Inputs and outputs for user-defined functions are also provided. Dotted boxes denote optional input arguments.</p>
+<span style="display:block;" id="fig:viz-experiment-figure"></span>
+<img src="figures/viz_experiment.png" style="width:100.0%" alt=""><p class="caption">Figure 3.4:  Overview of visualizing a <code>simChef</code> <code>Experiment</code>. Inputs and outputs for user-defined functions are also provided. Dotted boxes denote optional input arguments.</p>
 </div>
 </div>
 <div class="section level3">
