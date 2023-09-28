@@ -67,7 +67,11 @@ eval_constructor <- function(fit_results, vary_params = NULL, fun,
         stop(sprintf("No column named %s in fit_results.", missing_col))
       }
     }
-    key_cols_vec <- purrr::reduce(key_cols_ls, c)
+    if (length(key_cols_ls) > 0) {
+      key_cols_vec <- purrr::reduce(key_cols_ls, c)
+    } else {
+      key_cols_vec <- NULL
+    }
 
     if (is.null(nested_cols)) {
       data <- data %>%

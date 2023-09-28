@@ -14,8 +14,8 @@
 #' @param curve Either "ROC" or "PR" indicating whether to plot the ROC or 
 #'   Precision-Recall curve.
 #' @param show Character vector with elements being one of "boxplot", "point",
-#'   "line", "bar", "errorbar", "ribbon" indicating what plot layer(s) to
-#'   construct.
+#'   "line", "bar", "errorbar", "ribbon", "violin", indicating what plot
+#'   layer(s) to construct.
 #' @param ... Additional arguments to pass to \code{plot_eval_constructor()}.
 #'
 #' @keywords internal
@@ -87,6 +87,8 @@ NULL
 #'   \code{ggplot2::geom_errorbar()}.
 #' @param ribbon_args (Optional) Additional arguments to pass into
 #'   \code{ggplot2::geom_ribbon()}.
+#' @param violin_args (Optional) Additional arguments to pass into
+#'   \code{ggplot2::geom_violin()}.
 #' @param facet_args (Optional) Additional arguments to pass into 
 #'   \code{ggplot2::facet_grid()} or \code{ggplot2::facet_wrap()}.
 #' @param ... Not used.
@@ -154,7 +156,7 @@ plot_eval_constructor <- function(eval_results = NULL, eval_names = NULL,
                                   plot_data = NULL, eval_id = NULL,
                                   vary_params = NULL,
                                   show = c("boxplot", "point", "line", "bar",
-                                           "errorbar", "ribbon"),
+                                           "errorbar", "ribbon", "violin"),
                                   x_str = "auto",
                                   y_str = "auto", y_boxplot_str = "auto",
                                   err_sd_str = "auto",
@@ -165,8 +167,8 @@ plot_eval_constructor <- function(eval_results = NULL, eval_names = NULL,
                                   add_ggplot_layers = NULL, boxplot_args = NULL,
                                   point_args = NULL, line_args = NULL,
                                   bar_args = NULL, errorbar_args = NULL,
-                                  ribbon_args = NULL, facet_args = NULL,
-                                  interactive = FALSE, ...) {
+                                  ribbon_args = NULL, violin_args = NULL,
+                                  facet_args = NULL, interactive = FALSE, ...) {
   show <- match.arg(show, several.ok = TRUE)
   facet_type <- match.arg(facet_type)
   
@@ -345,6 +347,28 @@ plot_eval_constructor <- function(eval_results = NULL, eval_names = NULL,
           args = c(
             list(mapping = bar_aes, stat = "identity", position = "dodge"),
             bar_args
+          )
+        )
+    }
+    if ("violin" %in% show) {
+      if (is.null(color_str)) {
+        violin_aes <- ggplot2::aes(
+          x = !!x, y = !!y_boxplot, color = !!color, group = !!x
+        )
+      } else {
+        violin_aes <- ggplot2::aes(
+          x = !!x, y = !!y_boxplot, color = !!color,
+          group = interaction(!!x, !!color)
+        )
+      }
+      plt <- plt +
+        do.call(
+          ggplot2::geom_violin,
+          args = c(
+            list(data = plt_df %>%
+                   tidyr::unnest(tidyselect::all_of(y_boxplot_str)),
+                 mapping = violin_aes),
+            violin_args
           )
         )
     }
