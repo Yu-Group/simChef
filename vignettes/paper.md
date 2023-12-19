@@ -38,40 +38,52 @@ bibliography: paper.bib
 
 ![](simChef-logo.png){ width=30% }
 
-# Statement of need
-
-Data science simulation studies occupy an important role in data science
-research as a means to gain insight into new and existing statistical methods.
-In particular, simulations serve as statistical sandboxes that open
-a path toward otherwise inaccessible discoveries. For example, they can 
-be used to establish comprehensive benchmarks of existing procedures
-for a common task, to demonstrate the strengths and weaknesses of novel
-methodology applied to synthetic and real-world data, or to probe the validity
-of a theoretical analysis. Yet creating high-quality
-simulation studies typically involves a number of repetitive and error-prone
-coding tasks, such as implementing data-generating processes (DGPs) and
-statistical methods, sampling from these DGPs, parallelizing computation of
-simulation replicates, summarizing metrics, and visualizing, documenting, presenting, and
-saving results. While this administrative overhead is necessary to reach the end
-goals of a given data science simulation, it is not sufficient, as the data
-scientist must navigate a number of important judgment calls such as the choice
-of DGPs, baseline statistical methods, associated parameters, and
-evaluation metrics for scientific relevancy. The scientific context varies
-drastically from one study to the next while the simulation scaffolding remains
-largely similar; yet simulation code repositories often lack the flexibility to 
-allow for facile reuse in novel settings or even for simple extension when new
-questions arise in the original context.
 
 # Summary
 
-`simChef` addresses the need for an intuitive, extensible, and reusable
-framework for data science simulations. Drawing substantially from the
-Predictability, Computability, and Stability (PCS) framework
-[@yu-veridical-2020], `simChef` empowers data scientists to focus their
-attention toward the scientific best practices encompassed by PCS by removing
-many of the administrative burdens of simulation design with an intuitive [tidy
-grammar](https://design.tidyverse.org/) of data science simulations and
-automated interactive R Markdown documentation.
+`simChef` is an R package that empowers data science practitioners to rapidly
+plan, carry out, and summarize statistical simulation studies in a flexible,
+efficient, and low-code manner. Drawing substantially from the Predictability,
+Computability, and Stability (PCS) framework [@yu-veridical-2020], `simChef`
+emphasizes the scientific best practices encompassed by PCS by removing many of
+the administrative burdens of simulation design through: (1) an intuitive [tidy
+grammar](https://design.tidyverse.org/) of data science simulations; (2)
+powerful abstractions for distributed simulation processing backed by `future`
+[@bengtsson-unifying-2021]; and (3) automated generation of interactive [R
+Markdown](https://rmarkdown.rstudio.com/) simulation documentation, situating
+results next to the workflows needed to reproduce them. Taken together,
+`simChef`'s capabilities overcome many of the design, computational, and
+reproducibility hurdles inherent in nearly every data science simulation study.
+
+# Statement of need
+
+Data science simulation studies occupy an important role in scientific research
+as a means to gain insight into new and existing statistical methods.
+Simulations serve as statistical sandboxes that open a path toward otherwise
+inaccessible discoveries. For example, they can be used to establish
+comprehensive benchmarks of existing procedures for a common task; to
+demonstrate the strengths and weaknesses of novel methodology applied to
+synthetic and real-world data; or to probe the validity of a theoretical
+analysis.
+
+Creating high-quality simulation studies typically involves a number of
+repetitive and error-prone coding tasks: implementing data-generating processes
+(DGPs) and statistical methods; sampling from these DGPs; parallelizing
+computation of simulation replicates; summarizing metrics; visualizing,
+documenting, presenting, and saving results; and so on. While this
+administrative overhead is necessary, it is not sufficient for scientific
+understanding. Data scientists must navigate a number of important judgment
+calls such as the choice of DGPs, baseline statistical methods, associated
+parameters, and evaluation metrics for scientific relevancy.
+
+While the scientific context may vary drastically from one study to the next,
+the simulation scaffolding remains largely similar. Yet simulation code
+repositories often lack reusability, both for novel settings and when new
+questions arise in the original context. `simChef` addresses the need for an
+intuitive, extensible, and reusable framework for data science simulations,
+allowing data science practitioners to focus their energies on scientific
+questions by reducing the burdens of parameterization, parallelization, and
+documentation.
 
 # Core abstractions of data science simulations
 
