@@ -41,7 +41,7 @@ bibliography: paper.bib
 
 # Summary
 
-`simChef` is an R package that empowers data science practitioners to rapidly
+`simChef` is an `R` package that empowers data science practitioners to rapidly
 plan, carry out, and summarize statistical simulation studies in a flexible,
 efficient, and low-code manner. Drawing substantially from the Predictability,
 Computability, and Stability (PCS) framework [@yu-veridical-2020], `simChef`
@@ -92,7 +92,7 @@ At its core, `simChef` breaks down a simulation experiment into four modular com
 - `DGP`: the data-generating processes from which to *generate* data
 - `Method`: the methods (or models) to *fit* in the experiment
 - `Evaluator`: the evaluation metrics used to *evaluate* the methods' performance
-- `Visualizer`: the visualization functions used to *visualize* outputs from the method fits or evaluation results (can be tables, plots, or even R Markdown snippets to display)
+- `Visualizer`: the visualization functions used to *visualize* outputs from the method fits or evaluation results (can be tables, plots, or even `R` Markdown snippets to display)
 
 ![Overview of the four core components in a `simChef` `Experiment`. `simChef` 
 provides four classes that implement distinct simulation objects in
@@ -200,12 +200,62 @@ Once saved, the user can add new `DGP` and `Method` objects to the experiment an
 Considering the example above, when we add `new_method` and call `run_experiment` with `use_cached = TRUE`, `simChef` finds that the cached results are missing combinations of `new_method`, existing DGPs, and their associated parameters, giving nine new configurations. 
 Replicates for the new combinations are then appended to the cached results.
 
-`simChef` also provides users with a convenient API to automatically generate an R Markdown document. 
+`simChef` also provides users with a convenient API to automatically generate an `R` Markdown document. 
 This documentation gathers the scientific details, summary tables, and visualizations side-by-side with the user's custom source code and parameters for data-generating processes, statistical methods, evaluation metrics, and plots. 
 A call to `init_docs` generates empty markdown files for the user to populate with their overarching simulation objectives and with descriptions of each of the `DGP`, `Method`, `Evaluator`, and `Visualizer` objects included in the `Experiment`. 
-Finally, a call to `render_docs` prepares the R Markdown document, either for iterative design and analysis of the simulation or to provide a high-quality overview that can be shared easily. 
+Finally, a call to `render_docs` prepares the `R` Markdown document, either for iterative design and analysis of the simulation or to provide a high-quality overview that can be shared easily. 
 We provide an example of the simulation documentation [here](https://philboileau.github.io/simChef-case-study/results/empirical-fdr-comparison/empirical-fdr-comparison.html).
-Corresponding R source code is available on [GitHub](https://github.com/PhilBoileau/simChef-case-study).
+Corresponding `R` source code is available on [GitHub](https://github.com/PhilBoileau/simChef-case-study).
+
+# Related `R` packages
+
+A number of existing `R` packages and projects address needs related `simChef`'s
+functionality. The `batchtools` package [@lang-batchtools-2017] provides
+abstractions for "problems", "algorithms", and "experiments", similar to
+`simChef`'s `DGP`, `Method`, and `Experiment` objects, respectively.
+Additionally, `batchtools` provides a number of utilities for shared-memory and
+distributed memory computations, including for interacting with high-performance
+computing cluster schedulers such as Slurm and Torque. `simChef` is able to
+leverage these utilities for distributed computations via the backends provided
+by the `future.batchtools` package which is part of the `future` ecosystem of
+`R` packages [@bengtsson-unifying-2021]. Whereas `batchtools` is a general tool
+for distributed mapping operations, `simChef` specializes in data science
+simulations and provides additional functionality tailored to that setting
+including its `tidy` grammar of simulation experiments, the `Evaluator` and
+`Visualizer` concepts, and automated documentation capabilities discussed above.
+
+Many existing packages aim to simplify the process of creating simulation
+experiments by reducing coding burden through distributed computing helpers and
+preset methods for generating, computing, and summarizing simulation replicates.
+`SimDesign` [@chalmers-simdesign-2020] focuses on Monte Carlo simulation
+experiments and provides a function `runSimulation` that accepts user-defined
+`generate`, `analyse`, and `summarise` functions, with support for distributed
+computation via the `parallel` base `R` package and `future`. `simulator`
+[@bien-simulator-2016] provides a `tidy` grammar of simulation experiments and
+highly modular helpers for evaluating and managing simulation outputs, relying
+on the `parallel` package for distributed computation. Other packages provide a
+small number of well-tailored helper functions for specific simulation settings
+or distributed computation, including `simhelpers` [@joshi-simhelpers-2024],
+`simTool` [@scheer-simTool-2020], `parSim` [@epskamp-parSim-2024], `rsimsum`
+[@gasparini-rsimsum-2018], and `simsalapar` [@hofert-simsalapar-2016]. To our
+knowledge, no single existing package includes `simChef`'s combination of
+conceptual modularity, `tidy` grammar, computational flexibility, simulation
+workflow management, and automated documentation.
+
+Another category of related packages are those that share conceptual
+similarities with `simChef` in terms of providing helpful abstractions for the
+design and analysis of simulation experiments, but at a finer level of detail
+than `simChef` intends. For example, the package `DeclareDesign`
+[@blair-declaredesign-2019] provides various `declare_*` functions for defining
+and evaluating statistical research questions, with an emphasis on the social
+sciences. The package `infer` [@couch-infer-2021] provides a `tidy` API for
+statistical inference, providing the ability to specify random variables and
+their relationships, define a null hypothesis, generate data under that
+hypothesis, and calculate distributions of statistics based on that hypothesis.
+Both of these packages and many of the packages discussed above could be
+employed in a user's `DGP`, `Method`, `Evaluator`, or `Visualizer` and deployed
+via an `Experiment` to carry out a large-scale simulation with automated
+documentation in harmony with `simChef`.
 
 # Discussion
 
