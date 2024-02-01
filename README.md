@@ -164,13 +164,17 @@ such as the one shown below:
 
 ![Interactive R Markdown simulation documentation](man/figures/simchef.gif)
 
-More examples of the rendered documentation for different simulation experiments:
-- [Example 1](https://yu-group.github.io/simChef/example_experiment.html)
-- [Example 2](https://yu-group.github.io/simChef/linear_regression_output.html)
-- [Example 3](https://philboileau.github.io/simChef-case-study/results/empirical-fdr-comparison/empirical-fdr-comparison.html)
-
 For a more detailed walkthrough of this example usage, please see `vignette("simChef")`.
 
+**For an example real-world case study using `simChef` to develop novel statistical 
+methodology, please check out 
+[Boileau et al.](https://github.com/PhilBoileau/simChef-case-study).**
+The corresponding interactive R Markdown documentation can be found 
+[here](https://philboileau.github.io/simChef-case-study/results/empirical-fdr-comparison/empirical-fdr-comparison.html)
+
+More examples of the rendered documentation for different simulation experiments:
+- [Toy Example 1](https://yu-group.github.io/simChef/example_experiment.html)
+- [Toy Example 2](https://yu-group.github.io/simChef/linear_regression_output.html)
 
 ### Grammar of a `simChef` Simulation Experiment
 
