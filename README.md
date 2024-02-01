@@ -172,53 +172,65 @@ More examples of the rendered documentation for different simulation experiments
 For a more detailed walkthrough of this example usage, please see `vignette("simChef")`.
 
 
-### Concepts
+### Grammar of a `simChef` Simulation Experiment
 
-In `simChef`, simulation studies are decomposed into **five** intuitive
-concepts: experiments, data-generating processes, methods, evaluations, and
-visualizations. A simulation can either be contained in a single **experiment**
-or divided into multiple self-contained experiments which are like small
-simulations studies in their own right. Every experiment is in turn composed of
-four parts, two of which are optional (but highly recommended):
+In `simChef`, a simulation experiment is broken down into four modular concepts, 
+two of which are optional (but highly recommended):
 **data-generating processes** (DGPs), **methods**, **evaluation** (optional),
-and **visualization** (optional).
-
+and **visualization** (optional). 
 `simChef` takes an object-oriented approach to encapsulate these simulation
 concepts, using [`R6`](https://r6.r-lib.org/index.html) classes to make them
-concrete. The five main objects are:
+concrete. These four classes are:
 
-- `Experiment`: corresponds to the **experiment** concept. As you can probably
-  guess, this class is the main powerhouse of the simulation, collecting related
-  DGPs and methods, keeping track of what parameters to vary, checkpointing and
-  saving results, and producing evaluations metrics, visualizations, and
-  documentation so that the simulation's findings can be understood and easily
-  communicated. Moreover, it uses [`future`](https://future.futureverse.org/) to
-  compute experimental replicates in parallel using whatever resources you
-  choose.
-- `DGP`: corresponds to the **data-generating process** concept. DGPs simply
-  generate synthetic data in a reproducible and flexible manner, in the size and
-  manner that you specify. For a library of preset but highly customizable DGPs,
-  including support for data-driven DGPs to give added realism to your synthetic
-  data, `simChef` has a sibling R package,
-  [`dgpoix`](https://yu-group.github.io/dgpoix) (currently in early
-  development).
-- `Method`: corresponds to the **method** concept, which can be either a
-  baseline, a target of the simulation study, or any means by which to transform
-  the raw synthetic data. Together with DGPs, methods make up the main
-  computational course of the `simChef` meal.
-- `Evaluator`: corresponds to the **evaluation** concept. When computation of
-  experimental replicates has completed, evaluators receive the results and
-  summarize them to produce meaningful statistics about the experiment, or
-  simply transform the results (e.g., using summary statistics). This is an
-  optional step, but without it the experiment's results can be much more
-  difficult to understand and communicate.
-- `Visualizer`: corresponds to the **visualization concept**. These
-  visualizations can be applied directly to the raw experimental replicates'
-  outputs, can instead work with the evaluation transformations/summaries, or
-  both. Visualizers can output anything that can be rendered in an R Markdown
-  document: static or interactive plots, tables, strings and captured output,
-  markdown, generic HTML, etc.
+- `DGP`: corresponds to the **data-generating process** from which to *generate*
+  data. 
+  - DGPs simply generate data in a reproducible and flexible manner, in the size and
+    manner that you specify. For a library of preset but highly customizable DGPs,
+    `simChef` has a sibling R package,
+    [`dgpoix`](https://yu-group.github.io/dgpoix) (currently in early development).
+  - *Ex:* In the above example usage, there are two DGPs: the linear DGP and the 
+    exclusive-or DGP.
+- `Method`: corresponds to the **method** (or models) to *fit* to the data in the
+  experiment.
+  - Methods can be either a new method under study, a baseline comparison method,
+    or any means by which to transform the simulated data (i.e,. the output of DGP).
+  - *Ex:* In the above example usage, there are two methods: linear regression
+    and random forests.
+- `Evaluator`: corresponds to the **evaluation** metrics/functions to *evaluate*
+  the methods' performance.
+  - Evaluators receive the results of the fitted methods and
+    summarize them to produce meaningful statistics about the experiment.
+  - *Ex:* In the above example usage, there is one evaluation function that 
+    evaluates the test prediction accuracy.
+- `Visualizer`: corresponds to the **visualization** tools/functions to 
+  *visualize* results.
+  - These visualizations can be applied directly to the raw method outputs, the 
+    evaluation transformations/summaries, or
+    both. Visualizers can output anything that can be rendered in an R Markdown
+    document: static or interactive plots, tables, strings and captured output,
+    markdown, generic HTML, etc.
+  - *Ex:* In the above example usage, there is one visualization function that
+    visualizes the test prediction accuracy, averaged across experimental
+    replicates.
 
+A fifth `R6` class and concept, `Experiment`, unites the four concepts above. 
+Here, an `Experiment` is a collection of `DGP`(s), `Method`(s), 
+`Evaluator`(s), and `Visualizer`(s), which are thoughtfully composed to answer
+a particular question of interest. An `Experiment` can also include references to
+`DGP` and/or `Method` parameters that should be varied and combined during the 
+simulation run (see `? add_vary_across`).
+
+Using the `DGP`, `Method`, `Evaluator`, and `Visualizer` classes, users can easily 
+build a `simChef` `Experiment` using reusable building blocks and customizable functions. 
+
+Once an `Experiment` has been constructed, users can finally run the simulation 
+experiment via the function `run_experiment()`. As summarized in the figure below,
+running the experiment will 
+(1) *fit* each `Method` on each `DGP` (and for each of the varying parameter configurations), 
+(2) *evaluate* the experiment according to the given `Evaluator`(s), and 
+(3) *visualize* the experiment according to the given `Visualizer`(s).
+
+![Overview of running a `simChef` `Experiment`. The `Experiment` class handles relationships among the four classes: `DGP`, `Method`, `Evaluator`, and `Visualizer`. Experiments may have multiple `DGP`s and `Method`s, which are combined across the Cartesian product of their varying parameters (represented by `\*`). Once computed, each `Evaluator` and `Visualizer` takes in the fitted simulation replicates, while `Visualizer` additionally receives evaluation summaries.](vignettes/figures/run_experiment.png){ width=100% }
 
 ## Origins of `simChef`
 
