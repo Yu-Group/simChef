@@ -3,28 +3,15 @@
 ## Overview
 
 The goal of `simChef` is to help you quickly cook up a fully-realized,
-high-quality, reproducible, and transparently documented simulation study using
-an intuitive and tidy grammar of simulation experiments:
+high-quality, reproducible, and transparently-documented simulation study in
+a flexible, efficient, and low-code manner. `simChef` removes many of
+the administrative burdens of simulation design through: 
 
-```r
-experiment <- create_experiment() %>%
-  add_dgp(dgp1) %>%
-  add_dgp(dgp2) %>%
-  add_method(method1) %>%
-  add_evaluator(evaluator1) %>%
-  add_visualizer(visualizer1) %>%
-  add_vary_across(
-    dgp = dgp1,
-    n = c(100, 1000, 10000)
-  ) %>%
-  add_vary_across(
-    method = method1,
-    lambda = c(0.1, 0.5, 1.0)
-  )
-
-results <- experiment %>%
-  run_experiment(n_reps = 100)
-```
+1. An intuitive [tidy grammar](https://design.tidyverse.org/) of data science simulations
+2. Powerful abstractions for distributed simulation processing backed by `future`
+[@bengtsson-unifying-2021]
+3. Automated generation of interactive [R Markdown](https://rmarkdown.rstudio.com/) simulation 
+documentation, situating results next to the workflows needed to reproduce them. 
 
 ### Installation
 
@@ -34,6 +21,156 @@ GitHub, please use:
 ```r
 devtools::install_github("Yu-Group/simChef")
 ```
+
+### Example Usage
+
+Consider the following toy simulation experiment, where we want to study the 
+prediction accuracy of linear regression and random forests under both linear 
+and non-linear data-generating processes for varying signal-to-noise ratios.
+
+Let us first code up the necessary simulation components, namely, the linear
+and nonlinear (here, an exclusive-or) data-generating processes as well as the
+linear regression and random forest models. To evaluate the methods and visualize 
+the results, one can also write custom code, but we will leverage built-in evaluation 
+and visualization functions (e.g., `summarize_pred_err` and `plot_pred_err`) from 
+`simChef` for convenience.
+
+```r
+# Generate data via linear model
+linear_dgp_fun <- function(n_train, n_test, p, beta, noise_sd) {
+  n <- n_train + n_test
+  X <- matrix(rnorm(n * p), nrow = n, ncol = p)
+  y <- X %*% beta + rnorm(n, sd = noise_sd)
+  data_list <- list(
+    X_train = X[1:n_train, , drop = FALSE],
+    y_train = y[1:n_train],
+    X_test = X[(n_train + 1):n, , drop = FALSE],
+    y_test = y[(n_train + 1):n]
+  )
+  return(data_list)
+}
+
+# Generate data via exclusive-or model
+xor_dgp_fun <- function(n_train, n_test, p, thresh, beta, noise_sd) {
+  n <- n_train + n_test
+  X <- matrix(rnorm(n * p), nrow = n, ncol = p)
+  xor <- (((X[, 1] > thresh) + (X[, 2] > thresh)) == 1)
+  y <- beta * xor + rnorm(n, sd = noise_sd)
+  data_list <- list(
+    X_train = X[1:n_train, , drop = FALSE],
+    y_train = y[1:n_train],
+    X_test = X[(n_train + 1):n, , drop = FALSE],
+    y_test = y[(n_train + 1):n]
+  )
+  return(data_list)
+}
+
+# Fit linear regression model
+linear_reg_fun <- function(X_train, y_train, X_test, y_test) {
+  train_df <- dplyr::bind_cols(data.frame(X_train), y = y_train)
+  fit <- lm(y ~ ., data = train_df)
+  predictions <- predict(fit, data.frame(X_test))
+  return(list(predictions = predictions, y_test = y_test))
+}
+
+# Fit random forest model
+rf_fun <- function(X_train, y_train, X_test, y_test, ...) {
+  train_df <- dplyr::bind_cols(data.frame(X_train), y = y_train)
+  fit <- ranger::ranger(y ~ ., data = train_df, ...)
+  predictions <- predict(fit, data.frame(X_test))$predictions
+  return(list(predictions = predictions, y_test = y_test))
+}
+```
+
+From here, there is minimal coding on the user's end, as `simChef` provides a 
+powerful tidy grammar to instantiate, assemble, and run various configurations of 
+the simulation experiment.
+
+```r
+library(simChef)
+
+# Uncomment to run experiment across multiple processors
+# library(future)
+# plan(multisession, workers = 5)
+
+# Create `simChef` DGPs (data-generating processes)
+linear_dgp <- create_dgp(
+  .dgp_fun = linear_dgp_fun, .name = "Linear DGP",
+  # additional named parameters to pass to .dgp_fun()
+  n_train = 200, n_test = 200, p = 2, beta = c(1, 0), noise_sd = 1
+)
+xor_dgp <- create_dgp(
+  .dgp_fun = xor_dgp_fun, .name = "XOR DGP",
+  # additional named parameters to pass to .dgp_fun()
+  n_train = 200, n_test = 200, p = 2, thresh = 0, beta = 1, noise_sd = 1
+)
+
+# Create `simChef` Methods
+linear_reg <- create_method(
+  .method_fun = linear_reg_fun, .name = "Linear Regression"
+  # additional named parameters to pass to .method_fun()
+)
+rf <- create_method(
+  .method_fun = rf_fun, .name = "Random Forest", 
+  # additional named parameters to pass to .method_fun()
+  num.threads = 1
+)
+
+# Create `simChef` Evaluators
+pred_err <- create_evaluator(
+  .eval_fun = summarize_pred_err, .name = 'Prediction Accuracy',
+  # additional named parameters to pass to .eval_fun()
+  truth_col = "y_test", estimate_col = "predictions"
+) 
+
+# Create `simChef` Visualizers
+pred_err_plot <- create_visualizer(
+  .viz_fun = plot_pred_err, .name = 'Prediction Accuracy Plot',
+  # additional named parameters to pass to .viz_fun()
+  eval_name = 'Prediction Accuracy'
+) 
+
+# Create experiment
+experiment <- create_experiment(name = "Test Experiment") %>%
+  add_dgp(linear_dgp) %>%
+  add_dgp(xor_dgp) %>%
+  add_method(linear_reg) %>%
+  add_method(rf) %>%
+  add_evaluator(pred_err) %>%
+  add_visualizer(pred_err_plot) %>%
+  # vary across noise parameter in linear dgp
+  add_vary_across(
+    .dgp = "Linear DGP",
+    noise_sd = c(0.1, 0.5, 1, 2)
+  ) %>%
+  # vary across noise parameter in xor dgp
+  add_vary_across(
+    .dgp = "XOR DGP",
+    noise_sd = c(0.1, 0.5, 1, 2)
+  )
+
+# Run experiment over n_reps
+results <- run_experiment(experiment, n_reps = 100, save = TRUE)
+
+# Render automated documentation and view results
+render_docs(experiment)
+```
+
+Simulation experiment complete! 
+
+In addition, the code, narrative, and results of the simulation experiment have been 
+automatically rendered into an interactive html document via R Markdown (see `? render_docs`),
+such as the one shown below:
+
+![Interactive R Markdown simulation documentation](man/figures/simchef.gif)
+
+More examples of the rendered documentation for different simulation experiments:
+- [Example 1](https://yu-group.github.io/simChef/example_experiment.html)
+- [Example 2](https://yu-group.github.io/simChef/linear_regression_output.html)
+- [Example 3](https://philboileau.github.io/simChef-case-study/results/empirical-fdr-comparison/empirical-fdr-comparison.html)
+
+For a more detailed walkthrough of this example usage, please see `vignette("simChef")`.
+
 
 ### Concepts
 
@@ -81,26 +218,7 @@ concrete. The five main objects are:
   both. Visualizers can output anything that can be rendered in an R Markdown
   document: static or interactive plots, tables, strings and captured output,
   markdown, generic HTML, etc.
-  
-### Simulation study documentation
 
-When all of this is put together, the `Experiment` class can output an R
-Markdown document that is structured to provide a well-organized summary of a
-simulation study. Moreover, this document can contain multiple experiments,
-simply by using a common output path with each `Experiment` in the study. When
-the simulation is complete, you can use the `render_docs()` helper to generate
-the documentation:
-
-```r
-render_docs(experiment)
-```
-
-This results in an HTML document like the one shown below:
-
-![Interactive R Markdown simulation documentation](man/figures/simchef.gif)
-
-For more examples, including an interactive version of the simulation study
-documentation, see `vignette("simChef")`.
 
 ## Origins of `simChef`
 
