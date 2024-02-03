@@ -86,3 +86,105 @@ the \code{Experiment}. Length of list is equivalent to the number of
 \description{
 Run the full \code{Experiment} pipeline (fitting, evaluating, and visualizing).
 }
+\examples{
+## create toy DGPs, Methods, Evaluators, and Visualizers
+
+# generate data from normal distribution with n samples
+normal_dgp <- create_dgp(
+  .dgp_fun = function(n) rnorm(n), .name = "Normal DGP", n = 10
+)
+# generate data from binomial distribution with n samples
+bernoulli_dgp <- create_dgp(
+  .dgp_fun = function(n) rbinom(n, 1, 0.5), .name = "Bernoulli DGP", n = 10
+)
+
+# compute mean of data
+mean_method <- create_method(
+  .method_fun = function(x) list(mean = mean(x)), .name = "Mean(x)"
+)
+
+# evaluate SD of mean(x) across simulation replicates
+sd_mean_eval <- create_evaluator(
+  .eval_fun = function(fit_results, vary_params = NULL) {
+    group_vars <- c(".dgp_name", ".method_name", vary_params)
+    fit_results \%>\%
+      dplyr::group_by(dplyr::across(tidyselect::all_of(group_vars))) \%>\%
+      dplyr::summarise(sd = sd(mean), .groups = "keep")
+  },
+  .name = "SD of Mean(x)"
+)
+
+# plot SD of mean(x) across simulation replicates
+sd_mean_plot <- create_visualizer(
+  .viz_fun = function(fit_results, eval_results, vary_params = NULL,
+                      eval_name = "SD of Mean(x)") {
+    if (!is.null(vary_params)) {
+      add_aes <- ggplot2::aes(
+        x = .data[[unique(vary_params)]], y = sd, color = .dgp_name
+      )
+    } else {
+      add_aes <- ggplot2::aes(x = .dgp_name, y = sd)
+    }
+    plt <- ggplot2::ggplot(eval_results[[eval_name]]) +
+      add_aes +
+      ggplot2::geom_point()
+    if (!is.null(vary_params)) {
+      plt <- plt + ggplot2::geom_line()
+    }
+    return(plt)
+  },
+  .name = "SD of Mean(x) Plot"
+)
+
+# initialize experiment with toy DGPs, Methods, Evaluators, and Visualizers
+experiment <- create_experiment(
+  name = "Experiment Name",
+  dgp_list = list(`Normal DGP` = normal_dgp, `Bernoulli DGP` = bernoulli_dgp),
+  method_list = list(`Mean(x)` = mean_method),
+  evaluator_list = list(`SD of Mean(x)` = sd_mean_eval),
+  visualizer_list = list(`SD of Mean(x) Plot` = sd_mean_plot)
+)
+
+# initialize empty experiment with user-defined directory for saving results
+experiment <- create_experiment(
+  name = "Experiment Name",
+  dgp_list = list(`Normal DGP` = normal_dgp, `Bernoulli DGP` = bernoulli_dgp),
+  method_list = list(`Mean(x)` = mean_method),
+  evaluator_list = list(`SD of Mean(x)` = sd_mean_eval),
+  visualizer_list = list(`SD of Mean(x) Plot` = sd_mean_plot),
+  save_dir = 'path/to/directory'
+)
+
+# initialize experiment with toy DGPs, Methods, Evaluators, and Visualizers
+# using piping \%>\%
+experiment <- create_experiment(name = "Experiment Name") \%>\%
+  add_dgp(normal_dgp) \%>\%
+  add_dgp(bernoulli_dgp) \%>\%
+  add_method(mean_method) \%>\%
+  add_evaluator(sd_mean_eval) \%>\%
+  add_visualizer(sd_mean_plot)
+
+# run experiment with 2 replicates
+results <- run_experiment(experiment, n_reps = 2)
+# uncomment below to view results
+# results
+
+# run experiment with varying number of samples n
+experiment <- experiment \%>\%
+  add_vary_across(
+    .dgp = c("Normal DGP", "Bernoulli DGP"), n = c(1, 10)
+  )
+# run vary-across experiment with 2 replicates
+results <- run_experiment(experiment, n_reps = 2)
+# uncomment below to view results
+# results
+
+# `run_experiment()` above is equivalent to the following sequence of calls
+fit_results <- fit_experiment(experiment, n_reps = 2)
+eval_results <- evaluate_experiment(experiment, fit_results)
+viz_results <- visualize_experiment(experiment, fit_results, eval_results)
+
+# generate data from all DGPs (and vary across components) in experiment
+data_out <- generate_data(experiment, n_reps = 1)
+
+}

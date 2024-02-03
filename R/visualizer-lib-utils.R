@@ -1,7 +1,7 @@
 #' Arguments that are shared by multiple \code{Visualizer} library functions.
 #'
 #' @name shared_viz_lib_args
-#' 
+#'
 #' @param eval_name Name of \code{Evaluator} containing results to plot. If
 #'   \code{NULL}, the data used for plotting is computed from scratch via
 #'   \code{eval_fun}.
@@ -11,25 +11,26 @@
 #' @param eval_fun_options List of named arguments to pass to \code{eval_fun}.
 #' @param interactive Logical. If \code{TRUE}, returns interactive \code{plotly}
 #'   plots. If \code{FALSE}, returns static \code{ggplot} plots.
-#' @param curve Either "ROC" or "PR" indicating whether to plot the ROC or 
+#' @param curve Either "ROC" or "PR" indicating whether to plot the ROC or
 #'   Precision-Recall curve.
 #' @param show Character vector with elements being one of "boxplot", "point",
 #'   "line", "bar", "errorbar", "ribbon" indicating what plot layer(s) to
 #'   construct.
-#' @param ... Additional arguments to pass to \code{plot_eval_constructor()}.
+#' @param ... Additional arguments to pass to
+#'   \code{\link{plot_eval_constructor}}.
 #'
 #' @keywords internal
 NULL
 
 #' Developer function for plotting results from Evaluator.
-#' 
+#'
 #' @description A helper function for developing new \code{Visualizer} plotting
-#'   functions that plot the summarized evaluation results as a boxplot, 
-#'   scatter plot, line plot, or bar plot with or without 1 SD error 
+#'   functions that plot the summarized evaluation results as a boxplot,
+#'   scatter plot, line plot, or bar plot with or without 1 SD error
 #'   bars/ribbons. This function accepts either (1) the name(s) of the
 #'   \code{Evaluator(s)} to plot (\code{eval_names}) or (2) a tibble containing
 #'   the summarized evaluation results to plot (\code{plot_data}).
-#'   
+#'
 #' @inheritParams shared_experiment_helpers_args
 #' @inheritParams shared_viz_lib_args
 #' @param eval_names (Optional) A character vector or string, specifying the
@@ -48,7 +49,7 @@ NULL
 #' @param x_str (Optional) Name of column in data frame to plot on the
 #'   x-axis. Default "auto" chooses what to plot on the x-axis automatically.
 #' @param y_str (Optional) Name of column in data frame to plot on the
-#'   y-axis if \code{show} is anything but "boxplot". Default "auto" chooses 
+#'   y-axis if \code{show} is anything but "boxplot". Default "auto" chooses
 #'   what to plot on the y-axis automatically.
 #' @param y_boxplot_str (Optional) Name of column in data frame to plot on
 #'   the y-axis if \code{show} is "boxplot". Default "auto" chooses
@@ -58,12 +59,12 @@ NULL
 #'   ribbon ggplot layers. Default "auto" chooses what column to use for the
 #'   standard deviations automatically.
 #' @param color_str (Optional) Name of column in data frame to use for the
-#'   color and fill aesthetics when plotting. Default "auto" chooses what to 
+#'   color and fill aesthetics when plotting. Default "auto" chooses what to
 #'   use for the color and fill aesthetics automatically. Use \code{NULL} to
 #'   avoid adding any color and fill aesthetic.
 #' @param linetype_str (Optional) Name of column in data frame to use for
 #'   the linetype aesthetic when plotting. Used only when \code{show = "line"}.
-#'   Default "auto" chooses what to use for the linetype aesthetic 
+#'   Default "auto" chooses what to use for the linetype aesthetic
 #'   automatically. Use \code{NULL} to avoid adding any linetype aesthetic.
 #' @param facet_formula (Optional) Formula for \code{ggplot2::facet_wrap()} or
 #'   \code{ggplot2::facet_grid()} if need be.
@@ -77,27 +78,27 @@ NULL
 #'   via \code{+}.
 #' @param boxplot_args (Optional) Additional arguments to pass into
 #'   \code{ggplot2::geom_boxplot()}.
-#' @param point_args (Optional) Additional arguments to pass into 
+#' @param point_args (Optional) Additional arguments to pass into
 #'   \code{ggplot2::geom_point()}.
-#' @param line_args (Optional) Additional arguments to pass into 
+#' @param line_args (Optional) Additional arguments to pass into
 #'   \code{ggplot2::geom_line()}.
-#' @param bar_args (Optional) Additional arguments to pass into 
+#' @param bar_args (Optional) Additional arguments to pass into
 #'   \code{ggplot2::geom_bar()}.
-#' @param errorbar_args (Optional) Additional arguments to pass into 
+#' @param errorbar_args (Optional) Additional arguments to pass into
 #'   \code{ggplot2::geom_errorbar()}.
 #' @param ribbon_args (Optional) Additional arguments to pass into
 #'   \code{ggplot2::geom_ribbon()}.
-#' @param facet_args (Optional) Additional arguments to pass into 
+#' @param facet_args (Optional) Additional arguments to pass into
 #'   \code{ggplot2::facet_grid()} or \code{ggplot2::facet_wrap()}.
 #' @param ... Not used.
-#' 
+#'
 #' @return If \code{interactive = TRUE}, returns a \code{plotly} object if
 #'   \code{plot_by} is \code{NULL} and a list of \code{plotly} objects if
 #'   \code{plot_by} is not \code{NULL}. If \code{interactive = FALSE}, returns
 #'   a \code{ggplot} object if \code{plot_by} is \code{NULL} and a list of
 #'   \code{ggplot} objects if \code{plot_by} is not \code{NULL}.
-#' 
-#' @examples 
+#'
+#' @examples
 #' # generate example fit results data
 #' fit_results <- tibble::tibble(
 #'   .rep = rep(1:2, times = 2),
@@ -108,17 +109,17 @@ NULL
 #'   # predicted response
 #'   predictions = lapply(1:4, FUN = function(x) rnorm(100))
 #' )
-#' 
+#'
 #' # generate example evaluation results data
 #' eval_results <- list(
 #'   `Prediction Errors` = summarize_pred_err(
-#'     fit_results = fit_results, 
-#'     truth_col = "y", 
-#'     estimate_col = "predictions", 
+#'     fit_results = fit_results,
+#'     truth_col = "y",
+#'     estimate_col = "predictions",
 #'     eval_id = "pred_err"
 #'   )
 #' )
-#' 
+#'
 #' # create plot using name of Evaluator
 #' plt <- plot_eval_constructor(eval_results = eval_results,
 #'                              eval_name = "Prediction Errors",
@@ -147,7 +148,7 @@ NULL
 #'                              show = c("point", "errorbar"),
 #'                              facet_formula = ~ .metric,
 #'                              interactive = TRUE)
-#' 
+#'
 #' @importFrom rlang .data
 #' @export
 plot_eval_constructor <- function(eval_results = NULL, eval_names = NULL,
@@ -169,7 +170,7 @@ plot_eval_constructor <- function(eval_results = NULL, eval_names = NULL,
                                   interactive = FALSE, ...) {
   show <- match.arg(show, several.ok = TRUE)
   facet_type <- match.arg(facet_type)
-  
+
   if (!is.null(eval_results) && !is.null(eval_names)) {
     plt_df <- dplyr::bind_rows(eval_results[eval_names])
   } else if (!is.null(plot_data)) {
@@ -177,7 +178,7 @@ plot_eval_constructor <- function(eval_results = NULL, eval_names = NULL,
   } else {
     stop("Must specify either (1) `eval_results` and `eval_names` or (2) `plot_data`.")
   }
-  
+
   dgps <- unique(plt_df$.dgp_name)
   methods <- unique(plt_df$.method_name)
   n_dgps <- length(dgps)
@@ -185,7 +186,7 @@ plot_eval_constructor <- function(eval_results = NULL, eval_names = NULL,
   if (!is.null(eval_id)) {
     eval_id <- paste0("_", eval_id)
   }
-  
+
   if (!is.null(vary_params)) {
     list_vary_params <- purrr::map_lgl(plt_df[vary_params], is.list)
     # if vary_param is a list-type column, coerce to string for plotting
@@ -194,7 +195,7 @@ plot_eval_constructor <- function(eval_results = NULL, eval_names = NULL,
       plt_df <- plt_df %>%
         dplyr::ungroup() %>%
         dplyr::mutate(dplyr::across(tidyselect::all_of(names(list_vary_params)),
-                                    ~list_col_to_chr(.x, 
+                                    ~list_col_to_chr(.x,
                                                      name = dplyr::cur_column(),
                                                      verbatim = TRUE))) %>%
         dplyr::group_by(dplyr::across(tidyselect::all_of(group_ids)))
@@ -207,7 +208,7 @@ plot_eval_constructor <- function(eval_results = NULL, eval_names = NULL,
                      remove = FALSE)
     }
   }
-  
+
   # get default plot schematic if input is "auto"
   if (is.null(y_str) || identical(y_str, "auto")) {
     y_str <- paste0("mean", eval_id)
@@ -392,11 +393,11 @@ plot_eval_constructor <- function(eval_results = NULL, eval_names = NULL,
     }
     if (!is.null(facet_formula)) {
       if (facet_type == "grid") {
-        plt <- plt + 
+        plt <- plt +
           do.call(ggplot2::facet_grid,
                   args = c(list(rows = facet_formula), facet_args))
       } else if (facet_type == "wrap") {
-        plt <- plt + 
+        plt <- plt +
           do.call(ggplot2::facet_wrap,
                   args = c(list(facets = facet_formula), facet_args))
       }
@@ -449,18 +450,18 @@ plot_eval_constructor <- function(eval_results = NULL, eval_names = NULL,
     }
     return(plt)
   }
-  
+
   # construct plots
-  plt_ls <- dplyr::group_map(plt_df, ~construct_plot(.x), .keep = TRUE) 
+  plt_ls <- dplyr::group_map(plt_df, ~construct_plot(.x), .keep = TRUE)
   if (!is.null(plot_by)) {
-    names(plt_ls) <- paste(plot_by_id, dplyr::group_keys(plt_df)[[plot_by]], 
+    names(plt_ls) <- paste(plot_by_id, dplyr::group_keys(plt_df)[[plot_by]],
                            sep = " = ")
     plt_ls <- purrr::map2(plt_ls, names(plt_ls),
                           function(plt, plt_name) {
                             return(plt + ggplot2::labs(title = plt_name))
                           })
   }
-  
+
   if (interactive) {
     rlang::check_installed(
       "plotly",
@@ -476,30 +477,30 @@ plot_eval_constructor <- function(eval_results = NULL, eval_names = NULL,
   return(plt)
 }
 
-#' Developer function for plotting results from particular replicate(s) in the 
+#' Developer function for plotting results from particular replicate(s) in the
 #' \code{Experiment} fit.
-#' 
+#'
 #' @description A helper function for developing new \code{Visualizer} plotting
-#'   functions that plot results from particular replicate(s) in the 
+#'   functions that plot results from particular replicate(s) in the
 #'   \code{Experiment} fit. This function will construct one plot for each
 #'   row in the \code{Experiment}'s \code{fit_results} from the specified
 #'   replicates.
-#'   
+#'
 #' @inheritParams shared_experiment_helpers_args
 #' @inheritParams shared_viz_lib_args
 #' @param reps Vector of replicates from which to plot results.
 #' @param plot_fun The plotting function, which takes in the arguments
-#'   \code{fit_results}, \code{vary_params}, and possibly others passed from 
+#'   \code{fit_results}, \code{vary_params}, and possibly others passed from
 #'   \code{...}.
 #' @param ... Additional arguments to pass to \code{plot_fun()}.
-#' 
-#' @return If \code{interactive = TRUE}, returns a \code{plotly} object or 
-#'   list of \code{plotly} objects if there are multiple replicates, DGPs, or 
+#'
+#' @return If \code{interactive = TRUE}, returns a \code{plotly} object or
+#'   list of \code{plotly} objects if there are multiple replicates, DGPs, or
 #'   Methods to plot. If \code{interactive = FALSE}, returns a \code{ggplot}
 #'   object or list of \code{ggplot} objects if there are multiple replicates,
 #'   DGPs, or Methods to plot.
-#'   
-#' @examples 
+#'
+#' @examples
 #' # generate example fit results data
 #' fit_results <- tibble::tibble(
 #'   .rep = rep(1:2, times = 2),
@@ -510,7 +511,7 @@ plot_eval_constructor <- function(eval_results = NULL, eval_names = NULL,
 #'   # predicted response
 #'   predictions = lapply(1:4, FUN = function(x) rnorm(100))
 #' )
-#' 
+#'
 #' # function to plot scatter plot of y vs predictions
 #' plot_fun <- function(fit_results, vary_params = NULL) {
 #'   plt <- fit_results %>%
@@ -518,16 +519,16 @@ plot_eval_constructor <- function(eval_results = NULL, eval_names = NULL,
 #'     ggplot2::ggplot() +
 #'     ggplot2::aes(x = y, y = predictions) +
 #'     ggplot2::geom_point() +
-#'     ggplot2::labs(title = sprintf("DGP: %s | Method: %s | Rep: %s", 
+#'     ggplot2::labs(title = sprintf("DGP: %s | Method: %s | Rep: %s",
 #'                                   fit_results$.dgp_name,
 #'                                   fit_results$.method_name,
 #'                                   fit_results$.rep))
 #'   return(plt)
 #' }
-#' 
+#'
 #' # returns the scatter plot for each (DGP, Method) combination from rep 1
 #' plt <- plot_fit_constructor(fit_results, reps = 1, plot_fun = plot_fun)
-#'   
+#'
 #' @export
 plot_fit_constructor <- function(fit_results, vary_params = NULL, reps = 1,
                                  plot_fun, interactive = FALSE, ...) {
@@ -572,7 +573,7 @@ plot_fit_constructor <- function(fit_results, vary_params = NULL, reps = 1,
   }
   names(plt_ls) <- plt_names %>%
     purrr::reduce(paste, sep = " // ")
-  
+
   if (interactive) {
     rlang::check_installed(
       "plotly",
@@ -585,7 +586,7 @@ plot_fit_constructor <- function(fit_results, vary_params = NULL, reps = 1,
 
 
 #' Developer function to get data for plotting in Visualizers.
-#' 
+#'
 #' @description A helper function to retrieve data for plotting in
 #'   \code{Visualizers}. It first looks for the data in \code{eval_results} by
 #'   name (\code{eval_name}). If this is not provided, then it uses the
@@ -599,6 +600,55 @@ plot_fit_constructor <- function(fit_results, vary_params = NULL, reps = 1,
 #' @returns If \code{eval_name} is not \code{NULL}, returns the list
 #'   component in \code{eval_results} named \code{eval_name}. Otherwise,
 #'   returns the result of \code{eval_fun()}.
+#'
+#' @examples
+#' # generate example fit_results data
+#' fit_results <- tibble::tibble(
+#'   .rep = rep(1:2, times = 2),
+#'   .dgp_name = c("DGP1", "DGP1", "DGP2", "DGP2"),
+#'   .method_name = c("Method"),
+#'   feature_info = lapply(
+#'     1:4,
+#'     FUN = function(i) {
+#'       tibble::tibble(
+#'         # feature names
+#'         feature = c("featureA", "featureB", "featureC"),
+#'         # estimated feature importance scores
+#'         est_importance = c(10, runif(2, min = -2, max = 2))
+#'       )
+#'     }
+#'   )
+#' )
+#'
+#' # generate example eval_results data
+#' eval_results <- list(
+#'   `Feature Importance` = summarize_feature_importance(
+#'     fit_results,
+#'     nested_cols = "feature_info",
+#'     feature_col = "feature",
+#'     imp_col = "est_importance"
+#'   )
+#' )
+#'
+#' # this will return the `Feature Importance` component of `eval_results`
+#' plot_data1 <- get_plot_data(
+#'   fit_results = fit_results,
+#'   eval_results = eval_results,
+#'   eval_name = "Feature Importance"
+#' )
+#'
+#' #' # this will return the same result as above
+#' plot_data2 <- get_plot_data(
+#'   fit_results = fit_results,
+#'   eval_fun = summarize_feature_importance,
+#'   eval_fun_options = list(
+#'     nested_cols = "feature_info",
+#'     feature_col = "feature",
+#'     imp_col = "est_importance"
+#'   )
+#' )
+#'
+#' all.equal(plot_data1, plot_data2)
 #'
 #' @export
 get_plot_data <- function(fit_results = NULL,
@@ -616,22 +666,22 @@ get_plot_data <- function(fit_results = NULL,
 
 
 #' Get dot (...) arguments.
-#' 
+#'
 #' @description Helper function to merge default and user-specified dot (...)
 #'   arguments such that default arguments are overwritten by the user-specified
 #'   arguments.
-#'   
+#'
 #' @param user_args List of user-specified dot (...) arguments.
 #' @param default_args List of default dot (...) arguments.
-#' 
+#'
 #' @return A named list of arguments that includes all arguments from the user
 #'   and the defaults, but with the user-specified arguments overwriting the
 #'   defaults.
-#'   
+#'
 #' @examples
-#' arg_list <- get_dot_args(user_args = list(a = 1, b = 2, c = 3), 
+#' arg_list <- get_dot_args(user_args = list(a = 1, b = 2, c = 3),
 #'                          default_args = list(a = "a", d = "d"))
-#' 
+#'
 #' @export
 get_dot_args <- function(user_args, default_args) {
   arg_list <- list()
@@ -666,30 +716,30 @@ get_dot_args <- function(user_args, default_args) {
 #'   (i.e., 1, 2, 3, ...).
 #'
 #' @return A character vector of the same length as \code{list_col}.
-#' 
+#'
 #' @examples
 #' # create example tibble with list columns to convert
 #' plot_tib <- tibble::tibble(a = 1:3,
 #'                            b = list(1, 2, 3),
 #'                            c = list(1:2, 3:4, 5:6),
-#'                            d = list(tibble::tibble(a = 1:3, 
+#'                            d = list(tibble::tibble(a = 1:3,
 #'                                                    b = c(4, 5, 6)),
 #'                                     "abc",
 #'                                     123))
 #' # verbatim = TRUE pastes lists together verbatim
 #' plot_tib_chr_verbatim <- plot_tib %>%
 #'   dplyr::mutate(dplyr::across(tidyselect::everything(),
-#'                               ~list_col_to_chr(.x, 
+#'                               ~list_col_to_chr(.x,
 #'                                                name = dplyr::cur_column(),
 #'                                                verbatim = TRUE)))
-#' 
+#'
 #' # verbatim = FALSE maps items in list to unique ids (i.e., 1, 2, 3, ...)
 #' plot_tib_chr <- plot_tib %>%
 #'   dplyr::mutate(dplyr::across(tidyselect::everything(),
-#'                               ~list_col_to_chr(.x, 
+#'                               ~list_col_to_chr(.x,
 #'                                                name = dplyr::cur_column(),
 #'                                                verbatim = FALSE)))
-#' 
+#'
 #' @export
 list_col_to_chr <- function(list_col, name = NULL, verbatim = FALSE) {
   if (verbatim) {

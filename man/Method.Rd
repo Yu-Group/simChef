@@ -22,6 +22,7 @@ A method to be \strong{fit} and assessed in the \code{Experiment}.
 
 \itemize{
 \item{\code{Method$new()}} See \link{create_method}.
+\item{\code{Method$fit()}} See \link{fit_method}.
 }
 }
 

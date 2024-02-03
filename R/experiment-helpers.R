@@ -7,10 +7,10 @@
 #'   saved.
 #' @param dgp A \code{DGP} object.
 #' @param evaluator An \code{Evaluator} object.
-#' @param eval_results A list of result tibbles, as returned by the
-#'   \code{evaluate} method.
+#' @param eval_results A list of result tibbles, as returned by
+#'   \code{evaluate_experiment()}.
 #' @param experiment An \code{Experiment} object.
-#' @param fit_results A tibble, as returned by the \code{fit} method.
+#' @param fit_results A tibble, as returned by \code{fit_experiment()}.
 #' @param future.globals Character vector of names in the global environment to
 #'   pass to parallel workers. Passed as the argument of the same name to
 #'   \code{future.apply::future_lapply} and related functions. To set for all
@@ -71,6 +71,108 @@ NULL
 #'   \code{Experiment$name}.
 #'
 #' @return A new \code{Experiment} object.
+#'
+#' @examples
+#' ## create toy DGPs, Methods, Evaluators, and Visualizers
+#'
+#' # generate data from normal distribution with n samples
+#' normal_dgp <- create_dgp(
+#'   .dgp_fun = function(n) rnorm(n), .name = "Normal DGP", n = 10
+#' )
+#' # generate data from binomial distribution with n samples
+#' bernoulli_dgp <- create_dgp(
+#'   .dgp_fun = function(n) rbinom(n, 1, 0.5), .name = "Bernoulli DGP", n = 10
+#' )
+#'
+#' # compute mean of data
+#' mean_method <- create_method(
+#'   .method_fun = function(x) list(mean = mean(x)), .name = "Mean(x)"
+#' )
+#'
+#' # evaluate SD of mean(x) across simulation replicates
+#' sd_mean_eval <- create_evaluator(
+#'   .eval_fun = function(fit_results, vary_params = NULL) {
+#'     group_vars <- c(".dgp_name", ".method_name", vary_params)
+#'     fit_results %>%
+#'       dplyr::group_by(dplyr::across(tidyselect::all_of(group_vars))) %>%
+#'       dplyr::summarise(sd = sd(mean), .groups = "keep")
+#'   },
+#'   .name = "SD of Mean(x)"
+#' )
+#'
+#' # plot SD of mean(x) across simulation replicates
+#' sd_mean_plot <- create_visualizer(
+#'   .viz_fun = function(fit_results, eval_results, vary_params = NULL,
+#'                       eval_name = "SD of Mean(x)") {
+#'     if (!is.null(vary_params)) {
+#'       add_aes <- ggplot2::aes(
+#'         x = .data[[unique(vary_params)]], y = sd, color = .dgp_name
+#'       )
+#'     } else {
+#'       add_aes <- ggplot2::aes(x = .dgp_name, y = sd)
+#'     }
+#'     plt <- ggplot2::ggplot(eval_results[[eval_name]]) +
+#'       add_aes +
+#'       ggplot2::geom_point()
+#'     if (!is.null(vary_params)) {
+#'       plt <- plt + ggplot2::geom_line()
+#'     }
+#'     return(plt)
+#'   },
+#'   .name = "SD of Mean(x) Plot"
+#' )
+#'
+#' # initialize experiment with toy DGPs, Methods, Evaluators, and Visualizers
+#' experiment <- create_experiment(
+#'   name = "Experiment Name",
+#'   dgp_list = list(`Normal DGP` = normal_dgp, `Bernoulli DGP` = bernoulli_dgp),
+#'   method_list = list(`Mean(x)` = mean_method),
+#'   evaluator_list = list(`SD of Mean(x)` = sd_mean_eval),
+#'   visualizer_list = list(`SD of Mean(x) Plot` = sd_mean_plot)
+#' )
+#'
+#' # initialize empty experiment with user-defined directory for saving results
+#' experiment <- create_experiment(
+#'   name = "Experiment Name",
+#'   dgp_list = list(`Normal DGP` = normal_dgp, `Bernoulli DGP` = bernoulli_dgp),
+#'   method_list = list(`Mean(x)` = mean_method),
+#'   evaluator_list = list(`SD of Mean(x)` = sd_mean_eval),
+#'   visualizer_list = list(`SD of Mean(x) Plot` = sd_mean_plot),
+#'   save_dir = 'path/to/directory'
+#' )
+#'
+#' # initialize experiment with toy DGPs, Methods, Evaluators, and Visualizers
+#' # using piping %>%
+#' experiment <- create_experiment(name = "Experiment Name") %>%
+#'   add_dgp(normal_dgp) %>%
+#'   add_dgp(bernoulli_dgp) %>%
+#'   add_method(mean_method) %>%
+#'   add_evaluator(sd_mean_eval) %>%
+#'   add_visualizer(sd_mean_plot)
+#'
+#' # run experiment with 2 replicates
+#' results <- run_experiment(experiment, n_reps = 2)
+#' # uncomment below to view results
+#' # results
+#'
+#' # run experiment with varying number of samples n
+#' experiment <- experiment %>%
+#'   add_vary_across(
+#'     .dgp = c("Normal DGP", "Bernoulli DGP"), n = c(1, 10)
+#'   )
+#' # run vary-across experiment with 2 replicates
+#' results <- run_experiment(experiment, n_reps = 2)
+#' # uncomment below to view results
+#' # results
+#'
+#' # `run_experiment()` above is equivalent to the following sequence of calls
+#' fit_results <- fit_experiment(experiment, n_reps = 2)
+#' eval_results <- evaluate_experiment(experiment, fit_results)
+#' viz_results <- visualize_experiment(experiment, fit_results, eval_results)
+#'
+#' # generate data from all DGPs (and vary across components) in experiment
+#' data_out <- generate_data(experiment, n_reps = 1)
+#'
 #' @export
 create_experiment <- function(name = "experiment",
                               dgp_list = list(), method_list = list(),
@@ -110,6 +212,8 @@ create_experiment <- function(name = "experiment",
 #'   the \code{Experiment}. Length of list is equivalent to the number of
 #'   \code{Visualizers}.}
 #' }
+#'
+#' @inherit create_experiment examples
 #' @export
 run_experiment <- function(experiment, n_reps = 1,
                            parallel_strategy = c("reps"), future.globals = NULL,
@@ -143,6 +247,25 @@ run_experiment <- function(experiment, n_reps = 1,
 #'   \code{vary_across} scheme, and the innermost layer of lists is of
 #'   length \code{n_reps} with the dataset replicates, generated by the
 #'   \code{DGP}.
+#'
+#' @examples
+#' # create DGP to generate data from normal distribution with n samples
+#' normal_dgp <- create_dgp(
+#'   .dgp_fun = function(n) rnorm(n), .name = "Normal DGP", n = 100
+#' )
+#' # create DGP to generate data from binomial distribution with n samples
+#' bernoulli_dgp <- create_dgp(
+#'   .dgp_fun = function(n) rbinom(n, 1, 0.5), .name = "Bernoulli DGP", n = 100
+#' )
+#'
+#' # initialize experiment with toy DGPs only
+#' experiment <- create_experiment(name = "Experiment Name") %>%
+#'   add_dgp(normal_dgp) %>%
+#'   add_dgp(bernoulli_dgp)
+#'
+#' # generate data from all DGPs (and vary across components if applicable)
+#' # in experiment
+#' data_out <- generate_data(experiment, n_reps = 1)
 #' @export
 generate_data <- function(experiment, n_reps=1, ...) {
   return(experiment$generate_data(n_reps = n_reps, ...))
@@ -169,6 +292,7 @@ generate_data <- function(experiment, n_reps=1, ...) {
 #'   results columns, has columns named '.rep', '.dgp_name', '.method_name', and the
 #'   \code{vary_across} parameter names if applicable.
 #'
+#' @inherit create_experiment examples
 #' @export
 fit_experiment <- function(experiment, n_reps=1, parallel_strategy = c("reps"),
                            future.globals = NULL, future.packages = NULL,
@@ -195,6 +319,7 @@ fit_experiment <- function(experiment, n_reps=1, parallel_strategy = c("reps"),
 #' @return A list of evaluation result tibbles, one for each
 #'   \code{Evaluator}.
 #'
+#' @inherit create_experiment examples
 #' @export
 evaluate_experiment <- function(experiment, fit_results, use_cached = FALSE,
                                 save = FALSE, verbose = 1, ...) {
@@ -212,6 +337,7 @@ evaluate_experiment <- function(experiment, fit_results, use_cached = FALSE,
 #'
 #' @return A list of visualizations, one for each \code{Visualizer}.
 #'
+#' @inherit create_experiment examples
 #' @export
 visualize_experiment <- function(experiment, fit_results, eval_results = NULL,
                                  use_cached = FALSE, save = FALSE, verbose = 1,
@@ -235,10 +361,79 @@ visualize_experiment <- function(experiment, fit_results, eval_results = NULL,
 #' @name add_funs
 #' @rdname add_funs
 #'
+#' @examples
+#' ## create toy DGPs, Methods, Evaluators, and Visualizers
+#'
+#' # generate data from normal distribution with n samples
+#' normal_dgp <- create_dgp(
+#'   .dgp_fun = function(n) rnorm(n), .name = "Normal DGP", n = 100
+#' )
+#' # generate data from binomial distribution with n samples
+#' bernoulli_dgp <- create_dgp(
+#'   .dgp_fun = function(n) rbinom(n, 1, 0.5), .name = "Bernoulli DGP", n = 100
+#' )
+#'
+#' # compute mean of data
+#' mean_method <- create_method(
+#'   .method_fun = function(x) list(mean = mean(x)), .name = "Mean(x)"
+#' )
+#'
+#' # evaluate SD of mean(x) across simulation replicates
+#' sd_mean_eval <- create_evaluator(
+#'   .eval_fun = function(fit_results, vary_params = NULL) {
+#'     group_vars <- c(".dgp_name", ".method_name", vary_params)
+#'     fit_results %>%
+#'       dplyr::group_by(dplyr::across(tidyselect::all_of(group_vars))) %>%
+#'       dplyr::summarise(sd = sd(mean), .groups = "keep")
+#'   },
+#'   .name = "SD of Mean(x)"
+#' )
+#' # plot SD of mean(x) across simulation replicates
+#' sd_mean_plot <- create_visualizer(
+#'   .viz_fun = function(fit_results, eval_results, vary_params = NULL,
+#'                       eval_name = "SD of Mean(x)") {
+#'     if (!is.null(vary_params)) {
+#'       add_aes <- ggplot2::aes(
+#'         x = .data[[unique(vary_params)]], y = sd, color = .dgp_name
+#'       )
+#'     } else {
+#'       add_aes <- ggplot2::aes(x = .dgp_name, y = sd)
+#'     }
+#'     plt <- ggplot2::ggplot(eval_results[[eval_name]]) +
+#'       add_aes +
+#'       ggplot2::geom_point()
+#'     if (!is.null(vary_params)) {
+#'       plt <- plt + ggplot2::geom_line()
+#'     }
+#'     return(plt)
+#'   },
+#'   .name = "SD of Mean(x) Plot"
+#' )
+#'
+#' # initialize experiment with toy DGPs, Methods, Evaluators, and Visualizers
+#' # using piping %>% and add_* functions
+#' experiment <- create_experiment(name = "Experiment Name") %>%
+#'   add_dgp(normal_dgp) %>%
+#'   add_dgp(bernoulli_dgp) %>%
+#'   add_method(mean_method) %>%
+#'   add_evaluator(sd_mean_eval) %>%
+#'   add_visualizer(sd_mean_plot)
+#' print(experiment)
+#'
+#' # this is equivalent to
+#' experiment <- create_experiment(
+#'   name = "Experiment Name",
+#'   dgp_list = list(`Normal DGP` = normal_dgp, `Bernoulli DGP` = bernoulli_dgp),
+#'   method_list = list(`Mean(x)` = mean_method),
+#'   evaluator_list = list(`SD of Mean(x)` = sd_mean_eval),
+#'   visualizer_list = list(`SD of Mean(x) Plot` = sd_mean_plot)
+#' )
+#'
 NULL
 
 #' @rdname add_funs
 #'
+#' @inherit add_funs examples
 #' @export
 add_dgp <- function(experiment, dgp, name=NULL, ...) {
   experiment$add_dgp(dgp, name, ...)
@@ -246,6 +441,7 @@ add_dgp <- function(experiment, dgp, name=NULL, ...) {
 
 #' @rdname add_funs
 #'
+#' @inherit add_funs examples
 #' @export
 add_method <- function(experiment, method, name=NULL, ...) {
   experiment$add_method(method, name, ...)
@@ -253,6 +449,7 @@ add_method <- function(experiment, method, name=NULL, ...) {
 
 #' @rdname add_funs
 #'
+#' @inherit add_funs examples
 #' @export
 add_evaluator <- function(experiment, evaluator, name = NULL, ...) {
   experiment$add_evaluator(evaluator, name, ...)
@@ -260,6 +457,7 @@ add_evaluator <- function(experiment, evaluator, name = NULL, ...) {
 
 #' @rdname add_funs
 #'
+#' @inherit add_funs examples
 #' @export
 add_visualizer <- function(experiment, visualizer, name=NULL, ...) {
   experiment$add_visualizer(visualizer, name, ...)
@@ -279,10 +477,112 @@ add_visualizer <- function(experiment, visualizer, name=NULL, ...) {
 #' @name update_funs
 #' @rdname update_funs
 #'
+#' @examples
+#' ## create toy DGPs, Methods, Evaluators, and Visualizers
+#'
+#' # generate data from normal distribution with 100 samples
+#' dgp1 <- create_dgp(
+#'   .dgp_fun = function(n) rnorm(n), .name = "DGP", n = 100
+#' )
+#' # generate data from normal distribution with 500 samples
+#' dgp2 <- create_dgp(
+#'   .dgp_fun = function(n) rnorm(n), .name = "DGP", n = 500
+#' )
+#'
+#' # compute mean of data
+#' mean_method <- create_method(
+#'   .method_fun = function(x) list(mean = mean(x)), .name = "Method"
+#' )
+#' # compute mean of data
+#' median_method <- create_method(
+#'   .method_fun = function(x) list(mean = median(x)), .name = "Method"
+#' )
+#'
+#' # evaluate SD of mean(x) across simulation replicates
+#' sd_eval <- create_evaluator(
+#'   .eval_fun = function(fit_results, vary_params = NULL) {
+#'     group_vars <- c(".dgp_name", ".method_name", vary_params)
+#'     fit_results %>%
+#'       dplyr::group_by(dplyr::across(tidyselect::all_of(group_vars))) %>%
+#'       dplyr::summarise(sd = sd(mean), .groups = "keep")
+#'   },
+#'   .name = "Evaluator"
+#' )
+#' # evaluate Variance of mean(x) across simulation replicates
+#' var_eval <- create_evaluator(
+#'   .eval_fun = function(fit_results, vary_params = NULL) {
+#'     group_vars <- c(".dgp_name", ".method_name", vary_params)
+#'     fit_results %>%
+#'       dplyr::group_by(dplyr::across(tidyselect::all_of(group_vars))) %>%
+#'       dplyr::summarise(var = var(mean), .groups = "keep")
+#'   },
+#'   .name = "Evaluator"
+#' )
+#'
+#' # plot SD of method results across simulation replicates
+#' sd_plot <- create_visualizer(
+#'   .viz_fun = function(fit_results, eval_results, vary_params = NULL,
+#'                       eval_name = 1) {
+#'     if (!is.null(vary_params)) {
+#'       add_aes <- ggplot2::aes(
+#'         x = .data[[unique(vary_params)]], y = sd, color = .dgp_name
+#'       )
+#'     } else {
+#'       add_aes <- ggplot2::aes(x = .dgp_name, y = sd)
+#'     }
+#'     plt <- ggplot2::ggplot(eval_results[[eval_name]]) +
+#'       add_aes +
+#'       ggplot2::geom_point()
+#'     if (!is.null(vary_params)) {
+#'       plt <- plt + ggplot2::geom_line()
+#'     }
+#'     return(plt)
+#'   },
+#'   .name = "Visualizer"
+#' )
+#' # plot variance of method results across simulation replicates
+#' var_plot <- create_visualizer(
+#'   .viz_fun = function(fit_results, eval_results, vary_params = NULL,
+#'                       eval_name = 1) {
+#'     if (!is.null(vary_params)) {
+#'       add_aes <- ggplot2::aes(
+#'         x = .data[[unique(vary_params)]], y = var, color = .dgp_name
+#'       )
+#'     } else {
+#'       add_aes <- ggplot2::aes(x = .dgp_name, y = var)
+#'     }
+#'     plt <- ggplot2::ggplot(eval_results[[eval_name]]) +
+#'       add_aes +
+#'       ggplot2::geom_point()
+#'     if (!is.null(vary_params)) {
+#'       plt <- plt + ggplot2::geom_line()
+#'     }
+#'     return(plt)
+#'   },
+#'   .name = "Visualizer"
+#' )
+#'
+#' # initialize experiment with toy DGPs, Methods, Evaluators, and Visualizers
+#' # using piping %>% and add_* functions
+#' experiment <- create_experiment(name = "Experiment Name") %>%
+#'   add_dgp(dgp1) %>%
+#'   add_method(mean_method) %>%
+#'   add_evaluator(sd_eval) %>%
+#'   add_visualizer(sd_plot)
+#' print(experiment)
+#'
+#' # example usage of update_* functions
+#' experiment <- experiment %>%
+#'   update_dgp(dgp2, "DGP") %>%
+#'   update_method(median_method, "Method") %>%
+#'   update_evaluator(var_eval, "Evaluator") %>%
+#'   update_visualizer(var_plot, "Visualizer")
+#'
 NULL
 
 #' @rdname update_funs
 #'
+#' @inherit update_funs examples
 #' @export
 update_dgp <- function(experiment, dgp, name, ...) {
   experiment$update_dgp(dgp, name, ...)
@@ -290,6 +590,7 @@ update_dgp <- function(experiment, dgp, name, ...) {
 
 #' @rdname update_funs
 #'
+#' @inherit update_funs examples
 #' @export
 update_method <- function(experiment, method, name, ...) {
   experiment$update_method(method, name, ...)
@@ -297,6 +598,7 @@ update_method <- function(experiment, method, name, ...) {
 
 #' @rdname update_funs
 #'
+#' @inherit update_funs examples
 #' @export
 update_evaluator <- function(experiment, evaluator, name, ...) {
   experiment$update_evaluator(evaluator, name, ...)
@@ -304,6 +606,7 @@ update_evaluator <- function(experiment, evaluator, name, ...) {
 
 #' @rdname update_funs
 #'
+#' @inherit update_funs examples
 #' @export
 update_visualizer <- function(experiment, visualizer, name, ...) {
   experiment$update_visualizer(visualizer, name, ...)
@@ -325,10 +628,79 @@ update_visualizer <- function(experiment, visualizer, name, ...) {
 #' @name remove_funs
 #' @rdname remove_funs
 #'
+#' @examples
+#' ## create toy DGPs, Methods, Evaluators, and Visualizers
+#'
+#' # generate data from normal distribution with n samples
+#' normal_dgp <- create_dgp(
+#'   .dgp_fun = function(n) rnorm(n), .name = "Normal DGP", n = 100
+#' )
+#' # generate data from binomial distribution with n samples
+#' bernoulli_dgp <- create_dgp(
+#'   .dgp_fun = function(n) rbinom(n, 1, 0.5), .name = "Bernoulli DGP", n = 100
+#' )
+#'
+#' # compute mean of data
+#' mean_method <- create_method(
+#'   .method_fun = function(x) list(mean = mean(x)), .name = "Mean(x)"
+#' )
+#'
+#' # evaluate SD of mean(x) across simulation replicates
+#' sd_mean_eval <- create_evaluator(
+#'   .eval_fun = function(fit_results, vary_params = NULL) {
+#'     group_vars <- c(".dgp_name", ".method_name", vary_params)
+#'     fit_results %>%
+#'       dplyr::group_by(dplyr::across(tidyselect::all_of(group_vars))) %>%
+#'       dplyr::summarise(sd = sd(mean), .groups = "keep")
+#'   },
+#'   .name = "SD of Mean(x)"
+#' )
+#' # plot SD of mean(x) across simulation replicates
+#' sd_mean_plot <- create_visualizer(
+#'   .viz_fun = function(fit_results, eval_results, vary_params = NULL,
+#'                       eval_name = "SD of Mean(x)") {
+#'     if (!is.null(vary_params)) {
+#'       add_aes <- ggplot2::aes(
+#'         x = .data[[unique(vary_params)]], y = sd, color = .dgp_name
+#'       )
+#'     } else {
+#'       add_aes <- ggplot2::aes(x = .dgp_name, y = sd)
+#'     }
+#'     plt <- ggplot2::ggplot(eval_results[[eval_name]]) +
+#'       add_aes +
+#'       ggplot2::geom_point()
+#'     if (!is.null(vary_params)) {
+#'       plt <- plt + ggplot2::geom_line()
+#'     }
+#'     return(plt)
+#'   },
+#'   .name = "SD of Mean(x) Plot"
+#' )
+#'
+#' # initialize experiment with toy DGPs, Methods, Evaluators, and Visualizers
+#' # using piping %>% and add_* functions
+#' experiment <- create_experiment(name = "Experiment Name") %>%
+#'   add_dgp(normal_dgp) %>%
+#'   add_dgp(bernoulli_dgp) %>%
+#'   add_method(mean_method) %>%
+#'   add_evaluator(sd_mean_eval) %>%
+#'   add_visualizer(sd_mean_plot)
+#' print(experiment)
+#'
+#' # example usage of removing DGPs, Methods, Evaluators, and Visualizers
+#' experiment <- experiment %>%
+#'   remove_dgp("Normal DGP") %>%
+#'   remove_dgp("Bernoulli DGP") %>%
+#'   remove_method("Mean(x)") %>%
+#'   remove_evaluator("SD of Mean(x)") %>%
+#'   remove_visualizer("SD of Mean(x) Plot")
+#' print(experiment)
+#'
 NULL
 
 #' @rdname remove_funs
 #'
+#' @inherit remove_funs examples
 #' @export
 remove_dgp <- function(experiment, name = NULL, ...) {
   experiment$remove_dgp(name, ...)
@@ -336,6 +708,7 @@ remove_dgp <- function(experiment, name = NULL, ...) {
 
 #' @rdname remove_funs
 #'
+#' @inherit remove_funs examples
 #' @export
 remove_method <- function(experiment, name = NULL, ...) {
   experiment$remove_method(name, ...)
@@ -343,6 +716,7 @@ remove_method <- function(experiment, name = NULL, ...) {
 
 #' @rdname remove_funs
 #'
+#' @inherit remove_funs examples
 #' @export
 remove_evaluator <- function(experiment, name = NULL, ...) {
   experiment$remove_evaluator(name, ...)
@@ -350,6 +724,7 @@ remove_evaluator <- function(experiment, name = NULL, ...) {
 
 #' @rdname remove_funs
 #'
+#' @inherit remove_funs examples
 #' @export
 remove_visualizer <- function(experiment, name = NULL, ...) {
   experiment$remove_visualizer(name, ...)
@@ -368,10 +743,75 @@ remove_visualizer <- function(experiment, name = NULL, ...) {
 #' @name get_funs
 #' @rdname get_funs
 #'
+#' @examples
+#' ## create toy DGPs, Methods, Evaluators, and Visualizers
+#'
+#' # generate data from normal distribution with n samples
+#' normal_dgp <- create_dgp(
+#'   .dgp_fun = function(n) rnorm(n), .name = "Normal DGP", n = 100
+#' )
+#' # generate data from binomial distribution with n samples
+#' bernoulli_dgp <- create_dgp(
+#'   .dgp_fun = function(n) rbinom(n, 1, 0.5), .name = "Bernoulli DGP", n = 100
+#' )
+#'
+#' # compute mean of data
+#' mean_method <- create_method(
+#'   .method_fun = function(x) list(mean = mean(x)), .name = "Mean(x)"
+#' )
+#'
+#' # evaluate SD of mean(x) across simulation replicates
+#' sd_mean_eval <- create_evaluator(
+#'   .eval_fun = function(fit_results, vary_params = NULL) {
+#'     group_vars <- c(".dgp_name", ".method_name", vary_params)
+#'     fit_results %>%
+#'       dplyr::group_by(dplyr::across(tidyselect::all_of(group_vars))) %>%
+#'       dplyr::summarise(sd = sd(mean), .groups = "keep")
+#'   },
+#'   .name = "SD of Mean(x)"
+#' )
+#' # plot SD of mean(x) across simulation replicates
+#' sd_mean_plot <- create_visualizer(
+#'   .viz_fun = function(fit_results, eval_results, vary_params = NULL,
+#'                       eval_name = "SD of Mean(x)") {
+#'     if (!is.null(vary_params)) {
+#'       add_aes <- ggplot2::aes(
+#'         x = .data[[unique(vary_params)]], y = sd, color = .dgp_name
+#'       )
+#'     } else {
+#'       add_aes <- ggplot2::aes(x = .dgp_name, y = sd)
+#'     }
+#'     plt <- ggplot2::ggplot(eval_results[[eval_name]]) +
+#'       add_aes +
+#'       ggplot2::geom_point()
+#'     if (!is.null(vary_params)) {
+#'       plt <- plt + ggplot2::geom_line()
+#'     }
+#'     return(plt)
+#'   },
+#'   .name = "SD of Mean(x) Plot"
+#' )
+#'
+#' # initialize experiment with toy DGPs, Methods, Evaluators, and Visualizers
+#' # using piping %>% and add_* functions
+#' experiment <- create_experiment(name = "Experiment Name") %>%
+#'   add_dgp(normal_dgp) %>%
+#'   add_dgp(bernoulli_dgp) %>%
+#'   add_method(mean_method) %>%
+#'   add_evaluator(sd_mean_eval) %>%
+#'   add_visualizer(sd_mean_plot)
+#'
+#' # get DGPs, Methods, Evaluators, and Visualizers
+#' get_dgps(experiment)
+#' get_methods(experiment)
+#' get_evaluators(experiment)
+#' get_visualizers(experiment)
+#'
 NULL
 
 #' @rdname get_funs
 #'
+#' @inherit get_funs examples
 #' @export
 get_dgps <- function(experiment, ...) {
   experiment$get_dgps()
@@ -379,6 +819,7 @@ get_dgps <- function(experiment, ...) {
 
 #' @rdname get_funs
 #'
+#' @inherit get_funs examples
 #' @export
 get_methods <- function(experiment, ...) {
   experiment$get_methods()
@@ -386,6 +827,7 @@ get_methods <- function(experiment, ...) {
 
 #' @rdname get_funs
 #'
+#' @inherit get_funs examples
 #' @export
 get_evaluators <- function(experiment, ...) {
   experiment$get_evaluators()
@@ -393,6 +835,7 @@ get_evaluators <- function(experiment, ...) {
 
 #' @rdname get_funs
 #'
+#' @inherit get_funs examples
 #' @export
 get_visualizers <- function(experiment, ...) {
   experiment$get_visualizers()
@@ -437,10 +880,77 @@ get_visualizers <- function(experiment, ...) {
 #' @name vary_across
 #' @rdname vary_across
 #'
+#' @examples
+#' # generate data from normal distribution with n samples
+#' normal_dgp <- create_dgp(
+#'   .dgp_fun = function(n) rnorm(n), .name = "Normal DGP", n = 100
+#' )
+#' # generate data from binomial distribution with n samples
+#' bernoulli_dgp <- create_dgp(
+#'   .dgp_fun = function(n) rbinom(n, 1, 0.5), .name = "Bernoulli DGP", n = 100
+#' )
+#'
+#' # compute weighted mean of data
+#' mean_method <- create_method(
+#'   .method_fun = function(x, ...) list(mean = mean(x, ...)),
+#'   .name = "Mean"
+#' )
+#'
+#' # initialize experiment with toy DGPs and Methods
+#' experiment <- create_experiment(name = "Experiment Name") %>%
+#'   add_dgp(normal_dgp) %>%
+#'   add_dgp(bernoulli_dgp) %>%
+#'   add_method(mean_method)
+#'
+#' # vary across n for normal DGP
+#' experiment <- experiment %>%
+#'   add_vary_across(.dgp = "Normal DGP", n = c(100, 200, 300))
+#' get_vary_across(experiment)
+#' print(experiment)
+#'
+#' # remove vary across for normal DGP
+#' experiment <- experiment %>%
+#'   remove_vary_across(dgp = "Normal DGP")
+#' get_vary_across(experiment)
+#' print(experiment)
+#'
+#' # can add vary across for multiple DGPs at once
+#' experiment <- experiment %>%
+#'   add_vary_across(.dgp = c("Normal DGP", "Bernoulli DGP"), n = c(100, 200, 300))
+#' get_vary_across(experiment)
+#' print(experiment)
+#'
+#' # can update vary across for DGPs
+#' experiment <- experiment %>%
+#'   update_vary_across(.dgp = "Normal DGP", n = c(100, 300)) %>%
+#'   update_vary_across(.dgp = "Bernoulli DGP", n = c(100, 200))
+#' get_vary_across(experiment)
+#' print(experiment)
+#'
+#' # can also add/update/remove vary across for methods
+#' experiment <- experiment %>%
+#'   add_vary_across(.method = "Mean", trim = list(0, 0.1, 0.2))
+#' print(experiment)
+#' experiment <- experiment %>%
+#'   update_vary_across(
+#'     .method = "Mean", trim = list(0, 0.1, 0.2, 0.3)
+#'   )
+#' print(experiment)
+#' experiment <- experiment %>%
+#'   remove_vary_across(method = "Mean")
+#' print(experiment)
+#'
+#' # can remove all vary across parameters
+#' experiment <- experiment %>%
+#'   remove_vary_across()
+#' get_vary_across(experiment)
+#' print(experiment)
+#'
 NULL
 
 #' @rdname vary_across
 #'
+#' @inherit vary_across examples
 #' @export
 add_vary_across <- function(.experiment, .dgp, .method, ...) {
   .experiment$add_vary_across(.dgp, .method, ...)
@@ -448,6 +958,7 @@ add_vary_across <- function(.experiment, .dgp, .method, ...) {
 
 #' @rdname vary_across
 #'
+#' @inherit vary_across examples
 #' @export
 update_vary_across <- function(.experiment, .dgp, .method, ...) {
   .experiment$update_vary_across(.dgp, .method, ...)
@@ -455,6 +966,7 @@ update_vary_across <- function(.experiment, .dgp, .method, ...) {
 
 #' @rdname vary_across
 #'
+#' @inherit vary_across examples
 #' @export
 remove_vary_across <- function(experiment, dgp, method, param_names = NULL) {
   experiment$remove_vary_across(dgp, method, param_names)
@@ -462,6 +974,7 @@ remove_vary_across <- function(experiment, dgp, method, param_names = NULL) {
 
 #' @rdname vary_across
 #'
+#' @inherit vary_across examples
 #' @export
 get_vary_across <- function(experiment) {
   experiment$get_vary_across()
@@ -476,6 +989,10 @@ get_vary_across <- function(experiment) {
 #' @inheritParams shared_experiment_helpers_args
 #'
 #' @return The original \code{Experiment} object with cache cleared.
+#'
+#' @examples
+#' \dontrun{
+#' clear_cache(experiment)}
 #'
 #' @export
 clear_cache <- function(experiment) {
@@ -499,6 +1016,13 @@ clear_cache <- function(experiment) {
 #'   \code{results_type = "eval"}, the cached visualization results if
 #'   \code{results_type = "viz"}, and the experiment parameters used in
 #'   the cache if \code{results_type = "experiment_cached_params"}.
+#'
+#' @examples
+#' \dontrun{
+#' fit_results <- get_cached_results(experiment, "fit")
+#' eval_results <- get_cached_results(experiment, "eval")
+#' viz_results <- get_cached_results(experiment, "viz")
+#' cached_params <- get_cached_results(experiment, "experiment_cached_params")}
 #'
 #' @export
 get_cached_results <- function(experiment, results_type, verbose = 0) {
@@ -526,6 +1050,70 @@ get_cached_results <- function(experiment, results_type, verbose = 0) {
 #'
 #' @return The original \code{Experiment} object with the \code{doc_options}
 #'   and/or \code{show} fields modified in the \code{Evaluator}/\code{Visualizer}.
+#' @examples
+#' ## create toy DGPs, Methods, Evaluators, and Visualizers
+#'
+#' # generate data from normal distribution with n samples
+#' normal_dgp <- create_dgp(
+#'   .dgp_fun = function(n) rnorm(n), .name = "Normal DGP", n = 100
+#' )
+#' # generate data from binomial distribution with n samples
+#' bernoulli_dgp <- create_dgp(
+#'   .dgp_fun = function(n) rbinom(n, 1, 0.5), .name = "Bernoulli DGP", n = 100
+#' )
+#'
+#' # compute mean of data
+#' mean_method <- create_method(
+#'   .method_fun = function(x) list(mean = mean(x)), .name = "Mean(x)"
+#' )
+#'
+#' # evaluate SD of mean(x) across simulation replicates
+#' sd_mean_eval <- create_evaluator(
+#'   .eval_fun = function(fit_results, vary_params = NULL) {
+#'     group_vars <- c(".dgp_name", ".method_name", vary_params)
+#'     fit_results %>%
+#'       dplyr::group_by(dplyr::across(tidyselect::all_of(group_vars))) %>%
+#'       dplyr::summarise(sd = sd(mean), .groups = "keep")
+#'   },
+#'   .name = "SD of Mean(x)"
+#' )
+#' # plot SD of mean(x) across simulation replicates
+#' sd_mean_plot <- create_visualizer(
+#'   .viz_fun = function(fit_results, eval_results, vary_params = NULL,
+#'                       eval_name = "SD of Mean(x)") {
+#'     if (!is.null(vary_params)) {
+#'       add_aes <- ggplot2::aes(
+#'         x = .data[[unique(vary_params)]], y = sd, color = .dgp_name
+#'       )
+#'     } else {
+#'       add_aes <- ggplot2::aes(x = .dgp_name, y = sd)
+#'     }
+#'     plt <- ggplot2::ggplot(eval_results[[eval_name]]) +
+#'       add_aes +
+#'       ggplot2::geom_point()
+#'     if (!is.null(vary_params)) {
+#'       plt <- plt + ggplot2::geom_line()
+#'     }
+#'     return(plt)
+#'   },
+#'   .name = "SD of Mean(x) Plot"
+#' )
+#'
+#' # initialize experiment with toy DGPs, Methods, Evaluators, and Visualizers
+#' # using piping %>% and add_* functions
+#' experiment <- create_experiment(name = "Experiment Name") %>%
+#'   add_dgp(normal_dgp) %>%
+#'   add_dgp(bernoulli_dgp) %>%
+#'   add_method(mean_method) %>%
+#'   add_evaluator(sd_mean_eval) %>%
+#'   add_visualizer(sd_mean_plot)
+#'
+#' # set R Markdown options for Evaluator/Visualizer (in this case, Visualizer)
+#' experiment <- experiment %>%
+#'   set_doc_options(
+#'     field_name = "visualizer", name = "SD of Mean(x) Plot",
+#'     height = 10, width = 8
+#'   )
 #'
 #' @export
 set_doc_options <- function(experiment, field_name = c("evaluator", "visualizer"),
@@ -544,7 +1132,9 @@ set_doc_options <- function(experiment, field_name = c("evaluator", "visualizer"
 #' `set_rmd_options()` was renamed to `set_doc_options()` to create a more
 #' consistent API.
 #'
-#' @keywords internal
+#' @inheritParams set_doc_options
+#' @inherit set_doc_options examples
+#'
 #' @export
 set_rmd_options <- function(experiment, field_name = c("evaluator", "visualizer"),
                             name, show = NULL, ...) {
@@ -565,6 +1155,81 @@ set_rmd_options <- function(experiment, field_name = c("evaluator", "visualizer"
 #' @return The original \code{Experiment} object with the updated saving
 #'   directory.
 #'
+#' @examples
+#' ## create toy DGPs, Methods, Evaluators, and Visualizers
+#'
+#' # generate data from normal distribution with n samples
+#' normal_dgp <- create_dgp(
+#'   .dgp_fun = function(n) rnorm(n), .name = "Normal DGP", n = 100
+#' )
+#' # generate data from binomial distribution with n samples
+#' bernoulli_dgp <- create_dgp(
+#'   .dgp_fun = function(n) rbinom(n, 1, 0.5), .name = "Bernoulli DGP", n = 100
+#' )
+#'
+#' # compute mean of data
+#' mean_method <- create_method(
+#'   .method_fun = function(x) list(mean = mean(x)), .name = "Mean(x)"
+#' )
+#'
+#' # evaluate SD of mean(x) across simulation replicates
+#' sd_mean_eval <- create_evaluator(
+#'   .eval_fun = function(fit_results, vary_params = NULL) {
+#'     group_vars <- c(".dgp_name", ".method_name", vary_params)
+#'     fit_results %>%
+#'       dplyr::group_by(dplyr::across(tidyselect::all_of(group_vars))) %>%
+#'       dplyr::summarise(sd = sd(mean), .groups = "keep")
+#'   },
+#'   .name = "SD of Mean(x)"
+#' )
+#' # plot SD of mean(x) across simulation replicates
+#' sd_mean_plot <- create_visualizer(
+#'   .viz_fun = function(fit_results, eval_results, vary_params = NULL,
+#'                       eval_name = "SD of Mean(x)") {
+#'     if (!is.null(vary_params)) {
+#'       add_aes <- ggplot2::aes(
+#'         x = .data[[unique(vary_params)]], y = sd, color = .dgp_name
+#'       )
+#'     } else {
+#'       add_aes <- ggplot2::aes(x = .dgp_name, y = sd)
+#'     }
+#'     plt <- ggplot2::ggplot(eval_results[[eval_name]]) +
+#'       add_aes +
+#'       ggplot2::geom_point()
+#'     if (!is.null(vary_params)) {
+#'       plt <- plt + ggplot2::geom_line()
+#'     }
+#'     return(plt)
+#'   },
+#'   .name = "SD of Mean(x) Plot"
+#' )
+#'
+#' # initialize experiment with toy DGPs, Methods, Evaluators, and Visualizers
+#' # using piping %>% and add_* functions
+#' experiment <- create_experiment(name = "Experiment Name") %>%
+#'   add_dgp(normal_dgp) %>%
+#'   add_dgp(bernoulli_dgp) %>%
+#'   add_method(mean_method) %>%
+#'   add_evaluator(sd_mean_eval) %>%
+#'   add_visualizer(sd_mean_plot)
+#'
+#' # set custom save directory (i.e., where to save results)
+#' experiment <- experiment %>%
+#'   set_save_dir("path/to/results")
+#'
+#' # this is equivalent to:
+#' experiment <- create_experiment(
+#'   name = "Experiment Name", save_dir = "path/to/results"
+#' ) %>%
+#'   add_dgp(normal_dgp) %>%
+#'   add_dgp(bernoulli_dgp) %>%
+#'   add_method(mean_method) %>%
+#'   add_evaluator(sd_mean_eval) %>%
+#'   add_visualizer(sd_mean_plot)
+#'
+#' # get save dir via:
+#' get_save_dir(experiment)
+#'
 #' @export
 set_save_dir <- function(experiment, save_dir) {
   experiment$set_save_dir(save_dir)
@@ -581,6 +1246,8 @@ set_save_dir <- function(experiment, save_dir) {
 #' @return The relative path to where the \code{Experiment}'s results and
 #'   visualizations are saved.
 #'
+#' @inherit set_save_dir examples
+#'
 #' @export
 get_save_dir <- function(experiment) {
   experiment$get_save_dir()
@@ -596,6 +1263,10 @@ get_save_dir <- function(experiment) {
 #'
 #' @return The original \code{Experiment} object passed to
 #'   \code{save_experiment}.
+#'
+#' @examples
+#' \dontrun{
+#' save_experiment(experiment)}
 #'
 #' @export
 save_experiment <- function(experiment) {
@@ -614,6 +1285,10 @@ save_experiment <- function(experiment) {
 #'
 #' @return The original \code{Experiment} object passed to
 #'   \code{export_visualizers}.
+#'
+#' @examples
+#' \dontrun{
+#' export_visualizers(experiment)}
 #'
 #' @export
 export_visualizers <- function(experiment, ...) {

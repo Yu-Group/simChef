@@ -1,18 +1,18 @@
 #' Plot prediction error according to various metrics.
-#' 
+#'
 #' @description Plot the raw or summarized prediction errors as a boxplot,
-#'   scatter plot, line plot, or bar plot with or without 1 SD error bars. 
-#' 
-#' @inheritParams shared_experiment_helpers_args
+#'   scatter plot, line plot, or bar plot with or without 1 SD error bars.
+#'
 #' @inheritParams shared_viz_lib_args
+#' @inheritParams shared_experiment_helpers_args
 #' @param metrics A \code{metric_set} object indicating the metrics to plot.
 #'   See [yardstick::metric_set()] for more details. Default \code{NULL} will
 #'   use the default metrics in [yardstick::metrics()].
-#' 
+#'
 #' @inherit plot_eval_constructor return
-#' 
+#'
 #' @family prediction_error_funs
-#' 
+#'
 #' @examples
 #' # generate example fit_results data
 #' fit_results <- tibble::tibble(
@@ -24,14 +24,14 @@
 #'   # predicted response
 #'   predictions = lapply(1:4, FUN = function(x) rnorm(100))
 #' )
-#' 
+#'
 #' # generate example eval_results data
 #' eval_results <- list(
 #'   `Prediction Errors` = summarize_pred_err(
 #'     fit_results, truth_col = "y", estimate_col = "predictions"
 #'   )
 #' )
-#' 
+#'
 #' # create errorbar plot using pre-computed evaluation results
 #' plt <- plot_pred_err(eval_results = eval_results,
 #'                      eval_name = "Prediction Errors",
@@ -41,15 +41,15 @@
 #'                      show = c("point", "errorbar"),
 #'                      eval_fun_options = list(truth_col = "y",
 #'                                              estimate_col = "predictions"))
-#' 
+#'
 #' # can customize plot (see plot_eval_constructor() for possible arguments)
 #' plt <- plot_pred_err(fit_results = fit_results, eval_results = eval_results,
 #'                      eval_name = "Prediction Errors",
-#'                      show = c("point", "errorbar"), 
+#'                      show = c("point", "errorbar"),
 #'                      color_str = NULL,
 #'                      facet_formula = .method_name ~ .metric,
 #'                      facet_type = "grid")
-#' 
+#'
 #' @export
 plot_pred_err <- function(fit_results = NULL,
                           eval_results = NULL, eval_name = NULL,
@@ -82,7 +82,7 @@ plot_pred_err <- function(fit_results = NULL,
     plot_data <- plot_data %>%
       dplyr::filter(.metric %in% metric_names)
   }
-  
+
   plt <- do.call(
     plot_eval_constructor,
     args = c(
@@ -94,17 +94,17 @@ plot_pred_err <- function(fit_results = NULL,
 }
 
 #' Plot ROC/PR curves.
-#' 
+#'
 #' @description Plot ROC/PR curves or some summary thereof across experimental
 #'   replicates.
-#' 
-#' @inheritParams shared_experiment_helpers_args
+#'
 #' @inheritParams shared_viz_lib_args
-#' 
+#' @inheritParams shared_experiment_helpers_args
+#'
 #' @inherit plot_eval_constructor return
-#' 
+#'
 #' @family prediction_error_funs
-#' 
+#'
 #' @examples
 #' # generate example fit_results data
 #' fit_results <- tibble::tibble(
@@ -116,10 +116,10 @@ plot_pred_err <- function(fit_results = NULL,
 #'              FUN = function(x) {
 #'                as.factor(sample(0:1, size = 100, replace = TRUE))
 #'              }),
-#'   # predicted class probabilities 
+#'   # predicted class probabilities
 #'   class_probs = lapply(1:4, FUN = function(x) runif(n = 100, min = 0, max = 1))
 #' )
-#' 
+#'
 #' # generate example eval_results data
 #' eval_results <- list(
 #'   ROC = summarize_pred_curve(
@@ -129,7 +129,7 @@ plot_pred_err <- function(fit_results = NULL,
 #'     fit_results, truth_col = "y", prob_cols = "class_probs", curve = "PR"
 #'   )
 #' )
-#' 
+#'
 #' # create summary ROC/PR plots using pre-computed evaluation results
 #' roc_plt <- plot_pred_curve(eval_results = eval_results,
 #'                            eval_name = "ROC", curve = "ROC",
@@ -146,13 +146,13 @@ plot_pred_err <- function(fit_results = NULL,
 #'                           show = c("line", "ribbon"), curve = "PR",
 #'                           eval_fun_options = list(truth_col = "y",
 #'                                                   prob_cols = "class_probs"))
-#' 
+#'
 #' # can customize plot (see plot_eval_constructor() for possible arguments)
 #' roc_plt <- plot_pred_curve(eval_results = eval_results,
 #'                            eval_name = "ROC", curve = "ROC",
 #'                            show = c("line", "ribbon"),
 #'                            plot_by = ".dgp_name")
-#' 
+#'
 #' @export
 plot_pred_curve <- function(fit_results = NULL,
                             eval_results = NULL, eval_name = NULL,
@@ -177,7 +177,7 @@ plot_pred_curve <- function(fit_results = NULL,
       add_ggplot_layers = list(ggplot2::coord_cartesian(ylim = c(0, 1)))
     )
   )
-  
+
   plot_data <- get_plot_data(
     fit_results = fit_results,
     eval_results = eval_results,
@@ -185,7 +185,7 @@ plot_pred_curve <- function(fit_results = NULL,
     eval_fun = eval_fun,
     eval_fun_options = c(eval_fun_options, list(curve = curve))
   )
-  
+
   plt <- do.call(
     plot_eval_constructor,
     args = c(

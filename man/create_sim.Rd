@@ -29,3 +29,9 @@ study. It wraps around \code{\link[usethis]{create_project}()}, as well as
 \code{\link[usethis:use_git]{usethis::use_git}()} and
 \code{\link[renv:init]{renv::init}()}.
 }
+\examples{
+\dontrun{
+# create template directory for simulation project
+create_sim("path/to/sim")}
+
+}

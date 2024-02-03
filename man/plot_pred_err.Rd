@@ -17,10 +17,10 @@ plot_pred_err(
 )
 }
 \arguments{
-\item{fit_results}{A tibble, as returned by the \code{fit} method.}
+\item{fit_results}{A tibble, as returned by \code{fit_experiment()}.}
 
-\item{eval_results}{A list of result tibbles, as returned by the
-\code{evaluate} method.}
+\item{eval_results}{A list of result tibbles, as returned by
+\code{evaluate_experiment()}.}
 
 \item{eval_name}{Name of \code{Evaluator} containing results to plot. If
 \code{NULL}, the data used for plotting is computed from scratch via
@@ -43,7 +43,8 @@ use the default metrics in \code{\link[yardstick:metrics]{yardstick::metrics()}}
 "line", "bar", "errorbar", "ribbon" indicating what plot layer(s) to
 construct.}
 
-\item{...}{Not used.}
+\item{...}{Additional arguments to pass to
+\code{\link{plot_eval_constructor}}.}
 }
 \value{
 If \code{interactive = TRUE}, returns a \code{plotly} object if
@@ -88,7 +89,7 @@ plt <- plot_pred_err(fit_results = fit_results,
 # can customize plot (see plot_eval_constructor() for possible arguments)
 plt <- plot_pred_err(fit_results = fit_results, eval_results = eval_results,
                      eval_name = "Prediction Errors",
-                     show = c("point", "errorbar"), 
+                     show = c("point", "errorbar"),
                      color_str = NULL,
                      facet_formula = .method_name ~ .metric,
                      facet_type = "grid")

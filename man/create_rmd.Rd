@@ -94,3 +94,12 @@ for applying a custom R Markdown output theme.}
 \code{create_rmd()} was renamed to \code{render_docs()} to create a more consistent
 API.
 }
+\examples{
+\dontrun{
+# create basic Rmd from an experiment (of class `Experiment`)
+create_rmd(experiment)
+
+# or alternatively, create basic Rmd from a specific directory
+create_rmd(save_dir = experiment$get_save_dir())}
+
+}

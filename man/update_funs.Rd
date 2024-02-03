@@ -39,3 +39,105 @@ Helper functions for updating \code{DGPs}, \code{Methods},
 \code{Evaluators}, and \code{Visualizers} already added to an
 \code{Experiment}.
 }
+\examples{
+## create toy DGPs, Methods, Evaluators, and Visualizers
+
+# generate data from normal distribution with 100 samples
+dgp1 <- create_dgp(
+  .dgp_fun = function(n) rnorm(n), .name = "DGP", n = 100
+)
+# generate data from normal distribution with 500 samples
+dgp2 <- create_dgp(
+  .dgp_fun = function(n) rnorm(n), .name = "DGP", n = 500
+)
+
+# compute mean of data
+mean_method <- create_method(
+  .method_fun = function(x) list(mean = mean(x)), .name = "Method"
+)
+# compute mean of data
+median_method <- create_method(
+  .method_fun = function(x) list(mean = median(x)), .name = "Method"
+)
+
+# evaluate SD of mean(x) across simulation replicates
+sd_eval <- create_evaluator(
+  .eval_fun = function(fit_results, vary_params = NULL) {
+    group_vars <- c(".dgp_name", ".method_name", vary_params)
+    fit_results \%>\%
+      dplyr::group_by(dplyr::across(tidyselect::all_of(group_vars))) \%>\%
+      dplyr::summarise(sd = sd(mean), .groups = "keep")
+  },
+  .name = "Evaluator"
+)
+# evaluate Variance of mean(x) across simulation replicates
+var_eval <- create_evaluator(
+  .eval_fun = function(fit_results, vary_params = NULL) {
+    group_vars <- c(".dgp_name", ".method_name", vary_params)
+    fit_results \%>\%
+      dplyr::group_by(dplyr::across(tidyselect::all_of(group_vars))) \%>\%
+      dplyr::summarise(var = var(mean), .groups = "keep")
+  },
+  .name = "Evaluator"
+)
+
+# plot SD of method results across simulation replicates
+sd_plot <- create_visualizer(
+  .viz_fun = function(fit_results, eval_results, vary_params = NULL,
+                      eval_name = 1) {
+    if (!is.null(vary_params)) {
+      add_aes <- ggplot2::aes(
+        x = .data[[unique(vary_params)]], y = sd, color = .dgp_name
+      )
+    } else {
+      add_aes <- ggplot2::aes(x = .dgp_name, y = sd)
+    }
+    plt <- ggplot2::ggplot(eval_results[[eval_name]]) +
+      add_aes +
+      ggplot2::geom_point()
+    if (!is.null(vary_params)) {
+      plt <- plt + ggplot2::geom_line()
+    }
+    return(plt)
+  },
+  .name = "Visualizer"
+)
+# plot variance of method results across simulation replicates
+var_plot <- create_visualizer(
+  .viz_fun = function(fit_results, eval_results, vary_params = NULL,
+                      eval_name = 1) {
+    if (!is.null(vary_params)) {
+      add_aes <- ggplot2::aes(
+        x = .data[[unique(vary_params)]], y = var, color = .dgp_name
+      )
+    } else {
+      add_aes <- ggplot2::aes(x = .dgp_name, y = var)
+    }
+    plt <- ggplot2::ggplot(eval_results[[eval_name]]) +
+      add_aes +
+      ggplot2::geom_point()
+    if (!is.null(vary_params)) {
+      plt <- plt + ggplot2::geom_line()
+    }
+    return(plt)
+  },
+  .name = "Visualizer"
+)
+
+# initialize experiment with toy DGPs, Methods, Evaluators, and Visualizers
+# using piping \%>\% and add_* functions
+experiment <- create_experiment(name = "Experiment Name") \%>\%
+  add_dgp(dgp1) \%>\%
+  add_method(mean_method) \%>\%
+  add_evaluator(sd_eval) \%>\%
+  add_visualizer(sd_plot)
+print(experiment)
+
+# example usage of update_* functions
+experiment <- experiment \%>\%
+  update_dgp(dgp2, "DGP") \%>\%
+  update_method(median_method, "Method") \%>\%
+  update_evaluator(var_eval, "Evaluator") \%>\%
+  update_visualizer(var_plot, "Visualizer")
+
+}

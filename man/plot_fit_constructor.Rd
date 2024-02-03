@@ -15,7 +15,7 @@ plot_fit_constructor(
 )
 }
 \arguments{
-\item{fit_results}{A tibble, as returned by the \code{fit} method.}
+\item{fit_results}{A tibble, as returned by \code{fit_experiment()}.}
 
 \item{vary_params}{A vector of parameter names that are varied across in the
 \code{Experiment}.}
@@ -64,7 +64,7 @@ plot_fun <- function(fit_results, vary_params = NULL) {
     ggplot2::ggplot() +
     ggplot2::aes(x = y, y = predictions) +
     ggplot2::geom_point() +
-    ggplot2::labs(title = sprintf("DGP: \%s | Method: \%s | Rep: \%s", 
+    ggplot2::labs(title = sprintf("DGP: \%s | Method: \%s | Rep: \%s",
                                   fit_results$.dgp_name,
                                   fit_results$.method_name,
                                   fit_results$.rep))
@@ -73,5 +73,5 @@ plot_fun <- function(fit_results, vary_params = NULL) {
 
 # returns the scatter plot for each (DGP, Method) combination from rep 1
 plt <- plot_fit_constructor(fit_results, reps = 1, plot_fun = plot_fun)
-  
+
 }

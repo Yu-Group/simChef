@@ -23,6 +23,7 @@ A data-generating process which will be used in the
 
 \itemize{
 \item{\code{DGP$new()}} See \link{create_dgp}.
+\item{\code{DGP$generate()}} See \link{generate_dgp}.
 }
 }
 

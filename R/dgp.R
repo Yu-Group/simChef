@@ -27,15 +27,6 @@ DGP <- R6::R6Class(
       }
       private$.dgp_fun_formals <- formalArgs(self$dgp_fun)
     },
-    # @description Generate data from a \code{DGP} with the provided \code{DGP}
-    #   parameters.
-    #
-    # @param ... Arguments to pass into \code{dgp_fun()} that will overwrite
-    #   the initialized \code{DGP} parameters. If no additional arguments are
-    #   provided, data will be generated using \code{dgp_fun()} with the
-    #   parameters that were set when \code{DGP$new()} was called.
-    #
-    # @return Result of \code{dgp_fun()}.
     generate = function(...) {
       dgp_params <- self$dgp_params
       new_dgp_params <- rlang::list2(...)
@@ -68,10 +59,6 @@ DGP <- R6::R6Class(
 
       return(data_list)
     },
-    # @description Print a \code{DGP} in a nice format, showing the
-    #   \code{DGP}'s name, function, and parameters.
-    #
-    # @return The original \code{DGP} object.
     print = function() {
       if (is.null(self$name)) {
         cat("DGP Name: NULL \n")
@@ -121,4 +108,24 @@ DGP <- R6::R6Class(
 #' @export
 create_dgp <- function(.dgp_fun, .name = NULL, ...) {
   DGP$new(.dgp_fun, .name, ...)
+}
+
+#' Generate data from a \code{DGP}.
+#'
+#' @name generate_dgp
+#' @description Generate data from a \code{DGP} with the provided \code{DGP}
+#'   parameters.
+#'
+#' @param dgp A \code{DGP} object.
+#' @param ... Arguments to pass into \code{DGP$dgp_fun()} that will overwrite
+#'   the initialized \code{DGP} parameters. If no additional arguments are
+#'   provided, data will be generated using \code{DGP$dgp_fun()} with the
+#'   parameters that were set when \code{DGP$new()} was called.
+#'
+#' @return Result of \code{DGP$dgp_fun()}.
+#'
+#' @inherit visualize_visualizer examples
+#' @export
+generate_dgp <- function(dgp, ...) {
+  dgp$generate(...)
 }

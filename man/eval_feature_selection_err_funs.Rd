@@ -34,7 +34,7 @@ summarize_feature_selection_err(
 )
 }
 \arguments{
-\item{fit_results}{A tibble, as returned by the \code{fit} method.}
+\item{fit_results}{A tibble, as returned by \code{fit_experiment()}.}
 
 \item{vary_params}{A vector of parameter names that are varied across in the
 \code{Experiment}.}
@@ -138,13 +138,13 @@ fit_results <- tibble::tibble(
     FUN = function(i) {
       tibble::tibble(
         # feature names
-        feature = c("featureA", "featureB", "featureC"),  
+        feature = c("featureA", "featureB", "featureC"),
         # true feature support
-        true_support = c(TRUE, FALSE, TRUE),  
+        true_support = c(TRUE, FALSE, TRUE),
         # estimated feature support
-        est_support = c(TRUE, FALSE, FALSE),  
+        est_support = c(TRUE, FALSE, FALSE),
         # estimated feature importance scores
-        est_importance = c(10, runif(2, min = -2, max = 2))  
+        est_importance = c(10, runif(2, min = -2, max = 2))
       )
     }
   )

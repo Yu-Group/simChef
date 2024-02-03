@@ -27,18 +27,6 @@ Evaluator <- R6::R6Class(
       self$doc_show <- .doc_show
       self$eval_params <- rlang::list2(...)
     },
-    # @description Evaluate the performance of method(s) in the
-    #   \code{Experiment} using the \code{Evaluator} and its given parameters.
-    #
-    # @param fit_results A tibble, typically returned by the
-    #   \code{Experiment$fit()} method.
-    # @param vary_params Name of parameters/arguments that were varied in the
-    #   \code{Experiment} (see \code{Experiment$get_vary_across()}).
-    #   Use \code{NULL} (default) if no \code{vary_across} component in
-    #   \code{Experiment} run.
-    # @param ... Not used.
-    #
-    # @return Result of \code{eval_fun()}, coerced into a tibble.
     evaluate = function(fit_results, vary_params = NULL, ...) {
       args_list <- list(fit_results = fit_results,
                         vary_params = vary_params)
@@ -52,10 +40,6 @@ Evaluator <- R6::R6Class(
                                       alwaysArgs = always_args_list)
       return(list_to_tibble(eval_results))
     },
-    # @description Print an \code{Evaluator} in a nice format, showing the 
-    #   \code{Evaluator}'s name, function, parameters, and R Markdown options.
-    #
-    # @return The original \code{Evaluator} object.
     print = function() {
       if (is.null(self$name)) {
         cat("Evaluator Name: NULL \n")
@@ -110,7 +94,7 @@ Evaluator <- R6::R6Class(
 #'   varying parameter.
 #'
 #' @return A new \code{Evaluator} object.
-#' 
+#'
 #' @examples
 #' # create an example Evaluator function
 #' reject_prob_fun <- function(fit_results, vary_params = NULL, alpha = 0.05) {
@@ -123,25 +107,25 @@ Evaluator <- R6::R6Class(
 #'     )
 #'   return(eval_out)
 #' }
-#' 
+#'
 #' # create Evaluator using the default arguments (i.e., alpha = 0.05)
-#' reject_prob_eval <- create_evaluator(.eval_fun = reject_prob_fun, 
+#' reject_prob_eval <- create_evaluator(.eval_fun = reject_prob_fun,
 #'                                      .name = "Rejection Prob (alpha = 0.05)")
 #' # create Evaluator using non-default arguments (here, alpha = 0.1)
 #' reject_prob_eval2 <- create_evaluator(.eval_fun = reject_prob_fun,
 #'                                       .name = "Rejection Prob (alpha = 0.1)",
 #'                                       # additional named parameters to pass to reject_prob_fun(),
 #'                                       alpha = 0.1)
-#' 
+#'
 #' # create Evaluator from a function in the built-in Evaluator library
 #' pred_err_eval <- create_evaluator(.eval_fun = summarize_pred_err,
-#'                                   .name = "Prediction Error", 
+#'                                   .name = "Prediction Error",
 #'                                   # additional named parameters to pass to summarize_pred_err()
 #'                                   truth_col = "y", estimate_col = "predictions")
-#'                                   
+#'
 #' # set doc options for displaying Evaluator in Rmd report to show 3 decimal points
 #' pred_err_eval <- create_evaluator(.eval_fun = summarize_pred_err,
-#'                                   .name = "Prediction Error", 
+#'                                   .name = "Prediction Error",
 #'                                   .doc_options = list(digits = 3),
 #'                                   # additional named parameters to pass to summarize_pred_err()
 #'                                   truth_col = "y", estimate_col = "predictions")
@@ -150,4 +134,23 @@ Evaluator <- R6::R6Class(
 create_evaluator <- function(.eval_fun, .name = NULL, .doc_options = list(),
                              .doc_show = TRUE, ...) {
   Evaluator$new(.eval_fun, .name, .doc_options, .doc_show, ...)
+}
+
+#' Evaluate an \code{Evaluator}.
+#'
+#' @name evaluate_evaluator
+#' @description Evaluate the performance of method(s) in the
+#'   \code{Experiment} using the \code{Evaluator} and its given parameters.
+#'
+#' @inheritParams shared_experiment_helpers_args
+#' @param evaluator An \code{Evaluator} object.
+#' @param ... Not used.
+#'
+#' @return Result of \code{Evaluator$eval_fun()}, coerced into a tibble.
+#'
+#' @inherit visualize_visualizer examples
+#' @export
+evaluate_evaluator <- function(evaluator, fit_results, vary_params = NULL,
+                               ...) {
+  evaluator$evaluate(fit_results, vary_params, ...)
 }

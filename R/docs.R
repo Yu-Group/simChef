@@ -103,7 +103,16 @@ init_docs <- function(experiment, save_dir) {
 #' `create_doc_template()` was renamed to `init_docs()` to create a more
 #' consistent API.
 #'
-#' @keywords internal
+#' @inheritParams init_docs
+#'
+#' @examples
+#' \dontrun{
+#' # create documentation template from an experiment (of class `Experiment`)
+#' create_doc_template(experiment)
+#'
+#' # or alternatively, create documentation template from a specific directory
+#' create_doc_template(save_dir = experiment$get_save_dir())}
+#'
 #' @export
 create_doc_template <- function(experiment, save_dir) {
   lifecycle::deprecate_warn("0.1.0", "create_doc_template()", "init_docs()")
@@ -307,6 +316,14 @@ render_docs <- function(experiment, save_dir, write_rmd = FALSE,
 #' API.
 #'
 #' @inheritParams render_docs
+#'
+#' @examples
+#' \dontrun{
+#' # create basic Rmd from an experiment (of class `Experiment`)
+#' create_rmd(experiment)
+#'
+#' # or alternatively, create basic Rmd from a specific directory
+#' create_rmd(save_dir = experiment$get_save_dir())}
 #'
 #' @export
 create_rmd <- function(experiment, save_dir, write_rmd = FALSE,

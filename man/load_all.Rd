@@ -12,3 +12,9 @@ load_all()
 the functions in the \code{R/dgp}, \code{R/method}, \code{R/eval} and
 \code{R/viz} directories of the current simulation study.
 }
+\examples{
+\dontrun{
+# load all functions in R/dgp, R/method, R/eval, and R/viz directories
+load_all()}
+
+}

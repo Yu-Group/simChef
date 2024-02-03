@@ -33,8 +33,8 @@ plot_eval_constructor(
 )
 }
 \arguments{
-\item{eval_results}{A list of result tibbles, as returned by the
-\code{evaluate} method.}
+\item{eval_results}{A list of result tibbles, as returned by
+\code{evaluate_experiment()}.}
 
 \item{eval_names}{(Optional) A character vector or string, specifying the
 name(s) of \code{Evaluator(s)} to plot. If multiple \code{Evaluators} are
@@ -155,9 +155,9 @@ fit_results <- tibble::tibble(
 # generate example evaluation results data
 eval_results <- list(
   `Prediction Errors` = summarize_pred_err(
-    fit_results = fit_results, 
-    truth_col = "y", 
-    estimate_col = "predictions", 
+    fit_results = fit_results,
+    truth_col = "y",
+    estimate_col = "predictions",
     eval_id = "pred_err"
   )
 )

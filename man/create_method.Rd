@@ -35,5 +35,5 @@ lm_method <- create_method(.method_fun = lm_fun, .name = "OLS")
 lm_method_x1 <- create_method(.method_fun = lm_fun, .name = "OLS X1",
                               # additional named parameters to pass to lm_fun()
                               cols = "X1")
-                  
+
 }

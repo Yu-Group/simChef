@@ -13,10 +13,91 @@ set_rmd_options(
   ...
 )
 }
+\arguments{
+\item{experiment}{An \code{Experiment} object.}
+
+\item{field_name}{One of "evaluator" or "visualizer".}
+
+\item{name}{Name of \code{Evaluator} or \code{Visualizer} to set R Markdown
+options.}
+
+\item{show}{If \code{TRUE}, show output; if \code{FALSE}, hide output in
+R Markdown report. Default \code{NULL} does not change the "show" field
+in \code{Evaluator}/\code{Visualizer}.}
+
+\item{...}{Named R Markdown options to set. If \code{field_name = "visualizer"},
+options are "height" and "width". If \code{field_name = "evaluator"},
+see options for \code{\link[vthemes:pretty_DT]{vthemes::pretty_DT()}}.}
+}
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
 
 \code{set_rmd_options()} was renamed to \code{set_doc_options()} to create a more
 consistent API.
 }
-\keyword{internal}
+\examples{
+## create toy DGPs, Methods, Evaluators, and Visualizers
+
+# generate data from normal distribution with n samples
+normal_dgp <- create_dgp(
+  .dgp_fun = function(n) rnorm(n), .name = "Normal DGP", n = 100
+)
+# generate data from binomial distribution with n samples
+bernoulli_dgp <- create_dgp(
+  .dgp_fun = function(n) rbinom(n, 1, 0.5), .name = "Bernoulli DGP", n = 100
+)
+
+# compute mean of data
+mean_method <- create_method(
+  .method_fun = function(x) list(mean = mean(x)), .name = "Mean(x)"
+)
+
+# evaluate SD of mean(x) across simulation replicates
+sd_mean_eval <- create_evaluator(
+  .eval_fun = function(fit_results, vary_params = NULL) {
+    group_vars <- c(".dgp_name", ".method_name", vary_params)
+    fit_results \%>\%
+      dplyr::group_by(dplyr::across(tidyselect::all_of(group_vars))) \%>\%
+      dplyr::summarise(sd = sd(mean), .groups = "keep")
+  },
+  .name = "SD of Mean(x)"
+)
+# plot SD of mean(x) across simulation replicates
+sd_mean_plot <- create_visualizer(
+  .viz_fun = function(fit_results, eval_results, vary_params = NULL,
+                      eval_name = "SD of Mean(x)") {
+    if (!is.null(vary_params)) {
+      add_aes <- ggplot2::aes(
+        x = .data[[unique(vary_params)]], y = sd, color = .dgp_name
+      )
+    } else {
+      add_aes <- ggplot2::aes(x = .dgp_name, y = sd)
+    }
+    plt <- ggplot2::ggplot(eval_results[[eval_name]]) +
+      add_aes +
+      ggplot2::geom_point()
+    if (!is.null(vary_params)) {
+      plt <- plt + ggplot2::geom_line()
+    }
+    return(plt)
+  },
+  .name = "SD of Mean(x) Plot"
+)
+
+# initialize experiment with toy DGPs, Methods, Evaluators, and Visualizers
+# using piping \%>\% and add_* functions
+experiment <- create_experiment(name = "Experiment Name") \%>\%
+  add_dgp(normal_dgp) \%>\%
+  add_dgp(bernoulli_dgp) \%>\%
+  add_method(mean_method) \%>\%
+  add_evaluator(sd_mean_eval) \%>\%
+  add_visualizer(sd_mean_plot)
+
+# set R Markdown options for Evaluator/Visualizer (in this case, Visualizer)
+experiment <- experiment \%>\%
+  set_doc_options(
+    field_name = "visualizer", name = "SD of Mean(x) Plot",
+    height = 10, width = 8
+  )
+
+}

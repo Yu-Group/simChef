@@ -16,4 +16,5 @@
 #'
 #' \itemize{
 #' \item{\code{Evaluator$new()}} See \link{create_evaluator}.
+#' \item{\code{Evaluator$evaluate()}} See \link{evaluate_evaluator}.
 #' }

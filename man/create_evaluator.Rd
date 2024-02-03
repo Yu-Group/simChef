@@ -67,7 +67,7 @@ reject_prob_fun <- function(fit_results, vary_params = NULL, alpha = 0.05) {
 }
 
 # create Evaluator using the default arguments (i.e., alpha = 0.05)
-reject_prob_eval <- create_evaluator(.eval_fun = reject_prob_fun, 
+reject_prob_eval <- create_evaluator(.eval_fun = reject_prob_fun,
                                      .name = "Rejection Prob (alpha = 0.05)")
 # create Evaluator using non-default arguments (here, alpha = 0.1)
 reject_prob_eval2 <- create_evaluator(.eval_fun = reject_prob_fun,
@@ -77,13 +77,13 @@ reject_prob_eval2 <- create_evaluator(.eval_fun = reject_prob_fun,
 
 # create Evaluator from a function in the built-in Evaluator library
 pred_err_eval <- create_evaluator(.eval_fun = summarize_pred_err,
-                                  .name = "Prediction Error", 
+                                  .name = "Prediction Error",
                                   # additional named parameters to pass to summarize_pred_err()
                                   truth_col = "y", estimate_col = "predictions")
-                                  
+
 # set doc options for displaying Evaluator in Rmd report to show 3 decimal points
 pred_err_eval <- create_evaluator(.eval_fun = summarize_pred_err,
-                                  .name = "Prediction Error", 
+                                  .name = "Prediction Error",
                                   .doc_options = list(digits = 3),
                                   # additional named parameters to pass to summarize_pred_err()
                                   truth_col = "y", estimate_col = "predictions")

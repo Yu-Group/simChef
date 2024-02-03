@@ -17,10 +17,10 @@ plot_pred_curve(
 )
 }
 \arguments{
-\item{fit_results}{A tibble, as returned by the \code{fit} method.}
+\item{fit_results}{A tibble, as returned by \code{fit_experiment()}.}
 
-\item{eval_results}{A list of result tibbles, as returned by the
-\code{evaluate} method.}
+\item{eval_results}{A list of result tibbles, as returned by
+\code{evaluate_experiment()}.}
 
 \item{eval_name}{Name of \code{Evaluator} containing results to plot. If
 \code{NULL}, the data used for plotting is computed from scratch via
@@ -42,7 +42,8 @@ Precision-Recall curve.}
 "line", "bar", "errorbar", "ribbon" indicating what plot layer(s) to
 construct.}
 
-\item{...}{Not used.}
+\item{...}{Additional arguments to pass to
+\code{\link{plot_eval_constructor}}.}
 }
 \value{
 If \code{interactive = TRUE}, returns a \code{plotly} object if
@@ -66,7 +67,7 @@ fit_results <- tibble::tibble(
              FUN = function(x) {
                as.factor(sample(0:1, size = 100, replace = TRUE))
              }),
-  # predicted class probabilities 
+  # predicted class probabilities
   class_probs = lapply(1:4, FUN = function(x) runif(n = 100, min = 0, max = 1))
 )
 

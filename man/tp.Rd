@@ -74,3 +74,15 @@ For \code{tp_vec()}, a single \code{numeric} value (or \code{NA}).
 These functions calculate the \code{\link[=tp]{tp()}} (number of true positives)
 of a measurement system compared to the reference results (the "truth").
 }
+\examples{
+# Two class example data
+two_class_example <- data.frame(
+  truth = as.factor(sample(c("Class1", "Class2"), 100, replace = TRUE)),
+  predicted = as.factor(sample(c("Class1", "Class2"), 100, replace = TRUE))
+)
+
+# Compute number of true positives
+tp(two_class_example, truth = truth, estimate = predicted)
+tp_vec(two_class_example$truth, two_class_example$predicted)
+
+}

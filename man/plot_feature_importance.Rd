@@ -18,10 +18,10 @@ plot_feature_importance(
 )
 }
 \arguments{
-\item{fit_results}{A tibble, as returned by the \code{fit} method.}
+\item{fit_results}{A tibble, as returned by \code{fit_experiment()}.}
 
-\item{eval_results}{A list of result tibbles, as returned by the
-\code{evaluate} method.}
+\item{eval_results}{A list of result tibbles, as returned by
+\code{evaluate_experiment()}.}
 
 \item{eval_name}{Name of \code{Evaluator} containing results to plot. If
 \code{NULL}, the data used for plotting is computed from scratch via
@@ -45,7 +45,8 @@ is not \code{NULL}, this argument is ignored.}
 "line", "bar", "errorbar", "ribbon" indicating what plot layer(s) to
 construct.}
 
-\item{...}{Not used.}
+\item{...}{Additional arguments to pass to
+\code{\link{plot_eval_constructor}}.}
 }
 \value{
 If \code{interactive = TRUE}, returns a \code{plotly} object if
@@ -71,7 +72,7 @@ fit_results <- tibble::tibble(
         # feature names
         feature = c("featureA", "featureB", "featureC"),
         # estimated feature importance scores
-        est_importance = c(10, runif(2, min = -2, max = 2))  
+        est_importance = c(10, runif(2, min = -2, max = 2))
       )
     }
   )

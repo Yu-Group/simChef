@@ -18,3 +18,9 @@ must be stored in sub-directories whose names match those suggesting in the
 "Setting Up Your Simulation" vignette. These details are conveniently taken
 care of when a simulation study is set up using \code{\link{create_sim}()}.
 }
+\examples{
+\dontrun{
+# run dgp-, method-, evaluator-, and visualizer-related tests
+test_sim_dir()}
+
+}

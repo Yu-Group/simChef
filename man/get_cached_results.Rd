@@ -31,3 +31,11 @@ the cache if \code{results_type = "experiment_cached_params"}.
 Read in cached results from disk from a previously saved
 \code{Experiment}.
 }
+\examples{
+\dontrun{
+fit_results <- get_cached_results(experiment, "fit")
+eval_results <- get_cached_results(experiment, "eval")
+viz_results <- get_cached_results(experiment, "viz")
+cached_params <- get_cached_results(experiment, "experiment_cached_params")}
+
+}

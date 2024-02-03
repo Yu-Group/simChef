@@ -35,7 +35,7 @@ summarize_testing_err(
 )
 }
 \arguments{
-\item{fit_results}{A tibble, as returned by the \code{fit} method.}
+\item{fit_results}{A tibble, as returned by \code{fit_experiment()}.}
 
 \item{vary_params}{A vector of parameter names that are varied across in the
 \code{Experiment}.}

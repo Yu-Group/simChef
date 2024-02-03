@@ -12,12 +12,12 @@ saved.}
 
 \item{evaluator}{An \code{Evaluator} object.}
 
-\item{eval_results}{A list of result tibbles, as returned by the
-\code{evaluate} method.}
+\item{eval_results}{A list of result tibbles, as returned by
+\code{evaluate_experiment()}.}
 
 \item{experiment}{An \code{Experiment} object.}
 
-\item{fit_results}{A tibble, as returned by the \code{fit} method.}
+\item{fit_results}{A tibble, as returned by \code{fit_experiment()}.}
 
 \item{future.globals}{Character vector of names in the global environment to
 pass to parallel workers. Passed as the argument of the same name to

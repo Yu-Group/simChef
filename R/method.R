@@ -18,19 +18,6 @@ Method <- R6::R6Class(
       self$name <- .name
       self$method_params <- rlang::list2(...)
     },
-    # @description Fit a \code{Method} on data using the provided \code{Method}
-    #   parameters.
-    #
-    # @param data_list List of data to pass into \code{method_fun()}. If named,
-    #   should match arguments in \code{method_fun()}.
-    # @param ... Arguments to pass into \code{method_fun()} that will overwrite
-    #   the initialized \code{Method} parameters. If no additional arguments
-    #   are provided, the \code{Method} will be fit using \code{method_fun()}
-    #   and the parameters that were set when \code{Method$new()} was called.
-    # @param .simplify If TRUE, remove list wrapping from any column that has
-    #   scalar values.
-    #
-    # @return Result of \code{method_fun()}, coerced into a single tibble row.
     fit = function(data_list, ..., .simplify = TRUE) {
       method_params <- self$method_params
       new_method_params <- rlang::list2(...)
@@ -54,10 +41,6 @@ Method <- R6::R6Class(
       }
       return(fit_results)
     },
-    # @description Print a \code{Method} in a nice format, showing the
-    #   \code{Method}'s name, function, and parameters.
-    #
-    # @return The original \code{Method} object.
     print = function() {
       if (is.null(self$name)) {
         cat("Method Name: NULL \n")
@@ -92,16 +75,42 @@ Method <- R6::R6Class(
 #'     setNames(paste(names(.), "p-value"))
 #'   return(pvals)
 #' }
-#' 
+#'
 #' # create Method with default arguments
 #' lm_method <- create_method(.method_fun = lm_fun, .name = "OLS")
-#' 
+#'
 #' # create Method with non-default arguments
 #' lm_method_x1 <- create_method(.method_fun = lm_fun, .name = "OLS X1",
 #'                               # additional named parameters to pass to lm_fun()
 #'                               cols = "X1")
-#'                   
+#'
 #' @export
 create_method <- function(.method_fun, .name = NULL, ...) {
   Method$new(.method_fun, .name, ...)
+}
+
+#' Fit a \code{Method}.
+#'
+#' @name fit_method
+#' @description Fit a \code{Method} on data using the provided \code{Method}
+#'   parameters.
+#'
+#' @param method A \code{Method} object.
+#' @param data_list List of data to pass into \code{Method$method_fun()}.
+#'   If named, should match arguments in \code{Method$method_fun()}.
+#' @param ... Arguments to pass into \code{Method$method_fun()} that will
+#'   overwrite the initialized \code{Method} parameters. If no additional
+#'   arguments are provided, the \code{Method} will be fit using
+#'   \code{Method$method_fun()} and the parameters that were set when
+#'   \code{Method$new()} was called.
+#' @param .simplify If TRUE, remove list wrapping from any column that has
+#'   scalar values.
+#'
+#' @return Result of \code{Method$method_fun()}, coerced into a single
+#'   tibble row.
+#'
+#' @inherit visualize_visualizer examples
+#' @export
+fit_method <- function(method, data_list, ..., .simplify = TRUE) {
+  method$fit(data_list, ..., .simplify = .simplify)
 }

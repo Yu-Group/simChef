@@ -17,6 +17,11 @@
 #'   organizing files related to high-power computing environments. Defaults to
 #'   \code{FALSE}.
 #'
+#' @examples
+#' \dontrun{
+#' # create template directory for simulation project
+#' create_sim("path/to/sim")}
+#'
 #' @export
 create_sim <- function(
   path,

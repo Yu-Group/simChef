@@ -20,3 +20,8 @@ Export all cached \code{Visualizer} results from an
 \code{Experiment} to images in viz_results/ under the \code{Experiment}'s
 results directory (see \code{Experiment$get_save_dir()}).
 }
+\examples{
+\dontrun{
+export_visualizers(experiment)}
+
+}
