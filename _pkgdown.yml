@@ -46,7 +46,6 @@ reference:
     contents:
       - DGP
       - create_dgp
-      - generate_dgp
   - title: "Method"
     desc: >
       Functions for creating a Method.

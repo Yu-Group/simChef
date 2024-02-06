@@ -6,15 +6,8 @@
 \usage{
 create_dgp(.dgp_fun, .name = NULL, ...)
 }
-\arguments{
-\item{.dgp_fun}{The data-generating process function.}
-
-\item{.name}{(Optional) The name of the \code{DGP}.}
-
-\item{...}{Arguments to pass into \code{.dgp_fun()}.}
-}
 \value{
-A new instance of \code{DGP}.
+A new \link{DGP} object.
 }
 \description{
 Create a new \code{DGP} (data-generating process).
@@ -39,4 +32,7 @@ dgp_corr <- create_dgp(.dgp_fun = dgp_fun,
                        # additional named parameters to pass to dgp_fun()
                        n = 200, beta = c(1, 0), rho = 0.7, sigma = 1)
 
+}
+\seealso{
+\link{DGP}
 }
