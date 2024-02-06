@@ -26,7 +26,7 @@ example, \code{remove_dgp()} will remove all DGPs from the experiment.}
 \item{...}{Not used.}
 }
 \value{
-The original \code{Experiment} object passed to \code{remove_*}.
+The original \code{Experiment} object passed to \verb{remove_*}.
 }
 \description{
 Helper functions for removing \code{DGPs}, \code{Methods},

@@ -194,7 +194,7 @@ plot_testing_curve <- function(fit_results = NULL,
 #' @inheritParams shared_experiment_helpers_args
 #' @inheritParams eval_reject_prob
 #' @param show_features Vector of feature names corresponding to features to
-#'   display in the plot. If \code{NULL} (default), shows all features in the
+#'   display in the plot. If `NULL` (default), shows all features in the
 #'   data.
 #' @param show_identity_line Logical indicating whether or not to plot the
 #'   y = x line.

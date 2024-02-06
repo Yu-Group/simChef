@@ -32,7 +32,7 @@ add_visualizer(experiment, visualizer, name = NULL, ...)
 \item{visualizer}{A \code{Visualizer} object.}
 }
 \value{
-The original \code{Experiment} object passed to \code{add_*}.
+The original \code{Experiment} object passed to \verb{add_*}.
 }
 \description{
 Helper functions for adding \code{DGPs}, \code{Methods},

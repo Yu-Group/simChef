@@ -33,3 +33,68 @@ R Markdown report.}
 }
 }
 
+\section{Methods}{
+\subsection{Public methods}{
+\itemize{
+\item \href{#method-Visualizer-new}{\code{Visualizer$new()}}
+\item \href{#method-Visualizer-visualize}{\code{Visualizer$visualize()}}
+\item \href{#method-Visualizer-print}{\code{Visualizer$print()}}
+\item \href{#method-Visualizer-clone}{\code{Visualizer$clone()}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Visualizer-new"></a>}}
+\if{latex}{\out{\hypertarget{method-Visualizer-new}{}}}
+\subsection{Method \code{new()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Visualizer$new(
+  .viz_fun,
+  .name = NULL,
+  .doc_options = list(),
+  .doc_show = TRUE,
+  ...
+)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Visualizer-visualize"></a>}}
+\if{latex}{\out{\hypertarget{method-Visualizer-visualize}{}}}
+\subsection{Method \code{visualize()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Visualizer$visualize(
+  fit_results = NULL,
+  eval_results = NULL,
+  vary_params = NULL,
+  ...
+)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Visualizer-print"></a>}}
+\if{latex}{\out{\hypertarget{method-Visualizer-print}{}}}
+\subsection{Method \code{print()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Visualizer$print()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Visualizer-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-Visualizer-clone}{}}}
+\subsection{Method \code{clone()}}{
+The objects of this class are cloneable with this method.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Visualizer$clone(deep = FALSE)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{deep}}{Whether to make a deep clone.}
+}
+\if{html}{\out{</div>}}
+}
+}
+}

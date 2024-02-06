@@ -1,4 +1,4 @@
-#' Arguments that are shared by multiple \code{Evaluator} library functions.
+#' Arguments that are shared by multiple `Evaluator` library functions.
 #'
 #' @name shared_eval_lib_args
 #'
@@ -9,25 +9,25 @@
 #' @param curve Either "ROC" or "PR" indicating whether to evaluate the ROC or
 #'   Precision-Recall curve.
 #' @param eval_id Character string. ID to be used as a suffix when naming result
-#'   columns. Default \code{NULL} does not add any ID to the column names.
+#'   columns. Default `NULL` does not add any ID to the column names.
 #' @param feature_col A character string identifying the column in
-#'   \code{fit_results} with the feature names or IDs.
+#'   `fit_results` with the feature names or IDs.
 #' @param group_cols (Optional) A character string or vector specifying the
 #'   column(s) to group rows by before evaluating metrics.
 #'   This is useful for assessing within-group metrics.
-#' @param na_rm A \code{logical} value indicating whether \code{NA} values
+#' @param na_rm A `logical` value indicating whether `NA` values
 #'   should be stripped before the computation proceeds.
 #' @param nested_cols (Optional) A character string or vector specifying the
-#'   name of the column(s) in \code{fit_results} that need to be
-#'   unnested before evaluating results. Default is \code{NULL}, meaning no
-#'   columns in \code{fit_results} need to be unnested prior to computation.
+#'   name of the column(s) in `fit_results` that need to be
+#'   unnested before evaluating results. Default is `NULL`, meaning no
+#'   columns in `fit_results` need to be unnested prior to computation.
 #' @param summary_funs Character vector specifying how to summarize
 #'   evaluation metrics. Must choose from a built-in library of summary
 #'   functions - elements of the vector must be one of "mean", "median",
 #'   "min", "max", "sd", "raw".
 #' @param x_grid Vector of values between 0 and 1 at which to evaluate the ROC
-#'   or PR curve. If \code{curve = "ROC"}, the provided vector of values are
-#'   the FPR values at which to evaluate the TPR, and if \code{curve = "PR"},
+#'   or PR curve. If `curve = "ROC"`, the provided vector of values are
+#'   the FPR values at which to evaluate the TPR, and if `curve = "PR"`,
 #'   the values are the recall values at which to evaluate the precision.
 #'
 #' @keywords internal
@@ -36,19 +36,19 @@ NULL
 
 #' Developer function to construct basic Evaluator.
 #'
-#' @description Helper function for developing a new \code{Evaluator}
+#' @description Helper function for developing a new `Evaluator`
 #'   that evaluates some function (e.g., metric) for each row in
-#'   \code{fit_results}.
+#'   `fit_results`.
 #'
 #' @inheritParams shared_experiment_helpers_args
 #' @inheritParams shared_eval_lib_args
-#' @param fun Function to compute for each row in \code{fit_results}. This
-#'   function can take in the following optional arguments: (1) \code{data} =
-#'   \code{fit_results[i, ]}; (2) na_rm; (3) arguments specified via \code{...}
-#'   and \code{fun_options}.
+#' @param fun Function to compute for each row in `fit_results`. This
+#'   function can take in the following optional arguments: (1) `data` =
+#'   `fit_results[i, ]`; (2) na_rm; (3) arguments specified via `...`
+#'   and `fun_options`.
 #' @param ... Named arguments, containing names of columns to pass to
-#'   \code{fun}.
-#' @param fun_options Named list of additional arguments to pass to \code{fun}.
+#'   `fun`.
+#' @param fun_options Named list of additional arguments to pass to `fun`.
 #'
 #' @examples
 #' # generate example fit_results data for a regression problem
@@ -188,22 +188,22 @@ add_na_counts <- function(out, data, value_col, na_rm, ...) {
 
 #' Developer function for summarizing evaluation results.
 #'
-#' @description A helper function for developing new \code{Evaluator} functions
+#' @description A helper function for developing new `Evaluator` functions
 #'   that summarize results over pre-specified groups in a grouped
-#'   \code{data.frame} (e.g., over multiple experimental replicates). This is
-#'   often used in conjunction with \code{eval_constructor()}.
+#'   `data.frame` (e.g., over multiple experimental replicates). This is
+#'   often used in conjunction with `eval_constructor()`.
 #'
 #' @inheritParams shared_eval_lib_args
-#' @param eval_data A grouped \code{data.frame} of evaluation results to
+#' @param eval_data A grouped `data.frame` of evaluation results to
 #'   summarize.
-#' @param value_col Character string. Name of column in \code{eval_data} with
+#' @param value_col Character string. Name of column in `eval_data` with
 #'   values to summarize.
 #'
-#' @return A \code{tibble} containing the summarized results aggregated
+#' @return A `tibble` containing the summarized results aggregated
 #'   over the given groups. These columns correspond to the requested
-#'   statistics in \code{summary_funs} and \code{custom_summary_funs} and end
-#'   with the suffix specified by \code{eval_id}. Note that the group IDs are
-#'   also retained in the returned \code{tibble}.
+#'   statistics in `summary_funs` and `custom_summary_funs` and end
+#'   with the suffix specified by `eval_id`. Note that the group IDs are
+#'   also retained in the returned `tibble`.
 #'
 #' @importFrom rlang .data
 #'
@@ -300,17 +300,17 @@ eval_summarizer <- function(eval_data, eval_id = NULL, value_col,
 #'   coordinates given in a data.frame onto a new set of x-axis values (i.e.,
 #'   FPR for an ROC curve and recall for a PR curve).
 #'
-#' @param curve_data A \code{data.frame} containing the x- and y-coordinates
+#' @param curve_data A `data.frame` containing the x- and y-coordinates
 #'   that define the ROC/PR curve.
 #' @param x_grid Vector of x-coordinates at which to evaluate ROC/PR curve
-#' @param xvar Name of column in \code{curve_data} with the FPR values for an
+#' @param xvar Name of column in `curve_data` with the FPR values for an
 #'   ROC curve or the recall values for a PR curve.
-#' @param yvar Name of column in \code{curve_data} with the TPR values for an
+#' @param yvar Name of column in `curve_data` with the TPR values for an
 #'   ROC curve or the precision values for a PR curve.
 #'
-#' @return A \code{data.frame} with the coordinates of the ROC/PR curve using
-#'   the new x-axis scale. This \code{data.frame} has two columns with names
-#'   given by those specified in \code{xvar} and \code{yvar}.
+#' @return A `data.frame` with the coordinates of the ROC/PR curve using
+#'   the new x-axis scale. This `data.frame` has two columns with names
+#'   given by those specified in `xvar` and `yvar`.
 #'
 #' @keywords internal
 rescale_curve <- function(curve_data, x_grid, xvar, yvar) {
@@ -363,9 +363,9 @@ rescale_curve <- function(curve_data, x_grid, xvar, yvar) {
 }
 
 #----------------------------- Yardstick Helpers -------------------------------
-#' Logic for \code{event_level} in custom \code{yardstick} metrics.
+#' Logic for `event_level` in custom `yardstick` metrics.
 #'
-#' @param xtab Frequency table from \code{table()}
+#' @param xtab Frequency table from `table()`
 #' @inheritParams yardstick::roc_auc
 #'
 #' @return Name of factor level to use as the "event" when computing evaluation
@@ -379,8 +379,8 @@ event_col <- function(xtab, event_level) {
   }
 }
 
-#' Helper function for constructing \code{finalize_esitmator_internal} for
-#'   custom \code{yardstick} metrics.
+#' Helper function for constructing `finalize_esitmator_internal` for
+#'   custom `yardstick` metrics.
 #' @keywords internal
 finalize_estimator_internal_constructor <- function(metric_dispatcher, x,
                                                     estimator) {
@@ -399,8 +399,8 @@ finalize_estimator_internal_constructor <- function(metric_dispatcher, x,
   "binary"
 }
 
-#' Helper function for constructing \code{metric_vec} methods for
-#'   custom \code{yardstick} metrics.
+#' Helper function for constructing `metric_vec` methods for
+#'   custom `yardstick` metrics.
 #' @keywords internal
 metric_vec_constructor <- function(name, fun, truth, estimate, estimator, na_rm,
                                    event_level, ...) {
@@ -428,13 +428,13 @@ metric_vec_constructor <- function(name, fun, truth, estimate, estimator, na_rm,
 #' @inheritParams yardstick::ppv
 #'
 #' @returns
-#' A \code{tibble} with columns \code{.metric}, \code{.estimator}, and
-#'   \code{.estimate} with 1 row of values.
+#' A `tibble` with columns `.metric`, `.estimator`, and
+#'   `.estimate` with 1 row of values.
 #'
 #' For grouped data frames, the number of rows returned will be the same as the
 #'   number of groups.
 #'
-#' For \code{tp_vec()}, a single \code{numeric} value (or \code{NA}).
+#' For `tp_vec()`, a single `numeric` value (or `NA`).
 #'
 #' @examples
 #' # Two class example data
@@ -500,13 +500,13 @@ finalize_estimator_internal.tp <- function(metric_dispatcher, x, estimator) {
 #' @inheritParams yardstick::ppv
 #'
 #' @returns
-#' A \code{tibble} with columns \code{.metric}, \code{.estimator}, and
-#'   \code{.estimate} with 1 row of values.
+#' A `tibble` with columns `.metric`, `.estimator`, and
+#'   `.estimate` with 1 row of values.
 #'
 #' For grouped data frames, the number of rows returned will be the same as the
 #'   number of groups.
 #'
-#' For \code{fp_vec()}, a single \code{numeric} value (or \code{NA}).
+#' For `fp_vec()`, a single `numeric` value (or `NA`).
 #'
 #' @examples
 #' # Two class example data
@@ -574,13 +574,13 @@ finalize_estimator_internal.fp <- function(metric_dispatcher, x, estimator) {
 #' @inheritParams yardstick::ppv
 #'
 #' @returns
-#' A \code{tibble} with columns \code{.metric}, \code{.estimator}, and
-#'   \code{.estimate} with 1 row of values.
+#' A `tibble` with columns `.metric`, `.estimator`, and
+#'   `.estimate` with 1 row of values.
 #'
 #' For grouped data frames, the number of rows returned will be the same as the
 #'   number of groups.
 #'
-#' For \code{pos_vec()}, a single \code{numeric} value (or \code{NA}).
+#' For `pos_vec()`, a single `numeric` value (or `NA`).
 #'
 #' @examples
 #' # Two class example data
@@ -647,13 +647,13 @@ finalize_estimator_internal.pos <- function(metric_dispatcher, x, estimator) {
 #' @inheritParams yardstick::ppv
 #'
 #' @returns
-#' A \code{tibble} with columns \code{.metric}, \code{.estimator}, and
-#'   \code{.estimate} with 1 row of values.
+#' A `tibble` with columns `.metric`, `.estimator`, and
+#'   `.estimate` with 1 row of values.
 #'
 #' For grouped data frames, the number of rows returned will be the same as the
 #'   number of groups.
 #'
-#' For \code{neg_vec()}, a single \code{numeric} value (or \code{NA}).
+#' For `neg_vec()`, a single `numeric` value (or `NA`).
 #'
 #' @examples
 #' # Two class example data

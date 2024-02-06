@@ -61,3 +61,420 @@ evaluated using \code{Evaluators} and visualized using \code{Visualizers}.
 }
 }
 
+\section{Methods}{
+\subsection{Public methods}{
+\itemize{
+\item \href{#method-Experiment-new}{\code{Experiment$new()}}
+\item \href{#method-Experiment-run}{\code{Experiment$run()}}
+\item \href{#method-Experiment-generate_data}{\code{Experiment$generate_data()}}
+\item \href{#method-Experiment-fit}{\code{Experiment$fit()}}
+\item \href{#method-Experiment-evaluate}{\code{Experiment$evaluate()}}
+\item \href{#method-Experiment-visualize}{\code{Experiment$visualize()}}
+\item \href{#method-Experiment-add_dgp}{\code{Experiment$add_dgp()}}
+\item \href{#method-Experiment-update_dgp}{\code{Experiment$update_dgp()}}
+\item \href{#method-Experiment-remove_dgp}{\code{Experiment$remove_dgp()}}
+\item \href{#method-Experiment-get_dgps}{\code{Experiment$get_dgps()}}
+\item \href{#method-Experiment-add_method}{\code{Experiment$add_method()}}
+\item \href{#method-Experiment-update_method}{\code{Experiment$update_method()}}
+\item \href{#method-Experiment-remove_method}{\code{Experiment$remove_method()}}
+\item \href{#method-Experiment-get_methods}{\code{Experiment$get_methods()}}
+\item \href{#method-Experiment-add_evaluator}{\code{Experiment$add_evaluator()}}
+\item \href{#method-Experiment-update_evaluator}{\code{Experiment$update_evaluator()}}
+\item \href{#method-Experiment-remove_evaluator}{\code{Experiment$remove_evaluator()}}
+\item \href{#method-Experiment-get_evaluators}{\code{Experiment$get_evaluators()}}
+\item \href{#method-Experiment-add_visualizer}{\code{Experiment$add_visualizer()}}
+\item \href{#method-Experiment-update_visualizer}{\code{Experiment$update_visualizer()}}
+\item \href{#method-Experiment-remove_visualizer}{\code{Experiment$remove_visualizer()}}
+\item \href{#method-Experiment-get_visualizers}{\code{Experiment$get_visualizers()}}
+\item \href{#method-Experiment-add_vary_across}{\code{Experiment$add_vary_across()}}
+\item \href{#method-Experiment-update_vary_across}{\code{Experiment$update_vary_across()}}
+\item \href{#method-Experiment-remove_vary_across}{\code{Experiment$remove_vary_across()}}
+\item \href{#method-Experiment-get_vary_across}{\code{Experiment$get_vary_across()}}
+\item \href{#method-Experiment-clear_cache}{\code{Experiment$clear_cache()}}
+\item \href{#method-Experiment-get_cached_results}{\code{Experiment$get_cached_results()}}
+\item \href{#method-Experiment-set_doc_options}{\code{Experiment$set_doc_options()}}
+\item \href{#method-Experiment-get_save_dir}{\code{Experiment$get_save_dir()}}
+\item \href{#method-Experiment-set_save_dir}{\code{Experiment$set_save_dir()}}
+\item \href{#method-Experiment-save}{\code{Experiment$save()}}
+\item \href{#method-Experiment-export_visualizers}{\code{Experiment$export_visualizers()}}
+\item \href{#method-Experiment-print}{\code{Experiment$print()}}
+\item \href{#method-Experiment-clone}{\code{Experiment$clone()}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Experiment-new"></a>}}
+\if{latex}{\out{\hypertarget{method-Experiment-new}{}}}
+\subsection{Method \code{new()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Experiment$new(
+  name = "experiment",
+  dgp_list = list(),
+  method_list = list(),
+  evaluator_list = list(),
+  visualizer_list = list(),
+  future.globals = TRUE,
+  future.packages = NULL,
+  clone_from = NULL,
+  save_dir = NULL,
+  ...
+)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Experiment-run"></a>}}
+\if{latex}{\out{\hypertarget{method-Experiment-run}{}}}
+\subsection{Method \code{run()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Experiment$run(
+  n_reps = 1,
+  parallel_strategy = "reps",
+  future.globals = NULL,
+  future.packages = NULL,
+  future.seed = TRUE,
+  use_cached = FALSE,
+  return_all_cached_reps = FALSE,
+  save = FALSE,
+  checkpoint_n_reps = 0,
+  verbose = 1,
+  ...
+)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Experiment-generate_data"></a>}}
+\if{latex}{\out{\hypertarget{method-Experiment-generate_data}{}}}
+\subsection{Method \code{generate_data()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Experiment$generate_data(n_reps = 1, ...)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Experiment-fit"></a>}}
+\if{latex}{\out{\hypertarget{method-Experiment-fit}{}}}
+\subsection{Method \code{fit()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Experiment$fit(
+  n_reps = 1,
+  parallel_strategy = "reps",
+  future.globals = NULL,
+  future.packages = NULL,
+  future.seed = TRUE,
+  use_cached = FALSE,
+  return_all_cached_reps = FALSE,
+  save = FALSE,
+  checkpoint_n_reps = 0,
+  verbose = 1,
+  ...
+)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Experiment-evaluate"></a>}}
+\if{latex}{\out{\hypertarget{method-Experiment-evaluate}{}}}
+\subsection{Method \code{evaluate()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Experiment$evaluate(
+  fit_results,
+  use_cached = FALSE,
+  save = FALSE,
+  verbose = 1,
+  ...
+)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Experiment-visualize"></a>}}
+\if{latex}{\out{\hypertarget{method-Experiment-visualize}{}}}
+\subsection{Method \code{visualize()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Experiment$visualize(
+  fit_results,
+  eval_results = NULL,
+  use_cached = FALSE,
+  save = FALSE,
+  verbose = 1,
+  ...
+)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Experiment-add_dgp"></a>}}
+\if{latex}{\out{\hypertarget{method-Experiment-add_dgp}{}}}
+\subsection{Method \code{add_dgp()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Experiment$add_dgp(dgp, name = NULL, ...)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Experiment-update_dgp"></a>}}
+\if{latex}{\out{\hypertarget{method-Experiment-update_dgp}{}}}
+\subsection{Method \code{update_dgp()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Experiment$update_dgp(dgp, name, ...)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Experiment-remove_dgp"></a>}}
+\if{latex}{\out{\hypertarget{method-Experiment-remove_dgp}{}}}
+\subsection{Method \code{remove_dgp()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Experiment$remove_dgp(name = NULL, ...)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Experiment-get_dgps"></a>}}
+\if{latex}{\out{\hypertarget{method-Experiment-get_dgps}{}}}
+\subsection{Method \code{get_dgps()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Experiment$get_dgps()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Experiment-add_method"></a>}}
+\if{latex}{\out{\hypertarget{method-Experiment-add_method}{}}}
+\subsection{Method \code{add_method()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Experiment$add_method(method, name = NULL, ...)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Experiment-update_method"></a>}}
+\if{latex}{\out{\hypertarget{method-Experiment-update_method}{}}}
+\subsection{Method \code{update_method()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Experiment$update_method(method, name, ...)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Experiment-remove_method"></a>}}
+\if{latex}{\out{\hypertarget{method-Experiment-remove_method}{}}}
+\subsection{Method \code{remove_method()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Experiment$remove_method(name = NULL, ...)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Experiment-get_methods"></a>}}
+\if{latex}{\out{\hypertarget{method-Experiment-get_methods}{}}}
+\subsection{Method \code{get_methods()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Experiment$get_methods()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Experiment-add_evaluator"></a>}}
+\if{latex}{\out{\hypertarget{method-Experiment-add_evaluator}{}}}
+\subsection{Method \code{add_evaluator()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Experiment$add_evaluator(evaluator, name = NULL, ...)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Experiment-update_evaluator"></a>}}
+\if{latex}{\out{\hypertarget{method-Experiment-update_evaluator}{}}}
+\subsection{Method \code{update_evaluator()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Experiment$update_evaluator(evaluator, name, ...)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Experiment-remove_evaluator"></a>}}
+\if{latex}{\out{\hypertarget{method-Experiment-remove_evaluator}{}}}
+\subsection{Method \code{remove_evaluator()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Experiment$remove_evaluator(name = NULL, ...)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Experiment-get_evaluators"></a>}}
+\if{latex}{\out{\hypertarget{method-Experiment-get_evaluators}{}}}
+\subsection{Method \code{get_evaluators()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Experiment$get_evaluators()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Experiment-add_visualizer"></a>}}
+\if{latex}{\out{\hypertarget{method-Experiment-add_visualizer}{}}}
+\subsection{Method \code{add_visualizer()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Experiment$add_visualizer(visualizer, name = NULL, ...)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Experiment-update_visualizer"></a>}}
+\if{latex}{\out{\hypertarget{method-Experiment-update_visualizer}{}}}
+\subsection{Method \code{update_visualizer()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Experiment$update_visualizer(visualizer, name, ...)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Experiment-remove_visualizer"></a>}}
+\if{latex}{\out{\hypertarget{method-Experiment-remove_visualizer}{}}}
+\subsection{Method \code{remove_visualizer()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Experiment$remove_visualizer(name = NULL, ...)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Experiment-get_visualizers"></a>}}
+\if{latex}{\out{\hypertarget{method-Experiment-get_visualizers}{}}}
+\subsection{Method \code{get_visualizers()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Experiment$get_visualizers()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Experiment-add_vary_across"></a>}}
+\if{latex}{\out{\hypertarget{method-Experiment-add_vary_across}{}}}
+\subsection{Method \code{add_vary_across()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Experiment$add_vary_across(.dgp, .method, ...)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Experiment-update_vary_across"></a>}}
+\if{latex}{\out{\hypertarget{method-Experiment-update_vary_across}{}}}
+\subsection{Method \code{update_vary_across()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Experiment$update_vary_across(.dgp, .method, ...)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Experiment-remove_vary_across"></a>}}
+\if{latex}{\out{\hypertarget{method-Experiment-remove_vary_across}{}}}
+\subsection{Method \code{remove_vary_across()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Experiment$remove_vary_across(dgp, method, param_names = NULL)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Experiment-get_vary_across"></a>}}
+\if{latex}{\out{\hypertarget{method-Experiment-get_vary_across}{}}}
+\subsection{Method \code{get_vary_across()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Experiment$get_vary_across()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Experiment-clear_cache"></a>}}
+\if{latex}{\out{\hypertarget{method-Experiment-clear_cache}{}}}
+\subsection{Method \code{clear_cache()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Experiment$clear_cache()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Experiment-get_cached_results"></a>}}
+\if{latex}{\out{\hypertarget{method-Experiment-get_cached_results}{}}}
+\subsection{Method \code{get_cached_results()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Experiment$get_cached_results(results_type, verbose = 0)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Experiment-set_doc_options"></a>}}
+\if{latex}{\out{\hypertarget{method-Experiment-set_doc_options}{}}}
+\subsection{Method \code{set_doc_options()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Experiment$set_doc_options(field_name, name, show = NULL, ...)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Experiment-get_save_dir"></a>}}
+\if{latex}{\out{\hypertarget{method-Experiment-get_save_dir}{}}}
+\subsection{Method \code{get_save_dir()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Experiment$get_save_dir()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Experiment-set_save_dir"></a>}}
+\if{latex}{\out{\hypertarget{method-Experiment-set_save_dir}{}}}
+\subsection{Method \code{set_save_dir()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Experiment$set_save_dir(save_dir)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Experiment-save"></a>}}
+\if{latex}{\out{\hypertarget{method-Experiment-save}{}}}
+\subsection{Method \code{save()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Experiment$save()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Experiment-export_visualizers"></a>}}
+\if{latex}{\out{\hypertarget{method-Experiment-export_visualizers}{}}}
+\subsection{Method \code{export_visualizers()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Experiment$export_visualizers(
+  device = "pdf",
+  width = "auto",
+  height = "auto",
+  ...
+)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Experiment-print"></a>}}
+\if{latex}{\out{\hypertarget{method-Experiment-print}{}}}
+\subsection{Method \code{print()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Experiment$print()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Experiment-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-Experiment-clone}{}}}
+\subsection{Method \code{clone()}}{
+The objects of this class are cloneable with this method.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Experiment$clone(deep = FALSE)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{deep}}{Whether to make a deep clone.}
+}
+\if{html}{\out{</div>}}
+}
+}
+}

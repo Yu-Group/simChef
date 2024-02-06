@@ -1,9 +1,9 @@
-#' \code{R6} class representing a visualizer.
+#' `R6` class representing a visualizer.
 #'
 #' @docType class
 #'
 #' @description A visualizer (or visualization function) to **visualize** the performance of
-#'   methods and/or its evaluation metrics from the \code{Experiment} run.
+#'   methods and/or its evaluation metrics from the `Experiment` run.
 #'
 #' @template visualizer-template
 #'
@@ -61,41 +61,41 @@ Visualizer <- R6::R6Class(
   )
 )
 
-#' Create a new \code{Visualizer}.
+#' Create a new `Visualizer`.
 #'
 #' @name create_visualizer
 #'
 #' @param .viz_fun The visualization function.
-#' @param .name (Optional) The name of the \code{Visualizer}.
+#' @param .name (Optional) The name of the `Visualizer`.
 #' @param .doc_options (Optional) List of options to control the aesthetics of
-#'   the \code{Visualizer}'s visualization in the knitted R Markdown report.
+#'   the `Visualizer`'s visualization in the knitted R Markdown report.
 #'   Currently, possible options are "height" and "width" (in inches). The
 #'   argument must be specified by position or typed out in whole; no partial
 #'   matching is allowed for this argument.
-#' @param .doc_show If \code{TRUE} (default), show the resulting visualization in
-#'   the R Markdown report; if \code{FALSE}, hide output in the R Markdown
+#' @param .doc_show If `TRUE` (default), show the resulting visualization in
+#'   the R Markdown report; if `FALSE`, hide output in the R Markdown
 #'   report.
-#' @param ... Arguments to pass into \code{.viz_fun()}.
+#' @param ... Arguments to pass into `.viz_fun()`.
 #'
-#' @details When visualizing or running the \code{Experiment} (see
-#'   \code{Experiment$visualize()} or \code{Experiment$run()}), the named
-#'   arguments \code{fit_results}, \code{eval_results}, and
-#'   \code{vary_params} are automatically passed into the \code{Visualizer}
-#'   function \code{.viz_fun()} and serve as placeholders for the
-#'   \code{Experiment$fit()} results, the \code{Experiment$evaluate()}
+#' @details When visualizing or running the `Experiment` (see
+#'   `Experiment$visualize()` or `Experiment$run()`), the named
+#'   arguments `fit_results`, `eval_results`, and
+#'   `vary_params` are automatically passed into the `Visualizer`
+#'   function `.viz_fun()` and serve as placeholders for the
+#'   `Experiment$fit()` results, the `Experiment$evaluate()`
 #'   results, and the name of the varying parameter, respectively.
 #'   To visualize the performance of a method(s) fit and/or its evaluation
-#'   metrics then, the \code{Visualizer} function \code{.viz_fun()} should
-#'   take in the named arguments \code{fit_results} and/or
-#'   \code{eval_results}. See \code{Experiment$fit()} or
-#'   \code{fit_experiment()} for details on the format of \code{fit_results}.
-#'   See \code{Experiment$evaluate()} or \code{evaluate_experiment()} for
-#'   details on the format of \code{eval_results}. If the \code{Visualizer}
-#'   is used for \code{Experiments} with varying parameters,
-#'   \code{vary_params} should be used as a stand in for the name of this
+#'   metrics then, the `Visualizer` function `.viz_fun()` should
+#'   take in the named arguments `fit_results` and/or
+#'   `eval_results`. See `Experiment$fit()` or
+#'   `fit_experiment()` for details on the format of `fit_results`.
+#'   See `Experiment$evaluate()` or `evaluate_experiment()` for
+#'   details on the format of `eval_results`. If the `Visualizer`
+#'   is used for `Experiments` with varying parameters,
+#'   `vary_params` should be used as a stand in for the name of this
 #'   varying parameter.
 #'
-#' @return A new instance of \code{Visualizer}.
+#' @return A new instance of `Visualizer`.
 #'
 #' @examples
 #' # create an example Visualizer function
@@ -153,18 +153,18 @@ create_visualizer <- function(.viz_fun, .name = NULL, .doc_options = list(),
   Visualizer$new(.viz_fun, .name, .doc_options, .doc_show, ...)
 }
 
-#' Visualize a \code{Visualizer}.
+#' Visualize a `Visualizer`.
 #'
 #' @name visualize_visualizer
 #' @description Visualize the performance of methods and/or their evaluation
-#'   metrics from the \code{Experiment} using the \code{Visualizer} and the
+#'   metrics from the `Experiment` using the `Visualizer` and the
 #'   provided parameters.
 #'
 #' @inheritParams shared_experiment_helpers_args
-#' @param visualizer A \code{Visualizer} object.
+#' @param visualizer A `Visualizer` object.
 #' @param ... Not used.
 #'
-#' @return Result of \code{Visualizer$viz_fun()}.
+#' @return Result of `Visualizer$viz_fun()`.
 #'
 #' @examples
 #' ## create toy DGPs, Methods, Evaluators, and Visualizers

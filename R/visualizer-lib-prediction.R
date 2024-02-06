@@ -5,8 +5,8 @@
 #'
 #' @inheritParams shared_viz_lib_args
 #' @inheritParams shared_experiment_helpers_args
-#' @param metrics A \code{metric_set} object indicating the metrics to plot.
-#'   See [yardstick::metric_set()] for more details. Default \code{NULL} will
+#' @param metrics A `metric_set` object indicating the metrics to plot.
+#'   See [yardstick::metric_set()] for more details. Default `NULL` will
 #'   use the default metrics in [yardstick::metrics()].
 #'
 #' @inherit plot_eval_constructor return

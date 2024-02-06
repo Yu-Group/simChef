@@ -1,16 +1,16 @@
-#' Check equality of \code{Experiment} components.
+#' Check equality of `Experiment` components.
 #'
-#' @description Check if any two \code{DGPs}, \code{Methods}, \code{Evaluators},
-#'   or \code{Visualizers} are the same with respect to the function and inputted
+#' @description Check if any two `DGPs`, `Methods`, `Evaluators`,
+#'   or `Visualizers` are the same with respect to the function and inputted
 #'   arguments.
 #'
-#' @param obj1 An object of class \code{DGP}, \code{Method}, \code{Evaluator},
-#'   or \code{Visualizer}
-#' @param obj2 An object of class \code{DGP}, \code{Method}, \code{Evaluator},
-#'   or \code{Visualizer}
+#' @param obj1 An object of class `DGP`, `Method`, `Evaluator`,
+#'   or `Visualizer`
+#' @param obj2 An object of class `DGP`, `Method`, `Evaluator`,
+#'   or `Visualizer`
 #'
-#' @return Logical. Returns \code{TRUE} if both objects have the same function
-#'   and arguments and \code{FALSE} otherwise.
+#' @return Logical. Returns `TRUE` if both objects have the same function
+#'   and arguments and `FALSE` otherwise.
 #' @keywords internal
 check_equal <- function(obj1, obj2) {
 
@@ -268,10 +268,10 @@ simplify_tibble <- function(tbl, empty_as_na = TRUE) {
   return(simplified_tbl)
 }
 
-#' Fix duplicate \code{vary_across} parameter names.
+#' Fix duplicate `vary_across` parameter names.
 #'
 #' @description Add "_dgp" or "_method" suffixes to parameter names that are
-#'   found in both the DGP and Method \code{vary_across} components. This is to
+#'   found in both the DGP and Method `vary_across` components. This is to
 #'   avoid errors that occur from duplicate column names when trying to create a
 #'   tibble.
 #'
@@ -308,10 +308,10 @@ fix_duplicate_param_names <- function(dgp_params, method_params,
 #' @param y A tibble with unique rows.
 #' @param op Name of opertaion.
 #'
-#' @return If \code{op == "equal"}, returns a boolean indicating if \code{x} and
-#'   \code{y} have the same rows, ignoring the row order. If
-#'   \code{op == "contained_in"}, returns a boolean indicating if all rows in
-#'   \code{x} are contained in the rows of \code{y}.
+#' @return If `op == "equal"`, returns a boolean indicating if `x` and
+#'   `y` have the same rows, ignoring the row order. If
+#'   `op == "contained_in"`, returns a boolean indicating if all rows in
+#'   `x` are contained in the rows of `y`.
 #' @keywords internal
 compare_tibble_rows <- function(x, y, op = c("equal", "contained_in")) {
   op <- match.arg(op)
@@ -338,20 +338,20 @@ compare_tibble_rows <- function(x, y, op = c("equal", "contained_in")) {
 
 #' Get matching rows from x based on id
 #'
-#' @description Get rows in \code{x} tibble that match the id rows specified
-#'   by the \code{id} tibble. This function is an alternative to the usual
-#'   \code{dplyr::inner_join} function. The difference is that this function
+#' @description Get rows in `x` tibble that match the id rows specified
+#'   by the `id` tibble. This function is an alternative to the usual
+#'   `dplyr::inner_join` function. The difference is that this function
 #'   ignores the source bytecode of functions when looking for matching rows,
-#'   while \code{dplyr::inner_join} treats functions with different sources
-#'   as different. This function also requires that the \code{id} tibble have
-#'   distinct rows while \code{dplyr::inner_join} does not. This function
+#'   while `dplyr::inner_join` treats functions with different sources
+#'   as different. This function also requires that the `id` tibble have
+#'   distinct rows while `dplyr::inner_join` does not. This function
 #'   enables caching when functions are used as parameters in DGPs and Methods.
 #'
 #' @param id A tibble with distinct rows.
 #' @param x A tibble.
 #'
-#' @return A tibble, containing the subset of rows from \code{x} that match
-#'   id rows from \code{id}.
+#' @return A tibble, containing the subset of rows from `x` that match
+#'   id rows from `id`.
 #' @keywords internal
 get_matching_rows <- function(id, x) {
   if ((!tibble::is_tibble(id)) || (!tibble::is_tibble(x))) {

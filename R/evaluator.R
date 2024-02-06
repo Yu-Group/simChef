@@ -1,9 +1,9 @@
-#' \code{R6} class representing an evaluator.
+#' `R6` class representing an evaluator.
 #'
 #' @docType class
 #'
 #' @description An evaluator (or evaluation function) to **evaluate** the
-#'   performance of methods in the \code{Experiment}.
+#'   performance of methods in the `Experiment`.
 #'
 #' @template evaluator-template
 #'
@@ -60,40 +60,40 @@ Evaluator <- R6::R6Class(
   )
 )
 
-#' Create a new \code{Evaluator}.
+#' Create a new `Evaluator`.
 #'
 #' @name create_evaluator
 #'
 #' @param .eval_fun The evaluation function.
-#' @param .name (Optional) The name of the \code{Evaluator}. The argument must be
+#' @param .name (Optional) The name of the `Evaluator`. The argument must be
 #'   specified by position or typed out in whole; no partial matching is allowed
 #'   for this argument.
 #' @param .doc_options (Optional) List of options to control the aesthetics of
-#'   the displayed \code{Evaluator}'s results table in the knitted R Markdown
+#'   the displayed `Evaluator`'s results table in the knitted R Markdown
 #'   report. See [vthemes::pretty_DT()] for possible options. The argument must be
 #'   specified by position or typed out in whole; no partial matching is allowed
 #'   for this argument.
-#' @param .doc_show If \code{TRUE} (default), show \code{Evaluator}'s results as
-#'   a table in the R Markdown report; if \code{FALSE}, hide output in the
+#' @param .doc_show If `TRUE` (default), show `Evaluator`'s results as
+#'   a table in the R Markdown report; if `FALSE`, hide output in the
 #'   R Markdown report.
-#' @param ... Arguments to pass into \code{.eval_fun()}.
+#' @param ... Arguments to pass into `.eval_fun()`.
 #'
-#' @details When evaluating or running the \code{Experiment} (see
-#'   \code{evaluate_experiment()} or \code{run_experiment()}), the named
-#'   arguments \code{fit_results} and \code{vary_params} are automatically
-#'   passed into the \code{Evaluator} function \code{.eval_fun()} and serve
-#'   as placeholders for the \code{fit_experiment()} results (i.e., the
+#' @details When evaluating or running the `Experiment` (see
+#'   `evaluate_experiment()` or `run_experiment()`), the named
+#'   arguments `fit_results` and `vary_params` are automatically
+#'   passed into the `Evaluator` function `.eval_fun()` and serve
+#'   as placeholders for the `fit_experiment()` results (i.e., the
 #'   results from the method fits) and the name of the varying parameter,
 #'   respectively. To evaluate the performance of a method(s) fit then,
-#'   the \code{Evaluator} function \code{.eval_fun()} should almost always
-#'   take in the named argument \code{fit_results}. See
-#'   \code{Experiment$fit()} or \code{fit_experiment()} for details on the
-#'   format of \code{fit_results}. If the \code{Evaluator}
-#'   is used for \code{Experiments} with varying parameters,
-#'   \code{vary_params} should be used as a stand in for the name of this
+#'   the `Evaluator` function `.eval_fun()` should almost always
+#'   take in the named argument `fit_results`. See
+#'   `Experiment$fit()` or `fit_experiment()` for details on the
+#'   format of `fit_results`. If the `Evaluator`
+#'   is used for `Experiments` with varying parameters,
+#'   `vary_params` should be used as a stand in for the name of this
 #'   varying parameter.
 #'
-#' @return A new \code{Evaluator} object.
+#' @return A new `Evaluator` object.
 #'
 #' @examples
 #' # create an example Evaluator function
@@ -136,17 +136,17 @@ create_evaluator <- function(.eval_fun, .name = NULL, .doc_options = list(),
   Evaluator$new(.eval_fun, .name, .doc_options, .doc_show, ...)
 }
 
-#' Evaluate an \code{Evaluator}.
+#' Evaluate an `Evaluator`.
 #'
 #' @name evaluate_evaluator
 #' @description Evaluate the performance of method(s) in the
-#'   \code{Experiment} using the \code{Evaluator} and its given parameters.
+#'   `Experiment` using the `Evaluator` and its given parameters.
 #'
 #' @inheritParams shared_experiment_helpers_args
-#' @param evaluator An \code{Evaluator} object.
+#' @param evaluator An `Evaluator` object.
 #' @param ... Not used.
 #'
-#' @return Result of \code{Evaluator$eval_fun()}, coerced into a tibble.
+#' @return Result of `Evaluator$eval_fun()`, coerced into a tibble.
 #'
 #' @inherit visualize_visualizer examples
 #' @export

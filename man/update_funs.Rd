@@ -32,7 +32,7 @@ update_visualizer(experiment, visualizer, name, ...)
 \item{visualizer}{A \code{Visualizer} object.}
 }
 \value{
-The original \code{Experiment} object passed to \code{update_*}.
+The original \code{Experiment} object passed to \verb{update_*}.
 }
 \description{
 Helper functions for updating \code{DGPs}, \code{Methods},

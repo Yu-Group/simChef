@@ -41,7 +41,7 @@ removed for the specified \code{DGP}/\code{Method}.}
 In the case of \code{get_vary_across}, a nested list with entries
 "dgp" and "method" that contains the parameters to vary across for each
 \code{DGP} and \code{Method} in the \code{Experiment}. Otherwise, the
-original \code{Experiment} object passed to \code{*_vary_across()}.
+original \code{Experiment} object passed to \verb{*_vary_across()}.
 }
 \description{
 Helper functions for adding, updating, removing, or getting a

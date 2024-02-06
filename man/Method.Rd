@@ -26,3 +26,57 @@ A method to be \strong{fit} and assessed in the \code{Experiment}.
 }
 }
 
+\section{Methods}{
+\subsection{Public methods}{
+\itemize{
+\item \href{#method-Method-new}{\code{Method$new()}}
+\item \href{#method-Method-fit}{\code{Method$fit()}}
+\item \href{#method-Method-print}{\code{Method$print()}}
+\item \href{#method-Method-clone}{\code{Method$clone()}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Method-new"></a>}}
+\if{latex}{\out{\hypertarget{method-Method-new}{}}}
+\subsection{Method \code{new()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Method$new(.method_fun, .name = NULL, ...)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Method-fit"></a>}}
+\if{latex}{\out{\hypertarget{method-Method-fit}{}}}
+\subsection{Method \code{fit()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Method$fit(data_list, ..., .simplify = TRUE)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Method-print"></a>}}
+\if{latex}{\out{\hypertarget{method-Method-print}{}}}
+\subsection{Method \code{print()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Method$print()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Method-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-Method-clone}{}}}
+\subsection{Method \code{clone()}}{
+The objects of this class are cloneable with this method.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Method$clone(deep = FALSE)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{deep}}{Whether to make a deep clone.}
+}
+\if{html}{\out{</div>}}
+}
+}
+}

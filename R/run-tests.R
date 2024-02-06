@@ -1,6 +1,6 @@
 #' Run Tests
 #'
-#' @description \code{run_tests()} runs the tests in the `tests/` directory.
+#' @description `run_tests()` runs the tests in the `tests/` directory.
 #'   This function only works if the simulation study is set up as an R project
 #'   and if it is run when this R project is active.
 #'
@@ -30,7 +30,7 @@ run_tests <- function() {
 
 #' Test simChef Ingredients
 #'
-#' @description \code{test_sim_dir()} wraps around
+#' @description `test_sim_dir()` wraps around
 #'   \code{\link[testthat]{test_dir}()} to run all dgp-, method-, evaluator-,
 #'   and visualizer-related tests.
 #'
@@ -111,10 +111,10 @@ test_sim_dir <- function() {
 
 #' Load All Simulation Functions in R/
 #'
-#' @description \code{load_all()} is simulation study counterpart to
+#' @description `load_all()` is simulation study counterpart to
 #'   \code{\link[devtools:load_all]{devtools::load_all}()} it loads all of
-#'   the functions in the \code{R/dgp}, \code{R/method}, \code{R/eval} and
-#'   \code{R/viz} directories of the current simulation study.
+#'   the functions in the `R/dgp`, `R/method`, `R/eval` and
+#'   `R/viz` directories of the current simulation study.
 #'
 #' @examples
 #' \dontrun{

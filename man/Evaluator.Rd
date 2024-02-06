@@ -33,3 +33,63 @@ R Markdown report.}
 }
 }
 
+\section{Methods}{
+\subsection{Public methods}{
+\itemize{
+\item \href{#method-Evaluator-new}{\code{Evaluator$new()}}
+\item \href{#method-Evaluator-evaluate}{\code{Evaluator$evaluate()}}
+\item \href{#method-Evaluator-print}{\code{Evaluator$print()}}
+\item \href{#method-Evaluator-clone}{\code{Evaluator$clone()}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Evaluator-new"></a>}}
+\if{latex}{\out{\hypertarget{method-Evaluator-new}{}}}
+\subsection{Method \code{new()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Evaluator$new(
+  .eval_fun,
+  .name = NULL,
+  .doc_options = list(),
+  .doc_show = TRUE,
+  ...
+)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Evaluator-evaluate"></a>}}
+\if{latex}{\out{\hypertarget{method-Evaluator-evaluate}{}}}
+\subsection{Method \code{evaluate()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Evaluator$evaluate(fit_results, vary_params = NULL, ...)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Evaluator-print"></a>}}
+\if{latex}{\out{\hypertarget{method-Evaluator-print}{}}}
+\subsection{Method \code{print()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Evaluator$print()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Evaluator-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-Evaluator-clone}{}}}
+\subsection{Method \code{clone()}}{
+The objects of this class are cloneable with this method.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Evaluator$clone(deep = FALSE)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{deep}}{Whether to make a deep clone.}
+}
+\if{html}{\out{</div>}}
+}
+}
+}

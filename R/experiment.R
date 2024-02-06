@@ -1,16 +1,16 @@
 #' @include utils.R
 NULL
 
-#' \code{R6} class representing a simulation experiment.
+#' `R6` class representing a simulation experiment.
 #'
 #' @docType class
 #'
-#' @description A simulation experiment with any number of \code{DGPs},
-#'   \code{Methods}, \code{Evaluators}, and \code{Visualizers}.
+#' @description A simulation experiment with any number of `DGPs`,
+#'   `Methods`, `Evaluators`, and `Visualizers`.
 #'
-#' @details When run, an \code{Experiment} seamlessly combines \code{DGPs} and
-#'   \code{Methods}, computing results in parallel. Those results can then be
-#'   evaluated using \code{Evaluators} and visualized using \code{Visualizers}.
+#' @details When run, an `Experiment` seamlessly combines `DGPs` and
+#'   `Methods`, computing results in parallel. Those results can then be
+#'   evaluated using `Evaluators` and visualized using `Visualizers`.
 #'
 #' @template experiment-template
 #'

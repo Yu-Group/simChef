@@ -1,8 +1,8 @@
-#' \code{R6} class representing a method.
+#' `R6` class representing a method.
 #'
 #' @docType class
 #'
-#' @description A method to be **fit** and assessed in the \code{Experiment}.
+#' @description A method to be **fit** and assessed in the `Experiment`.
 #'
 #' @template method-template
 #'
@@ -57,15 +57,15 @@ Method <- R6::R6Class(
   )
 )
 
-#' Create a new \code{Method}.
+#' Create a new `Method`.
 #'
 #' @name create_method
 #'
 #' @param .method_fun The method function.
-#' @param .name (Optional) The name of the \code{Method}.
-#' @param ... Arguments to pass into \code{.method_fun()}.
+#' @param .name (Optional) The name of the `Method`.
+#' @param ... Arguments to pass into `.method_fun()`.
 #'
-#' @return A new instance of \code{Method}.
+#' @return A new instance of `Method`.
 #'
 #' @examples
 #' # create an example Method function
@@ -89,24 +89,24 @@ create_method <- function(.method_fun, .name = NULL, ...) {
   Method$new(.method_fun, .name, ...)
 }
 
-#' Fit a \code{Method}.
+#' Fit a `Method`.
 #'
 #' @name fit_method
-#' @description Fit a \code{Method} on data using the provided \code{Method}
+#' @description Fit a `Method` on data using the provided `Method`
 #'   parameters.
 #'
-#' @param method A \code{Method} object.
-#' @param data_list List of data to pass into \code{Method$method_fun()}.
-#'   If named, should match arguments in \code{Method$method_fun()}.
-#' @param ... Arguments to pass into \code{Method$method_fun()} that will
-#'   overwrite the initialized \code{Method} parameters. If no additional
-#'   arguments are provided, the \code{Method} will be fit using
-#'   \code{Method$method_fun()} and the parameters that were set when
-#'   \code{Method$new()} was called.
+#' @param method A `Method` object.
+#' @param data_list List of data to pass into `Method$method_fun()`.
+#'   If named, should match arguments in `Method$method_fun()`.
+#' @param ... Arguments to pass into `Method$method_fun()` that will
+#'   overwrite the initialized `Method` parameters. If no additional
+#'   arguments are provided, the `Method` will be fit using
+#'   `Method$method_fun()` and the parameters that were set when
+#'   `Method$new()` was called.
 #' @param .simplify If TRUE, remove list wrapping from any column that has
 #'   scalar values.
 #'
-#' @return Result of \code{Method$method_fun()}, coerced into a single
+#' @return Result of `Method$method_fun()`, coerced into a single
 #'   tibble row.
 #'
 #' @inherit visualize_visualizer examples
