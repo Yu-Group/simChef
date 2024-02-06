@@ -1,4 +1,4 @@
-# simChef
+# simChef <a href="https://yu-group.github.io/simChef"><img src="man/figures/logo.png" align="right" height="138" /></a>
 
 ## Overview
 
