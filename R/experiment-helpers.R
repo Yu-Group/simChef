@@ -1135,6 +1135,7 @@ set_doc_options <- function(experiment, field_name = c("evaluator", "visualizer"
 #' @inheritParams set_doc_options
 #' @inherit set_doc_options examples
 #'
+#' @keywords internal
 #' @export
 set_rmd_options <- function(experiment, field_name = c("evaluator", "visualizer"),
                             name, show = NULL, ...) {

@@ -113,6 +113,7 @@ init_docs <- function(experiment, save_dir) {
 #' # or alternatively, create documentation template from a specific directory
 #' create_doc_template(save_dir = experiment$get_save_dir())}
 #'
+#' @keywords internal
 #' @export
 create_doc_template <- function(experiment, save_dir) {
   lifecycle::deprecate_warn("0.1.0", "create_doc_template()", "init_docs()")
