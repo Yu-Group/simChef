@@ -44,7 +44,7 @@ use the default metrics in \code{\link[yardstick:metrics]{yardstick::metrics()}}
 construct.}
 
 \item{...}{Additional arguments to pass to
-\code{\link{plot_eval_constructor}}.}
+\code{\link[=plot_eval_constructor]{plot_eval_constructor()}}.}
 }
 \value{
 If \code{interactive = TRUE}, returns a \code{plotly} object if

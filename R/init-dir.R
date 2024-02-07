@@ -1,16 +1,16 @@
 #' @title Create a simulation project
 #'
 #' @description `create_sim()` initializes a directory for your simulation
-#'   study. It wraps around \code{\link[usethis]{create_project}()}, as well as
-#'   \code{\link[usethis:use_git]{usethis::use_git}()} and
-#'   \code{\link[renv:init]{renv::init}()}.
+#'   study. It wraps around [usethis::create_project()], as well as
+#'   [usethis::use_git()] and
+#'   [renv::init()].
 #'
 #' @param path A `character` specifying the path for your simulation
 #'   directory.
 #' @param init_git A `logical` indicating whether to intialize your
 #'   simulation directory as a git repository.
-#' @param init_renv A `logical` stating whether to initialize
-#'   \code{\link[renv:init]{renv}}. Defaults to `FALSE`.
+#' @param init_renv A `logical` stating whether to initialize `renv` with
+#'   [renv::init()]. Defaults to `FALSE`.
 #' @param tests A `logical` indicating whether to generate sub-directories
 #'   for organizing unit tests. Defaults to `TRUE`.
 #' @param hpc A `logical` indicating whether to create sub-directories for

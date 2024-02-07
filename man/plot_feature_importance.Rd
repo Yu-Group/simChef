@@ -46,7 +46,7 @@ is not \code{NULL}, this argument is ignored.}
 construct.}
 
 \item{...}{Additional arguments to pass to
-\code{\link{plot_eval_constructor}}.}
+\code{\link[=plot_eval_constructor]{plot_eval_constructor()}}.}
 }
 \value{
 If \code{interactive = TRUE}, returns a \code{plotly} object if
