@@ -20,7 +20,7 @@ URL: https://yu-group.github.io/simChef
 BugReports: https://github.com/Yu-Group/simChef/issues
 Imports:
     data.table,
-    dplyr,
+    dplyr (>= 1.1.0),
     future,
     future.apply,
     knitr,
