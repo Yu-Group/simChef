@@ -209,53 +209,73 @@ Corresponding `R` source code is available on [GitHub](https://github.com/PhilBo
 
 # Related `R` packages
 
-A number of existing `R` packages and projects address needs related `simChef`'s
-functionality. The `batchtools` package [@lang-batchtools-2017] provides
-abstractions for "problems", "algorithms", and "experiments", similar to
-`simChef`'s `DGP`, `Method`, and `Experiment` objects, respectively.
-Additionally, `batchtools` provides a number of utilities for shared-memory and
-distributed memory computations, including for interacting with high-performance
-computing cluster schedulers such as Slurm and Torque. `simChef` is able to
-leverage these utilities for distributed computations via the backends provided
-by the `future.batchtools` package which is part of the `future` ecosystem of
-`R` packages [@bengtsson-unifying-2021]. Whereas `batchtools` is a general tool
-for distributed mapping operations, `simChef` specializes in data science
-simulations and provides additional functionality tailored to that setting
-including its `tidy` grammar of simulation experiments, the `Evaluator` and
-`Visualizer` concepts, and automated documentation capabilities discussed above.
+A number of existing `R` packages and projects address needs related to
+`simChef`'s functionality. At a higher level of abstraction, the `batchtools`
+package [@lang-batchtools-2017] includes concepts for "problems", "algorithms",
+and "experiments", similar to `simChef`'s `DGP`, `Method`, and `Experiment`
+objects, respectively, but less tailored to the specific needs of data science
+simulation experiments. Additionally, `batchtools` provides a number of
+utilities for shared-memory and distributed memory computations, including for
+interacting with high-performance computing cluster schedulers such as Slurm and
+Torque. `simChef` is able to leverage these utilities for distributed
+computations via the backends provided by the `future.batchtools` package which
+is part of the `future` ecosystem of `R` packages [@bengtsson-unifying-2021].
+Whereas `batchtools` is a general tool for distributed mapping operations,
+`simChef` specializes in data science simulations and provides additional
+functionality tailored to that setting including its `tidy` grammar of
+simulation experiments, the `Evaluator` and `Visualizer` concepts, and automated
+documentation capabilities discussed above.
 
-Many existing packages aim to simplify the process of creating simulation
-experiments by reducing coding burden through distributed computing helpers and
-preset methods for generating, computing, and summarizing simulation replicates.
-`SimDesign` [@chalmers-simdesign-2020] focuses on Monte Carlo simulation
+Like `simChef`, many existing packages specifically aim to simplify the process
+of creating simulation experiments by reducing coding burden through helpful
+abstractions, distributed computing helpers, and preset methods for generating,
+computing, and summarizing simulation replicates. Of particular note are the
+following:
+
+- `SimDesign` [@chalmers-simdesign-2020] focuses on Monte Carlo simulation
 experiments and provides a function `runSimulation` that accepts user-defined
 `generate`, `analyse`, and `summarise` functions, with support for distributed
-computation via the `parallel` base `R` package and `future`. `simulator`
-[@bien-simulator-2016] provides a `tidy` grammar of simulation experiments and
-highly modular helpers for evaluating and managing simulation outputs, relying
-on the `parallel` package for distributed computation. Other packages provide a
-small number of well-tailored helper functions for specific simulation settings
-or distributed computation, including `simhelpers` [@joshi-simhelpers-2024],
-`simTool` [@scheer-simTool-2020], `parSim` [@epskamp-parSim-2024], `rsimsum`
-[@gasparini-rsimsum-2018], and `simsalapar` [@hofert-simsalapar-2016]. To our
-knowledge, no single existing package includes `simChef`'s combination of
-conceptual modularity, `tidy` grammar, computational flexibility, simulation
-workflow management, and automated documentation.
+computation via the `parallel` base `R` package and `future`.
+- `simulator` [@bien-simulator-2016] provides a `tidy` grammar of simulation
+experiments and highly modular helpers for evaluating and managing simulation
+outputs, relying on the `parallel` package for distributed computation.
+- `simpr` [@brown-simpr-2023] defines a `tidy` simulation framework for
+generating data, fitting models, varying parameters, and aggregating simulation
+results with user-defined and `purr`-style functions. In addition, it support
+distributed computations backed by the `future` framework.
+- `SimEngine` [@kenny-SimEngine-2023] defines and executes simulation 'levels'
+(parameters to vary) and 'scripts' (functions to execute a single simulation
+replicate). It manages the definition and execution of simulations and
+calculates summary statistics, with support for distributed computations in
+coordination with high-performance computing cluster schedulers.
 
-Another category of related packages are those that share conceptual
-similarities with `simChef` in terms of providing helpful abstractions for the
-design and analysis of simulation experiments, but at a finer level of detail
-than `simChef` intends. For example, the package `DeclareDesign`
+A third category of related packages are those that share conceptual
+similarities `simChef` in terms of providing helpful abstractions for the design
+and analysis of simulation experiments, but at a finer level of detail than
+`simChef` intends. For example, the package `DeclareDesign`
 [@blair-declaredesign-2019] provides various `declare_*` functions for defining
 and evaluating statistical research questions, with an emphasis on the social
 sciences. The package `infer` [@couch-infer-2021] provides a `tidy` API for
 statistical inference, providing the ability to specify random variables and
 their relationships, define a null hypothesis, generate data under that
 hypothesis, and calculate distributions of statistics based on that hypothesis.
-Both of these packages and many of the packages discussed above could be
-employed in a user's `DGP`, `Method`, `Evaluator`, or `Visualizer` and deployed
-via an `Experiment` to carry out a large-scale simulation with automated
-documentation in harmony with `simChef`.
+Both of these packages and many of the packages below could be employed in a
+user's `DGP`, `Method`, `Evaluator`, or `Visualizer` and deployed via an
+`Experiment` to carry out a large-scale simulation with automated documentation
+in harmony with `simChef`.
+
+Finally, many packages provide a small number of well-tailored helper functions
+for specific data-generating processes and simulation settings, with or without
+distributed computation. In no particular order these include: `simitation`
+[@shilane-simitation-2023], `simhelpers` [@joshi-simhelpers-2024], `simTool`
+[@scheer-simTool-2020], `parSim` [@epskamp-parSim-2024], `rsimsum`
+[@gasparini-rsimsum-2018], `simsalapar` [@hofert-simsalapar-2016], `tidyMC`
+[@linner-tidyMC-2022], `MonteCarloSEM` [@fatih-MonteCarloSEM-2021], `simMetric`
+[@parsons-simMetric-2022], and `simmer` [@ucar-simmer-2019]. To our knowledge,
+no single existing package includes `simChef`'s combination of conceptual
+modularity, `tidy` grammar, computational flexibility, simulation workflow
+management, and automated documentation.
+
 
 # Discussion
 
