@@ -43,7 +43,7 @@ When evaluating or running the \code{Experiment} (see
 arguments \code{fit_results} and \code{vary_params} are automatically
 passed into the \code{Evaluator} function \code{.eval_fun()} and serve
 as placeholders for the \code{fit_experiment()} results (i.e., the
-results from the method fits) and the name of the varying parameter,
+results from the method fits) and the name of the varying parameter(s),
 respectively.
 
 To evaluate the performance of a method(s) fit then,
@@ -53,12 +53,12 @@ take in the named argument \code{fit_results}. See
 format of \code{fit_results}. If the \code{Evaluator}
 is used for \code{Experiments} with varying parameters,
 \code{vary_params} should be used as a stand in for the name of this
-varying parameter.
+varying parameter(s).
 }
 \examples{
 # create DGP
 dgp_fun <- function(n, beta, rho, sigma) {
-  cov_mat <- matrix(c(1, rho, rho, 1), byrow = T, nrow = 2, ncol = 2)
+  cov_mat <- matrix(c(1, rho, rho, 1), byrow = TRUE, nrow = 2, ncol = 2)
   X <- MASS::mvrnorm(n = n, mu = rep(0, 2), Sigma = cov_mat)
   y <- X \%*\% beta + rnorm(n, sd = sigma)
   return(list(X = X, y = y))

@@ -25,7 +25,7 @@ When visualizing or running the \code{Experiment} (see
 \code{fit_results}, \code{eval_results}, and \code{vary_params} are automatically passed
 into the \code{Visualizer} function \code{.viz_fun()} and serve as placeholders for
 the \code{\link[=fit_experiment]{fit_experiment()}} results, the \code{\link[=evaluate_experiment]{evaluate_experiment()}} results, and
-the name of the varying parameter, respectively.
+the name of the varying parameter(s), respectively.
 
 To visualize the performance of a method's fit and/or its evaluation
 metrics then, the \code{Visualizer} function \code{.viz_fun()} should take in the
@@ -33,7 +33,7 @@ named arguments \code{fit_results} and/or \code{eval_results}. See \code{\link[=
 for details on the format of \code{fit_results}. See \code{\link[=evaluate_experiment]{evaluate_experiment()}} for
 details on the format of \code{eval_results}. If the \code{Visualizer} is used within
 an \code{Experiment} with varying parameters, \code{vary_params} should be used as a
-stand in for the name of this varying parameter.
+stand in for the name of this varying parameter(s).
 }
 \examples{
 ## create toy DGPs, Methods, Evaluators, and Visualizers

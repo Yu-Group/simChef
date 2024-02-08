@@ -21,7 +21,7 @@ following \code{Experiment} helpers:
 \examples{
 # generate some data
 dgp_fun <- function(n, beta, rho, sigma) {
-  cov_mat <- matrix(c(1, rho, rho, 1), byrow = T, nrow = 2, ncol = 2)
+  cov_mat <- matrix(c(1, rho, rho, 1), byrow = TRUE, nrow = 2, ncol = 2)
   X <- MASS::mvrnorm(n = n, mu = rep(0, 2), Sigma = cov_mat)
   y <- X \%*\% beta + rnorm(n, sd = sigma)
   return(list(X = X, y = y))

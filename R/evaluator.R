@@ -31,7 +31,7 @@
 #' @examples
 #' # create DGP
 #' dgp_fun <- function(n, beta, rho, sigma) {
-#'   cov_mat <- matrix(c(1, rho, rho, 1), byrow = T, nrow = 2, ncol = 2)
+#'   cov_mat <- matrix(c(1, rho, rho, 1), byrow = TRUE, nrow = 2, ncol = 2)
 #'   X <- MASS::mvrnorm(n = n, mu = rep(0, 2), Sigma = cov_mat)
 #'   y <- X %*% beta + rnorm(n, sd = sigma)
 #'   return(list(X = X, y = y))
@@ -114,7 +114,7 @@ create_evaluator <- function(.eval_fun, .name = NULL, .doc_options = list(),
 #'   arguments `fit_results` and `vary_params` are automatically
 #'   passed into the `Evaluator` function `.eval_fun()` and serve
 #'   as placeholders for the `fit_experiment()` results (i.e., the
-#'   results from the method fits) and the name of the varying parameter,
+#'   results from the method fits) and the name of the varying parameter(s),
 #'   respectively.
 #'
 #'   To evaluate the performance of a method(s) fit then,
@@ -124,12 +124,12 @@ create_evaluator <- function(.eval_fun, .name = NULL, .doc_options = list(),
 #'   format of `fit_results`. If the `Evaluator`
 #'   is used for `Experiments` with varying parameters,
 #'   `vary_params` should be used as a stand in for the name of this
-#'   varying parameter.
+#'   varying parameter(s).
 #'
 #' @examples
 #' # create DGP
 #' dgp_fun <- function(n, beta, rho, sigma) {
-#'   cov_mat <- matrix(c(1, rho, rho, 1), byrow = T, nrow = 2, ncol = 2)
+#'   cov_mat <- matrix(c(1, rho, rho, 1), byrow = TRUE, nrow = 2, ncol = 2)
 #'   X <- MASS::mvrnorm(n = n, mu = rep(0, 2), Sigma = cov_mat)
 #'   y <- X %*% beta + rnorm(n, sd = sigma)
 #'   return(list(X = X, y = y))

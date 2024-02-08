@@ -24,7 +24,7 @@ Create a \link{DGP} which can \code{generate()} data in an \link{Experiment}.
 \examples{
 # create an example DGP function
 dgp_fun <- function(n, beta, rho, sigma) {
-  cov_mat <- matrix(c(1, rho, rho, 1), byrow = T, nrow = 2, ncol = 2)
+  cov_mat <- matrix(c(1, rho, rho, 1), byrow = TRUE, nrow = 2, ncol = 2)
   X <- MASS::mvrnorm(n = n, mu = rep(0, 2), Sigma = cov_mat)
   y <- X \%*\% beta + rnorm(n, sd = sigma)
   return(list(X = X, y = y))
