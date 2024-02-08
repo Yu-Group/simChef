@@ -2,7 +2,7 @@
 % Please edit documentation in R/visualizer.R
 \name{create_visualizer}
 \alias{create_visualizer}
-\title{Create a new \code{Visualizer}.}
+\title{Create a new \code{Visualizer}}
 \usage{
 create_visualizer(
   .viz_fun,
@@ -13,7 +13,7 @@ create_visualizer(
 )
 }
 \arguments{
-\item{.viz_fun}{The visualization function.}
+\item{.viz_fun}{The user-defined visualization function.}
 
 \item{.name}{(Optional) The name of the \code{Visualizer}.}
 
@@ -23,85 +23,105 @@ Currently, possible options are "height" and "width" (in inches). The
 argument must be specified by position or typed out in whole; no partial
 matching is allowed for this argument.}
 
-\item{.doc_show}{If \code{TRUE} (default), show the resulting visualization in
-the R Markdown report; if \code{FALSE}, hide output in the R Markdown
-report.}
+\item{.doc_show}{If \code{TRUE} (default), show the resulting visualization in the
+R Markdown report; if \code{FALSE}, hide output in the R Markdown report.}
 
-\item{...}{Arguments to pass into \code{.viz_fun()}.}
+\item{...}{User-defined default arguments to pass into \code{.viz_fun()}.}
 }
 \value{
-A new instance of \code{Visualizer}.
+A new \link{Visualizer} object.
 }
 \description{
-Create a new \code{Visualizer}.
+Create a \link{Visualizer} which can \code{visualize()} outputs and/or
+evaluation metrics from \link{Experiment} runs.
 }
 \details{
 When visualizing or running the \code{Experiment} (see
-\code{Experiment$visualize()} or \code{Experiment$run()}), the named
-arguments \code{fit_results}, \code{eval_results}, and
-\code{vary_params} are automatically passed into the \code{Visualizer}
-function \code{.viz_fun()} and serve as placeholders for the
-\code{Experiment$fit()} results, the \code{Experiment$evaluate()}
-results, and the name of the varying parameter, respectively.
-To visualize the performance of a method(s) fit and/or its evaluation
-metrics then, the \code{Visualizer} function \code{.viz_fun()} should
-take in the named arguments \code{fit_results} and/or
-\code{eval_results}. See \code{Experiment$fit()} or
-\code{fit_experiment()} for details on the format of \code{fit_results}.
-See \code{Experiment$evaluate()} or \code{evaluate_experiment()} for
-details on the format of \code{eval_results}. If the \code{Visualizer}
-is used for \code{Experiments} with varying parameters,
-\code{vary_params} should be used as a stand in for the name of this
-varying parameter.
+\code{\link[=visualize_experiment]{visualize_experiment()}} and \code{\link[=run_experiment]{run_experiment()}}), the named arguments
+\code{fit_results}, \code{eval_results}, and \code{vary_params} are automatically passed
+into the \code{Visualizer} function \code{.viz_fun()} and serve as placeholders for
+the \code{\link[=fit_experiment]{fit_experiment()}} results, the \code{\link[=evaluate_experiment]{evaluate_experiment()}} results, and
+the name of the varying parameter, respectively.
+
+To visualize the performance of a method's fit and/or its evaluation
+metrics then, the \code{Visualizer} function \code{.viz_fun()} should take in the
+named arguments \code{fit_results} and/or \code{eval_results}. See \code{\link[=fit_experiment]{fit_experiment()}}
+for details on the format of \code{fit_results}. See \code{\link[=evaluate_experiment]{evaluate_experiment()}} for
+details on the format of \code{eval_results}. If the \code{Visualizer} is used within
+an \code{Experiment} with varying parameters, \code{vary_params} should be used as a
+stand in for the name of this varying parameter.
 }
 \examples{
-# create an example Visualizer function
-power_plot_fun <- function(fit_results, vary_params = NULL, col = "X1") {
+## create toy DGPs, Methods, Evaluators, and Visualizers
 
-  if (!is.null(vary_params)) {
-    # deal with the case when we vary across a parameter that is vector-valued
-    if (is.list(fit_results[[vary_params]])) {
-      fit_results[[vary_params]] <- list_col_to_chr(fit_results[[vary_params]],
-                                                    name = vary_params,
-                                                    verbatim = TRUE)
+# generate toy data
+dgp <- create_dgp(
+  .dgp_fun = function(n) rnorm(n), .name = "DGP", n = 100
+)
+
+# compute mean of data
+mean_method <- create_method(
+  .method_fun = function(x) list(mean = mean(x)), .name = "Mean(x)"
+)
+
+# evaluate SD of mean(x) across simulation replicates
+sd_mean_eval <- create_evaluator(
+  .eval_fun = function(fit_results, vary_params = NULL) {
+    group_vars <- c(".dgp_name", ".method_name", vary_params)
+    fit_results \%>\%
+      dplyr::group_by(dplyr::across(tidyselect::all_of(group_vars))) \%>\%
+      dplyr::summarise(sd = sd(mean), .groups = "keep")
+  },
+  .name = "SD of Mean(x)"
+)
+
+# plot SD of mean(x) across simulation replicates
+sd_mean_viz <- create_visualizer(
+  .viz_fun = function(fit_results, eval_results, vary_params = NULL,
+                      eval_name = "SD of Mean(x)") {
+    if (!is.null(vary_params)) {
+      add_aes <- ggplot2::aes(
+        x = .data[[unique(vary_params)]], y = sd, color = .dgp_name
+      )
+    } else {
+      add_aes <- ggplot2::aes(x = .dgp_name, y = sd)
     }
-  }
+    plt <- ggplot2::ggplot(eval_results[[eval_name]]) +
+      add_aes +
+      ggplot2::geom_point()
+    if (!is.null(vary_params)) {
+      plt <- plt + ggplot2::geom_line()
+    }
+    return(plt)
+  },
+  .name = "SD of Mean(x) Plot"
+)
 
-  plt <- ggplot2::ggplot(fit_results) +
-    ggplot2::aes(x = .data[[paste(col, "p-value")]],
-                 color = as.factor(.method_name)) +
-    ggplot2::geom_abline(slope = 1, intercept = 0,
-                         color = "darkgray", linetype = "solid", size = 1) +
-    ggplot2::stat_ecdf(size = 1) +
-    ggplot2::scale_x_continuous(limits = c(0, 1)) +
-    ggplot2::labs(x = "t", y = "P( p-value \u2264 t )",
-                  linetype = "", color = "Method")
-  if (!is.null(vary_params)) {
-    plt <- plt + ggplot2::facet_wrap(~ .data[[vary_params]])
-  }
-  return(plt)
-}
+# initialize experiment with toy DGPs, Methods, Evaluators, and Visualizers
+experiment <- create_experiment(name = "Experiment Name") \%>\%
+  add_dgp(dgp) \%>\%
+  add_method(mean_method) \%>\%
+  add_evaluator(sd_mean_eval) \%>\%
+  add_visualizer(sd_mean_viz)
 
-# create Visualizer using the default arguments (i.e., col = "X1")
-power_plot1 <- create_visualizer(.viz_fun = power_plot_fun,
-                                 .name = "Power Plot (X1)")
-# create Visualizer using non-default arguments (i.e., col = "X2")
-power_plot2 <- create_visualizer(.viz_fun = power_plot_fun,
-                                 .name = "Power Plot (X2)",
-                                 # additional named parameters to pass to power_plot_fun()
-                                 col = "X2")
+# fit, evaluate, and visualize (i.e., run) experiment
+fit_results <- fit_experiment(experiment, n_reps = 10)
 
-# create Visualizer from a function in the built-in Visualizer library
-pred_err_plot <- create_visualizer(.viz_fun = plot_pred_err,
-                                   .name = "Prediction Error Plot",
-                                   # additional named parameters to pass to plot_pred_err()
-                                   truth_col = "y", estimate_col = "predictions")
+eval_results <- evaluate_experiment(experiment, fit_results)
 
-# change figure height/width when displaying Visualizer in Rmd report
-pred_err_plot <- create_visualizer(.viz_fun = plot_pred_err,
-                                   .name = "Prediction Error Plot",
-                                   .doc_options = list(height = 8, width = 12),
-                                   # additional named parameters to pass to plot_pred_err()
-                                   truth_col = "y", estimate_col = "predictions")
+viz_results <- visualize_experiment(experiment, fit_results, eval_results)
+
+# example usage of generate_dgp which generates one replicate
+data_out <- dgp$generate()
+
+# example usage of fit_method on a single data replicate
+method_out <- mean_method$fit(data_out)
+
+# example usage of evaluate_evaluator and visualize_visualizer
+eval_out <- sd_mean_eval$evaluate(fit_results)
+all.equal(eval_out, eval_results[[1]])
+
+viz_out <- sd_mean_viz$visualize(fit_results, eval_results)
+all.equal(viz_out, viz_results[[1]])
 
 }

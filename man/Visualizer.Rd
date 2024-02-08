@@ -3,36 +3,133 @@
 \docType{class}
 \name{Visualizer}
 \alias{Visualizer}
-\title{\code{R6} class representing a visualizer.}
+\title{\code{R6} class representing a visualizer}
 \description{
-A visualizer (or visualization function) to \strong{visualize} the performance of
-methods and/or its evaluation metrics from the \code{Experiment} run.
+\code{Visualizer} which can \code{visualize()} outputs and/or evaluation
+metrics from \link{Experiment} runs.
+
+Generally speaking, users won't directly interact with the \code{Visualizer} R6
+class, but instead indirectly through \code{\link[=create_visualizer]{create_visualizer()}} and the
+following \code{Experiment} helpers:
+\itemize{
+\item \code{\link[=add_visualizer]{add_visualizer()}}
+\item \code{\link[=update_visualizer]{update_visualizer()}}
+\item \code{\link[=remove_visualizer]{remove_visualizer()}}
+\item \code{\link[=get_visualizers]{get_visualizers()}}
+\item \code{\link[=visualize_experiment]{visualize_experiment()}}
+}
+}
+\details{
+When visualizing or running the \code{Experiment} (see
+\code{\link[=visualize_experiment]{visualize_experiment()}} and \code{\link[=run_experiment]{run_experiment()}}), the named arguments
+\code{fit_results}, \code{eval_results}, and \code{vary_params} are automatically passed
+into the \code{Visualizer} function \code{.viz_fun()} and serve as placeholders for
+the \code{\link[=fit_experiment]{fit_experiment()}} results, the \code{\link[=evaluate_experiment]{evaluate_experiment()}} results, and
+the name of the varying parameter, respectively.
+
+To visualize the performance of a method's fit and/or its evaluation
+metrics then, the \code{Visualizer} function \code{.viz_fun()} should take in the
+named arguments \code{fit_results} and/or \code{eval_results}. See \code{\link[=fit_experiment]{fit_experiment()}}
+for details on the format of \code{fit_results}. See \code{\link[=evaluate_experiment]{evaluate_experiment()}} for
+details on the format of \code{eval_results}. If the \code{Visualizer} is used within
+an \code{Experiment} with varying parameters, \code{vary_params} should be used as a
+stand in for the name of this varying parameter.
+}
+\examples{
+## create toy DGPs, Methods, Evaluators, and Visualizers
+
+# generate toy data
+dgp <- create_dgp(
+  .dgp_fun = function(n) rnorm(n), .name = "DGP", n = 100
+)
+
+# compute mean of data
+mean_method <- create_method(
+  .method_fun = function(x) list(mean = mean(x)), .name = "Mean(x)"
+)
+
+# evaluate SD of mean(x) across simulation replicates
+sd_mean_eval <- create_evaluator(
+  .eval_fun = function(fit_results, vary_params = NULL) {
+    group_vars <- c(".dgp_name", ".method_name", vary_params)
+    fit_results \%>\%
+      dplyr::group_by(dplyr::across(tidyselect::all_of(group_vars))) \%>\%
+      dplyr::summarise(sd = sd(mean), .groups = "keep")
+  },
+  .name = "SD of Mean(x)"
+)
+
+# plot SD of mean(x) across simulation replicates
+sd_mean_viz <- Visualizer$new(
+  .viz_fun = function(fit_results, eval_results, vary_params = NULL,
+                      eval_name = "SD of Mean(x)") {
+    if (!is.null(vary_params)) {
+      add_aes <- ggplot2::aes(
+        x = .data[[unique(vary_params)]], y = sd, color = .dgp_name
+      )
+    } else {
+      add_aes <- ggplot2::aes(x = .dgp_name, y = sd)
+    }
+    plt <- ggplot2::ggplot(eval_results[[eval_name]]) +
+      add_aes +
+      ggplot2::geom_point()
+    if (!is.null(vary_params)) {
+      plt <- plt + ggplot2::geom_line()
+    }
+    return(plt)
+  },
+  .name = "SD of Mean(x) Plot"
+)
+
+# initialize experiment with toy DGPs, Methods, Evaluators, and Visualizers
+experiment <- create_experiment(name = "Experiment Name") \%>\%
+  add_dgp(dgp) \%>\%
+  add_method(mean_method) \%>\%
+  add_evaluator(sd_mean_eval) \%>\%
+  add_visualizer(sd_mean_viz)
+
+# fit, evaluate, and visualize (i.e., run) experiment
+fit_results <- fit_experiment(experiment, n_reps = 10)
+
+eval_results <- evaluate_experiment(experiment, fit_results)
+
+viz_results <- visualize_experiment(experiment, fit_results, eval_results)
+
+# example usage of generate_dgp which generates one replicate
+data_out <- dgp$generate()
+
+# example usage of fit_method on a single data replicate
+method_out <- mean_method$fit(data_out)
+
+# example usage of evaluate_evaluator and visualize_visualizer
+eval_out <- sd_mean_eval$evaluate(fit_results)
+all.equal(eval_out, eval_results[[1]])
+
+viz_out <- sd_mean_viz$visualize(fit_results, eval_results)
+all.equal(viz_out, viz_results[[1]])
+
+}
+\seealso{
+\link{create_visualizer}
 }
 \section{Public fields}{
-
-
+\if{html}{\out{<div class="r6-fields">}}
 \describe{
 \item{\code{name}}{The name of the \code{Visualizer}.}
-\item{\code{viz_fun}}{The visualizer function.}
-\item{\code{viz_params}}{(Named) list of parameters to input into the visualizer function.}
-\item{\code{doc_options}}{List of options to control the aesthetics of the
-displayed \code{Visualizer}'s visualizations in the knitted R Markdown
-report. Currently, possible options are "height" and "width" (in inches).}
-\item{\code{doc_show}}{If \code{TRUE} (default), show the resulting visualization
-in the R Markdown report; if \code{FALSE}, hide output in the
-R Markdown report.}
-}
-}
 
-\section{Public methods}{
+\item{\code{viz_fun}}{The user-defined visualization function.}
 
+\item{\code{viz_params}}{A (named) list of default parameters to input into
+the visualization function.}
 
-\itemize{
-\item{\code{Visualizer$new()}} See \link{create_visualizer}.
-\item{\code{Visualizer$visualize()}} See \link{visualize_visualizer}.
+\item{\code{doc_options}}{List of options to control the aesthetics of
+the \code{Visualizer}'s visualization in the knitted R Markdown report.}
+
+\item{\code{doc_show}}{Boolean indicating whether or not the resulting
+visualizations are shown in the R Markdown report.}
 }
+\if{html}{\out{</div>}}
 }
-
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
@@ -46,6 +143,7 @@ R Markdown report.}
 \if{html}{\out{<a id="method-Visualizer-new"></a>}}
 \if{latex}{\out{\hypertarget{method-Visualizer-new}{}}}
 \subsection{Method \code{new()}}{
+Initialize a new \code{Visualizer} object.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Visualizer$new(
   .viz_fun,
@@ -56,11 +154,37 @@ R Markdown report.}
 )}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{.viz_fun}}{The user-defined visualization function.}
+
+\item{\code{.name}}{(Optional) The name of the \code{Visualizer}.}
+
+\item{\code{.doc_options}}{(Optional) List of options to control the aesthetics of
+the \code{Visualizer}'s visualization in the knitted R Markdown report.
+Currently, possible options are "height" and "width" (in inches). The
+argument must be specified by position or typed out in whole; no partial
+matching is allowed for this argument.}
+
+\item{\code{.doc_show}}{If \code{TRUE} (default), show the resulting visualization in the
+R Markdown report; if \code{FALSE}, hide output in the R Markdown report.}
+
+\item{\code{...}}{User-defined default arguments to pass into \code{.viz_fun()}.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A new instance of \code{Visualizer}.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Visualizer-visualize"></a>}}
 \if{latex}{\out{\hypertarget{method-Visualizer-visualize}{}}}
 \subsection{Method \code{visualize()}}{
+Visualize the performance of methods and/or their evaluation
+metrics from the \code{Experiment} using the \code{Visualizer} and the
+provided parameters.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Visualizer$visualize(
   fit_results = NULL,
@@ -70,15 +194,38 @@ R Markdown report.}
 )}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{fit_results}}{A tibble, as returned by \code{\link[=fit_experiment]{fit_experiment()}}.}
+
+\item{\code{eval_results}}{A list of result tibbles, as returned by
+\code{\link[=evaluate_experiment]{evaluate_experiment()}}.}
+
+\item{\code{vary_params}}{A vector of \code{DGP} or \code{Method} parameter names that are
+varied across in the \code{Experiment}.}
+
+\item{\code{...}}{Not used.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+Result of \code{Visualizer$viz_fun()}.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Visualizer-print"></a>}}
 \if{latex}{\out{\hypertarget{method-Visualizer-print}{}}}
 \subsection{Method \code{print()}}{
+Print the \code{Visualizer} in a nice format, showing the
+\code{Visualizer}'s name, function, parameters, and R Markdown options.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Visualizer$print()}\if{html}{\out{</div>}}
 }
 
+\subsection{Returns}{
+The original \code{Visualizer} object, invisibly.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Visualizer-clone"></a>}}

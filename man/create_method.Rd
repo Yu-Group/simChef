@@ -2,38 +2,60 @@
 % Please edit documentation in R/method.R
 \name{create_method}
 \alias{create_method}
-\title{Create a new \code{Method}.}
+\title{Create a new \code{Method}}
 \usage{
 create_method(.method_fun, .name = NULL, ...)
 }
 \arguments{
-\item{.method_fun}{The method function.}
+\item{.method_fun}{The user-defined method function.}
 
-\item{.name}{(Optional) The name of the \code{Method}.}
+\item{.name}{(Optional) The name of the \code{Method}, helpful for later
+identification.}
 
-\item{...}{Arguments to pass into \code{.method_fun()}.}
+\item{...}{User-defined default arguments to pass into \code{.method_fun()}.}
 }
 \value{
-A new instance of \code{Method}.
+A new \link{Method} object.
 }
 \description{
-Create a new \code{Method}.
+Create a \link{Method} which can \code{fit()} data in an \link{Experiment}.
 }
 \examples{
+# generate some data
+dgp_fun <- function(n, beta, rho, sigma) {
+  cov_mat <- matrix(c(1, rho, rho, 1), byrow = T, nrow = 2, ncol = 2)
+  X <- MASS::mvrnorm(n = n, mu = rep(0, 2), Sigma = cov_mat)
+  y <- X \%*\% beta + rnorm(n, sd = sigma)
+  return(list(X = X, y = y))
+}
+
+dgp <- create_dgp(.dgp_fun = dgp_fun,
+                  .name = "Linear Gaussian DGP",
+                  n = 50, beta = c(1, 0), rho = 0, sigma = 1)
+data_corr <- dgp$generate(rho = 0.7)
+
 # create an example Method function
-lm_fun <- function(X, y, cols = c("X1", "X2")) {
+lm_fun <- function(X, y, cols) {
+  X <- X[, cols]
   lm_fit <- lm(y ~ X)
-  pvals <- summary(lm_fit)$coefficients[cols, "Pr(>|t|)"] \%>\%
-    setNames(paste(names(.), "p-value"))
+  pvals <- summary(lm_fit)$coefficients[-1, "Pr(>|t|)"] \%>\%
+    setNames(paste(paste0("X", cols), "p-value"))
   return(pvals)
 }
 
-# create Method with default arguments
-lm_method <- create_method(.method_fun = lm_fun, .name = "OLS")
+# create Method with default argument `cols`
+lm_method <- create_method(
+  .method_fun = lm_fun,
+  .name = "OLS",
+  cols = c(1, 2)
+)
 
-# create Method with non-default arguments
-lm_method_x1 <- create_method(.method_fun = lm_fun, .name = "OLS X1",
-                              # additional named parameters to pass to lm_fun()
-                              cols = "X1")
+print(lm_method)
+
+# fit the Method on data with non-default arguments
+lm_method$fit(data_corr, cols = 2)
+
+# fit the Method on data with default arguments
+lm_method$fit(data_corr)
 
 }

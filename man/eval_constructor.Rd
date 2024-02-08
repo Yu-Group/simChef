@@ -16,10 +16,10 @@ eval_constructor(
 )
 }
 \arguments{
-\item{fit_results}{A tibble, as returned by \code{fit_experiment()}.}
+\item{fit_results}{A tibble, as returned by \code{\link[=fit_experiment]{fit_experiment()}}.}
 
-\item{vary_params}{A vector of parameter names that are varied across in the
-\code{Experiment}.}
+\item{vary_params}{A vector of \code{DGP} or \code{Method} parameter names that are
+varied across in the \code{Experiment}.}
 
 \item{fun}{Function to compute for each row in \code{fit_results}. This
 function can take in the following optional arguments: (1) \code{data} =

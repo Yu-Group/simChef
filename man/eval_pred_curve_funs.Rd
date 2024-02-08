@@ -33,10 +33,10 @@ summarize_pred_curve(
 )
 }
 \arguments{
-\item{fit_results}{A tibble, as returned by \code{fit_experiment()}.}
+\item{fit_results}{A tibble, as returned by \code{\link[=fit_experiment]{fit_experiment()}}.}
 
-\item{vary_params}{A vector of parameter names that are varied across in the
-\code{Experiment}.}
+\item{vary_params}{A vector of \code{DGP} or \code{Method} parameter names that are
+varied across in the \code{Experiment}.}
 
 \item{nested_cols}{(Optional) A character string or vector specifying the
 name of the column(s) in \code{fit_results} that need to be

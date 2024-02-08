@@ -4,13 +4,20 @@
 \name{DGP}
 \alias{DGP}
 \title{\code{R6} class representing a data-generating process}
-\value{
-Result of \code{DGP$dgp_fun()}. If the result is not a list,
-it will be coerced to a list.
-}
 \description{
-A data-generating process which will be used in the
-\link{Experiment} to \strong{generate} data.
+\code{DGP}, a data-generating process which can \code{generate()} data in
+an \link{Experiment}.
+
+Generally speaking, users won't directly interact with the \code{DGP} R6
+class, but instead indirectly through \code{\link[=create_dgp]{create_dgp()}} and the
+following \code{Experiment} helpers:
+\itemize{
+\item \code{\link[=add_dgp]{add_dgp()}}
+\item \code{\link[=update_dgp]{update_dgp()}}
+\item \code{\link[=remove_dgp]{remove_dgp()}}
+\item \code{\link[=get_dgps]{get_dgps()}}
+\item \code{\link[=generate_data]{generate_data()}}
+}
 }
 \examples{
 # create an example DGP function
@@ -25,15 +32,15 @@ dgp_fun <- function(n, beta, rho, sigma) {
 dgp <- DGP$new(.dgp_fun = dgp_fun,
                .name = "Linear Gaussian DGP",
                # additional named parameters to pass to dgp_fun() by default
-               n = 200, beta = c(1, 0), rho = 0, sigma = 1)
+               n = 50, beta = c(1, 0), rho = 0, sigma = 1)
 
 print(dgp)
 
-dgp_uncorr <- dgp$generate()
-cor(dgp_uncorr$X)
+data_uncorr <- dgp$generate()
+cor(data_uncorr$X)
 
-dgp_corr <- dgp$generate(rho = 0.7)
-cor(dgp_corr$X)
+data_corr <- dgp$generate(rho = 0.7)
+cor(data_corr$X)
 
 }
 \seealso{
@@ -44,9 +51,10 @@ cor(dgp_corr$X)
 \describe{
 \item{\code{name}}{The name of the \code{DGP}.}
 
-\item{\code{dgp_fun}}{The data-generating process function.}
+\item{\code{dgp_fun}}{The user-defined data-generating process function.}
 
-\item{\code{dgp_params}}{A (named) list of parameters to input into the data-generating process function.}
+\item{\code{dgp_params}}{A (named) list of user-defined default arguments
+to input into the data-generating process function.}
 }
 \if{html}{\out{</div>}}
 }
@@ -71,15 +79,18 @@ Initialize a new \code{DGP} object.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{.dgp_fun}}{The data-generating process function.}
+\item{\code{.dgp_fun}}{The user-defined data-generating process function.}
 
 \item{\code{.name}}{(Optional) An optional name for the \code{DGP}, helpful for later
 identification.}
 
-\item{\code{...}}{Default arguments to pass to \code{.dgp_fun()} when \code{DGP$generate()} is
-called.}
+\item{\code{...}}{User-defined default arguments to pass to \code{.dgp_fun()} when
+\code{DGP$generate()} is called.}
 }
 \if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A new instance of \code{DGP}.
 }
 }
 \if{html}{\out{<hr>}}
@@ -94,14 +105,16 @@ Generate data from a \code{DGP}.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{...}}{Arguments to pass into \code{DGP$dgp_fun()} that will overwrite
-the initialized \code{DGP} parameters. If no additional arguments are
-provided, data will be generated using \code{DGP$dgp_fun()} with the
+\item{\code{...}}{User-defined arguments to pass into \code{DGP$dgp_fun()} that will
+overwrite the initialized \code{DGP} parameters. If no additional arguments
+are provided, data will be generated using \code{DGP$dgp_fun()} with the
 parameters that were set when \code{DGP$new()} was called.}
-
-\item{\code{dgp}}{A \code{DGP} object.}
 }
 \if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+Result of \code{DGP$dgp_fun()}. If the result is not a list,
+it will be coerced to a list.
 }
 }
 \if{html}{\out{<hr>}}

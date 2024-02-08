@@ -2,7 +2,7 @@
 % Please edit documentation in R/evaluator.R
 \name{create_evaluator}
 \alias{create_evaluator}
-\title{Create a new \code{Evaluator}.}
+\title{Create a new \code{Evaluator}}
 \usage{
 create_evaluator(
   .eval_fun,
@@ -13,79 +13,100 @@ create_evaluator(
 )
 }
 \arguments{
-\item{.eval_fun}{The evaluation function.}
+\item{.eval_fun}{The user-defined evaluation function.}
 
-\item{.name}{(Optional) The name of the \code{Evaluator}. The argument must be
-specified by position or typed out in whole; no partial matching is allowed
-for this argument.}
+\item{.name}{(Optional) The name of the \code{Evaluator}, helpful for later
+identification. The argument must be specified by position or typed out in
+whole; no partial matching is allowed for this argument.}
 
 \item{.doc_options}{(Optional) List of options to control the aesthetics of
-the displayed \code{Evaluator}'s results table in the knitted R Markdown
-report. See \code{\link[vthemes:pretty_DT]{vthemes::pretty_DT()}} for possible options. The argument must be
+the displayed \code{Evaluator}'s results table in the knitted R Markdown report.
+See \code{\link[vthemes:pretty_DT]{vthemes::pretty_DT()}} for possible options. The argument must be
 specified by position or typed out in whole; no partial matching is allowed
 for this argument.}
 
-\item{.doc_show}{If \code{TRUE} (default), show \code{Evaluator}'s results as
-a table in the R Markdown report; if \code{FALSE}, hide output in the
-R Markdown report.}
+\item{.doc_show}{If \code{TRUE} (default), show \code{Evaluator}'s results as a table
+in the R Markdown report; if \code{FALSE}, hide output in the R Markdown report.}
 
-\item{...}{Arguments to pass into \code{.eval_fun()}.}
+\item{...}{User-defined arguments to pass into \code{.eval_fun()}.}
 }
 \value{
-A new \code{Evaluator} object.
+A new \link{Evaluator} object.
 }
 \description{
-Create a new \code{Evaluator}.
+Create an \link{Evaluator} which can \code{evaluate()} the performance of
+methods in an \link{Experiment}.
 }
 \details{
 When evaluating or running the \code{Experiment} (see
-\code{evaluate_experiment()} or \code{run_experiment()}), the named
+\code{\link[=evaluate_experiment]{evaluate_experiment()}} or \code{\link[=run_experiment]{run_experiment()}}), the named
 arguments \code{fit_results} and \code{vary_params} are automatically
 passed into the \code{Evaluator} function \code{.eval_fun()} and serve
 as placeholders for the \code{fit_experiment()} results (i.e., the
 results from the method fits) and the name of the varying parameter,
-respectively. To evaluate the performance of a method(s) fit then,
+respectively.
+
+To evaluate the performance of a method(s) fit then,
 the \code{Evaluator} function \code{.eval_fun()} should almost always
 take in the named argument \code{fit_results}. See
-\code{Experiment$fit()} or \code{fit_experiment()} for details on the
+\code{Experiment$fit()} or \code{\link[=fit_experiment]{fit_experiment()}} for details on the
 format of \code{fit_results}. If the \code{Evaluator}
 is used for \code{Experiments} with varying parameters,
 \code{vary_params} should be used as a stand in for the name of this
 varying parameter.
 }
 \examples{
+# create DGP
+dgp_fun <- function(n, beta, rho, sigma) {
+  cov_mat <- matrix(c(1, rho, rho, 1), byrow = T, nrow = 2, ncol = 2)
+  X <- MASS::mvrnorm(n = n, mu = rep(0, 2), Sigma = cov_mat)
+  y <- X \%*\% beta + rnorm(n, sd = sigma)
+  return(list(X = X, y = y))
+}
+dgp <- create_dgp(.dgp_fun = dgp_fun,
+                  .name = "Linear Gaussian DGP",
+                  n = 50, beta = c(1, 0), rho = 0, sigma = 1)
+
+# create Method
+lm_fun <- function(X, y, cols) {
+  X <- X[, cols]
+  lm_fit <- lm(y ~ X)
+  pvals <- summary(lm_fit)$coefficients[-1, "Pr(>|t|)"] \%>\%
+    setNames(paste(paste0("X", cols), "p-value"))
+  return(pvals)
+}
+lm_method <- create_method(
+  .method_fun = lm_fun,
+  .name = "OLS",
+  cols = c(1, 2)
+)
+
+# create Experiment
+experiment <- create_experiment() \%>\%
+  add_dgp(dgp) \%>\%
+  add_method(lm_method) \%>\%
+  add_vary_across(.dgp = dgp, rho = seq(0.91, 0.99, 0.02))
+
+future::plan("multisession", workers = 10)
+fit_results <- fit_experiment(experiment, n_reps=10)
+
 # create an example Evaluator function
 reject_prob_fun <- function(fit_results, vary_params = NULL, alpha = 0.05) {
+  fit_results[is.na(fit_results)] <- 1
   group_vars <- c(".dgp_name", ".method_name", vary_params)
   eval_out <- fit_results \%>\%
     dplyr::group_by(across({{group_vars}})) \%>\%
     dplyr::summarise(
+      n_reps = dplyr::n(),
       `X1 Reject Prob.` = mean(`X1 p-value` < alpha),
       `X2 Reject Prob.` = mean(`X2 p-value` < alpha)
     )
   return(eval_out)
 }
 
-# create Evaluator using the default arguments (i.e., alpha = 0.05)
 reject_prob_eval <- create_evaluator(.eval_fun = reject_prob_fun,
                                      .name = "Rejection Prob (alpha = 0.05)")
-# create Evaluator using non-default arguments (here, alpha = 0.1)
-reject_prob_eval2 <- create_evaluator(.eval_fun = reject_prob_fun,
-                                      .name = "Rejection Prob (alpha = 0.1)",
-                                      # additional named parameters to pass to reject_prob_fun(),
-                                      alpha = 0.1)
 
-# create Evaluator from a function in the built-in Evaluator library
-pred_err_eval <- create_evaluator(.eval_fun = summarize_pred_err,
-                                  .name = "Prediction Error",
-                                  # additional named parameters to pass to summarize_pred_err()
-                                  truth_col = "y", estimate_col = "predictions")
-
-# set doc options for displaying Evaluator in Rmd report to show 3 decimal points
-pred_err_eval <- create_evaluator(.eval_fun = summarize_pred_err,
-                                  .name = "Prediction Error",
-                                  .doc_options = list(digits = 3),
-                                  # additional named parameters to pass to summarize_pred_err()
-                                  truth_col = "y", estimate_col = "predictions")
+reject_prob_eval$evaluate(fit_results, vary_params = "rho")
 
 }

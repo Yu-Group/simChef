@@ -30,20 +30,20 @@ resources. Default is "reps".}
 
 \item{future.globals}{Character vector of names in the global environment to
 pass to parallel workers. Passed as the argument of the same name to
-\code{future.apply::future_lapply} and related functions. To set for all
-runs of the experiment, use the same argument during initialization.}
+\code{future.apply::future_lapply} and related functions. To set for all runs of
+the experiment, use the same argument during initialization.}
 
 \item{future.packages}{Character vector of packages required by parallel
 workers. Passed as the argument of the same name to
-\code{future.apply::future_lapply} and related functions. To set for all
-runs of the experiment, use the same argument during initialization.}
+\code{future.apply::future_lapply} and related functions. To set for all runs of
+the experiment, use the same argument during initialization.}
 
 \item{future.seed}{Passed as the argument of the same name in
 \code{future.apply::future_apply}.}
 
 \item{use_cached}{Logical. If \code{TRUE}, find and return previously saved
-results. If cached results cannot be found, continue as if
-\code{use_cached} was \code{FALSE}.}
+results. If cached results cannot be found, continue as if \code{use_cached} was
+\code{FALSE}.}
 
 \item{return_all_cached_reps}{Logical. If \code{FALSE} (default), returns
 only the fit results for the requested \code{n_reps}. If \code{TRUE},

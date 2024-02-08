@@ -8,17 +8,17 @@
 #' @param dgp A `DGP` object.
 #' @param evaluator An `Evaluator` object.
 #' @param eval_results A list of result tibbles, as returned by
-#'   `evaluate_experiment()`.
+#'   [evaluate_experiment()].
 #' @param experiment An `Experiment` object.
-#' @param fit_results A tibble, as returned by `fit_experiment()`.
+#' @param fit_results A tibble, as returned by [fit_experiment()].
 #' @param future.globals Character vector of names in the global environment to
 #'   pass to parallel workers. Passed as the argument of the same name to
-#'   `future.apply::future_lapply` and related functions. To set for all
-#'   runs of the experiment, use the same argument during initialization.
+#'   `future.apply::future_lapply` and related functions. To set for all runs of
+#'   the experiment, use the same argument during initialization.
 #' @param future.packages Character vector of packages required by parallel
 #'   workers. Passed as the argument of the same name to
-#'   `future.apply::future_lapply` and related functions. To set for all
-#'   runs of the experiment, use the same argument during initialization.
+#'   `future.apply::future_lapply` and related functions. To set for all runs of
+#'   the experiment, use the same argument during initialization.
 #' @param future.seed Passed as the argument of the same name in
 #'   `future.apply::future_apply`.
 #' @param method A `Method` object.
@@ -28,10 +28,10 @@
 #'   resources. Default is "reps".
 #' @param save If `TRUE`, save outputs to disk.
 #' @param use_cached Logical. If `TRUE`, find and return previously saved
-#'   results. If cached results cannot be found, continue as if
-#'   `use_cached` was `FALSE`.
-#' @param vary_params A vector of parameter names that are varied across in the
-#'   `Experiment`.
+#'   results. If cached results cannot be found, continue as if `use_cached` was
+#'   `FALSE`.
+#' @param vary_params A vector of `DGP` or `Method` parameter names that are
+#'   varied across in the `Experiment`.
 #' @param verbose Level of verbosity. Default is 1, which prints out messages
 #'   after major checkpoints in the experiment. If 2, prints additional
 #'   debugging information for warnings and messages from user-defined functions

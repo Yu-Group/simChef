@@ -52,21 +52,18 @@ reference:
     contents:
       - Method
       - create_method
-      - fit_method
   - title: "Evaluator"
     desc: >
       Functions for creating an Evaluator.
     contents:
       - Evaluator
       - create_evaluator
-      - evaluate_evaluator
   - title: "Visualizer"
     desc: >
       Functions for creating a Visualizer.
     contents:
       - Visualizer
       - create_visualizer
-      - visualize_visualizer
   - subtitle: "Evaluator Library: Prediction"
     desc: >
       A library of common functions for evaluating prediction-focused simulation experiments.

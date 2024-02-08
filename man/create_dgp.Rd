@@ -2,15 +2,24 @@
 % Please edit documentation in R/dgp.R
 \name{create_dgp}
 \alias{create_dgp}
-\title{Create a new \code{DGP} (data-generating process).}
+\title{Create a new \code{DGP} (data-generating process)}
 \usage{
 create_dgp(.dgp_fun, .name = NULL, ...)
+}
+\arguments{
+\item{.dgp_fun}{The user-defined data-generating process function.}
+
+\item{.name}{(Optional) An optional name for the \code{DGP}, helpful for later
+identification.}
+
+\item{...}{User-defined default arguments to pass to \code{.dgp_fun()} when
+\code{DGP$generate()} is called.}
 }
 \value{
 A new \link{DGP} object.
 }
 \description{
-Create a new \code{DGP} (data-generating process).
+Create a \link{DGP} which can \code{generate()} data in an \link{Experiment}.
 }
 \examples{
 # create an example DGP function
@@ -22,17 +31,17 @@ dgp_fun <- function(n, beta, rho, sigma) {
 }
 
 # create DGP (with uncorrelated features)
-dgp_uncorr <- create_dgp(.dgp_fun = dgp_fun,
-                         .name = "Uncorrelated Linear Gaussian DGP",
-                         # additional named parameters to pass to dgp_fun()
-                         n = 200, beta = c(1, 0), rho = 0, sigma = 1)
-# create DGP (with correlated features)
-dgp_corr <- create_dgp(.dgp_fun = dgp_fun,
-                       .name = "Correlated Linear Gaussian DGP",
-                       # additional named parameters to pass to dgp_fun()
-                       n = 200, beta = c(1, 0), rho = 0.7, sigma = 1)
+dgp <- create_dgp(.dgp_fun = dgp_fun,
+                  .name = "Linear Gaussian DGP",
+                  # additional named parameters to pass to dgp_fun() by default
+                  n = 50, beta = c(1, 0), rho = 0, sigma = 1)
 
-}
-\seealso{
-\link{DGP}
+print(dgp)
+
+data_uncorr <- dgp$generate()
+cor(data_uncorr$X)
+
+data_corr <- dgp$generate(rho = 0.7)
+cor(data_corr$X)
+
 }

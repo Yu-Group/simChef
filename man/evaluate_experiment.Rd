@@ -16,11 +16,11 @@ evaluate_experiment(
 \arguments{
 \item{experiment}{An \code{Experiment} object.}
 
-\item{fit_results}{A tibble, as returned by \code{fit_experiment()}.}
+\item{fit_results}{A tibble, as returned by \code{\link[=fit_experiment]{fit_experiment()}}.}
 
 \item{use_cached}{Logical. If \code{TRUE}, find and return previously saved
-results. If cached results cannot be found, continue as if
-\code{use_cached} was \code{FALSE}.}
+results. If cached results cannot be found, continue as if \code{use_cached} was
+\code{FALSE}.}
 
 \item{save}{If \code{TRUE}, save outputs to disk.}
 

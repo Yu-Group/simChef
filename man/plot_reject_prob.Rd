@@ -19,10 +19,10 @@ plot_reject_prob(
 )
 }
 \arguments{
-\item{fit_results}{A tibble, as returned by \code{fit_experiment()}.}
+\item{fit_results}{A tibble, as returned by \code{\link[=fit_experiment]{fit_experiment()}}.}
 
 \item{eval_results}{A list of result tibbles, as returned by
-\code{evaluate_experiment()}.}
+\code{\link[=evaluate_experiment]{evaluate_experiment()}}.}
 
 \item{eval_name}{Name of \code{Evaluator} containing results to plot. If
 \code{NULL}, the data used for plotting is computed from scratch via
@@ -34,8 +34,8 @@ is not \code{NULL}, this argument is ignored.}
 
 \item{eval_fun_options}{List of named arguments to pass to \code{eval_fun}.}
 
-\item{vary_params}{A vector of parameter names that are varied across in the
-\code{Experiment}.}
+\item{vary_params}{A vector of \code{DGP} or \code{Method} parameter names that are
+varied across in the \code{Experiment}.}
 
 \item{feature_col}{A character string identifying the column in
 \code{fit_results} with the feature names or IDs.}

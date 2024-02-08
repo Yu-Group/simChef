@@ -34,7 +34,7 @@ plot_eval_constructor(
 }
 \arguments{
 \item{eval_results}{A list of result tibbles, as returned by
-\code{evaluate_experiment()}.}
+\code{\link[=evaluate_experiment]{evaluate_experiment()}}.}
 
 \item{eval_names}{(Optional) A character vector or string, specifying the
 name(s) of \code{Evaluator(s)} to plot. If multiple \code{Evaluators} are
@@ -52,8 +52,8 @@ was used to construct the \code{Evaluator}, this should be the same as the
 \code{eval_id} argument in \code{eval_summary_constructor()}. Only used to
 assign default (i.e., "auto") aesthetics in ggplot.}
 
-\item{vary_params}{A vector of parameter names that are varied across in the
-\code{Experiment}.}
+\item{vary_params}{A vector of \code{DGP} or \code{Method} parameter names that are
+varied across in the \code{Experiment}.}
 
 \item{show}{Character vector with elements being one of "boxplot", "point",
 "line", "bar", "errorbar", "ribbon" indicating what plot layer(s) to
