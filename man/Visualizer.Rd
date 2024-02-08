@@ -36,77 +36,122 @@ an \code{Experiment} with varying parameters, \code{vary_params} should be used 
 stand in for the name of this varying parameter(s).
 }
 \examples{
-## create toy DGPs, Methods, Evaluators, and Visualizers
+# create DGP
+dgp_fun <- function(n, beta, rho, sigma) {
+  cov_mat <- matrix(c(1, rho, rho, 1), byrow = TRUE, nrow = 2, ncol = 2)
+  X <- MASS::mvrnorm(n = n, mu = rep(0, 2), Sigma = cov_mat)
+  y <- X \%*\% beta + rnorm(n, sd = sigma)
+  return(list(X = X, y = y))
+}
+dgp <- create_dgp(.dgp_fun = dgp_fun,
+                  .name = "Linear Gaussian DGP",
+                  n = 50, beta = c(1, 0), rho = 0, sigma = 1)
 
-# generate toy data
-dgp <- create_dgp(
-  .dgp_fun = function(n) rnorm(n), .name = "DGP", n = 100
+# create Method
+lm_fun <- function(X, y, cols) {
+  X <- X[, cols]
+  lm_fit <- lm(y ~ X)
+  pvals <- summary(lm_fit)$coefficients[-1, "Pr(>|t|)"] \%>\%
+    setNames(paste(paste0("X", cols), "p-value"))
+  return(pvals)
+}
+lm_method <- create_method(
+  .method_fun = lm_fun,
+  .name = "OLS",
+  cols = c(1, 2)
 )
 
-# compute mean of data
-mean_method <- create_method(
-  .method_fun = function(x) list(mean = mean(x)), .name = "Mean(x)"
-)
+# create an example Evaluator function
+reject_prob_fun <- function(fit_results, vary_params = NULL, alpha = 0.05) {
+  fit_results[is.na(fit_results)] <- 1
+  group_vars <- c(".dgp_name", ".method_name", vary_params)
+  eval_out <- fit_results \%>\%
+    dplyr::group_by(across({{group_vars}})) \%>\%
+    dplyr::summarise(
+      n_reps = dplyr::n(),
+      `X1 Reject Prob.` = mean(`X1 p-value` < alpha),
+      `X2 Reject Prob.` = mean(`X2 p-value` < alpha)
+    )
+  return(eval_out)
+}
 
-# evaluate SD of mean(x) across simulation replicates
-sd_mean_eval <- create_evaluator(
-  .eval_fun = function(fit_results, vary_params = NULL) {
-    group_vars <- c(".dgp_name", ".method_name", vary_params)
-    fit_results \%>\%
-      dplyr::group_by(dplyr::across(tidyselect::all_of(group_vars))) \%>\%
-      dplyr::summarise(sd = sd(mean), .groups = "keep")
-  },
-  .name = "SD of Mean(x)"
-)
+reject_prob_eval <- Evaluator$new(.eval_fun = reject_prob_fun,
+                                  .name = "Rejection Prob (alpha = 0.05)")
 
-# plot SD of mean(x) across simulation replicates
-sd_mean_viz <- Visualizer$new(
-  .viz_fun = function(fit_results, eval_results, vary_params = NULL,
-                      eval_name = "SD of Mean(x)") {
-    if (!is.null(vary_params)) {
-      add_aes <- ggplot2::aes(
-        x = .data[[unique(vary_params)]], y = sd, color = .dgp_name
-      )
-    } else {
-      add_aes <- ggplot2::aes(x = .dgp_name, y = sd)
-    }
-    plt <- ggplot2::ggplot(eval_results[[eval_name]]) +
-      add_aes +
-      ggplot2::geom_point()
-    if (!is.null(vary_params)) {
-      plt <- plt + ggplot2::geom_line()
-    }
-    return(plt)
-  },
-  .name = "SD of Mean(x) Plot"
-)
-
-# initialize experiment with toy DGPs, Methods, Evaluators, and Visualizers
-experiment <- create_experiment(name = "Experiment Name") \%>\%
+# create Experiment
+experiment <- create_experiment() \%>\%
   add_dgp(dgp) \%>\%
-  add_method(mean_method) \%>\%
-  add_evaluator(sd_mean_eval) \%>\%
-  add_visualizer(sd_mean_viz)
+  add_method(lm_method) \%>\%
+  add_evaluator(reject_prob_eval) \%>\%
+  add_vary_across(.dgp = dgp, rho = seq(0.91, 0.99, 0.02))
 
-# fit, evaluate, and visualize (i.e., run) experiment
-fit_results <- fit_experiment(experiment, n_reps = 10)
-
+future::plan("multisession", workers = 10)
+fit_results <- fit_experiment(experiment, n_reps=10)
 eval_results <- evaluate_experiment(experiment, fit_results)
 
-viz_results <- visualize_experiment(experiment, fit_results, eval_results)
+# create an example Visualizer function which takes fit_results as input
+power_plot_fun <- function(fit_results, vary_params = NULL, col = "X1") {
+  if (is.list(fit_results[[vary_params]])) {
+    # deal with the case when we vary across a parameter that is vector-valued
+    fit_results[[vary_params]] <- list_col_to_chr(
+      fit_results[[vary_params]], name = vary_params, verbatim = TRUE
+    )
+  }
+  plt <- ggplot2::ggplot(fit_results) +
+    ggplot2::aes(x = .data[[paste(col, "p-value")]],
+                 color = as.factor(.method_name)) +
+    ggplot2::geom_abline(slope = 1, intercept = 0,
+                         color = "darkgray", linetype = "solid", linewidth = 1) +
+    ggplot2::stat_ecdf(size = 1) +
+    ggplot2::scale_x_continuous(limits = c(0, 1)) +
+    ggplot2::labs(x = "t", y = "P( p-value \u2264 t )",
+                  linetype = "", color = "Method")
+  if (!is.null(vary_params)) {
+    plt <- plt + ggplot2::facet_wrap(~ .data[[vary_params]])
+  }
+  return(plt)
+}
 
-# example usage of generate_dgp which generates one replicate
-data_out <- dgp$generate()
+power_plot <- Visualizer$new(.viz_fun = power_plot_fun, .name = "Power")
 
-# example usage of fit_method on a single data replicate
-method_out <- mean_method$fit(data_out)
+power_plot$visualize(
+  fit_results = fit_results, eval_results = eval_results, vary_params = "rho"
+)
 
-# example usage of evaluate_evaluator and visualize_visualizer
-eval_out <- sd_mean_eval$evaluate(fit_results)
-all.equal(eval_out, eval_results[[1]])
+# create an example Visualizer function which takes eval_results as input
+reject_prob_plot_fun <- function(eval_results, vary_params = NULL, eval_name) {
+  eval_results_df <- eval_results[[eval_name]]
+  if (is.list(eval_results_df[[vary_params]])) {
+    # deal with the case when we vary across a parameter that is vector-valued
+    eval_results_df[[vary_params]] <- list_col_to_chr(
+      eval_results_df[[vary_params]], name = vary_params, verbatim = TRUE
+    )
+  }
+  plt <- ggplot2::ggplot(eval_results_df) +
+    ggplot2::aes(x = .data[[vary_params]], y = `X1 Reject Prob.`,
+                 color = as.factor(.method_name),
+                 fill = as.factor(.method_name)) +
+    ggplot2::labs(x = vary_params, y = eval_name,
+                  color = "Method", fill = "Method") +
+    ggplot2::scale_y_continuous(limits = c(0, 1))
+  if (is.numeric(eval_results_df[[vary_params]])) {
+    plt <- plt +
+      ggplot2::geom_line() +
+      ggplot2::geom_point(size = 2)
+  } else {
+    plt <- plt +
+      ggplot2::geom_bar(stat = "identity")
+  }
+  return(plt)
+}
 
-viz_out <- sd_mean_viz$visualize(fit_results, eval_results)
-all.equal(viz_out, viz_results[[1]])
+reject_prob_plot <- Visualizer$new(.viz_fun = reject_prob_plot_fun,
+                                   .name = "Rejection Prob. (alpha = 0.1) Plot",
+                                   eval_name = "Rejection Prob. (alpha = 0.1)")
+
+reject_prob_plot$visualize(
+  fit_results = fit_results, eval_results = eval_results, vary_params = "rho"
+)
 
 }
 \seealso{
