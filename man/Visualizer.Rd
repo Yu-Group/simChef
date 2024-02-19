@@ -155,7 +155,7 @@ reject_prob_plot$visualize(
 
 }
 \seealso{
-\link{create_visualizer}
+\code{\link[=create_visualizer]{create_visualizer()}}
 }
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}

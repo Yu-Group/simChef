@@ -182,7 +182,7 @@ create_visualizer <- function(.viz_fun, .name = NULL, .doc_options = list(),
 #'   an `Experiment` with varying parameters, `vary_params` should be used as a
 #'   stand in for the name of this varying parameter(s).
 #'
-#' @seealso [create_visualizer]
+#' @seealso [create_visualizer()]
 #'
 #' @examples
 #' # create DGP

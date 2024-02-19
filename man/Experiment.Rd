@@ -5,62 +5,35 @@
 \alias{Experiment}
 \title{\code{R6} class representing a simulation experiment.}
 \description{
-A simulation experiment with any number of \code{DGPs},
-\code{Methods}, \code{Evaluators}, and \code{Visualizers}.
+A simulation experiment with any number of \link{DGP},
+\link{Method}, \link{Evaluator}, and \link{Visualizer} objects.
+
+Generally speaking, users won't directly interact with the \code{Experiment} R6
+class, but instead indirectly through \code{\link[=create_experiment]{create_experiment()}} and the tidy
+\code{Experiment} helpers listed in below in the \strong{See also} section.
 }
 \details{
 When run, an \code{Experiment} seamlessly combines \code{DGPs} and
 \code{Methods}, computing results in parallel. Those results can then be
 evaluated using \code{Evaluators} and visualized using \code{Visualizers}.
 }
+\seealso{
+The following tidy helpers take an \code{Experiment} object as their
+first argument: \code{\link[=create_experiment]{create_experiment()}}, \code{\link[=generate_data]{generate_data()}},
+\code{\link[=fit_experiment]{fit_experiment()}}, \code{\link[=evaluate_experiment]{evaluate_experiment()}}, \code{\link[=visualize_experiment]{visualize_experiment()}},
+\code{\link[=run_experiment]{run_experiment()}}, \code{\link[=clear_cache]{clear_cache()}}, \code{\link[=get_cached_results]{get_cached_results()}},
+\code{\link[=get_save_dir]{get_save_dir()}}, \code{\link[=set_save_dir]{set_save_dir()}}, \code{\link[=save_experiment]{save_experiment()}},
+\code{\link[=export_visualizers]{export_visualizers()}}, \href{add_funs.html}{\verb{add_*()}},
+\href{update_funs.html}{\verb{update_*()}}, \href{remove_funs.html}{\verb{remove_*()}},
+\href{get_funs.html}{\verb{get_*()}}, and \href{vary_across.html}{\verb{*_vary_across()}}.
+}
 \section{Public fields}{
-
-
+\if{html}{\out{<div class="r6-fields">}}
 \describe{
 \item{\code{name}}{The name of the \code{Experiment}.}
 }
+\if{html}{\out{</div>}}
 }
-
-\section{Public methods}{
-
-
-\itemize{
-\item{\code{Experiment$new()}} See \link{create_experiment}.
-\item{\code{Experiment$run()}} See \link{run_experiment}.
-\item{\code{Experiment$generate_data()}} See \link{generate_data}.
-\item{\code{Experiment$fit()}} See \link{fit_experiment}.
-\item{\code{Experiment$evaluate()}} See \link{evaluate_experiment}.
-\item{\code{Experiment$visualize()}} See \link{visualize_experiment}.
-\item{\code{Experiment$add_dgp()}} See \link{add_dgp}.
-\item{\code{Experiment$update_dgp()}} See \link{update_dgp}.
-\item{\code{Experiment$remove_dgp()}} See \link{remove_dgp}.
-\item{\code{Experiment$get_dgps()}} See \link{get_dgps}.
-\item{\code{Experiment$add_method()}} See \link{add_method}.
-\item{\code{Experiment$update_method()}} See \link{update_method}.
-\item{\code{Experiment$remove_method()}} See \link{remove_method}.
-\item{\code{Experiment$get_methods()}} See \link{get_methods}.
-\item{\code{Experiment$add_evaluator()}} See \link{add_evaluator}.
-\item{\code{Experiment$update_evaluator()}} See \link{update_evaluator}.
-\item{\code{Experiment$remove_evaluator()}} See \link{remove_evaluator}.
-\item{\code{Experiment$get_evaluators()}} See \link{get_evaluators}.
-\item{\code{Experiment$add_visualizer()}} See \link{add_visualizer}.
-\item{\code{Experiment$update_visualizer()}} See \link{update_visualizer}.
-\item{\code{Experiment$remove_visualizer()}} See \link{remove_visualizer}.
-\item{\code{Experiment$get_visualizers()}} See \link{get_visualizers}.
-\item{\code{Experiment$add_vary_across()}} See \link{add_vary_across}.
-\item{\code{Experiment$update_vary_across()}} See \link{update_vary_across}.
-\item{\code{Experiment$remove_vary_across()}} See \link{remove_vary_across}.
-\item{\code{Experiment$get_vary_across()}} See \link{get_vary_across}.
-\item{\code{Experiment$clear_cache()}} See \link{clear_cache}.
-\item{\code{Experiment$get_cached_results()}} See \link{get_cached_results}.
-\item{\code{Experiment$set_doc_options()}} See \link{set_doc_options}.
-\item{\code{Experiment$get_save_dir()}} See \link{get_save_dir}.
-\item{\code{Experiment$set_save_dir()}} See \link{set_save_dir}.
-\item{\code{Experiment$save()}} See \link{save_experiment}.
-\item{\code{Experiment$export_visualizers()}} See \link{export_visualizers}.
-}
-}
-
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
@@ -105,6 +78,7 @@ evaluated using \code{Evaluators} and visualized using \code{Visualizers}.
 \if{html}{\out{<a id="method-Experiment-new"></a>}}
 \if{latex}{\out{\hypertarget{method-Experiment-new}{}}}
 \subsection{Method \code{new()}}{
+Initialize a new \code{Experiment} object.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Experiment$new(
   name = "experiment",
@@ -120,11 +94,54 @@ evaluated using \code{Evaluators} and visualized using \code{Visualizers}.
 )}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{name}}{The name of the \code{Experiment}.}
+
+\item{\code{dgp_list}}{An optional list of \link{DGP} objects.}
+
+\item{\code{method_list}}{An optional list of \link{Method} objects.}
+
+\item{\code{evaluator_list}}{An optional list of \link{Evaluator} objects.}
+
+\item{\code{visualizer_list}}{An optional list of \link{Visualizer} objects.}
+
+\item{\code{future.globals}}{Character vector of names in the global environment to
+pass to parallel workers. Passed as the argument of the same name to
+\code{\link[future.apply:future_lapply]{future.apply::future_lapply()}} and related functions. To set for a
+specific run of the experiment, use the same argument in
+\code{\link[=run_experiment]{run_experiment()}}.}
+
+\item{\code{future.packages}}{Character vector of packages required by parallel
+workers. Passed as the argument of the same name to
+\code{\link[future.apply:future_lapply]{future.apply::future_lapply()}} and related functions. To set for a
+specific run of the experiment, use the same argument in
+\code{\link[=run_experiment]{run_experiment()}}.}
+
+\item{\code{clone_from}}{An optional \code{Experiment} object to use as a base for
+this one.}
+
+\item{\code{save_dir}}{An optional directory in which to save the experiment's
+results. If \code{NULL}, results are saved in the current working directory
+in a directory called "results" with a sub-directory named after
+\code{Experiment$name} when using \code{\link[=run_experiment]{run_experiment()}} or \code{\link[=fit_experiment]{fit_experiment()}}
+with \code{save=TRUE}.}
+
+\item{\code{...}}{Not used.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A new instance of \code{Experiment}.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Experiment-run"></a>}}
 \if{latex}{\out{\hypertarget{method-Experiment-run}{}}}
 \subsection{Method \code{run()}}{
+Run the full \code{Experiment} pipeline (fitting, evaluating,
+and visualizing).
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Experiment$run(
   n_reps = 1,
@@ -141,20 +158,113 @@ evaluated using \code{Evaluators} and visualized using \code{Visualizers}.
 )}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{n_reps}}{The number of replicates of the \code{Experiment} for this run.}
+
+\item{\code{parallel_strategy}}{A vector with some combination of "reps", "dgps", or
+"methods". Determines how computation will be distributed across available
+resources. Currently only the default, "reps", is supported.}
+
+\item{\code{future.globals}}{Character vector of names in the global environment to
+pass to parallel workers. Passed as the argument of the same name to
+\code{future.apply::future_lapply} and related functions. To set for all runs of
+the experiment, use the same argument during initialization.}
+
+\item{\code{future.packages}}{Character vector of packages required by parallel
+workers. Passed as the argument of the same name to
+\code{future.apply::future_lapply} and related functions. To set for all runs of
+the experiment, use the same argument during initialization.}
+
+\item{\code{future.seed}}{Passed as the argument of the same name in
+\code{future.apply::future_apply}.}
+
+\item{\code{use_cached}}{Logical. If \code{TRUE}, find and return previously saved
+results. If cached results cannot be found, continue as if \code{use_cached} was
+\code{FALSE}.}
+
+\item{\code{return_all_cached_reps}}{Logical. If \code{FALSE} (default), returns
+only the fit results for the requested \code{n_reps}. If \code{TRUE},
+returns fit results for the requested \code{n_reps} plus any additional
+cached replicates from the (\code{DGP}, \code{Method}) combinations in the
+\code{Experiment}. Note that even if \code{return_all_cached_reps = TRUE},
+only the \code{n_reps} replicates are used when evaluating and visualizing
+the \code{Experiment}.}
+
+\item{\code{save}}{If \code{TRUE}, save outputs to disk.}
+
+\item{\code{checkpoint_n_reps}}{The number of experiment replicates to compute
+before saving results to disk. If 0 (the default), no checkpoints are
+saved.}
+
+\item{\code{verbose}}{Level of verbosity. Default is 1, which prints out messages
+after major checkpoints in the experiment. If 2, prints additional
+debugging information for warnings and messages from user-defined functions
+(in addition to error debugging information). If 0, no messages are printed
+other than user-defined function error debugging information.}
+
+\item{\code{...}}{Not used.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A named list of results from the simulation experiment with the
+following entries:
+\describe{
+\item{fit_results}{A tibble containing results from the \code{fit}
+method. In addition to results columns, has columns named '.rep', '.dgp_name',
+'.method_name', and the \code{vary_across} parameter names if applicable.}
+\item{eval_results}{A list of tibbles containing results from the
+\code{evaluate} method, which evaluates each \code{Evaluator} in
+the \code{Experiment}. Length of list is equivalent to the number of
+\code{Evaluators}.}
+\item{viz_results}{A list of tibbles containing results from the
+\code{visualize} method, which visualizes each \code{Visualizer} in
+the \code{Experiment}. Length of list is equivalent to the number of
+\code{Visualizers}.}
+}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Experiment-generate_data"></a>}}
 \if{latex}{\out{\hypertarget{method-Experiment-generate_data}{}}}
 \subsection{Method \code{generate_data()}}{
+Generate sample data from all \code{DGP} objects that were added
+to the \code{Experiment}, including their varied params. Primarily useful
+for debugging. Note that results are not generated in parallel.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Experiment$generate_data(n_reps = 1, ...)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{n_reps}}{The number of datasets to generate per \code{DGP}.}
+
+\item{\code{...}}{Not used.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A list of length equal to the number of \code{DGPs} in the
+\code{Experiment}. If the \code{Experiment} does not have a
+\code{vary_across} component, then each element in the list is a list
+of \code{n_reps} datasets generated by the given \code{DGP}. If the
+\code{Experiment} does have a \code{vary_across} component, then each
+element in the outermost list is a list of lists. The second layer of
+lists corresponds to a specific parameter setting within the
+\code{vary_across} scheme, and the innermost layer of lists is of
+length \code{n_reps} with the dataset replicates, generated by the
+\code{DGP}.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Experiment-fit"></a>}}
 \if{latex}{\out{\hypertarget{method-Experiment-fit}{}}}
 \subsection{Method \code{fit()}}{
+Fit \code{Methods} in the \code{Experiment} across all
+\code{DGPs} for \code{n_reps} repetitions and return results from fits.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Experiment$fit(
   n_reps = 1,
@@ -171,11 +281,69 @@ evaluated using \code{Evaluators} and visualized using \code{Visualizers}.
 )}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{n_reps}}{The number of replicates of the \code{Experiment} for this run.}
+
+\item{\code{parallel_strategy}}{A vector with some combination of "reps", "dgps", or
+"methods". Determines how computation will be distributed across available
+resources. Currently only the default, "reps", is supported.}
+
+\item{\code{future.globals}}{Character vector of names in the global environment to
+pass to parallel workers. Passed as the argument of the same name to
+\code{future.apply::future_lapply} and related functions. To set for all runs of
+the experiment, use the same argument during initialization.}
+
+\item{\code{future.packages}}{Character vector of packages required by parallel
+workers. Passed as the argument of the same name to
+\code{future.apply::future_lapply} and related functions. To set for all runs of
+the experiment, use the same argument during initialization.}
+
+\item{\code{future.seed}}{Passed as the argument of the same name in
+\code{future.apply::future_apply}.}
+
+\item{\code{use_cached}}{Logical. If \code{TRUE}, find and return previously saved
+results. If cached results cannot be found, continue as if \code{use_cached} was
+\code{FALSE}.}
+
+\item{\code{return_all_cached_reps}}{Logical. If \code{FALSE} (default), returns
+only the fit results for the requested \code{n_reps}. If \code{TRUE},
+returns fit results for the requested \code{n_reps} plus any additional
+cached replicates from the (\code{DGP}, \code{Method}) combinations in the
+\code{Experiment}.}
+
+\item{\code{save}}{If \code{TRUE}, save outputs to disk.}
+
+\item{\code{checkpoint_n_reps}}{The number of experiment replicates to compute
+before saving results to disk. If 0 (the default), no checkpoints are
+saved.}
+
+\item{\code{verbose}}{Level of verbosity. Default is 1, which prints out messages
+after major checkpoints in the experiment. If 2, prints additional
+debugging information for warnings and messages from user-defined functions
+(in addition to error debugging information). If 0, no messages are printed
+other than user-defined function error debugging information.}
+
+\item{\code{...}}{Additional \verb{future.*} arguments to pass to \link{future.apply}
+functions. See \code{\link[future.apply:future_lapply]{future.apply::future_lapply()}} and
+\code{\link[future.apply:future_mapply]{future.apply::future_mapply()}}.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A tibble containing the results from fitting all \code{Methods}
+across all \code{DGPs} for \code{n_reps} repetitions. In addition to
+results columns, has columns named '.rep', '.dgp_name', '.method_name', and the
+\code{vary_across} parameter names if applicable.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Experiment-evaluate"></a>}}
 \if{latex}{\out{\hypertarget{method-Experiment-evaluate}{}}}
 \subsection{Method \code{evaluate()}}{
+Evaluate the performance of method(s) across all
+\link{Evaluator} objects in the \code{Experiment} and return results.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Experiment$evaluate(
   fit_results,
@@ -186,11 +354,39 @@ evaluated using \code{Evaluators} and visualized using \code{Visualizers}.
 )}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{fit_results}}{A tibble, as returned by \code{\link[=fit_experiment]{fit_experiment()}}.}
+
+\item{\code{use_cached}}{Logical. If \code{TRUE}, find and return previously saved
+results. If cached results cannot be found, continue as if \code{use_cached} was
+\code{FALSE}.}
+
+\item{\code{save}}{If \code{TRUE}, save outputs to disk.}
+
+\item{\code{verbose}}{Level of verbosity. Default is 1, which prints out messages
+after major checkpoints in the experiment. If 2, prints additional
+debugging information for warnings and messages from user-defined functions
+(in addition to error debugging information). If 0, no messages are printed
+other than user-defined function error debugging information.}
+
+\item{\code{...}}{Not used.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A list of evaluation result tibbles, one for each
+\code{Evaluator}.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Experiment-visualize"></a>}}
 \if{latex}{\out{\hypertarget{method-Experiment-visualize}{}}}
 \subsection{Method \code{visualize()}}{
+Visualize the performance of methods and/or its evaluation metrics
+using all \link{Visualizer} objects in the \code{Experiment} and return
+visualization results.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Experiment$visualize(
   fit_results,
@@ -202,150 +398,369 @@ evaluated using \code{Evaluators} and visualized using \code{Visualizers}.
 )}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{fit_results}}{A tibble, as returned by \code{\link[=fit_experiment]{fit_experiment()}}.}
+
+\item{\code{eval_results}}{A list of result tibbles, as returned by
+\code{\link[=evaluate_experiment]{evaluate_experiment()}}.}
+
+\item{\code{use_cached}}{Logical. If \code{TRUE}, find and return previously saved
+results. If cached results cannot be found, continue as if \code{use_cached} was
+\code{FALSE}.}
+
+\item{\code{save}}{If \code{TRUE}, save outputs to disk.}
+
+\item{\code{verbose}}{Level of verbosity. Default is 1, which prints out messages
+after major checkpoints in the experiment. If 2, prints additional
+debugging information for warnings and messages from user-defined functions
+(in addition to error debugging information). If 0, no messages are printed
+other than user-defined function error debugging information.}
+
+\item{\code{...}}{Not used.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A list of visualizations, one for each \code{Visualizer}.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Experiment-add_dgp"></a>}}
 \if{latex}{\out{\hypertarget{method-Experiment-add_dgp}{}}}
 \subsection{Method \code{add_dgp()}}{
+Add a \link{DGP} object to the \code{Experiment}.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Experiment$add_dgp(dgp, name = NULL, ...)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{dgp}}{A \code{DGP} object.}
+
+\item{\code{name}}{A name to identify the \code{DGP}.}
+
+\item{\code{...}}{Not used.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+The \code{Experiment} object, invisibly.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Experiment-update_dgp"></a>}}
 \if{latex}{\out{\hypertarget{method-Experiment-update_dgp}{}}}
 \subsection{Method \code{update_dgp()}}{
+Update a \link{DGP} object in the \code{Experiment}.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Experiment$update_dgp(dgp, name, ...)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{dgp}}{A \code{DGP} object.}
+
+\item{\code{name}}{An existing name identifying the \code{DGP} to be updated.}
+
+\item{\code{...}}{Not used.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+The \code{Experiment} object, invisibly.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Experiment-remove_dgp"></a>}}
 \if{latex}{\out{\hypertarget{method-Experiment-remove_dgp}{}}}
 \subsection{Method \code{remove_dgp()}}{
+Remove a \link{DGP} object from the \code{Experiment}.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Experiment$remove_dgp(name = NULL, ...)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{name}}{An existing name identifying the \code{DGP} to be removed.}
+
+\item{\code{...}}{Not used}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+The \code{Experiment} object, invisibly.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Experiment-get_dgps"></a>}}
 \if{latex}{\out{\hypertarget{method-Experiment-get_dgps}{}}}
 \subsection{Method \code{get_dgps()}}{
+Retrieve the \link{DGP} objects associated with the \code{Experiment}.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Experiment$get_dgps()}\if{html}{\out{</div>}}
 }
 
+\subsection{Returns}{
+A named list of the \code{DGP} objects in the \code{Experiment}.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Experiment-add_method"></a>}}
 \if{latex}{\out{\hypertarget{method-Experiment-add_method}{}}}
 \subsection{Method \code{add_method()}}{
+Add a \link{Method} object to the \code{Experiment}.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Experiment$add_method(method, name = NULL, ...)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{method}}{A \code{Method} object.}
+
+\item{\code{name}}{A name to identify the \code{Method} to be updated.}
+
+\item{\code{...}}{Not used.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+The \code{Experiment} object, invisibly.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Experiment-update_method"></a>}}
 \if{latex}{\out{\hypertarget{method-Experiment-update_method}{}}}
 \subsection{Method \code{update_method()}}{
+Update a \link{Method} object in the \code{Experiment}.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Experiment$update_method(method, name, ...)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{method}}{A \code{Method} object.}
+
+\item{\code{name}}{An existing name identifying the \code{Method} to be updated.}
+
+\item{\code{...}}{Not used.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+The \code{Experiment} object, invisibly.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Experiment-remove_method"></a>}}
 \if{latex}{\out{\hypertarget{method-Experiment-remove_method}{}}}
 \subsection{Method \code{remove_method()}}{
+Remove a \link{Method} object from the \code{Experiment}.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Experiment$remove_method(name = NULL, ...)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{name}}{An existing name identifying the \code{Method} to be removed.}
+
+\item{\code{...}}{Not used}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+The \code{Experiment} object, invisibly.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Experiment-get_methods"></a>}}
 \if{latex}{\out{\hypertarget{method-Experiment-get_methods}{}}}
 \subsection{Method \code{get_methods()}}{
+Retrieve the \link{Method} objects associated with the \code{Experiment}.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Experiment$get_methods()}\if{html}{\out{</div>}}
 }
 
+\subsection{Returns}{
+A named list of the \code{Method} objects in the \code{Experiment}.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Experiment-add_evaluator"></a>}}
 \if{latex}{\out{\hypertarget{method-Experiment-add_evaluator}{}}}
 \subsection{Method \code{add_evaluator()}}{
+Add an \link{Evaluator} object to the \code{Experiment}.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Experiment$add_evaluator(evaluator, name = NULL, ...)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{evaluator}}{An \code{Evaluator} object.}
+
+\item{\code{name}}{A name to identify the \code{Evaluator}.}
+
+\item{\code{...}}{Not used.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+The \code{Experiment} object, invisibly.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Experiment-update_evaluator"></a>}}
 \if{latex}{\out{\hypertarget{method-Experiment-update_evaluator}{}}}
 \subsection{Method \code{update_evaluator()}}{
+Update an \link{Evaluator} object in the \code{Experiment}.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Experiment$update_evaluator(evaluator, name, ...)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{evaluator}}{An \code{Evaluator} object.}
+
+\item{\code{name}}{An existing name identifying the \code{Evaluator} to be updated.}
+
+\item{\code{...}}{Not used.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+The \code{Experiment} object, invisibly.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Experiment-remove_evaluator"></a>}}
 \if{latex}{\out{\hypertarget{method-Experiment-remove_evaluator}{}}}
 \subsection{Method \code{remove_evaluator()}}{
+Remove an \link{Evaluator} object from the \code{Experiment}.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Experiment$remove_evaluator(name = NULL, ...)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{name}}{An existing name identifying the \code{Evaluator} to be removed.}
+
+\item{\code{...}}{Not used}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+The \code{Experiment} object, invisibly.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Experiment-get_evaluators"></a>}}
 \if{latex}{\out{\hypertarget{method-Experiment-get_evaluators}{}}}
 \subsection{Method \code{get_evaluators()}}{
+Retrieve the \link{Evaluator} objects associated with the \code{Experiment}.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Experiment$get_evaluators()}\if{html}{\out{</div>}}
 }
 
+\subsection{Returns}{
+A named list of the \code{Evaluator} objects in the \code{Experiment}.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Experiment-add_visualizer"></a>}}
 \if{latex}{\out{\hypertarget{method-Experiment-add_visualizer}{}}}
 \subsection{Method \code{add_visualizer()}}{
+Add a \link{Visualizer} object to the \code{Experiment}.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Experiment$add_visualizer(visualizer, name = NULL, ...)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{visualizer}}{A \code{Visualizer} object.}
+
+\item{\code{name}}{A name to identify the \code{Visualizer}.}
+
+\item{\code{...}}{Not used.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+The \code{Experiment} object, invisibly.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Experiment-update_visualizer"></a>}}
 \if{latex}{\out{\hypertarget{method-Experiment-update_visualizer}{}}}
 \subsection{Method \code{update_visualizer()}}{
+Update a \link{Visualizer} object in the \code{Experiment}.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Experiment$update_visualizer(visualizer, name, ...)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{visualizer}}{A \code{Visualizer} object.}
+
+\item{\code{name}}{An existing name identifying the \code{Visualizer} to be updated.}
+
+\item{\code{...}}{Not used.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+The \code{Experiment} object, invisibly.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Experiment-remove_visualizer"></a>}}
 \if{latex}{\out{\hypertarget{method-Experiment-remove_visualizer}{}}}
 \subsection{Method \code{remove_visualizer()}}{
+Remove a \link{Visualizer} object from the \code{Experiment}.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Experiment$remove_visualizer(name = NULL, ...)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{name}}{An existing name identifying the \code{Visualizer} to be removed.}
+
+\item{\code{...}}{Not used}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+The \code{Experiment} object, invisibly.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Experiment-get_visualizers"></a>}}
 \if{latex}{\out{\hypertarget{method-Experiment-get_visualizers}{}}}
 \subsection{Method \code{get_visualizers()}}{
+Retrieve the \link{Visualizer} objects associated with the \code{Experiment}.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Experiment$get_visualizers()}\if{html}{\out{</div>}}
 }
 
+\subsection{Returns}{
+A named list of the \code{Visualizer} objects in the \code{Experiment}.
+\code{vary_across} component is added and the \code{Experiment} is run, the
+\code{Experiment} is systematically varied across values of the specified
+parameter in the \code{DGP} or \code{Method} while all other parameters are
+held constant.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Experiment-add_vary_across"></a>}}
@@ -355,92 +770,259 @@ evaluated using \code{Evaluators} and visualized using \code{Visualizers}.
 \if{html}{\out{<div class="r">}}\preformatted{Experiment$add_vary_across(.dgp, .method, ...)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{.dgp}}{Name of \code{DGP} to vary in the \code{Experiment}. Can also be a
+\code{DGP} object that matches one in the \code{Experiment} or even a
+vector/list of \code{DGP} names/objects, assuming they all support the
+target arguments provided via \code{...}.}
+
+\item{\code{.method}}{Name of \code{Method} to vary in the \code{Experiment}. Can also be a
+\code{Method} object that matches one in the \code{Experiment} or even a
+vector/list of \code{Method} names/objects, assuming they all support the
+target arguments provided via \code{...}.}
+
+\item{\code{...}}{Any number of named arguments where names match an argument in the
+user-specified \code{DGP} or \code{Method} function and values are vectors (for
+scalar parameters) or lists (for arbitrary parameters).}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Details}{
+One of the \code{.dgp} or \code{.method} arguments (but not both) must
+be provided.
+}
+
+\subsection{Returns}{
+The \code{Experiment} object, invisibly.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Experiment-update_vary_across"></a>}}
 \if{latex}{\out{\hypertarget{method-Experiment-update_vary_across}{}}}
 \subsection{Method \code{update_vary_across()}}{
+Update a \code{vary_across} component in the \code{Experiment}.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Experiment$update_vary_across(.dgp, .method, ...)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{.dgp}}{Name of \code{DGP} to vary in the \code{Experiment}. Can also be a
+\code{DGP} object that matches one in the \code{Experiment} or even a
+vector/list of \code{DGP} names/objects, assuming they all support the
+target arguments provided via \code{...}.}
+
+\item{\code{.method}}{Name of \code{Method} to vary in the \code{Experiment}. Can also be a
+\code{Method} object that matches one in the \code{Experiment} or even a
+vector/list of \code{Method} names/objects, assuming they all support the
+target arguments provided via \code{...}.}
+
+\item{\code{...}}{Any number of named arguments where names match an argument in the
+user-specified \code{DGP} or \code{Method} function and values are vectors (for
+scalar parameters) or lists (for arbitrary parameters).}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Details}{
+One of the \code{.dgp} or \code{.method} arguments (but not both) must
+be provided.
+}
+
+\subsection{Returns}{
+The \code{Experiment} object, invisibly.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Experiment-remove_vary_across"></a>}}
 \if{latex}{\out{\hypertarget{method-Experiment-remove_vary_across}{}}}
 \subsection{Method \code{remove_vary_across()}}{
+Remove a \code{vary_across} component in the \code{Experiment}.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Experiment$remove_vary_across(dgp, method, param_names = NULL)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{dgp}}{Name of \code{DGP} to vary in the \code{Experiment}. Can also be a
+\code{DGP} object that matches one in the \code{Experiment} or even a
+vector/list of \code{DGP} names/objects.}
+
+\item{\code{method}}{Name of \code{Method} to vary in the \code{Experiment}. Can also be a
+\code{Method} object that matches one in the \code{Experiment} or even a
+vector/list of \code{Method} names/objects.}
+
+\item{\code{param_names}}{A character vector of parameter names to remove. If not
+provided, the entire set of \code{vary_across} parameters will be removed for
+the specified \code{DGP}/\code{Method}.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Details}{
+If both the \code{dgp} and \code{method} arguments are not provided,
+then all \code{vary_across} parameters from the experiment are removed.
+}
+
+\subsection{Returns}{
+The \code{Experiment} object, invisibly.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Experiment-get_vary_across"></a>}}
 \if{latex}{\out{\hypertarget{method-Experiment-get_vary_across}{}}}
 \subsection{Method \code{get_vary_across()}}{
+Retrieve the parameters to vary across for each \code{DGP} and
+\code{Method} in the \code{Experiment}.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Experiment$get_vary_across()}\if{html}{\out{</div>}}
 }
 
+\subsection{Returns}{
+a nested list with entries "dgp" and "method".
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Experiment-clear_cache"></a>}}
 \if{latex}{\out{\hypertarget{method-Experiment-clear_cache}{}}}
 \subsection{Method \code{clear_cache()}}{
+Clear (or delete) cached results from an \code{Experiment} to
+start the experiment fresh/from scratch.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Experiment$clear_cache()}\if{html}{\out{</div>}}
 }
 
+\subsection{Returns}{
+The \code{Experiment} object, invisibly.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Experiment-get_cached_results"></a>}}
 \if{latex}{\out{\hypertarget{method-Experiment-get_cached_results}{}}}
 \subsection{Method \code{get_cached_results()}}{
+Read in cached results from disk from a previously saved
+\code{Experiment} run.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Experiment$get_cached_results(results_type, verbose = 0)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{results_type}}{Character string indicating the type of results to read
+in. Must be one of "experiment", "experiment_cached_params", "fit", "eval",
+or "viz".}
+
+\item{\code{verbose}}{Level of verbosity. Default is 1, which prints out messages
+after major checkpoints in the experiment. If 2, prints additional
+debugging information for warnings and messages from user-defined functions
+(in addition to error debugging information). If 0, no messages are printed
+other than user-defined function error debugging information.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+The cached results, specifically the cached \code{Experiment} object
+if \code{results_type = "experiment"}, the cached fit results if
+\code{results_type = "fit"}, the cached evaluation results if
+\code{results_type = "eval"}, the cached visualization results if
+\code{results_type = "viz"}, and the experiment parameters used in
+the cache if \code{results_type = "experiment_cached_params"}.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Experiment-set_doc_options"></a>}}
 \if{latex}{\out{\hypertarget{method-Experiment-set_doc_options}{}}}
 \subsection{Method \code{set_doc_options()}}{
+Set R Markdown options for \code{Evaluator} or \code{Visualizer}
+outputs in the summary report. Some options include the height/width of
+plots and number of digits to show in tables.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Experiment$set_doc_options(field_name, name, show = NULL, ...)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{field_name}}{One of "evaluator" or "visualizer".}
+
+\item{\code{name}}{Name of \code{Evaluator} or \code{Visualizer} to set R Markdown
+options.}
+
+\item{\code{show}}{If \code{TRUE}, show output; if \code{FALSE}, hide output in
+R Markdown report. Default \code{NULL} does not change the "show" field
+in \code{Evaluator}/\code{Visualizer}.}
+
+\item{\code{...}}{Named R Markdown options to set. If \code{field_name = "visualizer"},
+options are "height" and "width". If \code{field_name = "evaluator"},
+see options for \code{\link[vthemes:pretty_DT]{vthemes::pretty_DT()}}.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+The \code{Experiment} object, invisibly.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Experiment-get_save_dir"></a>}}
 \if{latex}{\out{\hypertarget{method-Experiment-get_save_dir}{}}}
 \subsection{Method \code{get_save_dir()}}{
+Get the directory in which the \code{Experiment}'s results and
+visualizations are saved.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Experiment$get_save_dir()}\if{html}{\out{</div>}}
 }
 
+\subsection{Returns}{
+The relative path to where the \code{Experiment}'s results and
+visualizations are saved.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Experiment-set_save_dir"></a>}}
 \if{latex}{\out{\hypertarget{method-Experiment-set_save_dir}{}}}
 \subsection{Method \code{set_save_dir()}}{
+Set the directory in which the \code{Experiment}'s results and
+visualizations are saved.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Experiment$set_save_dir(save_dir)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{save_dir}}{The directory in which the \code{Experiment}'s results
+will be saved.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+The \code{Experiment} object, invisibly.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Experiment-save"></a>}}
 \if{latex}{\out{\hypertarget{method-Experiment-save}{}}}
 \subsection{Method \code{save()}}{
+Save the \code{Experiment} object to a .rds file under the
+\code{Experiment}'s results directory (see \code{\link[=get_save_dir]{get_save_dir()}}).
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Experiment$save()}\if{html}{\out{</div>}}
 }
 
+\subsection{Returns}{
+The \code{Experiment} object, invisibly.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Experiment-export_visualizers"></a>}}
 \if{latex}{\out{\hypertarget{method-Experiment-export_visualizers}{}}}
 \subsection{Method \code{export_visualizers()}}{
+Export all cached \code{Visualizer} results from an
+\code{Experiment} to images in the \verb{viz_results/} directory under the
+\code{Experiment}'s results directory (see \code{\link[=get_save_dir]{get_save_dir()}}).
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Experiment$export_visualizers(
   device = "pdf",
@@ -450,15 +1032,37 @@ evaluated using \code{Evaluators} and visualized using \code{Visualizers}.
 )}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{device}}{See \code{device} argument of \code{\link[ggplot2:ggsave]{ggplot2::ggsave()}}.}
+
+\item{\code{width}}{See \code{width} argument of \code{\link[ggplot2:ggsave]{ggplot2::ggsave()}}.}
+
+\item{\code{height}}{See \code{height} argument of \code{\link[ggplot2:ggsave]{ggplot2::ggsave()}}.}
+
+\item{\code{...}}{Additional arguments to pass to \code{\link[ggplot2:ggsave]{ggplot2::ggsave()}}.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+The \code{Experiment} object, invisibly.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Experiment-print"></a>}}
 \if{latex}{\out{\hypertarget{method-Experiment-print}{}}}
 \subsection{Method \code{print()}}{
+Print the \code{Experiment} in a nice format, showing the
+\code{DGP}, \code{Method}, \code{Evaluator}, \code{Visualizers}, and varied parameters
+involved in the \code{Experiment}.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Experiment$print()}\if{html}{\out{</div>}}
 }
 
+\subsection{Returns}{
+The original \code{Experiment} object, invisibly.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Experiment-clone"></a>}}

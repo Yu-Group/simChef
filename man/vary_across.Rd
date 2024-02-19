@@ -20,22 +20,22 @@ get_vary_across(experiment)
 \item{.experiment, experiment}{An \code{Experiment} object.}
 
 \item{.dgp, dgp}{Name of \code{DGP} to vary in the \code{Experiment}. Can also be a
-\code{DGP} object that matches one in the \code{Experiment} or even a
-vector/list of \code{DGP} names/objects, assuming they can all take in the
-specified \code{param_names}.}
+\code{DGP} object that matches one in the \code{Experiment} or even a vector/list of
+\code{DGP} names/objects, assuming they can all take in the specified
+\code{param_names}.}
 
-\item{.method, method}{Name of \code{Method} to vary in the \code{Experiment}. Can
-also be a \code{Method} object that matches one in the \code{Experiment} or
-even a vector/listo f \code{Method} names/objects, assuming they can all
-take in the specified \code{param_names}.}
+\item{.method, method}{Name of \code{Method} to vary in the \code{Experiment}. Can also
+be a \code{Method} object that matches one in the \code{Experiment} or even a
+vector/list of \code{Method} names/objects, assuming they all support the target
+arguments provided via \code{...}.}
 
 \item{...}{Any number of named arguments where names match an argument in the
-user-specified \code{DGP} or \code{Method} function and values are vectors
-(for scalar parameters) or lists (for arbitrary parameters).}
+user-specified \code{DGP} or \code{Method} function and values are vectors (for
+scalar parameters) or lists (for arbitrary parameters).}
 
-\item{param_names}{A character vector of parameter names to remove. If
-not provided, the entire set of \code{vary_across} parameters will be
-removed for the specified \code{DGP}/\code{Method}.}
+\item{param_names}{A character vector of parameter names to remove. If not
+provided, the entire set of \code{vary_across} parameters will be removed for
+the specified \code{DGP}/\code{Method}.}
 }
 \value{
 In the case of \code{get_vary_across}, a nested list with entries
@@ -49,7 +49,7 @@ Helper functions for adding, updating, removing, or getting a
 \code{vary_across} component is added and the \code{Experiment} is run, the
 \code{Experiment} is systematically varied across values of the specified
 parameter in the \code{DGP} or \code{Method} while all other parameters are
-held constant at their baseline value.
+held constant.
 }
 \details{
 One of the \code{.dgp} or \code{.method} arguments (but not both) must

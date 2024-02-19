@@ -26,7 +26,7 @@ run_experiment(
 
 \item{parallel_strategy}{A vector with some combination of "reps", "dgps", or
 "methods". Determines how computation will be distributed across available
-resources. Default is "reps".}
+resources. Currently only the default, "reps", is supported.}
 
 \item{future.globals}{Character vector of names in the global environment to
 pass to parallel workers. Passed as the argument of the same name to
@@ -68,7 +68,8 @@ other than user-defined function error debugging information.}
 \item{...}{Not used.}
 }
 \value{
-A list of results from the simulation experiment.
+A named list of results from the simulation experiment with the
+following entries:
 \describe{
 \item{fit_results}{A tibble containing results from the \code{fit}
 method. In addition to results columns, has columns named '.rep', '.dgp_name',

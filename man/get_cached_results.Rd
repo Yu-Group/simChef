@@ -29,7 +29,7 @@ the cache if \code{results_type = "experiment_cached_params"}.
 }
 \description{
 Read in cached results from disk from a previously saved
-\code{Experiment}.
+\code{Experiment} run.
 }
 \examples{
 \dontrun{

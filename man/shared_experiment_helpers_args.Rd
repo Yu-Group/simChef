@@ -38,7 +38,7 @@ the experiment, use the same argument during initialization.}
 
 \item{parallel_strategy}{A vector with some combination of "reps", "dgps", or
 "methods". Determines how computation will be distributed across available
-resources. Default is "reps".}
+resources. Currently only the default, "reps", is supported.}
 
 \item{save}{If \code{TRUE}, save outputs to disk.}
 

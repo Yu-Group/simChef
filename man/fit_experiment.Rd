@@ -26,7 +26,7 @@ fit_experiment(
 
 \item{parallel_strategy}{A vector with some combination of "reps", "dgps", or
 "methods". Determines how computation will be distributed across available
-resources. Default is "reps".}
+resources. Currently only the default, "reps", is supported.}
 
 \item{future.globals}{Character vector of names in the global environment to
 pass to parallel workers. Passed as the argument of the same name to

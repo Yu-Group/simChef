@@ -22,7 +22,7 @@ get_visualizers(experiment, ...)
 \item{...}{Not used.}
 }
 \value{
-The original \code{Experiment} object passed to \verb{get_*}.
+A named list of \code{DGPs}, \code{Methods}, \code{Evaluators}, or \code{Visualizers}
 }
 \description{
 Helper functions for getting or retrieving \code{DGPs},

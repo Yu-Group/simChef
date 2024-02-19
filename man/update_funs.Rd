@@ -21,7 +21,7 @@ update_visualizer(experiment, visualizer, name, ...)
 
 \item{dgp}{A \code{DGP} object.}
 
-\item{name}{A name to identify the object to be updated.}
+\item{name}{An existing name identifying the object to be updated.}
 
 \item{...}{Not used.}
 

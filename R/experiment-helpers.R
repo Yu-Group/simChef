@@ -25,7 +25,7 @@
 #' @param n_reps The number of replicates of the `Experiment` for this run.
 #' @param parallel_strategy A vector with some combination of "reps", "dgps", or
 #'   "methods". Determines how computation will be distributed across available
-#'   resources. Default is "reps".
+#'   resources. Currently only the default, "reps", is supported.
 #' @param save If `TRUE`, save outputs to disk.
 #' @param use_cached Logical. If `TRUE`, find and return previously saved
 #'   results. If cached results cannot be found, continue as if `use_cached` was
@@ -198,7 +198,8 @@ create_experiment <- function(name = "experiment",
 #'   only the `n_reps` replicates are used when evaluating and visualizing
 #'   the `Experiment`.
 #'
-#' @return A list of results from the simulation experiment.
+#' @return A named list of results from the simulation experiment with the
+#'   following entries:
 #' \describe{
 #' \item{fit_results}{A tibble containing results from the `fit`
 #'   method. In addition to results columns, has columns named '.rep', '.dgp_name',
@@ -234,6 +235,10 @@ run_experiment <- function(experiment, n_reps = 1,
 #'
 #' @name generate_data
 #'
+#' @description Generate sample data from all `DGP` objects that were added
+#'   to the `Experiment`, including their varied params. Primarily useful
+#'   for debugging. Note that results are not generated in parallel.
+#'
 #' @inheritParams shared_experiment_helpers_args
 #' @param n_reps The number of datasets to generate per `DGP`.
 #'
@@ -251,11 +256,11 @@ run_experiment <- function(experiment, n_reps = 1,
 #' @examples
 #' # create DGP to generate data from normal distribution with n samples
 #' normal_dgp <- create_dgp(
-#'   .dgp_fun = function(n) rnorm(n), .name = "Normal DGP", n = 100
+#'   .dgp_fun = function(n) rnorm(n), .name = "Normal DGP", n = 10
 #' )
 #' # create DGP to generate data from binomial distribution with n samples
 #' bernoulli_dgp <- create_dgp(
-#'   .dgp_fun = function(n) rbinom(n, 1, 0.5), .name = "Bernoulli DGP", n = 100
+#'   .dgp_fun = function(n) rbinom(n, 1, 0.5), .name = "Bernoulli DGP", n = 10
 #' )
 #'
 #' # initialize experiment with toy DGPs only
@@ -265,7 +270,7 @@ run_experiment <- function(experiment, n_reps = 1,
 #'
 #' # generate data from all DGPs (and vary across components if applicable)
 #' # in experiment
-#' data_out <- generate_data(experiment, n_reps = 1)
+#' generate_data(experiment, n_reps = 2)
 #' @export
 generate_data <- function(experiment, n_reps=1, ...) {
   return(experiment$generate_data(n_reps = n_reps, ...))
@@ -348,6 +353,7 @@ visualize_experiment <- function(experiment, fit_results, eval_results = NULL,
                               verbose = verbose, ...))
 }
 
+# TODO: add @details
 #' Helper functions for adding components to an `Experiment`.
 #'
 #' @description Helper functions for adding `DGPs`, `Methods`,
@@ -463,6 +469,7 @@ add_visualizer <- function(experiment, visualizer, name=NULL, ...) {
   experiment$add_visualizer(visualizer, name, ...)
 }
 
+# TODO: add @details
 #' Helper functions for updating components of an `Experiment`.
 #'
 #' @description Helper functions for updating `DGPs`, `Methods`,
@@ -470,7 +477,7 @@ add_visualizer <- function(experiment, visualizer, name=NULL, ...) {
 #'   `Experiment`.
 #'
 #' @inheritParams add_funs
-#' @param name A name to identify the object to be updated.
+#' @param name An existing name identifying the object to be updated.
 #'
 #' @return The original `Experiment` object passed to `update_*`.
 #'
@@ -612,6 +619,7 @@ update_visualizer <- function(experiment, visualizer, name, ...) {
   experiment$update_visualizer(visualizer, name, ...)
 }
 
+# TODO: add @details
 #' Helper functions for removing components of an `Experiment`.
 #'
 #' @description Helper functions for removing `DGPs`, `Methods`,
@@ -730,6 +738,7 @@ remove_visualizer <- function(experiment, name = NULL, ...) {
   experiment$remove_visualizer(name, ...)
 }
 
+# TODO: add @details
 #' Helper functions for getting components in an `Experiment`.
 #'
 #' @description Helper functions for getting or retrieving `DGPs`,
@@ -738,7 +747,7 @@ remove_visualizer <- function(experiment, name = NULL, ...) {
 #'
 #' @inheritParams shared_experiment_helpers_args
 #'
-#' @return The original `Experiment` object passed to `get_*`.
+#' @return A named list of `DGPs`, `Methods`, `Evaluators`, or `Visualizers`
 #'
 #' @name get_funs
 #' @rdname get_funs
@@ -848,23 +857,23 @@ get_visualizers <- function(experiment, ...) {
 #'   `vary_across` component is added and the `Experiment` is run, the
 #'   `Experiment` is systematically varied across values of the specified
 #'   parameter in the `DGP` or `Method` while all other parameters are
-#'   held constant at their baseline value.
+#'   held constant.
 #'
 #' @param .experiment,experiment An `Experiment` object.
 #' @param .dgp,dgp Name of `DGP` to vary in the `Experiment`. Can also be a
-#'   `DGP` object that matches one in the `Experiment` or even a
-#'   vector/list of `DGP` names/objects, assuming they can all take in the
-#'   specified `param_names`.
-#' @param .method,method Name of `Method` to vary in the `Experiment`. Can
-#'   also be a `Method` object that matches one in the `Experiment` or
-#'   even a vector/listo f `Method` names/objects, assuming they can all
-#'   take in the specified `param_names`.
-#' @param param_names A character vector of parameter names to remove. If
-#'   not provided, the entire set of `vary_across` parameters will be
-#'   removed for the specified `DGP`/`Method`.
+#'   `DGP` object that matches one in the `Experiment` or even a vector/list of
+#'   `DGP` names/objects, assuming they can all take in the specified
+#'   `param_names`.
+#' @param .method,method Name of `Method` to vary in the `Experiment`. Can also
+#'   be a `Method` object that matches one in the `Experiment` or even a
+#'   vector/list of `Method` names/objects, assuming they all support the target
+#'   arguments provided via `...`.
+#' @param param_names A character vector of parameter names to remove. If not
+#'   provided, the entire set of `vary_across` parameters will be removed for
+#'   the specified `DGP`/`Method`.
 #' @param ... Any number of named arguments where names match an argument in the
-#'   user-specified `DGP` or `Method` function and values are vectors
-#'   (for scalar parameters) or lists (for arbitrary parameters).
+#'   user-specified `DGP` or `Method` function and values are vectors (for
+#'   scalar parameters) or lists (for arbitrary parameters).
 #'
 #' @details One of the `.dgp` or `.method` arguments (but not both) must
 #'   be provided when using `add_vary_across()` and
@@ -1003,7 +1012,7 @@ clear_cache <- function(experiment) {
 #'
 #' @name get_cached_results
 #' @description Read in cached results from disk from a previously saved
-#'   `Experiment`.
+#'   `Experiment` run.
 #'
 #' @inheritParams shared_experiment_helpers_args
 #' @param results_type Character string indicating the type of results to read
@@ -1258,7 +1267,7 @@ get_save_dir <- function(experiment) {
 #'
 #' @name save_experiment
 #' @description Save an `Experiment` object to a .rds file under the
-#'   `Experiment`'s results directory (see `Experiment$get_save_dir()`).
+#'   `Experiment`'s results directory (see [get_save_dir()]).
 #'
 #' @inheritParams shared_experiment_helpers_args
 #'
@@ -1277,9 +1286,9 @@ save_experiment <- function(experiment) {
 #' Export cached `Visualizer` results to image.
 #'
 #' @name export_visualizers
-#' @description Export all cached `Visualizer` results from an
-#'   `Experiment` to images in viz_results/ under the `Experiment`'s
-#'   results directory (see `Experiment$get_save_dir()`).
+#' @description Export all cached `Visualizer` results from an `Experiment` to
+#'   images in the `viz_results/` directory under the `Experiment`'s results
+#'   directory (see [get_save_dir()]).
 #'
 #' @inheritParams shared_experiment_helpers_args
 #' @param ... Additional arguments to pass to [ggplot2::ggsave()]
