@@ -60,7 +60,6 @@
 #'   add_method(lm_method) %>%
 #'   add_vary_across(.dgp = dgp, rho = seq(0.91, 0.99, 0.02))
 #'
-#' future::plan("multisession", workers = 10)
 #' fit_results <- fit_experiment(experiment, n_reps=10)
 #'
 #' # create an example Evaluator function
@@ -158,7 +157,6 @@ create_evaluator <- function(.eval_fun, .name = NULL, .doc_options = list(),
 #'   add_method(lm_method) %>%
 #'   add_vary_across(.dgp = dgp, rho = seq(0.91, 0.99, 0.02))
 #'
-#' future::plan("multisession", workers = 10)
 #' fit_results <- fit_experiment(experiment, n_reps=10)
 #'
 #' # create an example Evaluator function
