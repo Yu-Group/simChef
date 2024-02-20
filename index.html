@@ -16,8 +16,8 @@
 <link rel="apple-touch-icon" type="image/png" sizes="76x76" href="apple-touch-icon-76x76.png">
 <link rel="apple-touch-icon" type="image/png" sizes="60x60" href="apple-touch-icon-60x60.png">
 <script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="deps/bootstrap-5.2.2/bootstrap.min.css" rel="stylesheet">
-<script src="deps/bootstrap-5.2.2/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
+<link href="deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
+<script src="deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- bootstrap-toc --><script src="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@v1.0.1/dist/bootstrap-toc.min.js" integrity="sha256-4veVQbu7//Lk5TSmc7YV48MxtMy98e26cf5MrgZYnwo=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Intensive Computational Experiments Made Easy">
 <meta property="og:description" content="Helps cook up the code necessary to create a fully-realized,
@@ -85,92 +85,226 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="section level1">
 <div class="page-header">
-<img src="logo.png" class="logo" alt=""><h1 id="simchef">simChef<a class="anchor" aria-label="anchor" href="#simchef"></a>
+<img src="logo.png" class="logo" alt=""><h1 id="simchef-">simChef 
+<a class="anchor" aria-label="anchor" href="#simchef-"></a>
 </h1>
 </div>
 <div class="section level2">
 <h2 id="overview">Overview<a class="anchor" aria-label="anchor" href="#overview"></a>
 </h2>
-<p>The goal of <code>simChef</code> is to help you quickly cook up a fully-realized, high-quality, reproducible, and transparently documented simulation study using an intuitive and tidy grammar of simulation experiments:</p>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">experiment</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/create_experiment.html">create_experiment</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="reference/pipe.html">%&gt;%</a></span></span>
-<span>  <span class="fu"><a href="reference/add_funs.html">add_dgp</a></span><span class="op">(</span><span class="va">dgp1</span><span class="op">)</span> <span class="op"><a href="reference/pipe.html">%&gt;%</a></span></span>
-<span>  <span class="fu"><a href="reference/add_funs.html">add_dgp</a></span><span class="op">(</span><span class="va">dgp2</span><span class="op">)</span> <span class="op"><a href="reference/pipe.html">%&gt;%</a></span></span>
-<span>  <span class="fu"><a href="reference/add_funs.html">add_method</a></span><span class="op">(</span><span class="va">method1</span><span class="op">)</span> <span class="op"><a href="reference/pipe.html">%&gt;%</a></span></span>
-<span>  <span class="fu"><a href="reference/add_funs.html">add_evaluator</a></span><span class="op">(</span><span class="va">evaluator1</span><span class="op">)</span> <span class="op"><a href="reference/pipe.html">%&gt;%</a></span></span>
-<span>  <span class="fu"><a href="reference/add_funs.html">add_visualizer</a></span><span class="op">(</span><span class="va">visualizer1</span><span class="op">)</span> <span class="op"><a href="reference/pipe.html">%&gt;%</a></span></span>
-<span>  <span class="fu"><a href="reference/vary_across.html">add_vary_across</a></span><span class="op">(</span></span>
-<span>    dgp <span class="op">=</span> <span class="va">dgp1</span>,</span>
-<span>    n <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">100</span>, <span class="fl">1000</span>, <span class="fl">10000</span><span class="op">)</span></span>
-<span>  <span class="op">)</span> <span class="op"><a href="reference/pipe.html">%&gt;%</a></span></span>
-<span>  <span class="fu"><a href="reference/vary_across.html">add_vary_across</a></span><span class="op">(</span></span>
-<span>    method <span class="op">=</span> <span class="va">method1</span>,</span>
-<span>    lambda <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">0.5</span>, <span class="fl">1.0</span><span class="op">)</span></span>
-<span>  <span class="op">)</span></span>
-<span></span>
-<span><span class="va">results</span> <span class="op">&lt;-</span> <span class="va">experiment</span> <span class="op"><a href="reference/pipe.html">%&gt;%</a></span></span>
-<span>  <span class="fu"><a href="reference/run_experiment.html">run_experiment</a></span><span class="op">(</span>n_reps <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span></code></pre></div>
+<p>The goal of <code>simChef</code> is to help you quickly cook up a fully-realized, high-quality, reproducible, and transparently-documented simulation study in a flexible, efficient, and low-code manner. <code>simChef</code> removes many of the administrative burdens of simulation design through:</p>
+<ol style="list-style-type: decimal">
+<li>An intuitive <a href="https://design.tidyverse.org/" class="external-link">tidy grammar</a> of data science simulations</li>
+<li>Powerful abstractions for distributed simulation processing backed by <a href="https://future.futureverse.org/" class="external-link"><code>future</code></a>
+</li>
+<li>Automated generation of interactive <a href="https://rmarkdown.rstudio.com/" class="external-link">R Markdown</a> simulation documentation, situating results next to the workflows needed to reproduce them.</li>
+</ol>
 <div class="section level3">
 <h3 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h3>
 <p><code>simChef</code> is under active development. To install the package directly from GitHub, please use:</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"Yu-Group/simChef"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
-<h3 id="concepts">Concepts<a class="anchor" aria-label="anchor" href="#concepts"></a>
+<h3 id="example-usage">Example Usage<a class="anchor" aria-label="anchor" href="#example-usage"></a>
 </h3>
-<p>In <code>simChef</code>, simulation studies are decomposed into <strong>five</strong> intuitive concepts: experiments, data-generating processes, methods, evaluations, and visualizations. A simulation can either be contained in a single <strong>experiment</strong> or divided into multiple self-contained experiments which are like small simulations studies in their own right. Every experiment is in turn composed of four parts, two of which are optional (but highly recommended): <strong>data-generating processes</strong> (DGPs), <strong>methods</strong>, <strong>evaluation</strong> (optional), and <strong>visualization</strong> (optional).</p>
-<p><code>simChef</code> takes an object-oriented approach to encapsulate these simulation concepts, using <a href="https://r6.r-lib.org/index.html" class="external-link"><code>R6</code></a> classes to make them concrete. The five main objects are:</p>
-<ul>
-<li>
-<code>Experiment</code>: corresponds to the <strong>experiment</strong> concept. As you can probably guess, this class is the main powerhouse of the simulation, collecting related DGPs and methods, keeping track of what parameters to vary, checkpointing and saving results, and producing evaluations metrics, visualizations, and documentation so that the simulation’s findings can be understood and easily communicated. Moreover, it uses <a href="https://future.futureverse.org/" class="external-link"><code>future</code></a> to compute experimental replicates in parallel using whatever resources you choose.</li>
-<li>
-<code>DGP</code>: corresponds to the <strong>data-generating process</strong> concept. DGPs simply generate synthetic data in a reproducible and flexible manner, in the size and manner that you specify. For a library of preset but highly customizable DGPs, including support for data-driven DGPs to give added realism to your synthetic data, <code>simChef</code> has a sibling R package, <a href="https://yu-group.github.io/dgpoix" class="external-link"><code>dgpoix</code></a> (currently in early development).</li>
-<li>
-<code>Method</code>: corresponds to the <strong>method</strong> concept, which can be either a baseline, a target of the simulation study, or any means by which to transform the raw synthetic data. Together with DGPs, methods make up the main computational course of the <code>simChef</code> meal.</li>
-<li>
-<code>Evaluator</code>: corresponds to the <strong>evaluation</strong> concept. When computation of experimental replicates has completed, evaluators receive the results and summarize them to produce meaningful statistics about the experiment, or simply transform the results (e.g., using summary statistics). This is an optional step, but without it the experiment’s results can be much more difficult to understand and communicate.</li>
-<li>
-<code>Visualizer</code>: corresponds to the <strong>visualization concept</strong>. These visualizations can be applied directly to the raw experimental replicates’ outputs, can instead work with the evaluation transformations/summaries, or both. Visualizers can output anything that can be rendered in an R Markdown document: static or interactive plots, tables, strings and captured output, markdown, generic HTML, etc.</li>
-</ul>
-</div>
-<div class="section level3">
-<h3 id="simulation-study-documentation">Simulation study documentation<a class="anchor" aria-label="anchor" href="#simulation-study-documentation"></a>
-</h3>
-<p>When all of this is put together, the <code>Experiment</code> class can output an R Markdown document that is structured to provide a well-organized summary of a simulation study. Moreover, this document can contain multiple experiments, simply by using a common output path with each <code>Experiment</code> in the study. When the simulation is complete, you can use the <code><a href="reference/render_docs.html">render_docs()</a></code> helper to generate the documentation:</p>
+<p>Consider the following toy simulation experiment, where we want to study the prediction accuracy of linear regression and random forests under both linear and non-linear data-generating processes for varying signal-to-noise ratios.</p>
+<p>Let us first code up the necessary simulation components, namely, the linear and nonlinear (here, an exclusive-or) data-generating processes as well as the linear regression and random forest models. To evaluate the methods and visualize the results, one can also write custom code, but we will leverage built-in evaluation and visualization functions (e.g., <code>summarize_pred_err</code> and <code>plot_pred_err</code>) from <code>simChef</code> for convenience.</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Generate data via linear model</span></span>
+<span><span class="va">linear_dgp_fun</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">n_train</span>, <span class="va">n_test</span>, <span class="va">p</span>, <span class="va">beta</span>, <span class="va">noise_sd</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">n</span> <span class="op">&lt;-</span> <span class="va">n_train</span> <span class="op">+</span> <span class="va">n_test</span></span>
+<span>  <span class="va">X</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span> <span class="op">*</span> <span class="va">p</span><span class="op">)</span>, nrow <span class="op">=</span> <span class="va">n</span>, ncol <span class="op">=</span> <span class="va">p</span><span class="op">)</span></span>
+<span>  <span class="va">y</span> <span class="op">&lt;-</span> <span class="va">X</span> <span class="op"><a href="https://rdrr.io/r/base/matmult.html" class="external-link">%*%</a></span> <span class="va">beta</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span>, sd <span class="op">=</span> <span class="va">noise_sd</span><span class="op">)</span></span>
+<span>  <span class="va">data_list</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>    X_train <span class="op">=</span> <span class="va">X</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="va">n_train</span>, , drop <span class="op">=</span> <span class="cn">FALSE</span><span class="op">]</span>,</span>
+<span>    y_train <span class="op">=</span> <span class="va">y</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="va">n_train</span><span class="op">]</span>,</span>
+<span>    X_test <span class="op">=</span> <span class="va">X</span><span class="op">[</span><span class="op">(</span><span class="va">n_train</span> <span class="op">+</span> <span class="fl">1</span><span class="op">)</span><span class="op">:</span><span class="va">n</span>, , drop <span class="op">=</span> <span class="cn">FALSE</span><span class="op">]</span>,</span>
+<span>    y_test <span class="op">=</span> <span class="va">y</span><span class="op">[</span><span class="op">(</span><span class="va">n_train</span> <span class="op">+</span> <span class="fl">1</span><span class="op">)</span><span class="op">:</span><span class="va">n</span><span class="op">]</span></span>
+<span>  <span class="op">)</span></span>
+<span>  <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="va">data_list</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="co"># Generate data via exclusive-or model</span></span>
+<span><span class="va">xor_dgp_fun</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">n_train</span>, <span class="va">n_test</span>, <span class="va">p</span>, <span class="va">thresh</span>, <span class="va">beta</span>, <span class="va">noise_sd</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">n</span> <span class="op">&lt;-</span> <span class="va">n_train</span> <span class="op">+</span> <span class="va">n_test</span></span>
+<span>  <span class="va">X</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span> <span class="op">*</span> <span class="va">p</span><span class="op">)</span>, nrow <span class="op">=</span> <span class="va">n</span>, ncol <span class="op">=</span> <span class="va">p</span><span class="op">)</span></span>
+<span>  <span class="va">xor</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="op">(</span><span class="op">(</span><span class="va">X</span><span class="op">[</span>, <span class="fl">1</span><span class="op">]</span> <span class="op">&gt;</span> <span class="va">thresh</span><span class="op">)</span> <span class="op">+</span> <span class="op">(</span><span class="va">X</span><span class="op">[</span>, <span class="fl">2</span><span class="op">]</span> <span class="op">&gt;</span> <span class="va">thresh</span><span class="op">)</span><span class="op">)</span> <span class="op">==</span> <span class="fl">1</span><span class="op">)</span></span>
+<span>  <span class="va">y</span> <span class="op">&lt;-</span> <span class="va">beta</span> <span class="op">*</span> <span class="va">xor</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span>, sd <span class="op">=</span> <span class="va">noise_sd</span><span class="op">)</span></span>
+<span>  <span class="va">data_list</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>    X_train <span class="op">=</span> <span class="va">X</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="va">n_train</span>, , drop <span class="op">=</span> <span class="cn">FALSE</span><span class="op">]</span>,</span>
+<span>    y_train <span class="op">=</span> <span class="va">y</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="va">n_train</span><span class="op">]</span>,</span>
+<span>    X_test <span class="op">=</span> <span class="va">X</span><span class="op">[</span><span class="op">(</span><span class="va">n_train</span> <span class="op">+</span> <span class="fl">1</span><span class="op">)</span><span class="op">:</span><span class="va">n</span>, , drop <span class="op">=</span> <span class="cn">FALSE</span><span class="op">]</span>,</span>
+<span>    y_test <span class="op">=</span> <span class="va">y</span><span class="op">[</span><span class="op">(</span><span class="va">n_train</span> <span class="op">+</span> <span class="fl">1</span><span class="op">)</span><span class="op">:</span><span class="va">n</span><span class="op">]</span></span>
+<span>  <span class="op">)</span></span>
+<span>  <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="va">data_list</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="co"># Fit linear regression model</span></span>
+<span><span class="va">linear_reg_fun</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">X_train</span>, <span class="va">y_train</span>, <span class="va">X_test</span>, <span class="va">y_test</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">train_df</span> <span class="op">&lt;-</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/bind_cols.html" class="external-link">bind_cols</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span><span class="va">X_train</span><span class="op">)</span>, y <span class="op">=</span> <span class="va">y_train</span><span class="op">)</span></span>
+<span>  <span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/lm.html" class="external-link">lm</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">.</span>, data <span class="op">=</span> <span class="va">train_df</span><span class="op">)</span></span>
+<span>  <span class="va">predictions</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit</span>, <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span><span class="va">X_test</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>predictions <span class="op">=</span> <span class="va">predictions</span>, y_test <span class="op">=</span> <span class="va">y_test</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="co"># Fit random forest model</span></span>
+<span><span class="va">rf_fun</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">X_train</span>, <span class="va">y_train</span>, <span class="va">X_test</span>, <span class="va">y_test</span>, <span class="va">...</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">train_df</span> <span class="op">&lt;-</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/bind_cols.html" class="external-link">bind_cols</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span><span class="va">X_train</span><span class="op">)</span>, y <span class="op">=</span> <span class="va">y_train</span><span class="op">)</span></span>
+<span>  <span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">ranger</span><span class="fu">::</span><span class="fu"><a href="http://imbs-hl.github.io/ranger/reference/ranger.html" class="external-link">ranger</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">.</span>, data <span class="op">=</span> <span class="va">train_df</span>, <span class="va">...</span><span class="op">)</span></span>
+<span>  <span class="va">predictions</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit</span>, <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span><span class="va">X_test</span><span class="op">)</span><span class="op">)</span><span class="op">$</span><span class="va">predictions</span></span>
+<span>  <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>predictions <span class="op">=</span> <span class="va">predictions</span>, y_test <span class="op">=</span> <span class="va">y_test</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">}</span></span></code></pre></div>
+<p>From here, there is minimal coding on the user’s end, as <code>simChef</code> provides a powerful tidy grammar to instantiate, assemble, and run various configurations of the simulation experiment.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="reference/render_docs.html">render_docs</a></span><span class="op">(</span><span class="va">experiment</span><span class="op">)</span></span></code></pre></div>
-<p>This results in an HTML document like the one shown below:</p>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://yu-group.github.io/simChef">simChef</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Uncomment to run experiment across multiple processors</span></span>
+<span><span class="co"># library(future)</span></span>
+<span><span class="co"># plan(multisession, workers = 5)</span></span>
+<span></span>
+<span><span class="co"># Create `simChef` DGPs (data-generating processes)</span></span>
+<span><span class="va">linear_dgp</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/create_dgp.html">create_dgp</a></span><span class="op">(</span></span>
+<span>  .dgp_fun <span class="op">=</span> <span class="va">linear_dgp_fun</span>, .name <span class="op">=</span> <span class="st">"Linear DGP"</span>,</span>
+<span>  <span class="co"># additional named parameters to pass to .dgp_fun()</span></span>
+<span>  n_train <span class="op">=</span> <span class="fl">200</span>, n_test <span class="op">=</span> <span class="fl">200</span>, p <span class="op">=</span> <span class="fl">2</span>, beta <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">0</span><span class="op">)</span>, noise_sd <span class="op">=</span> <span class="fl">1</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">xor_dgp</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/create_dgp.html">create_dgp</a></span><span class="op">(</span></span>
+<span>  .dgp_fun <span class="op">=</span> <span class="va">xor_dgp_fun</span>, .name <span class="op">=</span> <span class="st">"XOR DGP"</span>,</span>
+<span>  <span class="co"># additional named parameters to pass to .dgp_fun()</span></span>
+<span>  n_train <span class="op">=</span> <span class="fl">200</span>, n_test <span class="op">=</span> <span class="fl">200</span>, p <span class="op">=</span> <span class="fl">2</span>, thresh <span class="op">=</span> <span class="fl">0</span>, beta <span class="op">=</span> <span class="fl">1</span>, noise_sd <span class="op">=</span> <span class="fl">1</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Create `simChef` Methods</span></span>
+<span><span class="va">linear_reg</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/create_method.html">create_method</a></span><span class="op">(</span></span>
+<span>  .method_fun <span class="op">=</span> <span class="va">linear_reg_fun</span>, .name <span class="op">=</span> <span class="st">"Linear Regression"</span></span>
+<span>  <span class="co"># additional named parameters to pass to .method_fun()</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">rf</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/create_method.html">create_method</a></span><span class="op">(</span></span>
+<span>  .method_fun <span class="op">=</span> <span class="va">rf_fun</span>, .name <span class="op">=</span> <span class="st">"Random Forest"</span>, </span>
+<span>  <span class="co"># additional named parameters to pass to .method_fun()</span></span>
+<span>  num.threads <span class="op">=</span> <span class="fl">1</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Create `simChef` Evaluators</span></span>
+<span><span class="va">pred_err</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/create_evaluator.html">create_evaluator</a></span><span class="op">(</span></span>
+<span>  .eval_fun <span class="op">=</span> <span class="va">summarize_pred_err</span>, .name <span class="op">=</span> <span class="st">'Prediction Accuracy'</span>,</span>
+<span>  <span class="co"># additional named parameters to pass to .eval_fun()</span></span>
+<span>  truth_col <span class="op">=</span> <span class="st">"y_test"</span>, estimate_col <span class="op">=</span> <span class="st">"predictions"</span></span>
+<span><span class="op">)</span> </span>
+<span></span>
+<span><span class="co"># Create `simChef` Visualizers</span></span>
+<span><span class="va">pred_err_plot</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/create_visualizer.html">create_visualizer</a></span><span class="op">(</span></span>
+<span>  .viz_fun <span class="op">=</span> <span class="va">plot_pred_err</span>, .name <span class="op">=</span> <span class="st">'Prediction Accuracy Plot'</span>,</span>
+<span>  <span class="co"># additional named parameters to pass to .viz_fun()</span></span>
+<span>  eval_name <span class="op">=</span> <span class="st">'Prediction Accuracy'</span></span>
+<span><span class="op">)</span> </span>
+<span></span>
+<span><span class="co"># Create experiment</span></span>
+<span><span class="va">experiment</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/create_experiment.html">create_experiment</a></span><span class="op">(</span>name <span class="op">=</span> <span class="st">"Test Experiment"</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="reference/add_funs.html">add_dgp</a></span><span class="op">(</span><span class="va">linear_dgp</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="reference/add_funs.html">add_dgp</a></span><span class="op">(</span><span class="va">xor_dgp</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="reference/add_funs.html">add_method</a></span><span class="op">(</span><span class="va">linear_reg</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="reference/add_funs.html">add_method</a></span><span class="op">(</span><span class="va">rf</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="reference/add_funs.html">add_evaluator</a></span><span class="op">(</span><span class="va">pred_err</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="reference/add_funs.html">add_visualizer</a></span><span class="op">(</span><span class="va">pred_err_plot</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="co"># vary across noise parameter in linear dgp</span></span>
+<span>  <span class="fu"><a href="reference/vary_across.html">add_vary_across</a></span><span class="op">(</span></span>
+<span>    .dgp <span class="op">=</span> <span class="st">"Linear DGP"</span>,</span>
+<span>    noise_sd <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">0.5</span>, <span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span></span>
+<span>  <span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="co"># vary across noise parameter in xor dgp</span></span>
+<span>  <span class="fu"><a href="reference/vary_across.html">add_vary_across</a></span><span class="op">(</span></span>
+<span>    .dgp <span class="op">=</span> <span class="st">"XOR DGP"</span>,</span>
+<span>    noise_sd <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">0.5</span>, <span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span></span>
+<span>  <span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Run experiment over n_reps</span></span>
+<span><span class="va">results</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/run_experiment.html">run_experiment</a></span><span class="op">(</span><span class="va">experiment</span>, n_reps <span class="op">=</span> <span class="fl">100</span>, save <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Render automated documentation and view results</span></span>
+<span><span class="fu"><a href="reference/render_docs.html">render_docs</a></span><span class="op">(</span><span class="va">experiment</span><span class="op">)</span></span></code></pre></div>
+<p>Simulation experiment complete!</p>
+<p>In addition, the code, narrative, and results of the simulation experiment have been automatically rendered into an interactive html document via R Markdown (see <code><a href="reference/render_docs.html">? render_docs</a></code>), such as the one shown below:</p>
 <div class="figure">
 <img src="reference/figures/simchef.gif" alt=""><p class="caption">Interactive R Markdown simulation documentation</p>
 </div>
-<p>For more examples, including an interactive version of the simulation study documentation, see <code><a href="articles/simChef.html">vignette("simChef")</a></code>.</p>
+<p>For a more detailed walkthrough of this example usage, please see <code><a href="articles/simChef.html">vignette("simChef")</a></code>.</p>
+<p><strong>For an example real-world case study using <code>simChef</code> to develop novel statistical methodology, please check out <a href="https://github.com/PhilBoileau/simChef-case-study" class="external-link">Boileau et al.</a>.</strong> The corresponding interactive R Markdown documentation can be found <a href="https://philboileau.github.io/simChef-case-study/results/empirical-fdr-comparison/empirical-fdr-comparison.html" class="external-link">here</a>.</p>
+<p>More examples of the rendered documentation for different simulation experiments: - <a href="https://yu-group.github.io/simChef/example_experiment.html">Toy Example 1</a> - <a href="https://yu-group.github.io/simChef/linear_regression_output.html">Toy Example 2</a></p>
+</div>
+<div class="section level3">
+<h3 id="grammar-of-a-simchef-simulation-experiment">Grammar of a <code>simChef</code> Simulation Experiment<a class="anchor" aria-label="anchor" href="#grammar-of-a-simchef-simulation-experiment"></a>
+</h3>
+<p>The <code>simChef</code> API distills a simulation experiment into four modular concepts, two of which are optional (but highly recommended): <strong>data-generating processes</strong> (DGPs), <strong>methods</strong>, <strong>evaluation</strong> (optional), and <strong>visualization</strong> (optional). <code>simChef</code> takes an object-oriented approach to encapsulate these simulation concepts, using <a href="https://r6.r-lib.org/index.html" class="external-link"><code>R6</code></a> classes to make them concrete. These four classes are:</p>
+<ul>
+<li>
+<code>DGP</code>: corresponds to the <strong>data-generating process</strong> from which to <em>generate</em> data.
+<ul>
+<li>DGPs simply generate data in a reproducible and flexible manner, in the size and manner that you specify. For a library of preset but highly customizable DGPs, <code>simChef</code> has a sibling R package, <a href="https://yu-group.github.io/dgpoix" class="external-link"><code>dgpoix</code></a> (currently in early development).</li>
+<li>
+<em>Ex:</em> In the above example usage, there are two DGPs: the linear DGP and the exclusive-or DGP.</li>
+</ul>
+</li>
+<li>
+<code>Method</code>: corresponds to the <strong>method</strong> (or model) to <em>fit</em> to the data in the experiment.
+<ul>
+<li>Methods can be either a new method under study, a baseline comparison method, or any means by which to transform the simulated data (i.e,. the output of DGP).</li>
+<li>
+<em>Ex:</em> In the above example usage, there are two methods: linear regression and random forests.</li>
+</ul>
+</li>
+<li>
+<code>Evaluator</code>: corresponds to the <strong>evaluation</strong> metrics/functions to <em>evaluate</em> the methods’ performance.
+<ul>
+<li>Evaluators receive the results of the fitted methods and summarize them to produce meaningful statistics about the experiment.</li>
+<li>
+<em>Ex:</em> In the above example usage, there is one evaluation function that evaluates the test prediction accuracy.</li>
+</ul>
+</li>
+<li>
+<code>Visualizer</code>: corresponds to the <strong>visualization</strong> tools/functions to <em>visualize</em> results.
+<ul>
+<li>These visualizations can be applied directly to the raw method outputs, the evaluation transformations/summaries, or both. Visualizers can output anything that can be rendered in an R Markdown document: static or interactive plots, tables, strings and captured output, markdown, generic HTML, etc.</li>
+<li>
+<em>Ex:</em> In the above example usage, there is one visualization function that visualizes the test prediction accuracy, averaged across experimental replicates.</li>
+</ul>
+</li>
+</ul>
+<p>A fifth <code>R6</code> class and concept, <code>Experiment</code>, unites the four concepts above. More precisely, an <code>Experiment</code> is a collection of <code>DGP</code>(s), <code>Method</code>(s), <code>Evaluator</code>(s), and <code>Visualizer</code>(s), which are thoughtfully composed to answer a particular question of interest. An <code>Experiment</code> can also include references to <code>DGP</code> and/or <code>Method</code> parameters that should be varied and combined during the simulation run (see <code><a href="reference/vary_across.html">? add_vary_across</a></code>).</p>
+<p>Using the <code>DGP</code>, <code>Method</code>, <code>Evaluator</code>, and <code>Visualizer</code> classes, users can easily build a <code>simChef</code> <code>Experiment</code> using reusable building blocks and customizable functions.</p>
+<p>Once an <code>Experiment</code> has been constructed, users can finally run the simulation experiment via the function <code><a href="reference/run_experiment.html">run_experiment()</a></code>. As summarized in the figure below, running the experiment will (1) <em>fit</em> each <code>Method</code> on each <code>DGP</code> (and for each of the varying parameter configurations), (2) <em>evaluate</em> the experiment according to the given <code>Evaluator</code>(s), and (3) <em>visualize</em> the experiment according to the given <code>Visualizer</code>(s).</p>
+<div class="figure">
+<img src="reference/figures/run_experiment.png" alt=""><p class="caption">Overview of running a <code>simChef</code> <code>Experiment</code>. The <code>Experiment</code> class handles relationships among the four classes: <code>DGP</code>, <code>Method</code>, <code>Evaluator</code>, and <code>Visualizer</code>. Experiments may have multiple <code>DGP</code>s and <code>Method</code>s, which are combined across the Cartesian product of their varying parameters (represented by <code>\*</code>). Once computed, each <code>Evaluator</code> and <code>Visualizer</code> takes in the fitted simulation replicates, while <code>Visualizer</code> additionally receives evaluation summaries.</p>
+</div>
 </div>
 </div>
 <div class="section level2">
 <h2 id="origins-of-simchef">Origins of <code>simChef</code>
 <a class="anchor" aria-label="anchor" href="#origins-of-simchef"></a>
 </h2>
-<p>In their 2020 paper “Veridical Data Science”, Yu and Kumbier propose the predictability, computability, and stability (PCS) framework, a workflow and documentation for “responsible, reliable, reproducible, and transparent results across the data science life cycle”. Under the umbrella of the PCS framework, we began the process of deriving a set of guidelines tailored specifically for simulation studies, inspired by both high-quality simulation studies from the literature and our own simulations to examine the statistical properties of methods within the PCS framework.</p>
-<p>While creating our own simulations, we soon found that no existing R package could fully satisfy our developing requirements. What began as a toolbox for our own simulations became <code>simChef</code>. We believe these tools will be useful for anyone intending to create their own simulation studies in R.</p>
-<div class="section level3">
-<h3 id="thinking-like-a-chef">Thinking like a chef<a class="anchor" aria-label="anchor" href="#thinking-like-a-chef"></a>
-</h3>
-<p>The development of <code>simChef</code> has been guided by our love of… cooking? Perhaps surprisingly, we found that cooking serves as useful analogy for the process of creating a simulation study. Consider the following components of a high-quality meal:</p>
+<details><summary><b>Towards veridical data science</b>
+</summary><p>In their 2020 paper “Veridical Data Science”, Yu and Kumbier propose the predictability, computability, and stability (PCS) framework, a workflow and documentation for “responsible, reliable, reproducible, and transparent results across the data science life cycle”. Under the umbrella of the PCS framework, we began the process of deriving a set of guidelines tailored specifically for simulation studies, inspired by both high-quality simulation studies from the literature and our own simulations to examine the statistical properties of methods within the PCS framework.</p>
+While creating our own simulations, we soon found that no existing R package could fully satisfy our developing requirements. What began as a toolbox for our own simulations became <code>simChef</code>. We believe these tools will be useful for anyone intending to create their own simulation studies in R.
+</details><details><summary><b>Thinking like a chef</b>
+</summary><p>The development of <code>simChef</code> has been guided by our love of… cooking? Perhaps surprisingly, we found that cooking serves as useful analogy for the process of creating a simulation study. For the aspiring chefs, consider the following components of a high-quality meal:</p>
 <ul>
 <li>
-<strong>Nutritious and delicious ingredients</strong> – All good meals start with good ingredients, and the same is true of simulation experiments. If realistic simulation data (entirely synthetic or driven by real-world data) is not available, then there is no hope of producing high-quality simulations. Creating realistic synthetic data is the primary goal of our sibling package <a href="https://yu-group.github.io/dgpoix/" class="external-link"><code>dgpoix</code></a>, which was initially integrated into <code>simChef</code>.</li>
+<strong>Nutritious and delicious ingredients</strong> – All good meals start with good ingredients, and the same is true of simulation experiments. If realistic simulation data (entirely synthetic or driven by real-world data) is not available, then there is no hope of producing high-quality simulations. <strong>Creating realistic synthetic data is the primary goal of our sibling package <a href="https://yu-group.github.io/dgpoix/" class="external-link"><code>dgpoix</code></a>, which was initially integrated into <code>simChef</code>.</strong>
+</li>
 <li>
-<strong>Skill and experience of the chef</strong> – Just as every chef’s cooking is informed by the handful of cuisines in which they specialize, simulation experiments are motivated by scientific questions from a particular domain. Just as a chef does not have to become an expert knifemaker before cooking their first meal, nor should the domain scientist have to waste time writing boilerplate code to for the computation and documentation of their simulations. <code>simChef</code> takes care of the details of running your experiments across the potentially large number of data and method perturbations you care about, freeing up time for you to focus on your scientific question.</li>
+<strong>Skill and experience of the chef</strong> – Just as every chef’s cooking is informed by the handful of cuisines in which they specialize, simulation experiments are motivated by scientific questions from a particular domain. Just as a chef does not have to become an expert knifemaker before cooking their first meal, nor should the domain scientist have to waste time writing boilerplate code to for the computation and documentation of their simulations. <strong><code>simChef</code> takes care of the details of running your experiments across the potentially large number of data and method perturbations you care about, freeing up time for you to focus on your scientific question.</strong>
+</li>
 <li>
-<strong>High-quality tools in the kitchen</strong> – Our package should be like an excellent chef’s knife or other kitchen essential. If a chef’s knife doesn’t cut straight or isn’t sharpened, then kitchen speed and safety suffers, as does the final presentation. <code>simChef</code> won’t cook a good simulation experiment for you, but it will get you there with less effort and higher-quality presentation while helping you follow best-practices like reproducibility with minimal effort on your part. No sharpening required!</li>
+<strong>High-quality tools in the kitchen</strong> – Our package should be like an excellent chef’s knife or other kitchen essential. If a chef’s knife doesn’t cut straight or isn’t sharpened, then kitchen speed and safety suffers, as does the final presentation. <strong><code>simChef</code> won’t cook a good simulation experiment for you, but it will get you there with less effort and higher-quality presentation while helping you follow best-practices like reproducibility with minimal effort on your part.</strong> No sharpening required!</li>
 <li>
-<strong>A high-quality meal is possible in almost any environment</strong> – While the scale of a delicious meal may be limited by environment, high-quality meals are not only found in the world’s Michelin-starred restaurants but also in home kitchens and street food carts around the world. An effective simulation framework should also be agnostic to environment, and <code>simChef</code> runs equally well on your laptop as on a high-performance computing cluster.</li>
+<strong>A high-quality meal is possible in almost any environment</strong> – While the scale of a delicious meal may be limited by environment, high-quality meals are not only found in the world’s Michelin-starred restaurants but also in home kitchens and street food carts around the world. An effective simulation framework should also be agnostic to environment, and <strong><code>simChef</code> runs equally well on your laptop as on a high-performance computing cluster.</strong>
+</li>
 <li>
-<strong>Appetizing and approachable presentation</strong> – Ultimately, a chef prepares food for a specific audience, and presentation is almost equal in importance to the underlying substance of the meal. However, a chef doesn’t have to build the plate on which they serve their food. <code>simChef</code> provides tools to turn your simulation experiment results into effective displays of quantitative information which are populated within preset and customizable R Markdown templates.</li>
-</ul>
-</div>
+<strong>Appetizing and approachable presentation</strong> – Ultimately, a chef prepares food for a specific audience, and presentation is almost equal in importance to the underlying substance of the meal. However, a chef doesn’t have to build the plate on which they serve their food. <strong><code>simChef</code> provides tools to turn your simulation experiment results into effective displays of quantitative information which are populated within preset and customizable R Markdown templates.</strong>
+</li>
+</ul></details>
 </div>
 <div class="section level2">
 <h2 id="roadmap">Roadmap<a class="anchor" aria-label="anchor" href="#roadmap"></a>
@@ -240,6 +374,12 @@
 </ul>
 </div>
 
+<div class="community">
+<h2 data-toc-skip>Community</h2>
+<ul class="list-unstyled">
+<li><a href="CONTRIBUTING.html">Contributing guide</a></li>
+</ul>
+</div>
 
 <div class="citation">
 <h2 data-toc-skip>Citation</h2>

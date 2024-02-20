@@ -4,6 +4,9 @@
     <loc>https://yu-group.github.io/simChef/404.html</loc>
   </url>
   <url>
+    <loc>https://yu-group.github.io/simChef/CONTRIBUTING.html</loc>
+  </url>
+  <url>
     <loc>https://yu-group.github.io/simChef/LICENSE.html</loc>
   </url>
   <url>
@@ -247,9 +250,6 @@
     <loc>https://yu-group.github.io/simChef/reference/pasteMd.html</loc>
   </url>
   <url>
-    <loc>https://yu-group.github.io/simChef/reference/pipe.html</loc>
-  </url>
-  <url>
     <loc>https://yu-group.github.io/simChef/reference/pipe_value.html</loc>
   </url>
   <url>
@@ -284,6 +284,9 @@
   </url>
   <url>
     <loc>https://yu-group.github.io/simChef/reference/pos.html</loc>
+  </url>
+  <url>
+    <loc>https://yu-group.github.io/simChef/reference/reexports.html</loc>
   </url>
   <url>
     <loc>https://yu-group.github.io/simChef/reference/remove_funs.html</loc>
