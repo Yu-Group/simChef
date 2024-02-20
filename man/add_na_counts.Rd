@@ -28,3 +28,37 @@ its corresponding ".estimate"
 A helper function to append rows with number of NAs (per group,
 if applicable) to evaluator results tibble.
 }
+\examples{
+# generate example fit_results data with NA responses
+fit_results <- tibble::tibble(
+  .rep = rep(1:2, times = 2),
+  .dgp_name = c("DGP1", "DGP1", "DGP2", "DGP2"),
+  .method_name = c("Method"),
+  # true response
+  y = lapply(1:4, FUN = function(x) c(rnorm(100 - x), rep(NA, x))),
+  # predicted response
+  predictions = lapply(1:4, FUN = function(x) rnorm(100))
+)
+
+# evaluate root mean squared error and number of NA responses for each row in
+# fit_results
+rmse_na_fun <- function(data, truth_col, estimate_col, na_rm = TRUE) {
+  out <- tibble::tibble(
+    .metric = "rmse",
+    .estimate = yardstick::rmse_vec(
+      data[[truth_col]], data[[estimate_col]], na_rm = na_rm
+    )
+  ) \%>\%
+    add_na_counts(data = data, value_col = truth_col, na_rm = na_rm)
+  return(out)
+}
+eval_results <- eval_constructor(
+  fit_results = fit_results,
+  fun = rmse_na_fun,
+  truth_col = "y",
+  estimate_col = "predictions",
+  na_rm = TRUE
+) \%>\%
+  tidyr::unnest(.eval_result)
+
+}

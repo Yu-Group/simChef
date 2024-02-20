@@ -15,5 +15,10 @@ The original \code{Experiment} object passed to
 }
 \description{
 Save an \code{Experiment} object to a .rds file under the
-\code{Experiment}'s results directory (see \code{Experiment$get_save_dir()}).
+\code{Experiment}'s results directory (see \code{\link[=get_save_dir]{get_save_dir()}}).
+}
+\examples{
+\dontrun{
+save_experiment(experiment)}
+
 }

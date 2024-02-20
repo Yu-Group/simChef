@@ -13,8 +13,6 @@
 #' \item{\code{Experiment$fit()}} See \link{fit_experiment}.
 #' \item{\code{Experiment$evaluate()}} See \link{evaluate_experiment}.
 #' \item{\code{Experiment$visualize()}} See \link{visualize_experiment}.
-#' \item{\code{Experiment$init_docs()}} See \link{init_docs}.
-#' \item{\code{Experiment$render_docs()}} See \link{render_docs}.
 #' \item{\code{Experiment$add_dgp()}} See \link{add_dgp}.
 #' \item{\code{Experiment$update_dgp()}} See \link{update_dgp}.
 #' \item{\code{Experiment$remove_dgp()}} See \link{remove_dgp}.
@@ -38,6 +36,8 @@
 #' \item{\code{Experiment$clear_cache()}} See \link{clear_cache}.
 #' \item{\code{Experiment$get_cached_results()}} See \link{get_cached_results}.
 #' \item{\code{Experiment$set_doc_options()}} See \link{set_doc_options}.
+#' \item{\code{Experiment$get_save_dir()}} See \link{get_save_dir}.
 #' \item{\code{Experiment$set_save_dir()}} See \link{set_save_dir}.
 #' \item{\code{Experiment$save()}} See \link{save_experiment}.
+#' \item{\code{Experiment$export_visualizers()}} See \link{export_visualizers}.
 #' }

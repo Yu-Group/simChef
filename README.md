@@ -1,30 +1,16 @@
-# simChef
+# simChef <a href="https://yu-group.github.io/simChef"><img src="man/figures/logo.png" align="right" height="138" /></a>
 
 ## Overview
 
 The goal of `simChef` is to help you quickly cook up a fully-realized,
-high-quality, reproducible, and transparently documented simulation study using
-an intuitive and tidy grammar of simulation experiments:
+high-quality, reproducible, and transparently-documented simulation study in
+a flexible, efficient, and low-code manner. `simChef` removes many of
+the administrative burdens of simulation design through: 
 
-```r
-experiment <- create_experiment() %>%
-  add_dgp(dgp1) %>%
-  add_dgp(dgp2) %>%
-  add_method(method1) %>%
-  add_evaluator(evaluator1) %>%
-  add_visualizer(visualizer1) %>%
-  add_vary_across(
-    dgp = dgp1,
-    n = c(100, 1000, 10000)
-  ) %>%
-  add_vary_across(
-    method = method1,
-    lambda = c(0.1, 0.5, 1.0)
-  )
-
-results <- experiment %>%
-  run_experiment(n_reps = 100)
-```
+1. An intuitive [tidy grammar](https://design.tidyverse.org/) of data science simulations
+2. Powerful abstractions for distributed simulation processing backed by [`future`](https://future.futureverse.org/)
+3. Automated generation of interactive [R Markdown](https://rmarkdown.rstudio.com/) simulation 
+documentation, situating results next to the workflows needed to reproduce them. 
 
 ### Installation
 
@@ -35,74 +21,224 @@ GitHub, please use:
 devtools::install_github("Yu-Group/simChef")
 ```
 
-### Concepts
+### Example Usage
 
-In `simChef`, simulation studies are decomposed into **five** intuitive
-concepts: experiments, data-generating processes, methods, evaluations, and
-visualizations. A simulation can either be contained in a single **experiment**
-or divided into multiple self-contained experiments which are like small
-simulations studies in their own right. Every experiment is in turn composed of
-four parts, two of which are optional (but highly recommended):
-**data-generating processes** (DGPs), **methods**, **evaluation** (optional),
-and **visualization** (optional).
+Consider the following toy simulation experiment, where we want to study the 
+prediction accuracy of linear regression and random forests under both linear 
+and non-linear data-generating processes for varying signal-to-noise ratios.
 
-`simChef` takes an object-oriented approach to encapsulate these simulation
-concepts, using [`R6`](https://r6.r-lib.org/index.html) classes to make them
-concrete. The five main objects are:
-
-- `Experiment`: corresponds to the **experiment** concept. As you can probably
-  guess, this class is the main powerhouse of the simulation, collecting related
-  DGPs and methods, keeping track of what parameters to vary, checkpointing and
-  saving results, and producing evaluations metrics, visualizations, and
-  documentation so that the simulation's findings can be understood and easily
-  communicated. Moreover, it uses [`future`](https://future.futureverse.org/) to
-  compute experimental replicates in parallel using whatever resources you
-  choose.
-- `DGP`: corresponds to the **data-generating process** concept. DGPs simply
-  generate synthetic data in a reproducible and flexible manner, in the size and
-  manner that you specify. For a library of preset but highly customizable DGPs,
-  including support for data-driven DGPs to give added realism to your synthetic
-  data, `simChef` has a sibling R package,
-  [`dgpoix`](https://yu-group.github.io/dgpoix) (currently in early
-  development).
-- `Method`: corresponds to the **method** concept, which can be either a
-  baseline, a target of the simulation study, or any means by which to transform
-  the raw synthetic data. Together with DGPs, methods make up the main
-  computational course of the `simChef` meal.
-- `Evaluator`: corresponds to the **evaluation** concept. When computation of
-  experimental replicates has completed, evaluators receive the results and
-  summarize them to produce meaningful statistics about the experiment, or
-  simply transform the results (e.g., using summary statistics). This is an
-  optional step, but without it the experiment's results can be much more
-  difficult to understand and communicate.
-- `Visualizer`: corresponds to the **visualization concept**. These
-  visualizations can be applied directly to the raw experimental replicates'
-  outputs, can instead work with the evaluation transformations/summaries, or
-  both. Visualizers can output anything that can be rendered in an R Markdown
-  document: static or interactive plots, tables, strings and captured output,
-  markdown, generic HTML, etc.
-  
-### Simulation study documentation
-
-When all of this is put together, the `Experiment` class can output an R
-Markdown document that is structured to provide a well-organized summary of a
-simulation study. Moreover, this document can contain multiple experiments,
-simply by using a common output path with each `Experiment` in the study. When
-the simulation is complete, you can use the `render_docs()` helper to generate
-the documentation:
+Let us first code up the necessary simulation components, namely, the linear
+and nonlinear (here, an exclusive-or) data-generating processes as well as the
+linear regression and random forest models. To evaluate the methods and visualize 
+the results, one can also write custom code, but we will leverage built-in evaluation 
+and visualization functions (e.g., `summarize_pred_err` and `plot_pred_err`) from 
+`simChef` for convenience.
 
 ```r
+# Generate data via linear model
+linear_dgp_fun <- function(n_train, n_test, p, beta, noise_sd) {
+  n <- n_train + n_test
+  X <- matrix(rnorm(n * p), nrow = n, ncol = p)
+  y <- X %*% beta + rnorm(n, sd = noise_sd)
+  data_list <- list(
+    X_train = X[1:n_train, , drop = FALSE],
+    y_train = y[1:n_train],
+    X_test = X[(n_train + 1):n, , drop = FALSE],
+    y_test = y[(n_train + 1):n]
+  )
+  return(data_list)
+}
+
+# Generate data via exclusive-or model
+xor_dgp_fun <- function(n_train, n_test, p, thresh, beta, noise_sd) {
+  n <- n_train + n_test
+  X <- matrix(rnorm(n * p), nrow = n, ncol = p)
+  xor <- (((X[, 1] > thresh) + (X[, 2] > thresh)) == 1)
+  y <- beta * xor + rnorm(n, sd = noise_sd)
+  data_list <- list(
+    X_train = X[1:n_train, , drop = FALSE],
+    y_train = y[1:n_train],
+    X_test = X[(n_train + 1):n, , drop = FALSE],
+    y_test = y[(n_train + 1):n]
+  )
+  return(data_list)
+}
+
+# Fit linear regression model
+linear_reg_fun <- function(X_train, y_train, X_test, y_test) {
+  train_df <- dplyr::bind_cols(data.frame(X_train), y = y_train)
+  fit <- lm(y ~ ., data = train_df)
+  predictions <- predict(fit, data.frame(X_test))
+  return(list(predictions = predictions, y_test = y_test))
+}
+
+# Fit random forest model
+rf_fun <- function(X_train, y_train, X_test, y_test, ...) {
+  train_df <- dplyr::bind_cols(data.frame(X_train), y = y_train)
+  fit <- ranger::ranger(y ~ ., data = train_df, ...)
+  predictions <- predict(fit, data.frame(X_test))$predictions
+  return(list(predictions = predictions, y_test = y_test))
+}
+```
+
+From here, there is minimal coding on the user's end, as `simChef` provides a 
+powerful tidy grammar to instantiate, assemble, and run various configurations of 
+the simulation experiment.
+
+```r
+library(simChef)
+
+# Uncomment to run experiment across multiple processors
+# library(future)
+# plan(multisession, workers = 5)
+
+# Create `simChef` DGPs (data-generating processes)
+linear_dgp <- create_dgp(
+  .dgp_fun = linear_dgp_fun, .name = "Linear DGP",
+  # additional named parameters to pass to .dgp_fun()
+  n_train = 200, n_test = 200, p = 2, beta = c(1, 0), noise_sd = 1
+)
+xor_dgp <- create_dgp(
+  .dgp_fun = xor_dgp_fun, .name = "XOR DGP",
+  # additional named parameters to pass to .dgp_fun()
+  n_train = 200, n_test = 200, p = 2, thresh = 0, beta = 1, noise_sd = 1
+)
+
+# Create `simChef` Methods
+linear_reg <- create_method(
+  .method_fun = linear_reg_fun, .name = "Linear Regression"
+  # additional named parameters to pass to .method_fun()
+)
+rf <- create_method(
+  .method_fun = rf_fun, .name = "Random Forest", 
+  # additional named parameters to pass to .method_fun()
+  num.threads = 1
+)
+
+# Create `simChef` Evaluators
+pred_err <- create_evaluator(
+  .eval_fun = summarize_pred_err, .name = 'Prediction Accuracy',
+  # additional named parameters to pass to .eval_fun()
+  truth_col = "y_test", estimate_col = "predictions"
+) 
+
+# Create `simChef` Visualizers
+pred_err_plot <- create_visualizer(
+  .viz_fun = plot_pred_err, .name = 'Prediction Accuracy Plot',
+  # additional named parameters to pass to .viz_fun()
+  eval_name = 'Prediction Accuracy'
+) 
+
+# Create experiment
+experiment <- create_experiment(name = "Test Experiment") %>%
+  add_dgp(linear_dgp) %>%
+  add_dgp(xor_dgp) %>%
+  add_method(linear_reg) %>%
+  add_method(rf) %>%
+  add_evaluator(pred_err) %>%
+  add_visualizer(pred_err_plot) %>%
+  # vary across noise parameter in linear dgp
+  add_vary_across(
+    .dgp = "Linear DGP",
+    noise_sd = c(0.1, 0.5, 1, 2)
+  ) %>%
+  # vary across noise parameter in xor dgp
+  add_vary_across(
+    .dgp = "XOR DGP",
+    noise_sd = c(0.1, 0.5, 1, 2)
+  )
+
+# Run experiment over n_reps
+results <- run_experiment(experiment, n_reps = 100, save = TRUE)
+
+# Render automated documentation and view results
 render_docs(experiment)
 ```
 
-This results in an HTML document like the one shown below:
+Simulation experiment complete! 
+
+In addition, the code, narrative, and results of the simulation experiment have been 
+automatically rendered into an interactive html document via R Markdown (see `? render_docs`),
+such as the one shown below:
 
 ![Interactive R Markdown simulation documentation](man/figures/simchef.gif)
 
-For more examples, including an interactive version of the simulation study
-documentation, see `vignette("simChef")`.
+For a more detailed walkthrough of this example usage, please see `vignette("simChef")`.
+
+**For an example real-world case study using `simChef` to develop novel statistical 
+methodology, please check out 
+[Boileau et al.](https://github.com/PhilBoileau/simChef-case-study).**
+The corresponding interactive R Markdown documentation can be found 
+[here](https://philboileau.github.io/simChef-case-study/results/empirical-fdr-comparison/empirical-fdr-comparison.html).
+
+More examples of the rendered documentation for different simulation experiments:
+- [Toy Example 1](https://yu-group.github.io/simChef/example_experiment.html)
+- [Toy Example 2](https://yu-group.github.io/simChef/linear_regression_output.html)
+
+### Grammar of a `simChef` Simulation Experiment
+
+The `simChef` API distills a simulation experiment into four modular concepts, 
+two of which are optional (but highly recommended):
+**data-generating processes** (DGPs), **methods**, **evaluation** (optional),
+and **visualization** (optional). 
+`simChef` takes an object-oriented approach to encapsulate these simulation
+concepts, using [`R6`](https://r6.r-lib.org/index.html) classes to make them
+concrete. These four classes are:
+
+- `DGP`: corresponds to the **data-generating process** from which to *generate*
+  data. 
+  - DGPs simply generate data in a reproducible and flexible manner, in the size and
+    manner that you specify. For a library of preset but highly customizable DGPs,
+    `simChef` has a sibling R package,
+    [`dgpoix`](https://yu-group.github.io/dgpoix) (currently in early development).
+  - *Ex:* In the above example usage, there are two DGPs: the linear DGP and the 
+    exclusive-or DGP.
+- `Method`: corresponds to the **method** (or model) to *fit* to the data in the
+  experiment.
+  - Methods can be either a new method under study, a baseline comparison method,
+    or any means by which to transform the simulated data (i.e,. the output of DGP).
+  - *Ex:* In the above example usage, there are two methods: linear regression
+    and random forests.
+- `Evaluator`: corresponds to the **evaluation** metrics/functions to *evaluate*
+  the methods' performance.
+  - Evaluators receive the results of the fitted methods and
+    summarize them to produce meaningful statistics about the experiment.
+  - *Ex:* In the above example usage, there is one evaluation function that 
+    evaluates the test prediction accuracy.
+- `Visualizer`: corresponds to the **visualization** tools/functions to 
+  *visualize* results.
+  - These visualizations can be applied directly to the raw method outputs, the 
+    evaluation transformations/summaries, or
+    both. Visualizers can output anything that can be rendered in an R Markdown
+    document: static or interactive plots, tables, strings and captured output,
+    markdown, generic HTML, etc.
+  - *Ex:* In the above example usage, there is one visualization function that
+    visualizes the test prediction accuracy, averaged across experimental
+    replicates.
+
+A fifth `R6` class and concept, `Experiment`, unites the four concepts above. 
+More precisely, an `Experiment` is a collection of `DGP`(s), `Method`(s), 
+`Evaluator`(s), and `Visualizer`(s), which are thoughtfully composed to answer
+a particular question of interest. An `Experiment` can also include references to
+`DGP` and/or `Method` parameters that should be varied and combined during the 
+simulation run (see `? add_vary_across`).
+
+Using the `DGP`, `Method`, `Evaluator`, and `Visualizer` classes, users can easily 
+build a `simChef` `Experiment` using reusable building blocks and customizable functions. 
+
+Once an `Experiment` has been constructed, users can finally run the simulation 
+experiment via the function `run_experiment()`. As summarized in the figure below,
+running the experiment will 
+(1) *fit* each `Method` on each `DGP` (and for each of the varying parameter configurations), 
+(2) *evaluate* the experiment according to the given `Evaluator`(s), and 
+(3) *visualize* the experiment according to the given `Visualizer`(s).
+
+![Overview of running a `simChef` `Experiment`. The `Experiment` class handles relationships among the four classes: `DGP`, `Method`, `Evaluator`, and `Visualizer`. Experiments may have multiple `DGP`s and `Method`s, which are combined across the Cartesian product of their varying parameters (represented by `\*`). Once computed, each `Evaluator` and `Visualizer` takes in the fitted simulation replicates, while `Visualizer` additionally receives evaluation summaries.](man/figures/run_experiment.png)
 
 ## Origins of `simChef`
+
+<details>
+<summary><b>Towards veridical data science</b></summary>
 
 In their 2020 paper "Veridical Data Science", Yu and Kumbier propose the
 predictability, computability, and stability (PCS) framework, a workflow and
@@ -117,50 +253,53 @@ While creating our own simulations, we soon found that no existing R package
 could fully satisfy our developing requirements. What began as a toolbox for our
 own simulations became `simChef`. We believe these tools will be useful for
 anyone intending to create their own simulation studies in R.
+</details>
 
-### Thinking like a chef
+<details>
+<summary><b>Thinking like a chef</b></summary>
 
 The development of `simChef` has been guided by our love of... cooking? Perhaps
 surprisingly, we found that cooking serves as useful analogy for the process of
-creating a simulation study. Consider the following components of a high-quality
-meal:
+creating a simulation study. For the aspiring chefs, consider the following 
+components of a high-quality meal:
 
 - **Nutritious and delicious ingredients** -- All good meals start with good
   ingredients, and the same is true of simulation experiments. If realistic
   simulation data (entirely synthetic or driven by real-world data) is not
   available, then there is no hope of producing high-quality simulations.
-  Creating realistic synthetic data is the primary goal of our sibling package
+  **Creating realistic synthetic data is the primary goal of our sibling package
   [`dgpoix`](https://yu-group.github.io/dgpoix/), which was initially integrated
-  into `simChef`.
+  into `simChef`.**
 - **Skill and experience of the chef** -- Just as every chef's cooking is
   informed by the handful of cuisines in which they specialize, simulation
   experiments are motivated by scientific questions from a particular domain.
   Just as a chef does not have to become an expert knifemaker before cooking
   their first meal, nor should the domain scientist have to waste time writing
   boilerplate code to for the computation and documentation of their
-  simulations. `simChef` takes care of the details of running your experiments
+  simulations. **`simChef` takes care of the details of running your experiments
   across the potentially large number of data and method perturbations you care
-  about, freeing up time for you to focus on your scientific question.
+  about, freeing up time for you to focus on your scientific question.**
 - **High-quality tools in the kitchen** -- Our package should be like an
   excellent chef's knife or other kitchen essential. If a chef's knife doesn't
   cut straight or isn't sharpened, then kitchen speed and safety suffers, as
-  does the final presentation. `simChef` won't cook a good simulation experiment
+  does the final presentation. **`simChef` won't cook a good simulation experiment
   for you, but it will get you there with less effort and higher-quality
   presentation while helping you follow best-practices like reproducibility with
-  minimal effort on your part. No sharpening required!
+  minimal effort on your part.** No sharpening required!
 - **A high-quality meal is possible in almost any environment** -- While the
   scale of a delicious meal may be limited by environment, high-quality meals
   are not only found in the world's Michelin-starred restaurants but also in
   home kitchens and street food carts around the world. An effective simulation
-  framework should also be agnostic to environment, and `simChef` runs equally
-  well on your laptop as on a high-performance computing cluster.
+  framework should also be agnostic to environment, and **`simChef` runs equally
+  well on your laptop as on a high-performance computing cluster.**
 - **Appetizing and approachable presentation** -- Ultimately, a chef prepares
   food for a specific audience, and presentation is almost equal in importance to
   the underlying substance of the meal. However, a chef doesn't have to build
-  the plate on which they serve their food. `simChef` provides tools to turn
+  the plate on which they serve their food. **`simChef` provides tools to turn
   your simulation experiment results into effective displays of quantitative
   information which are populated within preset and customizable R Markdown
-  templates.
+  templates.**
+</details>
 
 ## Roadmap
 

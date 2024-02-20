@@ -13,10 +13,10 @@ get_plot_data(
 )
 }
 \arguments{
-\item{fit_results}{A tibble, as returned by the \code{fit} method.}
+\item{fit_results}{A tibble, as returned by \code{\link[=fit_experiment]{fit_experiment()}}.}
 
-\item{eval_results}{A list of result tibbles, as returned by the
-\code{evaluate} method.}
+\item{eval_results}{A list of result tibbles, as returned by
+\code{\link[=evaluate_experiment]{evaluate_experiment()}}.}
 
 \item{eval_name}{Name of \code{Evaluator} containing results to plot. If
 \code{NULL}, the data used for plotting is computed from scratch via
@@ -40,4 +40,54 @@ name (\code{eval_name}). If this is not provided, then it uses the
 function + arguments specified by \code{eval_fun} and
 \code{eval_fun_options} to compute the plotting data from
 \code{fit_results}.
+}
+\examples{
+# generate example fit_results data
+fit_results <- tibble::tibble(
+  .rep = rep(1:2, times = 2),
+  .dgp_name = c("DGP1", "DGP1", "DGP2", "DGP2"),
+  .method_name = c("Method"),
+  feature_info = lapply(
+    1:4,
+    FUN = function(i) {
+      tibble::tibble(
+        # feature names
+        feature = c("featureA", "featureB", "featureC"),
+        # estimated feature importance scores
+        est_importance = c(10, runif(2, min = -2, max = 2))
+      )
+    }
+  )
+)
+
+# generate example eval_results data
+eval_results <- list(
+  `Feature Importance` = summarize_feature_importance(
+    fit_results,
+    nested_cols = "feature_info",
+    feature_col = "feature",
+    imp_col = "est_importance"
+  )
+)
+
+# this will return the `Feature Importance` component of `eval_results`
+plot_data1 <- get_plot_data(
+  fit_results = fit_results,
+  eval_results = eval_results,
+  eval_name = "Feature Importance"
+)
+
+#' # this will return the same result as above
+plot_data2 <- get_plot_data(
+  fit_results = fit_results,
+  eval_fun = summarize_feature_importance,
+  eval_fun_options = list(
+    nested_cols = "feature_info",
+    feature_col = "feature",
+    imp_col = "est_importance"
+  )
+)
+
+all.equal(plot_data1, plot_data2)
+
 }

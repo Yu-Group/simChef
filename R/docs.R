@@ -2,27 +2,27 @@
 #'
 #' @name init_docs
 #' @description Create documentation template (a series of .md files) to
-#'   fill out for the R Markdown results report. If the \code{experiment} is
-#'   provided, the documentation files can be found in the \code{Experiment}'s
-#'   results directory (see \code{Experiment$get_save_dir()}) under docs/.
+#'   fill out for the R Markdown results report. If the `experiment` is
+#'   provided, the documentation files can be found in the `Experiment`'s
+#'   results directory (see `Experiment$get_save_dir()`) under docs/.
 #'   Otherwise, the documentation files can be found in the specified
-#'   \code{save_dir} directory under docs/. The documentation files generated
-#'   include objectives.md and .md files corresponding to \code{DGPs},
-#'   \code{Methods}, \code{Evaluators}, and \code{Visualizers} in the
-#'   \code{Experiment}.
+#'   `save_dir` directory under docs/. The documentation files generated
+#'   include objectives.md and .md files corresponding to `DGPs`,
+#'   `Methods`, `Evaluators`, and `Visualizers` in the
+#'   `Experiment`.
 #'
-#' @param experiment An \code{Experiment} object. If provided, documentation is
-#'   created for all previously saved \code{Experiments} that are found in the
-#'   directory given by \code{experiment$get_save_dir()}. If no
-#'   \code{Experiments} have been previously saved under this directory, then
-#'   the current \code{experiment} is saved to disk and used to create the
+#' @param experiment An `Experiment` object. If provided, documentation is
+#'   created for all previously saved `Experiments` that are found in the
+#'   directory given by `experiment$get_save_dir()`. If no
+#'   `Experiments` have been previously saved under this directory, then
+#'   the current `experiment` is saved to disk and used to create the
 #'   documentation template.
 #' @param save_dir An optional directory in which to find previously saved
-#'   \code{Experiment} objects. Documentation is created for these found
-#'   \code{Experiments}. Not used if \code{experiment} is provided.
+#'   `Experiment` objects. Documentation is created for these found
+#'   `Experiments`. Not used if `experiment` is provided.
 #'
-#' @returns The original \code{Experiment} object if provided. Otherwise,
-#'   returns \code{NULL}.
+#' @returns The original `Experiment` object if provided. Otherwise,
+#'   returns `NULL`.
 #'
 #' @examples
 #' \dontrun{
@@ -103,6 +103,16 @@ init_docs <- function(experiment, save_dir) {
 #' `create_doc_template()` was renamed to `init_docs()` to create a more
 #' consistent API.
 #'
+#' @inheritParams init_docs
+#'
+#' @examples
+#' \dontrun{
+#' # create documentation template from an experiment (of class `Experiment`)
+#' create_doc_template(experiment)
+#'
+#' # or alternatively, create documentation template from a specific directory
+#' create_doc_template(save_dir = experiment$get_save_dir())}
+#'
 #' @keywords internal
 #' @export
 create_doc_template <- function(experiment, save_dir) {
@@ -110,52 +120,52 @@ create_doc_template <- function(experiment, save_dir) {
   init_docs(experiment, save_dir)
 }
 
-#' Render an R Markdown file summarizing the results of an \code{Experiment} or
-#'   set of \code{Experiments}.
+#' Render an R Markdown file summarizing the results of an `Experiment` or
+#'   set of `Experiments`.
 #'
 #' @name render_docs
 #' @description Knits and/or writes an R Markdown file summarizing the results of
-#'   an \code{Experiment} or set of \code{Experiments}. This document may
-#'   contain (1) the code corresponding to the \code{DGPs}, \code{Methods},
-#'   \code{Evaluators}, \code{Visualizers}, and \code{vary_across} parameters
-#'   from the \code{Experiment}, (2) the results of the \code{Evaluators}
-#'   (typically tables), and (3) the results of the \code{Visualizers}
-#'   (typically figures). Note that \code{render_docs()} will process and
-#'   include results from all \code{Experiments} found *under* the root
+#'   an `Experiment` or set of `Experiments`. This document may
+#'   contain (1) the code corresponding to the `DGPs`, `Methods`,
+#'   `Evaluators`, `Visualizers`, and `vary_across` parameters
+#'   from the `Experiment`, (2) the results of the `Evaluators`
+#'   (typically tables), and (3) the results of the `Visualizers`
+#'   (typically figures). Note that `render_docs()` will process and
+#'   include results from all `Experiments` found *under* the root
 #'   directory. This root directory is determined via
-#'   \code{experiment$get_save_dir()} if \code{experiment} is provided and
-#'   \code{save_dir} otherwise.
+#'   `experiment$get_save_dir()` if `experiment` is provided and
+#'   `save_dir` otherwise.
 #'
 #' @inheritParams init_docs
 #' @inheritParams rmarkdown::render
 #' @param write_rmd Logical indicating whether or not to write out the raw
-#'   R Markdown file used to generate the results. If \code{TRUE}, both the
+#'   R Markdown file used to generate the results. If `TRUE`, both the
 #'   raw R Markdown file and the rendered R Markdown output are saved to disk.
-#'   If \code{FALSE}, only the rendered R Markdown output is saved. Default is
-#'   \code{FALSE}.
-#' @param output_file The name of the output file. If using \code{NULL}, then
-#'   the output filename will be based on the \code{experiment}'s root results
-#'   directory and the name of the \code{experiment}. Note that the filename
+#'   If `FALSE`, only the rendered R Markdown output is saved. Default is
+#'   `FALSE`.
+#' @param output_file The name of the output file. If using `NULL`, then
+#'   the output filename will be based on the `experiment`'s root results
+#'   directory and the name of the `experiment`. Note that the filename
 #'   may include the path to the output file.
 #' @param output_format The R Markdown output format to convert to. Must be an
 #'   object of class `rmarkdown_output_format` (e.g.,
 #'   [rmarkdown::html_document()], [rmarkdown::pdf_document()],
 #'   [rmarkdown::md_document]).
 #' @param title Character string. Title of the report. By default, this will be
-#'   the name of the \code{experiment} if \code{experiment} is provided.
+#'   the name of the `experiment` if `experiment` is provided.
 #' @param author Character string of author names to display in knitted R
 #'   Markdown document.
 #' @param show_code Logical indicating whether or not to show code portions in
 #'   the output document.
 #' @param show_eval Logical indicating whether or not to show the results of
-#'   the \code{Evaluators} in the output document.
+#'   the `Evaluators` in the output document.
 #' @param show_viz Logical indicating whether or not to show the results of
-#'   the \code{Visualizers} in the output document.
-#' @param eval_order Vector of \code{Evaluator} names in their desired order for
-#'   display. By default, the report will display the \code{Evaluator} results
+#'   the `Visualizers` in the output document.
+#' @param eval_order Vector of `Evaluator` names in their desired order for
+#'   display. By default, the report will display the `Evaluator` results
 #'   in the order that they were computed.
-#' @param viz_order Vector of \code{Visualizer} names in their desired order for
-#'   display. By default, the report will display the \code{Visualizer} results
+#' @param viz_order Vector of `Visualizer` names in their desired order for
+#'   display. By default, the report will display the `Visualizer` results
 #'   in the order that they were computed.
 #' @param use_icons Logical indicating whether or not to use fontawesome icons.
 #' @param verbose Level of verboseness (0, 1, 2) when knitting R Markdown.
@@ -163,8 +173,8 @@ create_doc_template <- function(experiment, save_dir) {
 #' @param ... Additional arguments to pass to [rmarkdown::render()]. Useful
 #'   for applying a custom R Markdown output theme.
 #'
-#' @returns The original \code{Experiment} object if provided. Otherwise,
-#'   returns \code{NULL}.
+#' @returns The original `Experiment` object if provided. Otherwise,
+#'   returns `NULL`.
 #'
 #' @examples
 #' \dontrun{
@@ -297,8 +307,8 @@ render_docs <- function(experiment, save_dir, write_rmd = FALSE,
   }
 }
 
-#' Render an R Markdown file summarizing the results of an \code{Experiment} or
-#' set of \code{Experiments}.
+#' Render an R Markdown file summarizing the results of an `Experiment` or
+#' set of `Experiments`.
 #'
 #' @description
 #' `r lifecycle::badge("deprecated")`
@@ -307,6 +317,14 @@ render_docs <- function(experiment, save_dir, write_rmd = FALSE,
 #' API.
 #'
 #' @inheritParams render_docs
+#'
+#' @examples
+#' \dontrun{
+#' # create basic Rmd from an experiment (of class `Experiment`)
+#' create_rmd(experiment)
+#'
+#' # or alternatively, create basic Rmd from a specific directory
+#' create_rmd(save_dir = experiment$get_save_dir())}
 #'
 #' @export
 create_rmd <- function(experiment, save_dir, write_rmd = FALSE,

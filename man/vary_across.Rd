@@ -20,28 +20,28 @@ get_vary_across(experiment)
 \item{.experiment, experiment}{An \code{Experiment} object.}
 
 \item{.dgp, dgp}{Name of \code{DGP} to vary in the \code{Experiment}. Can also be a
-\code{DGP} object that matches one in the \code{Experiment} or even a
-vector/list of \code{DGP} names/objects, assuming they can all take in the
-specified \code{param_names}.}
+\code{DGP} object that matches one in the \code{Experiment} or even a vector/list of
+\code{DGP} names/objects, assuming they can all take in the specified
+\code{param_names}.}
 
-\item{.method, method}{Name of \code{Method} to vary in the \code{Experiment}. Can
-also be a \code{Method} object that matches one in the \code{Experiment} or
-even a vector/listo f \code{Method} names/objects, assuming they can all
-take in the specified \code{param_names}.}
+\item{.method, method}{Name of \code{Method} to vary in the \code{Experiment}. Can also
+be a \code{Method} object that matches one in the \code{Experiment} or even a
+vector/list of \code{Method} names/objects, assuming they all support the target
+arguments provided via \code{...}.}
 
 \item{...}{Any number of named arguments where names match an argument in the
-user-specified \code{DGP} or \code{Method} function and values are vectors
-(for scalar parameters) or lists (for arbitrary parameters).}
+user-specified \code{DGP} or \code{Method} function and values are vectors (for
+scalar parameters) or lists (for arbitrary parameters).}
 
-\item{param_names}{A character vector of parameter names to remove. If
-not provided, the entire set of \code{vary_across} parameters will be
-removed for the specified \code{DGP}/\code{Method}.}
+\item{param_names}{A character vector of parameter names to remove. If not
+provided, the entire set of \code{vary_across} parameters will be removed for
+the specified \code{DGP}/\code{Method}.}
 }
 \value{
 In the case of \code{get_vary_across}, a nested list with entries
 "dgp" and "method" that contains the parameters to vary across for each
 \code{DGP} and \code{Method} in the \code{Experiment}. Otherwise, the
-original \code{Experiment} object passed to \code{*_vary_across()}.
+original \code{Experiment} object passed to \verb{*_vary_across()}.
 }
 \description{
 Helper functions for adding, updating, removing, or getting a
@@ -49,7 +49,7 @@ Helper functions for adding, updating, removing, or getting a
 \code{vary_across} component is added and the \code{Experiment} is run, the
 \code{Experiment} is systematically varied across values of the specified
 parameter in the \code{DGP} or \code{Method} while all other parameters are
-held constant at their baseline value.
+held constant.
 }
 \details{
 One of the \code{.dgp} or \code{.method} arguments (but not both) must
@@ -57,4 +57,71 @@ be provided when using \code{add_vary_across()} and
 \code{update_vary_across}. For \code{remove_vary_across()}, if both the
 \code{dgp} and \code{method} arguments are not provided, then all
 \code{vary_across} parameters from the experiment are removed.
+}
+\examples{
+# generate data from normal distribution with n samples
+normal_dgp <- create_dgp(
+  .dgp_fun = function(n) rnorm(n), .name = "Normal DGP", n = 100
+)
+# generate data from binomial distribution with n samples
+bernoulli_dgp <- create_dgp(
+  .dgp_fun = function(n) rbinom(n, 1, 0.5), .name = "Bernoulli DGP", n = 100
+)
+
+# compute weighted mean of data
+mean_method <- create_method(
+  .method_fun = function(x, ...) list(mean = mean(x, ...)),
+  .name = "Mean"
+)
+
+# initialize experiment with toy DGPs and Methods
+experiment <- create_experiment(name = "Experiment Name") \%>\%
+  add_dgp(normal_dgp) \%>\%
+  add_dgp(bernoulli_dgp) \%>\%
+  add_method(mean_method)
+
+# vary across n for normal DGP
+experiment <- experiment \%>\%
+  add_vary_across(.dgp = "Normal DGP", n = c(100, 200, 300))
+get_vary_across(experiment)
+print(experiment)
+
+# remove vary across for normal DGP
+experiment <- experiment \%>\%
+  remove_vary_across(dgp = "Normal DGP")
+get_vary_across(experiment)
+print(experiment)
+
+# can add vary across for multiple DGPs at once
+experiment <- experiment \%>\%
+  add_vary_across(.dgp = c("Normal DGP", "Bernoulli DGP"), n = c(100, 200, 300))
+get_vary_across(experiment)
+print(experiment)
+
+# can update vary across for DGPs
+experiment <- experiment \%>\%
+  update_vary_across(.dgp = "Normal DGP", n = c(100, 300)) \%>\%
+  update_vary_across(.dgp = "Bernoulli DGP", n = c(100, 200))
+get_vary_across(experiment)
+print(experiment)
+
+# can also add/update/remove vary across for methods
+experiment <- experiment \%>\%
+  add_vary_across(.method = "Mean", trim = list(0, 0.1, 0.2))
+print(experiment)
+experiment <- experiment \%>\%
+  update_vary_across(
+    .method = "Mean", trim = list(0, 0.1, 0.2, 0.3)
+  )
+print(experiment)
+experiment <- experiment \%>\%
+  remove_vary_across(method = "Mean")
+print(experiment)
+
+# can remove all vary across parameters
+experiment <- experiment \%>\%
+  remove_vary_across()
+get_vary_across(experiment)
+print(experiment)
+
 }

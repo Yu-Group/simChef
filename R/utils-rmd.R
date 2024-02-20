@@ -4,7 +4,7 @@
 #'
 #' @param filename filepath of markdown file to read into R Markdown
 #'
-#' @references Adapted from \url{https://stackoverflow.com/questions/56328581/how-to-read-markdown-code-from-a-file-from-an-r-markdown-document}.
+#' @references Adapted from <https://stackoverflow.com/questions/56328581/how-to-read-markdown-code-from-a-file-from-an-r-markdown-document>.
 #' @keywords internal
 pasteMd <- function(filename){
 

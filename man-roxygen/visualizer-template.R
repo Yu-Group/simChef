@@ -16,4 +16,5 @@
 #'
 #' \itemize{
 #' \item{\code{Visualizer$new()}} See \link{create_visualizer}.
+#' \item{\code{Visualizer$visualize()}} See \link{visualize_visualizer}.
 #' }

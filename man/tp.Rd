@@ -56,10 +56,8 @@ values should be stripped before the computation proceeds.}
 
 \item{event_level}{A single string. Either \code{"first"} or \code{"second"} to specify
 which level of \code{truth} to consider as the "event". This argument is only
-applicable when \code{estimator = "binary"}. The default uses an
-internal helper that generally defaults to \code{"first"}, however, if the
-deprecated global option \code{yardstick.event_first} is set, that will be
-used instead with a warning.}
+applicable when \code{estimator = "binary"}. The default uses an internal helper
+that defaults to \code{"first"}.}
 }
 \value{
 A \code{tibble} with columns \code{.metric}, \code{.estimator}, and
@@ -73,4 +71,16 @@ For \code{tp_vec()}, a single \code{numeric} value (or \code{NA}).
 \description{
 These functions calculate the \code{\link[=tp]{tp()}} (number of true positives)
 of a measurement system compared to the reference results (the "truth").
+}
+\examples{
+# Two class example data
+two_class_example <- data.frame(
+  truth = as.factor(sample(c("Class1", "Class2"), 100, replace = TRUE)),
+  predicted = as.factor(sample(c("Class1", "Class2"), 100, replace = TRUE))
+)
+
+# Compute number of true positives
+tp(two_class_example, truth = truth, estimate = predicted)
+tp_vec(two_class_example$truth, two_class_example$predicted)
+
 }

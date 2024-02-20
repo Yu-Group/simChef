@@ -8,11 +8,11 @@
 #' @param experiment_name Name of the experiment.
 #' @param type Either "regression" or "classification" specifying the type of
 #'   prediction problem.
-#' @param support Logical. If \code{TRUE}, include code to evaluate the 
+#' @param support Logical. If `TRUE`, include code to evaluate the 
 #'   estimated feature support.
-#' @param include_dgp_example Logical. If \code{TRUE}, include a completed 
+#' @param include_dgp_example Logical. If `TRUE`, include a completed 
 #'   DGP example, rather than a fill-in-the-blank template.
-#' @param include_method_example Logical. If \code{TRUE}, include a completed
+#' @param include_method_example Logical. If `TRUE`, include a completed
 #'   Method example, rather than a fill-in-the-blank template.
 #'
 #' @returns Invisible `NULL` but code is printed to the console. 

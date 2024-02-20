@@ -1,7 +1,7 @@
 #' Find last non-comment line, add a `%>%` to the end, then add another line.
 #' 
 #' @description This function is adapted from the function of the same name in 
-#'   the \code{usemodels} package.
+#'   the `usemodels` package.
 #' 
 #' @keywords internal
 pipe_value <- function(base, value, expr_width = 80) {

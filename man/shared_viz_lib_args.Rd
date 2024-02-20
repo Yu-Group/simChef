@@ -24,7 +24,8 @@ Precision-Recall curve.}
 "line", "bar", "errorbar", "ribbon" indicating what plot layer(s) to
 construct.}
 
-\item{...}{Additional arguments to pass to \code{plot_eval_constructor()}.}
+\item{...}{Additional arguments to pass to
+\code{\link[=plot_eval_constructor]{plot_eval_constructor()}}.}
 }
 \description{
 Arguments that are shared by multiple \code{Visualizer} library functions.

@@ -16,7 +16,12 @@ The original \code{Experiment} object passed to
 \code{export_visualizers}.
 }
 \description{
-Export all cached \code{Visualizer} results from an
-\code{Experiment} to images in viz_results/ under the \code{Experiment}'s
-results directory (see \code{Experiment$get_save_dir()}).
+Export all cached \code{Visualizer} results from an \code{Experiment} to
+images in the \verb{viz_results/} directory under the \code{Experiment}'s results
+directory (see \code{\link[=get_save_dir]{get_save_dir()}}).
+}
+\examples{
+\dontrun{
+export_visualizers(experiment)}
+
 }

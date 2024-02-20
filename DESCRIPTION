@@ -20,7 +20,7 @@ URL: https://yu-group.github.io/simChef
 BugReports: https://github.com/Yu-Group/simChef/issues
 Imports:
     data.table,
-    dplyr,
+    dplyr (>= 1.1.0),
     future,
     future.apply,
     knitr,
@@ -68,8 +68,8 @@ Remotes:
     Yu-Group/vthemes
 Config/testthat/edition: 3
 Encoding: UTF-8
-Roxygen: list(markdown = TRUE, r6 = FALSE)
-RoxygenNote: 7.2.3
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.1
 Collate: 
     'dgp.R'
     'docs.R'
@@ -85,10 +85,10 @@ Collate:
     'globals.R'
     'init-dir.R'
     'method.R'
+    'reexport-magrittr.R'
     'run-tests.R'
     'signals.R'
     'use_templates.R'
-    'utils-pipe.R'
     'utils-rmd.R'
     'utils-templates.R'
     'visualizer-lib-feature-selection.R'

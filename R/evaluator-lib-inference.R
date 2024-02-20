@@ -4,29 +4,29 @@
 #' @name eval_testing_err_funs
 #' @description Evaluate various testing error metrics, given the true feature 
 #'   support and the estimated p-values at pre-specified significance level 
-#'   thresholds. \code{eval_testing_err()} evaluates the various testing error
+#'   thresholds. `eval_testing_err()` evaluates the various testing error
 #'   metrics for each experimental replicate separately. 
-#'   \code{summarize_testing_err()} summarizes the various testing error metrics
+#'   `summarize_testing_err()` summarizes the various testing error metrics
 #'   across experimental replicates.
 #'   
 #' @inheritParams eval_feature_selection_err
 #' @param pval_col A character string identifying the column in 
-#'   \code{fit_results} with the estimated p-values data. Each element in
-#'   this column should be an array of length \code{p}, where \code{p} is the 
+#'   `fit_results` with the estimated p-values data. Each element in
+#'   this column should be an array of length `p`, where `p` is the 
 #'   number of features and the feature order aligns with that of 
-#'   \code{truth_col}. 
-#' @param metrics A \code{metric_set} object indicating the metrics to evaluate.
-#'   See [yardstick::metric_set()] for more details. Default \code{NULL} will
-#'   evaluate the following: number of true positives (\code{tp}), number of
-#'   false positives (\code{fp}), sensitivity (\code{sens}), specificity
-#'   (\code{spec}), positive predictive value (\code{ppv}), number of tests that
-#'   were rejected (\code{pos}), number of tests that were not rejected 
-#'   (\code{neg}), AUROC (\code{roc_auc}), and AUPRC (\code{pr_auc}).
+#'   `truth_col`. 
+#' @param metrics A `metric_set` object indicating the metrics to evaluate.
+#'   See [yardstick::metric_set()] for more details. Default `NULL` will
+#'   evaluate the following: number of true positives (`tp`), number of
+#'   false positives (`fp`), sensitivity (`sens`), specificity
+#'   (`spec`), positive predictive value (`ppv`), number of tests that
+#'   were rejected (`pos`), number of tests that were not rejected 
+#'   (`neg`), AUROC (`roc_auc`), and AUPRC (`pr_auc`).
 #' @param alphas Vector of significance levels at which to evaluate
-#'   the various metrics. Default is \code{alphas = 0.05}.
+#'   the various metrics. Default is `alphas = 0.05`.
 #'   
 #' @returns 
-#' The output of \code{eval_testing_err()} is a \code{tibble} with the following
+#' The output of `eval_testing_err()` is a `tibble` with the following
 #' columns:
 #' \describe{
 #' \item{.rep}{Replicate ID.}
@@ -36,16 +36,16 @@
 #' \item{.metric}{Name of the evaluation metric.}
 #' \item{.estimate}{Value of the evaluation metric.}
 #' }
-#' as well as any columns specified by \code{group_cols} and \code{vary_params}.
+#' as well as any columns specified by `group_cols` and `vary_params`.
 #' 
-#' The output of \code{summarize_testing_err()} is a grouped \code{tibble}
+#' The output of `summarize_testing_err()` is a grouped `tibble`
 #' containing both identifying information and the evaluation results 
 #' aggregated over experimental replicates. Specifically, the identifier columns
-#' include \code{.dgp_name}, \code{.method_name}, any columns specified by
-#' \code{group_cols} and \code{vary_params}, and \code{.metric}. In addition,
+#' include `.dgp_name`, `.method_name`, any columns specified by
+#' `group_cols` and `vary_params`, and `.metric`. In addition,
 #' there are results columns corresponding to the requested statistics in
-#' \code{summary_funs} and \code{custom_summary_funs}. These columns end in the
-#' suffix specified by \code{eval_id}.
+#' `summary_funs` and `custom_summary_funs`. These columns end in the
+#' suffix specified by `eval_id`.
 #' 
 #' @family inference_funs
 #' 
@@ -232,16 +232,16 @@ summarize_testing_err <- function(fit_results, vary_params = NULL,
 #' 
 #' @name eval_testing_curve_funs
 #' @description Evaluate the ROC or PR curves corresponding to the feature
-#'   importances as ranked by their p-values. \code{eval_testing_curve()} 
+#'   importances as ranked by their p-values. `eval_testing_curve()` 
 #'   evaluates the ROC or PR curve for each experimental replicate separately.
-#'   \code{summarize_testing_curve()} summarizes the ROC or PR curve across
+#'   `summarize_testing_curve()` summarizes the ROC or PR curve across
 #'   experimental replicates.
 #' 
 #' @inheritParams shared_eval_lib_args
 #' @inheritParams eval_testing_err
 #' 
 #' @returns 
-#' The output of \code{eval_testing_curve()} is a \code{tibble} with the 
+#' The output of `eval_testing_curve()` is a `tibble` with the 
 #' following columns:
 #' \describe{
 #' \item{.rep}{Replicate ID.}
@@ -249,22 +249,22 @@ summarize_testing_err <- function(fit_results, vary_params = NULL,
 #' \item{.method_name}{Name of Method.}
 #' \item{curve_estimate}{A list of tibbles with x and y coordinate values for 
 #'   the ROC/PR curve for the given experimental replicate. If 
-#'   \code{curve = "ROC"}, the \code{tibble} has the columns \code{.threshold}, 
-#'   \code{FPR}, and \code{TPR} for the threshold, false positive rate, and true
-#'   positive rate, respectively. If \code{curve = "PR"}, the \code{tibble} has 
-#'   the columns \code{.threshold}, \code{recall}, and \code{precision}.}
+#'   `curve = "ROC"`, the `tibble` has the columns `.threshold`, 
+#'   `FPR`, and `TPR` for the threshold, false positive rate, and true
+#'   positive rate, respectively. If `curve = "PR"`, the `tibble` has 
+#'   the columns `.threshold`, `recall`, and `precision`.}
 #' }
-#' as well as any columns specified by \code{group_cols} and \code{vary_params}.
+#' as well as any columns specified by `group_cols` and `vary_params`.
 #'
-#' The output of \code{summarize_testing_curve()} is a grouped \code{tibble}
+#' The output of `summarize_testing_curve()` is a grouped `tibble`
 #' containing both identifying information and the evaluation curve
 #' results aggregated over experimental replicates. Specifically, the identifier
-#' columns include \code{.dgp_name}, \code{.method_name}, and any columns 
-#' specified by \code{group_cols} and \code{vary_params}. In addition, there are
+#' columns include `.dgp_name`, `.method_name`, and any columns 
+#' specified by `group_cols` and `vary_params`. In addition, there are
 #' results columns corresponding to the requested statistics in
-#' \code{summary_funs} and \code{custom_summary_funs}. If \code{curve = "ROC"},
-#' these results columns include \code{FPR} and others that end in the suffix
-#' "_TPR". If \code{curve = "PR"}, the results columns include \code{recall} and
+#' `summary_funs` and `custom_summary_funs`. If `curve = "ROC"`,
+#' these results columns include `FPR` and others that end in the suffix
+#' "_TPR". If `curve = "PR"`, the results columns include `recall` and
 #' others that end in the suffix "_precision".
 #' 
 #' @family inference_funs
@@ -410,17 +410,17 @@ summarize_testing_curve <- function(fit_results, vary_params = NULL,
 #' @inheritParams shared_eval_lib_args
 #' @inheritParams eval_testing_err
 #' @param alphas (Optional) Vector of significance levels at which to evaluate
-#'   the rejection probability. By default, \code{alphas} is \code{NULL}, which
+#'   the rejection probability. By default, `alphas` is `NULL`, which
 #'   evaluates the full empirical cumulative distribution of the p-values, i.e.,
 #'   the rejection probability is evaluated at all possible significance levels.
 #' 
-#' @return A grouped \code{tibble} containing both identifying information
+#' @return A grouped `tibble` containing both identifying information
 #'   and the rejection probability results aggregated over experimental 
-#'   replicates. Specifically, the identifier columns include \code{.dgp_name},
-#'   \code{.method_name}, any columns specified by \code{group_cols} and
-#'   \code{vary_params}, and the feature names given in \code{feature_col} if
-#'   applicable. In addition, there are results columns \code{.alpha} and
-#'   \code{reject_prob}, which respectively give the significance level and the
+#'   replicates. Specifically, the identifier columns include `.dgp_name`,
+#'   `.method_name`, any columns specified by `group_cols` and
+#'   `vary_params`, and the feature names given in `feature_col` if
+#'   applicable. In addition, there are results columns `.alpha` and
+#'   `reject_prob`, which respectively give the significance level and the
 #'   estimated rejection probabilities (averaged across experimental
 #'   replicates).
 #'

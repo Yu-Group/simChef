@@ -1,23 +1,38 @@
 #' @include utils.R
 NULL
 
-#' \code{R6} class representing a simulation experiment.
+#' `R6` class representing a simulation experiment.
+#'
+#' @name Experiment
 #'
 #' @docType class
 #'
-#' @description A simulation experiment with any number of \code{DGPs},
-#'   \code{Methods}, \code{Evaluators}, and \code{Visualizers}.
+#' @description A simulation experiment with any number of [DGP],
+#'   [Method], [Evaluator], and [Visualizer] objects.
 #'
-#' @details When run, an \code{Experiment} seamlessly combines \code{DGPs} and
-#'   \code{Methods}, computing results in parallel. Those results can then be
-#'   evaluated using \code{Evaluators} and visualized using \code{Visualizers}.
+#'   Generally speaking, users won't directly interact with the `Experiment` R6
+#'   class, but instead indirectly through [create_experiment()] and the tidy
+#'   `Experiment` helpers listed in below in the **See also** section.
 #'
-#' @template experiment-template
+#' @details When run, an `Experiment` seamlessly combines `DGPs` and
+#'   `Methods`, computing results in parallel. Those results can then be
+#'   evaluated using `Evaluators` and visualized using `Visualizers`.
+#'
+#' @seealso The following tidy helpers take an `Experiment` object as their
+#'   first argument: [create_experiment()], [generate_data()],
+#'   [fit_experiment()], [evaluate_experiment()], [visualize_experiment()],
+#'   [run_experiment()], [clear_cache()], [get_cached_results()],
+#'   [get_save_dir()], [set_save_dir()], [save_experiment()],
+#'   [export_visualizers()], [`add_*()`](add_funs.html),
+#'   [`update_*()`](update_funs.html), [`remove_*()`](remove_funs.html),
+#'   [`get_*()`](get_funs.html), and [`*_vary_across()`](vary_across.html).
 #'
 #' @export
 Experiment <- R6::R6Class(
   classname = 'Experiment',
   private = list(
+
+    # private fields
     .save_dir = NULL,
     .dgp_list = list(),
     .method_list = list(),
@@ -30,6 +45,7 @@ Experiment <- R6::R6Class(
     .fit_params = tibble::tibble(),
     .future.globals = TRUE,
     .future.packages = NULL,
+
     # private methods
     .add_obj = function(field_name, obj, obj_name, ...) {
       # TODO: check if obj is already in list by another name
@@ -56,6 +72,7 @@ Experiment <- R6::R6Class(
         private[[list_name]][[obj_name]] <- obj
       }
     },
+
     .update_obj = function(field_name, obj, obj_name, ...) {
       obj_list <- private$.get_obj_list(field_name, ...)
       if (!obj_name %in% names(obj_list)) {
@@ -71,6 +88,7 @@ Experiment <- R6::R6Class(
       list_name <- paste0(".", field_name, "_list")
       private[[list_name]][[obj_name]] <- obj
     },
+
     .remove_obj = function(field_name, obj_name, ...) {
       obj_list <- private$.get_obj_list(field_name, ...)
       list_name <- paste0(".", field_name, "_list")
@@ -89,6 +107,7 @@ Experiment <- R6::R6Class(
         private[[list_name]][[obj_name]] <- NULL
       }
     },
+
     .throw_empty_list_error = function(field_name, action_name = "run") {
       abort(
         sprintf(
@@ -99,11 +118,13 @@ Experiment <- R6::R6Class(
         call = rlang::caller_env()
       )
     },
+
     .get_obj_list = function(field_name, getter_name=NULL) {
       list_name <- paste0(".", field_name, "_list")
       obj_list <- private[[list_name]]
       return(obj_list)
     },
+
     .check_obj = function(obj, expected_class) {
       if (!inherits(obj, expected_class)) {
         err_msg <- sprintf("%s must be an instance of simChef::%s",
@@ -111,6 +132,7 @@ Experiment <- R6::R6Class(
         abort(err_msg, call = rlang::caller_env())
       }
     },
+
     .add_obj_list = function(obj_list, expected_class) {
       if (length(obj_list) > 0) {
         lapply(obj_list, function(obj) {
@@ -141,6 +163,7 @@ Experiment <- R6::R6Class(
         private[[paste0(".", tolower(expected_class), "_list")]] <- obj_list
       }
     },
+
     .check_vary_across = function(.dgp, .method, ...) {
       if (missing(.dgp) && missing(.method)) {
         abort("Must specify either '.dgp' or '.method'.",
@@ -178,6 +201,7 @@ Experiment <- R6::R6Class(
       }
       return(out)
     },
+
     .check_each_vary_across = function(obj, field_name, ...) {
       dots_list <- rlang::list2(...)
       if (field_name == "dgp") {
@@ -220,6 +244,7 @@ Experiment <- R6::R6Class(
                   field_name = field_name,
                   obj_name = obj_name))
     },
+
     .has_vary_across = function() {
       if ((length(private$.vary_across_list$dgp) == 0) &&
             (length(private$.vary_across_list$method) == 0)) {
@@ -228,6 +253,7 @@ Experiment <- R6::R6Class(
         return(TRUE)
       }
     },
+
     .get_vary_params = function(field_name = c("dgp", "method")) {
       field_name <- match.arg(field_name, several.ok = TRUE)
       param_names_ls <- purrr::map(private$.vary_across_list[field_name],
@@ -253,11 +279,13 @@ Experiment <- R6::R6Class(
       }
       return(param_names)
     },
+
     .get_duplicate_param_names = function() {
       dgp_params <- private$.get_vary_params("dgp")
       method_params <- private$.get_vary_params("method")
       return(intersect(dgp_params, method_params))
     },
+
     .combine_vary_params = function(field_name = c("dgp", "method")) {
       field_name <- match.arg(field_name)
       obj_list <- private$.get_obj_list(field_name)
@@ -276,6 +304,7 @@ Experiment <- R6::R6Class(
         unlist(recursive = FALSE)
       return(params_list)
     },
+
     .update_fit_params = function() {
       # update/set (dgp, method) fit parameter combinations
       dgp_list <- private$.get_obj_list("dgp")
@@ -304,6 +333,7 @@ Experiment <- R6::R6Class(
 
       private$.fit_params <- fit_params
     },
+
     .get_fit_params = function(cached_params = NULL,
                                type = c("all", "cached", "new"),
                                n_reps = NULL, simplify = FALSE) {
@@ -379,6 +409,7 @@ Experiment <- R6::R6Class(
         dplyr::rename_with(~sprintf(".%s_%s", field_name, .x))
       return(obj_params)
     },
+
     .get_new_obj_list = function(cached_params,
                                  field_name = c("dgp", "method",
                                                 "evaluator", "visualizer"),
@@ -407,6 +438,7 @@ Experiment <- R6::R6Class(
         ])
       }
     },
+
     .n_reps_cached = function(cached_fit_params) {
       if (nrow(cached_fit_params) == 0) {
         return(0)
@@ -429,6 +461,7 @@ Experiment <- R6::R6Class(
         return(min(as.numeric(n_reps_complete)))
       }
     },
+
     .is_fully_cached = function(cached_params,
                                 results_type = c("fit", "eval", "viz"),
                                 n_reps) {
@@ -482,6 +515,7 @@ Experiment <- R6::R6Class(
                                               op = viz_cached_op)
       return(visualize_cached)
     },
+
     .get_cached_results = function(results_type = c("experiment",
                                                     "experiment_cached_params",
                                                     "fit", "eval", "viz"),
@@ -530,6 +564,7 @@ Experiment <- R6::R6Class(
         return(NULL)
       }
     },
+
     .clear_cache = function() {
       if (!private$.has_vary_across()) {
         save_dir <- private$.save_dir
@@ -545,6 +580,7 @@ Experiment <- R6::R6Class(
         file.remove(fits_fpath)
       }
     },
+
     .get_cache = function(results_type = c("all", "fit", "evaluate",
                                            "visualize")) {
       results_type <- match.arg(results_type)
@@ -566,6 +602,7 @@ Experiment <- R6::R6Class(
         return(cached_params[[results_type]])
       }
     },
+
     .update_cache = function(results_type = c("fit", "eval", "viz"),
                              n_reps = NULL) {
       results_type <- match.arg(results_type)
@@ -611,6 +648,7 @@ Experiment <- R6::R6Class(
       cached_params_all$visualize <- cached_params
       return(cached_params_all)
     },
+
     .save_results = function(results,
                              results_type = c("fit", "eval", "viz"),
                              n_reps, verbose = 1, checkpoint = FALSE) {
@@ -658,6 +696,7 @@ Experiment <- R6::R6Class(
                        difftime(Sys.time(), start_time, units = "secs")))
       }
     },
+
     .get_vary_across_dir = function() {
       obj_names <- purrr::map(private$.vary_across_list, names) %>%
         purrr::reduce(c) %>%
@@ -676,8 +715,44 @@ Experiment <- R6::R6Class(
       }
     }
   ),
+
   public = list(
+
+    #' @field name The name of the `Experiment`.
     name = NULL,
+
+    # NOTE: R6 methods can't use the `@inheritParams` tag. If you want to update
+    # the `@param` tags for the public methods below, do so in the appropriate
+    # docs in experiment-helpers.R, then copy-paste the corresponding `@param`
+    # tags below.
+
+    #' @description Initialize a new `Experiment` object.
+    #'
+    #' @param name The name of the `Experiment`.
+    #' @param dgp_list An optional list of [DGP] objects.
+    #' @param method_list An optional list of [Method] objects.
+    #' @param evaluator_list An optional list of [Evaluator] objects.
+    #' @param visualizer_list An optional list of [Visualizer] objects.
+    #' @param future.globals Character vector of names in the global environment to
+    #'   pass to parallel workers. Passed as the argument of the same name to
+    #'   [future.apply::future_lapply()] and related functions. To set for a
+    #'   specific run of the experiment, use the same argument in
+    #'   [run_experiment()].
+    #' @param future.packages Character vector of packages required by parallel
+    #'   workers. Passed as the argument of the same name to
+    #'   [future.apply::future_lapply()] and related functions. To set for a
+    #'   specific run of the experiment, use the same argument in
+    #'   [run_experiment()].
+    #' @param clone_from An optional `Experiment` object to use as a base for
+    #'   this one.
+    #' @param save_dir An optional directory in which to save the experiment's
+    #'   results. If `NULL`, results are saved in the current working directory
+    #'   in a directory called "results" with a sub-directory named after
+    #'   `Experiment$name` when using [run_experiment()] or [fit_experiment()]
+    #'   with `save=TRUE`.
+    #' @param ... Not used.
+    #'
+    #' @return A new instance of `Experiment`.
     initialize = function(name = "experiment",
                           dgp_list = list(), method_list = list(),
                           evaluator_list = list(), visualizer_list = list(),
@@ -706,6 +781,60 @@ Experiment <- R6::R6Class(
       }
       private$.save_dir <- R.utils::getAbsolutePath(save_dir)
     },
+
+    #' @description Run the full `Experiment` pipeline (fitting, evaluating,
+    #'   and visualizing).
+    #'
+    #' @param n_reps The number of replicates of the `Experiment` for this run.
+    #' @param parallel_strategy A vector with some combination of "reps", "dgps", or
+    #'   "methods". Determines how computation will be distributed across available
+    #'   resources. Currently only the default, "reps", is supported.
+    #' @param future.globals Character vector of names in the global environment to
+    #'   pass to parallel workers. Passed as the argument of the same name to
+    #'   `future.apply::future_lapply` and related functions. To set for all runs of
+    #'   the experiment, use the same argument during initialization.
+    #' @param future.packages Character vector of packages required by parallel
+    #'   workers. Passed as the argument of the same name to
+    #'   `future.apply::future_lapply` and related functions. To set for all runs of
+    #'   the experiment, use the same argument during initialization.
+    #' @param future.seed Passed as the argument of the same name in
+    #'   `future.apply::future_apply`.
+    #' @param use_cached Logical. If `TRUE`, find and return previously saved
+    #'   results. If cached results cannot be found, continue as if `use_cached` was
+    #'   `FALSE`.
+    #' @param return_all_cached_reps Logical. If `FALSE` (default), returns
+    #'   only the fit results for the requested `n_reps`. If `TRUE`,
+    #'   returns fit results for the requested `n_reps` plus any additional
+    #'   cached replicates from the (`DGP`, `Method`) combinations in the
+    #'   `Experiment`. Note that even if `return_all_cached_reps = TRUE`,
+    #'   only the `n_reps` replicates are used when evaluating and visualizing
+    #'   the `Experiment`.
+    #' @param save If `TRUE`, save outputs to disk.
+    #' @param checkpoint_n_reps The number of experiment replicates to compute
+    #'   before saving results to disk. If 0 (the default), no checkpoints are
+    #'   saved.
+    #' @param verbose Level of verbosity. Default is 1, which prints out messages
+    #'   after major checkpoints in the experiment. If 2, prints additional
+    #'   debugging information for warnings and messages from user-defined functions
+    #'   (in addition to error debugging information). If 0, no messages are printed
+    #'   other than user-defined function error debugging information.
+    #' @param ... Not used.
+    #'
+    #' @return A named list of results from the simulation experiment with the
+    #'   following entries:
+    #' \describe{
+    #' \item{fit_results}{A tibble containing results from the `fit`
+    #'   method. In addition to results columns, has columns named '.rep', '.dgp_name',
+    #'   '.method_name', and the `vary_across` parameter names if applicable.}
+    #' \item{eval_results}{A list of tibbles containing results from the
+    #'   `evaluate` method, which evaluates each `Evaluator` in
+    #'   the `Experiment`. Length of list is equivalent to the number of
+    #'   `Evaluators`.}
+    #' \item{viz_results}{A list of tibbles containing results from the
+    #'   `visualize` method, which visualizes each `Visualizer` in
+    #'   the `Experiment`. Length of list is equivalent to the number of
+    #'   `Visualizers`.}
+    #' }
     run = function(n_reps = 1, parallel_strategy = "reps",
                    future.globals = NULL, future.packages = NULL,
                    future.seed = TRUE, use_cached = FALSE,
@@ -746,6 +875,24 @@ Experiment <- R6::R6Class(
                   eval_results = eval_results,
                   viz_results = viz_results))
     },
+
+    #' @description Generate sample data from all `DGP` objects that were added
+    #'   to the `Experiment`, including their varied params. Primarily useful
+    #'   for debugging. Note that results are not generated in parallel.
+    #'
+    #' @param n_reps The number of datasets to generate per `DGP`.
+    #' @param ... Not used.
+    #'
+    #' @return A list of length equal to the number of `DGPs` in the
+    #'   `Experiment`. If the `Experiment` does not have a
+    #'   `vary_across` component, then each element in the list is a list
+    #'   of `n_reps` datasets generated by the given `DGP`. If the
+    #'   `Experiment` does have a `vary_across` component, then each
+    #'   element in the outermost list is a list of lists. The second layer of
+    #'   lists corresponds to a specific parameter setting within the
+    #'   `vary_across` scheme, and the innermost layer of lists is of
+    #'   length `n_reps` with the dataset replicates, generated by the
+    #'   `DGP`.
     generate_data = function(n_reps = 1, ...) {
       # TODO: generate data that was used in run() or fit() (e.g., w/ same seed)
       dgp_list <- private$.get_obj_list("dgp")
@@ -780,6 +927,49 @@ Experiment <- R6::R6Class(
       }
       return(dgp_results)
     },
+
+    #' @description Fit `Methods` in the `Experiment` across all
+    #'   `DGPs` for `n_reps` repetitions and return results from fits.
+    #'
+    #' @param n_reps The number of replicates of the `Experiment` for this run.
+    #' @param parallel_strategy A vector with some combination of "reps", "dgps", or
+    #'   "methods". Determines how computation will be distributed across available
+    #'   resources. Currently only the default, "reps", is supported.
+    #' @param future.globals Character vector of names in the global environment to
+    #'   pass to parallel workers. Passed as the argument of the same name to
+    #'   `future.apply::future_lapply` and related functions. To set for all runs of
+    #'   the experiment, use the same argument during initialization.
+    #' @param future.packages Character vector of packages required by parallel
+    #'   workers. Passed as the argument of the same name to
+    #'   `future.apply::future_lapply` and related functions. To set for all runs of
+    #'   the experiment, use the same argument during initialization.
+    #' @param future.seed Passed as the argument of the same name in
+    #'   `future.apply::future_apply`.
+    #' @param use_cached Logical. If `TRUE`, find and return previously saved
+    #'   results. If cached results cannot be found, continue as if `use_cached` was
+    #'   `FALSE`.
+    #' @param return_all_cached_reps Logical. If `FALSE` (default), returns
+    #'   only the fit results for the requested `n_reps`. If `TRUE`,
+    #'   returns fit results for the requested `n_reps` plus any additional
+    #'   cached replicates from the (`DGP`, `Method`) combinations in the
+    #'   `Experiment`.
+    #' @param save If `TRUE`, save outputs to disk.
+    #' @param checkpoint_n_reps The number of experiment replicates to compute
+    #'   before saving results to disk. If 0 (the default), no checkpoints are
+    #'   saved.
+    #' @param verbose Level of verbosity. Default is 1, which prints out messages
+    #'   after major checkpoints in the experiment. If 2, prints additional
+    #'   debugging information for warnings and messages from user-defined functions
+    #'   (in addition to error debugging information). If 0, no messages are printed
+    #'   other than user-defined function error debugging information.
+    #' @param ... Additional `future.*` arguments to pass to [future.apply]
+    #'   functions. See [future.apply::future_lapply()] and
+    #'   [future.apply::future_mapply()].
+    #'
+    #' @return A tibble containing the results from fitting all `Methods`
+    #'   across all `DGPs` for `n_reps` repetitions. In addition to
+    #'   results columns, has columns named '.rep', '.dgp_name', '.method_name', and the
+    #'   `vary_across` parameter names if applicable.
     fit = function(n_reps = 1, parallel_strategy = "reps",
                    future.globals = NULL, future.packages = NULL,
                    future.seed = TRUE, use_cached = FALSE,
@@ -1106,6 +1296,24 @@ Experiment <- R6::R6Class(
       }
 
     },
+
+    #' @description Evaluate the performance of method(s) across all
+    #'   [Evaluator] objects in the `Experiment` and return results.
+    #'
+    #' @param fit_results A tibble, as returned by [fit_experiment()].
+    #' @param use_cached Logical. If `TRUE`, find and return previously saved
+    #'   results. If cached results cannot be found, continue as if `use_cached` was
+    #'   `FALSE`.
+    #' @param save If `TRUE`, save outputs to disk.
+    #' @param verbose Level of verbosity. Default is 1, which prints out messages
+    #'   after major checkpoints in the experiment. If 2, prints additional
+    #'   debugging information for warnings and messages from user-defined functions
+    #'   (in addition to error debugging information). If 0, no messages are printed
+    #'   other than user-defined function error debugging information.
+    #' @param ... Not used.
+    #'
+    #' @return A list of evaluation result tibbles, one for each
+    #'   `Evaluator`.
     evaluate = function(fit_results, use_cached = FALSE, save = FALSE,
                         verbose = 1, ...) {
       evaluator_list <- private$.get_obj_list("evaluator")
@@ -1181,6 +1389,26 @@ Experiment <- R6::R6Class(
 
       return(eval_results)
     },
+
+    #' @description Visualize the performance of methods and/or its evaluation metrics
+    #'   using all [Visualizer] objects in the `Experiment` and return
+    #'   visualization results.
+    #'
+    #' @param fit_results A tibble, as returned by [fit_experiment()].
+    #' @param eval_results A list of result tibbles, as returned by
+    #'   [evaluate_experiment()].
+    #' @param use_cached Logical. If `TRUE`, find and return previously saved
+    #'   results. If cached results cannot be found, continue as if `use_cached` was
+    #'   `FALSE`.
+    #' @param save If `TRUE`, save outputs to disk.
+    #' @param verbose Level of verbosity. Default is 1, which prints out messages
+    #'   after major checkpoints in the experiment. If 2, prints additional
+    #'   debugging information for warnings and messages from user-defined functions
+    #'   (in addition to error debugging information). If 0, no messages are printed
+    #'   other than user-defined function error debugging information.
+    #' @param ... Not used.
+    #'
+    #' @return A list of visualizations, one for each `Visualizer`.
     visualize = function(fit_results, eval_results = NULL,
                          use_cached = FALSE, save = FALSE, verbose = 1, ...) {
 
@@ -1259,16 +1487,39 @@ Experiment <- R6::R6Class(
 
       return(viz_results)
     },
+
+    #' @description Add a [DGP] object to the `Experiment`.
+    #'
+    #' @param dgp A `DGP` object.
+    #' @param name A name to identify the `DGP`.
+    #' @param ... Not used.
+    #'
+    #' @return The `Experiment` object, invisibly.
     add_dgp = function(dgp, name = NULL, ...) {
       private$.check_obj(dgp, "DGP")
       private$.add_obj("dgp", dgp, name)
       invisible(self)
     },
+
+    #' @description Update a [DGP] object in the `Experiment`.
+    #'
+    #' @param dgp A `DGP` object.
+    #' @param name An existing name identifying the `DGP` to be updated.
+    #' @param ... Not used.
+    #'
+    #' @return The `Experiment` object, invisibly.
     update_dgp = function(dgp, name, ...) {
       private$.check_obj(dgp, "DGP")
       private$.update_obj("dgp", dgp, name)
       invisible(self)
     },
+
+    #' @description Remove a [DGP] object from the `Experiment`.
+    #'
+    #' @param name An existing name identifying the `DGP` to be removed.
+    #' @param ... Not used
+    #'
+    #' @return The `Experiment` object, invisibly.
     remove_dgp = function(name = NULL, ...) {
       if (is.null(name)) {
         private$.vary_across_list[["dgp"]] <- list()
@@ -1281,19 +1532,46 @@ Experiment <- R6::R6Class(
       private$.remove_obj("dgp", name)
       invisible(self)
     },
+
+    #' @description Retrieve the [DGP] objects associated with the `Experiment`.
+    #'
+    #' @return A named list of the `DGP` objects in the `Experiment`.
     get_dgps = function() {
       return(private$.get_obj_list("dgp"))
     },
+
+    #' @description Add a [Method] object to the `Experiment`.
+    #'
+    #' @param method A `Method` object.
+    #' @param name A name to identify the `Method` to be updated.
+    #' @param ... Not used.
+    #'
+    #' @return The `Experiment` object, invisibly.
     add_method = function(method, name = NULL, ...) {
       private$.check_obj(method, "Method")
       private$.add_obj("method", method, name)
       invisible(self)
     },
+
+    #' @description Update a [Method] object in the `Experiment`.
+    #'
+    #' @param method A `Method` object.
+    #' @param name An existing name identifying the `Method` to be updated.
+    #' @param ... Not used.
+    #'
+    #' @return The `Experiment` object, invisibly.
     update_method = function(method, name, ...) {
       private$.check_obj(method, "Method")
       private$.update_obj("method", method, name)
       invisible(self)
     },
+
+    #' @description Remove a [Method] object from the `Experiment`.
+    #'
+    #' @param name An existing name identifying the `Method` to be removed.
+    #' @param ... Not used
+    #'
+    #' @return The `Experiment` object, invisibly.
     remove_method = function(name = NULL, ...) {
       if (is.null(name)) {
         private$.vary_across_list[["method"]] <- list()
@@ -1306,43 +1584,124 @@ Experiment <- R6::R6Class(
       private$.remove_obj("method", name)
       invisible(self)
     },
+
+    #' @description Retrieve the [Method] objects associated with the `Experiment`.
+    #'
+    #' @return A named list of the `Method` objects in the `Experiment`.
     get_methods = function() {
       return(private$.get_obj_list("method"))
     },
+
+    #' @description Add an [Evaluator] object to the `Experiment`.
+    #'
+    #' @param evaluator An `Evaluator` object.
+    #' @param name A name to identify the `Evaluator`.
+    #' @param ... Not used.
+    #'
+    #' @return The `Experiment` object, invisibly.
     add_evaluator = function(evaluator, name = NULL, ...) {
       private$.check_obj(evaluator, "Evaluator")
       private$.add_obj("evaluator", evaluator, name)
       invisible(self)
     },
+
+    #' @description Update an [Evaluator] object in the `Experiment`.
+    #'
+    #' @param evaluator An `Evaluator` object.
+    #' @param name An existing name identifying the `Evaluator` to be updated.
+    #' @param ... Not used.
+    #'
+    #' @return The `Experiment` object, invisibly.
     update_evaluator = function(evaluator, name, ...) {
       private$.check_obj(evaluator, "Evaluator")
       private$.update_obj("evaluator", evaluator, name)
       invisible(self)
     },
+
+    #' @description Remove an [Evaluator] object from the `Experiment`.
+    #'
+    #' @param name An existing name identifying the `Evaluator` to be removed.
+    #' @param ... Not used
+    #'
+    #' @return The `Experiment` object, invisibly.
     remove_evaluator = function(name = NULL, ...) {
       private$.remove_obj("evaluator", name)
       invisible(self)
     },
+
+    #' @description Retrieve the [Evaluator] objects associated with the `Experiment`.
+    #'
+    #' @return A named list of the `Evaluator` objects in the `Experiment`.
     get_evaluators = function() {
       return(private$.get_obj_list("evaluator"))
     },
+
+    #' @description Add a [Visualizer] object to the `Experiment`.
+    #'
+    #' @param visualizer A `Visualizer` object.
+    #' @param name A name to identify the `Visualizer`.
+    #' @param ... Not used.
+    #'
+    #' @return The `Experiment` object, invisibly.
     add_visualizer = function(visualizer, name = NULL, ...) {
       private$.check_obj(visualizer, "Visualizer")
       private$.add_obj("visualizer", visualizer, name)
       invisible(self)
     },
+
+    #' @description Update a [Visualizer] object in the `Experiment`.
+    #'
+    #' @param visualizer A `Visualizer` object.
+    #' @param name An existing name identifying the `Visualizer` to be updated.
+    #' @param ... Not used.
+    #'
+    #' @return The `Experiment` object, invisibly.
     update_visualizer = function(visualizer, name, ...) {
       private$.check_obj(visualizer, "Visualizer")
       private$.update_obj("visualizer", visualizer, name)
       invisible(self)
     },
+
+    #' @description Remove a [Visualizer] object from the `Experiment`.
+    #'
+    #' @param name An existing name identifying the `Visualizer` to be removed.
+    #' @param ... Not used
+    #'
+    #' @return The `Experiment` object, invisibly.
     remove_visualizer = function(name = NULL, ...) {
       private$.remove_obj("visualizer", name)
       invisible(self)
     },
+
+    #' @description Retrieve the [Visualizer] objects associated with the `Experiment`.
+    #'
+    #' @return A named list of the `Visualizer` objects in the `Experiment`.
     get_visualizers = function() {
       return(private$.get_obj_list("visualizer"))
     },
+
+    # @description Add a `vary_across` component in the `Experiment`. When a
+    #'   `vary_across` component is added and the `Experiment` is run, the
+    #'   `Experiment` is systematically varied across values of the specified
+    #'   parameter in the `DGP` or `Method` while all other parameters are
+    #'   held constant.
+    #'
+    #' @details One of the `.dgp` or `.method` arguments (but not both) must
+    #'   be provided.
+    #'
+    #' @param .dgp Name of `DGP` to vary in the `Experiment`. Can also be a
+    #'   `DGP` object that matches one in the `Experiment` or even a
+    #'   vector/list of `DGP` names/objects, assuming they all support the
+    #'   target arguments provided via `...`.
+    #' @param .method Name of `Method` to vary in the `Experiment`. Can also be a
+    #'   `Method` object that matches one in the `Experiment` or even a
+    #'   vector/list of `Method` names/objects, assuming they all support the
+    #'   target arguments provided via `...`.
+    #' @param ... Any number of named arguments where names match an argument in the
+    #'   user-specified `DGP` or `Method` function and values are vectors (for
+    #'   scalar parameters) or lists (for arbitrary parameters).
+    #'
+    #' @return The `Experiment` object, invisibly.
     add_vary_across = function(.dgp, .method, ...) {
       objs <- private$.check_vary_across(.dgp = .dgp, .method = .method, ...)
       for (obj in objs) {
@@ -1372,6 +1731,25 @@ Experiment <- R6::R6Class(
       }
       invisible(self)
     },
+
+    #' @description Update a `vary_across` component in the `Experiment`.
+    #'
+    #' @details One of the `.dgp` or `.method` arguments (but not both) must
+    #'   be provided.
+    #'
+    #' @param .dgp Name of `DGP` to vary in the `Experiment`. Can also be a
+    #'   `DGP` object that matches one in the `Experiment` or even a
+    #'   vector/list of `DGP` names/objects, assuming they all support the
+    #'   target arguments provided via `...`.
+    #' @param .method Name of `Method` to vary in the `Experiment`. Can also be a
+    #'   `Method` object that matches one in the `Experiment` or even a
+    #'   vector/list of `Method` names/objects, assuming they all support the
+    #'   target arguments provided via `...`.
+    #' @param ... Any number of named arguments where names match an argument in the
+    #'   user-specified `DGP` or `Method` function and values are vectors (for
+    #'   scalar parameters) or lists (for arbitrary parameters).
+    #'
+    #' @return The `Experiment` object, invisibly.
     update_vary_across = function(.dgp, .method, ...) {
       objs <- private$.check_vary_across(.dgp = .dgp, .method = .method, ...)
       for (obj in objs) {
@@ -1409,6 +1787,23 @@ Experiment <- R6::R6Class(
       }
       invisible(self)
     },
+
+    #' @description Remove a `vary_across` component in the `Experiment`.
+    #'
+    #' @details If both the `dgp` and `method` arguments are not provided,
+    #'   then all `vary_across` parameters from the experiment are removed.
+    #'
+    #' @param dgp Name of `DGP` to vary in the `Experiment`. Can also be a
+    #'   `DGP` object that matches one in the `Experiment` or even a
+    #'   vector/list of `DGP` names/objects.
+    #' @param method Name of `Method` to vary in the `Experiment`. Can also be a
+    #'   `Method` object that matches one in the `Experiment` or even a
+    #'   vector/list of `Method` names/objects.
+    #' @param param_names A character vector of parameter names to remove. If not
+    #'   provided, the entire set of `vary_across` parameters will be removed for
+    #'   the specified `DGP`/`Method`.
+    #'
+    #' @return The `Experiment` object, invisibly.
     remove_vary_across = function(dgp, method, param_names = NULL) {
       if (missing(dgp) && missing(method)) {
         if (!private$.has_vary_across()) {
@@ -1417,6 +1812,7 @@ Experiment <- R6::R6Class(
                   "since the vary_across parameter has not been set.")
           )
         } else {
+          # TODO: check param_names?
           private$.vary_across_list <- list(
             dgp = list(),
             method = list()
@@ -1466,17 +1862,62 @@ Experiment <- R6::R6Class(
       }
       invisible(self)
     },
+
+    #' @description Retrieve the parameters to vary across for each `DGP` and
+    #'   `Method` in the `Experiment`.
+    #'
+    #' @return a nested list with entries "dgp" and "method".
     get_vary_across = function() {
       return(private$.vary_across_list)
     },
+
+    #' @description Clear (or delete) cached results from an `Experiment` to
+    #'   start the experiment fresh/from scratch.
+    #'
+    #' @return The `Experiment` object, invisibly.
     clear_cache = function() {
       private$.clear_cache()
       return(invisible(self))
     },
+
+    #' @description Read in cached results from disk from a previously saved
+    #'   `Experiment` run.
+    #'
+    #' @param results_type Character string indicating the type of results to read
+    #'   in. Must be one of "experiment", "experiment_cached_params", "fit", "eval",
+    #'   or "viz".
+    #' @param verbose Level of verbosity. Default is 1, which prints out messages
+    #'   after major checkpoints in the experiment. If 2, prints additional
+    #'   debugging information for warnings and messages from user-defined functions
+    #'   (in addition to error debugging information). If 0, no messages are printed
+    #'   other than user-defined function error debugging information.
+    #'
+    #' @return The cached results, specifically the cached `Experiment` object
+    #'   if `results_type = "experiment"`, the cached fit results if
+    #'   `results_type = "fit"`, the cached evaluation results if
+    #'   `results_type = "eval"`, the cached visualization results if
+    #'   `results_type = "viz"`, and the experiment parameters used in
+    #'   the cache if `results_type = "experiment_cached_params"`.
     get_cached_results = function(results_type, verbose = 0) {
       return(private$.get_cached_results(results_type = results_type,
                                          verbose = verbose))
     },
+
+    #' @description Set R Markdown options for `Evaluator` or `Visualizer`
+    #'   outputs in the summary report. Some options include the height/width of
+    #'   plots and number of digits to show in tables.
+    #'
+    #' @param field_name One of "evaluator" or "visualizer".
+    #' @param name Name of `Evaluator` or `Visualizer` to set R Markdown
+    #'   options.
+    #' @param show If `TRUE`, show output; if `FALSE`, hide output in
+    #'   R Markdown report. Default `NULL` does not change the "show" field
+    #'   in `Evaluator`/`Visualizer`.
+    #' @param ... Named R Markdown options to set. If `field_name = "visualizer"`,
+    #'   options are "height" and "width". If `field_name = "evaluator"`,
+    #'   see options for [vthemes::pretty_DT()].
+    #'
+    #' @return The `Experiment` object, invisibly.
     set_doc_options = function(field_name, name, show = NULL, ...) {
       obj_list <- private$.get_obj_list(field_name)
       if (!name %in% names(obj_list)) {
@@ -1501,13 +1942,32 @@ Experiment <- R6::R6Class(
       }
       invisible(self)
     },
+
+    #' @description Get the directory in which the `Experiment`'s results and
+    #'   visualizations are saved.
+    #'
+    #' @return The relative path to where the `Experiment`'s results and
+    #'   visualizations are saved.
     get_save_dir = function() {
       return(private$.save_dir)
     },
+
+    #' @description Set the directory in which the `Experiment`'s results and
+    #'   visualizations are saved.
+    #'
+    #' @param save_dir The directory in which the `Experiment`'s results
+    #'   will be saved.
+    #'
+    #' @return The `Experiment` object, invisibly.
     set_save_dir = function(save_dir) {
       private$.save_dir <- R.utils::getAbsolutePath(save_dir)
       invisible(self)
     },
+
+    #' @description Save the `Experiment` object to a .rds file under the
+    #'   `Experiment`'s results directory (see [get_save_dir()]).
+    #'
+    #' @return The `Experiment` object, invisibly.
     save = function() {
       if (!private$.has_vary_across()) {
         save_dir <- private$.save_dir
@@ -1520,10 +1980,21 @@ Experiment <- R6::R6Class(
       saveRDS(self, file.path(save_dir, "experiment.rds"))
       invisible(self)
     },
+
+    #' @description Export all cached `Visualizer` results from an
+    #'   `Experiment` to images in the `viz_results/` directory under the
+    #'   `Experiment`'s results directory (see [get_save_dir()]).
+    #'
+    #' @param device See `device` argument of [ggplot2::ggsave()].
+    #' @param width See `width` argument of [ggplot2::ggsave()].
+    #' @param height See `height` argument of [ggplot2::ggsave()].
+    #' @param ... Additional arguments to pass to [ggplot2::ggsave()].
+    #'
+    #' @return The `Experiment` object, invisibly.
     export_visualizers = function(device = "pdf", width = "auto", height = "auto",
-                                ...) {
+                                  ...) {
       rlang::check_installed("ggplot2",
-                             reason = "to export visualizers to image.")
+        reason = "to export visualizers to image.")
       viz_list <- self$get_visualizers()
       if (length(viz_list) == 0) {
         return(invisible(self))
@@ -1552,9 +2023,9 @@ Experiment <- R6::R6Class(
         fname <- file.path(save_dir, sprintf("%s.%s", viz_name, device))
         tryCatch({
           do.call(ggplot2::ggsave,
-                  args = c(list(filename = fname,
-                                plot = viz_results[[viz_name]]),
-                           ggsave_args))
+            args = c(list(filename = fname,
+              plot = viz_results[[viz_name]]),
+              ggsave_args))
         }, error = function(err) {
           rlang::warn(sprintf(
             "Could not save %s as image using ggplot2::ggsave.", viz_name
@@ -1566,22 +2037,28 @@ Experiment <- R6::R6Class(
       }
       invisible(self)
     },
+
+    #' @description Print the `Experiment` in a nice format, showing the
+    #'   `DGP`, `Method`, `Evaluator`, `Visualizers`, and varied parameters
+    #'   involved in the `Experiment`.
+    #'
+    #' @return The original `Experiment` object, invisibly.
     print = function() {
       cat("Experiment Name:", self$name, "\n")
       cat("   Saved results at:",
-          R.utils::getRelativePath(private$.save_dir), "\n")
+        R.utils::getRelativePath(private$.save_dir), "\n")
       cat("   DGPs:",
-          paste(names(private$.get_obj_list("dgp")),
-                sep = "", collapse = ", "), "\n")
+        paste(names(private$.get_obj_list("dgp")),
+          sep = "", collapse = ", "), "\n")
       cat("   Methods:",
-          paste(names(private$.get_obj_list("method")),
-                sep = "", collapse = ", "), "\n")
+        paste(names(private$.get_obj_list("method")),
+          sep = "", collapse = ", "), "\n")
       cat("   Evaluators:",
-          paste(names(private$.get_obj_list("evaluator")),
-                sep = "", collapse = ", "), "\n")
+        paste(names(private$.get_obj_list("evaluator")),
+          sep = "", collapse = ", "), "\n")
       cat("   Visualizers:",
-          paste(names(private$.get_obj_list("visualizer")),
-                sep = "", collapse = ", "), "\n")
+        paste(names(private$.get_obj_list("visualizer")),
+          sep = "", collapse = ", "), "\n")
       cat("   Vary Across: ")
       if (!private$.has_vary_across()) {
         cat("None\n")
@@ -1596,7 +2073,7 @@ Experiment <- R6::R6Class(
           for (param_name in names(vary_across_list$dgp[[dgp]])) {
             cat(paste0("         ", param_name, ": "))
             cat(str(vary_across_list$dgp[[dgp]][[param_name]],
-                    indent.str = "           ", no.list = F))
+              indent.str = "           ", no.list = F))
           }
         }
         for (method in names(vary_across_list$method)) {
@@ -1604,7 +2081,7 @@ Experiment <- R6::R6Class(
           for (param_name in names(vary_across_list$method[[method]])) {
             cat(paste0("         ", param_name, ": "))
             cat(str(vary_across_list$method[[method]][[param_name]],
-                    indent.str = "           ", no.list = F))
+              indent.str = "           ", no.list = F))
           }
         }
       }
