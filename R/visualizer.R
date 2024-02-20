@@ -293,8 +293,8 @@ create_visualizer <- function(.viz_fun, .name = NULL, .doc_options = list(),
 #' }
 #'
 #' reject_prob_plot <- Visualizer$new(.viz_fun = reject_prob_plot_fun,
-#'                                    .name = "Rejection Prob. (alpha = 0.1) Plot",
-#'                                    eval_name = "Rejection Prob. (alpha = 0.1)")
+#'                                    .name = "Rejection Prob (alpha = 0.05) Plot",
+#'                                    eval_name = "Rejection Prob (alpha = 0.05)")
 #'
 #' reject_prob_plot$visualize(
 #'   fit_results = fit_results, eval_results = eval_results, vary_params = "rho"
