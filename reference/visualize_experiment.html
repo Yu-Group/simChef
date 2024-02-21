@@ -203,13 +203,13 @@ other than user-defined function error debugging information.</p></dd>
 <span class="r-in"><span><span class="co"># run experiment with 2 replicates</span></span></span>
 <span class="r-in"><span><span class="va">results</span> <span class="op">&lt;-</span> <span class="fu"><a href="run_experiment.html">run_experiment</a></span><span class="op">(</span><span class="va">experiment</span>, n_reps <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Fitting Experiment Name...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 2 reps completed (totals: 2/2) | time taken: 0.042349 minutes</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 2 reps completed (totals: 2/2) | time taken: 0.043540 minutes</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ==============================</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Evaluating Experiment Name...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Evaluation completed | time taken: 0.000093 minutes</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ==============================</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Visualizing Experiment Name...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Visualization completed | time taken: 0.000043 minutes</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Visualization completed | time taken: 0.000044 minutes</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ==============================</span>
 <span class="r-in"><span><span class="co"># uncomment below to view results</span></span></span>
 <span class="r-in"><span><span class="co"># results</span></span></span>
@@ -222,13 +222,13 @@ other than user-defined function error debugging information.</p></dd>
 <span class="r-in"><span><span class="co"># run vary-across experiment with 2 replicates</span></span></span>
 <span class="r-in"><span><span class="va">results</span> <span class="op">&lt;-</span> <span class="fu"><a href="run_experiment.html">run_experiment</a></span><span class="op">(</span><span class="va">experiment</span>, n_reps <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Fitting Experiment Name...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 2 reps completed (totals: 2/2) | time taken: 0.070814 minutes</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 2 reps completed (totals: 2/2) | time taken: 0.073120 minutes</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ==============================</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Evaluating Experiment Name...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Evaluation completed | time taken: 0.000101 minutes</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Evaluation completed | time taken: 0.000103 minutes</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ==============================</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Visualizing Experiment Name...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Visualization completed | time taken: 0.000067 minutes</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Visualization completed | time taken: 0.000069 minutes</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ==============================</span>
 <span class="r-in"><span><span class="co"># uncomment below to view results</span></span></span>
 <span class="r-in"><span><span class="co"># results</span></span></span>
@@ -236,15 +236,15 @@ other than user-defined function error debugging information.</p></dd>
 <span class="r-in"><span><span class="co"># `run_experiment()` above is equivalent to the following sequence of calls</span></span></span>
 <span class="r-in"><span><span class="va">fit_results</span> <span class="op">&lt;-</span> <span class="fu"><a href="fit_experiment.html">fit_experiment</a></span><span class="op">(</span><span class="va">experiment</span>, n_reps <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Fitting Experiment Name...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 2 reps completed (totals: 2/2) | time taken: 0.070765 minutes</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 2 reps completed (totals: 2/2) | time taken: 0.073089 minutes</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ==============================</span>
 <span class="r-in"><span><span class="va">eval_results</span> <span class="op">&lt;-</span> <span class="fu"><a href="evaluate_experiment.html">evaluate_experiment</a></span><span class="op">(</span><span class="va">experiment</span>, <span class="va">fit_results</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Evaluating Experiment Name...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Evaluation completed | time taken: 0.000102 minutes</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Evaluation completed | time taken: 0.000104 minutes</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ==============================</span>
 <span class="r-in"><span><span class="va">viz_results</span> <span class="op">&lt;-</span> <span class="fu">visualize_experiment</span><span class="op">(</span><span class="va">experiment</span>, <span class="va">fit_results</span>, <span class="va">eval_results</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Visualizing Experiment Name...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Visualization completed | time taken: 0.000068 minutes</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Visualization completed | time taken: 0.000069 minutes</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ==============================</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># generate data from all DGPs (and vary across components) in experiment</span></span></span>

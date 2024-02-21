@@ -119,13 +119,106 @@ use the default metrics in <code><a href="https://yardstick.tidymodels.org/refer
 
 <dt>show</dt>
 <dd><p>Character vector with elements being one of "boxplot", "point",
-"line", "bar", "errorbar", "ribbon" indicating what plot layer(s) to
-construct.</p></dd>
+"line", "bar", "errorbar", "ribbon", "violin", indicating what plot
+layer(s) to construct.</p></dd>
 
 
 <dt>...</dt>
-<dd><p>Additional arguments to pass to
-<code><a href="plot_eval_constructor.html">plot_eval_constructor()</a></code>.</p></dd>
+<dd><p>Arguments passed on to <code><a href="plot_eval_constructor.html">plot_eval_constructor</a></code></p><dl><dt><code>eval_id</code></dt>
+<dd><p>(Optional) Character string. ID used as the suffix for naming
+columns in evaluation results tibble. If <code>eval_summary_constructor()</code>
+was used to construct the <code>Evaluator</code>, this should be the same as the
+<code>eval_id</code> argument in <code>eval_summary_constructor()</code>. Only used to
+assign default (i.e., "auto") aesthetics in ggplot.</p></dd>
+
+    <dt><code>x_str</code></dt>
+<dd><p>(Optional) Name of column in data frame to plot on the
+x-axis. Default "auto" chooses what to plot on the x-axis automatically.</p></dd>
+
+    <dt><code>y_str</code></dt>
+<dd><p>(Optional) Name of column in data frame to plot on the
+y-axis if <code>show</code> is anything but "boxplot". Default "auto" chooses
+what to plot on the y-axis automatically.</p></dd>
+
+    <dt><code>y_boxplot_str</code></dt>
+<dd><p>(Optional) Name of column in data frame to plot on
+the y-axis if <code>show</code> is "boxplot". Default "auto" chooses
+what to plot on the y-axis automatically.</p></dd>
+
+    <dt><code>err_sd_str</code></dt>
+<dd><p>(Optional) Name of column in data frame containing the
+standard deviations of <code>y_str</code>. Used for plotting the errorbar and
+ribbon ggplot layers. Default "auto" chooses what column to use for the
+standard deviations automatically.</p></dd>
+
+    <dt><code>color_str</code></dt>
+<dd><p>(Optional) Name of column in data frame to use for the
+color and fill aesthetics when plotting. Default "auto" chooses what to
+use for the color and fill aesthetics automatically. Use <code>NULL</code> to
+avoid adding any color and fill aesthetic.</p></dd>
+
+    <dt><code>linetype_str</code></dt>
+<dd><p>(Optional) Name of column in data frame to use for
+the linetype aesthetic when plotting. Used only when <code>show = "line"</code>.
+Default "auto" chooses what to use for the linetype aesthetic
+automatically. Use <code>NULL</code> to avoid adding any linetype aesthetic.</p></dd>
+
+    <dt><code>facet_formula</code></dt>
+<dd><p>(Optional) Formula for <code><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">ggplot2::facet_wrap()</a></code> or
+<code><a href="https://ggplot2.tidyverse.org/reference/facet_grid.html" class="external-link">ggplot2::facet_grid()</a></code> if need be.</p></dd>
+
+    <dt><code>facet_type</code></dt>
+<dd><p>One of "grid" or "wrap" specifying whether to use
+<code><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">ggplot2::facet_wrap()</a></code> or <code><a href="https://ggplot2.tidyverse.org/reference/facet_grid.html" class="external-link">ggplot2::facet_grid()</a></code> if need be.</p></dd>
+
+    <dt><code>plot_by</code></dt>
+<dd><p>(Optional) Name of column in <code>eval_tib</code> to use for
+subsetting data and creating different plots for each unique value. Default
+"auto" chooses what column to use for the subsetting automatically. Use
+<code>NULL</code> to avoid creating multiple plots.</p></dd>
+
+    <dt><code>add_ggplot_layers</code></dt>
+<dd><p>List of additional layers to add to a ggplot object
+via <code>+</code>.</p></dd>
+
+    <dt><code>boxplot_args</code></dt>
+<dd><p>(Optional) Additional arguments to pass into
+<code><a href="https://ggplot2.tidyverse.org/reference/geom_boxplot.html" class="external-link">ggplot2::geom_boxplot()</a></code>.</p></dd>
+
+    <dt><code>point_args</code></dt>
+<dd><p>(Optional) Additional arguments to pass into
+<code><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">ggplot2::geom_point()</a></code>.</p></dd>
+
+    <dt><code>line_args</code></dt>
+<dd><p>(Optional) Additional arguments to pass into
+<code><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">ggplot2::geom_line()</a></code>.</p></dd>
+
+    <dt><code>bar_args</code></dt>
+<dd><p>(Optional) Additional arguments to pass into
+<code><a href="https://ggplot2.tidyverse.org/reference/geom_bar.html" class="external-link">ggplot2::geom_bar()</a></code>.</p></dd>
+
+    <dt><code>errorbar_args</code></dt>
+<dd><p>(Optional) Additional arguments to pass into
+<code><a href="https://ggplot2.tidyverse.org/reference/geom_linerange.html" class="external-link">ggplot2::geom_errorbar()</a></code>.</p></dd>
+
+    <dt><code>ribbon_args</code></dt>
+<dd><p>(Optional) Additional arguments to pass into
+<code><a href="https://ggplot2.tidyverse.org/reference/geom_ribbon.html" class="external-link">ggplot2::geom_ribbon()</a></code>.</p></dd>
+
+    <dt><code>violin_args</code></dt>
+<dd><p>(Optional) Additional arguments to pass into
+<code><a href="https://ggplot2.tidyverse.org/reference/geom_violin.html" class="external-link">ggplot2::geom_violin()</a></code>.</p></dd>
+
+    <dt><code>facet_args</code></dt>
+<dd><p>(Optional) Additional arguments to pass into
+<code><a href="https://ggplot2.tidyverse.org/reference/facet_grid.html" class="external-link">ggplot2::facet_grid()</a></code> or <code><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">ggplot2::facet_wrap()</a></code>.</p></dd>
+
+    <dt><code>interactive</code></dt>
+<dd><p>Logical. If <code>TRUE</code>, returns interactive <code>plotly</code>
+plots. If <code>FALSE</code>, returns static <code>ggplot</code> plots.</p></dd>
+
+  
+</dl></dd>
 
 </dl></div>
     <div class="section level2">

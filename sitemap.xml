@@ -76,6 +76,9 @@
     <loc>https://yu-group.github.io/simChef/reference/check_results_names.html</loc>
   </url>
   <url>
+    <loc>https://yu-group.github.io/simChef/reference/class_metric_vec_constructor.html</loc>
+  </url>
+  <url>
     <loc>https://yu-group.github.io/simChef/reference/clean_up_worker_env.html</loc>
   </url>
   <url>
@@ -236,9 +239,6 @@
   </url>
   <url>
     <loc>https://yu-group.github.io/simChef/reference/load_all.html</loc>
-  </url>
-  <url>
-    <loc>https://yu-group.github.io/simChef/reference/metric_vec_constructor.html</loc>
   </url>
   <url>
     <loc>https://yu-group.github.io/simChef/reference/neg.html</loc>
