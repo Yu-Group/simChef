@@ -10,6 +10,7 @@ set_doc_options(
   field_name = c("evaluator", "visualizer"),
   name,
   show = NULL,
+  nrows,
   ...
 )
 }
@@ -22,8 +23,13 @@ set_doc_options(
 options.}
 
 \item{show}{If \code{TRUE}, show output; if \code{FALSE}, hide output in
-R Markdown report. Default \code{NULL} does not change the "show" field
+R Markdown report. Default \code{NULL} does not change the "doc_show" field
 in \code{Evaluator}/\code{Visualizer}.}
+
+\item{nrows}{Maximum number of rows to show in the \code{Evaluator}'s results
+table in the R Markdown report. If \code{NULL}, shows all rows. Default does
+not change the "doc_nrows" field in the \code{Evaluator}. Argument is
+ignored if \code{field_name = "visualizer"}.}
 
 \item{...}{Named R Markdown options to set. If \code{field_name = "visualizer"},
 options are "height" and "width". If \code{field_name = "evaluator"},

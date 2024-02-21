@@ -243,6 +243,8 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
       add_evaluator(evaluator4, "Evaluator (no show)") %>%
       set_doc_options(field_name = "evaluator", name = "Evaluator (digits = 4)",
                       digits = 4) %>%
+      set_doc_options(field_name = "evaluator", name = "Evaluator (digits = 4)",
+                      nrows = 10) %>%
       set_doc_options(field_name = "evaluator", name = "Evaluator (no show)",
                       show = FALSE) %>%
       add_visualizer(visualizer1, "Visualizer (height = 6)") %>%
@@ -267,6 +269,8 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
     expect_equal(purrr::map_dbl(experiment$get_evaluators(),
                                 ~.x$doc_options$digits),
                  c(2, 3, 4, 2) %>% setNames(names(experiment$get_evaluators())))
+    expect_equal(purrr::map(experiment$get_evaluators(), "doc_nrows"),
+                 list(NULL, NULL, 10, NULL) %>% setNames(names(experiment$get_evaluators())))
     expect_equal(purrr::map_lgl(experiment$get_visualizers(), "doc_show"),
                  c(T, T, T, F) %>% setNames(names(experiment$get_visualizers())))
     expect_equal(purrr::map_dbl(experiment$get_visualizers(),

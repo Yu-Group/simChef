@@ -940,7 +940,7 @@ Set R Markdown options for \code{Evaluator} or \code{Visualizer}
 outputs in the summary report. Some options include the height/width of
 plots and number of digits to show in tables.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Experiment$set_doc_options(field_name, name, show = NULL, ...)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Experiment$set_doc_options(field_name, name, show = NULL, nrows, ...)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -952,8 +952,13 @@ plots and number of digits to show in tables.
 options.}
 
 \item{\code{show}}{If \code{TRUE}, show output; if \code{FALSE}, hide output in
-R Markdown report. Default \code{NULL} does not change the "show" field
+R Markdown report. Default \code{NULL} does not change the "doc_show" field
 in \code{Evaluator}/\code{Visualizer}.}
+
+\item{\code{nrows}}{Maximum number of rows to show in the \code{Evaluator}'s results
+table in the R Markdown report. If \code{NULL}, shows all rows. Default does
+not change the "doc_nrows" field in the \code{Evaluator}. Argument is
+ignored if \code{field_name = "visualizer"}.}
 
 \item{\code{...}}{Named R Markdown options to set. If \code{field_name = "visualizer"},
 options are "height" and "width". If \code{field_name = "evaluator"},

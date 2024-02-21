@@ -1057,6 +1057,7 @@ save_experiment(experiment)
 ```
 
 To hide the output of an `Evaluator` or `Visualizer` in the R Markdown report, use `set_doc_options(show = FALSE, ...)` or `create_*(.doc_show = FALSE, ...)`.
+Moreover, for an `Evaluator`, the maximum number of rows to display in the R Markdown report can be set via `set_doc_options(nrows = 10, ...)` or `create_*(.doc_nrows = 10, ...)`.
 Note that if document options are set after running the experiment, the experiment must be manually saved via `save_experiment(experiment)` in order for these changes to appear in the R Markdown output.
 
 ## Customizing aesthetics of R Markdown documentation
