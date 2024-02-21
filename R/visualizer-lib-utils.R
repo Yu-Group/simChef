@@ -16,7 +16,6 @@
 #' @param show Character vector with elements being one of "boxplot", "point",
 #'   "line", "bar", "errorbar", "ribbon", "violin", indicating what plot
 #'   layer(s) to construct.
-#' @param ... Additional arguments to pass to \code{plot_eval_constructor()}.
 #'
 #' @keywords internal
 NULL

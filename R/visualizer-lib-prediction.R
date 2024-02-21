@@ -5,6 +5,8 @@
 #' 
 #' @inheritParams shared_experiment_helpers_args
 #' @inheritParams shared_viz_lib_args
+#' @inheritDotParams plot_eval_constructor -eval_results -eval_names -plot_data
+#'   -vary_params -show
 #' @param metrics A \code{metric_set} object indicating the metrics to plot.
 #'   See [yardstick::metric_set()] for more details. Default \code{NULL} will
 #'   use the default metrics in [yardstick::metrics()].
@@ -100,6 +102,8 @@ plot_pred_err <- function(fit_results = NULL,
 #' 
 #' @inheritParams shared_experiment_helpers_args
 #' @inheritParams shared_viz_lib_args
+#' @inheritDotParams plot_eval_constructor -eval_results -eval_names -plot_data
+#'   -vary_params -show
 #' 
 #' @inherit plot_eval_constructor return
 #' 

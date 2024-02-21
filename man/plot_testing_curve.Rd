@@ -39,10 +39,66 @@ is not \code{NULL}, this argument is ignored.}
 Precision-Recall curve.}
 
 \item{show}{Character vector with elements being one of "boxplot", "point",
-"line", "bar", "errorbar", "ribbon" indicating what plot layer(s) to
-construct.}
+"line", "bar", "errorbar", "ribbon", "violin", indicating what plot
+layer(s) to construct.}
 
-\item{...}{Not used.}
+\item{...}{
+  Arguments passed on to \code{\link[=plot_eval_constructor]{plot_eval_constructor}}
+  \describe{
+    \item{\code{eval_id}}{(Optional) Character string. ID used as the suffix for naming
+columns in evaluation results tibble. If \code{eval_summary_constructor()}
+was used to construct the \code{Evaluator}, this should be the same as the
+\code{eval_id} argument in \code{eval_summary_constructor()}. Only used to
+assign default (i.e., "auto") aesthetics in ggplot.}
+    \item{\code{x_str}}{(Optional) Name of column in data frame to plot on the
+x-axis. Default "auto" chooses what to plot on the x-axis automatically.}
+    \item{\code{y_str}}{(Optional) Name of column in data frame to plot on the
+y-axis if \code{show} is anything but "boxplot". Default "auto" chooses
+what to plot on the y-axis automatically.}
+    \item{\code{y_boxplot_str}}{(Optional) Name of column in data frame to plot on
+the y-axis if \code{show} is "boxplot". Default "auto" chooses
+what to plot on the y-axis automatically.}
+    \item{\code{err_sd_str}}{(Optional) Name of column in data frame containing the
+standard deviations of \code{y_str}. Used for plotting the errorbar and
+ribbon ggplot layers. Default "auto" chooses what column to use for the
+standard deviations automatically.}
+    \item{\code{color_str}}{(Optional) Name of column in data frame to use for the
+color and fill aesthetics when plotting. Default "auto" chooses what to
+use for the color and fill aesthetics automatically. Use \code{NULL} to
+avoid adding any color and fill aesthetic.}
+    \item{\code{linetype_str}}{(Optional) Name of column in data frame to use for
+the linetype aesthetic when plotting. Used only when \code{show = "line"}.
+Default "auto" chooses what to use for the linetype aesthetic
+automatically. Use \code{NULL} to avoid adding any linetype aesthetic.}
+    \item{\code{facet_formula}}{(Optional) Formula for \code{ggplot2::facet_wrap()} or
+\code{ggplot2::facet_grid()} if need be.}
+    \item{\code{facet_type}}{One of "grid" or "wrap" specifying whether to use
+\code{ggplot2::facet_wrap()} or \code{ggplot2::facet_grid()} if need be.}
+    \item{\code{plot_by}}{(Optional) Name of column in \code{eval_tib} to use for
+subsetting data and creating different plots for each unique value. Default
+"auto" chooses what column to use for the subsetting automatically. Use
+\code{NULL} to avoid creating multiple plots.}
+    \item{\code{add_ggplot_layers}}{List of additional layers to add to a ggplot object
+via \code{+}.}
+    \item{\code{boxplot_args}}{(Optional) Additional arguments to pass into
+\code{ggplot2::geom_boxplot()}.}
+    \item{\code{point_args}}{(Optional) Additional arguments to pass into
+\code{ggplot2::geom_point()}.}
+    \item{\code{line_args}}{(Optional) Additional arguments to pass into
+\code{ggplot2::geom_line()}.}
+    \item{\code{bar_args}}{(Optional) Additional arguments to pass into
+\code{ggplot2::geom_bar()}.}
+    \item{\code{errorbar_args}}{(Optional) Additional arguments to pass into
+\code{ggplot2::geom_errorbar()}.}
+    \item{\code{ribbon_args}}{(Optional) Additional arguments to pass into
+\code{ggplot2::geom_ribbon()}.}
+    \item{\code{violin_args}}{(Optional) Additional arguments to pass into
+\code{ggplot2::geom_violin()}.}
+    \item{\code{facet_args}}{(Optional) Additional arguments to pass into
+\code{ggplot2::facet_grid()} or \code{ggplot2::facet_wrap()}.}
+    \item{\code{interactive}}{Logical. If \code{TRUE}, returns interactive \code{plotly}
+plots. If \code{FALSE}, returns static \code{ggplot} plots.}
+  }}
 }
 \value{
 If \code{interactive = TRUE}, returns a \code{plotly} object if

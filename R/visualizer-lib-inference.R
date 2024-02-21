@@ -5,6 +5,8 @@
 #'   bars. 
 #' 
 #' @inheritParams plot_pred_err
+#' @inheritDotParams plot_eval_constructor -eval_results -eval_names -plot_data
+#'   -vary_params -show
 #' 
 #' @inherit plot_eval_constructor return
 #' 
@@ -89,6 +91,8 @@ plot_testing_err <- function(fit_results = NULL,
 #'   p-values or some summary thereof across experimental replicates.
 #' 
 #' @inheritParams plot_pred_curve
+#' @inheritDotParams plot_eval_constructor -eval_results -eval_names -plot_data
+#'   -vary_params -show
 #' 
 #' @inherit plot_eval_constructor return
 #' 
@@ -193,6 +197,8 @@ plot_testing_curve <- function(fit_results = NULL,
 #' @inheritParams shared_experiment_helpers_args
 #' @inheritParams shared_viz_lib_args
 #' @inheritParams eval_reject_prob
+#' @inheritDotParams plot_eval_constructor -eval_results -eval_names -plot_data
+#'   -vary_params -show
 #' @param show_features Vector of feature names corresponding to features to
 #'   display in the plot. If \code{NULL} (default), shows all features in the
 #'   data.
