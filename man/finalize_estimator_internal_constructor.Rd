@@ -2,13 +2,13 @@
 % Please edit documentation in R/evaluator-lib-utils.R
 \name{finalize_estimator_internal_constructor}
 \alias{finalize_estimator_internal_constructor}
-\title{Helper function for constructing \code{finalize_esitmator_internal} for
-custom \code{yardstick} metrics.}
+\title{Helper function for constructing \code{finalize_estimator_internal} for
+custom \code{yardstick} metrics that are restricted to binary estimators.}
 \usage{
 finalize_estimator_internal_constructor(metric_dispatcher, x, estimator)
 }
 \description{
-Helper function for constructing \code{finalize_esitmator_internal} for
-custom \code{yardstick} metrics.
+Helper function for constructing \code{finalize_estimator_internal} for
+custom \code{yardstick} metrics that are restricted to binary estimators.
 }
 \keyword{internal}
