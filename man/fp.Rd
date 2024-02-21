@@ -79,3 +79,15 @@ For \code{fp_vec()}, a single \code{numeric} value (or \code{NA}).
 These functions calculate the \code{\link[=fp]{fp()}} (number of false positives)
 of a measurement system compared to the reference results (the "truth").
 }
+\examples{
+# Two class example data
+two_class_example <- data.frame(
+  truth = as.factor(sample(c("Class1", "Class2"), 100, replace = TRUE)),
+  predicted = as.factor(sample(c("Class1", "Class2"), 100, replace = TRUE))
+)
+
+# Compute number of false positives
+fp(two_class_example, truth = truth, estimate = predicted)
+fp_vec(two_class_example$truth, two_class_example$predicted)
+
+}

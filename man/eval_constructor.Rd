@@ -16,10 +16,10 @@ eval_constructor(
 )
 }
 \arguments{
-\item{fit_results}{A tibble, as returned by the \code{fit} method.}
+\item{fit_results}{A tibble, as returned by \code{\link[=fit_experiment]{fit_experiment()}}.}
 
-\item{vary_params}{A vector of parameter names that are varied across in the
-\code{Experiment}.}
+\item{vary_params}{A vector of \code{DGP} or \code{Method} parameter names that are
+varied across in the \code{Experiment}.}
 
 \item{fun}{Function to compute for each row in \code{fit_results}. This
 function can take in the following optional arguments: (1) \code{data} =
@@ -47,4 +47,31 @@ should be stripped before the computation proceeds.}
 Helper function for developing a new \code{Evaluator}
 that evaluates some function (e.g., metric) for each row in
 \code{fit_results}.
+}
+\examples{
+# generate example fit_results data for a regression problem
+fit_results <- tibble::tibble(
+  .rep = rep(1:2, times = 2),
+  .dgp_name = c("DGP1", "DGP1", "DGP2", "DGP2"),
+  .method_name = c("Method"),
+  # true response
+  y = lapply(1:4, FUN = function(x) rnorm(100)),
+  # predicted response
+  predictions = lapply(1:4, FUN = function(x) rnorm(100))
+)
+
+# evaluate root mean squared error for each row in fit_results
+rmse_fun <- function(data, truth_col, estimate_col, na_rm = TRUE) {
+  yardstick::rmse_vec(
+    data[[truth_col]], data[[estimate_col]], na_rm = na_rm
+  )
+}
+eval_results <- eval_constructor(
+  fit_results = fit_results,
+  fun = rmse_fun,
+  truth_col = "y",
+  estimate_col = "predictions"
+) \%>\%
+  tidyr::unnest(.eval_result)
+
 }

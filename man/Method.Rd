@@ -3,25 +3,172 @@
 \docType{class}
 \name{Method}
 \alias{Method}
-\title{\code{R6} class representing a method.}
+\title{\code{R6} class representing a method}
 \description{
-A method to be \strong{fit} and assessed in the \code{Experiment}.
+\code{Method} which can \code{fit()} data in an \link{Experiment}.
+
+Generally speaking, users won't directly interact with the \code{Method} R6
+class, but instead indirectly through \code{\link[=create_method]{create_method()}} and the
+following \code{Experiment} helpers:
+\itemize{
+\item \code{\link[=add_method]{add_method()}}
+\item \code{\link[=update_method]{update_method()}}
+\item \code{\link[=remove_method]{remove_method()}}
+\item \code{\link[=get_methods]{get_methods()}}
+\item \code{\link[=fit_experiment]{fit_experiment()}}
+}
+}
+\examples{
+# generate some data
+dgp_fun <- function(n, beta, rho, sigma) {
+  cov_mat <- matrix(c(1, rho, rho, 1), byrow = TRUE, nrow = 2, ncol = 2)
+  X <- MASS::mvrnorm(n = n, mu = rep(0, 2), Sigma = cov_mat)
+  y <- X \%*\% beta + rnorm(n, sd = sigma)
+  return(list(X = X, y = y))
+}
+
+dgp <- create_dgp(.dgp_fun = dgp_fun,
+                  .name = "Linear Gaussian DGP",
+                  n = 50, beta = c(1, 0), rho = 0, sigma = 1)
+data_corr <- dgp$generate(rho = 0.7)
+
+# create an example Method function
+lm_fun <- function(X, y, cols) {
+  X <- X[, cols]
+  lm_fit <- lm(y ~ X)
+  pvals <- summary(lm_fit)$coefficients[-1, "Pr(>|t|)"] \%>\%
+    setNames(paste(names(.), "p-value"))
+  return(pvals)
+}
+
+# create Method with default argument `cols`
+lm_method <- Method$new(
+  .method_fun = lm_fun,
+  .name = "OLS",
+  cols = c(1, 2)
+)
+
+print(lm_method)
+
+# fit the Method on data with non-default arguments
+lm_method$fit(data_corr, cols = 2)
+
+# fit the Method on data with default arguments
+lm_method$fit(data_corr)
+
+}
+\seealso{
+\link{create_method}
 }
 \section{Public fields}{
-
-
+\if{html}{\out{<div class="r6-fields">}}
 \describe{
 \item{\code{name}}{The name of the \code{Method}.}
-\item{\code{method_fun}}{The data-generating process function.}
-\item{\code{method_params}}{(Named) list of parameters to input into the data-generating process function.}
+
+\item{\code{method_fun}}{The user-defined method function.}
+
+\item{\code{method_params}}{A (named) list of default parameters to input into
+the method function.}
 }
+\if{html}{\out{</div>}}
 }
-
-\section{Public methods}{
-
-
+\section{Methods}{
+\subsection{Public methods}{
 \itemize{
-\item{\code{Method$new()}} See \link{create_method}.
+\item \href{#method-Method-new}{\code{Method$new()}}
+\item \href{#method-Method-fit}{\code{Method$fit()}}
+\item \href{#method-Method-print}{\code{Method$print()}}
+\item \href{#method-Method-clone}{\code{Method$clone()}}
 }
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Method-new"></a>}}
+\if{latex}{\out{\hypertarget{method-Method-new}{}}}
+\subsection{Method \code{new()}}{
+Initialize a new \code{Method} object.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Method$new(.method_fun, .name = NULL, ...)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{.method_fun}}{The user-defined method function.}
+
+\item{\code{.name}}{(Optional) The name of the \code{Method}, helpful for later
+identification.}
+
+\item{\code{...}}{User-defined default arguments to pass into \code{.method_fun()}.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A new instance of \code{Method}.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Method-fit"></a>}}
+\if{latex}{\out{\hypertarget{method-Method-fit}{}}}
+\subsection{Method \code{fit()}}{
+Fit a \code{Method} on data using the provided \code{Method}
+parameters.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Method$fit(data_list, ..., .simplify = TRUE)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{data_list}}{List of data to pass into \code{Method$method_fun()}.
+If named, should match arguments in \code{Method$method_fun()}.}
+
+\item{\code{...}}{User-defined arguments to pass into \code{Method$method_fun()}
+that will overwrite the initialized \code{Method} parameters. If no
+additional arguments are provided, the \code{Method} will be fit using
+\code{Method$method_fun()} and the parameters that were set when
+\code{Method$new()} was called.}
+
+\item{\code{.simplify}}{If \code{TRUE}, remove list wrapping from any column that has
+scalar values.}
+
+\item{\code{method}}{A \code{Method} object.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+Result of \code{Method$method_fun()}, coerced into a single
+tibble row.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Method-print"></a>}}
+\if{latex}{\out{\hypertarget{method-Method-print}{}}}
+\subsection{Method \code{print()}}{
+Print a \code{Method} in a nice format, showing the
+\code{Method}'s name, function, and parameters.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Method$print()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+The original \code{Method} object, invisibly.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Method-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-Method-clone}{}}}
+\subsection{Method \code{clone()}}{
+The objects of this class are cloneable with this method.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Method$clone(deep = FALSE)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{deep}}{Whether to make a deep clone.}
+}
+\if{html}{\out{</div>}}
+}
+}
+}

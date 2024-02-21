@@ -33,10 +33,10 @@ summarize_feature_selection_curve(
 )
 }
 \arguments{
-\item{fit_results}{A tibble, as returned by the \code{fit} method.}
+\item{fit_results}{A tibble, as returned by \code{\link[=fit_experiment]{fit_experiment()}}.}
 
-\item{vary_params}{A vector of parameter names that are varied across in the
-\code{Experiment}.}
+\item{vary_params}{A vector of \code{DGP} or \code{Method} parameter names that are
+varied across in the \code{Experiment}.}
 
 \item{nested_cols}{(Optional) A character string or vector specifying the
 name of the column(s) in \code{fit_results} that need to be
@@ -144,14 +144,14 @@ fit_results <- tibble::tibble(
 
 # evaluate feature selection ROC/PR curves for each replicate
 roc_results <- eval_feature_selection_curve(
-  fit_results, 
+  fit_results,
   curve = "ROC",
   nested_cols = "feature_info",
   truth_col = "true_support",
   imp_col = "est_importance"
 )
 pr_results <- eval_feature_selection_curve(
-  fit_results, 
+  fit_results,
   curve = "PR",
   nested_cols = "feature_info",
   truth_col = "true_support",
@@ -159,14 +159,14 @@ pr_results <- eval_feature_selection_curve(
 )
 # summarize feature selection ROC/PR curves across replicates
 roc_summary <- summarize_feature_selection_curve(
-  fit_results, 
+  fit_results,
   curve = "ROC",
   nested_cols = "feature_info",
   truth_col = "true_support",
   imp_col = "est_importance"
 )
 pr_summary <- summarize_feature_selection_curve(
-  fit_results, 
+  fit_results,
   curve = "PR",
   nested_cols = "feature_info",
   truth_col = "true_support",

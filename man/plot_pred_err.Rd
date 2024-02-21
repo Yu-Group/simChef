@@ -17,10 +17,10 @@ plot_pred_err(
 )
 }
 \arguments{
-\item{fit_results}{A tibble, as returned by the \code{fit} method.}
+\item{fit_results}{A tibble, as returned by \code{\link[=fit_experiment]{fit_experiment()}}.}
 
-\item{eval_results}{A list of result tibbles, as returned by the
-\code{evaluate} method.}
+\item{eval_results}{A list of result tibbles, as returned by
+\code{\link[=evaluate_experiment]{evaluate_experiment()}}.}
 
 \item{eval_name}{Name of \code{Evaluator} containing results to plot. If
 \code{NULL}, the data used for plotting is computed from scratch via
@@ -32,8 +32,8 @@ is not \code{NULL}, this argument is ignored.}
 
 \item{eval_fun_options}{List of named arguments to pass to \code{eval_fun}.}
 
-\item{vary_params}{A vector of parameter names that are varied across in the
-\code{Experiment}.}
+\item{vary_params}{A vector of \code{DGP} or \code{Method} parameter names that are
+varied across in the \code{Experiment}.}
 
 \item{metrics}{A \code{metric_set} object indicating the metrics to plot.
 See \code{\link[yardstick:metric_set]{yardstick::metric_set()}} for more details. Default \code{NULL} will
@@ -144,7 +144,7 @@ plt <- plot_pred_err(fit_results = fit_results,
 # can customize plot (see plot_eval_constructor() for possible arguments)
 plt <- plot_pred_err(fit_results = fit_results, eval_results = eval_results,
                      eval_name = "Prediction Errors",
-                     show = c("point", "errorbar"), 
+                     show = c("point", "errorbar"),
                      color_str = NULL,
                      facet_formula = .method_name ~ .metric,
                      facet_type = "grid")

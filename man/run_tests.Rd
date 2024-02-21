@@ -11,3 +11,9 @@ run_tests()
 This function only works if the simulation study is set up as an R project
 and if it is run when this R project is active.
 }
+\examples{
+\dontrun{
+# run tests in the tests/ directory
+run_tests()}
+
+}

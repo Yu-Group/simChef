@@ -12,22 +12,22 @@ saved.}
 
 \item{evaluator}{An \code{Evaluator} object.}
 
-\item{eval_results}{A list of result tibbles, as returned by the
-\code{evaluate} method.}
+\item{eval_results}{A list of result tibbles, as returned by
+\code{\link[=evaluate_experiment]{evaluate_experiment()}}.}
 
 \item{experiment}{An \code{Experiment} object.}
 
-\item{fit_results}{A tibble, as returned by the \code{fit} method.}
+\item{fit_results}{A tibble, as returned by \code{\link[=fit_experiment]{fit_experiment()}}.}
 
 \item{future.globals}{Character vector of names in the global environment to
 pass to parallel workers. Passed as the argument of the same name to
-\code{future.apply::future_lapply} and related functions. To set for all
-runs of the experiment, use the same argument during initialization.}
+\code{future.apply::future_lapply} and related functions. To set for all runs of
+the experiment, use the same argument during initialization.}
 
 \item{future.packages}{Character vector of packages required by parallel
 workers. Passed as the argument of the same name to
-\code{future.apply::future_lapply} and related functions. To set for all
-runs of the experiment, use the same argument during initialization.}
+\code{future.apply::future_lapply} and related functions. To set for all runs of
+the experiment, use the same argument during initialization.}
 
 \item{future.seed}{Passed as the argument of the same name in
 \code{future.apply::future_apply}.}
@@ -38,16 +38,16 @@ runs of the experiment, use the same argument during initialization.}
 
 \item{parallel_strategy}{A vector with some combination of "reps", "dgps", or
 "methods". Determines how computation will be distributed across available
-resources. Default is "reps".}
+resources. Currently only the default, "reps", is supported.}
 
 \item{save}{If \code{TRUE}, save outputs to disk.}
 
 \item{use_cached}{Logical. If \code{TRUE}, find and return previously saved
-results. If cached results cannot be found, continue as if
-\code{use_cached} was \code{FALSE}.}
+results. If cached results cannot be found, continue as if \code{use_cached} was
+\code{FALSE}.}
 
-\item{vary_params}{A vector of parameter names that are varied across in the
-\code{Experiment}.}
+\item{vary_params}{A vector of \code{DGP} or \code{Method} parameter names that are
+varied across in the \code{Experiment}.}
 
 \item{verbose}{Level of verbosity. Default is 1, which prints out messages
 after major checkpoints in the experiment. If 2, prints additional

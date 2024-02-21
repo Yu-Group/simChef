@@ -1,17 +1,17 @@
 #' Plot testing error evaluation results according to various metrics.
-#' 
-#' @description Plot the raw or summarized testing errors as a 
-#'   boxplot, scatter plot, line plot, or bar plot with or without 1 SD error 
-#'   bars. 
-#' 
+#'
+#' @description Plot the raw or summarized testing errors as a
+#'   boxplot, scatter plot, line plot, or bar plot with or without 1 SD error
+#'   bars.
+#'
 #' @inheritParams plot_pred_err
 #' @inheritDotParams plot_eval_constructor -eval_results -eval_names -plot_data
 #'   -vary_params -show
 #' 
 #' @inherit plot_eval_constructor return
-#' 
+#'
 #' @family inference_funs
-#' 
+#'
 #' @examples
 #' # generate example fit_results data
 #' fit_results <- tibble::tibble(
@@ -23,26 +23,26 @@
 #'     FUN = function(i) {
 #'       tibble::tibble(
 #'         # feature names
-#'         feature = c("featureA", "featureB", "featureC"),  
+#'         feature = c("featureA", "featureB", "featureC"),
 #'         # true feature support
-#'         true_support = c(TRUE, FALSE, TRUE),  
+#'         true_support = c(TRUE, FALSE, TRUE),
 #'         # estimated p-values
 #'         pval = 10^(sample(-3:0, 3, replace = TRUE))
 #'       )
 #'     }
 #'   )
 #' )
-#' 
+#'
 #' # generate example eval_results data
 #' eval_results <- list(
 #'   `Testing Errors` = summarize_testing_err(
-#'     fit_results, 
+#'     fit_results,
 #'     nested_cols = "feature_info",
-#'     truth_col = "true_support", 
+#'     truth_col = "true_support",
 #'     pval_col = "pval"
 #'   )
 #' )
-#' 
+#'
 #' # create bar plot using pre-computed evaluation results
 #' plt <- plot_testing_err(eval_results = eval_results,
 #'                         eval_name = "Testing Errors",
@@ -54,19 +54,19 @@
 #'                           truth_col = "true_support",
 #'                           pval_col = "pval"
 #'                         ))
-#' 
+#'
 #' # can customize plot (see plot_eval_constructor() for possible arguments)
 #' plt <- plot_testing_err(eval_results = eval_results,
 #'                         eval_name = "Testing Errors",
 #'                         show = c("bar", "errorbar"),
 #'                         plot_by = ".alpha")
-#' 
+#'
 #' @export
 plot_testing_err <- function(fit_results = NULL,
                              eval_results = NULL, eval_name = NULL,
                              eval_fun = "summarize_testing_err",
                              eval_fun_options = NULL,
-                             vary_params = NULL, metrics = NULL, 
+                             vary_params = NULL, metrics = NULL,
                              show = c("point", "line", "errorbar"), ...) {
   arg_list <- get_dot_args(
     user_args = rlang::list2(...),
@@ -86,18 +86,18 @@ plot_testing_err <- function(fit_results = NULL,
 }
 
 #' Plot ROC/PR curves for feature rankings, ranked by p-values.
-#' 
-#' @description Plot ROC/PR curves for the feature rankings, ranked by their 
+#'
+#' @description Plot ROC/PR curves for the feature rankings, ranked by their
 #'   p-values or some summary thereof across experimental replicates.
-#' 
+#'
 #' @inheritParams plot_pred_curve
 #' @inheritDotParams plot_eval_constructor -eval_results -eval_names -plot_data
 #'   -vary_params -show
 #' 
 #' @inherit plot_eval_constructor return
-#' 
+#'
 #' @family inference_funs
-#' 
+#'
 #' @examples
 #' # generate example fit_results data
 #' fit_results <- tibble::tibble(
@@ -109,34 +109,34 @@ plot_testing_err <- function(fit_results = NULL,
 #'     FUN = function(i) {
 #'       tibble::tibble(
 #'         # feature names
-#'         feature = c("featureA", "featureB", "featureC"),  
+#'         feature = c("featureA", "featureB", "featureC"),
 #'         # true feature support
-#'         true_support = c(TRUE, FALSE, TRUE),  
+#'         true_support = c(TRUE, FALSE, TRUE),
 #'         # estimated p-values
 #'         pval = 10^(sample(-3:0, 3, replace = TRUE))
 #'       )
 #'     }
 #'   )
 #' )
-#' 
+#'
 #' # generate example eval_results data
 #' eval_results <- list(
 #'   `ROC` = summarize_testing_curve(
-#'     fit_results, 
+#'     fit_results,
 #'     curve = "ROC",
 #'     nested_cols = "feature_info",
-#'     truth_col = "true_support", 
+#'     truth_col = "true_support",
 #'     pval_col = "pval"
 #'   ),
 #'   `PR` = summarize_testing_curve(
-#'     fit_results, 
+#'     fit_results,
 #'     curve = "PR",
 #'     nested_cols = "feature_info",
-#'     truth_col = "true_support", 
+#'     truth_col = "true_support",
 #'     pval_col = "pval"
 #'   )
-#' ) 
-#' 
+#' )
+#'
 #' # create summary ROC/PR plots using pre-computed evaluation results
 #' roc_plt <- plot_testing_curve(eval_results = eval_results,
 #'                               eval_name = "ROC", curve = "ROC",
@@ -167,7 +167,7 @@ plot_testing_err <- function(fit_results = NULL,
 #'                               eval_name = "ROC", curve = "ROC",
 #'                               show = c("line", "ribbon"),
 #'                               plot_by = ".dgp_name")
-#' 
+#'
 #' @export
 plot_testing_curve <- function(fit_results = NULL,
                                eval_results = NULL, eval_name = NULL,
@@ -190,26 +190,26 @@ plot_testing_curve <- function(fit_results = NULL,
 }
 
 #' Plot the rejection probability of a hypothesis test.
-#' 
+#'
 #' @description Plot the probability of rejecting the null hypothesis
 #'   across various levels of significance.
-#' 
-#' @inheritParams shared_experiment_helpers_args
+#'
 #' @inheritParams shared_viz_lib_args
+#' @inheritParams shared_experiment_helpers_args
 #' @inheritParams eval_reject_prob
 #' @inheritDotParams plot_eval_constructor -eval_results -eval_names -plot_data
 #'   -vary_params -show
 #' @param show_features Vector of feature names corresponding to features to
-#'   display in the plot. If \code{NULL} (default), shows all features in the
+#'   display in the plot. If `NULL` (default), shows all features in the
 #'   data.
 #' @param show_identity_line Logical indicating whether or not to plot the
 #'   y = x line.
-#'   
+#'
 #' @inherit plot_eval_constructor return
 #'
 #' @family inference_funs
 #'
-#' @examples 
+#' @examples
 #' # generate example fit_results data
 #' fit_results <- tibble::tibble(
 #'   .rep = rep(1:2, times = 2),
@@ -220,20 +220,20 @@ plot_testing_curve <- function(fit_results = NULL,
 #'     FUN = function(i) {
 #'       tibble::tibble(
 #'         # feature names
-#'         feature = c("featureA", "featureB", "featureC"),  
+#'         feature = c("featureA", "featureB", "featureC"),
 #'         # estimated p-values
 #'         pval = 10^(sample(-3:0, 3, replace = TRUE))
 #'       )
 #'     }
 #'   )
 #' )
-#' 
+#'
 #' # generate example eval_results data
 #' eval_results <- list(
 #'   `Reject Prob.` = eval_reject_prob(
-#'     fit_results, 
+#'     fit_results,
 #'     nested_cols = "feature_info",
-#'     feature_col = "feature", 
+#'     feature_col = "feature",
 #'     pval_col = "pval"
 #'   )
 #' )
@@ -249,7 +249,7 @@ plot_testing_curve <- function(fit_results = NULL,
 #'                           nested_cols = "feature_info",
 #'                           pval_col = "pval"
 #'                         ))
-#' 
+#'
 #' # can customize plot (see plot_eval_constructor() for possible arguments)
 #' plt <- plot_reject_prob(eval_results = eval_results,
 #'                         eval_name = "Reject Prob.",

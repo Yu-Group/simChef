@@ -3,32 +3,289 @@
 \docType{class}
 \name{Visualizer}
 \alias{Visualizer}
-\title{\code{R6} class representing a visualizer.}
+\title{\code{R6} class representing a visualizer}
 \description{
-A visualizer (or visualization function) to \strong{visualize} the performance of
-methods and/or its evaluation metrics from the \code{Experiment} run.
+\code{Visualizer} which can \code{visualize()} outputs and/or evaluation
+metrics from \link{Experiment} runs.
+
+Generally speaking, users won't directly interact with the \code{Visualizer} R6
+class, but instead indirectly through \code{\link[=create_visualizer]{create_visualizer()}} and the
+following \code{Experiment} helpers:
+\itemize{
+\item \code{\link[=add_visualizer]{add_visualizer()}}
+\item \code{\link[=update_visualizer]{update_visualizer()}}
+\item \code{\link[=remove_visualizer]{remove_visualizer()}}
+\item \code{\link[=get_visualizers]{get_visualizers()}}
+\item \code{\link[=visualize_experiment]{visualize_experiment()}}
+}
+}
+\details{
+When visualizing or running the \code{Experiment} (see
+\code{\link[=visualize_experiment]{visualize_experiment()}} and \code{\link[=run_experiment]{run_experiment()}}), the named arguments
+\code{fit_results}, \code{eval_results}, and \code{vary_params} are automatically passed
+into the \code{Visualizer} function \code{.viz_fun()} and serve as placeholders for
+the \code{\link[=fit_experiment]{fit_experiment()}} results, the \code{\link[=evaluate_experiment]{evaluate_experiment()}} results, and
+the name of the varying parameter(s), respectively.
+
+To visualize the performance of a method's fit and/or its evaluation
+metrics then, the \code{Visualizer} function \code{.viz_fun()} should take in the
+named arguments \code{fit_results} and/or \code{eval_results}. See \code{\link[=fit_experiment]{fit_experiment()}}
+for details on the format of \code{fit_results}. See \code{\link[=evaluate_experiment]{evaluate_experiment()}} for
+details on the format of \code{eval_results}. If the \code{Visualizer} is used within
+an \code{Experiment} with varying parameters, \code{vary_params} should be used as a
+stand in for the name of this varying parameter(s).
+}
+\examples{
+# create DGP
+dgp_fun <- function(n, beta, rho, sigma) {
+  cov_mat <- matrix(c(1, rho, rho, 1), byrow = TRUE, nrow = 2, ncol = 2)
+  X <- MASS::mvrnorm(n = n, mu = rep(0, 2), Sigma = cov_mat)
+  y <- X \%*\% beta + rnorm(n, sd = sigma)
+  return(list(X = X, y = y))
+}
+dgp <- create_dgp(.dgp_fun = dgp_fun,
+                  .name = "Linear Gaussian DGP",
+                  n = 50, beta = c(1, 0), rho = 0, sigma = 1)
+
+# create Method
+lm_fun <- function(X, y, cols) {
+  X <- X[, cols]
+  lm_fit <- lm(y ~ X)
+  pvals <- summary(lm_fit)$coefficients[-1, "Pr(>|t|)"] \%>\%
+    setNames(paste(paste0("X", cols), "p-value"))
+  return(pvals)
+}
+lm_method <- create_method(
+  .method_fun = lm_fun,
+  .name = "OLS",
+  cols = c(1, 2)
+)
+
+# create an example Evaluator function
+reject_prob_fun <- function(fit_results, vary_params = NULL, alpha = 0.05) {
+  fit_results[is.na(fit_results)] <- 1
+  group_vars <- c(".dgp_name", ".method_name", vary_params)
+  eval_out <- fit_results \%>\%
+    dplyr::group_by(across({{group_vars}})) \%>\%
+    dplyr::summarise(
+      n_reps = dplyr::n(),
+      `X1 Reject Prob.` = mean(`X1 p-value` < alpha),
+      `X2 Reject Prob.` = mean(`X2 p-value` < alpha)
+    )
+  return(eval_out)
+}
+
+reject_prob_eval <- Evaluator$new(.eval_fun = reject_prob_fun,
+                                  .name = "Rejection Prob (alpha = 0.05)")
+
+# create Experiment
+experiment <- create_experiment() \%>\%
+  add_dgp(dgp) \%>\%
+  add_method(lm_method) \%>\%
+  add_evaluator(reject_prob_eval) \%>\%
+  add_vary_across(.dgp = dgp, rho = seq(0.91, 0.99, 0.02))
+
+fit_results <- fit_experiment(experiment, n_reps=10)
+eval_results <- evaluate_experiment(experiment, fit_results)
+
+# create an example Visualizer function which takes fit_results as input
+power_plot_fun <- function(fit_results, vary_params = NULL, col = "X1") {
+  if (is.list(fit_results[[vary_params]])) {
+    # deal with the case when we vary across a parameter that is vector-valued
+    fit_results[[vary_params]] <- list_col_to_chr(
+      fit_results[[vary_params]], name = vary_params, verbatim = TRUE
+    )
+  }
+  plt <- ggplot2::ggplot(fit_results) +
+    ggplot2::aes(x = .data[[paste(col, "p-value")]],
+                 color = as.factor(.method_name)) +
+    ggplot2::geom_abline(slope = 1, intercept = 0,
+                         color = "darkgray", linetype = "solid", linewidth = 1) +
+    ggplot2::stat_ecdf(size = 1) +
+    ggplot2::scale_x_continuous(limits = c(0, 1)) +
+    ggplot2::labs(x = "t", y = "P( p-value \u2264 t )",
+                  linetype = "", color = "Method")
+  if (!is.null(vary_params)) {
+    plt <- plt + ggplot2::facet_wrap(~ .data[[vary_params]])
+  }
+  return(plt)
+}
+
+power_plot <- Visualizer$new(.viz_fun = power_plot_fun, .name = "Power")
+
+power_plot$visualize(
+  fit_results = fit_results, eval_results = eval_results, vary_params = "rho"
+)
+
+# create an example Visualizer function which takes eval_results as input
+reject_prob_plot_fun <- function(eval_results, vary_params = NULL, eval_name) {
+  eval_results_df <- eval_results[[eval_name]]
+  if (is.list(eval_results_df[[vary_params]])) {
+    # deal with the case when we vary across a parameter that is vector-valued
+    eval_results_df[[vary_params]] <- list_col_to_chr(
+      eval_results_df[[vary_params]], name = vary_params, verbatim = TRUE
+    )
+  }
+  plt <- ggplot2::ggplot(eval_results_df) +
+    ggplot2::aes(x = .data[[vary_params]], y = `X1 Reject Prob.`,
+                 color = as.factor(.method_name),
+                 fill = as.factor(.method_name)) +
+    ggplot2::labs(x = vary_params, y = eval_name,
+                  color = "Method", fill = "Method") +
+    ggplot2::scale_y_continuous(limits = c(0, 1))
+  if (is.numeric(eval_results_df[[vary_params]])) {
+    plt <- plt +
+      ggplot2::geom_line() +
+      ggplot2::geom_point(size = 2)
+  } else {
+    plt <- plt +
+      ggplot2::geom_bar(stat = "identity")
+  }
+  return(plt)
+}
+
+reject_prob_plot <- Visualizer$new(.viz_fun = reject_prob_plot_fun,
+                                   .name = "Rejection Prob (alpha = 0.05) Plot",
+                                   eval_name = "Rejection Prob (alpha = 0.05)")
+
+reject_prob_plot$visualize(
+  fit_results = fit_results, eval_results = eval_results, vary_params = "rho"
+)
+
+}
+\seealso{
+\code{\link[=create_visualizer]{create_visualizer()}}
 }
 \section{Public fields}{
-
-
+\if{html}{\out{<div class="r6-fields">}}
 \describe{
 \item{\code{name}}{The name of the \code{Visualizer}.}
-\item{\code{viz_fun}}{The visualizer function.}
-\item{\code{viz_params}}{(Named) list of parameters to input into the visualizer function.}
-\item{\code{doc_options}}{List of options to control the aesthetics of the
-displayed \code{Visualizer}'s visualizations in the knitted R Markdown
-report. Currently, possible options are "height" and "width" (in inches).}
-\item{\code{doc_show}}{If \code{TRUE} (default), show the resulting visualization
-in the R Markdown report; if \code{FALSE}, hide output in the
-R Markdown report.}
+
+\item{\code{viz_fun}}{The user-defined visualization function.}
+
+\item{\code{viz_params}}{A (named) list of default parameters to input into
+the visualization function.}
+
+\item{\code{doc_options}}{List of options to control the aesthetics of
+the \code{Visualizer}'s visualization in the knitted R Markdown report.}
+
+\item{\code{doc_show}}{Boolean indicating whether or not the resulting
+visualizations are shown in the R Markdown report.}
 }
+\if{html}{\out{</div>}}
 }
-
-\section{Public methods}{
-
-
+\section{Methods}{
+\subsection{Public methods}{
 \itemize{
-\item{\code{Visualizer$new()}} See \link{create_visualizer}.
+\item \href{#method-Visualizer-new}{\code{Visualizer$new()}}
+\item \href{#method-Visualizer-visualize}{\code{Visualizer$visualize()}}
+\item \href{#method-Visualizer-print}{\code{Visualizer$print()}}
+\item \href{#method-Visualizer-clone}{\code{Visualizer$clone()}}
 }
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Visualizer-new"></a>}}
+\if{latex}{\out{\hypertarget{method-Visualizer-new}{}}}
+\subsection{Method \code{new()}}{
+Initialize a new \code{Visualizer} object.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Visualizer$new(
+  .viz_fun,
+  .name = NULL,
+  .doc_options = list(),
+  .doc_show = TRUE,
+  ...
+)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{.viz_fun}}{The user-defined visualization function.}
+
+\item{\code{.name}}{(Optional) The name of the \code{Visualizer}.}
+
+\item{\code{.doc_options}}{(Optional) List of options to control the aesthetics of
+the \code{Visualizer}'s visualization in the knitted R Markdown report.
+Currently, possible options are "height" and "width" (in inches). The
+argument must be specified by position or typed out in whole; no partial
+matching is allowed for this argument.}
+
+\item{\code{.doc_show}}{If \code{TRUE} (default), show the resulting visualization in the
+R Markdown report; if \code{FALSE}, hide output in the R Markdown report.}
+
+\item{\code{...}}{User-defined default arguments to pass into \code{.viz_fun()}.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A new instance of \code{Visualizer}.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Visualizer-visualize"></a>}}
+\if{latex}{\out{\hypertarget{method-Visualizer-visualize}{}}}
+\subsection{Method \code{visualize()}}{
+Visualize the performance of methods and/or their evaluation
+metrics from the \code{Experiment} using the \code{Visualizer} and the
+provided parameters.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Visualizer$visualize(
+  fit_results = NULL,
+  eval_results = NULL,
+  vary_params = NULL,
+  ...
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{fit_results}}{A tibble, as returned by \code{\link[=fit_experiment]{fit_experiment()}}.}
+
+\item{\code{eval_results}}{A list of result tibbles, as returned by
+\code{\link[=evaluate_experiment]{evaluate_experiment()}}.}
+
+\item{\code{vary_params}}{A vector of \code{DGP} or \code{Method} parameter names that are
+varied across in the \code{Experiment}.}
+
+\item{\code{...}}{Not used.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+Result of \code{Visualizer$viz_fun()}.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Visualizer-print"></a>}}
+\if{latex}{\out{\hypertarget{method-Visualizer-print}{}}}
+\subsection{Method \code{print()}}{
+Print the \code{Visualizer} in a nice format, showing the
+\code{Visualizer}'s name, function, parameters, and R Markdown options.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Visualizer$print()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+The original \code{Visualizer} object, invisibly.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Visualizer-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-Visualizer-clone}{}}}
+\subsection{Method \code{clone()}}{
+The objects of this class are cloneable with this method.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Visualizer$clone(deep = FALSE)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{deep}}{Whether to make a deep clone.}
+}
+\if{html}{\out{</div>}}
+}
+}
+}

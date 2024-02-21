@@ -18,10 +18,10 @@ plot_feature_importance(
 )
 }
 \arguments{
-\item{fit_results}{A tibble, as returned by the \code{fit} method.}
+\item{fit_results}{A tibble, as returned by \code{\link[=fit_experiment]{fit_experiment()}}.}
 
-\item{eval_results}{A list of result tibbles, as returned by the
-\code{evaluate} method.}
+\item{eval_results}{A list of result tibbles, as returned by
+\code{\link[=evaluate_experiment]{evaluate_experiment()}}.}
 
 \item{eval_name}{Name of \code{Evaluator} containing results to plot. If
 \code{NULL}, the data used for plotting is computed from scratch via
@@ -33,8 +33,8 @@ is not \code{NULL}, this argument is ignored.}
 
 \item{eval_fun_options}{List of named arguments to pass to \code{eval_fun}.}
 
-\item{vary_params}{A vector of parameter names that are varied across in the
-\code{Experiment}.}
+\item{vary_params}{A vector of \code{DGP} or \code{Method} parameter names that are
+varied across in the \code{Experiment}.}
 
 \item{feature_col}{A character string identifying the column in
 \code{fit_results} with the feature names or IDs.}
@@ -127,7 +127,7 @@ fit_results <- tibble::tibble(
         # feature names
         feature = c("featureA", "featureB", "featureC"),
         # estimated feature importance scores
-        est_importance = c(10, runif(2, min = -2, max = 2))  
+        est_importance = c(10, runif(2, min = -2, max = 2))
       )
     }
   )

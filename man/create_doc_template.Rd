@@ -6,10 +6,31 @@
 \usage{
 create_doc_template(experiment, save_dir)
 }
+\arguments{
+\item{experiment}{An \code{Experiment} object. If provided, documentation is
+created for all previously saved \code{Experiments} that are found in the
+directory given by \code{experiment$get_save_dir()}. If no
+\code{Experiments} have been previously saved under this directory, then
+the current \code{experiment} is saved to disk and used to create the
+documentation template.}
+
+\item{save_dir}{An optional directory in which to find previously saved
+\code{Experiment} objects. Documentation is created for these found
+\code{Experiments}. Not used if \code{experiment} is provided.}
+}
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
 
 \code{create_doc_template()} was renamed to \code{init_docs()} to create a more
 consistent API.
+}
+\examples{
+\dontrun{
+# create documentation template from an experiment (of class `Experiment`)
+create_doc_template(experiment)
+
+# or alternatively, create documentation template from a specific directory
+create_doc_template(save_dir = experiment$get_save_dir())}
+
 }
 \keyword{internal}

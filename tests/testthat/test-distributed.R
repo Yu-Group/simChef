@@ -113,7 +113,6 @@ fit_experiment_fixture <- function(parallel_plan) {
 # ---- begin tests
 
 test_that("fit_experiment works properly with future::multicore", {
-  skip("Skipping distributed computations.")
   # multicore plan isn't supported on windows
   skip_on_os("windows")
 
@@ -138,7 +137,6 @@ test_that("fit_experiment works properly with future::multicore", {
 })
 
 test_that("fit_experiment works properly with future::multisession", {
-  skip("Skipping distributed computations.")
   results <- fit_experiment_fixture(future::multisession)
   sequential_results <- results[[2]]
 
@@ -161,7 +159,6 @@ test_that("fit_experiment works properly with future::multisession", {
 })
 
 test_that("fit_experiment works properly with future::cluster", {
-  skip("Skipping distributed computations.")
   results <- fit_experiment_fixture(future::cluster)
   sequential_results <- results[[2]]
 
@@ -184,7 +181,6 @@ test_that("fit_experiment works properly with future::cluster", {
 })
 
 test_that("fit_experiment works properly with future.callr::callr", {
-  skip("Skipping distributed computations.")
   results <- fit_experiment_fixture(future.callr::callr)
   sequential_results <- results[[2]]
 

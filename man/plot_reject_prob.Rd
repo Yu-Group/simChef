@@ -19,10 +19,10 @@ plot_reject_prob(
 )
 }
 \arguments{
-\item{fit_results}{A tibble, as returned by the \code{fit} method.}
+\item{fit_results}{A tibble, as returned by \code{\link[=fit_experiment]{fit_experiment()}}.}
 
-\item{eval_results}{A list of result tibbles, as returned by the
-\code{evaluate} method.}
+\item{eval_results}{A list of result tibbles, as returned by
+\code{\link[=evaluate_experiment]{evaluate_experiment()}}.}
 
 \item{eval_name}{Name of \code{Evaluator} containing results to plot. If
 \code{NULL}, the data used for plotting is computed from scratch via
@@ -34,8 +34,8 @@ is not \code{NULL}, this argument is ignored.}
 
 \item{eval_fun_options}{List of named arguments to pass to \code{eval_fun}.}
 
-\item{vary_params}{A vector of parameter names that are varied across in the
-\code{Experiment}.}
+\item{vary_params}{A vector of \code{DGP} or \code{Method} parameter names that are
+varied across in the \code{Experiment}.}
 
 \item{feature_col}{A character string identifying the column in
 \code{fit_results} with the feature names or IDs.}
@@ -131,7 +131,7 @@ fit_results <- tibble::tibble(
     FUN = function(i) {
       tibble::tibble(
         # feature names
-        feature = c("featureA", "featureB", "featureC"),  
+        feature = c("featureA", "featureB", "featureC"),
         # estimated p-values
         pval = 10^(sample(-3:0, 3, replace = TRUE))
       )
@@ -142,9 +142,9 @@ fit_results <- tibble::tibble(
 # generate example eval_results data
 eval_results <- list(
   `Reject Prob.` = eval_reject_prob(
-    fit_results, 
+    fit_results,
     nested_cols = "feature_info",
-    feature_col = "feature", 
+    feature_col = "feature",
     pval_col = "pval"
   )
 )

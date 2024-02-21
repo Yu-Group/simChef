@@ -17,10 +17,10 @@ plot_feature_selection_curve(
 )
 }
 \arguments{
-\item{fit_results}{A tibble, as returned by the \code{fit} method.}
+\item{fit_results}{A tibble, as returned by \code{\link[=fit_experiment]{fit_experiment()}}.}
 
-\item{eval_results}{A list of result tibbles, as returned by the
-\code{evaluate} method.}
+\item{eval_results}{A list of result tibbles, as returned by
+\code{\link[=evaluate_experiment]{evaluate_experiment()}}.}
 
 \item{eval_name}{Name of \code{Evaluator} containing results to plot. If
 \code{NULL}, the data used for plotting is computed from scratch via
@@ -32,8 +32,8 @@ is not \code{NULL}, this argument is ignored.}
 
 \item{eval_fun_options}{List of named arguments to pass to \code{eval_fun}.}
 
-\item{vary_params}{A vector of parameter names that are varied across in the
-\code{Experiment}.}
+\item{vary_params}{A vector of \code{DGP} or \code{Method} parameter names that are
+varied across in the \code{Experiment}.}
 
 \item{curve}{Either "ROC" or "PR" indicating whether to plot the ROC or
 Precision-Recall curve.}
@@ -122,13 +122,13 @@ fit_results <- tibble::tibble(
     FUN = function(i) {
       tibble::tibble(
         # feature names
-        feature = c("featureA", "featureB", "featureC"),  
+        feature = c("featureA", "featureB", "featureC"),
         # true feature support
-        true_support = c(TRUE, FALSE, TRUE),  
+        true_support = c(TRUE, FALSE, TRUE),
         # estimated feature support
-        est_support = c(TRUE, FALSE, FALSE),  
+        est_support = c(TRUE, FALSE, FALSE),
         # estimated feature importance scores
-        est_importance = c(10, runif(2, min = -2, max = 2))  
+        est_importance = c(10, runif(2, min = -2, max = 2))
       )
     }
   )
@@ -137,17 +137,17 @@ fit_results <- tibble::tibble(
 # generate example eval_results data
 eval_results <- list(
   ROC = summarize_feature_selection_curve(
-    fit_results, 
+    fit_results,
     curve = "ROC",
     nested_cols = "feature_info",
-    truth_col = "true_support", 
+    truth_col = "true_support",
     imp_col = "est_importance"
   ),
   PR = summarize_feature_selection_curve(
-    fit_results, 
+    fit_results,
     curve = "PR",
     nested_cols = "feature_info",
-    truth_col = "true_support", 
+    truth_col = "true_support",
     imp_col = "est_importance"
   )
 )

@@ -80,3 +80,15 @@ These functions calculate the \code{\link[=pos]{pos()}} (number of estimated
 positive cases) of a measurement system compared to the reference results
 (the "truth").
 }
+\examples{
+# Two class example data
+two_class_example <- data.frame(
+  truth = as.factor(sample(c("Class1", "Class2"), 100, replace = TRUE)),
+  predicted = as.factor(sample(c("Class1", "Class2"), 100, replace = TRUE))
+)
+
+# Compute number of estimated "positive" classes
+pos(two_class_example, truth = truth, estimate = predicted)
+pos_vec(two_class_example$truth, two_class_example$predicted)
+
+}

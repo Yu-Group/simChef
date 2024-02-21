@@ -16,3 +16,8 @@ The original \code{Experiment} object with cache cleared.
 Clear (or delete) cached results from an \code{Experiment} to
 start the experiment fresh/from scratch.
 }
+\examples{
+\dontrun{
+clear_cache(experiment)}
+
+}

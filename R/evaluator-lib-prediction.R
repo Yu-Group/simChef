@@ -3,8 +3,8 @@
 #' @name eval_pred_err_funs
 #' @description Evaluate various prediction error metrics, given the true
 #'   responses and the predicted (or estimated) responses.
-#'   \code{eval_pred_err()} evaluates the various prediction error metrics for
-#'   each experimental replicate separately. \code{summarize_pred_err()}
+#'   `eval_pred_err()` evaluates the various prediction error metrics for
+#'   each experimental replicate separately. `summarize_pred_err()`
 #'   summarizes the various prediction error metrics across experimental
 #'   replicates.
 #'
@@ -18,17 +18,17 @@
 #'   regression problem and a factor (with the predicted classes) for a
 #'   classification problem.
 #' @param prob_cols A character string or vector identifying the column(s)
-#'   containing class probabilities. If the \code{truth_col} column is binary,
+#'   containing class probabilities. If the `truth_col` column is binary,
 #'   only 1 column name should be provided. Otherwise, the length of the
-#'   \code{prob_cols} should be equal to the number of factor levels of
-#'   the \code{truth_col} column. This argument is not used when evaluating
+#'   `prob_cols` should be equal to the number of factor levels of
+#'   the `truth_col` column. This argument is not used when evaluating
 #'   numeric metrics.
-#' @param metrics A \code{metric_set} object indicating the metrics to evaluate.
-#'   See [yardstick::metric_set()] for more details. Default \code{NULL} will
+#' @param metrics A `metric_set` object indicating the metrics to evaluate.
+#'   See [yardstick::metric_set()] for more details. Default `NULL` will
 #'   use the default metrics in [yardstick::metrics()].
 #'
 #' @returns
-#' The output of \code{eval_pred_err()} is a \code{tibble} with the following
+#' The output of `eval_pred_err()` is a `tibble` with the following
 #' columns:
 #' \describe{
 #' \item{.rep}{Replicate ID.}
@@ -37,16 +37,16 @@
 #' \item{.metric}{Name of the evaluation metric.}
 #' \item{.estimate}{Value of the evaluation metric.}
 #' }
-#' as well as any columns specified by \code{group_cols} and \code{vary_params}.
+#' as well as any columns specified by `group_cols` and `vary_params`.
 #'
-#' The output of \code{summarize_pred_err()} is a grouped \code{tibble}
+#' The output of `summarize_pred_err()` is a grouped `tibble`
 #' containing both identifying information and the prediction error results
 #' aggregated over experimental replicates. Specifically, the identifier columns
-#' include \code{.dgp_name}, \code{.method_name}, any columns specified by
-#' \code{group_cols} and \code{vary_params}, and  \code{.metric}. In addition,
+#' include `.dgp_name`, `.method_name`, any columns specified by
+#' `group_cols` and `vary_params`, and  `.metric`. In addition,
 #' there are results columns corresponding to the requested statistics in
-#' \code{summary_funs} and \code{custom_summary_funs}. These columns end in the
-#' suffix specified by \code{eval_id}.
+#' `summary_funs` and `custom_summary_funs`. These columns end in the
+#' suffix specified by `eval_id`.
 #'
 #' @family prediction_error_funs
 #'
@@ -281,16 +281,16 @@ summarize_pred_err <- function(fit_results, vary_params = NULL,
 #'
 #' @name eval_pred_curve_funs
 #' @description Evaluate the ROC or PR curves, given the true responses and the
-#'   predicted probabilities for each class. \code{eval_pred_curve()} evaluates
+#'   predicted probabilities for each class. `eval_pred_curve()` evaluates
 #'   the ROC or PR curve for each experimental replicate separately.
-#'   \code{summarize_pred_curve()} summarizes the ROC or PR curve across
+#'   `summarize_pred_curve()` summarizes the ROC or PR curve across
 #'   experimental replicates.
 #'
 #' @inheritParams shared_eval_lib_args
 #' @inheritParams eval_pred_err
 #'
 #' @returns
-#' The output of \code{eval_pred_curve()} is a \code{tibble} with the following
+#' The output of `eval_pred_curve()` is a `tibble` with the following
 #' columns:
 #' \describe{
 #' \item{.rep}{Replicate ID.}
@@ -298,22 +298,22 @@ summarize_pred_err <- function(fit_results, vary_params = NULL,
 #' \item{.method_name}{Name of Method.}
 #' \item{curve_estimate}{A list of tibbles with x and y coordinate values for
 #'   the ROC/PR curve for the given experimental replicate. If
-#'   \code{curve = "ROC"}, the \code{tibble} has the columns \code{.threshold},
-#'   \code{FPR}, and \code{TPR} for the threshold, false positive rate, and true
-#'   positive rate, respectively. If \code{curve = "PR"}, the \code{tibble} has
-#'   the columns \code{.threshold}, \code{recall}, and \code{precision}.}
+#'   `curve = "ROC"`, the `tibble` has the columns `.threshold`,
+#'   `FPR`, and `TPR` for the threshold, false positive rate, and true
+#'   positive rate, respectively. If `curve = "PR"`, the `tibble` has
+#'   the columns `.threshold`, `recall`, and `precision`.}
 #' }
-#' as well as any columns specified by \code{group_cols} and \code{vary_params}.
+#' as well as any columns specified by `group_cols` and `vary_params`.
 #'
-#' The output of \code{summarize_pred_curve()} is a grouped \code{tibble}
+#' The output of `summarize_pred_curve()` is a grouped `tibble`
 #' containing both identifying information and the prediction curve results
 #' aggregated over experimental replicates. Specifically, the identifier columns
-#' include \code{.dgp_name}, \code{.method_name}, and any columns specified by
-#' \code{group_cols} and \code{vary_params}. In addition, there are results
-#' columns corresponding to the requested statistics in \code{summary_funs} and
-#' \code{custom_summary_funs}. If \code{curve = "ROC"}, these results columns
-#' include \code{FPR} and others that end in the suffix "_TPR". If
-#' \code{curve = "PR"}, the results columns include \code{recall} and others
+#' include `.dgp_name`, `.method_name`, and any columns specified by
+#' `group_cols` and `vary_params`. In addition, there are results
+#' columns corresponding to the requested statistics in `summary_funs` and
+#' `custom_summary_funs`. If `curve = "ROC"`, these results columns
+#' include `FPR` and others that end in the suffix "_TPR". If
+#' `curve = "PR"`, the results columns include `recall` and others
 #' that end in the suffix "_precision".
 #'
 #' @family prediction_error_funs

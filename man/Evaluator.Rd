@@ -3,32 +3,220 @@
 \docType{class}
 \name{Evaluator}
 \alias{Evaluator}
-\title{\code{R6} class representing an evaluator.}
+\title{\code{R6} class representing an evaluator}
 \description{
-An evaluator (or evaluation function) to \strong{evaluate} the
-performance of methods in the \code{Experiment}.
+\code{Evaluator} which can \code{evaluate()} the performance of
+methods in an \link{Experiment}.
+
+Generally speaking, users won't directly interact with the \code{Evaluator} R6
+class, but instead indirectly through \code{\link[=create_evaluator]{create_evaluator()}} and the
+following \code{Experiment} helpers:
+\itemize{
+\item \code{\link[=add_evaluator]{add_evaluator()}}
+\item \code{\link[=update_evaluator]{update_evaluator()}}
+\item \code{\link[=remove_evaluator]{remove_evaluator()}}
+\item \code{\link[=get_evaluators]{get_evaluators()}}
+\item \code{\link[=evaluate_experiment]{evaluate_experiment()}}
+}
+}
+\details{
+When evaluating or running the \code{Experiment} (see
+\code{\link[=evaluate_experiment]{evaluate_experiment()}} or \code{\link[=run_experiment]{run_experiment()}}), the named
+arguments \code{fit_results} and \code{vary_params} are automatically
+passed into the \code{Evaluator} function \code{.eval_fun()} and serve
+as placeholders for the \code{fit_experiment()} results (i.e., the
+results from the method fits) and the name of the varying parameter(s),
+respectively.
+
+To evaluate the performance of a method(s) fit then,
+the \code{Evaluator} function \code{.eval_fun()} should almost always
+take in the named argument \code{fit_results}. See
+\code{Experiment$fit()} or \code{\link[=fit_experiment]{fit_experiment()}} for details on the
+format of \code{fit_results}. If the \code{Evaluator}
+is used for \code{Experiments} with varying parameters,
+\code{vary_params} should be used as a stand in for the name of this
+varying parameter(s).
+}
+\examples{
+# create DGP
+dgp_fun <- function(n, beta, rho, sigma) {
+  cov_mat <- matrix(c(1, rho, rho, 1), byrow = TRUE, nrow = 2, ncol = 2)
+  X <- MASS::mvrnorm(n = n, mu = rep(0, 2), Sigma = cov_mat)
+  y <- X \%*\% beta + rnorm(n, sd = sigma)
+  return(list(X = X, y = y))
+}
+dgp <- create_dgp(.dgp_fun = dgp_fun,
+                  .name = "Linear Gaussian DGP",
+                  n = 50, beta = c(1, 0), rho = 0, sigma = 1)
+
+# create Method
+lm_fun <- function(X, y, cols) {
+  X <- X[, cols]
+  lm_fit <- lm(y ~ X)
+  pvals <- summary(lm_fit)$coefficients[-1, "Pr(>|t|)"] \%>\%
+    setNames(paste(paste0("X", cols), "p-value"))
+  return(pvals)
+}
+lm_method <- create_method(
+  .method_fun = lm_fun,
+  .name = "OLS",
+  cols = c(1, 2)
+)
+
+# create Experiment
+experiment <- create_experiment() \%>\%
+  add_dgp(dgp) \%>\%
+  add_method(lm_method) \%>\%
+  add_vary_across(.dgp = dgp, rho = seq(0.91, 0.99, 0.02))
+
+fit_results <- fit_experiment(experiment, n_reps=10)
+
+# create an example Evaluator function
+reject_prob_fun <- function(fit_results, vary_params = NULL, alpha = 0.05) {
+  fit_results[is.na(fit_results)] <- 1
+  group_vars <- c(".dgp_name", ".method_name", vary_params)
+  eval_out <- fit_results \%>\%
+    dplyr::group_by(across({{group_vars}})) \%>\%
+    dplyr::summarise(
+      n_reps = dplyr::n(),
+      `X1 Reject Prob.` = mean(`X1 p-value` < alpha),
+      `X2 Reject Prob.` = mean(`X2 p-value` < alpha)
+    )
+  return(eval_out)
+}
+
+reject_prob_eval <- Evaluator$new(.eval_fun = reject_prob_fun,
+                                  .name = "Rejection Prob (alpha = 0.05)")
+
+reject_prob_eval$evaluate(fit_results, vary_params = "rho")
+
+}
+\seealso{
+\link{create_evaluator}
 }
 \section{Public fields}{
-
-
+\if{html}{\out{<div class="r6-fields">}}
 \describe{
 \item{\code{name}}{The name of the \code{Evaluator}.}
-\item{\code{eval_fun}}{The evaluation function.}
-\item{\code{eval_params}}{(Named) list of parameters to input into the evaluation function.}
-\item{\code{doc_options}}{List of options to control the aesthetics of the
-displayed \code{Evaluator}'s results table in the knitted R Markdown
-report. See \code{\link[vthemes:pretty_DT]{vthemes::pretty_DT()}} for possible options.}
-\item{\code{doc_show}}{If \code{TRUE} (default), show \code{Evaluator}'s results as
-a table in the R Markdown report; if \code{FALSE}, hide output in the
-R Markdown report.}
+
+\item{\code{eval_fun}}{The user-defined evaluation function.}
+
+\item{\code{eval_params}}{A (named) list of default parameters to input into
+the evaluator function.}
+
+\item{\code{doc_options}}{List of options to control the aesthetics of
+the displayed \code{Evaluator}'s results table in the knitted R Markdown report.}
+
+\item{\code{doc_show}}{Boolean indicating whether or not to show the
+\code{Evaluator}'s results as a table in the R Markdown report.}
 }
+\if{html}{\out{</div>}}
 }
-
-\section{Public methods}{
-
-
+\section{Methods}{
+\subsection{Public methods}{
 \itemize{
-\item{\code{Evaluator$new()}} See \link{create_evaluator}.
+\item \href{#method-Evaluator-new}{\code{Evaluator$new()}}
+\item \href{#method-Evaluator-evaluate}{\code{Evaluator$evaluate()}}
+\item \href{#method-Evaluator-print}{\code{Evaluator$print()}}
+\item \href{#method-Evaluator-clone}{\code{Evaluator$clone()}}
 }
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Evaluator-new"></a>}}
+\if{latex}{\out{\hypertarget{method-Evaluator-new}{}}}
+\subsection{Method \code{new()}}{
+Initialize a new \code{Evaluator} object.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Evaluator$new(
+  .eval_fun,
+  .name = NULL,
+  .doc_options = list(),
+  .doc_show = TRUE,
+  ...
+)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{.eval_fun}}{The user-defined evaluation function.}
+
+\item{\code{.name}}{(Optional) The name of the \code{Evaluator}, helpful for later
+identification. The argument must be specified by position or typed out in
+whole; no partial matching is allowed for this argument.}
+
+\item{\code{.doc_options}}{(Optional) List of options to control the aesthetics of
+the displayed \code{Evaluator}'s results table in the knitted R Markdown report.
+See \code{\link[vthemes:pretty_DT]{vthemes::pretty_DT()}} for possible options. The argument must be
+specified by position or typed out in whole; no partial matching is allowed
+for this argument.}
+
+\item{\code{.doc_show}}{If \code{TRUE} (default), show \code{Evaluator}'s results as a table
+in the R Markdown report; if \code{FALSE}, hide output in the R Markdown report.}
+
+\item{\code{...}}{User-defined arguments to pass into \code{.eval_fun()}.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A new instance of \code{Evaluator}.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Evaluator-evaluate"></a>}}
+\if{latex}{\out{\hypertarget{method-Evaluator-evaluate}{}}}
+\subsection{Method \code{evaluate()}}{
+Evaluate the performance of method(s) in the
+\code{Experiment} using the \code{Evaluator} and its given parameters.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Evaluator$evaluate(fit_results, vary_params = NULL, ...)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{fit_results}}{A tibble, as returned by \code{\link[=fit_experiment]{fit_experiment()}}.}
+
+\item{\code{vary_params}}{A vector of \code{DGP} or \code{Method} parameter names that are
+varied across in the \code{Experiment}.}
+
+\item{\code{...}}{Not used.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+Result of \code{Evaluator$eval_fun()}, coerced into a tibble.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Evaluator-print"></a>}}
+\if{latex}{\out{\hypertarget{method-Evaluator-print}{}}}
+\subsection{Method \code{print()}}{
+Print an \code{Evaluator} in a nice format, showing the
+\code{Evaluator}'s name, function, parameters, and R Markdown options.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Evaluator$print()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+The original \code{Evaluator} object, invisibly.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Evaluator-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-Evaluator-clone}{}}}
+\subsection{Method \code{clone()}}{
+The objects of this class are cloneable with this method.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Evaluator$clone(deep = FALSE)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{deep}}{Whether to make a deep clone.}
+}
+\if{html}{\out{</div>}}
+}
+}
+}

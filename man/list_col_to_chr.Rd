@@ -28,21 +28,21 @@ character-type column. Often useful for plotting along this column.
 plot_tib <- tibble::tibble(a = 1:3,
                            b = list(1, 2, 3),
                            c = list(1:2, 3:4, 5:6),
-                           d = list(tibble::tibble(a = 1:3, 
+                           d = list(tibble::tibble(a = 1:3,
                                                    b = c(4, 5, 6)),
                                     "abc",
                                     123))
 # verbatim = TRUE pastes lists together verbatim
 plot_tib_chr_verbatim <- plot_tib \%>\%
   dplyr::mutate(dplyr::across(tidyselect::everything(),
-                              ~list_col_to_chr(.x, 
+                              ~list_col_to_chr(.x,
                                                name = dplyr::cur_column(),
                                                verbatim = TRUE)))
 
 # verbatim = FALSE maps items in list to unique ids (i.e., 1, 2, 3, ...)
 plot_tib_chr <- plot_tib \%>\%
   dplyr::mutate(dplyr::across(tidyselect::everything(),
-                              ~list_col_to_chr(.x, 
+                              ~list_col_to_chr(.x,
                                                name = dplyr::cur_column(),
                                                verbatim = FALSE)))
 

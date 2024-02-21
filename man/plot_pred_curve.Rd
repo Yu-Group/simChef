@@ -17,10 +17,10 @@ plot_pred_curve(
 )
 }
 \arguments{
-\item{fit_results}{A tibble, as returned by the \code{fit} method.}
+\item{fit_results}{A tibble, as returned by \code{\link[=fit_experiment]{fit_experiment()}}.}
 
-\item{eval_results}{A list of result tibbles, as returned by the
-\code{evaluate} method.}
+\item{eval_results}{A list of result tibbles, as returned by
+\code{\link[=evaluate_experiment]{evaluate_experiment()}}.}
 
 \item{eval_name}{Name of \code{Evaluator} containing results to plot. If
 \code{NULL}, the data used for plotting is computed from scratch via
@@ -32,8 +32,8 @@ is not \code{NULL}, this argument is ignored.}
 
 \item{eval_fun_options}{List of named arguments to pass to \code{eval_fun}.}
 
-\item{vary_params}{A vector of parameter names that are varied across in the
-\code{Experiment}.}
+\item{vary_params}{A vector of \code{DGP} or \code{Method} parameter names that are
+varied across in the \code{Experiment}.}
 
 \item{curve}{Either "ROC" or "PR" indicating whether to plot the ROC or
 Precision-Recall curve.}
@@ -122,7 +122,7 @@ fit_results <- tibble::tibble(
              FUN = function(x) {
                as.factor(sample(0:1, size = 100, replace = TRUE))
              }),
-  # predicted class probabilities 
+  # predicted class probabilities
   class_probs = lapply(1:4, FUN = function(x) runif(n = 100, min = 0, max = 1))
 )
 
