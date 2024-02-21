@@ -22,7 +22,7 @@ set_rmd_options(
 options.}
 
 \item{show}{If \code{TRUE}, show output; if \code{FALSE}, hide output in
-R Markdown report. Default \code{NULL} does not change the "show" field
+R Markdown report. Default \code{NULL} does not change the "doc_show" field
 in \code{Evaluator}/\code{Visualizer}.}
 
 \item{...}{Named R Markdown options to set. If \code{field_name = "visualizer"},

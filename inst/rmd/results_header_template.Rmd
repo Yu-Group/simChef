@@ -126,8 +126,15 @@ show_results <- function(dir_name, name,
   viz_results <- get_results(viz_fname)
   
   if (field_name == "evaluator") {
+    doc_nrows <- exp$get_evaluators()[[name]]$doc_nrows
+    if (is.null(doc_nrows)) {
+      eval_results_show <- eval_results[[name]]
+    } else {
+      keep_rows <- 1:min(doc_nrows, nrow(eval_results[[name]]))
+      eval_results_show <- eval_results[[name]][keep_rows, ]
+    }
     do.call(vthemes::pretty_DT,
-            c(list(eval_results[[name]]),
+            c(list(eval_results_show),
               exp$get_evaluators()[[name]]$doc_options))
   } else if (field_name == "visualizer") {
     viz_results[[name]]

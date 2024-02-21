@@ -1911,14 +1911,19 @@ Experiment <- R6::R6Class(
     #' @param name Name of `Evaluator` or `Visualizer` to set R Markdown
     #'   options.
     #' @param show If `TRUE`, show output; if `FALSE`, hide output in
-    #'   R Markdown report. Default `NULL` does not change the "show" field
+    #'   R Markdown report. Default `NULL` does not change the "doc_show" field
     #'   in `Evaluator`/`Visualizer`.
+    #' @param nrows Maximum number of rows to show in the `Evaluator`'s results
+    #'   table in the R Markdown report. If `NULL`, shows all rows. Default does
+    #'   not change the "doc_nrows" field in the `Evaluator`. Argument is
+    #'   ignored if `field_name = "visualizer"`.
     #' @param ... Named R Markdown options to set. If `field_name = "visualizer"`,
     #'   options are "height" and "width". If `field_name = "evaluator"`,
     #'   see options for [vthemes::pretty_DT()].
     #'
     #' @return The `Experiment` object, invisibly.
-    set_doc_options = function(field_name, name, show = NULL, ...) {
+    set_doc_options = function(field_name, name, show = NULL, nrows, ...) {
+      field_name <- match.arg(field_name, c("evaluator", "visualizer"))
       obj_list <- private$.get_obj_list(field_name)
       if (!name %in% names(obj_list)) {
         abort(
@@ -1932,6 +1937,11 @@ Experiment <- R6::R6Class(
       list_name <- paste0(".", field_name, "_list")
       if (!is.null(show)) {
         private[[list_name]][[name]]$doc_show <- show
+      }
+      if (field_name == "evaluator") {
+        if (!missing(nrows)) {
+          private[[list_name]][[name]]$doc_nrows <- nrows
+        }
       }
       doc_options <- list(...)
       if (length(doc_options) > 0) {

@@ -453,6 +453,22 @@ show_results <- function(dir_name, depth, base = FALSE, show_header = TRUE,
           sprintf(figname_template, eval_name),
           old_text = results, write_flag = write_flag
         )
+        if (is.null(evaluator$doc_nrows)) {
+          eval_results_show <- eval_results[[eval_name]]
+        } else {
+          keep_rows <- 1:min(evaluator$doc_nrows, nrow(eval_results[[eval_name]]))
+          eval_results_show <- eval_results[[eval_name]][keep_rows, ]
+          if (nrow(eval_results[[eval_name]]) > evaluator$doc_nrows) {
+            omitted_nrows <- nrow(eval_results[[eval_name]]) - evaluator$doc_nrows
+            results <- write(
+              sprintf(
+                "Showing preview of %s results. %s rows have been omitted.\n\n",
+                eval_name, omitted_nrows
+              ),
+              old_text = results, write_flag = write_flag
+            )
+          }
+        }
         if (write_flag) {
           results <- sprintf(
             "show_results('%s', '%s', 'evaluator')", dir_name, eval_name
@@ -462,7 +478,7 @@ show_results <- function(dir_name, depth, base = FALSE, show_header = TRUE,
         } else {
           do.call(
             vthemes::pretty_DT,
-            c(list(eval_results[[eval_name]]), evaluator$doc_options)
+            c(list(eval_results_show), evaluator$doc_options)
           ) %>%
             vthemes::subchunkify(i = chunk_idx)
           chunk_idx <<- chunk_idx + 1

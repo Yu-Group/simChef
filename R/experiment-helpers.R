@@ -1051,8 +1051,12 @@ get_cached_results <- function(experiment, results_type, verbose = 0) {
 #' @param name Name of `Evaluator` or `Visualizer` to set R Markdown
 #'   options.
 #' @param show If `TRUE`, show output; if `FALSE`, hide output in
-#'   R Markdown report. Default `NULL` does not change the "show" field
+#'   R Markdown report. Default `NULL` does not change the "doc_show" field
 #'   in `Evaluator`/`Visualizer`.
+#' @param nrows Maximum number of rows to show in the `Evaluator`'s results
+#'   table in the R Markdown report. If `NULL`, shows all rows. Default does
+#'   not change the "doc_nrows" field in the `Evaluator`. Argument is
+#'   ignored if `field_name = "visualizer"`.
 #' @param ... Named R Markdown options to set. If `field_name = "visualizer"`,
 #'   options are "height" and "width". If `field_name = "evaluator"`,
 #'   see options for [vthemes::pretty_DT()].
@@ -1126,10 +1130,10 @@ get_cached_results <- function(experiment, results_type, verbose = 0) {
 #'
 #' @export
 set_doc_options <- function(experiment, field_name = c("evaluator", "visualizer"),
-                            name, show = NULL, ...) {
+                            name, show = NULL, nrows, ...) {
   field_name <- match.arg(field_name)
   experiment$set_doc_options(field_name = field_name, name = name, show = show,
-                             ...)
+                             nrows = nrows, ...)
 }
 
 #' Set R Markdown options for `Evaluator` and `Visualizer` outputs in

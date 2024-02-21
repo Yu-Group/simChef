@@ -203,6 +203,13 @@ Evaluator <- R6::R6Class(
     #'   `Evaluator`'s results as a table in the R Markdown report.
     doc_show = TRUE,
 
+    #' @field doc_nrows Maximum number of rows to show in the `Evaluator`'s
+    #'   results table in the R Markdown report. If the number of rows in the
+    #'   table exceeds this value, the table will be truncated and a message
+    #'   will be displayed indicating the number of rows that were omitted.
+    #'   Default is `NULL`, which shows all rows.
+    doc_nrows = NULL,
+
     # NOTE: R6 methods can't use the `@inheritParams` tag. If you want to update
     # the `@param` tags below, do so in the `create_evaluator()` docs above and
     # then copy-paste the corresponding `@param` tags below.
@@ -220,17 +227,23 @@ Evaluator <- R6::R6Class(
     #'   for this argument.
     #' @param .doc_show If `TRUE` (default), show `Evaluator`'s results as a table
     #'   in the R Markdown report; if `FALSE`, hide output in the R Markdown report.
+    #' @param .doc_nrows Maximum number of rows to show in the `Evaluator`'s results
+    #'   table in the R Markdown report. If the number of rows in the table exceeds
+    #'   this value, the table will be truncated and a message will be displayed
+    #'   indicating the number of rows that were omitted. Default is `NULL`, which
+    #'   shows all rows.
     #' @param ... User-defined arguments to pass into `.eval_fun()`.
     #'
     #' @return A new instance of `Evaluator`.
     initialize = function(.eval_fun, .name = NULL, .doc_options = list(),
-                          .doc_show = TRUE, ...) {
+                          .doc_show = TRUE, .doc_nrows = NULL, ...) {
       self$eval_fun <- .eval_fun
       self$name <- .name
       for (opt in names(.doc_options)) {
         self$doc_options[[opt]] <- .doc_options[[opt]]
       }
       self$doc_show <- .doc_show
+      self$doc_nrows <- .doc_nrows
       self$eval_params <- rlang::list2(...)
     },
 

@@ -14,7 +14,7 @@ test_that("Evaluator initialization works properly", {
                                                   caption = "caption"))
   evaluator1f <- Evaluator$new(.eval_fun = eval_fun1,
                                a = 5, b = 1:5, c = data.frame(d = 1:2))
-  evaluator1g <- Evaluator$new(.eval_fun = eval_fun1, .doc_show = FALSE)
+  evaluator1g <- Evaluator$new(.eval_fun = eval_fun1, .doc_show = FALSE, .doc_nrows = 10)
   evaluator1h <- Evaluator$new(eval_fun1, n = 100)
   evaluator1i <- Evaluator$new(n = 100, func = func, eval_fun1)
   evaluator1j <- Evaluator$new(eval_fun1, n = 100, "Evaluator")
@@ -38,6 +38,7 @@ test_that("Evaluator initialization works properly", {
                list(digits = 2, sigfig = FALSE,
                     options = list(scrollX = TRUE, scrollCollapse = TRUE)))
   expect_equal(evaluator1$doc_show, TRUE)
+  expect_equal(evaluator1$doc_nrows, NULL)
 
   # basic initialization with name
   expect_equal(evaluator1b$name, "Evaluator")
@@ -66,6 +67,7 @@ test_that("Evaluator initialization works properly", {
 
   # show doc input
   expect_equal(evaluator1g$doc_show, FALSE)
+  expect_equal(evaluator1g$doc_nrows, 10)
 
   # preventing eval_fun arg partial matching
   expect_equal(evaluator1h$eval_params, list(n = 100))
@@ -120,7 +122,7 @@ test_that("Evaluator initialization works properly", {
                                                      caption = "caption"))
   evaluator2f <- create_evaluator(.eval_fun = eval_fun1,
                                   a = 5, b = 1:5, c = data.frame(d = 1:2))
-  evaluator2g <- create_evaluator(.eval_fun = eval_fun1, .doc_show = FALSE)
+  evaluator2g <- create_evaluator(.eval_fun = eval_fun1, .doc_show = FALSE, .doc_nrows = 10)
   evaluator2h <- create_evaluator(eval_fun1, n = 100)
   evaluator2i <- create_evaluator(n = 100, func = func, eval_fun1)
   evaluator2j <- create_evaluator(eval_fun1, n = 100, "Evaluator")

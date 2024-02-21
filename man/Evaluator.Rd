@@ -109,6 +109,12 @@ the displayed \code{Evaluator}'s results table in the knitted R Markdown report.
 
 \item{\code{doc_show}}{Boolean indicating whether or not to show the
 \code{Evaluator}'s results as a table in the R Markdown report.}
+
+\item{\code{doc_nrows}}{Maximum number of rows to show in the \code{Evaluator}'s
+results table in the R Markdown report. If the number of rows in the
+table exceeds this value, the table will be truncated and a message
+will be displayed indicating the number of rows that were omitted.
+Default is \code{NULL}, which shows all rows.}
 }
 \if{html}{\out{</div>}}
 }
@@ -132,6 +138,7 @@ Initialize a new \code{Evaluator} object.
   .name = NULL,
   .doc_options = list(),
   .doc_show = TRUE,
+  .doc_nrows = NULL,
   ...
 )}\if{html}{\out{</div>}}
 }
@@ -153,6 +160,12 @@ for this argument.}
 
 \item{\code{.doc_show}}{If \code{TRUE} (default), show \code{Evaluator}'s results as a table
 in the R Markdown report; if \code{FALSE}, hide output in the R Markdown report.}
+
+\item{\code{.doc_nrows}}{Maximum number of rows to show in the \code{Evaluator}'s results
+table in the R Markdown report. If the number of rows in the table exceeds
+this value, the table will be truncated and a message will be displayed
+indicating the number of rows that were omitted. Default is \code{NULL}, which
+shows all rows.}
 
 \item{\code{...}}{User-defined arguments to pass into \code{.eval_fun()}.}
 }
