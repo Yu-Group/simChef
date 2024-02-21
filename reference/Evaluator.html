@@ -139,6 +139,14 @@ the displayed <code>Evaluator</code>'s results table in the knitted R Markdown r
 <code>Evaluator</code>'s results as a table in the R Markdown report.</p></dd>
 
 
+<dt><code>doc_nrows</code></dt>
+<dd><p>Maximum number of rows to show in the <code>Evaluator</code>'s
+results table in the R Markdown report. If the number of rows in the
+table exceeds this value, the table will be truncated and a message
+will be displayed indicating the number of rows that were omitted.
+Default is <code>NULL</code>, which shows all rows.</p></dd>
+
+
 </dl><p></p></div>
     </div>
     <div class="section level2">
@@ -160,6 +168,7 @@ the displayed <code>Evaluator</code>'s results table in the knitted R Markdown r
 <span>  .name <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  .doc_options <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  .doc_show <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  .doc_nrows <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
@@ -187,6 +196,14 @@ for this argument.</p></dd>
 <dt><code>.doc_show</code></dt>
 <dd><p>If <code>TRUE</code> (default), show <code>Evaluator</code>'s results as a table
 in the R Markdown report; if <code>FALSE</code>, hide output in the R Markdown report.</p></dd>
+
+
+<dt><code>.doc_nrows</code></dt>
+<dd><p>Maximum number of rows to show in the <code>Evaluator</code>'s results
+table in the R Markdown report. If the number of rows in the table exceeds
+this value, the table will be truncated and a message will be displayed
+indicating the number of rows that were omitted. Default is <code>NULL</code>, which
+shows all rows.</p></dd>
 
 
 <dt><code>...</code></dt>
@@ -298,7 +315,7 @@ varied across in the <code>Experiment</code>.</p></dd>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">fit_results</span> <span class="op">&lt;-</span> <span class="fu"><a href="fit_experiment.html">fit_experiment</a></span><span class="op">(</span><span class="va">experiment</span>, n_reps<span class="op">=</span><span class="fl">10</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Fitting experiment...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 10 reps completed (totals: 10/10) | time taken: 0.313699 minutes</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 10 reps completed (totals: 10/10) | time taken: 0.328777 minutes</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ==============================</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># create an example Evaluator function</span></span></span>
