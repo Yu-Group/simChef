@@ -21,11 +21,8 @@ plots. If \code{FALSE}, returns static \code{ggplot} plots.}
 Precision-Recall curve.}
 
 \item{show}{Character vector with elements being one of "boxplot", "point",
-"line", "bar", "errorbar", "ribbon" indicating what plot layer(s) to
-construct.}
-
-\item{...}{Additional arguments to pass to
-\code{\link[=plot_eval_constructor]{plot_eval_constructor()}}.}
+"line", "bar", "errorbar", "ribbon", "violin", indicating what plot
+layer(s) to construct.}
 }
 \description{
 Arguments that are shared by multiple \code{Visualizer} library functions.

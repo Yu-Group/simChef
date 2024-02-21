@@ -93,7 +93,11 @@ eval_constructor <- function(fit_results, vary_params = NULL, fun,
         stop(sprintf("No column named %s in fit_results.", missing_col))
       }
     }
-    key_cols_vec <- purrr::reduce(key_cols_ls, c)
+    if (length(key_cols_ls) > 0) {
+      key_cols_vec <- purrr::reduce(key_cols_ls, c)
+    } else {
+      key_cols_vec <- NULL
+    }
 
     if (is.null(nested_cols)) {
       data <- data %>%
@@ -379,8 +383,8 @@ event_col <- function(xtab, event_level) {
   }
 }
 
-#' Helper function for constructing `finalize_esitmator_internal` for
-#'   custom `yardstick` metrics.
+#' Helper function for constructing `finalize_estimator_internal` for
+#'   custom `yardstick` metrics that are restricted to binary estimators.
 #' @keywords internal
 finalize_estimator_internal_constructor <- function(metric_dispatcher, x,
                                                     estimator) {
@@ -402,20 +406,24 @@ finalize_estimator_internal_constructor <- function(metric_dispatcher, x,
 #' Helper function for constructing `metric_vec` methods for
 #'   custom `yardstick` metrics.
 #' @keywords internal
-metric_vec_constructor <- function(name, fun, truth, estimate, estimator, na_rm,
-                                   event_level, ...) {
-  estimator <- yardstick::finalize_estimator(truth, estimator,
-                                             metric_class = name)
-
-  yardstick::metric_vec_template(
-    metric_impl = fun,
-    truth = truth,
-    estimate = estimate,
-    na_rm = na_rm,
-    cls = "factor",
-    estimator = estimator,
-    ...
+class_metric_vec_constructor <- function(name, fun, truth, estimate, estimator,
+                                         na_rm, case_weights, event_level,
+                                         ...) {
+  estimator <- yardstick::finalize_estimator(
+    truth, estimator, metric_class = name
   )
+  yardstick::check_class_metric(truth, estimate, case_weights, estimator)
+
+  if (na_rm) {
+    result <- yardstick::yardstick_remove_missing(truth, estimate, case_weights)
+    truth <- result$truth
+    estimate <- result$estimate
+    case_weights <- result$case_weights
+  } else if (yardstick::yardstick_any_missing(truth, estimate, case_weights)) {
+    return(NA_real_)
+  }
+
+  fun(truth, estimate, event_level)
 }
 
 #-------------------------- Custom Yardstick Metrics ---------------------------
@@ -453,37 +461,41 @@ tp <- function(data, ...) {
 }
 tp <- yardstick::new_class_metric(tp, direction = "maximize")
 
+#' @keywords internal
+tp_impl <- function(truth, estimate, event_level) {
+  xtab <- table(estimate, truth)
+  col <- event_col(xtab, event_level)
+  return(xtab[col, col])
+}
+
 #' @rdname tp
 #' @export
 tp.data.frame <- function(data, truth, estimate, estimator = NULL,
-                          na_rm = FALSE, event_level = "first", ...) {
-  yardstick::metric_summarizer(
-    metric_nm = "tp",
-    metric_fn = tp_vec,
+                          na_rm = FALSE, case_weights = NULL,
+                          event_level = "first", ...) {
+  yardstick::class_metric_summarizer(
+    name = "tp",
+    fn = tp_vec,
     data = data,
     truth = !! rlang::enquo(truth),
     estimate = !! rlang::enquo(estimate),
     estimator = estimator,
     na_rm = na_rm,
-    event_level = event_level,
-    ...
+    case_weights = !! rlang::enquo(case_weights),
+    event_level = event_level
   )
 }
 
 #' @rdname tp
 #' @export
 tp_vec <- function(truth, estimate, estimator = NULL, na_rm = FALSE,
-                   event_level = "first", ...) {
-
-  tp_impl <- function(truth, estimate) {
-    xtab <- table(estimate, truth)
-    col <- event_col(xtab, event_level)
-    return(xtab[col, col])
-  }
-
-  metric_vec_constructor("tp", fun = tp_impl, truth = truth,
-                         estimate = estimate, estimator = estimator,
-                         na_rm = na_rm, event_level = event_level, ...)
+                   case_weights = NULL, event_level = "first", ...) {
+  class_metric_vec_constructor(
+    "tp", fun = tp_impl, truth = truth,
+    estimate = estimate, estimator = estimator,
+    na_rm = na_rm, case_weights = case_weights,
+    event_level = event_level, ...
+  )
 }
 
 #' @keywords internal
@@ -525,38 +537,42 @@ fp <- function(data, ...) {
 }
 fp <- yardstick::new_class_metric(fp, direction = "minimize")
 
+#' @keywords internal
+fp_impl <- function(truth, estimate, event_level) {
+  xtab <- table(estimate, truth)
+  col <- event_col(xtab, event_level)
+  col2 <- setdiff(colnames(xtab), col)
+  return(xtab[col, col2])
+}
+
 #' @rdname fp
 #' @export
 fp.data.frame <- function(data, truth, estimate, estimator = NULL,
-                          na_rm = FALSE, event_level = "first", ...) {
-  yardstick::metric_summarizer(
-    metric_nm = "fp",
-    metric_fn = fp_vec,
+                          na_rm = FALSE, case_weights = NULL,
+                          event_level = "first", ...) {
+  yardstick::class_metric_summarizer(
+    name = "fp",
+    fn = fp_vec,
     data = data,
     truth = !! rlang::enquo(truth),
     estimate = !! rlang::enquo(estimate),
     estimator = estimator,
     na_rm = na_rm,
-    event_level = event_level,
-    ...
+    case_weights = !! rlang::enquo(case_weights),
+    event_level = event_level
   )
 }
 
 #' @rdname fp
 #' @export
 fp_vec <- function(truth, estimate, estimator = NULL, na_rm = FALSE,
-                   event_level = "first", ...) {
-
-  fp_impl <- function(truth, estimate) {
-    xtab <- table(estimate, truth)
-    col <- event_col(xtab, event_level)
-    col2 <- setdiff(colnames(xtab), col)
-    return(xtab[col, col2])
-  }
-
-  metric_vec_constructor("fp", fun = fp_impl, truth = truth,
-                         estimate = estimate, estimator = estimator,
-                         na_rm = na_rm, event_level = event_level, ...)
+                   case_weights = NULL, event_level = "first", ...) {
+  class_metric_vec_constructor(
+    "fp", fun = fp_impl, truth = truth,
+    estimate = estimate, estimator = estimator,
+    na_rm = na_rm, case_weights = case_weights,
+    event_level = event_level, ...
+  )
 }
 
 #' @keywords internal
@@ -599,37 +615,41 @@ pos <- function(data, ...) {
 }
 pos <- yardstick::new_class_metric(pos, direction = "minimize")
 
+#' @keywords internal
+pos_impl <- function(truth, estimate, event_level) {
+  xtab <- table(estimate, truth)
+  col <- event_col(xtab, event_level)
+  return(sum(xtab[col, ]))
+}
+
 #' @rdname pos
 #' @export
 pos.data.frame <- function(data, truth, estimate, estimator = NULL,
-                           na_rm = FALSE, event_level = "first", ...) {
-  yardstick::metric_summarizer(
-    metric_nm = "pos",
-    metric_fn = pos_vec,
+                           na_rm = FALSE, case_weights = NULL,
+                           event_level = "first", ...) {
+  yardstick::class_metric_summarizer(
+    name = "pos",
+    fn = pos_vec,
     data = data,
     truth = !! rlang::enquo(truth),
     estimate = !! rlang::enquo(estimate),
     estimator = estimator,
     na_rm = na_rm,
-    event_level = event_level,
-    ...
+    case_weights = !! rlang::enquo(case_weights),
+    event_level = event_level
   )
 }
 
 #' @rdname pos
 #' @export
 pos_vec <- function(truth, estimate, estimator = NULL, na_rm = FALSE,
-                    event_level = "first", ...) {
-
-  pos_impl <- function(truth, estimate) {
-    xtab <- table(estimate, truth)
-    col <- event_col(xtab, event_level)
-    return(sum(xtab[col, ]))
-  }
-
-  metric_vec_constructor("pos", fun = pos_impl, truth = truth,
-                         estimate = estimate, estimator = estimator,
-                         na_rm = na_rm, event_level = event_level, ...)
+                    case_weights = NULL, event_level = "first", ...) {
+  class_metric_vec_constructor(
+    "pos", fun = pos_impl, truth = truth,
+    estimate = estimate, estimator = estimator,
+    na_rm = na_rm, case_weights = case_weights,
+    event_level = event_level, ...
+  )
 }
 
 #' @keywords internal
@@ -672,42 +692,45 @@ neg <- function(data, ...) {
 }
 neg <- yardstick::new_class_metric(neg, direction = "maximize")
 
+#' @keywords internal
+neg_impl <- function(truth, estimate, event_level) {
+  xtab <- table(estimate, truth)
+  col <- event_col(xtab, event_level)
+  col2 <- setdiff(colnames(xtab), col)
+  return(sum(xtab[col2, ]))
+}
+
 #' @rdname neg
 #' @export
 neg.data.frame <- function(data, truth, estimate, estimator = NULL,
-                           na_rm = FALSE, event_level = "first", ...) {
-  yardstick::metric_summarizer(
-    metric_nm = "neg",
-    metric_fn = neg_vec,
+                           na_rm = FALSE, case_weights = NULL,
+                           event_level = "first", ...) {
+  yardstick::class_metric_summarizer(
+    name = "neg",
+    fn = neg_vec,
     data = data,
     truth = !! rlang::enquo(truth),
     estimate = !! rlang::enquo(estimate),
     estimator = estimator,
     na_rm = na_rm,
-    event_level = event_level,
-    ...
+    case_weights = !! rlang::enquo(case_weights),
+    event_level = event_level
   )
 }
 
 #' @rdname neg
 #' @export
 neg_vec <- function(truth, estimate, estimator = NULL, na_rm = FALSE,
-                    event_level = "first", ...) {
-
-  neg_impl <- function(truth, estimate) {
-    xtab <- table(estimate, truth)
-    col <- event_col(xtab, event_level)
-    col2 <- setdiff(colnames(xtab), col)
-    return(sum(xtab[col2, ]))
-  }
-
-  metric_vec_constructor("neg", fun = neg_impl, truth = truth,
-                         estimate = estimate, estimator = estimator,
-                         na_rm = na_rm, event_level = event_level, ...)
+                    case_weights = NULL, event_level = "first", ...) {
+  class_metric_vec_constructor(
+    "neg", fun = neg_impl, truth = truth,
+    estimate = estimate, estimator = estimator,
+    na_rm = na_rm, case_weights = case_weights,
+    event_level = event_level, ...
+  )
 }
 
 #' @keywords internal
 finalize_estimator_internal.neg <- function(metric_dispatcher, x, estimator) {
   finalize_estimator_internal_constructor(metric_dispatcher, x, estimator)
 }
-

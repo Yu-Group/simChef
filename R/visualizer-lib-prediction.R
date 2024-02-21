@@ -3,10 +3,12 @@
 #' @description Plot the raw or summarized prediction errors as a boxplot,
 #'   scatter plot, line plot, or bar plot with or without 1 SD error bars.
 #'
-#' @inheritParams shared_viz_lib_args
 #' @inheritParams shared_experiment_helpers_args
-#' @param metrics A `metric_set` object indicating the metrics to plot.
-#'   See [yardstick::metric_set()] for more details. Default `NULL` will
+#' @inheritParams shared_viz_lib_args
+#' @inheritDotParams plot_eval_constructor -eval_results -eval_names -plot_data
+#'   -vary_params -show
+#' @param metrics A \code{metric_set} object indicating the metrics to plot.
+#'   See [yardstick::metric_set()] for more details. Default \code{NULL} will
 #'   use the default metrics in [yardstick::metrics()].
 #'
 #' @inherit plot_eval_constructor return
@@ -98,9 +100,11 @@ plot_pred_err <- function(fit_results = NULL,
 #' @description Plot ROC/PR curves or some summary thereof across experimental
 #'   replicates.
 #'
-#' @inheritParams shared_viz_lib_args
 #' @inheritParams shared_experiment_helpers_args
-#'
+#' @inheritParams shared_viz_lib_args
+#' @inheritDotParams plot_eval_constructor -eval_results -eval_names -plot_data
+#'   -vary_params -show
+#' 
 #' @inherit plot_eval_constructor return
 #'
 #' @family prediction_error_funs

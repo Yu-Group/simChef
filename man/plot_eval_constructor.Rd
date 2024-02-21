@@ -10,7 +10,7 @@ plot_eval_constructor(
   plot_data = NULL,
   eval_id = NULL,
   vary_params = NULL,
-  show = c("boxplot", "point", "line", "bar", "errorbar", "ribbon"),
+  show = c("boxplot", "point", "line", "bar", "errorbar", "ribbon", "violin"),
   x_str = "auto",
   y_str = "auto",
   y_boxplot_str = "auto",
@@ -27,6 +27,7 @@ plot_eval_constructor(
   bar_args = NULL,
   errorbar_args = NULL,
   ribbon_args = NULL,
+  violin_args = NULL,
   facet_args = NULL,
   interactive = FALSE,
   ...
@@ -56,8 +57,8 @@ assign default (i.e., "auto") aesthetics in ggplot.}
 varied across in the \code{Experiment}.}
 
 \item{show}{Character vector with elements being one of "boxplot", "point",
-"line", "bar", "errorbar", "ribbon" indicating what plot layer(s) to
-construct.}
+"line", "bar", "errorbar", "ribbon", "violin", indicating what plot
+layer(s) to construct.}
 
 \item{x_str}{(Optional) Name of column in data frame to plot on the
 x-axis. Default "auto" chooses what to plot on the x-axis automatically.}
@@ -116,6 +117,9 @@ via \code{+}.}
 
 \item{ribbon_args}{(Optional) Additional arguments to pass into
 \code{ggplot2::geom_ribbon()}.}
+
+\item{violin_args}{(Optional) Additional arguments to pass into
+\code{ggplot2::geom_violin()}.}
 
 \item{facet_args}{(Optional) Additional arguments to pass into
 \code{ggplot2::facet_grid()} or \code{ggplot2::facet_wrap()}.}

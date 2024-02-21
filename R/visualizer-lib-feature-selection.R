@@ -6,6 +6,8 @@
 #' @inheritParams shared_viz_lib_args
 #' @inheritParams shared_experiment_helpers_args
 #' @inheritParams summarize_feature_importance
+#' @inheritDotParams plot_eval_constructor -eval_results -eval_names -plot_data
+#'   -vary_params -show
 #' @param show_max_features Maximum number of features to plot.
 #'
 #' @inherit plot_eval_constructor return
@@ -122,6 +124,8 @@ plot_feature_importance <- function(fit_results = NULL,
 #'   bars.
 #'
 #' @inheritParams plot_pred_err
+#' @inheritDotParams plot_eval_constructor -eval_results -eval_names -plot_data
+#'   -vary_params -show
 #'
 #' @inherit plot_eval_constructor return
 #'
@@ -212,7 +216,9 @@ plot_feature_selection_err <- function(fit_results = NULL,
 #'   across experimental replicates.
 #'
 #' @inheritParams plot_pred_curve
-#'
+#' @inheritDotParams plot_eval_constructor -eval_results -eval_names -plot_data
+#'   -vary_params -show
+#' 
 #' @inherit plot_eval_constructor return
 #'
 #' @family feature_selection_funs
