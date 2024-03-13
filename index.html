@@ -227,8 +227,8 @@
 <span><span class="fu"><a href="reference/render_docs.html">render_docs</a></span><span class="op">(</span><span class="va">experiment</span><span class="op">)</span></span></code></pre></div>
 <p>Simulation experiment complete!</p>
 <p>In addition, the code, narrative, and results of the simulation experiment have been automatically rendered into an interactive html document via R Markdown (see <code><a href="reference/render_docs.html">? render_docs</a></code>), such as the one shown below:</p>
-<div class="figure">
-<img src="reference/figures/simchef.gif" alt=""><p class="caption">Interactive R Markdown simulation documentation</p>
+<div class="float">
+<img src="reference/figures/simchef.gif" alt="Interactive R Markdown simulation documentation"><div class="figcaption">Interactive R Markdown simulation documentation</div>
 </div>
 <p>For a more detailed walkthrough of this example usage, please see <code><a href="articles/simChef.html">vignette("simChef")</a></code>.</p>
 <p><strong>For an example real-world case study using <code>simChef</code> to develop novel statistical methodology, please check out <a href="https://github.com/PhilBoileau/simChef-case-study" class="external-link">Boileau et al.</a>.</strong> The corresponding interactive R Markdown documentation can be found <a href="https://philboileau.github.io/simChef-case-study/results/empirical-fdr-comparison/empirical-fdr-comparison.html" class="external-link">here</a>.</p>
@@ -275,8 +275,8 @@
 <p>A fifth <code>R6</code> class and concept, <code>Experiment</code>, unites the four concepts above. More precisely, an <code>Experiment</code> is a collection of <code>DGP</code>(s), <code>Method</code>(s), <code>Evaluator</code>(s), and <code>Visualizer</code>(s), which are thoughtfully composed to answer a particular question of interest. An <code>Experiment</code> can also include references to <code>DGP</code> and/or <code>Method</code> parameters that should be varied and combined during the simulation run (see <code><a href="reference/vary_across.html">? add_vary_across</a></code>).</p>
 <p>Using the <code>DGP</code>, <code>Method</code>, <code>Evaluator</code>, and <code>Visualizer</code> classes, users can easily build a <code>simChef</code> <code>Experiment</code> using reusable building blocks and customizable functions.</p>
 <p>Once an <code>Experiment</code> has been constructed, users can finally run the simulation experiment via the function <code><a href="reference/run_experiment.html">run_experiment()</a></code>. As summarized in the figure below, running the experiment will (1) <em>fit</em> each <code>Method</code> on each <code>DGP</code> (and for each of the varying parameter configurations), (2) <em>evaluate</em> the experiment according to the given <code>Evaluator</code>(s), and (3) <em>visualize</em> the experiment according to the given <code>Visualizer</code>(s).</p>
-<div class="figure">
-<img src="reference/figures/run_experiment.png" alt=""><p class="caption">Overview of running a <code>simChef</code> <code>Experiment</code>. The <code>Experiment</code> class handles relationships among the four classes: <code>DGP</code>, <code>Method</code>, <code>Evaluator</code>, and <code>Visualizer</code>. Experiments may have multiple <code>DGP</code>s and <code>Method</code>s, which are combined across the Cartesian product of their varying parameters (represented by <code>\*</code>). Once computed, each <code>Evaluator</code> and <code>Visualizer</code> takes in the fitted simulation replicates, while <code>Visualizer</code> additionally receives evaluation summaries.</p>
+<div class="float">
+<img src="reference/figures/run_experiment.png" alt="Overview of running a simChef Experiment. The Experiment class handles relationships among the four classes: DGP, Method, Evaluator, and Visualizer. Experiments may have multiple DGPs and Methods, which are combined across the Cartesian product of their varying parameters (represented by \*). Once computed, each Evaluator and Visualizer takes in the fitted simulation replicates, while Visualizer additionally receives evaluation summaries."><div class="figcaption">Overview of running a <code>simChef</code> <code>Experiment</code>. The <code>Experiment</code> class handles relationships among the four classes: <code>DGP</code>, <code>Method</code>, <code>Evaluator</code>, and <code>Visualizer</code>. Experiments may have multiple <code>DGP</code>s and <code>Method</code>s, which are combined across the Cartesian product of their varying parameters (represented by <code>\*</code>). Once computed, each <code>Evaluator</code> and <code>Visualizer</code> takes in the fitted simulation replicates, while <code>Visualizer</code> additionally receives evaluation summaries.</div>
 </div>
 </div>
 </div>
@@ -310,32 +310,19 @@ While creating our own simulations, we soon found that no existing R package cou
 <h2 id="roadmap">Roadmap<a class="anchor" aria-label="anchor" href="#roadmap"></a>
 </h2>
 <ul class="task-list">
-<li>
-<input type="checkbox" disabled checked>Implement an abstract API to allow for a grammar of simulation experiments.</li>
-<li>
-<input type="checkbox" disabled checked>Run experimental replicates in parallel and agnostic to computational backend via the R package <code>future</code>.</li>
-<li>
-<input type="checkbox" disabled checked>Output an automated R Markdown report summarizing the results of an Experiment.</li>
-<li>
-<input type="checkbox" disabled checked>Allow for varying simulation experiments across arbitrary parameters of DGPs and Methods.</li>
-<li>
-<input type="checkbox" disabled checked>Cache results to avoid re-running already computed components of an Experiment.</li>
-<li>
-<input type="checkbox" disabled checked>Checkpoint simulations to avoid losing progress in the case of unexpected problems, e.g. node failure.</li>
-<li>
-<input type="checkbox" disabled checked>Gracefully handle errors from user-defined functions and return partial results error information for user to inspect upon completion.</li>
-<li>
-<input type="checkbox" disabled checked>Incorporate <code>progressr</code> for simulation progress updates.</li>
-<li>
-<input type="checkbox" disabled checked>Include a set of off-the-shelf DGPs (moved to <a href="https://yu-group.github.io/dgpoix/" class="external-link"><code>dgpoix</code></a>), Evaluators, and Visualizers to allow users to quickly run their methods in a number of common types of simulations.</li>
-<li>
-<input type="checkbox" disabled checked>Allow for user customization of the final R Markdown report (e.g. a customized R Markdown template/theme, order of Evaluator and Visualizer displays).</li>
-<li>
-<input type="checkbox" disabled>Give user the ability to choose which tasks are distributed to parallel workers, i.e. simulation replicates, DGPs, Methods, or combinations of the three.</li>
-<li>
-<input type="checkbox" disabled>Enable nested parallelization, e.g. one may paralellize across DGPs using multiple nodes on a cluster and parallelize across simulation replicates using the CPU cores within each node.</li>
-<li>
-<input type="checkbox" disabled>Publish to CRAN.</li>
+<li><label><input type="checkbox" checked>Implement an abstract API to allow for a grammar of simulation experiments.</label></li>
+<li><label><input type="checkbox" checked>Run experimental replicates in parallel and agnostic to computational backend via the R package <code>future</code>.</label></li>
+<li><label><input type="checkbox" checked>Output an automated R Markdown report summarizing the results of an Experiment.</label></li>
+<li><label><input type="checkbox" checked>Allow for varying simulation experiments across arbitrary parameters of DGPs and Methods.</label></li>
+<li><label><input type="checkbox" checked>Cache results to avoid re-running already computed components of an Experiment.</label></li>
+<li><label><input type="checkbox" checked>Checkpoint simulations to avoid losing progress in the case of unexpected problems, e.g. node failure.</label></li>
+<li><label><input type="checkbox" checked>Gracefully handle errors from user-defined functions and return partial results error information for user to inspect upon completion.</label></li>
+<li><label><input type="checkbox" checked>Incorporate <code>progressr</code> for simulation progress updates.</label></li>
+<li><label><input type="checkbox" checked>Include a set of off-the-shelf DGPs (moved to <a href="https://yu-group.github.io/dgpoix/" class="external-link"><code>dgpoix</code></a>), Evaluators, and Visualizers to allow users to quickly run their methods in a number of common types of simulations.</label></li>
+<li><label><input type="checkbox" checked>Allow for user customization of the final R Markdown report (e.g. a customized R Markdown template/theme, order of Evaluator and Visualizer displays).</label></li>
+<li><label><input type="checkbox">Give user the ability to choose which tasks are distributed to parallel workers, i.e. simulation replicates, DGPs, Methods, or combinations of the three.</label></li>
+<li><label><input type="checkbox">Enable nested parallelization, e.g. one may paralellize across DGPs using multiple nodes on a cluster and parallelize across simulation replicates using the CPU cores within each node.</label></li>
+<li><label><input type="checkbox">Publish to CRAN.</label></li>
 </ul>
 </div>
 <div class="section level2">
