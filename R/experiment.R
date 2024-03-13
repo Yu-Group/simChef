@@ -262,7 +262,8 @@ Experiment <- R6::R6Class(
                                        return(NULL)
                                      } else {
                                        return(purrr::map(x, names) %>%
-                                                purrr::reduce(c))
+                                                purrr::reduce(c) %>%
+                                                unique())
                                      }
                                    })
       param_names <- purrr::reduce(param_names_ls, c)
@@ -390,6 +391,7 @@ Experiment <- R6::R6Class(
       }
       return(out_params)
     },
+    
     .get_obj_params = function(field_name = c("evaluator", "visualizer"),
                                obj_list) {
       field_name <- match.arg(field_name)
@@ -707,6 +709,7 @@ Experiment <- R6::R6Class(
                             paste("Varying", param_names))
       return(save_dir)
     },
+    
     deep_clone = function(name, value) {
       if (is.list(value) && length(value) > 0 && inherits(value[[1]], "R6")) {
         lapply(value, function(v) v$clone(deep = TRUE))
