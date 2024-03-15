@@ -8,11 +8,11 @@ authors:
   - name: James Duncan
     orcid: 0000-0003-3297-681X
     equal-contrib: true
-    corresponding: true
     affiliation: 1
   - name: Tiffany Tang
     orcid: 0000-0002-8079-6867
     equal-contrib: true
+    corresponding: true
     affiliation: 2
   - name: Corrine F. Elliott
     orcid: 0000-0001-7935-9945
