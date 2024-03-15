@@ -23,13 +23,13 @@ authors:
   - name: Bin Yu
     affiliation: "1, 2, 3, 4"    
 affiliations:
- - name: Graduate Group in Biostatistics, University of California, Berkeley
+ - name: Graduate Group in Biostatistics, University of California, Berkeley, United States of America
    index: 1
- - name: Department of Statistics, University of California, Berkeley
+ - name: Department of Statistics, University of California, Berkeley, United States of America
    index: 2
- - name: Department of Electrical Engineering and Computer Sciences, University of California, Berkeley
+ - name: Department of Electrical Engineering and Computer Sciences, University of California, Berkeley, United States of America
    index: 3
- - name: Center for Computational Biology, University of California, Berkeley
+ - name: Center for Computational Biology, University of California, Berkeley, United States of America
    index: 4
 date: 28 June 2023
 bibliography: paper.bib
