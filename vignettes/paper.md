@@ -243,7 +243,7 @@ outputs, relying on the `parallel` package for distributed computation.
 generating data, fitting models, varying parameters, and aggregating simulation
 results with user-defined and `purr`-style functions. In addition, it support
 distributed computations backed by the `future` framework.
-- `SimEngine` [@kenny-SimEngine-2023] defines and executes simulation 'levels'
+- `SimEngine` [@kenny-simengine-2024] defines and executes simulation 'levels'
 (parameters to vary) and 'scripts' (functions to execute a single simulation
 replicate). It manages the definition and execution of simulations and
 calculates summary statistics, with support for distributed computations in
@@ -282,12 +282,13 @@ management, and automated documentation.
 While `simChef`'s core functionality focuses on computability (C) --
 encompassing efficient usage of computational resources, ease of user
 interaction, reproducibility, and documentation -- we emphasize the importance
-of predictability (P) and stability (S) in data science simulations. The
-principal goal of `simChef` is to provide a tool for data scientists to create
-simulations that incorporate predictability (through fit to real-world data) and
-stability (through sufficient exploration of uncertainty) in their simulations.
-In future work, we intend to provide tools that can be flexibly tailored to a
-user's particular scientific needs and further these goals through automated
+of predictability (P) and stability (S) in data science simulations (see
+[@elliott-designing-2024] for an in-depth discussion). The principal goal of
+`simChef` is to provide a tool for data scientists to create simulations that
+incorporate predictability (through fit to real-world data) and stability
+(through sufficient exploration of uncertainty) in their simulations. In future
+work, we intend to provide tools that can be flexibly tailored to a user's
+particular scientific needs and further these goals through automated
 predictability and stability summaries and documentation.
 
 # Acknowledgements
