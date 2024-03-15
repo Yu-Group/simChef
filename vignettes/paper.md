@@ -36,9 +36,6 @@ bibliography: paper.bib
 
 ---
 
-![](simChef-logo.png){ width=30% }
-
-
 # Summary
 
 `simChef` is an `R` package that empowers data science practitioners to rapidly
