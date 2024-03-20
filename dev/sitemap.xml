@@ -1,13 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
+    <loc>https://yu-group.github.io/simChef/dev/CONTRIBUTING.html</loc>
+  </url>
+  <url>
     <loc>https://yu-group.github.io/simChef/dev/LICENSE.html</loc>
+  </url>
+  <url>
+    <loc>https://yu-group.github.io/simChef/dev/articles/cheat-sheet.html</loc>
   </url>
   <url>
     <loc>https://yu-group.github.io/simChef/dev/articles/index.html</loc>
   </url>
   <url>
     <loc>https://yu-group.github.io/simChef/dev/articles/parallel.html</loc>
+  </url>
+  <url>
+    <loc>https://yu-group.github.io/simChef/dev/articles/simChef-full.html</loc>
   </url>
   <url>
     <loc>https://yu-group.github.io/simChef/dev/articles/simChef.html</loc>
@@ -19,10 +28,10 @@
     <loc>https://yu-group.github.io/simChef/dev/authors.html</loc>
   </url>
   <url>
-    <loc>https://yu-group.github.io/simChef/dev/index.html</loc>
+    <loc>https://yu-group.github.io/simChef/dev/example_experiment.html</loc>
   </url>
   <url>
-    <loc>https://yu-group.github.io/simChef/dev/linear_regression_output.html</loc>
+    <loc>https://yu-group.github.io/simChef/dev/index.html</loc>
   </url>
   <url>
     <loc>https://yu-group.github.io/simChef/dev/news/index.html</loc>
@@ -62,6 +71,9 @@
   </url>
   <url>
     <loc>https://yu-group.github.io/simChef/dev/reference/check_results_names.html</loc>
+  </url>
+  <url>
+    <loc>https://yu-group.github.io/simChef/dev/reference/class_metric_vec_constructor.html</loc>
   </url>
   <url>
     <loc>https://yu-group.github.io/simChef/dev/reference/clean_up_worker_env.html</loc>
@@ -226,9 +238,6 @@
     <loc>https://yu-group.github.io/simChef/dev/reference/load_all.html</loc>
   </url>
   <url>
-    <loc>https://yu-group.github.io/simChef/dev/reference/metric_vec_constructor.html</loc>
-  </url>
-  <url>
     <loc>https://yu-group.github.io/simChef/dev/reference/neg.html</loc>
   </url>
   <url>
@@ -236,9 +245,6 @@
   </url>
   <url>
     <loc>https://yu-group.github.io/simChef/dev/reference/pasteMd.html</loc>
-  </url>
-  <url>
-    <loc>https://yu-group.github.io/simChef/dev/reference/pipe.html</loc>
   </url>
   <url>
     <loc>https://yu-group.github.io/simChef/dev/reference/pipe_value.html</loc>
@@ -275,6 +281,9 @@
   </url>
   <url>
     <loc>https://yu-group.github.io/simChef/dev/reference/pos.html</loc>
+  </url>
+  <url>
+    <loc>https://yu-group.github.io/simChef/dev/reference/reexports.html</loc>
   </url>
   <url>
     <loc>https://yu-group.github.io/simChef/dev/reference/remove_funs.html</loc>
