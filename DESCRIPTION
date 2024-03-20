@@ -10,7 +10,8 @@ Authors@R: c(
            comment = c(ORCID = "0000-0001-7935-9945")),
     person("Philippe", "Boileau", role = "ctb",
            comment = c(ORCID = "0000-0002-4850-2507")),
-    person("Yu", "Bin", role = "ths")
+    person("Yu", "Bin", role = "ths",
+           comment = c(ORCID = "0000-0002-8888-4060"))
   )
 Description: Helps cook up the code necessary to create a fully-realized,
     high-quality, reproducible, and transparently documented simulation
