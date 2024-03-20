@@ -21,7 +21,8 @@ authors:
     orcid: 0000-0002-4850-2507
     affiliation: 1
   - name: Bin Yu
-    affiliation: "1, 2, 3, 4"    
+    affiliation: "1, 2, 3, 4"
+    orcid: 0000-0002-8888-4060
 affiliations:
  - name: Graduate Group in Biostatistics, University of California, Berkeley, United States of America
    index: 1
