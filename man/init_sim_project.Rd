@@ -7,9 +7,9 @@
 init_sim_project(
   path,
   init_git = TRUE,
-  init_renv = FALSE,
-  tests = TRUE,
-  hpc = FALSE
+  init_renv = TRUE,
+  init_tests = TRUE,
+  init_dirs = NULL
 )
 }
 \arguments{
@@ -17,17 +17,16 @@ init_sim_project(
 directory.}
 
 \item{init_git}{Logical, indicating whether to intialize your
-simulation directory as a git repository.}
+simulation directory as a git repository. Defaults to \code{TRUE}.}
 
 \item{init_renv}{Logical, stating whether to initialize \code{renv} with
-\code{init()} from the \code{renv} package. Defaults to \code{FALSE}.}
+\code{init()} from the \code{renv} package. Defaults to \code{TRUE}.}
 
-\item{tests}{Logical, indicating whether to generate sub-directories
+\item{init_tests}{Logical, indicating whether to generate sub-directories
 for organizing unit tests. Defaults to \code{TRUE}.}
 
-\item{hpc}{Logical, indicating whether to create sub-directories for
-organizing files related to high-performance computing environments. Defaults to
-\code{FALSE}.}
+\item{init_dirs}{Character vector, specifying additional directories to
+create in the simulation project. Defaults to \code{NULL}.}
 }
 \description{
 \code{init_sim_project()} initializes a directory for your simulation
