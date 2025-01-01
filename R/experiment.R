@@ -226,7 +226,7 @@ Experiment <- R6::R6Class(
           call = rlang::caller_env()
         )
       }
-      obj_fun_args <- methods::formalArgs(
+      obj_fun_args <- formalArgs(
         obj_list[[obj_name]][[paste0(field_name, "_fun")]]
       )
       dots_list_valid_names <- names(dots_list) %in% obj_fun_args

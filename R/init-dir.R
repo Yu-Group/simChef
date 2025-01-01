@@ -32,17 +32,26 @@ create_sim <- function(
 ) {
 
   ## ensure arguments are appropriate
-  assertthat::assert_that(is.character(path))
-  assertthat::assert_that(is.logical(init_git))
-  assertthat::assert_that(is.logical(init_renv))
-  assertthat::assert_that(is.logical(tests))
-  assertthat::assert_that(is.logical(hpc))
+  if (!is.character(path)) {
+    stop("path must be a character string.")
+  }
+  if (!is.logical(init_git)) {
+    stop("init_git must be a logical.")
+  }
+  if (!is.logical(init_renv)) {
+    stop("init_renv must be a logical.")
+  }
+  if (!is.logical(tests)) {
+    stop("tests must be a logical.")
+  }
+  if (!is.logical(hpc)) {
+    stop("hpc must be a logical.")
+  }
 
   ## don't overwrite existing project
-  assertthat::assert_that(
-    !dir.exists(paths = path),
-    msg = "This directory already exists. Try another."
-  )
+  if (dir.exists(paths = path)) {
+    stop("This directory already exists. Try another.")
+  }
 
   ## intialize a project
   usethis::create_project(

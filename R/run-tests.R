@@ -52,26 +52,30 @@ test_sim_dir <- function() {
   path_to_tests <- paste0(usethis::proj_get(), "/tests/testthat")
 
   # make sure that the testthat directory exists
-  assertthat::assert_that(
-    dir.exists(path_to_tests),
-     msg = paste0(
-       "Cannot find ", path_to_tests,
-       ". Is this simulation your active project?"
-     )
-  )
+  if (!dir.exists(path_to_tests)) {
+    stop(
+      paste0(
+        "Cannot find ", path_to_tests,
+        ". Is this simulation your active project?"
+      )
+    )
+  }
 
   # make sure that subdirectories exist
-  assertthat::assert_that(
-    all(dir.exists(paste0(
-      path_to_tests,
-      c("/dgp-tests", "/method-tests", "/eval-tests", "/viz-tests")
-    ))),
-    msg = paste0("No test subdirectories found; dgp-, method-, evaluator- and ",
-                 "visualizer-related tests must be saved in",
-                 "tests/testthat/dgp-tests, tests/testthat/metod-tests, ",
-                 "tests/testthat/eval-tests and tests/testthat/viz-tests, ",
-                 "respectively.")
-  )
+  if (!all(dir.exists(paste0(
+    path_to_tests,
+    c("/dgp-tests", "/method-tests", "/eval-tests", "/viz-tests")
+  )))) {
+    stop(
+      paste0(
+        "No test subdirectories found; dgp-, method-, evaluator- and ",
+        "visualizer-related tests must be saved in",
+        "tests/testthat/dgp-tests, tests/testthat/metod-tests, ",
+        "tests/testthat/eval-tests and tests/testthat/viz-tests, ",
+        "respectively."
+      )
+    )
+  }
 
   # test dgp-related functions
   dgp_test_path <- paste0(path_to_tests, "/dgp-tests")
