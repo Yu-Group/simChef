@@ -4,16 +4,16 @@
 #'   study. It wraps around \code{usethis::create_project()}, as well as
 #'   \code{usethis::use_git()} and \code{renv::init()}.
 #'
-#' @param path A `character` specifying the path for your simulation
+#' @param path Character string, specifying the path for your simulation
 #'   directory.
-#' @param init_git A `logical` indicating whether to intialize your
+#' @param init_git Logical, indicating whether to intialize your
 #'   simulation directory as a git repository.
-#' @param init_renv A `logical` stating whether to initialize `renv` with
+#' @param init_renv Logical, stating whether to initialize `renv` with
 #'   `init()` from the `renv` package. Defaults to `FALSE`.
-#' @param tests A `logical` indicating whether to generate sub-directories
+#' @param tests Logical, indicating whether to generate sub-directories
 #'   for organizing unit tests. Defaults to `TRUE`.
-#' @param hpc A `logical` indicating whether to create sub-directories for
-#'   organizing files related to high-power computing environments. Defaults to
+#' @param hpc Logical, indicating whether to create sub-directories for
+#'   organizing files related to high-performance computing environments. Defaults to
 #'   `FALSE`.
 #'
 #' @examples
