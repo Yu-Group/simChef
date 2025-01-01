@@ -5,78 +5,53 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<meta name="description" content="simChef">
 <title>Getting started with simChef • simChef</title>
-<!-- favicons --><link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
-<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
-<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png">
-<link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png">
-<link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png">
-<link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png">
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
-<!-- bootstrap-toc --><script src="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@v1.0.1/dist/bootstrap-toc.min.js" integrity="sha256-4veVQbu7//Lk5TSmc7YV48MxtMy98e26cf5MrgZYnwo=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Getting started with simChef">
-<meta property="og:description" content="simChef">
-<meta property="og:image" content="https://yu-group.github.io/simChef/logo.png">
+<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Getting started with simChef">
 <meta name="robots" content="noindex">
-<!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
-<script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
-<script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-<![endif]-->
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
-    
 
-    <nav class="navbar fixed-top navbar-light navbar-expand-lg bg-light"><div class="container">
-    
+
+    <nav class="navbar navbar-expand-lg fixed-top bg-light" data-bs-theme="light" aria-label="Site navigation"><div class="container">
+
     <a class="navbar-brand me-2" href="../index.html">simChef</a>
 
     <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.1.0.9000</small>
 
-    
+
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
-<li class="active nav-item">
-  <a class="nav-link" href="../articles/simChef.html">Get started</a>
-</li>
-<li class="nav-item">
-  <a class="nav-link" href="../reference/index.html">Reference</a>
-</li>
+<li class="active nav-item"><a class="nav-link" href="../articles/simChef.html">Get started</a></li>
+<li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
-  <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
-  <div class="dropdown-menu" aria-labelledby="dropdown-articles">
-    <a class="dropdown-item" href="../articles/cheat-sheet.html">Cheat sheet: Inputs/outputs for user-defined functions</a>
-    <a class="dropdown-item" href="../articles/parallel.html">Computing experimental replicates in parallel</a>
-    <a class="dropdown-item" href="../articles/simChef-full.html">simChef: A comprehensive guide</a>
-    <a class="dropdown-item" href="../articles/simulation-directory-setup.html">Setting Up Your Simulation Study</a>
-  </div>
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
+<li><a class="dropdown-item" href="../articles/cheat-sheet.html">Cheat sheet: Inputs/outputs for user-defined functions</a></li>
+    <li><a class="dropdown-item" href="../articles/parallel.html">Computing experimental replicates in parallel</a></li>
+    <li><a class="dropdown-item" href="../articles/simChef-full.html">simChef: A comprehensive guide</a></li>
+    <li><a class="dropdown-item" href="../articles/simulation-directory-setup.html">Setting Up Your Simulation Study</a></li>
+  </ul>
 </li>
-<li class="nav-item">
-  <a class="nav-link" href="../news/index.html">Changelog</a>
-</li>
+<li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul>
-<form class="form-inline my-2 my-lg-0" role="search">
-        <input type="search" class="form-control me-sm-2" aria-label="Toggle navigation" name="search-input" data-search-index="../search.json" id="search-input" placeholder="Search for" autocomplete="off">
-</form>
-
-      <ul class="navbar-nav">
-<li class="nav-item">
-  <a class="external-link nav-link" href="https://github.com/Yu-Group/simChef/" aria-label="github">
-    <span class="fab fa fab fa-github fa-lg"></span>
-     
-  </a>
-</li>
+<ul class="navbar-nav">
+<li class="nav-item"><form class="form-inline" role="search">
+ <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json">
+</form></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://github.com/Yu-Group/simChef/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
       </ul>
 </div>
 
-    
+
   </div>
 </nav><div class="container template-article">
 
@@ -86,7 +61,7 @@
       <img src="../logo.png" class="logo" alt=""><h1>Getting started with simChef</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/Yu-Group/simChef/blob/HEAD/vignettes/simChef.Rmd" class="external-link"><code>vignettes/simChef.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/Yu-Group/simChef/blob/main/vignettes/simChef.Rmd" class="external-link"><code>vignettes/simChef.Rmd</code></a></small>
       <div class="d-none name"><code>simChef.Rmd</code></div>
     </div>
 
@@ -224,15 +199,15 @@ grammar</a>. The core features of <code>simChef</code> include:</p>
 </h3>
 <p>Thus far, we have created the many individual components (i.e., <code>DGP(s)</code>, <code>Method(s)</code>, <code>Evaluator(s)</code>, and <code>Visualizer(s)</code>) for our simulation experiment. We next assemble or <code>add</code> these components together to create a complete simulation experiment recipe via:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">experiment</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/create_experiment.html">create_experiment</a></span><span class="op">(</span>name <span class="op">=</span> <span class="st">"Example Experiment"</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
-<span>  <span class="fu"><a href="../reference/add_funs.html">add_dgp</a></span><span class="op">(</span><span class="va">linear_dgp</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
-<span>  <span class="fu"><a href="../reference/add_funs.html">add_method</a></span><span class="op">(</span><span class="va">linear_reg</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
-<span>  <span class="fu"><a href="../reference/add_funs.html">add_method</a></span><span class="op">(</span><span class="va">rf</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
-<span>  <span class="fu"><a href="../reference/add_funs.html">add_evaluator</a></span><span class="op">(</span><span class="va">pred_err</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<code class="sourceCode R"><span><span class="va">experiment</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/create_experiment.html">create_experiment</a></span><span class="op">(</span>name <span class="op">=</span> <span class="st">"Example Experiment"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/add_funs.html">add_dgp</a></span><span class="op">(</span><span class="va">linear_dgp</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/add_funs.html">add_method</a></span><span class="op">(</span><span class="va">linear_reg</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/add_funs.html">add_method</a></span><span class="op">(</span><span class="va">rf</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/add_funs.html">add_evaluator</a></span><span class="op">(</span><span class="va">pred_err</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/add_funs.html">add_visualizer</a></span><span class="op">(</span><span class="va">pred_err_plot</span><span class="op">)</span></span></code></pre></div>
 <p>We can also vary across one or more parameters in the <code>DGP(s)</code> and/or <code>Method(s)</code> by adding a <code>vary_across</code> component to the simulation experiment recipe. In the running simulation example, we would like to vary across the amount of noise (<code>noise_sd</code>) in the underlying DGP, which can be done as follows:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">experiment</span> <span class="op">&lt;-</span> <span class="va">experiment</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<code class="sourceCode R"><span><span class="va">experiment</span> <span class="op">&lt;-</span> <span class="va">experiment</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/vary_across.html">add_vary_across</a></span><span class="op">(</span>.dgp <span class="op">=</span> <span class="st">"Linear DGP"</span>, noise_sd <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">0.5</span>, <span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><em>Tip</em>: To see a high-level summary of the simulation experiment recipe, it can be helpful to print the experiment.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
@@ -266,20 +241,22 @@ grammar</a>. The core features of <code>simChef</code> include:</p>
 <p>At this point, we have created and documented the simulation experiment recipe, but we have not generated any results from the experiment. That is, we have only given the simulation experiment instructions on what to do. To run the experiment, say over 100 replicates, we can do so via</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">results</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_experiment.html">run_experiment</a></span><span class="op">(</span><span class="va">experiment</span>, n_reps <span class="op">=</span> <span class="fl">100</span>, save <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Error in get(paste0(generic, ".", class), envir = get_method_env()) : </span></span>
+<span><span class="co">#&gt;   object 'type_sum.accel' not found</span></span>
 <span><span class="co">#&gt; Fitting Example Experiment...</span></span>
 <span><span class="co">#&gt; Saving fit results...</span></span>
-<span><span class="co">#&gt; Fit results saved | time taken: 0.106165 seconds</span></span>
-<span><span class="co">#&gt; 100 reps completed (totals: 100/100) | time taken: 3.574062 minutes</span></span>
+<span><span class="co">#&gt; Fit results saved | time taken: 0.104074 seconds</span></span>
+<span><span class="co">#&gt; 100 reps completed (totals: 100/100) | time taken: 3.462904 minutes</span></span>
 <span><span class="co">#&gt; ==============================</span></span>
 <span><span class="co">#&gt; Evaluating Example Experiment...</span></span>
-<span><span class="co">#&gt; Evaluation completed | time taken: 0.102519 minutes</span></span>
+<span><span class="co">#&gt; Evaluation completed | time taken: 0.099457 minutes</span></span>
 <span><span class="co">#&gt; Saving eval results...</span></span>
-<span><span class="co">#&gt; Eval results saved | time taken: 0.057149 seconds</span></span>
+<span><span class="co">#&gt; Eval results saved | time taken: 0.052876 seconds</span></span>
 <span><span class="co">#&gt; ==============================</span></span>
 <span><span class="co">#&gt; Visualizing Example Experiment...</span></span>
-<span><span class="co">#&gt; Visualization completed | time taken: 0.001254 minutes</span></span>
+<span><span class="co">#&gt; Visualization completed | time taken: 0.001335 minutes</span></span>
 <span><span class="co">#&gt; Saving viz results...</span></span>
-<span><span class="co">#&gt; Viz results saved | time taken: 0.476180 seconds</span></span>
+<span><span class="co">#&gt; Viz results saved | time taken: 0.479121 seconds</span></span>
 <span><span class="co">#&gt; ==============================</span></span></code></pre></div>
 </div>
 <div class="section level3">
@@ -313,7 +290,7 @@ Once these functions are appropriately written/specified, <code>simChef</code> t
 </ol>
 <p><code><a href="../reference/run_experiment.html">run_experiment()</a></code> is simply a wrapper around these three functions: <code><a href="../reference/fit_experiment.html">fit_experiment()</a></code>, <code><a href="../reference/evaluate_experiment.html">evaluate_experiment()</a></code>, and <code><a href="../reference/visualize_experiment.html">visualize_experiment()</a></code>.</p>
 <div class="float">
-<img src="figures/run_experiment.png" style="width:100.0%" alt=" Overview of running a simChef Experiment. The Experiment class handles relationships among the four classes: DGP(), Method(), Evaluator(), and Visualizer(). Experiments may have multiple DGPs and Methods, which are combined across the Cartesian product of their varying parameters (represented by *). Once computed, each Evaluator and Visualizer takes in the fitted simulation replicates, while Visualizer additionally receives evaluation summaries."><div class="figcaption"> Overview of running a <code>simChef</code> <code>Experiment</code>. The <code>Experiment</code> class handles relationships among the four classes: <code><a href="../reference/DGP.html">DGP()</a></code>, <code><a href="../reference/Method.html">Method()</a></code>, <code><a href="../reference/Evaluator.html">Evaluator()</a></code>, and <code><a href="../reference/Visualizer.html">Visualizer()</a></code>. Experiments may have multiple <code>DGPs</code> and <code>Methods</code>, which are combined across the Cartesian product of their varying parameters (represented by *). Once computed, each <code>Evaluator</code> and <code>Visualizer</code> takes in the fitted simulation replicates, while <code>Visualizer</code> additionally receives evaluation summaries.</div>
+<img src="figures%2Frun_experiment.png" style="width:100.0%" alt=" Overview of running a simChef Experiment. The Experiment class handles relationships among the four classes: DGP(), Method(), Evaluator(), and Visualizer(). Experiments may have multiple DGPs and Methods, which are combined across the Cartesian product of their varying parameters (represented by *). Once computed, each Evaluator and Visualizer takes in the fitted simulation replicates, while Visualizer additionally receives evaluation summaries."><div class="figcaption"> Overview of running a <code>simChef</code> <code>Experiment</code>. The <code>Experiment</code> class handles relationships among the four classes: <code><a href="../reference/DGP.html">DGP()</a></code>, <code><a href="../reference/Method.html">Method()</a></code>, <code><a href="../reference/Evaluator.html">Evaluator()</a></code>, and <code><a href="../reference/Visualizer.html">Visualizer()</a></code>. Experiments may have multiple <code>DGPs</code> and <code>Methods</code>, which are combined across the Cartesian product of their varying parameters (represented by *). Once computed, each <code>Evaluator</code> and <code>Visualizer</code> takes in the fitted simulation replicates, while <code>Visualizer</code> additionally receives evaluation summaries.</div>
 </div>
 <p>In what follows, we will discuss fitting, evaluating, and visualizing the experiment, each in turn.</p>
 </div>
@@ -367,7 +344,7 @@ Once these functions are appropriately written/specified, <code>simChef</code> t
 </ul>
 <p>We summarize these inputs and outputs in Figure <a href="#fig:fit-experiment-figure">3.2</a>.</p>
 <div class="float">
-<img src="figures/fit_experiment.png" style="width:100.0%" alt=" Overview of fitting a simChef Experiment. Inputs and outputs for user-defined functions are also provided."><div class="figcaption"> Overview of fitting a <code>simChef</code> <code>Experiment</code>. Inputs and outputs for user-defined functions are also provided.</div>
+<img src="figures%2Ffit_experiment.png" style="width:100.0%" alt=" Overview of fitting a simChef Experiment. Inputs and outputs for user-defined functions are also provided."><div class="figcaption"> Overview of fitting a <code>simChef</code> <code>Experiment</code>. Inputs and outputs for user-defined functions are also provided.</div>
 </div>
 </div>
 <div class="section level3">
@@ -398,7 +375,7 @@ We summarize the relevant inputs and outputs below and in Figure <a href="#fig:e
 </ul>
 <p>The output of <code>evaluate_experiment</code> is a named list of evaluation result tibbles, one component for each <code>Evaluator</code> in the experiment. Here, the list names correspond to the names given to each <code>Evaluator</code> in <code>create_evaluator(.name = ...)</code>, and the list elements are exactly the return value from the <code>Evaluator</code> function.</p>
 <div class="float">
-<img src="figures/eval_experiment.png" style="width:100.0%" alt=" Overview of evaluating a simChef Experiment. Inputs and outputs for user-defined functions are also provided. Dotted boxes denote optional input arguments."><div class="figcaption"> Overview of evaluating a <code>simChef</code> <code>Experiment</code>. Inputs and outputs for user-defined functions are also provided. Dotted boxes denote optional input arguments.</div>
+<img src="figures%2Feval_experiment.png" style="width:100.0%" alt=" Overview of evaluating a simChef Experiment. Inputs and outputs for user-defined functions are also provided. Dotted boxes denote optional input arguments."><div class="figcaption"> Overview of evaluating a <code>simChef</code> <code>Experiment</code>. Inputs and outputs for user-defined functions are also provided. Dotted boxes denote optional input arguments.</div>
 </div>
 </div>
 <div class="section level3">
@@ -431,7 +408,7 @@ We summarize the relevant inputs and outputs below and in Figure <a href="#fig:v
 </ul>
 <p>The output of <code>visualize_experiment</code> is a named list of visualizations or plots, one component for each <code>Visualizer</code> in the experiment. Here, the list names correspond to the names given to each <code>Visualizer</code> in <code>create_visualizer(.name = ...)</code>, and the list elements are exactly the return value from the <code>Visualizer</code> function.</p>
 <div class="float">
-<img src="figures/viz_experiment.png" style="width:100.0%" alt=" Overview of visualizing a simChef Experiment. Inputs and outputs for user-defined functions are also provided. Dotted boxes denote optional input arguments."><div class="figcaption"> Overview of visualizing a <code>simChef</code> <code>Experiment</code>. Inputs and outputs for user-defined functions are also provided. Dotted boxes denote optional input arguments.</div>
+<img src="figures%2Fviz_experiment.png" style="width:100.0%" alt=" Overview of visualizing a simChef Experiment. Inputs and outputs for user-defined functions are also provided. Dotted boxes denote optional input arguments."><div class="figcaption"> Overview of visualizing a <code>simChef</code> <code>Experiment</code>. Inputs and outputs for user-defined functions are also provided. Dotted boxes denote optional input arguments.</div>
 </div>
 </div>
 <div class="section level3">
@@ -462,13 +439,13 @@ We summarize the relevant inputs and outputs below and in Figure <a href="#fig:v
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="co">## Step 3: Assemble experiment recipe</span></span>
-<span><span class="va">experiment</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/create_experiment.html">create_experiment</a></span><span class="op">(</span>name <span class="op">=</span> <span class="st">"Experiment Name"</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
-<span>  <span class="fu"><a href="../reference/add_funs.html">add_dgp</a></span><span class="op">(</span><span class="va">dgp</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
-<span>  <span class="fu"><a href="../reference/add_funs.html">add_method</a></span><span class="op">(</span><span class="va">method</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
-<span>  <span class="fu"><a href="../reference/add_funs.html">add_evaluator</a></span><span class="op">(</span><span class="va">evaluator</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
-<span>  <span class="fu"><a href="../reference/add_funs.html">add_visualizer</a></span><span class="op">(</span><span class="va">visualizer</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span><span class="va">experiment</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/create_experiment.html">create_experiment</a></span><span class="op">(</span>name <span class="op">=</span> <span class="st">"Experiment Name"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/add_funs.html">add_dgp</a></span><span class="op">(</span><span class="va">dgp</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/add_funs.html">add_method</a></span><span class="op">(</span><span class="va">method</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/add_funs.html">add_evaluator</a></span><span class="op">(</span><span class="va">evaluator</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/add_funs.html">add_visualizer</a></span><span class="op">(</span><span class="va">visualizer</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="co"># optionally vary across DGP parameter(s)</span></span>
-<span>  <span class="fu"><a href="../reference/vary_across.html">add_vary_across</a></span><span class="op">(</span>.dgp <span class="op">=</span> <span class="st">"DGP Name"</span>, dgp_param1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">XXX</span>, <span class="va">XXX</span>, <span class="va">...</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../reference/vary_across.html">add_vary_across</a></span><span class="op">(</span>.dgp <span class="op">=</span> <span class="st">"DGP Name"</span>, dgp_param1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">XXX</span>, <span class="va">XXX</span>, <span class="va">...</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="co"># optionally vary across Method parameter(s)</span></span>
 <span>  <span class="fu"><a href="../reference/vary_across.html">add_vary_across</a></span><span class="op">(</span>.method <span class="op">=</span> <span class="st">"Method Name"</span>, method_param1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">XXX</span>, <span class="va">XXX</span>, <span class="va">...</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
@@ -504,28 +481,26 @@ We summarize the relevant inputs and outputs below and in Figure <a href="#fig:v
 </ul>
 <p>Additional <code>simChef</code> examples/case studies and built-in library functions are still to come. Stay tuned!</p>
 </div>
-  </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
+  </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
 </div>
 
 
 
     <footer><div class="pkgdown-footer-left">
-  <p></p>
-<p>Developed by Tiffany Tang, James Duncan.</p>
+  <p>Developed by Tiffany Tang, James Duncan.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
 </div>
 
     </footer>
 </div>
 
-  
 
-  
+
+
 
   </body>
 </html>
