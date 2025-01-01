@@ -1,8 +1,8 @@
 #' @title Create a simulation project
 #'
 #' @description `create_sim()` initializes a directory for your simulation
-#'   study. It wraps around [usethis::create_project()], as well as
-#'   [usethis::use_git()] and \code{renv::init()}.
+#'   study. It wraps around \code{usethis::create_project()}, as well as
+#'   \code{usethis::use_git()} and \code{renv::init()}.
 #'
 #' @param path A `character` specifying the path for your simulation
 #'   directory.
@@ -29,6 +29,9 @@ create_sim <- function(
   tests = TRUE,
   hpc = FALSE
 ) {
+  if (!rlang::is_installed("usethis")) {
+    stop("The usethis package is required to create a simulation project.")
+  }
 
   ## ensure arguments are appropriate
   if (!is.character(path)) {

@@ -29,7 +29,6 @@ Imports:
     magrittr,
     purrr,
     R.utils,
-    usethis,
     R6,
     rlang,
     rmarkdown,
@@ -58,6 +57,7 @@ Suggests:
     renv,
     rstudioapi,
     testthat (>= 3.1.0),
+    usethis,
     vdiffr,
     withr (>= 2.5.0),
     ymlthis
