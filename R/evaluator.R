@@ -60,7 +60,7 @@
 #'   add_method(lm_method) |>
 #'   add_vary_across(.dgp = dgp, rho = seq(0.91, 0.99, 0.02))
 #'
-#' fit_results <- fit_experiment(experiment, n_reps=10)
+#' fit_results <- fit_experiment(experiment, n_reps=4)
 #'
 #' # create an example Evaluator function
 #' reject_prob_fun <- function(fit_results, vary_params = NULL, alpha = 0.05) {

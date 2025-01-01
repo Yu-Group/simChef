@@ -74,7 +74,7 @@
 #'   add_evaluator(reject_prob_eval) |>
 #'   add_vary_across(.dgp = dgp, rho = seq(0.91, 0.99, 0.02))
 #'
-#' fit_results <- fit_experiment(experiment, n_reps=10)
+#' fit_results <- fit_experiment(experiment, n_reps=4)
 #' eval_results <- evaluate_experiment(experiment, fit_results)
 #'
 #' # create an example Visualizer function which takes fit_results as input
