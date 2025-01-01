@@ -59,7 +59,9 @@ plot_pred_err <- function(fit_results = NULL,
                           eval_fun_options = NULL,
                           vary_params = NULL, metrics = NULL,
                           show = c("point", "line"), ...) {
-  .metric <- NULL  # to fix no visible binding for global variable error
+  # dummies to fix R CMD check note on no visible binding for global variable
+  .metric <- NULL
+
   arg_list <- get_dot_args(
     user_args = rlang::list2(...),
     default_args = list(eval_id = "pred_err",

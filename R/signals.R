@@ -66,9 +66,9 @@ abort_on_invalid_user_action <- function(cause_string,
                                          hint_string = NULL,
                                          call = rlang::caller_env(),
                                          ...) {
-  msg <- sprintf("Cause: %s.\n", state_string)
-  if (!is.null(how_to_fix_string)) {
-    msg <- paste(msg, sprintf("Hint: %s."))
+  msg <- sprintf("Cause: %s.\n", cause_string)
+  if (!is.null(hint_string)) {
+    msg <- paste(msg, sprintf("Hint: %s.", hint_string))
   }
   abort(msg, call = call, ...)
 }

@@ -204,6 +204,9 @@ NULL
 eval_pred_err <- function(fit_results, vary_params = NULL, nested_cols = NULL,
                           truth_col, estimate_col, prob_cols = NULL,
                           group_cols = NULL, metrics = NULL, na_rm = FALSE) {
+  # dummies to fix R CMD check note on no visible binding for global variable
+  .estimator <- NULL
+  .eval_result <- NULL
 
   if (!is.null(metrics) && !inherits(metrics, "metric_set")) {
     abort("Unknown metrics. metrics must be of class 'yardstick::metric_set' or NULL.")
@@ -400,6 +403,12 @@ eval_pred_curve <- function(fit_results, vary_params = NULL, nested_cols = NULL,
                             curve = c("ROC", "PR"), na_rm = FALSE) {
   curve <- match.arg(curve)
 
+  # dummies to fix R CMD check note on no visible binding for global variable
+  specificity <- NULL
+  sensitivity <- NULL
+  FPR <- NULL
+  .eval_result <- NULL
+
   eval_pred_curve_fun <- function(data, truth_col, prob_cols, curve, na_rm) {
     if (identical(curve, "ROC")) {
       curve_df <- yardstick::roc_curve(
@@ -439,7 +448,9 @@ summarize_pred_curve <- function(fit_results, vary_params = NULL,
                                  custom_summary_funs = NULL,
                                  eval_id = ifelse(curve == "PR",
                                                   "precision", "TPR")) {
-  curve_estimate <- NULL  # to fix no visible binding for global variable error
+  # dummies to fix R CMD check note on no visible binding for global variable
+  curve_estimate <- NULL
+
   if (curve == "PR") {
     xvar <- "recall"
     yvar <- "precision"

@@ -554,7 +554,9 @@ plot_eval_constructor <- function(eval_results = NULL, eval_names = NULL,
 #' @export
 plot_fit_constructor <- function(fit_results, vary_params = NULL, reps = 1,
                                  plot_fun, interactive = FALSE, ...) {
-  .rep <- NULL  # to fix no visible binding for global variable error
+  # dummies to fix R CMD check note on no visible binding for global variable
+  .rep <- NULL
+
   dots_list <- rlang::list2(...)
   if (identical(dots_list, list())) {
     dots_list <- NULL

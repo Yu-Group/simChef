@@ -1,5 +1,9 @@
 #' @keywords internal
 get_new_dgp_params <- function(method_params, new_fit_params) {
+  # dummies to fix R CMD check note on no visible binding for global variable
+  .dgp <- NULL
+  .method <- NULL
+
   # get new dgp parameter combinations given method parameter set
   dgp_params_list <- new_fit_params |>
     dplyr::filter(sapply(.method, identical, method_params)) |>
@@ -10,6 +14,10 @@ get_new_dgp_params <- function(method_params, new_fit_params) {
 
 #' @keywords internal
 get_new_method_params <- function(dgp_params, new_fit_params) {
+  # dummies to fix R CMD check note on no visible binding for global variable
+  .dgp <- NULL
+  .method <- NULL
+
   # get new method parameter combinations given dgp parameter set
   method_params_list <- new_fit_params |>
     dplyr::filter(sapply(.dgp, identical, dgp_params)) |>
@@ -56,53 +64,6 @@ maybe_add_debug_data <- function(tbl, debug = FALSE) {
     tbl$.gc <- list(gc())
   }
   invisible(tbl)
-}
-
-
-#' Clean up `future` worker-local environments on exit.
-#'
-#' @keywords internal
-clean_up_worker_env <- function(what = c("future", "dgp", "method"),
-                                env = parent.frame()) {
-  what <- match.arg(what)
-
-  ## # debugging
-  ## print(paste("pid:", Sys.getpid()))
-  ## print(paste("what:", what))
-  ## print(capture.output(rlang::env_print(env)))
-
-  tryCatch(
-    warning = identity,
-    switch(
-      what,
-      future = {
-        rm(dgp_res,
-           error_state,
-           future_env,
-           envir = env)
-      },
-      dgp = {
-        rm(method_res,
-           data_list,
-           dgp_params,
-           dgp_name,
-           dgp_params,
-           dgp_env,
-           envir = env)
-      },
-      method = {
-        rm(method_params,
-           method_name,
-           param_df,
-           result,
-           method_env,
-           envir = env)
-      }
-    )
-  )
-  rm(env)
-  gc()
-
 }
 
 
@@ -170,14 +131,36 @@ compute_rep <- function(n_reps,
     ## )
 
     future_env <- rlang::current_env()
-    withr::defer(clean_up_worker_env("future", env = future_env))
+    # withr::defer(clean_up_worker_env("future", env = future_env))
+    withr::defer({
+      tryCatch(
+        warning = identity,
+        rm(dgp_res,
+           error_state,
+           envir = future_env)
+      )
+      rm(future_env)
+      gc()
+    })
 
     dgp_res <- purrr::list_rbind(purrr::map(
       dgp_params_list,
       function(dgp_params) {
 
         dgp_env <- rlang::current_env()
-        withr::defer(clean_up_worker_env("dgp", env = dgp_env))
+        # withr::defer(clean_up_worker_env("dgp", env = dgp_env))
+        withr::defer({
+          tryCatch(
+            warning = identity,
+            rm(method_res,
+               data_list,
+               dgp_params,
+               dgp_name,
+               envir = dgp_env)
+          )
+          rm(dgp_env)
+          gc()
+        })
 
         if (error_state[["error"]]) {
           return(NULL)
@@ -233,10 +216,22 @@ compute_rep <- function(n_reps,
           function(method_params) {
 
             method_env <- rlang::current_env()
-            withr::defer(
-              clean_up_worker_env("method", env = method_env),
-              envir = method_env
-            )
+            # withr::defer(
+            #   clean_up_worker_env("method", env = method_env),
+            #   envir = method_env
+            # )
+            withr::defer({
+              tryCatch(
+                warning = identity,
+                rm(method_params,
+                   method_name,
+                   param_df,
+                   result,
+                   envir = method_env)
+              )
+              rm(method_env)
+              gc()
+            })
 
             method_name <- method_params$.method_name
 

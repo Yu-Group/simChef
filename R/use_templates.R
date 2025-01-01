@@ -449,8 +449,8 @@ use_dgp_template <- function(ids = NULL, data_split = TRUE) {
           data_split = FALSE, return_support = TRUE
         )
       }
-      dgp <- function(n, p, beta = 1, err_sd = 1, data_split = TRUE,
-                      train_prop = 0.5, return_support = TRUE) {
+      regression_dgp <- function(n, p, beta = 1, err_sd = 1, data_split = TRUE,
+                                 train_prop = 0.5, return_support = TRUE) {
 
         X <- matrix(stats::rnorm(n * p), nrow = n, ncol = p)
         beta_vec <- matrix(beta, ncol = 1, nrow = p)
@@ -473,6 +473,8 @@ use_dgp_template <- function(ids = NULL, data_split = TRUE) {
         }
         return(out)
       }
+
+      dgp <- regression_dgp
 
       # dgp_str <- create_fun_str(
       #   name = "dgp",
@@ -501,8 +503,8 @@ use_dgp_template <- function(ids = NULL, data_split = TRUE) {
           data_split = FALSE, return_support = TRUE
         )
       }
-      dgp <- function(n, p, beta = 1, data_split = TRUE,
-                      train_prop = 0.5, return_support = TRUE) {
+      classification_dgp <- function(n, p, beta = 1, data_split = TRUE,
+                                     train_prop = 0.5, return_support = TRUE) {
 
         X <- matrix(stats::rnorm(n * p), nrow = n, ncol = p)
         beta_vec <- matrix(beta, ncol = 1, nrow = p)
@@ -528,6 +530,8 @@ use_dgp_template <- function(ids = NULL, data_split = TRUE) {
         }
         return(out)
       }
+
+      dgp <- classification_dgp
 
       # dgp_str <- create_fun_str(
       #   name = "dgp",
@@ -570,7 +574,7 @@ use_method_template <- function(ids = NULL) {
   } else {
     ids <- match.arg(ids, choices = c("RF", "OLS"))
     if (ids == "RF") {
-      method <- function(X, y, Xtest, ytest, support, ...) {
+      rf_method <- function(X, y, Xtest, ytest, support, ...) {
 
         data <- as.data.frame(X) |>
           cbind(.y = y)
@@ -625,8 +629,9 @@ use_method_template <- function(ids = NULL) {
         )
         return(out)
       }
+      method <- rf_method
     } else if (ids == "OLS") {
-      method <- function(X, y, support, ...) {
+      ols_method <- function(X, y, support, ...) {
 
         data <- as.data.frame(X) |>
           cbind(.y = y)
@@ -652,6 +657,7 @@ use_method_template <- function(ids = NULL) {
         )
         return(out)
       }
+      method <- ols_method
     }
     cat(paste0(tolower(ids), "_method <- ", rlang::expr_text(method)), "\n\n")
     method_str <- create_fun_str(

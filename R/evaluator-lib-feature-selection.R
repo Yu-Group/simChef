@@ -145,6 +145,9 @@ eval_feature_selection_err <- function(fit_results, vary_params = NULL,
                                        estimate_col = NULL, imp_col,
                                        group_cols = NULL, metrics = NULL,
                                        na_rm = FALSE) {
+  # dummies to fix R CMD check note on no visible binding for global variable
+  .estimator <- NULL
+  .eval_result <- NULL
 
   if (!is.null(metrics) && !inherits(metrics, "metric_set")) {
     abort("Unknown metrics. metrics must be of class 'yardstick::metric_set' or NULL.")
@@ -366,7 +369,9 @@ summarize_feature_selection_curve <- function(fit_results, vary_params = NULL,
                                               eval_id = ifelse(curve == "PR",
                                                                "precision",
                                                                "TPR")) {
-  curve_estimate <- NULL  # to fix no visible binding for global variable error
+  # dummies to fix R CMD check note on no visible binding for global variable
+  curve_estimate <- NULL
+
   if (curve == "PR") {
     xvar <- "recall"
     yvar <- "precision"

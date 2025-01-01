@@ -71,7 +71,9 @@ plot_feature_importance <- function(fit_results = NULL,
                                     vary_params = NULL,
                                     feature_col, show_max_features = NULL,
                                     show = c("errorbar", "bar"), ...) {
-  .imp_est <- NULL  # to fix no visible binding for global variable error
+  # dummies to fix R CMD check note on no visible binding for global variable
+  .imp_est <- NULL
+
   arg_list <- get_dot_args(
     user_args = rlang::list2(...),
     default_args = list(eval_id = "feature_importance",

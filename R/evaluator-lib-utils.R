@@ -81,6 +81,9 @@ eval_constructor <- function(fit_results, vary_params = NULL, fun,
                              nested_cols = NULL, ..., group_cols = NULL,
                              fun_options = NULL, na_rm = FALSE) {
 
+  # dummies to fix R CMD check note on no visible binding for global variable
+  .eval_result <- NULL
+
   eval_rowwise <- function(data) {
     if (!is.null(nested_cols)) {
       data <- data |> tidyr::unnest(tidyselect::all_of(nested_cols))

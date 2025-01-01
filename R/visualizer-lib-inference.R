@@ -266,7 +266,9 @@ plot_reject_prob <- function(fit_results = NULL,
                              feature_col = NULL, show_features = NULL,
                              show_identity_line = FALSE, show = c("line"),
                              ...) {
-  .alpha <- NULL  # to fix no visible binding for global variable error
+  # dummies to fix R CMD check note on no visible binding for global variable
+  .alpha <- NULL
+
   show <- match.arg(show, choices = c("point", "line", "bar"))
   if (!is.null(feature_col)) {
     arg_list <- get_dot_args(

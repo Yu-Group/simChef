@@ -138,6 +138,12 @@ eval_testing_err <- function(fit_results, vary_params = NULL,
                              nested_cols = NULL, truth_col, pval_col = NULL,
                              group_cols = NULL, metrics = NULL, alphas = 0.05,
                              na_rm = FALSE) {
+  # dummies to fix R CMD check note on no visible binding for global variable
+  .pval_imp <- NULL
+  .alpha <- NULL
+  .metric <- NULL
+  .estimate <- NULL
+  .eval_result <- NULL
 
   if (!is.null(metrics) && !inherits(metrics, "metric_set")) {
     abort("Unknown metrics. metrics must be of class 'yardstick::metric_set' or NULL.")
@@ -331,7 +337,9 @@ eval_testing_curve <- function(fit_results, vary_params = NULL,
                                nested_cols = NULL, truth_col, pval_col,
                                group_cols = NULL, curve = c("ROC", "PR"),
                                na_rm = FALSE) {
-  curve_estimate <- NULL  # to fix no visible binding for global variable error
+  # dummies to fix R CMD check note on no visible binding for global variable
+  curve_estimate <- NULL
+
   if (is.null(nested_cols) || (pval_col %in% names(fit_results))) {
     fit_results <- fit_results |>
       dplyr::rowwise() |>
@@ -370,7 +378,9 @@ summarize_testing_curve <- function(fit_results, vary_params = NULL,
                                     custom_summary_funs = NULL,
                                     eval_id = ifelse(curve == "PR",
                                                      "precision", "TPR")) {
-  curve_estimate <- NULL  # to fix no visible binding for global variable error
+  # dummies to fix R CMD check note on no visible binding for global variable
+  curve_estimate <- NULL
+
   if (curve == "PR") {
     xvar <- "recall"
     yvar <- "precision"
@@ -469,7 +479,9 @@ summarize_testing_curve <- function(fit_results, vary_params = NULL,
 eval_reject_prob <- function(fit_results, vary_params = NULL,
                              nested_cols = NULL, feature_col = NULL, pval_col,
                              group_cols = NULL, alphas = NULL, na_rm = FALSE) {
-  .alpha <- NULL  # to fix no visible binding for global variable error
+  # dummies to fix R CMD check note on no visible binding for global variable
+  .alpha <- NULL
+
   group_vars <- c(".dgp_name", ".method_name", vary_params,
                   group_cols, feature_col)
   if (!is.null(nested_cols)) {
