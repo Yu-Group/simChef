@@ -119,7 +119,7 @@ compute_rep <- function(n_reps,
 
   if (debug) {
 
-    inform(c("future::plan():", capture.output(future::plan())))
+    inform(c("future::plan():", utils::capture.output(future::plan())))
 
     inform("parallel_strategy: reps")
 
@@ -127,7 +127,7 @@ compute_rep <- function(n_reps,
     inform(c("simulation loop closure size before:",
              as.character(closure_size)))
 
-    inform(c("gc():", capture.output(gc())))
+    inform(c("gc():", utils::capture.output(gc())))
 
     inform("simulation loop starting...")
 
@@ -371,7 +371,7 @@ compute_rep <- function(n_reps,
       attr(results, "simChef.debug")[["closure_size_delta"]] <- closure_delta
     }
 
-    inform(c("gc:", capture.output(gc())))
+    inform(c("gc:", utils::capture.output(gc())))
   }
 
   return(results)

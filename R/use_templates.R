@@ -454,7 +454,7 @@ use_dgp_template <- function(ids = NULL, data_split = TRUE) {
 
         X <- matrix(stats::rnorm(n * p), nrow = n, ncol = p)
         beta_vec <- matrix(beta, ncol = 1, nrow = p)
-        y <- X %*% beta_vec + rnorm(n = n, sd = err_sd)
+        y <- X %*% beta_vec + stats::rnorm(n = n, sd = err_sd)
         if (data_split) {
           train_ids <- sample(1:n, size = round(n * train_prop))
           Xtest <- X[-train_ids, , drop = FALSE]
