@@ -1,8 +1,8 @@
 #' @keywords internal
 get_new_dgp_params <- function(method_params, new_fit_params) {
   # get new dgp parameter combinations given method parameter set
-  dgp_params_list <- new_fit_params %>%
-    dplyr::filter(sapply(.method, identical, method_params)) %>%
+  dgp_params_list <- new_fit_params |>
+    dplyr::filter(sapply(.method, identical, method_params)) |>
     dplyr::pull(.dgp)
   return(dgp_params_list)
 }
@@ -11,8 +11,8 @@ get_new_dgp_params <- function(method_params, new_fit_params) {
 #' @keywords internal
 get_new_method_params <- function(dgp_params, new_fit_params) {
   # get new method parameter combinations given dgp parameter set
-  method_params_list <- new_fit_params %>%
-    dplyr::filter(sapply(.dgp, identical, dgp_params)) %>%
+  method_params_list <- new_fit_params |>
+    dplyr::filter(sapply(.dgp, identical, dgp_params)) |>
     dplyr::pull(.method)
   return(method_params_list)
 }
@@ -222,8 +222,8 @@ compute_rep <- function(n_reps,
                  .method_name = NULL,
                  .method_params = NULL,
                  .method_output = NULL,
-                 .err = data_list) %>%
-              list_to_tibble_row() %>%
+                 .err = data_list) |>
+              list_to_tibble_row() |>
               maybe_add_debug_data(TRUE)
           )
         }
@@ -244,7 +244,7 @@ compute_rep <- function(n_reps,
               dgp_params = c(.dgp_name = dgp_name, dgp_params),
               method_params = method_params,
               duplicate_param_names = duplicate_param_names
-            ) %>%
+            ) |>
               list_to_tibble_row()
 
             # param_df$.seed <- seed
@@ -282,8 +282,8 @@ compute_rep <- function(n_reps,
                      .method_name = method_name,
                      .method_params = method_params,
                      .method_output = NULL,
-                     .err = result) %>%
-                  list_to_tibble_row() %>%
+                     .err = result) |>
+                  list_to_tibble_row() |>
                   maybe_add_debug_data(TRUE)
               )
             }
@@ -316,18 +316,18 @@ compute_rep <- function(n_reps,
                      .method_name = method_name,
                      .method_params = method_params,
                      .method_output = result,
-                     .err = names_check) %>%
-                  list_to_tibble_row() %>%
+                     .err = names_check) |>
+                  list_to_tibble_row() |>
                   maybe_add_debug_data(TRUE)
               )
             }
 
-            result <- result %>%
+            result <- result |>
               tibble::add_column(param_df, .before = 1)
 
             p("of total reps")
 
-            return(result %>% maybe_add_debug_data(debug))
+            return(result |> maybe_add_debug_data(debug))
 
           }
         )) # method_res <- purrr::list_rbind(purrr::map(

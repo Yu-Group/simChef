@@ -104,7 +104,7 @@ write <- function(..., old_text = NULL, write_flag) {
   if (write_flag) {
     return(c(old_text, ...))
   } else {
-    dots_list <- list(...) %>%
+    dots_list <- list(...) |>
       purrr::map(
         function(x) {
           if (stringr::str_detect(x, "`r .*`")) {
@@ -291,8 +291,8 @@ show_recipe <- function(field_name = c(
           recipe <- sprintf(
             "show_recipe(%s_objs, '%s', '%s', what = 'function')",
             func_name, obj_name, exp
-          ) %>%
-            write_code_chunk(chunk_args = "max.height='200px'") %>%
+          ) |>
+            write_code_chunk(chunk_args = "max.height='200px'") |>
             write(old_text = recipe, write_flag = write_flag)
         } else {
           vthemes::subchunkify(
@@ -310,8 +310,8 @@ show_recipe <- function(field_name = c(
           recipe <- sprintf(
             "show_recipe(%s_objs, '%s', '%s', what = 'parameters')",
             func_name, obj_name, exp
-          ) %>%
-            write_code_chunk(chunk_args = "max.height='200px'") %>%
+          ) |>
+            write_code_chunk(chunk_args = "max.height='200px'") |>
             write(old_text = recipe, write_flag = write_flag)
         } else {
           vthemes::subchunkify(
@@ -384,7 +384,7 @@ show_results <- function(dir_name, depth, base = FALSE, show_header = TRUE,
       header_template,
       paste(rep("#", depth), collapse = ""),
       basename(dir_name)
-    ) %>%
+    ) |>
       write(old_text = results, write_flag = write_flag)
   }
 
@@ -393,7 +393,7 @@ show_results <- function(dir_name, depth, base = FALSE, show_header = TRUE,
       "\n\n%s Base - %s {.tabset .tabset-pills .tabset-circle}\n\n",
       paste(rep("#", depth + 1), collapse = ""),
       basename(dir_name)
-    ) %>%
+    ) |>
       write(old_text = results, write_flag = write_flag)
     depth <- depth + 1
   }
@@ -472,14 +472,14 @@ show_results <- function(dir_name, depth, base = FALSE, show_header = TRUE,
         if (write_flag) {
           results <- sprintf(
             "show_results('%s', '%s', 'evaluator')", dir_name, eval_name
-          ) %>%
-            write_code_chunk(chunk_args = "results = 'asis'") %>%
+          ) |>
+            write_code_chunk(chunk_args = "results = 'asis'") |>
             write(old_text = results, write_flag = write_flag)
         } else {
           do.call(
             vthemes::pretty_DT,
             c(list(eval_results_show), evaluator$doc_options)
-          ) %>%
+          ) |>
             vthemes::subchunkify(i = chunk_idx)
           chunk_idx <<- chunk_idx + 1
         }
@@ -535,13 +535,13 @@ show_results <- function(dir_name, depth, base = FALSE, show_header = TRUE,
           if (write_flag) {
             results <- sprintf(
               "show_results('%s', '%s', 'visualizer')", dir_name, viz_name
-            ) %>%
+            ) |>
               write_code_chunk(
                 chunk_args = sprintf(
                   chunk_args,
                   visualizer$doc_options$height, visualizer$doc_options$width
                 )
-              ) %>%
+              ) |>
               write(old_text = results, write_flag = write_flag)
           } else {
             vthemes::subchunkify(plt,
@@ -569,8 +569,8 @@ show_results <- function(dir_name, depth, base = FALSE, show_header = TRUE,
       if (write_flag) {
         results <- sprintf(
           "show_results('%s', NULL, 'vary_params')", dir_name
-        ) %>%
-          write_code_chunk(chunk_args = "max.height='200px'") %>%
+        ) |>
+          write_code_chunk(chunk_args = "max.height='200px'") |>
           write(old_text = results, write_flag = write_flag)
       } else {
         vthemes::subchunkify(exp$get_vary_across(),

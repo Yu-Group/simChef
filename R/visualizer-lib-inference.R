@@ -7,7 +7,7 @@
 #' @inheritParams plot_pred_err
 #' @inheritDotParams plot_eval_constructor -eval_results -eval_names -plot_data
 #'   -vary_params -show
-#' 
+#'
 #' @inherit plot_eval_constructor return
 #'
 #' @family inference_funs
@@ -93,7 +93,7 @@ plot_testing_err <- function(fit_results = NULL,
 #' @inheritParams plot_pred_curve
 #' @inheritDotParams plot_eval_constructor -eval_results -eval_names -plot_data
 #'   -vary_params -show
-#' 
+#'
 #' @inherit plot_eval_constructor return
 #'
 #' @family inference_funs
@@ -305,10 +305,10 @@ plot_reject_prob <- function(fit_results = NULL,
   )
 
   if (identical(show, "bar")) {
-    plot_data <- plot_data %>% dplyr::mutate(.alpha = as.factor(.alpha))
+    plot_data <- plot_data |> dplyr::mutate(.alpha = as.factor(.alpha))
   }
   if (!is.null(show_features)) {
-    plot_data <- plot_data %>%
+    plot_data <- plot_data |>
       dplyr::filter(.data[[feature_col]] %in% show_features)
   }
 

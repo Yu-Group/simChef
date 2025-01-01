@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils-templates.R
 \name{pipe_value}
 \alias{pipe_value}
-\title{Find last non-comment line, add a \verb{\%>\%} to the end, then add another line.}
+\title{Find last non-comment line, add a \verb{|>} to the end, then add another line.}
 \usage{
 pipe_value(base, value, expr_width = 80)
 }

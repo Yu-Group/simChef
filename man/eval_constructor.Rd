@@ -71,7 +71,7 @@ eval_results <- eval_constructor(
   fun = rmse_fun,
   truth_col = "y",
   estimate_col = "predictions"
-) \%>\%
+) |>
   tidyr::unnest(.eval_result)
 
 }

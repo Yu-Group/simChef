@@ -36,8 +36,8 @@ data_corr <- dgp$generate(rho = 0.7)
 lm_fun <- function(X, y, cols) {
   X <- X[, cols]
   lm_fit <- lm(y ~ X)
-  pvals <- summary(lm_fit)$coefficients[-1, "Pr(>|t|)"] \%>\%
-    setNames(paste(names(.), "p-value"))
+  pvals <- summary(lm_fit)$coefficients[-1, "Pr(>|t|)"]
+  names(pvals) <- paste(names(pvals), "p-value")
   return(pvals)
 }
 

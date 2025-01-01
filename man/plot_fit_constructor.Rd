@@ -59,8 +59,8 @@ fit_results <- tibble::tibble(
 
 # function to plot scatter plot of y vs predictions
 plot_fun <- function(fit_results, vary_params = NULL) {
-  plt <- fit_results \%>\%
-    tidyr::unnest(c("y", "predictions")) \%>\%
+  plt <- fit_results |>
+    tidyr::unnest(c("y", "predictions")) |>
     ggplot2::ggplot() +
     ggplot2::aes(x = y, y = predictions) +
     ggplot2::geom_point() +

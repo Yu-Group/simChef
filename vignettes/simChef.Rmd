@@ -164,18 +164,18 @@ pred_err_plot <- create_visualizer(
 Thus far, we have created the many individual components (i.e., `DGP(s)`, `Method(s)`, `Evaluator(s)`, and `Visualizer(s)`) for our simulation experiment. We next assemble or `add` these components together to create a complete simulation experiment recipe via:
 
 ```{r experiment-recipe}
-experiment <- create_experiment(name = "Example Experiment") %>%
-  add_dgp(linear_dgp) %>%
-  add_method(linear_reg) %>%
-  add_method(rf) %>%
-  add_evaluator(pred_err) %>%
+experiment <- create_experiment(name = "Example Experiment") |>
+  add_dgp(linear_dgp) |>
+  add_method(linear_reg) |>
+  add_method(rf) |>
+  add_evaluator(pred_err) |>
   add_visualizer(pred_err_plot)
 ```
 
 We can also vary across one or more parameters in the `DGP(s)` and/or `Method(s)` by adding a `vary_across` component to the simulation experiment recipe. In the running simulation example, we would like to vary across the amount of noise (`noise_sd`) in the underlying DGP, which can be done as follows:
 
 ```{r vary-across}
-experiment <- experiment %>%
+experiment <- experiment |>
   add_vary_across(.dgp = "Linear DGP", noise_sd = c(0.1, 0.5, 1, 2))
 ```
 
@@ -354,13 +354,13 @@ visualizer <- create_visualizer(
 )
 
 ## Step 3: Assemble experiment recipe
-experiment <- create_experiment(name = "Experiment Name") %>%
-  add_dgp(dgp) %>%
-  add_method(method) %>%
-  add_evaluator(evaluator) %>%
-  add_visualizer(visualizer) %>%
+experiment <- create_experiment(name = "Experiment Name") |>
+  add_dgp(dgp) |>
+  add_method(method) |>
+  add_evaluator(evaluator) |>
+  add_visualizer(visualizer) |>
   # optionally vary across DGP parameter(s)
-  add_vary_across(.dgp = "DGP Name", dgp_param1 = list(XXX, XXX, ...)) %>%
+  add_vary_across(.dgp = "DGP Name", dgp_param1 = list(XXX, XXX, ...)) |>
   # optionally vary across Method parameter(s)
   add_vary_across(.method = "Method Name", method_param1 = list(XXX, XXX, ...))
 

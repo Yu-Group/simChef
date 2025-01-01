@@ -48,7 +48,7 @@ rmse_na_fun <- function(data, truth_col, estimate_col, na_rm = TRUE) {
     .estimate = yardstick::rmse_vec(
       data[[truth_col]], data[[estimate_col]], na_rm = na_rm
     )
-  ) \%>\%
+  ) |>
     add_na_counts(data = data, value_col = truth_col, na_rm = na_rm)
   return(out)
 }
@@ -58,7 +58,7 @@ eval_results <- eval_constructor(
   truth_col = "y",
   estimate_col = "predictions",
   na_rm = TRUE
-) \%>\%
+) |>
   tidyr::unnest(.eval_result)
 
 }

@@ -75,51 +75,51 @@ mean_method <- create_method(
 )
 
 # initialize experiment with toy DGPs and Methods
-experiment <- create_experiment(name = "Experiment Name") \%>\%
-  add_dgp(normal_dgp) \%>\%
-  add_dgp(bernoulli_dgp) \%>\%
+experiment <- create_experiment(name = "Experiment Name") |>
+  add_dgp(normal_dgp) |>
+  add_dgp(bernoulli_dgp) |>
   add_method(mean_method)
 
 # vary across n for normal DGP
-experiment <- experiment \%>\%
+experiment <- experiment |>
   add_vary_across(.dgp = "Normal DGP", n = c(100, 200, 300))
 get_vary_across(experiment)
 print(experiment)
 
 # remove vary across for normal DGP
-experiment <- experiment \%>\%
+experiment <- experiment |>
   remove_vary_across(dgp = "Normal DGP")
 get_vary_across(experiment)
 print(experiment)
 
 # can add vary across for multiple DGPs at once
-experiment <- experiment \%>\%
+experiment <- experiment |>
   add_vary_across(.dgp = c("Normal DGP", "Bernoulli DGP"), n = c(100, 200, 300))
 get_vary_across(experiment)
 print(experiment)
 
 # can update vary across for DGPs
-experiment <- experiment \%>\%
-  update_vary_across(.dgp = "Normal DGP", n = c(100, 300)) \%>\%
+experiment <- experiment |>
+  update_vary_across(.dgp = "Normal DGP", n = c(100, 300)) |>
   update_vary_across(.dgp = "Bernoulli DGP", n = c(100, 200))
 get_vary_across(experiment)
 print(experiment)
 
 # can also add/update/remove vary across for methods
-experiment <- experiment \%>\%
+experiment <- experiment |>
   add_vary_across(.method = "Mean", trim = list(0, 0.1, 0.2))
 print(experiment)
-experiment <- experiment \%>\%
+experiment <- experiment |>
   update_vary_across(
     .method = "Mean", trim = list(0, 0.1, 0.2, 0.3)
   )
 print(experiment)
-experiment <- experiment \%>\%
+experiment <- experiment |>
   remove_vary_across(method = "Mean")
 print(experiment)
 
 # can remove all vary across parameters
-experiment <- experiment \%>\%
+experiment <- experiment |>
   remove_vary_across()
 get_vary_across(experiment)
 print(experiment)

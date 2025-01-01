@@ -26,7 +26,6 @@ Imports:
     future.apply,
     knitr,
     lifecycle,
-    magrittr,
     purrr,
     R.utils,
     R6,
@@ -41,7 +40,6 @@ Imports:
 Suggests:
     broom,
     callr,
-    devtools,
     fontawesome,
     fs,
     future.callr,
@@ -84,7 +82,6 @@ Collate:
     'globals.R'
     'init-dir.R'
     'method.R'
-    'reexport-magrittr.R'
     'run-tests.R'
     'signals.R'
     'use_templates.R'

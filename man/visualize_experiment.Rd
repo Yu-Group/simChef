@@ -64,8 +64,8 @@ mean_method <- create_method(
 sd_mean_eval <- create_evaluator(
   .eval_fun = function(fit_results, vary_params = NULL) {
     group_vars <- c(".dgp_name", ".method_name", vary_params)
-    fit_results \%>\%
-      dplyr::group_by(dplyr::across(tidyselect::all_of(group_vars))) \%>\%
+    fit_results |>
+      dplyr::group_by(dplyr::across(tidyselect::all_of(group_vars))) |>
       dplyr::summarise(sd = sd(mean), .groups = "keep")
   },
   .name = "SD of Mean(x)"
@@ -113,12 +113,12 @@ experiment <- create_experiment(
 )
 
 # initialize experiment with toy DGPs, Methods, Evaluators, and Visualizers
-# using piping \%>\%
-experiment <- create_experiment(name = "Experiment Name") \%>\%
-  add_dgp(normal_dgp) \%>\%
-  add_dgp(bernoulli_dgp) \%>\%
-  add_method(mean_method) \%>\%
-  add_evaluator(sd_mean_eval) \%>\%
+# using piping |>
+experiment <- create_experiment(name = "Experiment Name") |>
+  add_dgp(normal_dgp) |>
+  add_dgp(bernoulli_dgp) |>
+  add_method(mean_method) |>
+  add_evaluator(sd_mean_eval) |>
   add_visualizer(sd_mean_plot)
 
 # run experiment with 2 replicates
@@ -127,7 +127,7 @@ results <- run_experiment(experiment, n_reps = 2)
 # results
 
 # run experiment with varying number of samples n
-experiment <- experiment \%>\%
+experiment <- experiment |>
   add_vary_across(
     .dgp = c("Normal DGP", "Bernoulli DGP"), n = c(1, 10)
   )

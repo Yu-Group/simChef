@@ -58,7 +58,7 @@ list_to_tibble_row <- function(lst, simplify = FALSE) {
     } else {
       list(.x)
     }
-  }) %>%
+  }) |>
     tibble::as_tibble_row()
   return(out)
 }
@@ -77,15 +77,15 @@ list_to_tibble <- function(lst) {
   tib <- tryCatch({
     tibble::as_tibble(lst)
   }, error = function(e) {
-    out <- purrr::map(lst, ~list(.x)) %>%
+    out <- purrr::map(lst, ~list(.x)) |>
       tibble::as_tibble()
     simplify_cols <- purrr::map_lgl(
       out,
       ~(length(unlist(.x, recursive = F)) == 1) && !is.data.frame(.x[[1]])
-    ) %>%
-      which() %>%
+    ) |>
+      which() |>
       names()
-    out <- out %>%
+    out <- out |>
       dplyr::mutate(dplyr::across(tidyselect::all_of(simplify_cols),
                                   ~unlist(.x, recursive = F)))
     return(out)
@@ -330,7 +330,7 @@ compare_tibble_rows <- function(x, y, op = c("equal", "contained_in")) {
       return(FALSE)
     }
   }
-  duplicated_rows <- dplyr::bind_rows(x, y) %>%
+  duplicated_rows <- dplyr::bind_rows(x, y) |>
     duplicated(fromLast = TRUE)
   return(all(duplicated_rows[1:nrow(x)]))
 }
@@ -362,7 +362,7 @@ get_matching_rows <- function(id, x) {
   if (anyDuplicated(id)) {
     stop("id must be a tibble with unique rows.")
   }
-  x_ids <- x %>%
+  x_ids <- x |>
     dplyr::select(tidyselect::all_of(id_cols))
   if (!any(id_coltypes == "list")) {
     # easy case: no functions in id tibble -> use inner_join
@@ -370,22 +370,22 @@ get_matching_rows <- function(id, x) {
   } else if (!anyDuplicated(x_ids)) {
     # no duplicate id rows in x -> use duplicated
     df <- dplyr::bind_rows(id, x)
-    keep_row_idx <- df %>%
-      dplyr::select(tidyselect::all_of(id_cols)) %>%
+    keep_row_idx <- df |>
+      dplyr::select(tidyselect::all_of(id_cols)) |>
       duplicated()
-    out <- df %>%
+    out <- df |>
       dplyr::filter(!!keep_row_idx)
   } else {
     # duplicate id rows in x -> brute-force matching using duplicated
     keep_row_idx <- purrr::map_lgl(
       1:nrow(x),
       function(i) {
-        dplyr::bind_rows(id, x_ids[i, ]) %>%
-          duplicated() %>%
+        dplyr::bind_rows(id, x_ids[i, ]) |>
+          duplicated() |>
           dplyr::last()
       }
     )
-    out <- x %>%
+    out <- x |>
       dplyr::filter(!!keep_row_idx)
   }
   return(out)

@@ -33,7 +33,7 @@
 #' lm_fun <- function(X, y, cols) {
 #'   X <- X[, cols]
 #'   lm_fit <- lm(y ~ X)
-#'   pvals <- summary(lm_fit)$coefficients[-1, "Pr(>|t|)"] %>%
+#'   pvals <- summary(lm_fit)$coefficients[-1, "Pr(>|t|)"] |>
 #'     setNames(paste(paste0("X", cols), "p-value"))
 #'   return(pvals)
 #' }
@@ -96,8 +96,8 @@ create_method <- function(.method_fun, .name = NULL, ...) {
 #' lm_fun <- function(X, y, cols) {
 #'   X <- X[, cols]
 #'   lm_fit <- lm(y ~ X)
-#'   pvals <- summary(lm_fit)$coefficients[-1, "Pr(>|t|)"] %>%
-#'     setNames(paste(names(.), "p-value"))
+#'   pvals <- summary(lm_fit)$coefficients[-1, "Pr(>|t|)"]
+#'   names(pvals) <- paste(names(pvals), "p-value")
 #'   return(pvals)
 #' }
 #'

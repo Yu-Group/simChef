@@ -56,8 +56,8 @@ mean_method <- create_method(
 sd_mean_eval <- create_evaluator(
   .eval_fun = function(fit_results, vary_params = NULL) {
     group_vars <- c(".dgp_name", ".method_name", vary_params)
-    fit_results \%>\%
-      dplyr::group_by(dplyr::across(tidyselect::all_of(group_vars))) \%>\%
+    fit_results |>
+      dplyr::group_by(dplyr::across(tidyselect::all_of(group_vars))) |>
       dplyr::summarise(sd = sd(mean), .groups = "keep")
   },
   .name = "SD of Mean(x)"
@@ -85,16 +85,16 @@ sd_mean_plot <- create_visualizer(
 )
 
 # initialize experiment with toy DGPs, Methods, Evaluators, and Visualizers
-# using piping \%>\% and add_* functions
-experiment <- create_experiment(name = "Experiment Name") \%>\%
-  add_dgp(normal_dgp) \%>\%
-  add_dgp(bernoulli_dgp) \%>\%
-  add_method(mean_method) \%>\%
-  add_evaluator(sd_mean_eval) \%>\%
+# using piping |> and add_* functions
+experiment <- create_experiment(name = "Experiment Name") |>
+  add_dgp(normal_dgp) |>
+  add_dgp(bernoulli_dgp) |>
+  add_method(mean_method) |>
+  add_evaluator(sd_mean_eval) |>
   add_visualizer(sd_mean_plot)
 
 # set R Markdown options for Evaluator/Visualizer (in this case, Visualizer)
-experiment <- experiment \%>\%
+experiment <- experiment |>
   set_doc_options(
     field_name = "visualizer", name = "SD of Mean(x) Plot",
     height = 10, width = 8

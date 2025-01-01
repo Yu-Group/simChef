@@ -212,8 +212,8 @@ Experiment <- R6::R6Class(
       obj_list <- private$.get_obj_list(field_name)
       if (inherits(obj, class_name)) {
         obj_name <- sapply(obj_list,
-                           function(x) check_equal(x, obj)) %>%
-          which() %>%
+                           function(x) check_equal(x, obj)) |>
+          which() |>
           names()
       } else if (obj %in% names(obj_list)) {
         obj_name <- obj
@@ -261,8 +261,8 @@ Experiment <- R6::R6Class(
                                      if (identical(x, list())) {
                                        return(NULL)
                                      } else {
-                                       return(purrr::map(x, names) %>%
-                                                purrr::reduce(c) %>%
+                                       return(purrr::map(x, names) |>
+                                                purrr::reduce(c) |>
                                                 unique())
                                      }
                                    })
@@ -298,10 +298,9 @@ Experiment <- R6::R6Class(
         }
         obj_params <- c(obj_name, obj_params)
         names(obj_params)[1] <- paste0(".", field_name, "_name")
-        param_grid <- tidyr::expand_grid(!!!obj_params) %>%
-          dplyr::transmute(params = purrr::pmap(., list))
-        return(param_grid$params)
-      }) %>%
+        param_grid <- tidyr::expand_grid(!!!obj_params)
+        return(purrr::pmap(param_grid, list))
+      }) |>
         unlist(recursive = FALSE)
       return(params_list)
     },
@@ -314,7 +313,7 @@ Experiment <- R6::R6Class(
       method_params_list <- private$.combine_vary_params("method")
 
       fit_params <- tidyr::crossing(.dgp = dgp_params_list,
-                                    .method = method_params_list) %>%
+                                    .method = method_params_list) |>
         dplyr::mutate(
           .dgp_name = purrr::map_chr(.dgp, ~.x$.dgp_name),
           .dgp_fun = purrr::map(
@@ -353,10 +352,10 @@ Experiment <- R6::R6Class(
         } else {
           cached_idxs <- dplyr::bind_rows(
             fit_params,
-            cached_params$fit %>%
-              dplyr::filter(as.numeric(.n_reps) >= n_reps) %>%
+            cached_params$fit |>
+              dplyr::filter(as.numeric(.n_reps) >= !!n_reps) |>
               dplyr::select(-.n_reps)
-          ) %>%
+          ) |>
             duplicated(fromLast = TRUE)
           if (identical(type, "cached")) {
             out_params <- fit_params[cached_idxs[seq_len(nrow(fit_params))], ]
@@ -384,14 +383,14 @@ Experiment <- R6::R6Class(
           out_params[[col_name]] <- purrr::map(out_params$.method,
                                                ~.x[[param_name]])
         }
-        out_params <- out_params %>%
+        out_params <- out_params |>
           dplyr::select(-.dgp, -.dgp_fun, -.dgp_params,
-                        -.method, -.method_fun, -.method_params) %>%
+                        -.method, -.method_fun, -.method_params) |>
           simplify_tibble()
       }
       return(out_params)
     },
-    
+
     .get_obj_params = function(field_name = c("evaluator", "visualizer"),
                                obj_list) {
       field_name <- match.arg(field_name)
@@ -407,7 +406,7 @@ Experiment <- R6::R6Class(
         params = purrr::map(
           obj_list, sprintf("%s_params", field_name)
         )
-      ) %>%
+      ) |>
         dplyr::rename_with(~sprintf(".%s_%s", field_name, .x))
       return(obj_params)
     },
@@ -433,7 +432,7 @@ Experiment <- R6::R6Class(
         obj_params <- private$.get_obj_params(field_name, obj_list)
         cached_idxs <- dplyr::bind_rows(
           obj_params, cached_params[[obj_verb]]
-        ) %>%
+        ) |>
           duplicated(fromLast = TRUE)
         return(obj_list[
           obj_params[[obj_name_col]][!cached_idxs[1:nrow(obj_params)]]
@@ -449,7 +448,7 @@ Experiment <- R6::R6Class(
       fit_params <- private$.get_fit_params()
       fit_cached <- compare_tibble_rows(
         fit_params,
-        cached_fit_params %>% dplyr::select(-.n_reps),
+        cached_fit_params |> dplyr::select(-.n_reps),
         op = "contained_in"
       )
 
@@ -458,7 +457,7 @@ Experiment <- R6::R6Class(
       } else {
         n_reps_complete <- get_matching_rows(
           id = fit_params, x = cached_fit_params
-        ) %>%
+        ) |>
           dplyr::pull(.n_reps)
         return(min(as.numeric(n_reps_complete)))
       }
@@ -481,8 +480,8 @@ Experiment <- R6::R6Class(
         return(NULL)
       }
 
-      cached_fit_params <- cached_params$fit %>%
-        dplyr::filter(as.numeric(.n_reps) == n_reps) %>%
+      cached_fit_params <- cached_params$fit |>
+        dplyr::filter(as.numeric(.n_reps) == !!n_reps) |>
         dplyr::select(-.n_reps)
       fit_cached_op <- "equal"
       if (identical(results_type, "eval")) {
@@ -610,7 +609,7 @@ Experiment <- R6::R6Class(
       results_type <- match.arg(results_type)
       cached_params <- list()
       cached_params_all <- private$.get_cache("all")
-      cached_params$fit <- private$.get_fit_params() %>%
+      cached_params$fit <- private$.get_fit_params() |>
         dplyr::mutate(.n_reps = n_reps)
       if (identical(results_type, "fit")) {
         if (nrow(cached_params_all$fit$fit) > 0) {
@@ -619,14 +618,14 @@ Experiment <- R6::R6Class(
             function(i) {
               n_reps0 <- cached_params$fit$.n_reps[i]
               n_reps_all <- get_matching_rows(
-                id = cached_params$fit[i, ] %>% dplyr::select(-.n_reps),
+                id = cached_params$fit[i, ] |> dplyr::select(-.n_reps),
                 x = cached_params_all$fit$fit
-              ) %>%
+              ) |>
                 dplyr::pull(.n_reps)
               return(max(n_reps0, n_reps_all, na.rm = TRUE))
             }
           )
-          cached_params_all$fit$fit <- cached_params$fit %>%
+          cached_params_all$fit$fit <- cached_params$fit |>
             dplyr::mutate(.n_reps = cached_n_reps)
         } else {
           cached_params_all$fit$fit <- cached_params$fit
@@ -681,10 +680,10 @@ Experiment <- R6::R6Class(
               file.path(save_dir, "experiment_cached_params.rds"))
       saveRDS(self, file.path(save_dir, "experiment.rds"))
       if (results_type == "fit") {
-        main_results <- results %>% dplyr::filter(as.numeric(.rep) <= n_reps)
+        main_results <- results |> dplyr::filter(as.numeric(.rep) <= !!n_reps)
         saveRDS(main_results, save_file)
         if (nrow(main_results) < nrow(results)) {
-          extra_results <- results %>% dplyr::filter(as.numeric(.rep) > n_reps)
+          extra_results <- results |> dplyr::filter(as.numeric(.rep) > !!n_reps)
           saveRDS(extra_results, save_file2)
         } else if (file.exists(save_file2)) {
           file.remove(save_file2)
@@ -700,16 +699,16 @@ Experiment <- R6::R6Class(
     },
 
     .get_vary_across_dir = function() {
-      obj_names <- purrr::map(private$.vary_across_list, names) %>%
-        purrr::reduce(c) %>%
+      obj_names <- purrr::map(private$.vary_across_list, names) |>
+        purrr::reduce(c) |>
         paste(collapse = "-")
-      param_names <- private$.get_vary_params() %>%
+      param_names <- private$.get_vary_params() |>
         paste(collapse = "-")
       save_dir <- file.path(private$.save_dir, obj_names,
                             paste("Varying", param_names))
       return(save_dir)
     },
-    
+
     deep_clone = function(name, value) {
       if (is.list(value) && length(value) > 0 && inherits(value[[1]], "R6")) {
         lapply(value, function(v) v$clone(deep = TRUE))
@@ -863,13 +862,13 @@ Experiment <- R6::R6Class(
                               checkpoint_n_reps = checkpoint_n_reps,
                               verbose = verbose, ...)
 
-      eval_results <- self$evaluate(fit_results = fit_results %>%
-                                      dplyr::filter(as.numeric(.rep) <= n_reps),
+      eval_results <- self$evaluate(fit_results = fit_results |>
+                                      dplyr::filter(as.numeric(.rep) <= !!n_reps),
                                     use_cached = use_cached, save = save[2],
                                     verbose = verbose, ...)
 
-      viz_results <- self$visualize(fit_results = fit_results %>%
-                                      dplyr::filter(as.numeric(.rep) <= n_reps),
+      viz_results <- self$visualize(fit_results = fit_results |>
+                                      dplyr::filter(as.numeric(.rep) <= !!n_reps),
                                     eval_results = eval_results,
                                     use_cached = use_cached, save = save[3],
                                     verbose = verbose, ...)
@@ -911,9 +910,9 @@ Experiment <- R6::R6Class(
         })
       } else {
         dgp_params_list <- private$.combine_vary_params("dgp")
-        dgp_names <- purrr::map_chr(dgp_params_list, ".dgp_name") %>%
-          unique() %>%
-          setNames(., .)
+        dgp_names <- purrr::map_chr(dgp_params_list, ".dgp_name") |>
+          unique()
+        names(dgp_names) <- dgp_names
         dgp_results <- purrr::map(dgp_names, function(dgp_name) {
           keep_dgps <- purrr::map_chr(dgp_params_list, ".dgp_name") == dgp_name
           keep_dgp_params_list <- dgp_params_list[keep_dgps]
@@ -1059,8 +1058,8 @@ Experiment <- R6::R6Class(
           results <- private$.get_cached_results("fit", verbose = verbose)
           fit_params <- private$.get_fit_params(simplify = TRUE)
 
-          fit_results <- get_matching_rows(id = fit_params, x = results) %>%
-            dplyr::select(.rep, tidyselect::everything()) %>%
+          fit_results <- get_matching_rows(id = fit_params, x = results) |>
+            dplyr::select(.rep, tidyselect::everything()) |>
             dplyr::arrange(as.numeric(.rep), .dgp_name, .method_name)
 
           if (save) {
@@ -1076,8 +1075,8 @@ Experiment <- R6::R6Class(
             if (use_cached && return_all_cached_reps) {
               return(fit_results)
             } else {
-              return(fit_results %>%
-                       dplyr::filter(as.numeric(.rep) <= n_reps_total))
+              return(fit_results |>
+                       dplyr::filter(as.numeric(.rep) <= !!n_reps_total))
             }
           }
         }
@@ -1190,33 +1189,33 @@ Experiment <- R6::R6Class(
 
         gc()
 
-        new_fit_results <- new_fit_results %>%
+        new_fit_results <- new_fit_results |>
           dplyr::mutate(
             .rep = as.character(as.numeric(.rep) + n_reps_cached)
-          ) %>%
+          ) |>
           simplify_tibble()
 
         if (".err" %in% colnames(new_fit_results)) {
 
-          errors <- new_fit_results %>%
+          errors <- new_fit_results |>
             dplyr::filter(
               purrr::map_lgl(
                 .err, ~!is.null(.x)
               )
-            ) %>%
+            ) |>
             dplyr::select(.dgp, .dgp_name, .dgp_params,
                           .method, .method_name, .method_params,
-                          .method_output, .err, .pid, .gc) %>%
+                          .method_output, .err, .pid, .gc) |>
             dplyr::arrange(.dgp_name, .method_name)
 
           # filter out errors
-          new_fit_results <- new_fit_results %>%
-            dplyr::filter(purrr::map_lgl(.err, is.null)) %>%
+          new_fit_results <- new_fit_results |>
+            dplyr::filter(purrr::map_lgl(.err, is.null)) |>
             dplyr::select(-c(.dgp, .dgp_params, .method, .method_params,
                              .method_output, .err))
 
           if (isFALSE(getOption("simChef.debug", FALSE))) {
-            new_fit_results <- new_fit_results %>%
+            new_fit_results <- new_fit_results |>
               dplyr::select(-c(.pid, .gc))
           }
 
@@ -1249,11 +1248,11 @@ Experiment <- R6::R6Class(
           new_fit_results[[col]] <- NA
         }
 
-        fit_results <- new_fit_results %>%
+        fit_results <- new_fit_results |>
           dplyr::select(.rep, .dgp_name, .method_name,
                         private$.get_vary_params(),
-                        tidyselect::everything()) %>%
-          dplyr::bind_rows(fit_results) %>%
+                        tidyselect::everything()) |>
+          dplyr::bind_rows(fit_results) |>
           dplyr::arrange(as.numeric(.rep), .dgp_name, .method_name)
 
         if (use_cached && !new_fit) {
@@ -1261,15 +1260,17 @@ Experiment <- R6::R6Class(
                                                        n_reps_total, TRUE)
           fit_results_cached <- private$.get_cached_results(
             "fit", verbose = verbose
-          ) %>%
-            get_matching_rows(id = fit_params_cached, x = .)
+          )
+          fit_results_cached <- get_matching_rows(
+            id = fit_params_cached, x = fit_results_cached
+          )
           if (verbose >= 1) {
             inform("Appending cached results to the new fit results...")
           }
           fit_params <- private$.get_fit_params(simplify = TRUE)
-          fit_results <- dplyr::bind_rows(fit_results, fit_results_cached) %>%
-            get_matching_rows(id = fit_params, x = .) %>%
-            dplyr::arrange(as.numeric(.rep), .dgp_name, .method_name) %>%
+          fit_results <- dplyr::bind_rows(fit_results, fit_results_cached)
+          fit_results <- get_matching_rows(id = fit_params, x = fit_results) |>
+            dplyr::arrange(as.numeric(.rep), .dgp_name, .method_name) |>
             dplyr::select(.rep, tidyselect::everything())
         }
 
@@ -1295,7 +1296,7 @@ Experiment <- R6::R6Class(
       if (use_cached && return_all_cached_reps) {
         return(fit_results)
       } else {
-        return(fit_results %>% dplyr::filter(as.numeric(.rep) <= n_reps_total))
+        return(fit_results |> dplyr::filter(as.numeric(.rep) <= !!n_reps_total))
       }
 
     },

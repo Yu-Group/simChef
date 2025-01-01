@@ -74,8 +74,8 @@ init_docs <- function(experiment, save_dir) {
   if (!identical(descendants, list())) {
     for (field in fields) {
       obj_names <- purrr::map(descendants,
-                              ~names(.x[[paste0("get_", field, "s")]]())) %>%
-        purrr::reduce(c) %>%
+                              ~names(.x[[paste0("get_", field, "s")]]())) |>
+        purrr::reduce(c) |>
         unique()
       for (obj_name in obj_names) {
         fname <- file.path(save_dir, "docs", paste0(field, "s"),
@@ -231,10 +231,10 @@ render_docs <- function(experiment, save_dir, write_rmd = FALSE,
   if (write_rmd) {
     rlang::check_installed("ymlthis",
                            reason = "to run `render_docs(write_rmd = TRUE, ...)`")
-    yml_header <- ymlthis::yml() %>%
-      ymlthis::yml_title(title) %>%
-      ymlthis::yml_author(author) %>%
-      ymlthis::yml_output({{output_format}}) %>%
+    yml_header <- ymlthis::yml() |>
+      ymlthis::yml_title(title) |>
+      ymlthis::yml_author(author) |>
+      ymlthis::yml_output({{output_format}}) |>
       ymlthis::yml_params(
         sim_path = ymlthis::shiny_text(
           label = "Path to Simulation Experiment Folder:",

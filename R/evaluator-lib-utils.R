@@ -73,7 +73,7 @@ NULL
 #'   fun = rmse_fun,
 #'   truth_col = "y",
 #'   estimate_col = "predictions"
-#' ) %>%
+#' ) |>
 #'   tidyr::unnest(.eval_result)
 #'
 #' @export
@@ -83,7 +83,7 @@ eval_constructor <- function(fit_results, vary_params = NULL, fun,
 
   eval_rowwise <- function(data) {
     if (!is.null(nested_cols)) {
-      data <- data %>% tidyr::unnest(tidyselect::all_of(nested_cols))
+      data <- data |> tidyr::unnest(tidyselect::all_of(nested_cols))
     }
 
     key_cols_ls <- rlang::list2(...)
@@ -100,11 +100,11 @@ eval_constructor <- function(fit_results, vary_params = NULL, fun,
     }
 
     if (is.null(nested_cols)) {
-      data <- data %>%
+      data <- data |>
         tidyr::unnest(tidyselect::all_of(c(key_cols_vec, group_cols)))
     }
     if (!is.null(group_cols)) {
-      data <- data %>%
+      data <- data |>
         dplyr::group_by(dplyr::across(tidyselect::all_of(group_cols)))
     }
 
@@ -116,12 +116,12 @@ eval_constructor <- function(fit_results, vary_params = NULL, fun,
   }
 
   id_vars <- c(".rep", ".dgp_name", ".method_name", vary_params)
-  eval_tib <- fit_results %>%
+  eval_tib <- fit_results |>
     dplyr::mutate(
       .eval_result = purrr::map(
         1:nrow(fit_results), ~eval_rowwise(data = fit_results[.x, ])
       )
-    ) %>%
+    ) |>
     dplyr::select(tidyselect::all_of(id_vars), .eval_result)
   return(eval_tib)
 }
@@ -163,7 +163,7 @@ eval_constructor <- function(fit_results, vary_params = NULL, fun,
 #'     .estimate = yardstick::rmse_vec(
 #'       data[[truth_col]], data[[estimate_col]], na_rm = na_rm
 #'     )
-#'   ) %>%
+#'   ) |>
 #'     add_na_counts(data = data, value_col = truth_col, na_rm = na_rm)
 #'   return(out)
 #' }
@@ -173,17 +173,17 @@ eval_constructor <- function(fit_results, vary_params = NULL, fun,
 #'   truth_col = "y",
 #'   estimate_col = "predictions",
 #'   na_rm = TRUE
-#' ) %>%
+#' ) |>
 #'   tidyr::unnest(.eval_result)
 #'
 #' @importFrom rlang .data
 #' @export
 add_na_counts <- function(out, data, value_col, na_rm, ...) {
   if (na_rm) {
-    na_counts <- data %>%
-      dplyr::summarise(.estimate = sum(is.na(.data[[value_col]]))) %>%
+    na_counts <- data |>
+      dplyr::summarise(.estimate = sum(is.na(.data[[value_col]]))) |>
       dplyr::mutate(.metric = "num_na", ...)
-    out <- out %>%
+    out <- out |>
       dplyr::bind_rows(na_counts)
   }
   return(out)
@@ -216,7 +216,7 @@ add_na_counts <- function(out, data, value_col, na_rm, ...) {
 #' eval_data <- tibble::tibble(.rep = rep(1:2, times = 2),
 #'                             .dgp_name = c("DGP1", "DGP1", "DGP2", "DGP2"),
 #'                             .method_name = "Method",
-#'                             result = 1:4) %>%
+#'                             result = 1:4) |>
 #'   dplyr::group_by(.dgp_name, .method_name)
 #'
 #' # summarize `result` column in eval_data
@@ -255,18 +255,18 @@ eval_summarizer <- function(eval_data, eval_id = NULL, value_col,
       summary_fun <- eval(parse(text = f))
       col_name <- paste0(f, eval_id)
       if (f == "raw") {
-        eval_out <- eval_data %>%
+        eval_out <- eval_data |>
           dplyr::summarise(summary = list(.data[[value_col]]),
                            .groups = "keep")
       } else {
-        eval_out <- eval_data %>%
+        eval_out <- eval_data |>
           dplyr::summarise(summary = summary_fun(.data[[value_col]],
                                                  na.rm = na_rm),
                            .groups = "keep")
       }
-      return(eval_out %>% dplyr::rename({{col_name}} := "summary"))
+      return(eval_out |> dplyr::rename({{col_name}} := "summary"))
     }
-  ) %>%
+  ) |>
     purrr::reduce(dplyr::left_join, by = group_ids)
 
   # summarize results according to custom_summary_funs
@@ -284,16 +284,16 @@ eval_summarizer <- function(eval_data, eval_id = NULL, value_col,
       function(i) {
         summary_name <- names(custom_summary_funs)[i]
         summary_fun <- custom_summary_funs[[i]]
-        eval_data %>%
+        eval_data |>
           dplyr::summarise({{summary_name}} := summary_fun(.data[[value_col]]),
                            .groups = "keep")
       }
-    ) %>%
+    ) |>
       purrr::reduce(dplyr::left_join, by = group_ids)
     eval_out <- dplyr::left_join(eval_out, custom_eval_out, by = group_ids)
   }
 
-  return(tibble::tibble(eval_out) %>%
+  return(tibble::tibble(eval_out) |>
            dplyr::group_by(dplyr::across(tidyselect::all_of(group_ids))))
 }
 
@@ -363,7 +363,7 @@ rescale_curve <- function(curve_data, x_grid, xvar, yvar) {
     .x_coord = x_grid,
     .y_coord = y_vals
   )
-  return(curve_data %>% stats::setNames(c(xvar, yvar)))
+  return(curve_data |> stats::setNames(c(xvar, yvar)))
 }
 
 #----------------------------- Yardstick Helpers -------------------------------
