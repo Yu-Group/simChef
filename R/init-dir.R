@@ -1,6 +1,6 @@
 #' @title Create a simulation project
 #'
-#' @description `create_sim()` initializes a directory for your simulation
+#' @description `init_sim_project()` initializes a directory for your simulation
 #'   study. It wraps around \code{usethis::create_project()}, as well as
 #'   \code{usethis::use_git()} and \code{renv::init()}.
 #'
@@ -19,10 +19,10 @@
 #' @examples
 #' \dontrun{
 #' # create template directory for simulation project
-#' create_sim("path/to/sim")}
+#' init_sim_project("path/to/sim")}
 #'
 #' @export
-create_sim <- function(
+init_sim_project <- function(
   path,
   init_git = TRUE,
   init_renv = FALSE,
@@ -31,7 +31,7 @@ create_sim <- function(
 ) {
   rlang::check_installed(
     "usethis",
-    reason = "to create a simulation project with `create_sim()`"
+    reason = "to create a simulation project with `init_sim_project()`"
   )
 
   ## ensure arguments are appropriate
@@ -152,7 +152,7 @@ create_sim <- function(
     if (init_renv) {
       rlang::check_installed(
         "renv",
-        reason = "to initialize renv with `create_sim()`"
+        reason = "to initialize renv with `init_sim_project()`"
       )
       renv::init()
     }

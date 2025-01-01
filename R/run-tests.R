@@ -41,7 +41,7 @@ run_tests <- function() {
 #'   project and if it is run when this R project is active. Additionally, tests
 #'   must be stored in sub-directories whose names match those suggesting in the
 #'   "Setting Up Your Simulation" vignette. These details are conveniently taken
-#'   care of when a simulation study is set up using [create_sim()].
+#'   care of when a simulation study is set up using [init_sim_project()].
 #'
 #' @examples
 #' \dontrun{

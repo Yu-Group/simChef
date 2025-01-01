@@ -1249,13 +1249,13 @@ fs::dir_tree(get_save_dir(experiment))
 
 ## Simulation directory template
 
-To help with onboarding and setting up your simulation study, we have provided a helper function `create_sim()`.
+To help with onboarding and setting up your simulation study, we have provided a helper function `init_sim_project()`.
 
 ```{r create-sim, eval = FALSE}
-create_sim(path = "path/to/sim/dir")
+init_sim_project(path = "path/to/sim/dir")
 ```
 
-`create_sim()` initializes a ready-to-use directory for your `simChef` simulation study.
+`init_sim_project()` initializes a ready-to-use directory for your `simChef` simulation study.
 For more information and other best practices to improve reproducibility and replicability of your simulation study, please checkout [Setting up your simulation study](simulation-directory-setup.html).
 
 # References
