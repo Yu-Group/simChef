@@ -31,9 +31,9 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
 
     experiment <- create_experiment(
       name = "checkpoint-exper"
-    ) %>%
-      add_dgp(create_dgp(dgp_fun, n = 10)) %>%
-      add_method(create_method(method_fun)) %>%
+    ) |>
+      add_dgp(create_dgp(dgp_fun, n = 10)) |>
+      add_method(create_method(method_fun)) |>
       add_vary_across(
         .method = "method1",
         param1 = c(1, 2),
@@ -49,15 +49,15 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
 
     fit_results <- get_cached_results(experiment, "fit")
 
-    distinct_results <- fit_results %>%
-      dplyr::select(-.rep) %>%
+    distinct_results <- fit_results |>
+      dplyr::select(-.rep) |>
       dplyr::distinct()
 
     expect_equal(max(as.numeric(fit_results$.rep)), 5)
     expect_equal(nrow(fit_results), 40)
 
-    vary_results <- distinct_results %>%
-      dplyr::select(param1, param2, vec) %>%
+    vary_results <- distinct_results |>
+      dplyr::select(param1, param2, vec) |>
       dplyr::arrange(param1, param2)
 
     expected_vary_results <- tidyr::expand_grid(
@@ -68,8 +68,8 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
 
     fit_results <- experiment$fit(n_reps = 10, checkpoint_n_reps = 5, verbose=0)
 
-    distinct_results2 <- fit_results %>%
-      dplyr::select(-.rep) %>%
+    distinct_results2 <- fit_results |>
+      dplyr::select(-.rep) |>
       dplyr::distinct()
 
     expect_equal(max(as.numeric(fit_results$.rep)), 10)

@@ -43,8 +43,8 @@ fit_experiment_fixture <- function(parallel_plan) {
 
   method <- create_method(.method_fun = method_fun)
 
-  experiment <- create_experiment() %>%
-    add_dgp(dgp) %>%
+  experiment <- create_experiment() |>
+    add_dgp(dgp) |>
     add_method(method)
 
   # save the random seed before fitting experiment
@@ -87,8 +87,8 @@ fit_experiment_fixture <- function(parallel_plan) {
 
   bad_dgp <- create_dgp(dgp_fun, n = 100, p = 3, error_prob = 0.1)
 
-  experiment %>%
-    remove_dgp("dgp1") %>%
+  experiment |>
+    remove_dgp("dgp1") |>
     add_dgp(bad_dgp)
 
   err <- with_plan(

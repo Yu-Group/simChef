@@ -12,6 +12,10 @@
 #' @export
 run_tests <- function() {
 
+  rlang::check_installed(
+    "usethis",
+    reason = "to run tests with `run_tests()`"
+  )
   # construct path to testthat.R
   sim_project_path <- usethis::proj_get()
   testthat_path <- paste(sim_project_path, "tests/testthat.R", sep = "/")
@@ -30,9 +34,8 @@ run_tests <- function() {
 
 #' Test simChef Ingredients
 #'
-#' @description `test_sim_dir()` wraps around
-#'   [testthat::test_dir()] to run all dgp-, method-, evaluator-,
-#'   and visualizer-related tests.
+#' @description `test_sim_dir()` wraps around `testthat()` from the `test_dir`
+#'   package to run all dgp-, method-, evaluator-, and visualizer-related tests.
 #'
 #' @details This function only works if the simulation study is set up as an R
 #'   project and if it is run when this R project is active. Additionally, tests
@@ -47,31 +50,39 @@ run_tests <- function() {
 #'
 #' @export
 test_sim_dir <- function() {
+  rlang::check_installed(
+    c("testthat", "usethis"),
+    reason = "to run tests with `test_sim_dir()`"
+  )
 
   # set up paths
   path_to_tests <- paste0(usethis::proj_get(), "/tests/testthat")
 
   # make sure that the testthat directory exists
-  assertthat::assert_that(
-    dir.exists(path_to_tests),
-     msg = paste0(
-       "Cannot find ", path_to_tests,
-       ". Is this simulation your active project?"
-     )
-  )
+  if (!dir.exists(path_to_tests)) {
+    stop(
+      paste0(
+        "Cannot find ", path_to_tests,
+        ". Is this simulation your active project?"
+      )
+    )
+  }
 
   # make sure that subdirectories exist
-  assertthat::assert_that(
-    all(dir.exists(paste0(
-      path_to_tests,
-      c("/dgp-tests", "/method-tests", "/eval-tests", "/viz-tests")
-    ))),
-    msg = paste0("No test subdirectories found; dgp-, method-, evaluator- and ",
-                 "visualizer-related tests must be saved in",
-                 "tests/testthat/dgp-tests, tests/testthat/metod-tests, ",
-                 "tests/testthat/eval-tests and tests/testthat/viz-tests, ",
-                 "respectively.")
-  )
+  if (!all(dir.exists(paste0(
+    path_to_tests,
+    c("/dgp-tests", "/method-tests", "/eval-tests", "/viz-tests")
+  )))) {
+    stop(
+      paste0(
+        "No test subdirectories found; dgp-, method-, evaluator- and ",
+        "visualizer-related tests must be saved in",
+        "tests/testthat/dgp-tests, tests/testthat/metod-tests, ",
+        "tests/testthat/eval-tests and tests/testthat/viz-tests, ",
+        "respectively."
+      )
+    )
+  }
 
   # test dgp-related functions
   dgp_test_path <- paste0(path_to_tests, "/dgp-tests")
@@ -112,7 +123,7 @@ test_sim_dir <- function() {
 #' Load All Simulation Functions in R/
 #'
 #' @description `load_all()` is simulation study counterpart to
-#'   [devtools::load_all()] it loads all of
+#'   \code{devtools::load_all()}. It loads all of
 #'   the functions in the `R/dgp`, `R/method`, `R/eval` and
 #'   `R/viz` directories of the current simulation study.
 #'

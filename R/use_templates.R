@@ -1,50 +1,50 @@
 #' Functions to create boilerplate code for specific types of experiments.
-#' 
+#'
 #' @description These functions make suggestions for code when performing a few
 #'   common types of experiments (i.e., for prediction, feature selection, and
-#'   inference). They print out code to the console that could be considered 
-#'   minimal syntax. 
-#' 
+#'   inference). They print out code to the console that could be considered
+#'   minimal syntax.
+#'
 #' @param experiment_name Name of the experiment.
 #' @param type Either "regression" or "classification" specifying the type of
 #'   prediction problem.
-#' @param support Logical. If `TRUE`, include code to evaluate the 
+#' @param support Logical. If `TRUE`, include code to evaluate the
 #'   estimated feature support.
-#' @param include_dgp_example Logical. If `TRUE`, include a completed 
+#' @param include_dgp_example Logical. If `TRUE`, include a completed
 #'   DGP example, rather than a fill-in-the-blank template.
 #' @param include_method_example Logical. If `TRUE`, include a completed
 #'   Method example, rather than a fill-in-the-blank template.
 #'
-#' @returns Invisible `NULL` but code is printed to the console. 
-#' 
+#' @returns Invisible `NULL` but code is printed to the console.
+#'
 #' @name library_templates
 #' @rdname library_templates
-#' 
+#'
 #' @examples
 #' # prediction templates
 #' use_prediction_template(type = "regression")
 #' use_prediction_template(type = "classification")
-#' 
+#'
 #' # prediction templates with example DGP and Method
-#' use_prediction_template(type = "regression", 
+#' use_prediction_template(type = "regression",
 #'                         include_dgp_example = TRUE,
 #'                         include_method_example = TRUE)
-#' use_prediction_template(type = "classification", 
+#' use_prediction_template(type = "classification",
 #'                         include_dgp_example = TRUE,
 #'                         include_method_example = TRUE)
 #'
 #' # feature selection template
 #' use_feature_selection_template()
 #' # feature selection template with example DGP and Method
-#' use_feature_selection_template(include_dgp_example = TRUE, 
+#' use_feature_selection_template(include_dgp_example = TRUE,
 #'                                include_method_example = TRUE)
-#' 
+#'
 #' # inference template
 #' use_inference_template()
 #' # inference template with example DGP and Method
 #' use_inference_template(include_dgp_example = TRUE,
 #'                        include_method_example = TRUE)
-#' 
+#'
 NULL
 
 #' @rdname library_templates
@@ -52,7 +52,7 @@ NULL
 #' @export
 use_prediction_template <- function(experiment_name = "Prediction Experiment",
                                     type = c("regression", "classification"),
-                                    support = FALSE, 
+                                    support = FALSE,
                                     include_dgp_example = FALSE,
                                     include_method_example = FALSE) {
   type <- match.arg(type)
@@ -74,13 +74,13 @@ use_prediction_template <- function(experiment_name = "Prediction Experiment",
   } else {
     dgp_names <- use_dgp_template()
   }
-  
+
   if (include_method_example) {
     method_names <- use_method_template(ids = "RF")
   } else {
     method_names <- use_method_template()
   }
-  
+
   # set parameters for evaluators and visualizers
   nested_pred_cols <- "nested_pred_cols"
   true_pred_col <- "true_pred_col"
@@ -138,26 +138,26 @@ use_prediction_template <- function(experiment_name = "Prediction Experiment",
   } else {
     create_assign_str(nested_pred_cols,
                       use_variable_template(nested_pred_cols), TRUE)
-    create_assign_str(true_pred_col, 
+    create_assign_str(true_pred_col,
                       use_variable_template(true_pred_col), TRUE)
-    create_assign_str(est_pred_col, 
+    create_assign_str(est_pred_col,
                       use_variable_template(est_pred_col), TRUE)
     create_assign_str(prob_pred_cols,
                       use_variable_template(prob_pred_cols), TRUE)
     cat("\n")
     create_assign_str(nested_feature_cols,
                       use_variable_template(nested_feature_cols), TRUE)
-    create_assign_str(feature_col, 
+    create_assign_str(feature_col,
                       use_variable_template(feature_col), TRUE)
-    create_assign_str(true_feature_col, 
+    create_assign_str(true_feature_col,
                       use_variable_template(true_feature_col), TRUE)
-    create_assign_str(feature_imp_col, 
+    create_assign_str(feature_imp_col,
                       use_variable_template(feature_imp_col), TRUE)
-    create_assign_str(feature_sel_col, 
+    create_assign_str(feature_sel_col,
                       use_variable_template(feature_sel_col), TRUE)
     cat("\n")
   }
-  
+
   eval_ids <- "pred_err"
   viz_ids <- "pred_err_plot"
   if (type == "classification") {
@@ -165,12 +165,12 @@ use_prediction_template <- function(experiment_name = "Prediction Experiment",
   }
   if (support) {
     eval_ids <- c(eval_ids, "fi", "feature_sel")
-    viz_ids <- c(viz_ids, "fi_plot", "feature_sel_plot", 
+    viz_ids <- c(viz_ids, "fi_plot", "feature_sel_plot",
                  "feature_roc_plot", "feature_pr_plot")
   }
-  
+
   eval_names <- use_evaluator_template(
-    ids = eval_ids, 
+    ids = eval_ids,
     pred_nested_cols = nested_pred_cols, pred_truth_col = true_pred_col,
     pred_estimate_col = est_pred_col, pred_prob_cols = prob_pred_cols,
     feature_nested_cols = nested_feature_cols, feature_col = feature_col,
@@ -178,13 +178,13 @@ use_prediction_template <- function(experiment_name = "Prediction Experiment",
     feature_sel_col = feature_sel_col
   )
   viz_names <- use_visualizer_template(
-    ids = viz_ids, 
+    ids = viz_ids,
     pred_nested_cols = nested_pred_cols, pred_truth_col = true_pred_col,
     pred_prob_cols = prob_pred_cols, feature_nested_cols = nested_feature_cols,
-    feature_col = feature_col, feature_truth_col = true_feature_col, 
+    feature_col = feature_col, feature_truth_col = true_feature_col,
     feature_imp_col = feature_imp_col
   )
-  
+
   use_experiment_template(name = experiment_name,
                           dgp_names = dgp_names,
                           method_names = method_names,
@@ -193,14 +193,14 @@ use_prediction_template <- function(experiment_name = "Prediction Experiment",
   use_init_docs_template()
   use_run_template()
   use_render_docs_template()
-  
+
   return(invisible(NULL))
 }
 
 #' @rdname library_templates
 #'
 #' @export
-use_feature_selection_template <- function(experiment_name = 
+use_feature_selection_template <- function(experiment_name =
                                              "Feature Selection Experiment",
                                            include_dgp_example = FALSE,
                                            include_method_example = FALSE) {
@@ -222,13 +222,13 @@ use_feature_selection_template <- function(experiment_name =
   } else {
     dgp_names <- use_dgp_template()
   }
-  
+
   if (include_method_example) {
     method_names <- use_method_template(ids = "RF")
   } else {
     method_names <- use_method_template()
   }
-  
+
   # set parameters for evaluators and visualizers
   nested_feature_cols <- "nested_feature_cols"
   feature_col <- "feature_col"
@@ -256,23 +256,23 @@ use_feature_selection_template <- function(experiment_name =
   } else {
     create_assign_str(nested_feature_cols,
                       use_variable_template(nested_feature_cols), TRUE)
-    create_assign_str(feature_col, 
+    create_assign_str(feature_col,
                       use_variable_template(feature_col), TRUE)
-    create_assign_str(true_feature_col, 
+    create_assign_str(true_feature_col,
                       use_variable_template(true_feature_col), TRUE)
-    create_assign_str(feature_imp_col, 
+    create_assign_str(feature_imp_col,
                       use_variable_template(feature_imp_col), TRUE)
-    create_assign_str(feature_sel_col, 
+    create_assign_str(feature_sel_col,
                       use_variable_template(feature_sel_col), TRUE)
     cat("\n")
   }
-  
+
   eval_ids <- c("fi", "feature_sel")
   viz_ids <- c("fi_plot", "feature_sel_plot",
                "feature_roc_curve", "feature_pr_curve")
-  
+
   eval_names <- use_evaluator_template(
-    ids = eval_ids, 
+    ids = eval_ids,
     feature_nested_cols = nested_feature_cols, feature_col = feature_col,
     feature_truth_col = true_feature_col, feature_imp_col = feature_imp_col,
     feature_sel_col = feature_sel_col
@@ -282,7 +282,7 @@ use_feature_selection_template <- function(experiment_name =
     feature_nested_cols = nested_feature_cols, feature_col = feature_col,
     feature_truth_col = true_feature_col, feature_imp_col = feature_imp_col
   )
-  
+
   use_experiment_template(name = experiment_name,
                           dgp_names = dgp_names,
                           method_names = method_names,
@@ -291,7 +291,7 @@ use_feature_selection_template <- function(experiment_name =
   use_init_docs_template()
   use_run_template()
   use_render_docs_template()
-  
+
   return(invisible(NULL))
 }
 
@@ -320,20 +320,20 @@ use_inference_template <- function(experiment_name = "Inference Experiment",
   } else {
     dgp_names <- use_dgp_template()
   }
-  
+
   if (include_method_example) {
     method_names <- use_method_template(ids = "OLS")
   } else {
     method_names <- use_method_template()
   }
-  
+
   # set parameters for evaluators and visualizers
   nested_feature_cols <- "nested_feature_cols"
   feature_col <- "feature_col"
   true_feature_col <- "true_feature_col"
   pval_col <- "pval_col"
   if (include_method_example) {
-    
+
     create_assign_str(
       nested_feature_cols,
       "'support_df'  # feature importance columns to be unnested"
@@ -351,31 +351,31 @@ use_inference_template <- function(experiment_name = "Inference Experiment",
   } else {
     create_assign_str(nested_feature_cols,
                       use_variable_template(nested_feature_cols), TRUE)
-    create_assign_str(feature_col, 
+    create_assign_str(feature_col,
                       use_variable_template(feature_col), TRUE)
-    create_assign_str(true_feature_col, 
+    create_assign_str(true_feature_col,
                       use_variable_template(true_feature_col), TRUE)
-    create_assign_str(pval_col, 
+    create_assign_str(pval_col,
                       use_variable_template(pval_col), TRUE)
     cat("\n")
   }
-  
+
   eval_ids <- c("inf_err", "fi_pval")
   viz_ids <- c("inf_err_plot", "inf_roc_plot", "inf_pr_plot",
                "reject_prob_plot")
-  
+
   eval_names <- use_evaluator_template(
-    ids = eval_ids, 
+    ids = eval_ids,
     feature_nested_cols = nested_feature_cols, feature_col = feature_col,
     feature_truth_col = true_feature_col, feature_pval_col = pval_col
   )
   viz_names <- use_visualizer_template(
-    ids = viz_ids, 
+    ids = viz_ids,
     feature_nested_cols = nested_feature_cols,
-    feature_col = feature_col, feature_truth_col = true_feature_col, 
+    feature_col = feature_col, feature_truth_col = true_feature_col,
     feature_pval_col = pval_col
   )
-  
+
   use_experiment_template(name = experiment_name,
                           dgp_names = dgp_names,
                           method_names = method_names,
@@ -384,7 +384,7 @@ use_inference_template <- function(experiment_name = "Inference Experiment",
   use_init_docs_template()
   use_run_template()
   use_render_docs_template()
-  
+
   return(invisible(NULL))
 }
 
@@ -419,7 +419,7 @@ use_library_template <- function(cran_packages = NULL,
 }
 
 #' Function to create boilerplate code for creating DGPs.
-#' 
+#'
 #' @keywords internal
 use_dgp_template <- function(ids = NULL, data_split = TRUE) {
   if (is.null(ids)) {
@@ -433,7 +433,7 @@ use_dgp_template <- function(ids = NULL, data_split = TRUE) {
       )
     )
   } else {
-    ids <- match.arg(ids, choices = c("regression-example", 
+    ids <- match.arg(ids, choices = c("regression-example",
                                       "classification-example"))
     if (ids == "regression-example") {
       dgp_fun_name <- "gaussian_linear_dgp"
@@ -449,12 +449,12 @@ use_dgp_template <- function(ids = NULL, data_split = TRUE) {
           data_split = FALSE, return_support = TRUE
         )
       }
-      dgp <- function(n, p, beta = 1, err_sd = 1, data_split = TRUE,
-                      train_prop = 0.5, return_support = TRUE) {
+      regression_dgp <- function(n, p, beta = 1, err_sd = 1, data_split = TRUE,
+                                 train_prop = 0.5, return_support = TRUE) {
 
         X <- matrix(stats::rnorm(n * p), nrow = n, ncol = p)
         beta_vec <- matrix(beta, ncol = 1, nrow = p)
-        y <- X %*% beta_vec + rnorm(n = n, sd = err_sd)
+        y <- X %*% beta_vec + stats::rnorm(n = n, sd = err_sd)
         if (data_split) {
           train_ids <- sample(1:n, size = round(n * train_prop))
           Xtest <- X[-train_ids, , drop = FALSE]
@@ -473,6 +473,8 @@ use_dgp_template <- function(ids = NULL, data_split = TRUE) {
         }
         return(out)
       }
+
+      dgp <- regression_dgp
 
       # dgp_str <- create_fun_str(
       #   name = "dgp",
@@ -501,8 +503,8 @@ use_dgp_template <- function(ids = NULL, data_split = TRUE) {
           data_split = FALSE, return_support = TRUE
         )
       }
-      dgp <- function(n, p, beta = 1, data_split = TRUE,
-                      train_prop = 0.5, return_support = TRUE) {
+      classification_dgp <- function(n, p, beta = 1, data_split = TRUE,
+                                     train_prop = 0.5, return_support = TRUE) {
 
         X <- matrix(stats::rnorm(n * p), nrow = n, ncol = p)
         beta_vec <- matrix(beta, ncol = 1, nrow = p)
@@ -528,6 +530,8 @@ use_dgp_template <- function(ids = NULL, data_split = TRUE) {
         }
         return(out)
       }
+
+      dgp <- classification_dgp
 
       # dgp_str <- create_fun_str(
       #   name = "dgp",
@@ -556,7 +560,7 @@ use_dgp_template <- function(ids = NULL, data_split = TRUE) {
 }
 
 #' Function to create boilerplate code for creating Methods.
-#' 
+#'
 #' @keywords internal
 use_method_template <- function(ids = NULL) {
   if (is.null(ids)) {
@@ -570,17 +574,17 @@ use_method_template <- function(ids = NULL) {
   } else {
     ids <- match.arg(ids, choices = c("RF", "OLS"))
     if (ids == "RF") {
-      method <- function(X, y, Xtest, ytest, support, ...) {
-        
-        data <- as.data.frame(X) %>%
+      rf_method <- function(X, y, Xtest, ytest, support, ...) {
+
+        data <- as.data.frame(X) |>
           cbind(.y = y)
-        
+
         if (is.factor(y)) {
           mtry <- round(sqrt(ncol(X)))
         } else {
           mtry <- round(ncol(X) / 3)
         }
-        
+
         fit <- ranger::ranger(data = data,
                               dependent.variable.name = ".y",
                               importance = "impurity",
@@ -590,7 +594,7 @@ use_method_template <- function(ids = NULL) {
         preds <- stats::predict(fit, as.data.frame(Xtest))$predictions
         if (is.factor(y)) {
           k <- nlevels(y)
-          prob_preds <- stats::predict(fit, as.data.frame(Xtest), 
+          prob_preds <- stats::predict(fit, as.data.frame(Xtest),
                                        predict.all = TRUE,
                                        num.threads = 1)$predictions
           prob_preds <- purrr::list_rbind(purrr::map(
@@ -599,13 +603,13 @@ use_method_template <- function(ids = NULL) {
               x <- factor(prob_preds[i, ], levels = 1:k)
               tibble::as_tibble_row(c(prop.table(table(x))))
             }
-          )) %>%
-            stats::setNames(levels(y)) %>%
+          )) |>
+            stats::setNames(levels(y)) |>
             dplyr::select(-1)
         } else {
           prob_preds <- NULL
         }
-        
+
         p <- ncol(X)
         if (is.null(colnames(X))) {
           features <- 1:p
@@ -625,18 +629,19 @@ use_method_template <- function(ids = NULL) {
         )
         return(out)
       }
+      method <- rf_method
     } else if (ids == "OLS") {
-      method <- function(X, y, support, ...) {
-        
-        data <- as.data.frame(X) %>%
+      ols_method <- function(X, y, support, ...) {
+
+        data <- as.data.frame(X) |>
           cbind(.y = y)
-        
+
         if (is.factor(y)) {
           stop("OLS cannot be applied to a factor response.")
         }
-        
+
         fit <- stats::lm(.y ~ ., data = data)
-        
+
         p <- ncol(X)
         if (is.null(colnames(X))) {
           features <- 1:p
@@ -652,6 +657,7 @@ use_method_template <- function(ids = NULL) {
         )
         return(out)
       }
+      method <- ols_method
     }
     cat(paste0(tolower(ids), "_method <- ", rlang::expr_text(method)), "\n\n")
     method_str <- create_fun_str(
@@ -661,15 +667,15 @@ use_method_template <- function(ids = NULL) {
                   .name = paste0("'", ids, "'"))
     )
   }
-  
+
   cat(method_str, "\n\n")
   return("method")
 }
 
 #' Function to create boilerplate code for creating Evaluators.
-#' 
+#'
 #' @keywords internal
-use_evaluator_template <- function(ids = NULL, 
+use_evaluator_template <- function(ids = NULL,
                                    pred_nested_cols, pred_truth_col,
                                    pred_estimate_col, pred_prob_cols,
                                    feature_nested_cols, feature_col,
@@ -732,15 +738,15 @@ use_evaluator_template <- function(ids = NULL,
                                  args = purrr::compact(eval_args))
       cat(eval_str, "\n\n")
     }
-  } 
+  }
 
   return(ids)
 }
 
 #' Function to create boilerplate code for creating Visualizers
-#' 
+#'
 #' @keywords internal
-use_visualizer_template <- function(ids = NULL, 
+use_visualizer_template <- function(ids = NULL,
                                     pred_nested_cols, pred_truth_col,
                                     pred_prob_cols, feature_nested_cols,
                                     feature_col, feature_truth_col,
@@ -758,12 +764,12 @@ use_visualizer_template <- function(ids = NULL,
     ids <- "viz"
     cat(viz_str, "\n\n")
   } else {
-    ids <- match.arg(ids, 
+    ids <- match.arg(ids,
                      choices = c("pred_err_plot", "roc_plot", "pr_plot",
                                  "fi_plot", "feature_sel_plot",
                                  "feature_roc_plot", "feature_pr_plot",
                                  "inf_err_plot", "inf_roc_plot", "inf_pr_plot",
-                                 "reject_prob_plot"), 
+                                 "reject_prob_plot"),
                      several.ok = TRUE)
     for (id in ids) {
       if (id == "pred_err_plot") {
@@ -849,44 +855,44 @@ use_visualizer_template <- function(ids = NULL,
       cat(viz_str, "\n\n")
     }
   }
-  
+
   return(ids)
 }
 
 #' Function to create boilerplate code for creating Experiments.
-#' 
+#'
 #' @keywords internal
 use_experiment_template <- function(name = "Experiment",
-                                    dgp_names = NULL, 
+                                    dgp_names = NULL,
                                     method_names = NULL,
-                                    eval_names = NULL, 
+                                    eval_names = NULL,
                                     viz_names = NULL) {
-  
-  experiment_str <- sprintf("experiment <- create_experiment(name = '%s')", 
+
+  experiment_str <- sprintf("experiment <- create_experiment(name = '%s')",
                             name)
   for (dgp_name in dgp_names) {
-    experiment_str <- experiment_str %>%
+    experiment_str <- experiment_str |>
       pipe_value(rlang::call2("add_dgp", as.name(dgp_name)))
   }
   for (method_name in method_names) {
-    experiment_str <- experiment_str %>%
+    experiment_str <- experiment_str |>
       pipe_value(rlang::call2("add_method", as.name(method_name)))
   }
   for (eval_name in eval_names) {
-    experiment_str <- experiment_str %>%
+    experiment_str <- experiment_str |>
       pipe_value(rlang::call2("add_evaluator", as.name(eval_name)))
   }
   for (viz_name in viz_names) {
-    experiment_str <- experiment_str %>%
+    experiment_str <- experiment_str |>
       pipe_value(rlang::call2("add_visualizer", as.name(viz_name)))
   }
-  
+
   cat(experiment_str, "\n\n")
   return(invisible(NULL))
 }
 
 #' Function to create boilerplate code for running an Experiment.
-#' 
+#'
 #' @keywords internal
 use_run_template <- function() {
   run_str <- create_fun_str(
@@ -896,31 +902,31 @@ use_run_template <- function() {
                 n_reps = "stop('Add number of replicates here.')",
                 save = TRUE)
   )
-  
+
   cat(run_str, "\n\n")
   return(invisible(NULL))
 }
 
 #' Function to create boilerplate code for creating the documentation template.
-#' 
+#'
 #' @keywords internal
 use_init_docs_template <- function() {
   cat("init_docs(experiment)  #> fill out documentation before proceeding!\n\n")
 }
 
 #' Function to create boilerplate code for creating the Rmd report.
-#' 
+#'
 #' @keywords internal
 use_render_docs_template <- function() {
   cat("render_docs(experiment)\n\n")
 }
 
-#' Function to create boilerplate code for assigning descriptive errors to 
+#' Function to create boilerplate code for assigning descriptive errors to
 #' variables.
-#' 
+#'
 #' @keywords internal
 use_variable_template <- function(id) {
-  id <- match.arg(id, 
+  id <- match.arg(id,
                   choices = c("nested_pred_cols", "true_pred_col",
                               "est_pred_col", "prob_pred_cols",
                               "nested_feature_cols", "feature_col",

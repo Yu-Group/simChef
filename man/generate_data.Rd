@@ -41,8 +41,8 @@ bernoulli_dgp <- create_dgp(
 )
 
 # initialize experiment with toy DGPs only
-experiment <- create_experiment(name = "Experiment Name") \%>\%
-  add_dgp(normal_dgp) \%>\%
+experiment <- create_experiment(name = "Experiment Name") |>
+  add_dgp(normal_dgp) |>
   add_dgp(bernoulli_dgp)
 
 # generate data from all DGPs (and vary across components if applicable)

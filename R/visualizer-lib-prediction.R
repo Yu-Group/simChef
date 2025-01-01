@@ -59,7 +59,9 @@ plot_pred_err <- function(fit_results = NULL,
                           eval_fun_options = NULL,
                           vary_params = NULL, metrics = NULL,
                           show = c("point", "line"), ...) {
-  .metric <- NULL  # to fix no visible binding for global variable error
+  # dummies to fix R CMD check note on no visible binding for global variable
+  .metric <- NULL
+
   arg_list <- get_dot_args(
     user_args = rlang::list2(...),
     default_args = list(eval_id = "pred_err",
@@ -81,7 +83,7 @@ plot_pred_err <- function(fit_results = NULL,
       abort("Unknown metrics. metrics must be of class 'yardstick::metric_set' or NULL.")
     }
     metric_names <- names(attr(metrics, "metrics"))
-    plot_data <- plot_data %>%
+    plot_data <- plot_data |>
       dplyr::filter(.metric %in% metric_names)
   }
 
@@ -104,7 +106,7 @@ plot_pred_err <- function(fit_results = NULL,
 #' @inheritParams shared_viz_lib_args
 #' @inheritDotParams plot_eval_constructor -eval_results -eval_names -plot_data
 #'   -vary_params -show
-#' 
+#'
 #' @inherit plot_eval_constructor return
 #'
 #' @family prediction_error_funs

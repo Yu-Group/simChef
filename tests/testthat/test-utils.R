@@ -134,7 +134,7 @@ test_that("simplify_tibble works properly", {
 
   expect_equal(simplify_tibble(tib1), tib1)
   expect_equal(simplify_tibble(tib2), tib2)
-  expect_equal(simplify_tibble(tib3), tib3 %>% dplyr::mutate(a = 1))
+  expect_equal(simplify_tibble(tib3), tib3 |> dplyr::mutate(a = 1))
   expect_equal(simplify_tibble(tib4),
                tibble::tibble(a = 1, b = 2, c = list(1:3)))
   suppressWarnings(expect_equal(

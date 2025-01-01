@@ -7,9 +7,9 @@
 simplify_tibble(tbl, empty_as_na = TRUE)
 }
 \arguments{
-\item{empty_as_na}{If TRUE (default), 0-length values will be treated as NA.}
+\item{tbl}{\code{tibble::tibble} to simplify.}
 
-\item{tib}{\code{tibble::tibble} to simplify.}
+\item{empty_as_na}{If TRUE (default), 0-length values will be treated as NA.}
 }
 \value{
 A tibble that has been "simplified".

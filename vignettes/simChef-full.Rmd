@@ -98,7 +98,7 @@ The goal of `simChef` is to seamlessly and efficiently run simulation experiment
     # which is passed as 'fit_results' to our evaluation functions
     evaluator_fun <- function(fit_results) {
       # calculate R-squared
-      fit_results %>%
+      fit_results |>
         dplyr::mutate(
           rsq = sapply(fit, function(.fit) summary(.fit)$r.squared)
         )
@@ -122,10 +122,10 @@ The goal of `simChef` is to seamlessly and efficiently run simulation experiment
     ```
 3. **Assemble these recipe parts into a complete simulation experiment.**
     ```{r overview-experiment, eval = FALSE}
-    experiment <- create_experiment(name = "Experiment") %>%
-      add_dgp(dgp) %>%
-      add_method(method) %>%
-      add_evaluator(evaluator) %>%
+    experiment <- create_experiment(name = "Experiment") |>
+      add_dgp(dgp) |>
+      add_method(method) |>
+      add_evaluator(evaluator) |>
       add_visualizer(visualizer)
     experiment
     ```
@@ -234,8 +234,8 @@ Given the above DGP, suppose we want to investigate the performance of linear re
 ```{r create-method-fun}
 lm_fun <- function(X, y, cols = c("X1", "X2")) {
   lm_fit <- lm(y ~ X)
-  pvals_tib <- summary(lm_fit)$coefficients[cols, "Pr(>|t|)"] %>%
-    setNames(paste(names(.), "p-value"))
+  pvals_tib <- summary(lm_fit)$coefficients[cols, "Pr(>|t|)"]
+  names(pvals_tib) <- paste(names(pvals_tib), "p-value")
   return(pvals_tib)
 }
 ```
@@ -262,8 +262,8 @@ To evaluate performance here, one metric (or statistic) of interest could be the
 ```{r create-eval-fun}
 reject_prob_fun <- function(fit_results, alpha = 0.05) {
   group_vars <- c(".dgp_name", ".method_name")
-  eval_out <- fit_results %>%
-    dplyr::group_by(across({{group_vars}})) %>%
+  eval_out <- fit_results |>
+    dplyr::group_by(across({{group_vars}})) |>
     dplyr::summarise(
       `X1 Reject Prob.` = mean(`X1 p-value` < alpha),
       `X2 Reject Prob.` = mean(`X2 p-value` < alpha),
@@ -392,10 +392,10 @@ At this point, we have created a `DGP()` (`dgp`), `Method()` (`lm_method`), `Eva
 The next step is to create a simulation experiment recipe and `add` each component to the recipe via:
 
 ```{r create-experiment}
-experiment <- create_experiment(name = "Linear Regression Experiment") %>%
-  add_dgp(linear_dgp) %>%
-  add_method(lm_method) %>%
-  add_evaluator(reject_prob_eval) %>%
+experiment <- create_experiment(name = "Linear Regression Experiment") |>
+  add_dgp(linear_dgp) |>
+  add_method(lm_method) |>
+  add_evaluator(reject_prob_eval) |>
   add_visualizer(power_plot)
 ```
 
@@ -528,7 +528,7 @@ For instance, what happens to the power as the amount of noise in the linear mod
 Using the grammar of `simChef`, we can investigate this question by adding a `vary_across` component to the `Experiment`. In this example, we are varying the `sigma` (i.e,. the noise level) parameter in the Linear Gaussian DGP across four different values (i.e,. 1, 2, 4, and 8) while keeping all other parameters fixed at their baseline value.
 
 ```{r add-vary-across-1}
-experiment <- experiment %>%
+experiment <- experiment |>
   add_vary_across(.dgp = "Linear Gaussian DGP", sigma = c(1, 2, 4, 8))
 ```
 
@@ -554,7 +554,7 @@ Some notes on varying across multiple parameters:
   - If multiple arguments of `[param_name] = [param_values]` are provided within a call to `add_vary_across()`, the cross-product of parameter values is taken.
     - E.g., `add_vary_across(.dgp = "Linear Gaussian DGP", sigma = c(1, 2, 4, 8), n = c(100, 200, 300))` will result in $4 \times 3 = 12$ distinct configurations of the `DGP`.
   - It is possible to vary across both `DGP` and `Method` parameters in an `Experiment`. Here, all DGP-method combinations are fitted.
-    - E.g., `add_vary_across(.dgp = "Linear Gaussian DGP", sigma = c(1, 2, 4, 8)) %>% add_vary_across(.method = "OLS", cols = c("X1", "X2"))` results in 8 DGP-method combinations to be fitted in the `Experiment` (4 variations on the `DGP` $\times$ 2 variations on the `Method`).
+    - E.g., `add_vary_across(.dgp = "Linear Gaussian DGP", sigma = c(1, 2, 4, 8)) |> add_vary_across(.method = "OLS", cols = c("X1", "X2"))` results in 8 DGP-method combinations to be fitted in the `Experiment` (4 variations on the `DGP` $\times$ 2 variations on the `Method`).
 </details>
 ::::
 
@@ -579,8 +579,8 @@ Thus, by using this `vary_params` argument, the `Evaluator` will work more gener
 ```{r vary-across-evaluator-fun}
 reject_prob_fun <- function(fit_results, vary_params = NULL, alpha = 0.05) {
   group_vars <- c(".dgp_name", ".method_name", vary_params)  # MODIFIED!
-  eval_out <- fit_results %>%
-    dplyr::group_by(across({{group_vars}})) %>%
+  eval_out <- fit_results |>
+    dplyr::group_by(across({{group_vars}})) |>
     dplyr::summarise(
       `X1 Reject Prob.` = mean(`X1 p-value` < alpha),
       `X2 Reject Prob.` = mean(`X2 p-value` < alpha),
@@ -622,9 +622,9 @@ power_plot <- create_visualizer(.viz_fun = power_plot_fun, .name = "Power")
 Now, we are ready to update our experiment with the corrected `Evaluator` and `Visualizer` and run the experiment via:
 
 ```{r vary-across-results-2, fig.width = 8, fig.height = 6}
-vary_results <- experiment %>%
-  update_evaluator(reject_prob_eval, name = "Rejection Prob. (alpha = 0.1)") %>%
-  update_visualizer(power_plot, name = "Power") %>%
+vary_results <- experiment |>
+  update_evaluator(reject_prob_eval, name = "Rejection Prob. (alpha = 0.1)") |>
+  update_visualizer(power_plot, name = "Power") |>
   run_experiment(n_reps = 10, save = TRUE)
 vary_results$fit_results
 vary_results$eval_results
@@ -703,15 +703,15 @@ power_plot_fun <- function(fit_results, vary_params = NULL, col = "X1") {
 power_plot <- create_visualizer(.viz_fun = power_plot_fun, .name = "Power")
 
 # update experiment
-experiment <- experiment %>%
-  update_visualizer(power_plot, name = "Power") %>%
+experiment <- experiment |>
+  update_visualizer(power_plot, name = "Power") |>
   add_visualizer(reject_prob_plot)
 ```
 
 ```{r run-more-experiments}
 # (a) run experiment across varying values of beta_2
-vary_beta2_results <- experiment %>%
-  remove_vary_across(dgp = "Linear Gaussian DGP") %>%
+vary_beta2_results <- experiment |>
+  remove_vary_across(dgp = "Linear Gaussian DGP") |>
   add_vary_across(
     .dgp = "Linear Gaussian DGP",
     beta = list(
@@ -721,13 +721,13 @@ vary_beta2_results <- experiment %>%
       c(1, 1.5),
       c(1, 2)
     )
-  ) %>%
+  ) |>
   run_experiment(n_reps = 10, save = TRUE)
 
 # (b) run experiment across varying values of rho (correlation)
-vary_cor_results <- experiment %>%
-  remove_vary_across(dgp = "Linear Gaussian DGP") %>%
-  add_vary_across(.dgp = "Linear Gaussian DGP", rho = c(0, 0.2, 0.5, 0.9)) %>%
+vary_cor_results <- experiment |>
+  remove_vary_across(dgp = "Linear Gaussian DGP") |>
+  add_vary_across(.dgp = "Linear Gaussian DGP", rho = c(0, 0.2, 0.5, 0.9)) |>
   run_experiment(n_reps = 10, save = TRUE)
 ```
 
@@ -815,12 +815,12 @@ If the cached `Experiment` configurations match that of the current `Experiment`
 As an example, let us run the following experiment and save its results.
 
 ```{r caching-1}
-experiment <- create_experiment(name = "Linear Regression Experiment") %>%
-  add_dgp(linear_dgp) %>%
-  add_method(lm_method) %>%
-  add_evaluator(reject_prob_eval) %>%
-  add_visualizer(power_plot) %>%
-  add_visualizer(reject_prob_plot) %>%
+experiment <- create_experiment(name = "Linear Regression Experiment") |>
+  add_dgp(linear_dgp) |>
+  add_method(lm_method) |>
+  add_evaluator(reject_prob_eval) |>
+  add_visualizer(power_plot) |>
+  add_visualizer(reject_prob_plot) |>
   add_vary_across(.dgp = "Linear Gaussian DGP", sigma = c(1, 2, 4, 8))
 
 orig_results <- run_experiment(experiment, n_reps = 10, save = TRUE)
@@ -841,7 +841,7 @@ smaller_results <- run_experiment(experiment, n_reps = 5, use_cached = TRUE)
 
 all.equal(
   smaller_results$fit_results,
-  orig_results$fit_results %>% dplyr::filter(as.numeric(.rep) <= 5)
+  orig_results$fit_results |> dplyr::filter(as.numeric(.rep) <= 5)
 )
 ```
 
@@ -851,7 +851,7 @@ or increase the number of replicates without re-doing computation for the previo
 larger_results <- run_experiment(experiment, n_reps = 15, use_cached = TRUE)
 
 all.equal(
-  larger_results$fit_results %>% dplyr::filter(as.numeric(.rep) <= 10),
+  larger_results$fit_results |> dplyr::filter(as.numeric(.rep) <= 10),
   orig_results$fit_results
 )
 ```
@@ -866,12 +866,12 @@ new_dgp <- create_dgp(
   n = 500, beta = c(1, 0), rho = 0, sigma = 1
 )
 
-experiment <- experiment %>% 
+experiment <- experiment |> 
   add_dgp(new_dgp)
 new_results <- run_experiment(experiment, n_reps = 10, use_cached = TRUE)
 
 all.equal(
-  new_results$fit_results %>% dplyr::filter(.dgp_name == "Linear Gaussian DGP"),
+  new_results$fit_results |> dplyr::filter(.dgp_name == "Linear Gaussian DGP"),
   orig_results$fit_results
 )
 ```
@@ -926,8 +926,8 @@ checkpoint_method_fun <- function(...) return("result")
 checkpoint_method <- create_method(checkpoint_method_fun, .name = "Method")
 
 # create checkpoint experiment
-checkpoint_experiment <- create_experiment(name = "checkpoint-exper") %>%
-  add_dgp(checkpoint_dgp) %>%
+checkpoint_experiment <- create_experiment(name = "checkpoint-exper") |>
+  add_dgp(checkpoint_dgp) |>
   add_method(checkpoint_method)
 
 # run 100 reps, checkpointing every 25 reps, though it should return an error
@@ -958,9 +958,9 @@ dgp <- create_dgp(dgp_fun, .name = "Working DGP")
 dgp_err <- create_dgp(dgp_fun_err, .name = "Buggy DGP")
 method_fun <- function(x) return("result")
 method <- create_method(method_fun, .name = "Method")
-buggy_experiment <- create_experiment(name = "debugging-exper") %>%
-  add_dgp(dgp) %>%
-  add_dgp(dgp_err) %>%
+buggy_experiment <- create_experiment(name = "debugging-exper") |>
+  add_dgp(dgp) |>
+  add_dgp(dgp_err) |>
   add_method(method)
 
 # run experiment though it should return an error
@@ -1031,7 +1031,7 @@ power_plot <- create_visualizer(
   .viz_fun = power_plot_fun, .name = "Power",
   .doc_options = list(height = 10, width = 8)
 )
-experiment <- experiment %>%
+experiment <- experiment |>
   update_visualizer(power_plot, name = "Power")
 ```
 
@@ -1042,14 +1042,14 @@ reject_prob_eval <- create_evaluator(
   .eval_fun = reject_prob_fun, .name = "Rejection Prob. (alpha = 0.1)",
   alpha = 0.1, .doc_options = list(digits = 3)
 )
-experiment <- experiment %>%
+experiment <- experiment |>
   update_evaluator(reject_prob_eval, name = "Rejection Prob. (alpha = 0.1)")
 ```
 
 Alternatively, `set_doc_options()` can be used to update the R Markdown option for an existing object, e.g.,
 
 ```{r rmd-doc-options-3}
-experiment <- experiment %>%
+experiment <- experiment |>
   set_doc_options(
     field_name = "visualizer", name = "Power", height = 10, width = 8
   )
@@ -1092,14 +1092,14 @@ In the following, it may look like the `new_experiment` object has a `vary_acros
 However, due to the use of the `R6` class, when `old_experiment` is piped into `add_vary_across()`, this is in itself modifying `old_experiment`, and `new_experiment` is simply pointing to this modified `old_experiment`.
 
 ```{r notes-1}
-old_experiment <- create_experiment(name = "Old Experiment") %>%
-  add_dgp(linear_dgp) %>%
-  add_method(lm_method) %>%
-  add_evaluator(reject_prob_eval) %>%
+old_experiment <- create_experiment(name = "Old Experiment") |>
+  add_dgp(linear_dgp) |>
+  add_method(lm_method) |>
+  add_evaluator(reject_prob_eval) |>
   add_visualizer(power_plot)
 old_experiment
 
-new_experiment <- old_experiment %>%
+new_experiment <- old_experiment |>
   add_vary_across(.dgp = "Linear Gaussian DGP", sigma = c(1, 2, 4, 8))
 old_experiment
 
@@ -1124,7 +1124,7 @@ When creating an `Experiment` from a clone, we are making a deep clone of the pa
 Thus, if we want a `vary_across` component in `new_experiment`, we must add this `vary_across` component ourselves:
 
 ```{r notes-3}
-new_experiment <- new_experiment %>%
+new_experiment <- new_experiment |>
   add_vary_across(.dgp = "Linear Gaussian DGP", sigma = c(1, 2, 4, 8))
 ```
 
@@ -1136,7 +1136,7 @@ new_dgp <- create_dgp(
   .dgp_fun = linear_dgp_fun, .name = "Linear Gaussian DGP (large n)",
   n = 500, beta = c(1, 0), rho = 0, sigma = 1
 )
-new_experiment <- new_experiment %>%
+new_experiment <- new_experiment |>
   add_dgp(new_dgp)
 
 new_experiment

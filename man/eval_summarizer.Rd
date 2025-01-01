@@ -54,7 +54,7 @@ often used in conjunction with \code{eval_constructor()}.
 eval_data <- tibble::tibble(.rep = rep(1:2, times = 2),
                             .dgp_name = c("DGP1", "DGP1", "DGP2", "DGP2"),
                             .method_name = "Method",
-                            result = 1:4) \%>\%
+                            result = 1:4) |>
   dplyr::group_by(.dgp_name, .method_name)
 
 # summarize `result` column in eval_data

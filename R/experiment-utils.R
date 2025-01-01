@@ -1,8 +1,12 @@
 #' @keywords internal
 get_new_dgp_params <- function(method_params, new_fit_params) {
+  # dummies to fix R CMD check note on no visible binding for global variable
+  .dgp <- NULL
+  .method <- NULL
+
   # get new dgp parameter combinations given method parameter set
-  dgp_params_list <- new_fit_params %>%
-    dplyr::filter(sapply(.method, identical, method_params)) %>%
+  dgp_params_list <- new_fit_params |>
+    dplyr::filter(sapply(.method, identical, method_params)) |>
     dplyr::pull(.dgp)
   return(dgp_params_list)
 }
@@ -10,9 +14,13 @@ get_new_dgp_params <- function(method_params, new_fit_params) {
 
 #' @keywords internal
 get_new_method_params <- function(dgp_params, new_fit_params) {
+  # dummies to fix R CMD check note on no visible binding for global variable
+  .dgp <- NULL
+  .method <- NULL
+
   # get new method parameter combinations given dgp parameter set
-  method_params_list <- new_fit_params %>%
-    dplyr::filter(sapply(.dgp, identical, dgp_params)) %>%
+  method_params_list <- new_fit_params |>
+    dplyr::filter(sapply(.dgp, identical, dgp_params)) |>
     dplyr::pull(.method)
   return(method_params_list)
 }
@@ -59,53 +67,6 @@ maybe_add_debug_data <- function(tbl, debug = FALSE) {
 }
 
 
-#' Clean up `future` worker-local environments on exit.
-#'
-#' @keywords internal
-clean_up_worker_env <- function(what = c("future", "dgp", "method"),
-                                env = parent.frame()) {
-  what <- match.arg(what)
-
-  ## # debugging
-  ## print(paste("pid:", Sys.getpid()))
-  ## print(paste("what:", what))
-  ## print(capture.output(rlang::env_print(env)))
-
-  tryCatch(
-    warning = identity,
-    switch(
-      what,
-      future = {
-        rm(dgp_res,
-           error_state,
-           future_env,
-           envir = env)
-      },
-      dgp = {
-        rm(method_res,
-           data_list,
-           dgp_params,
-           dgp_name,
-           dgp_params,
-           dgp_env,
-           envir = env)
-      },
-      method = {
-        rm(method_params,
-           method_name,
-           param_df,
-           result,
-           method_env,
-           envir = env)
-      }
-    )
-  )
-  rm(env)
-  gc()
-
-}
-
-
 #' Distribute simulation computation by replicates.
 #'
 #' @keywords internal
@@ -119,7 +80,7 @@ compute_rep <- function(n_reps,
 
   if (debug) {
 
-    inform(c("future::plan():", capture.output(future::plan())))
+    inform(c("future::plan():", utils::capture.output(future::plan())))
 
     inform("parallel_strategy: reps")
 
@@ -127,7 +88,7 @@ compute_rep <- function(n_reps,
     inform(c("simulation loop closure size before:",
              as.character(closure_size)))
 
-    inform(c("gc():", capture.output(gc())))
+    inform(c("gc():", utils::capture.output(gc())))
 
     inform("simulation loop starting...")
 
@@ -170,14 +131,36 @@ compute_rep <- function(n_reps,
     ## )
 
     future_env <- rlang::current_env()
-    withr::defer(clean_up_worker_env("future", env = future_env))
+    # withr::defer(clean_up_worker_env("future", env = future_env))
+    withr::defer({
+      tryCatch(
+        warning = identity,
+        rm(dgp_res,
+           error_state,
+           envir = future_env)
+      )
+      rm(future_env)
+      gc()
+    })
 
     dgp_res <- purrr::list_rbind(purrr::map(
       dgp_params_list,
       function(dgp_params) {
 
         dgp_env <- rlang::current_env()
-        withr::defer(clean_up_worker_env("dgp", env = dgp_env))
+        # withr::defer(clean_up_worker_env("dgp", env = dgp_env))
+        withr::defer({
+          tryCatch(
+            warning = identity,
+            rm(method_res,
+               data_list,
+               dgp_params,
+               dgp_name,
+               envir = dgp_env)
+          )
+          rm(dgp_env)
+          gc()
+        })
 
         if (error_state[["error"]]) {
           return(NULL)
@@ -222,8 +205,8 @@ compute_rep <- function(n_reps,
                  .method_name = NULL,
                  .method_params = NULL,
                  .method_output = NULL,
-                 .err = data_list) %>%
-              list_to_tibble_row() %>%
+                 .err = data_list) |>
+              list_to_tibble_row() |>
               maybe_add_debug_data(TRUE)
           )
         }
@@ -233,10 +216,22 @@ compute_rep <- function(n_reps,
           function(method_params) {
 
             method_env <- rlang::current_env()
-            withr::defer(
-              clean_up_worker_env("method", env = method_env),
-              envir = method_env
-            )
+            # withr::defer(
+            #   clean_up_worker_env("method", env = method_env),
+            #   envir = method_env
+            # )
+            withr::defer({
+              tryCatch(
+                warning = identity,
+                rm(method_params,
+                   method_name,
+                   param_df,
+                   result,
+                   envir = method_env)
+              )
+              rm(method_env)
+              gc()
+            })
 
             method_name <- method_params$.method_name
 
@@ -244,7 +239,7 @@ compute_rep <- function(n_reps,
               dgp_params = c(.dgp_name = dgp_name, dgp_params),
               method_params = method_params,
               duplicate_param_names = duplicate_param_names
-            ) %>%
+            ) |>
               list_to_tibble_row()
 
             # param_df$.seed <- seed
@@ -282,8 +277,8 @@ compute_rep <- function(n_reps,
                      .method_name = method_name,
                      .method_params = method_params,
                      .method_output = NULL,
-                     .err = result) %>%
-                  list_to_tibble_row() %>%
+                     .err = result) |>
+                  list_to_tibble_row() |>
                   maybe_add_debug_data(TRUE)
               )
             }
@@ -316,18 +311,18 @@ compute_rep <- function(n_reps,
                      .method_name = method_name,
                      .method_params = method_params,
                      .method_output = result,
-                     .err = names_check) %>%
-                  list_to_tibble_row() %>%
+                     .err = names_check) |>
+                  list_to_tibble_row() |>
                   maybe_add_debug_data(TRUE)
               )
             }
 
-            result <- result %>%
+            result <- result |>
               tibble::add_column(param_df, .before = 1)
 
             p("of total reps")
 
-            return(result %>% maybe_add_debug_data(debug))
+            return(result |> maybe_add_debug_data(debug))
 
           }
         )) # method_res <- purrr::list_rbind(purrr::map(
@@ -371,7 +366,7 @@ compute_rep <- function(n_reps,
       attr(results, "simChef.debug")[["closure_size_delta"]] <- closure_delta
     }
 
-    inform(c("gc:", capture.output(gc())))
+    inform(c("gc:", utils::capture.output(gc())))
   }
 
   return(results)

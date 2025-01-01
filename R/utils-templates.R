@@ -1,8 +1,8 @@
-#' Find last non-comment line, add a `%>%` to the end, then add another line.
-#' 
-#' @description This function is adapted from the function of the same name in 
+#' Find last non-comment line, add a `|>` to the end, then add another line.
+#'
+#' @description This function is adapted from the function of the same name in
 #'   the `usemodels` package.
-#' 
+#'
 #' @keywords internal
 pipe_value <- function(base, value, expr_width = 80) {
   # value <- rlang::enexpr(value)
@@ -11,7 +11,7 @@ pipe_value <- function(base, value, expr_width = 80) {
   clean_base <- trimws(base, which = "left")
   not_comment <- seq_along(base)[!grepl("## ", clean_base)]
   n <- max(1, max(not_comment))
-  base[n] <- paste(base[n], "%>%")
+  base[n] <- paste(base[n], "|>")
   c(base, paste0("\n  ", value))
 }
 

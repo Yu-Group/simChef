@@ -37,9 +37,9 @@ local({
     # add panel around figures
     add.panel = function(before, options, envir) {
       if (before) {
-        htmltools::HTML("<div class='panel panel-default padded-panel'>")
+        HTML("<div class='panel panel-default padded-panel'>")
       } else {
-        htmltools::HTML("</div>")
+        HTML("</div>")
       }
     }
   )

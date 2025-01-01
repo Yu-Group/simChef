@@ -13,3 +13,12 @@
 
   invisible()
 }
+
+
+#' @noRd
+dummy <- function() {
+  # dummy function to avoid note for unused imports
+  R6::R6Class
+  knitr::opts_chunk
+  stringr::str_remove
+}

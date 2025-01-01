@@ -42,8 +42,8 @@ test_that("Various parallel strategies in experiment work properly", {
                                 ".method_name",
                                 "result"))
 
-        results_tally <- results %>%
-          dplyr::group_by(result) %>%
+        results_tally <- results |>
+          dplyr::group_by(result) |>
           dplyr::tally()
 
         expect_true(length(results_tally$result) == 4)
@@ -83,8 +83,8 @@ test_that("Various parallel strategies in experiment work properly", {
     experiment$remove_method("method3")
 
     # add vary_across
-    experiment %>%
-      add_vary_across(.dgp = dgp1, y = c("a", "b", "c")) %>%
+    experiment |>
+      add_vary_across(.dgp = dgp1, y = c("a", "b", "c")) |>
       add_vary_across(.method = method1, y = c("a", "b", "c"))
 
     dgp_fun3 <- function(y = "") {
@@ -119,8 +119,8 @@ test_that("Various parallel strategies in experiment work properly", {
                                 "y_method",
                                 "result"))
 
-        results_tally <- results %>%
-          dplyr::group_by(result) %>%
+        results_tally <- results |>
+          dplyr::group_by(result) |>
           dplyr::tally()
 
         expect_true(length(results_tally$result) == 16)
@@ -131,7 +131,7 @@ test_that("Various parallel strategies in experiment work properly", {
 
     experiment$add_dgp(dgp3)
 
-    experiment %>%
+    experiment |>
       add_vary_across(.dgp = dgp3, y = c("a", "b", "c"))
 
     expect_error_if_invalid_strat(
@@ -150,7 +150,7 @@ test_that("Various parallel strategies in experiment work properly", {
 
     experiment$add_method(method3)
 
-    experiment %>%
+    experiment |>
       add_vary_across(.method = method3, y = c("a", "b", "c"))
 
     expect_error_if_invalid_strat(
@@ -167,8 +167,8 @@ test_that("Various parallel strategies in experiment work properly", {
 
     experiment$remove_method("method3")
 
-    experiment %>%
-      remove_vary_across(dgp = dgp1) %>%
+    experiment |>
+      remove_vary_across(dgp = dgp1) |>
       remove_vary_across(method = method1)
 
   } # for (strat in strategies) {
@@ -181,7 +181,7 @@ test_that("Various parallel strategies in experiment work properly", {
   method1 <- create_method(method_fun1)
 
   experiment <- create_experiment(dgp_list = list(dgp1),
-                                  method_list = list(method1)) %>%
+                                  method_list = list(method1)) |>
     add_vary_across(.dgp = dgp1, y = c("a", "b", "c"))
 
   for (strat in strategies) {
@@ -206,15 +206,15 @@ test_that("Various parallel strategies in experiment work properly", {
   vary_params_fun <- function(vary_params = NULL) vary_params
   vary_params_eval <- create_evaluator(.eval_fun = vary_params_fun)
 
-  experiment <- create_experiment(name = "test-vary-across-dgp") %>%
-    add_dgp(dgp, name = "DGP") %>%
-    add_method(method, name = "Method") %>%
-    add_evaluator(fit_results_eval, name = "Fit Results") %>%
+  experiment <- create_experiment(name = "test-vary-across-dgp") |>
+    add_dgp(dgp, name = "DGP") |>
+    add_method(method, name = "Method") |>
+    add_evaluator(fit_results_eval, name = "Fit Results") |>
     add_evaluator(vary_params_eval, name = "Vary Params")
 
   # test multi-type (dgp, method) vary across case
-  experiment <- experiment %>%
-    add_vary_across(.dgp = "DGP", x = list(1, 3:5)) %>%
+  experiment <- experiment |>
+    add_vary_across(.dgp = "DGP", x = list(1, 3:5)) |>
     add_vary_across(.method = "Method", idx = list(1, 1:2))
 
   parallel_strategies <- list(

@@ -82,24 +82,24 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
     experiment2 <- create_experiment(name = "test-modify-experiment")
 
     # adding dgp
-    experiment1 %>% add_dgp(dgp1, "DGP1")
+    experiment1 |> add_dgp(dgp1, "DGP1")
     experiment2$add_dgp(dgp1, "DGP1")
     expect_equal(names(experiment1$get_dgps()), "DGP1")
     expect_equal(experiment1, experiment2)
     expect_equal(experiment1$get_methods(), list())
     # adding method
-    experiment1 %>% add_method(method1, "Method1")
+    experiment1 |> add_method(method1, "Method1")
     experiment2$add_method(method1, "Method1")
     expect_equal(names(experiment1$get_methods()), "Method1")
     expect_equal(experiment1, experiment2)
     # adding evaluator
-    experiment1 %>% add_evaluator(eval1, "Evaluator1")
+    experiment1 |> add_evaluator(eval1, "Evaluator1")
     experiment2$add_evaluator(eval1, "Evaluator1")
     expect_equal(names(experiment1$get_evaluators()), "Evaluator1")
     expect_equal(experiment1, experiment2)
     # adding visualizer
-    experiment1 %>%
-      add_visualizer(plot1, "Visualizer1") %>%
+    experiment1 |>
+      add_visualizer(plot1, "Visualizer1") |>
       add_visualizer(plot2, "Visualizer2")
     experiment2$add_visualizer(plot1, "Visualizer1")$
       add_visualizer(plot2, "Visualizer2")
@@ -108,34 +108,34 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
     expect_equal(experiment1, experiment2)
 
     # error checking for add_*
-    expect_error(experiment1 %>% add_dgp("DGP"))
-    expect_error(experiment1 %>% add_dgp(dgp1, "DGP1"))
+    expect_error(experiment1 |> add_dgp("DGP"))
+    expect_error(experiment1 |> add_dgp(dgp1, "DGP1"))
 
     # updating dgp
-    experiment1 %>% update_dgp(dgp2, "DGP1")
+    experiment1 |> update_dgp(dgp2, "DGP1")
     experiment2$update_dgp(dgp2, "DGP1")
     expect_equal(experiment1$get_dgps()[["DGP1"]]$dgp_fun, dgp_fun2)
     expect_equal(experiment1, experiment2)
     # updating method
-    experiment1 %>% update_method(method2, "Method1")
+    experiment1 |> update_method(method2, "Method1")
     experiment2$update_method(method2, "Method1")
     expect_equal(experiment1$get_methods()[["Method1"]]$method_fun, method_fun2)
     expect_equal(experiment1, experiment2)
     # updating evaluator
-    experiment1 %>% update_evaluator(eval2, "Evaluator1")
+    experiment1 |> update_evaluator(eval2, "Evaluator1")
     experiment2$update_evaluator(eval2, "Evaluator1")
     expect_equal(experiment1$get_evaluators()[["Evaluator1"]]$eval_fun, eval_fun2)
     expect_equal(experiment1, experiment2)
     # updating visualizer
-    experiment1 %>% update_visualizer(plot2, "Visualizer1")
+    experiment1 |> update_visualizer(plot2, "Visualizer1")
     experiment2$update_visualizer(plot2, "Visualizer1")
     expect_equal(experiment1$get_visualizers()[["Visualizer1"]]$viz_fun,
                  plot_fun2)
     expect_equal(experiment1, experiment2)
 
     # error checking for update_*
-    expect_error(experiment1 %>% update_evaluator("Evaluator2"))
-    expect_error(experiment1 %>% update_evaluator(eval2, "Evaluator2"))
+    expect_error(experiment1 |> update_evaluator("Evaluator2"))
+    expect_error(experiment1 |> update_evaluator(eval2, "Evaluator2"))
 
     # get_* methods
     expect_error(get_dgps())
@@ -151,41 +151,41 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
                                           clone_from = experiment2)
 
     # removing dgp
-    experiment1 %>% remove_dgp("DGP1")
+    experiment1 |> remove_dgp("DGP1")
     experiment2$remove_dgp("DGP1")
     expect_equal(length(experiment1$get_dgps()), 0)
     # removing method
-    experiment1 %>% remove_method("Method1")
+    experiment1 |> remove_method("Method1")
     experiment2$remove_method("Method1")
     expect_equal(length(experiment1$get_methods()), 0)
     # removing evaluator
-    experiment1 %>% remove_evaluator("Evaluator1")
+    experiment1 |> remove_evaluator("Evaluator1")
     experiment2$remove_evaluator("Evaluator1")
     expect_equal(length(experiment1$get_evaluators()), 0)
     # removing visualizer
-    experiment1 %>% remove_visualizer("Visualizer1")
+    experiment1 |> remove_visualizer("Visualizer1")
     experiment2$remove_visualizer("Visualizer1")
     expect_equal(names(experiment1$get_visualizers()), "Visualizer2")
     expect_equal(experiment1, experiment2)
 
     # error checking for remove_*
-    expect_error(experiment1 %>% remove_dgp("Evaluator3"))
+    expect_error(experiment1 |> remove_dgp("Evaluator3"))
 
     # remove all
-    experiment1_copy %>% remove_dgp()
+    experiment1_copy |> remove_dgp()
     experiment2_copy$remove_dgp()
     expect_equal(experiment1_copy$get_dgps(), list())
     expect_equal(names(experiment1_copy$get_methods()), "Method1")
     expect_equal(experiment1_copy, experiment2_copy)
-    experiment1_copy %>% remove_method()
+    experiment1_copy |> remove_method()
     experiment2_copy$remove_method()
     expect_equal(experiment1_copy$get_methods(), list())
     expect_equal(experiment1_copy, experiment2_copy)
-    experiment1_copy %>% remove_evaluator()
+    experiment1_copy |> remove_evaluator()
     experiment2_copy$remove_evaluator()
     expect_equal(experiment1_copy$get_evaluators(), list())
     expect_equal(experiment1_copy, experiment2_copy)
-    experiment1_copy %>% remove_visualizer()
+    experiment1_copy |> remove_visualizer()
     experiment2_copy$remove_visualizer()
     expect_equal(experiment1_copy$get_visualizers(), list())
     expect_equal(experiment1_copy, experiment2_copy)
@@ -215,18 +215,18 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
 
     experiment <- create_experiment(name = "test-run")
     expect_error(experiment$run(verbose = 0))
-    experiment %>% add_dgp(dgp1, name = "DGP1")
+    experiment |> add_dgp(dgp1, name = "DGP1")
     expect_error(experiment$run(verbose = 0))
-    experiment %>% add_method(method1, name = "Method1")
+    experiment |> add_method(method1, name = "Method1")
     expect_error(experiment$run(verbose = 0), NA)
-    experiment %>% add_evaluator(fit_results_eval, name = "Evaluator1")
+    experiment |> add_evaluator(fit_results_eval, name = "Evaluator1")
     expect_error(experiment$run(verbose = 0), NA)
-    experiment %>% add_visualizer(fit_plot, name = "Visualizer1")
+    experiment |> add_visualizer(fit_plot, name = "Visualizer1")
 
     # remove cache
     ## if (dir.exists(file.path("results", "test-run"))) {
     ##   for (fname in list.files(file.path("results", "test-run"),
-    ##                            recursive = T, full.names = TRUE)) {
+    ##                            recursive = TRUE, full.names = TRUE)) {
     ##     file.remove(fname)
     ##   }
     ## }
@@ -261,10 +261,10 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
                                       "viz_results.rds")))
 
     # experiment with 2 dgps, methods, evaluators, visualizers
-    experiment %>%
-      add_dgp(dgp2, "DGP2") %>%
-      add_method(method2, "Method2") %>%
-      add_evaluator(vary_params_eval, "Evaluator2") %>%
+    experiment |>
+      add_dgp(dgp2, "DGP2") |>
+      add_method(method2, "Method2") |>
+      add_evaluator(vary_params_eval, "Evaluator2") |>
       add_visualizer(eval_plot, "Visualizer2")
     results <- experiment$run(verbose = 0)
     expect_equal(results$fit_results,
@@ -295,14 +295,14 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
     method1 <- Method$new(method_fun1)
 
     # with one dgp
-    experiment <- create_experiment(name = "test-generate-data") %>%
+    experiment <- create_experiment(name = "test-generate-data") |>
       add_dgp(dgp1, "DGP1")
     expect_equal(generate_data(experiment), list(DGP1 = list(list(2))))
     expect_equal(generate_data(experiment, n_reps = 2),
                  list(DGP1 = list(list(2), list(2))))
 
     # with two dgps
-    experiment %>% add_dgp(dgp2, "DGP2")
+    experiment |> add_dgp(dgp2, "DGP2")
     expect_equal(generate_data(experiment), list(DGP1 = list(list(2)),
                                                  DGP2 = list(list(3))))
     expect_equal(generate_data(experiment, n_reps = 2),
@@ -310,7 +310,7 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
                       DGP2 = list(list(3), list(3))))
 
     # varying across one dgp
-    experiment %>% add_vary_across(.dgp = "DGP1", x = c(1, 2))
+    experiment |> add_vary_across(.dgp = "DGP1", x = c(1, 2))
     expect_equal(length(generate_data(experiment)), 2)
     expect_snapshot_output(generate_data(experiment))
     expect_equal(length(unlist(generate_data(experiment, n_reps = 3))), 9)
@@ -318,7 +318,7 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
     expect_snapshot_output(generate_data(experiment, n_reps = 3))
 
     # varying across two dgp
-    experiment %>% add_vary_across(.dgp = "DGP2", x = c(1, 2, 3))
+    experiment |> add_vary_across(.dgp = "DGP2", x = c(1, 2, 3))
     expect_equal(length(generate_data(experiment)), 2)
     expect_snapshot_output(generate_data(experiment))
     data_out <- generate_data(experiment, n_reps = 3)
@@ -327,13 +327,13 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
     expect_snapshot_output(data_out)
 
     # adding method does not affect data output
-    experiment %>%
-      add_method(method1, "Method1") %>%
+    experiment |>
+      add_method(method1, "Method1") |>
       add_vary_across(.method = "Method1", y = c(1, 2))
     expect_equal(experiment$generate_data(n_reps = 3), data_out)
 
     # varying across two parameters in dgp
-    experiment %>%
+    experiment |>
       add_vary_across(.dgp = "DGP1", y = c(1, 2))
     expect_snapshot_output(generate_data(experiment))
     expect_equal(length(unlist(generate_data(experiment))), 7)
@@ -364,11 +364,11 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
 
     experiment <- create_experiment(name = "test-fit")
     expect_error(experiment$fit(verbose = 0))
-    experiment %>% add_dgp(dgp1, name = "DGP1")
+    experiment |> add_dgp(dgp1, name = "DGP1")
     expect_error(experiment$fit(verbose = 0))
 
     # with one dgp and one method
-    experiment %>% add_method(method1, name = "Method1")
+    experiment |> add_method(method1, name = "Method1")
     expect_equal(experiment$fit(verbose = 0),
                  tibble::tibble(.rep = "1", .dgp_name = "DGP1",
                                 .method_name = "Method1", result1 = 2))
@@ -377,17 +377,17 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
     expect_equal(fit_results, fit_experiment(experiment, n_reps = 3, verbose = 0))
 
     # with one dgp and one method, both of which return lists
-    fit_results <- create_experiment(name = "test-fit") %>%
-      add_dgp(dgp2, "DGP2") %>%
-      add_method(method2, "Method2") %>%
+    fit_results <- create_experiment(name = "test-fit") |>
+      add_dgp(dgp2, "DGP2") |>
+      add_method(method2, "Method2") |>
       fit_experiment(n_reps = 3, verbose = 0)
     expect_true(tibble::is_tibble(fit_results))
     expect_equal(nrow(fit_results), 3)
     expect_snapshot_output(fit_results)
 
     # with two dgps and two methods
-    experiment %>%
-      add_dgp(dgp2, "DGP2") %>%
+    experiment |>
+      add_dgp(dgp2, "DGP2") |>
       add_method(method2, "Method2")
     fit_results <- experiment$fit(n_reps = 3, verbose = 0)
     expect_true(tibble::is_tibble(fit_results))
@@ -407,8 +407,8 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
     vary_params_fun <- function(vary_params = NULL) vary_params
     vary_params_eval <- create_evaluator(.eval_fun = vary_params_fun)
 
-    experiment <- create_experiment(name = "test-evaluate") %>%
-      add_dgp(dgp, "DGP") %>%
+    experiment <- create_experiment(name = "test-evaluate") |>
+      add_dgp(dgp, "DGP") |>
       add_method(method, "Method")
     fit_results <- experiment$fit(verbose = 0)
 
@@ -416,14 +416,14 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
     expect_error(experiment$evaluate(fit_results = fit_results, verbose = 0), NA)
 
     # with one evaluator
-    experiment %>% add_evaluator(fit_results_eval, name = "Fit Results")
+    experiment |> add_evaluator(fit_results_eval, name = "Fit Results")
     expect_error(experiment$evaluate(verbose = 0))
     eval_results <- experiment$evaluate(fit_results = fit_results,
                                         save = TRUE, verbose = 0)
     expect_equal(length(eval_results), 1)
     expect_equal(
       purrr::map_lgl(eval_results, tibble::is_tibble),
-      rep(TRUE, length(eval_results)) %>% setNames(names(eval_results))
+      rep(TRUE, length(eval_results)) |> setNames(names(eval_results))
     )
     expect_equal(
       eval_results,
@@ -436,12 +436,12 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
     )
 
     # check that multiple evaluators works
-    experiment %>% add_evaluator(vary_params_eval, name = "Vary Params")
+    experiment |> add_evaluator(vary_params_eval, name = "Vary Params")
     eval_results <- experiment$evaluate(fit_results, verbose = 0)
     expect_equal(length(eval_results), 2)
     expect_equal(
       purrr::map_lgl(eval_results, tibble::is_tibble),
-      rep(TRUE, length(eval_results)) %>% setNames(names(eval_results))
+      rep(TRUE, length(eval_results)) |> setNames(names(eval_results))
     )
     expect_equal(
       eval_results,
@@ -468,9 +468,9 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
     eval_plot_fun <- function(eval_results) eval_results
     eval_plot <- create_visualizer(.viz_fun = eval_plot_fun)
 
-    experiment <- create_experiment(name = "test-evaluate") %>%
-      add_dgp(dgp, "DGP") %>%
-      add_method(method, "Method") %>%
+    experiment <- create_experiment(name = "test-evaluate") |>
+      add_dgp(dgp, "DGP") |>
+      add_method(method, "Method") |>
       add_evaluator(fit_results_eval, "Evaluator")
     fit_results <- experiment$fit(verbose = 0)
     eval_results <- experiment$evaluate(fit_results, verbose = 0)
@@ -482,7 +482,7 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
                  NA)
 
     # with one visualizer
-    experiment %>% add_visualizer(fit_plot, name = "Fit Results")
+    experiment |> add_visualizer(fit_plot, name = "Fit Results")
     viz_results <- experiment$visualize(fit_results, eval_results,
                                         save = TRUE, verbose = 0)
     expect_equal(length(viz_results), 1)
@@ -497,7 +497,7 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
     )
 
     # check that multiple visualizers works
-    experiment %>% add_visualizer(eval_plot, name = "Vary Params")
+    experiment |> add_visualizer(eval_plot, name = "Vary Params")
     viz_results <- experiment$visualize(fit_results, eval_results,
                                         verbose = 0)
     expect_equal(length(viz_results), 2)
@@ -520,68 +520,68 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
     method_fun <- function(x, idx = 1) list(x_idx = x[idx])
     method <- create_method(.method_fun = method_fun)
 
-    experiment <- create_experiment(name = "test-vary-across-dgp") %>%
-      add_dgp(dgp, name = "DGP") %>%
+    experiment <- create_experiment(name = "test-vary-across-dgp") |>
+      add_dgp(dgp, name = "DGP") |>
       add_method(method, name = "Method")
 
     no_vary_list <- list(dgp = list(), method = list())
 
     expect_equal(experiment$get_vary_across(), no_vary_list)
 
-    expect_error(experiment %>% add_vary_across(.dgp = "DGP", z = 1:3))
-    expect_error(experiment %>% add_vary_across(.method = "Method", z = 1:3))
-    expect_error(experiment %>% add_vary_across(.dgp = "Method", idx = 1:3))
-    expect_error(experiment %>% add_vary_across(.method = "DGP", x = 1:3))
+    expect_error(experiment |> add_vary_across(.dgp = "DGP", z = 1:3))
+    expect_error(experiment |> add_vary_across(.method = "Method", z = 1:3))
+    expect_error(experiment |> add_vary_across(.dgp = "Method", idx = 1:3))
+    expect_error(experiment |> add_vary_across(.method = "DGP", x = 1:3))
 
     # adding/updating DGP vary across params
-    experiment %>% add_vary_across(.dgp = "DGP", x = 1:3)
+    experiment |> add_vary_across(.dgp = "DGP", x = 1:3)
     expect_equal(experiment$get_vary_across(),
                  list(dgp = list(DGP = list(x = 1:3)), method = list()))
-    experiment %>% update_vary_across(.dgp = "DGP", x = list(1:3, 2:4))
+    experiment |> update_vary_across(.dgp = "DGP", x = list(1:3, 2:4))
     expect_equal(experiment$get_vary_across(),
                  list(dgp = list(DGP = list(x = list(1:3, 2:4))),
                       method = list()))
-    expect_error(experiment %>% add_vary_across(.dgp = "DGP", x = 1:3))
-    experiment %>% add_vary_across(.dgp = "DGP", y = c("a", "b"))
+    expect_error(experiment |> add_vary_across(.dgp = "DGP", x = 1:3))
+    experiment |> add_vary_across(.dgp = "DGP", y = c("a", "b"))
     expect_equal(experiment$get_vary_across(),
                  list(dgp = list(DGP = list(x = list(1:3, 2:4),
                                             y = c("a", "b"))),
                       method = list()))
 
     # removing DGP vary across params
-    expect_error(experiment %>% remove_vary_across(dgp = "DGP", param_names = "z"))
-    experiment %>% remove_vary_across(dgp = "DGP", param_names = "x")
+    expect_error(experiment |> remove_vary_across(dgp = "DGP", param_names = "z"))
+    experiment |> remove_vary_across(dgp = "DGP", param_names = "x")
     expect_false("x" %in% names(experiment$get_vary_across()$dgp$DGP))
     expect_true("y" %in% names(experiment$get_vary_across()$dgp$DGP))
-    experiment %>% remove_vary_across(dgp = "DGP", param_names = "y")
+    experiment |> remove_vary_across(dgp = "DGP", param_names = "y")
     expect_equal(experiment$get_vary_across()$dgp, list())
 
     # adding/updating/removing Method vary across params
-    experiment %>% add_vary_across(.method = "Method", idx = 1:3)
+    experiment |> add_vary_across(.method = "Method", idx = 1:3)
     expect_equal(experiment$get_vary_across(),
                  list(dgp = list(), method = list(Method = list(idx = 1:3))))
-    experiment %>% update_vary_across(.method = "Method", idx = list(1:2, 3:4))
+    experiment |> update_vary_across(.method = "Method", idx = list(1:2, 3:4))
     expect_equal(experiment$get_vary_across(),
                  list(dgp = list(),
                       method = list(Method = list(idx = list(1:2, 3:4)))))
-    experiment %>% remove_vary_across(method = "Method")
+    experiment |> remove_vary_across(method = "Method")
     expect_equal(experiment$get_vary_across(), no_vary_list)
 
     # check get_vary_across
     expect_equal(experiment$get_vary_across(), get_vary_across(experiment))
 
     # adding/removing multiple vary across params in single DGP/Method
-    experiment %>% add_vary_across(.dgp = "DGP", x = 1:3, y = c("a", "b"))
+    experiment |> add_vary_across(.dgp = "DGP", x = 1:3, y = c("a", "b"))
     expect_true(all(c("x", "y") %in% names(experiment$get_vary_across()$dgp$DGP)))
-    experiment %>% remove_vary_across(dgp = "DGP")
+    experiment |> remove_vary_across(dgp = "DGP")
     expect_equal(experiment$get_vary_across(), no_vary_list)
 
     # removing all vary across params in experiment
-    expect_error(experiment %>% remove_vary_across())
-    experiment %>%
-      add_vary_across(.dgp = "DGP", x = 1:3, y = c("a", "b")) %>%
+    expect_error(experiment |> remove_vary_across())
+    experiment |>
+      add_vary_across(.dgp = "DGP", x = 1:3, y = c("a", "b")) |>
       add_vary_across(.metho = "Method", idx = 1:3)
-    experiment %>% remove_vary_across()
+    experiment |> remove_vary_across()
     expect_equal(experiment$get_vary_across(), no_vary_list)
   })
 
@@ -598,15 +598,15 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
     vary_params_fun <- function(vary_params = NULL) vary_params
     vary_params_eval <- create_evaluator(.eval_fun = vary_params_fun)
 
-    experiment <- create_experiment(name = "test-vary-across-dgp") %>%
-      add_dgp(dgp, name = "DGP") %>%
-      add_method(method, name = "Method") %>%
-      add_evaluator(fit_results_eval, name = "Fit Results") %>%
+    experiment <- create_experiment(name = "test-vary-across-dgp") |>
+      add_dgp(dgp, name = "DGP") |>
+      add_method(method, name = "Method") |>
+      add_evaluator(fit_results_eval, name = "Fit Results") |>
       add_evaluator(vary_params_eval, name = "Vary Params")
 
     # test scalar dgp vary across case
     x <- 1:3
-    experiment <- experiment %>%
+    experiment <- experiment |>
       add_vary_across(.dgp = "DGP", x = x)
     fit_results <- fit_experiment(experiment, save = FALSE, verbose = 0)
     expect_equal(
@@ -624,7 +624,7 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
 
     # test list-type dgp vary across case
     x <- list(1:2, 3:5, 8:11)
-    experiment <- experiment %>%
+    experiment <- experiment |>
       update_vary_across(.dgp = "DGP", x = x)
     fit_results <- fit_experiment(experiment, save = FALSE, verbose = 0)
     expect_equal(
@@ -642,8 +642,8 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
 
     # test scalar method vary across case
     idx <- 1:3
-    experiment <- experiment %>%
-      remove_vary_across(dgp = "DGP") %>%
+    experiment <- experiment |>
+      remove_vary_across(dgp = "DGP") |>
       add_vary_across(.method = "Method", idx = idx)
     fit_results <- fit_experiment(experiment, save = FALSE, verbose = 0)
     expect_equal(
@@ -661,8 +661,8 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
 
     # test multi-type dgp vary across case
     x <- list(1, 3:5)
-    experiment <- experiment %>%
-      remove_vary_across() %>%
+    experiment <- experiment |>
+      remove_vary_across() |>
       add_vary_across(.dgp = "DGP", x = x)
     fit_results <- fit_experiment(experiment, save = FALSE, verbose = 0)
     expect_equal(
@@ -680,8 +680,8 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
 
     # test list-type method vary across case
     idx <- list(1:2, 3:5, 7:10)
-    experiment <- experiment %>%
-      remove_vary_across() %>%
+    experiment <- experiment |>
+      remove_vary_across() |>
       add_vary_across(.method = "Method", idx = idx)
     fit_results <- fit_experiment(experiment, save = FALSE, verbose = 0)
     expect_equal(
@@ -699,9 +699,9 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
 
     # test multi vary across scheme
     n_reps <- 5
-    experiment <- experiment %>%
-      remove_vary_across(method = "Method") %>%
-      add_vary_across(.dgp = "DGP", x = list(1:4, 1:5, 1:6), y = 1:2) %>%
+    experiment <- experiment |>
+      remove_vary_across(method = "Method") |>
+      add_vary_across(.dgp = "DGP", x = list(1:4, 1:5, 1:6), y = 1:2) |>
       add_vary_across(.method = "Method", idx = 1:3)
     fit_results <- fit_experiment(experiment, n_reps = n_reps,
                                   save = FALSE, verbose = 0)
@@ -716,9 +716,9 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
 
     # test multi-type (dgp, method) vary across case
     x <- list(1, 3:5)
-    experiment <- experiment %>%
-      remove_vary_across() %>%
-      add_vary_across(.dgp = "DGP", x = x) %>%
+    experiment <- experiment |>
+      remove_vary_across() |>
+      add_vary_across(.dgp = "DGP", x = x) |>
       add_vary_across(.method = "Method", idx = list(1, 1:2))
     fit_results <- fit_experiment(experiment, save = FALSE, verbose = 0)
     expect_equal(
@@ -750,31 +750,31 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
     method_fun2 <- function(x, idx = 1) list(x_idx = rev(x)[idx])
     method2 <- create_method(.method_fun = method_fun2)
 
-    experiment <- create_experiment(name = "test-multi-vary-across") %>%
-      add_dgp(dgp1, name = "DGP1") %>%
-      add_dgp(dgp2, name = "DGP2") %>%
-      add_method(method1, name = "Method1") %>%
+    experiment <- create_experiment(name = "test-multi-vary-across") |>
+      add_dgp(dgp1, name = "DGP1") |>
+      add_dgp(dgp2, name = "DGP2") |>
+      add_method(method1, name = "Method1") |>
       add_method(method2, name = "Method2")
 
     no_vary_list <- list(dgp = list(), method = list())
 
     expect_error(
-      experiment %>% add_vary_across(.dgp = c("DGP2", "DGP1"), z = 1:3)
+      experiment |> add_vary_across(.dgp = c("DGP2", "DGP1"), z = 1:3)
     )
-    expect_equal(experiment %>% get_vary_across(), no_vary_list)
+    expect_equal(experiment |> get_vary_across(), no_vary_list)
     expect_error(
-      experiment %>% update_vary_across(.dgp = c("DGP2", "DGP1"), x = 1:3)
+      experiment |> update_vary_across(.dgp = c("DGP2", "DGP1"), x = 1:3)
     )
 
     # adding/updating multiple DGP vary across params
-    experiment %>%
+    experiment |>
       add_vary_across(.dgp = c("DGP1", "DGP2"), x = 1:3)
     expect_equal(
       experiment$get_vary_across(),
       list(dgp = list(DGP1 = list(x = 1:3), DGP2 = list(x = 1:3)),
            method = list())
     )
-    experiment %>%
+    experiment |>
       update_vary_across(.dgp = c("DGP2", "DGP1"), x = list(1:3, 2:4))
     expect_equal(
       experiment$get_vary_across(),
@@ -783,9 +783,9 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
            method = list())
     )
     expect_error(
-      experiment %>% add_vary_across(.dgp = c("DGP1", "DGP2"), x = 1:3)
+      experiment |> add_vary_across(.dgp = c("DGP1", "DGP2"), x = 1:3)
     )
-    experiment %>%
+    experiment |>
       add_vary_across(.dgp = c("DGP1", "DGP2"), y = c("a", "b"))
     expect_equal(
       experiment$get_vary_across(),
@@ -793,7 +793,7 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
                       DGP2 = list(x = list(1:3, 2:4), y = c("a", "b"))),
            method = list())
     )
-    experiment %>%
+    experiment |>
       update_vary_across(.dgp = "DGP2", y = c("a", "b", "c"))
     expect_equal(
       experiment$get_vary_across(),
@@ -804,27 +804,27 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
 
     # removing DGP vary across params
     expect_error(
-      experiment %>%
+      experiment |>
         remove_vary_across(dgp = c("DGP1", "DGP2"), param_names = "z")
     )
-    experiment %>%
+    experiment |>
       remove_vary_across(dgp = c("DGP1", "DGP2"), param_names = "x")
     expect_false("x" %in% names(experiment$get_vary_across()$dgp$DGP1))
     expect_false("x" %in% names(experiment$get_vary_across()$dgp$DGP2))
     expect_true("y" %in% names(experiment$get_vary_across()$dgp$DGP1))
     expect_true("y" %in% names(experiment$get_vary_across()$dgp$DGP2))
-    experiment %>% remove_vary_across()
+    experiment |> remove_vary_across()
     expect_equal(experiment$get_vary_across()$dgp, list())
 
     # adding/updating/removing Method vary across params
-    experiment %>%
+    experiment |>
       add_vary_across(.method = c("Method1", "Method2"), idx = 1:3)
     expect_equal(
       experiment$get_vary_across(),
       list(dgp = list(),
            method = list(Method1 = list(idx = 1:3), Method2 = list(idx = 1:3)))
     )
-    experiment %>%
+    experiment |>
       update_vary_across(.method = c("Method1", "Method2"),
                          idx = list(1:2, 3:4))
     expect_equal(
@@ -833,16 +833,16 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
            method = list(Method1 = list(idx = list(1:2, 3:4)),
                          Method2 = list(idx = list(1:2, 3:4))))
     )
-    experiment %>% remove_vary_across(method = c("Method1", "Method2"))
+    experiment |> remove_vary_across(method = c("Method1", "Method2"))
     expect_equal(experiment$get_vary_across(), no_vary_list)
 
     # adding/removing multiple vary across params in multiple DGP/Method
     expect_error(
-      experiment %>%
+      experiment |>
         add_vary_across(.dgp = c("DGP2", "DGP1"), x = 1:3, z = c("a", "b"))
     )
-    expect_equal(experiment %>% get_vary_across(), no_vary_list)
-    experiment %>%
+    expect_equal(experiment |> get_vary_across(), no_vary_list)
+    experiment |>
       add_vary_across(.dgp = c("DGP1", "DGP2"), x = 1:3, y = c("a", "b"))
     expect_true(
       all(c("x", "y") %in% names(experiment$get_vary_across()$dgp$DGP1))
@@ -850,12 +850,12 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
     expect_true(
       all(c("x", "y") %in% names(experiment$get_vary_across()$dgp$DGP2))
     )
-    experiment %>% remove_vary_across(dgp = c("DGP1", "DGP2"))
+    experiment |> remove_vary_across(dgp = c("DGP1", "DGP2"))
     expect_equal(experiment$get_vary_across(), no_vary_list)
 
     # add DGPs and Methods using various syntax
-    experiment %>%
-      add_vary_across(.dgp = c("DGP1", "DGP2"), x = 1:3, y = c("a", "b")) %>%
+    experiment |>
+      add_vary_across(.dgp = c("DGP1", "DGP2"), x = 1:3, y = c("a", "b")) |>
       add_vary_across(.method = c("Method1", "Method2"), idx = 1:3)
     expect_equal(
       experiment$get_vary_across(),
@@ -864,10 +864,10 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
            method = list(Method1 = list(idx = 1:3),
                          Method2 = list(idx = 1:3)))
     )
-    experiment %>% remove_vary_across()
+    experiment |> remove_vary_across()
     expect_equal(experiment$get_vary_across(), no_vary_list)
 
-    experiment %>%
+    experiment |>
       add_vary_across(.dgp = c("DGP1"), x = 1:3)
     expect_equal(
       experiment$get_vary_across(),
@@ -875,7 +875,7 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
            method = list())
     )
     expect_error(
-      experiment %>%
+      experiment |>
         add_vary_across(.dgp = c("DGP2", "DGP1"), x = 1:3)
     )
     expect_equal(
@@ -884,7 +884,7 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
                       DGP2 = list(x = 1:3)),
            method = list())
     )
-    experiment %>%
+    experiment |>
       update_vary_across(.dgp = list("DGP1", "DGP2"), x = 2:4)
     expect_equal(
       experiment$get_vary_across(),
@@ -892,7 +892,7 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
                       DGP2 = list(x = 2:4)),
            method = list())
     )
-    experiment %>%
+    experiment |>
       update_vary_across(.dgp = list(dgp1, dgp2), x = 3:5)
     expect_equal(
       experiment$get_vary_across(),
@@ -900,7 +900,7 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
                       DGP2 = list(x = 3:5)),
            method = list())
     )
-    experiment %>%
+    experiment |>
       update_vary_across(.dgp = c(dgp1, dgp2), x = 4:6)
     expect_equal(
       experiment$get_vary_across(),
@@ -908,7 +908,7 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
                       DGP2 = list(x = 4:6)),
            method = list())
     )
-    experiment %>%
+    experiment |>
       remove_vary_across()
 
     # test running Experiment
@@ -916,18 +916,18 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
     fit_results_eval <- create_evaluator(.eval_fun = fit_results_fun)
     vary_params_fun <- function(vary_params = NULL) vary_params
     vary_params_eval <- create_evaluator(.eval_fun = vary_params_fun)
-    experiment %>%
-      add_vary_across(.dgp = c("DGP1", "DGP2"), x = 1:3, y = c("a", "b")) %>%
-      add_vary_across(.method = c("Method1", "Method2"), idx = 1:3) %>%
-      add_evaluator(fit_results_eval, name = "Fit Results") %>%
+    experiment |>
+      add_vary_across(.dgp = c("DGP1", "DGP2"), x = 1:3, y = c("a", "b")) |>
+      add_vary_across(.method = c("Method1", "Method2"), idx = 1:3) |>
+      add_evaluator(fit_results_eval, name = "Fit Results") |>
       add_evaluator(vary_params_eval, name = "Vary Params")
 
     experiment_copy <- create_experiment(
       name = "test-multi-vary-across-copy", clone_from = experiment
-    ) %>%
-      add_vary_across(.dgp = "DGP1", x = 1:3, y = c("a", "b")) %>%
-      add_vary_across(.dgp = "DGP2", x = 1:3, y = c("a", "b")) %>%
-      add_vary_across(.method = "Method1", idx = 1:3) %>%
+    ) |>
+      add_vary_across(.dgp = "DGP1", x = 1:3, y = c("a", "b")) |>
+      add_vary_across(.dgp = "DGP2", x = 1:3, y = c("a", "b")) |>
+      add_vary_across(.method = "Method1", idx = 1:3) |>
       add_vary_across(.method = "Method2", idx = 1:3)
 
     fit_results <- fit_experiment(experiment, save = FALSE, verbose = 0)
@@ -946,7 +946,7 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
     expect_equal(experiment$get_save_dir(), get_save_dir(experiment))
 
     # check set_save_dir()
-    experiment %>%
+    experiment |>
       set_save_dir(file.path("results", "test-saving-new"))
     new_path <- R.utils::getAbsolutePath(file.path("results", "test-saving-new"))
     expect_equal(experiment$get_save_dir(), new_path)
@@ -978,8 +978,8 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
       .viz_fun = function() 5
     )
 
-    experiment <- create_experiment(name = "test-evaluate") %>%
-      add_dgp(dgp, "DGP") %>%
+    experiment <- create_experiment(name = "test-evaluate") |>
+      add_dgp(dgp, "DGP") |>
       add_method(method, "Method")
     fit_results <- experiment$fit(verbose = 0)
     eval_results <- experiment$evaluate(fit_results, verbose = 0)
@@ -990,15 +990,15 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
     expect_equal(length(list.files(path = fpath)), 0)
 
     # warning if can't export visualizer
-    experiment %>% add_visualizer(plotly_plot, name = "plotly")
+    experiment |> add_visualizer(plotly_plot, name = "plotly")
     viz_results <- experiment$visualize(fit_results, eval_results,
                                         save = TRUE, verbose = 0)
-    expect_warning(experiment %>% export_visualizers())
+    expect_warning(experiment |> export_visualizers())
     expect_equal(length(list.files(path = fpath)), 0)
 
     # with one working visualizer
-    experiment %>%
-      add_visualizer(ggplot_plot, name = "ggplot") %>%
+    experiment |>
+      add_visualizer(ggplot_plot, name = "ggplot") |>
       add_visualizer(error_plot, name = "error")
     viz_results <- experiment$visualize(fit_results, eval_results,
                                         save = TRUE, verbose = 0)
@@ -1006,7 +1006,7 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
     expect_equal(list.files(path = fpath), "ggplot.pdf")
 
     # using vary across
-    experiment %>%
+    experiment |>
       add_vary_across(.dgp = "DGP", y = 1:3)
     results <- run_experiment(experiment, save = TRUE, verbose = 0)
     expect_warning(expect_warning(experiment$export_visualizers()))
@@ -1038,36 +1038,36 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
     experiment <- create_experiment(name = "test-print")
     expect_snapshot_output(print(experiment))
 
-    experiment %>%
-      add_dgp(dgp1, "DGP1") %>%
-      add_dgp(dgp2, "DGP2") %>%
-      add_method(method1, "Method1") %>%
-      add_evaluator(eval1, "Evaluator1") %>%
-      add_evaluator(eval2, "Evaluator2") %>%
+    experiment |>
+      add_dgp(dgp1, "DGP1") |>
+      add_dgp(dgp2, "DGP2") |>
+      add_method(method1, "Method1") |>
+      add_evaluator(eval1, "Evaluator1") |>
+      add_evaluator(eval2, "Evaluator2") |>
       add_evaluator(eval3, "Evaluator3")
     expect_snapshot_output(print(experiment))
 
-    experiment %>%
+    experiment |>
       add_visualizer(visualizer1, "Visualizer1")
     expect_snapshot_output(print(experiment))
 
     # check vary across prints properly
-    experiment %>%
+    experiment |>
       add_vary_across(.dgp = "DGP1", x = 1:3)
     expect_snapshot_output(print(experiment))
 
-    experiment %>%
-      remove_vary_across(dgp = "DGP1") %>%
+    experiment |>
+      remove_vary_across(dgp = "DGP1") |>
       add_vary_across(.method = "Method1", x = 1:3)
     expect_snapshot_output(print(experiment))
 
-    experiment %>%
-      add_vary_across(.dgp = "DGP1", x = 1:3) %>%
+    experiment |>
+      add_vary_across(.dgp = "DGP1", x = 1:3) |>
       add_vary_across(.dgp = "DGP2", x = 2:4)
     expect_snapshot_output(print(experiment))
 
-    experiment %>%
-      update_vary_across(.dgp = "DGP1", x = list(1:3)) %>%
+    experiment |>
+      update_vary_across(.dgp = "DGP1", x = list(1:3)) |>
       update_vary_across(.dgp = "DGP2", x = list(2:4))
     expect_snapshot_output(print(experiment))
   })
@@ -1109,26 +1109,26 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
       "plot"
     }
 
-    experiment <- create_experiment(name = "error-tracking") %>%
-      add_dgp(create_dgp(dgp_fun, n = 10)) %>%
-      add_dgp(create_dgp(dgp_fun, .name = "dgp_test", n = 10)) %>%
-      add_method(create_method(method_fun), name = "method_test") %>%
+    experiment <- create_experiment(name = "error-tracking") |>
+      add_dgp(create_dgp(dgp_fun, n = 10)) |>
+      add_dgp(create_dgp(dgp_fun, .name = "dgp_test", n = 10)) |>
+      add_method(create_method(method_fun), name = "method_test") |>
       add_vary_across(
         .dgp = "dgp1",
         rho = c(0.2),
         noise_level = c(1, 2)
-      ) %>%
+      ) |>
       add_vary_across(
         .dgp = "dgp_test",
         rho = c(0.2, 0.9),
         noise_level = c(1, 2)
-      ) %>%
+      ) |>
       add_vary_across(
         .method = "method_test",
         param2 = c(2, 4),
         vec = list(c(2,3,4), 4:7)
-      ) %>%
-      add_evaluator(create_evaluator(eval_fun)) %>%
+      ) |>
+      add_evaluator(create_evaluator(eval_fun)) |>
       add_visualizer(create_visualizer(viz_fun))
 
     expect_snapshot(
@@ -1160,7 +1160,7 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
       transform = transform_fun
     )
 
-    experiment %>%
+    experiment |>
       add_visualizer(create_visualizer(viz_fun, error = TRUE))
 
     expect_snapshot(
@@ -1182,7 +1182,7 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
 
       # varying dgp param
       experiment <- create_experiment(dgp_list = list(dgp1),
-                                      method_list = list(method1)) %>%
+                                      method_list = list(method1)) |>
         add_vary_across(.dgp = dgp1, y = c("a", "b", "c"))
 
       expected_err_msg <- "Cannot create `fit_results` tibble with duplicate column names: "
@@ -1195,7 +1195,7 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
       expect_equal(err$errors$.method_output[[1]]$y[[1]], "data1a+method1")
 
       experiment <- create_experiment(dgp_list = list(dgp1),
-                                      method_list = list(method2 = method2)) %>%
+                                      method_list = list(method2 = method2)) |>
         add_vary_across(.method = method2, z = c("a", "b", "c"))
 
       # varying method param

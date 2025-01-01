@@ -145,6 +145,9 @@ eval_feature_selection_err <- function(fit_results, vary_params = NULL,
                                        estimate_col = NULL, imp_col,
                                        group_cols = NULL, metrics = NULL,
                                        na_rm = FALSE) {
+  # dummies to fix R CMD check note on no visible binding for global variable
+  .estimator <- NULL
+  .eval_result <- NULL
 
   if (!is.null(metrics) && !inherits(metrics, "metric_set")) {
     abort("Unknown metrics. metrics must be of class 'yardstick::metric_set' or NULL.")
@@ -153,7 +156,7 @@ eval_feature_selection_err <- function(fit_results, vary_params = NULL,
   eval_feature_selection_err_fun <- function(data, truth_col, estimate_col,
                                              imp_col, metrics, na_rm) {
 
-    data <- data %>%
+    data <- data |>
       dplyr::mutate(
         dplyr::across(tidyselect::all_of(c(truth_col, estimate_col)),
                       ~factor(as.integer(as.numeric(.x) != 0), levels = 0:1))
@@ -168,8 +171,8 @@ eval_feature_selection_err <- function(fit_results, vary_params = NULL,
     }
 
     out <- metrics(data = data, truth = !!truth_col, estimate = !!estimate_col,
-                   !!imp_col, na_rm = na_rm, event_level = "second") %>%
-      add_na_counts(data = data, value_col = imp_col, na_rm = na_rm) %>%
+                   !!imp_col, na_rm = na_rm, event_level = "second") |>
+      add_na_counts(data = data, value_col = imp_col, na_rm = na_rm) |>
       dplyr::select(-.estimator)
     return(out)
   }
@@ -179,7 +182,7 @@ eval_feature_selection_err <- function(fit_results, vary_params = NULL,
     fun = eval_feature_selection_err_fun, nested_cols = nested_cols,
     truth_col = truth_col, estimate_col = estimate_col, imp_col = imp_col,
     group_cols = group_cols, fun_options = list(metrics = metrics), na_rm = na_rm
-  ) %>%
+  ) |>
     tidyr::unnest(.eval_result)
   return(eval_tib)
 }
@@ -204,7 +207,7 @@ summarize_feature_selection_err <- function(fit_results, vary_params = NULL,
     nested_cols = nested_cols, truth_col = truth_col,
     estimate_col = estimate_col, imp_col = imp_col, group_cols = group_cols,
     metrics = metrics, na_rm = na_rm
-  ) %>%
+  ) |>
     dplyr::group_by(dplyr::across(tidyselect::any_of(group_vars)))
 
   eval_summary <- eval_summarizer(
@@ -322,8 +325,8 @@ eval_feature_selection_curve <- function(fit_results, vary_params = NULL,
                                          curve = c("ROC", "PR"),
                                          na_rm = FALSE) {
   if (is.null(nested_cols) || (truth_col %in% names(fit_results))) {
-    fit_results <- fit_results %>%
-      dplyr::rowwise() %>%
+    fit_results <- fit_results |>
+      dplyr::rowwise() |>
       dplyr::mutate(
         {{truth_col}} := factor(
           as.integer(as.numeric(.data[[truth_col]]) != 0), levels = 1:0
@@ -332,7 +335,7 @@ eval_feature_selection_curve <- function(fit_results, vary_params = NULL,
   } else {
     fit_results[[nested_cols]] <- purrr::map(
       fit_results[[nested_cols]],
-      ~.x %>%
+      ~.x |>
         dplyr::mutate(
           {{truth_col}} := factor(
             as.integer(as.numeric(.data[[truth_col]]) != 0), levels = 1:0
@@ -366,7 +369,9 @@ summarize_feature_selection_curve <- function(fit_results, vary_params = NULL,
                                               eval_id = ifelse(curve == "PR",
                                                                "precision",
                                                                "TPR")) {
-  curve_estimate <- NULL  # to fix no visible binding for global variable error
+  # dummies to fix R CMD check note on no visible binding for global variable
+  curve_estimate <- NULL
+
   if (curve == "PR") {
     xvar <- "recall"
     yvar <- "precision"
@@ -380,13 +385,13 @@ summarize_feature_selection_curve <- function(fit_results, vary_params = NULL,
     fit_results = fit_results, vary_params = vary_params,
     nested_cols = nested_cols, truth_col = truth_col, imp_col = imp_col,
     group_cols = group_cols, curve = curve, na_rm = na_rm
-  ) %>%
-    dplyr::rowwise() %>%
+  ) |>
+    dplyr::rowwise() |>
     dplyr::mutate(curve_estimate = list(rescale_curve(curve_estimate,
                                                       x_grid = x_grid,
                                                       xvar = xvar,
-                                                      yvar = yvar))) %>%
-    tidyr::unnest(curve_estimate) %>%
+                                                      yvar = yvar))) |>
+    tidyr::unnest(curve_estimate) |>
     dplyr::group_by(dplyr::across(tidyselect::any_of(group_vars)))
 
   eval_summary <- eval_summarizer(
@@ -471,13 +476,13 @@ eval_feature_importance <- function(fit_results, vary_params = NULL,
                                     group_cols = NULL) {
   id_vars <- c(".rep", ".dgp_name", ".method_name", vary_params)
   if (!is.null(nested_cols)) {
-    fit_results <- fit_results %>%
+    fit_results <- fit_results |>
       tidyr::unnest(tidyselect::all_of(nested_cols))
   } else {
-    fit_results <- fit_results %>%
+    fit_results <- fit_results |>
       tidyr::unnest(tidyselect::all_of(c(feature_col, imp_col, group_cols)))
   }
-  eval_tib <- fit_results %>%
+  eval_tib <- fit_results |>
     dplyr::select(
       tidyselect::all_of(c(id_vars, feature_col, imp_col, group_cols))
     )
@@ -502,7 +507,7 @@ summarize_feature_importance <- function(fit_results, vary_params = NULL,
     fit_results = fit_results, vary_params = vary_params,
     nested_cols = nested_cols, feature_col = feature_col, imp_col = imp_col,
     group_cols = group_cols
-  ) %>%
+  ) |>
     dplyr::group_by(dplyr::across(tidyselect::all_of(group_vars)))
 
   eval_summary <- eval_summarizer(

@@ -1,16 +1,15 @@
 #' @title Create a simulation project
 #'
 #' @description `create_sim()` initializes a directory for your simulation
-#'   study. It wraps around [usethis::create_project()], as well as
-#'   [usethis::use_git()] and
-#'   [renv::init()].
+#'   study. It wraps around \code{usethis::create_project()}, as well as
+#'   \code{usethis::use_git()} and \code{renv::init()}.
 #'
 #' @param path A `character` specifying the path for your simulation
 #'   directory.
 #' @param init_git A `logical` indicating whether to intialize your
 #'   simulation directory as a git repository.
 #' @param init_renv A `logical` stating whether to initialize `renv` with
-#'   [renv::init()]. Defaults to `FALSE`.
+#'   `init()` from the `renv` package. Defaults to `FALSE`.
 #' @param tests A `logical` indicating whether to generate sub-directories
 #'   for organizing unit tests. Defaults to `TRUE`.
 #' @param hpc A `logical` indicating whether to create sub-directories for
@@ -30,19 +29,32 @@ create_sim <- function(
   tests = TRUE,
   hpc = FALSE
 ) {
+  rlang::check_installed(
+    "usethis",
+    reason = "to create a simulation project with `create_sim()`"
+  )
 
   ## ensure arguments are appropriate
-  assertthat::assert_that(is.character(path))
-  assertthat::assert_that(is.logical(init_git))
-  assertthat::assert_that(is.logical(init_renv))
-  assertthat::assert_that(is.logical(tests))
-  assertthat::assert_that(is.logical(hpc))
+  if (!is.character(path)) {
+    stop("path must be a character string.")
+  }
+  if (!is.logical(init_git)) {
+    stop("init_git must be a logical.")
+  }
+  if (!is.logical(init_renv)) {
+    stop("init_renv must be a logical.")
+  }
+  if (!is.logical(tests)) {
+    stop("tests must be a logical.")
+  }
+  if (!is.logical(hpc)) {
+    stop("hpc must be a logical.")
+  }
 
   ## don't overwrite existing project
-  assertthat::assert_that(
-    !dir.exists(paths = path),
-    msg = "This directory already exists. Try another."
-  )
+  if (dir.exists(paths = path)) {
+    stop("This directory already exists. Try another.")
+  }
 
   ## intialize a project
   usethis::create_project(
@@ -137,6 +149,12 @@ create_sim <- function(
     if (init_git) usethis::use_git()
 
     ## intialize renv if desired
-    if (init_renv) renv::init()
+    if (init_renv) {
+      rlang::check_installed(
+        "renv",
+        reason = "to initialize renv with `create_sim()`"
+      )
+      renv::init()
+    }
   }
 }

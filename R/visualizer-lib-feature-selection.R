@@ -71,7 +71,9 @@ plot_feature_importance <- function(fit_results = NULL,
                                     vary_params = NULL,
                                     feature_col, show_max_features = NULL,
                                     show = c("errorbar", "bar"), ...) {
-  .imp_est <- NULL  # to fix no visible binding for global variable error
+  # dummies to fix R CMD check note on no visible binding for global variable
+  .imp_est <- NULL
+
   arg_list <- get_dot_args(
     user_args = rlang::list2(...),
     default_args = list(eval_id = "feature_importance",
@@ -93,15 +95,15 @@ plot_feature_importance <- function(fit_results = NULL,
       eval_id <- paste0("_", arg_list$eval_id)
     }
     if (paste0("mean", eval_id) %in% colnames(plot_data)) {
-      keep_features <- plot_data %>%
-        dplyr::group_by(dplyr::across(tidyselect::all_of(feature_col))) %>%
+      keep_features <- plot_data |>
+        dplyr::group_by(dplyr::across(tidyselect::all_of(feature_col))) |>
         dplyr::summarise(.imp_est = max(.data[[paste0("mean", eval_id)]],
-                                        na.rm = TRUE)) %>%
-        dplyr::arrange(-.imp_est) %>%
-        dplyr::slice(1:min(show_max_features, nrow(.data))) %>%
+                                        na.rm = TRUE)) |>
+        dplyr::arrange(-.imp_est) |>
+        dplyr::slice(1:min(show_max_features, nrow(.data))) |>
         dplyr::pull(tidyselect::all_of(feature_col))
-      plot_data <- plot_data %>%
-        dplyr::filter(.data[[feature_col]] %in% keep_features) %>%
+      plot_data <- plot_data |>
+        dplyr::filter(.data[[feature_col]] %in% keep_features) |>
         dplyr::mutate({{feature_col}} := factor(.data[[feature_col]],
                                                 levels = keep_features))
     }
@@ -218,7 +220,7 @@ plot_feature_selection_err <- function(fit_results = NULL,
 #' @inheritParams plot_pred_curve
 #' @inheritDotParams plot_eval_constructor -eval_results -eval_names -plot_data
 #'   -vary_params -show
-#' 
+#'
 #' @inherit plot_eval_constructor return
 #'
 #' @family feature_selection_funs

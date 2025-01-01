@@ -58,7 +58,7 @@ list_to_tibble_row <- function(lst, simplify = FALSE) {
     } else {
       list(.x)
     }
-  }) %>%
+  }) |>
     tibble::as_tibble_row()
   return(out)
 }
@@ -77,15 +77,15 @@ list_to_tibble <- function(lst) {
   tib <- tryCatch({
     tibble::as_tibble(lst)
   }, error = function(e) {
-    out <- purrr::map(lst, ~list(.x)) %>%
+    out <- purrr::map(lst, ~list(.x)) |>
       tibble::as_tibble()
     simplify_cols <- purrr::map_lgl(
       out,
       ~(length(unlist(.x, recursive = F)) == 1) && !is.data.frame(.x[[1]])
-    ) %>%
-      which() %>%
+    ) |>
+      which() |>
       names()
-    out <- out %>%
+    out <- out |>
       dplyr::mutate(dplyr::across(tidyselect::all_of(simplify_cols),
                                   ~unlist(.x, recursive = F)))
     return(out)
@@ -98,7 +98,7 @@ list_to_tibble <- function(lst) {
 #' @description Simplify or unlist list columns in tibble if each element in
 #'   the list is a scalar value.
 #'
-#' @param tib `tibble::tibble` to simplify.
+#' @param tbl `tibble::tibble` to simplify.
 #' @param empty_as_na If TRUE (default), 0-length values will be treated as NA.
 #'
 #' @return A tibble that has been "simplified".
@@ -330,7 +330,7 @@ compare_tibble_rows <- function(x, y, op = c("equal", "contained_in")) {
       return(FALSE)
     }
   }
-  duplicated_rows <- dplyr::bind_rows(x, y) %>%
+  duplicated_rows <- dplyr::bind_rows(x, y) |>
     duplicated(fromLast = TRUE)
   return(all(duplicated_rows[1:nrow(x)]))
 }
@@ -362,7 +362,7 @@ get_matching_rows <- function(id, x) {
   if (anyDuplicated(id)) {
     stop("id must be a tibble with unique rows.")
   }
-  x_ids <- x %>%
+  x_ids <- x |>
     dplyr::select(tidyselect::all_of(id_cols))
   if (!any(id_coltypes == "list")) {
     # easy case: no functions in id tibble -> use inner_join
@@ -370,22 +370,22 @@ get_matching_rows <- function(id, x) {
   } else if (!anyDuplicated(x_ids)) {
     # no duplicate id rows in x -> use duplicated
     df <- dplyr::bind_rows(id, x)
-    keep_row_idx <- df %>%
-      dplyr::select(tidyselect::all_of(id_cols)) %>%
+    keep_row_idx <- df |>
+      dplyr::select(tidyselect::all_of(id_cols)) |>
       duplicated()
-    out <- df %>%
+    out <- df |>
       dplyr::filter(!!keep_row_idx)
   } else {
     # duplicate id rows in x -> brute-force matching using duplicated
     keep_row_idx <- purrr::map_lgl(
       1:nrow(x),
       function(i) {
-        dplyr::bind_rows(id, x_ids[i, ]) %>%
-          duplicated() %>%
+        dplyr::bind_rows(id, x_ids[i, ]) |>
+          duplicated() |>
           dplyr::last()
       }
     )
-    out <- x %>%
+    out <- x |>
       dplyr::filter(!!keep_row_idx)
   }
   return(out)
@@ -497,4 +497,40 @@ check_results_names <- function(names, method_name) {
     )
   }
   return(names)
+}
+
+
+#' Mark Characters as HTML
+#'
+#' @description Marks the given text as HTML, which means the tag functions will
+#'   know not to perform HTML escaping on it. Copy of \code{htmltools::HTML()}.
+#'
+#' @param text The text value to mark with HTML
+#' @param ... Any additional values to be converted to character and
+#'   concatenated together
+#' @param .noWS Character vector used to omit some of the whitespace that would
+#'   normally be written around this HTML. Valid options include `before`,
+#'   `after`, and `outside` (equivalent to `before` and `end`).
+#'
+#' @returns The input `text`, but marked as HTML.
+#' @keywords internal
+HTML <- function(text, ..., .noWS = NULL) {
+  htmlText <- c(text, as.character(rlang::dots_list(...)))
+
+  paste8 <- function (..., sep = " ", collapse = NULL) {
+    args <- c(
+      lapply(list(...), enc2utf8),
+      list(
+        sep = if (is.null(sep)) sep else enc2utf8(sep),
+        collapse = if (is.null(collapse)) collapse else enc2utf8(collapse)
+      )
+    )
+    return(do.call(paste, args))
+  }
+
+  htmlText <- paste8(htmlText, collapse = " ")
+  attr(htmlText, "html") <- TRUE
+  attr(htmlText, "noWS") <- .noWS
+  class(htmlText) <- c("html", "character")
+  return(htmlText)
 }

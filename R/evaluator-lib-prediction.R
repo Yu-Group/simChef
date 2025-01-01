@@ -204,6 +204,9 @@ NULL
 eval_pred_err <- function(fit_results, vary_params = NULL, nested_cols = NULL,
                           truth_col, estimate_col, prob_cols = NULL,
                           group_cols = NULL, metrics = NULL, na_rm = FALSE) {
+  # dummies to fix R CMD check note on no visible binding for global variable
+  .estimator <- NULL
+  .eval_result <- NULL
 
   if (!is.null(metrics) && !inherits(metrics, "metric_set")) {
     abort("Unknown metrics. metrics must be of class 'yardstick::metric_set' or NULL.")
@@ -231,8 +234,8 @@ eval_pred_err <- function(fit_results, vary_params = NULL, nested_cols = NULL,
       }
     }
 
-    out <- out %>%
-      add_na_counts(data = data, value_col = estimate_col, na_rm = na_rm) %>%
+    out <- out |>
+      add_na_counts(data = data, value_col = estimate_col, na_rm = na_rm) |>
       dplyr::select(-.estimator)
     return(out)
   }
@@ -242,7 +245,7 @@ eval_pred_err <- function(fit_results, vary_params = NULL, nested_cols = NULL,
     fun = eval_pred_err_fun, nested_cols = nested_cols,
     truth_col = truth_col, estimate_col = estimate_col, prob_cols = prob_cols,
     group_cols = group_cols, fun_options = list(metrics = metrics), na_rm = na_rm
-  ) %>%
+  ) |>
     tidyr::unnest(.eval_result)
 
   return(eval_tib)
@@ -266,7 +269,7 @@ summarize_pred_err <- function(fit_results, vary_params = NULL,
     nested_cols = nested_cols, truth_col = truth_col,
     estimate_col = estimate_col, prob_cols = prob_cols, group_cols = group_cols,
     metrics = metrics, na_rm = na_rm
-  ) %>%
+  ) |>
     dplyr::group_by(dplyr::across(tidyselect::any_of(group_vars)))
 
   eval_summary <- eval_summarizer(
@@ -400,13 +403,19 @@ eval_pred_curve <- function(fit_results, vary_params = NULL, nested_cols = NULL,
                             curve = c("ROC", "PR"), na_rm = FALSE) {
   curve <- match.arg(curve)
 
+  # dummies to fix R CMD check note on no visible binding for global variable
+  specificity <- NULL
+  sensitivity <- NULL
+  FPR <- NULL
+  .eval_result <- NULL
+
   eval_pred_curve_fun <- function(data, truth_col, prob_cols, curve, na_rm) {
     if (identical(curve, "ROC")) {
       curve_df <- yardstick::roc_curve(
         data = data, truth = !!truth_col, !!prob_cols,
         na_rm = na_rm
-      ) %>%
-        dplyr::rename(FPR = specificity, TPR = sensitivity) %>%
+      ) |>
+        dplyr::rename(FPR = specificity, TPR = sensitivity) |>
         dplyr::mutate(FPR = 1 - FPR)
     } else if (identical(curve, "PR")) {
       curve_df <- yardstick::pr_curve(
@@ -422,7 +431,7 @@ eval_pred_curve <- function(fit_results, vary_params = NULL, nested_cols = NULL,
     fun = eval_pred_curve_fun, nested_cols = nested_cols,
     truth_col = truth_col, prob_cols = prob_cols, group_cols = group_cols,
     fun_options = list(curve = curve), na_rm = na_rm
-  ) %>%
+  ) |>
     dplyr::rename(curve_estimate = .eval_result)
   return(eval_tib)
 }
@@ -439,7 +448,9 @@ summarize_pred_curve <- function(fit_results, vary_params = NULL,
                                  custom_summary_funs = NULL,
                                  eval_id = ifelse(curve == "PR",
                                                   "precision", "TPR")) {
-  curve_estimate <- NULL  # to fix no visible binding for global variable error
+  # dummies to fix R CMD check note on no visible binding for global variable
+  curve_estimate <- NULL
+
   if (curve == "PR") {
     xvar <- "recall"
     yvar <- "precision"
@@ -453,13 +464,13 @@ summarize_pred_curve <- function(fit_results, vary_params = NULL,
     fit_results = fit_results, vary_params = vary_params,
     nested_cols = nested_cols, truth_col = truth_col, prob_cols = prob_cols,
     group_cols = group_cols, curve = curve, na_rm = na_rm
-  ) %>%
-    dplyr::rowwise() %>%
+  ) |>
+    dplyr::rowwise() |>
     dplyr::mutate(curve_estimate = list(rescale_curve(curve_estimate,
                                                       x_grid = x_grid,
                                                       xvar = xvar,
-                                                      yvar = yvar))) %>%
-    tidyr::unnest(curve_estimate) %>%
+                                                      yvar = yvar))) |>
+    tidyr::unnest(curve_estimate) |>
     dplyr::group_by(dplyr::across(tidyselect::any_of(group_vars)))
 
   eval_summary <- eval_summarizer(

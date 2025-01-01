@@ -53,7 +53,7 @@ dgp <- create_dgp(.dgp_fun = dgp_fun,
 lm_fun <- function(X, y, cols) {
   X <- X[, cols]
   lm_fit <- lm(y ~ X)
-  pvals <- summary(lm_fit)$coefficients[-1, "Pr(>|t|)"] \%>\%
+  pvals <- summary(lm_fit)$coefficients[-1, "Pr(>|t|)"] |>
     setNames(paste(paste0("X", cols), "p-value"))
   return(pvals)
 }
@@ -64,9 +64,9 @@ lm_method <- create_method(
 )
 
 # create Experiment
-experiment <- create_experiment() \%>\%
-  add_dgp(dgp) \%>\%
-  add_method(lm_method) \%>\%
+experiment <- create_experiment() |>
+  add_dgp(dgp) |>
+  add_method(lm_method) |>
   add_vary_across(.dgp = dgp, rho = seq(0.91, 0.99, 0.02))
 
 fit_results <- fit_experiment(experiment, n_reps=10)
@@ -75,8 +75,8 @@ fit_results <- fit_experiment(experiment, n_reps=10)
 reject_prob_fun <- function(fit_results, vary_params = NULL, alpha = 0.05) {
   fit_results[is.na(fit_results)] <- 1
   group_vars <- c(".dgp_name", ".method_name", vary_params)
-  eval_out <- fit_results \%>\%
-    dplyr::group_by(across({{group_vars}})) \%>\%
+  eval_out <- fit_results |>
+    dplyr::group_by(across({{group_vars}})) |>
     dplyr::summarise(
       n_reps = dplyr::n(),
       `X1 Reject Prob.` = mean(`X1 p-value` < alpha),

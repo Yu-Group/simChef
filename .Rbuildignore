@@ -5,8 +5,9 @@
 ^pkgdown$
 ^LICENSE\.md$
 ^\.github$
-^vignettes/results$
-^vignettes/example-docs$
+^vignettes/results/*
+^vignettes/example-docs/*
 ^man-roxygen
 ^.*\.Rproj$
 ^\.Rproj\.user$
+^CONTRIBUTING\.md$

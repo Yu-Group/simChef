@@ -93,8 +93,8 @@ NULL
 #' sd_mean_eval <- create_evaluator(
 #'   .eval_fun = function(fit_results, vary_params = NULL) {
 #'     group_vars <- c(".dgp_name", ".method_name", vary_params)
-#'     fit_results %>%
-#'       dplyr::group_by(dplyr::across(tidyselect::all_of(group_vars))) %>%
+#'     fit_results |>
+#'       dplyr::group_by(dplyr::across(tidyselect::all_of(group_vars))) |>
 #'       dplyr::summarise(sd = sd(mean), .groups = "keep")
 #'   },
 #'   .name = "SD of Mean(x)"
@@ -142,12 +142,12 @@ NULL
 #' )
 #'
 #' # initialize experiment with toy DGPs, Methods, Evaluators, and Visualizers
-#' # using piping %>%
-#' experiment <- create_experiment(name = "Experiment Name") %>%
-#'   add_dgp(normal_dgp) %>%
-#'   add_dgp(bernoulli_dgp) %>%
-#'   add_method(mean_method) %>%
-#'   add_evaluator(sd_mean_eval) %>%
+#' # using piping |>
+#' experiment <- create_experiment(name = "Experiment Name") |>
+#'   add_dgp(normal_dgp) |>
+#'   add_dgp(bernoulli_dgp) |>
+#'   add_method(mean_method) |>
+#'   add_evaluator(sd_mean_eval) |>
 #'   add_visualizer(sd_mean_plot)
 #'
 #' # run experiment with 2 replicates
@@ -156,7 +156,7 @@ NULL
 #' # results
 #'
 #' # run experiment with varying number of samples n
-#' experiment <- experiment %>%
+#' experiment <- experiment |>
 #'   add_vary_across(
 #'     .dgp = c("Normal DGP", "Bernoulli DGP"), n = c(1, 10)
 #'   )
@@ -264,8 +264,8 @@ run_experiment <- function(experiment, n_reps = 1,
 #' )
 #'
 #' # initialize experiment with toy DGPs only
-#' experiment <- create_experiment(name = "Experiment Name") %>%
-#'   add_dgp(normal_dgp) %>%
+#' experiment <- create_experiment(name = "Experiment Name") |>
+#'   add_dgp(normal_dgp) |>
 #'   add_dgp(bernoulli_dgp)
 #'
 #' # generate data from all DGPs (and vary across components if applicable)
@@ -388,8 +388,8 @@ visualize_experiment <- function(experiment, fit_results, eval_results = NULL,
 #' sd_mean_eval <- create_evaluator(
 #'   .eval_fun = function(fit_results, vary_params = NULL) {
 #'     group_vars <- c(".dgp_name", ".method_name", vary_params)
-#'     fit_results %>%
-#'       dplyr::group_by(dplyr::across(tidyselect::all_of(group_vars))) %>%
+#'     fit_results |>
+#'       dplyr::group_by(dplyr::across(tidyselect::all_of(group_vars))) |>
 #'       dplyr::summarise(sd = sd(mean), .groups = "keep")
 #'   },
 #'   .name = "SD of Mean(x)"
@@ -417,12 +417,12 @@ visualize_experiment <- function(experiment, fit_results, eval_results = NULL,
 #' )
 #'
 #' # initialize experiment with toy DGPs, Methods, Evaluators, and Visualizers
-#' # using piping %>% and add_* functions
-#' experiment <- create_experiment(name = "Experiment Name") %>%
-#'   add_dgp(normal_dgp) %>%
-#'   add_dgp(bernoulli_dgp) %>%
-#'   add_method(mean_method) %>%
-#'   add_evaluator(sd_mean_eval) %>%
+#' # using piping |> and add_* functions
+#' experiment <- create_experiment(name = "Experiment Name") |>
+#'   add_dgp(normal_dgp) |>
+#'   add_dgp(bernoulli_dgp) |>
+#'   add_method(mean_method) |>
+#'   add_evaluator(sd_mean_eval) |>
 #'   add_visualizer(sd_mean_plot)
 #' print(experiment)
 #'
@@ -509,8 +509,8 @@ add_visualizer <- function(experiment, visualizer, name=NULL, ...) {
 #' sd_eval <- create_evaluator(
 #'   .eval_fun = function(fit_results, vary_params = NULL) {
 #'     group_vars <- c(".dgp_name", ".method_name", vary_params)
-#'     fit_results %>%
-#'       dplyr::group_by(dplyr::across(tidyselect::all_of(group_vars))) %>%
+#'     fit_results |>
+#'       dplyr::group_by(dplyr::across(tidyselect::all_of(group_vars))) |>
 #'       dplyr::summarise(sd = sd(mean), .groups = "keep")
 #'   },
 #'   .name = "Evaluator"
@@ -519,8 +519,8 @@ add_visualizer <- function(experiment, visualizer, name=NULL, ...) {
 #' var_eval <- create_evaluator(
 #'   .eval_fun = function(fit_results, vary_params = NULL) {
 #'     group_vars <- c(".dgp_name", ".method_name", vary_params)
-#'     fit_results %>%
-#'       dplyr::group_by(dplyr::across(tidyselect::all_of(group_vars))) %>%
+#'     fit_results |>
+#'       dplyr::group_by(dplyr::across(tidyselect::all_of(group_vars))) |>
 #'       dplyr::summarise(var = var(mean), .groups = "keep")
 #'   },
 #'   .name = "Evaluator"
@@ -570,19 +570,19 @@ add_visualizer <- function(experiment, visualizer, name=NULL, ...) {
 #' )
 #'
 #' # initialize experiment with toy DGPs, Methods, Evaluators, and Visualizers
-#' # using piping %>% and add_* functions
-#' experiment <- create_experiment(name = "Experiment Name") %>%
-#'   add_dgp(dgp1) %>%
-#'   add_method(mean_method) %>%
-#'   add_evaluator(sd_eval) %>%
+#' # using piping |> and add_* functions
+#' experiment <- create_experiment(name = "Experiment Name") |>
+#'   add_dgp(dgp1) |>
+#'   add_method(mean_method) |>
+#'   add_evaluator(sd_eval) |>
 #'   add_visualizer(sd_plot)
 #' print(experiment)
 #'
 #' # example usage of update_* functions
-#' experiment <- experiment %>%
-#'   update_dgp(dgp2, "DGP") %>%
-#'   update_method(median_method, "Method") %>%
-#'   update_evaluator(var_eval, "Evaluator") %>%
+#' experiment <- experiment |>
+#'   update_dgp(dgp2, "DGP") |>
+#'   update_method(median_method, "Method") |>
+#'   update_evaluator(var_eval, "Evaluator") |>
 #'   update_visualizer(var_plot, "Visualizer")
 #'
 NULL
@@ -657,8 +657,8 @@ update_visualizer <- function(experiment, visualizer, name, ...) {
 #' sd_mean_eval <- create_evaluator(
 #'   .eval_fun = function(fit_results, vary_params = NULL) {
 #'     group_vars <- c(".dgp_name", ".method_name", vary_params)
-#'     fit_results %>%
-#'       dplyr::group_by(dplyr::across(tidyselect::all_of(group_vars))) %>%
+#'     fit_results |>
+#'       dplyr::group_by(dplyr::across(tidyselect::all_of(group_vars))) |>
 #'       dplyr::summarise(sd = sd(mean), .groups = "keep")
 #'   },
 #'   .name = "SD of Mean(x)"
@@ -686,21 +686,21 @@ update_visualizer <- function(experiment, visualizer, name, ...) {
 #' )
 #'
 #' # initialize experiment with toy DGPs, Methods, Evaluators, and Visualizers
-#' # using piping %>% and add_* functions
-#' experiment <- create_experiment(name = "Experiment Name") %>%
-#'   add_dgp(normal_dgp) %>%
-#'   add_dgp(bernoulli_dgp) %>%
-#'   add_method(mean_method) %>%
-#'   add_evaluator(sd_mean_eval) %>%
+#' # using piping |> and add_* functions
+#' experiment <- create_experiment(name = "Experiment Name") |>
+#'   add_dgp(normal_dgp) |>
+#'   add_dgp(bernoulli_dgp) |>
+#'   add_method(mean_method) |>
+#'   add_evaluator(sd_mean_eval) |>
 #'   add_visualizer(sd_mean_plot)
 #' print(experiment)
 #'
 #' # example usage of removing DGPs, Methods, Evaluators, and Visualizers
-#' experiment <- experiment %>%
-#'   remove_dgp("Normal DGP") %>%
-#'   remove_dgp("Bernoulli DGP") %>%
-#'   remove_method("Mean(x)") %>%
-#'   remove_evaluator("SD of Mean(x)") %>%
+#' experiment <- experiment |>
+#'   remove_dgp("Normal DGP") |>
+#'   remove_dgp("Bernoulli DGP") |>
+#'   remove_method("Mean(x)") |>
+#'   remove_evaluator("SD of Mean(x)") |>
 #'   remove_visualizer("SD of Mean(x) Plot")
 #' print(experiment)
 #'
@@ -773,8 +773,8 @@ remove_visualizer <- function(experiment, name = NULL, ...) {
 #' sd_mean_eval <- create_evaluator(
 #'   .eval_fun = function(fit_results, vary_params = NULL) {
 #'     group_vars <- c(".dgp_name", ".method_name", vary_params)
-#'     fit_results %>%
-#'       dplyr::group_by(dplyr::across(tidyselect::all_of(group_vars))) %>%
+#'     fit_results |>
+#'       dplyr::group_by(dplyr::across(tidyselect::all_of(group_vars))) |>
 #'       dplyr::summarise(sd = sd(mean), .groups = "keep")
 #'   },
 #'   .name = "SD of Mean(x)"
@@ -802,12 +802,12 @@ remove_visualizer <- function(experiment, name = NULL, ...) {
 #' )
 #'
 #' # initialize experiment with toy DGPs, Methods, Evaluators, and Visualizers
-#' # using piping %>% and add_* functions
-#' experiment <- create_experiment(name = "Experiment Name") %>%
-#'   add_dgp(normal_dgp) %>%
-#'   add_dgp(bernoulli_dgp) %>%
-#'   add_method(mean_method) %>%
-#'   add_evaluator(sd_mean_eval) %>%
+#' # using piping |> and add_* functions
+#' experiment <- create_experiment(name = "Experiment Name") |>
+#'   add_dgp(normal_dgp) |>
+#'   add_dgp(bernoulli_dgp) |>
+#'   add_method(mean_method) |>
+#'   add_evaluator(sd_mean_eval) |>
 #'   add_visualizer(sd_mean_plot)
 #'
 #' # get DGPs, Methods, Evaluators, and Visualizers
@@ -906,51 +906,51 @@ get_visualizers <- function(experiment, ...) {
 #' )
 #'
 #' # initialize experiment with toy DGPs and Methods
-#' experiment <- create_experiment(name = "Experiment Name") %>%
-#'   add_dgp(normal_dgp) %>%
-#'   add_dgp(bernoulli_dgp) %>%
+#' experiment <- create_experiment(name = "Experiment Name") |>
+#'   add_dgp(normal_dgp) |>
+#'   add_dgp(bernoulli_dgp) |>
 #'   add_method(mean_method)
 #'
 #' # vary across n for normal DGP
-#' experiment <- experiment %>%
+#' experiment <- experiment |>
 #'   add_vary_across(.dgp = "Normal DGP", n = c(100, 200, 300))
 #' get_vary_across(experiment)
 #' print(experiment)
 #'
 #' # remove vary across for normal DGP
-#' experiment <- experiment %>%
+#' experiment <- experiment |>
 #'   remove_vary_across(dgp = "Normal DGP")
 #' get_vary_across(experiment)
 #' print(experiment)
 #'
 #' # can add vary across for multiple DGPs at once
-#' experiment <- experiment %>%
+#' experiment <- experiment |>
 #'   add_vary_across(.dgp = c("Normal DGP", "Bernoulli DGP"), n = c(100, 200, 300))
 #' get_vary_across(experiment)
 #' print(experiment)
 #'
 #' # can update vary across for DGPs
-#' experiment <- experiment %>%
-#'   update_vary_across(.dgp = "Normal DGP", n = c(100, 300)) %>%
+#' experiment <- experiment |>
+#'   update_vary_across(.dgp = "Normal DGP", n = c(100, 300)) |>
 #'   update_vary_across(.dgp = "Bernoulli DGP", n = c(100, 200))
 #' get_vary_across(experiment)
 #' print(experiment)
 #'
 #' # can also add/update/remove vary across for methods
-#' experiment <- experiment %>%
+#' experiment <- experiment |>
 #'   add_vary_across(.method = "Mean", trim = list(0, 0.1, 0.2))
 #' print(experiment)
-#' experiment <- experiment %>%
+#' experiment <- experiment |>
 #'   update_vary_across(
 #'     .method = "Mean", trim = list(0, 0.1, 0.2, 0.3)
 #'   )
 #' print(experiment)
-#' experiment <- experiment %>%
+#' experiment <- experiment |>
 #'   remove_vary_across(method = "Mean")
 #' print(experiment)
 #'
 #' # can remove all vary across parameters
-#' experiment <- experiment %>%
+#' experiment <- experiment |>
 #'   remove_vary_across()
 #' get_vary_across(experiment)
 #' print(experiment)
@@ -1084,8 +1084,8 @@ get_cached_results <- function(experiment, results_type, verbose = 0) {
 #' sd_mean_eval <- create_evaluator(
 #'   .eval_fun = function(fit_results, vary_params = NULL) {
 #'     group_vars <- c(".dgp_name", ".method_name", vary_params)
-#'     fit_results %>%
-#'       dplyr::group_by(dplyr::across(tidyselect::all_of(group_vars))) %>%
+#'     fit_results |>
+#'       dplyr::group_by(dplyr::across(tidyselect::all_of(group_vars))) |>
 #'       dplyr::summarise(sd = sd(mean), .groups = "keep")
 #'   },
 #'   .name = "SD of Mean(x)"
@@ -1113,16 +1113,16 @@ get_cached_results <- function(experiment, results_type, verbose = 0) {
 #' )
 #'
 #' # initialize experiment with toy DGPs, Methods, Evaluators, and Visualizers
-#' # using piping %>% and add_* functions
-#' experiment <- create_experiment(name = "Experiment Name") %>%
-#'   add_dgp(normal_dgp) %>%
-#'   add_dgp(bernoulli_dgp) %>%
-#'   add_method(mean_method) %>%
-#'   add_evaluator(sd_mean_eval) %>%
+#' # using piping |> and add_* functions
+#' experiment <- create_experiment(name = "Experiment Name") |>
+#'   add_dgp(normal_dgp) |>
+#'   add_dgp(bernoulli_dgp) |>
+#'   add_method(mean_method) |>
+#'   add_evaluator(sd_mean_eval) |>
 #'   add_visualizer(sd_mean_plot)
 #'
 #' # set R Markdown options for Evaluator/Visualizer (in this case, Visualizer)
-#' experiment <- experiment %>%
+#' experiment <- experiment |>
 #'   set_doc_options(
 #'     field_name = "visualizer", name = "SD of Mean(x) Plot",
 #'     height = 10, width = 8
@@ -1190,8 +1190,8 @@ set_rmd_options <- function(experiment, field_name = c("evaluator", "visualizer"
 #' sd_mean_eval <- create_evaluator(
 #'   .eval_fun = function(fit_results, vary_params = NULL) {
 #'     group_vars <- c(".dgp_name", ".method_name", vary_params)
-#'     fit_results %>%
-#'       dplyr::group_by(dplyr::across(tidyselect::all_of(group_vars))) %>%
+#'     fit_results |>
+#'       dplyr::group_by(dplyr::across(tidyselect::all_of(group_vars))) |>
 #'       dplyr::summarise(sd = sd(mean), .groups = "keep")
 #'   },
 #'   .name = "SD of Mean(x)"
@@ -1219,26 +1219,26 @@ set_rmd_options <- function(experiment, field_name = c("evaluator", "visualizer"
 #' )
 #'
 #' # initialize experiment with toy DGPs, Methods, Evaluators, and Visualizers
-#' # using piping %>% and add_* functions
-#' experiment <- create_experiment(name = "Experiment Name") %>%
-#'   add_dgp(normal_dgp) %>%
-#'   add_dgp(bernoulli_dgp) %>%
-#'   add_method(mean_method) %>%
-#'   add_evaluator(sd_mean_eval) %>%
+#' # using piping |> and add_* functions
+#' experiment <- create_experiment(name = "Experiment Name") |>
+#'   add_dgp(normal_dgp) |>
+#'   add_dgp(bernoulli_dgp) |>
+#'   add_method(mean_method) |>
+#'   add_evaluator(sd_mean_eval) |>
 #'   add_visualizer(sd_mean_plot)
 #'
 #' # set custom save directory (i.e., where to save results)
-#' experiment <- experiment %>%
+#' experiment <- experiment |>
 #'   set_save_dir("path/to/results")
 #'
 #' # this is equivalent to:
 #' experiment <- create_experiment(
 #'   name = "Experiment Name", save_dir = "path/to/results"
-#' ) %>%
-#'   add_dgp(normal_dgp) %>%
-#'   add_dgp(bernoulli_dgp) %>%
-#'   add_method(mean_method) %>%
-#'   add_evaluator(sd_mean_eval) %>%
+#' ) |>
+#'   add_dgp(normal_dgp) |>
+#'   add_dgp(bernoulli_dgp) |>
+#'   add_method(mean_method) |>
+#'   add_evaluator(sd_mean_eval) |>
 #'   add_visualizer(sd_mean_plot)
 #'
 #' # get save dir via:

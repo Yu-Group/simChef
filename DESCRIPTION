@@ -26,18 +26,12 @@ Imports:
     future.apply,
     knitr,
     lifecycle,
-    magrittr,
-    methods,
     purrr,
     R.utils,
-    assertthat,
-    usethis,
-    renv,
     R6,
     rlang,
     rmarkdown,
     stringr,
-    testthat (>= 3.1.0),
     tibble,
     tidyr,
     tidyselect,
@@ -46,20 +40,21 @@ Imports:
 Suggests:
     broom,
     callr,
-    devtools,
     fontawesome,
     fs,
     future.callr,
     ggplot2,
     glmnet,
     here,
-    htmltools,
     lobstr,
     MASS,
     plotly,
     progressr (>= 0.9.0),
     ranger,
+    renv,
     rstudioapi,
+    testthat (>= 3.1.0),
+    usethis,
     vdiffr,
     withr (>= 2.5.0),
     ymlthis
@@ -70,7 +65,7 @@ Remotes:
 Config/testthat/edition: 3
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.1
+RoxygenNote: 7.3.2
 Collate: 
     'dgp.R'
     'docs.R'
@@ -86,7 +81,6 @@ Collate:
     'globals.R'
     'init-dir.R'
     'method.R'
-    'reexport-magrittr.R'
     'run-tests.R'
     'signals.R'
     'use_templates.R'

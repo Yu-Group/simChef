@@ -105,7 +105,7 @@ test_that("Visualizer initialization works properly", {
                               .doc_options = list(height = 8, width = 8))
   visualizer2f <- create_visualizer(.viz_fun = viz_fun1,
                                     a = 5, b = 1:5, c = data.frame(d = 1:2))
-  visualizer2g <- create_visualizer(.viz_fun = viz_fun1, .doc_show = F)
+  visualizer2g <- create_visualizer(.viz_fun = viz_fun1, .doc_show = FALSE)
   visualizer2h <- create_visualizer(viz_fun1, n = 100)
   visualizer2i <- create_visualizer(n = 100, func = func, viz_fun1)
   visualizer2j <- create_visualizer(n = 100, viz_fun1, "Visualizer")

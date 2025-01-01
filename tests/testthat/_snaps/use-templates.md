@@ -31,10 +31,10 @@
       eval_name = 'Prediction Accuracy'
     ) 
     
-    experiment <- create_experiment(name = 'Prediction Experiment') %>% 
-      add_dgp(dgp) %>% 
-      add_method(method) %>% 
-      add_evaluator(pred_err) %>% 
+    experiment <- create_experiment(name = 'Prediction Experiment') |> 
+      add_dgp(dgp) |> 
+      add_method(method) |> 
+      add_evaluator(pred_err) |> 
       add_visualizer(pred_err_plot) 
     
     init_docs(experiment)  #> fill out documentation before proceeding!
@@ -105,12 +105,12 @@
       )
     ) 
     
-    experiment <- create_experiment(name = 'Prediction Experiment') %>% 
-      add_dgp(dgp) %>% 
-      add_method(method) %>% 
-      add_evaluator(pred_err) %>% 
-      add_visualizer(pred_err_plot) %>% 
-      add_visualizer(roc_plot) %>% 
+    experiment <- create_experiment(name = 'Prediction Experiment') |> 
+      add_dgp(dgp) |> 
+      add_method(method) |> 
+      add_evaluator(pred_err) |> 
+      add_visualizer(pred_err_plot) |> 
+      add_visualizer(roc_plot) |> 
       add_visualizer(pr_plot) 
     
     init_docs(experiment)  #> fill out documentation before proceeding!
@@ -214,16 +214,16 @@
       )
     ) 
     
-    experiment <- create_experiment(name = 'Prediction Experiment') %>% 
-      add_dgp(dgp) %>% 
-      add_method(method) %>% 
-      add_evaluator(pred_err) %>% 
-      add_evaluator(fi) %>% 
-      add_evaluator(feature_sel) %>% 
-      add_visualizer(pred_err_plot) %>% 
-      add_visualizer(fi_plot) %>% 
-      add_visualizer(feature_sel_plot) %>% 
-      add_visualizer(feature_roc_plot) %>% 
+    experiment <- create_experiment(name = 'Prediction Experiment') |> 
+      add_dgp(dgp) |> 
+      add_method(method) |> 
+      add_evaluator(pred_err) |> 
+      add_evaluator(fi) |> 
+      add_evaluator(feature_sel) |> 
+      add_visualizer(pred_err_plot) |> 
+      add_visualizer(fi_plot) |> 
+      add_visualizer(feature_sel_plot) |> 
+      add_visualizer(feature_roc_plot) |> 
       add_visualizer(feature_pr_plot) 
     
     init_docs(experiment)  #> fill out documentation before proceeding!
@@ -351,18 +351,18 @@
       )
     ) 
     
-    experiment <- create_experiment(name = 'Prediction Experiment') %>% 
-      add_dgp(dgp) %>% 
-      add_method(method) %>% 
-      add_evaluator(pred_err) %>% 
-      add_evaluator(fi) %>% 
-      add_evaluator(feature_sel) %>% 
-      add_visualizer(pred_err_plot) %>% 
-      add_visualizer(roc_plot) %>% 
-      add_visualizer(pr_plot) %>% 
-      add_visualizer(fi_plot) %>% 
-      add_visualizer(feature_sel_plot) %>% 
-      add_visualizer(feature_roc_plot) %>% 
+    experiment <- create_experiment(name = 'Prediction Experiment') |> 
+      add_dgp(dgp) |> 
+      add_method(method) |> 
+      add_evaluator(pred_err) |> 
+      add_evaluator(fi) |> 
+      add_evaluator(feature_sel) |> 
+      add_visualizer(pred_err_plot) |> 
+      add_visualizer(roc_plot) |> 
+      add_visualizer(pr_plot) |> 
+      add_visualizer(fi_plot) |> 
+      add_visualizer(feature_sel_plot) |> 
+      add_visualizer(feature_roc_plot) |> 
       add_visualizer(feature_pr_plot) 
     
     init_docs(experiment)  #> fill out documentation before proceeding!
@@ -426,12 +426,12 @@
       eval_name = 'Feature Selection Error'
     ) 
     
-    experiment <- create_experiment(name = 'Feature Selection Experiment') %>% 
-      add_dgp(dgp) %>% 
-      add_method(method) %>% 
-      add_evaluator(fi) %>% 
-      add_evaluator(feature_sel) %>% 
-      add_visualizer(fi_plot) %>% 
+    experiment <- create_experiment(name = 'Feature Selection Experiment') |> 
+      add_dgp(dgp) |> 
+      add_method(method) |> 
+      add_evaluator(fi) |> 
+      add_evaluator(feature_sel) |> 
+      add_visualizer(fi_plot) |> 
       add_visualizer(feature_sel_plot) 
     
     init_docs(experiment)  #> fill out documentation before proceeding!
@@ -519,14 +519,14 @@
       )
     ) 
     
-    experiment <- create_experiment(name = 'Inference Experiment') %>% 
-      add_dgp(dgp) %>% 
-      add_method(method) %>% 
-      add_evaluator(inf_err) %>% 
-      add_evaluator(fi_pval) %>% 
-      add_visualizer(inf_err_plot) %>% 
-      add_visualizer(inf_roc_plot) %>% 
-      add_visualizer(inf_pr_plot) %>% 
+    experiment <- create_experiment(name = 'Inference Experiment') |> 
+      add_dgp(dgp) |> 
+      add_method(method) |> 
+      add_evaluator(inf_err) |> 
+      add_evaluator(fi_pval) |> 
+      add_visualizer(inf_err_plot) |> 
+      add_visualizer(inf_roc_plot) |> 
+      add_visualizer(inf_pr_plot) |> 
       add_visualizer(reject_prob_plot) 
     
     init_docs(experiment)  #> fill out documentation before proceeding!

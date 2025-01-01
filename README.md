@@ -130,18 +130,18 @@ pred_err_plot <- create_visualizer(
 ) 
 
 # Create experiment
-experiment <- create_experiment(name = "Test Experiment") %>%
-  add_dgp(linear_dgp) %>%
-  add_dgp(xor_dgp) %>%
-  add_method(linear_reg) %>%
-  add_method(rf) %>%
-  add_evaluator(pred_err) %>%
-  add_visualizer(pred_err_plot) %>%
+experiment <- create_experiment(name = "Test Experiment") |>
+  add_dgp(linear_dgp) |>
+  add_dgp(xor_dgp) |>
+  add_method(linear_reg) |>
+  add_method(rf) |>
+  add_evaluator(pred_err) |>
+  add_visualizer(pred_err_plot) |>
   # vary across noise parameter in linear dgp
   add_vary_across(
     .dgp = "Linear DGP",
     noise_sd = c(0.1, 0.5, 1, 2)
-  ) %>%
+  ) |>
   # vary across noise parameter in xor dgp
   add_vary_across(
     .dgp = "XOR DGP",

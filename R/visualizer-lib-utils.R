@@ -88,7 +88,7 @@ NULL
 #'   `ggplot2::geom_ribbon()`.
 #' @param violin_args (Optional) Additional arguments to pass into
 #'   `ggplot2::geom_violin()`.
-#' @param facet_args (Optional) Additional arguments to pass into 
+#' @param facet_args (Optional) Additional arguments to pass into
 #'   `ggplot2::facet_grid()` or `ggplot2::facet_wrap()`.
 #' @param ... Not used.
 #'
@@ -192,17 +192,17 @@ plot_eval_constructor <- function(eval_results = NULL, eval_names = NULL,
     # if vary_param is a list-type column, coerce to string for plotting
     if (any(list_vary_params)) {
       group_ids <- dplyr::group_vars(plt_df)
-      plt_df <- plt_df %>%
-        dplyr::ungroup() %>%
+      plt_df <- plt_df |>
+        dplyr::ungroup() |>
         dplyr::mutate(dplyr::across(tidyselect::all_of(names(list_vary_params)),
                                     ~list_col_to_chr(.x,
                                                      name = dplyr::cur_column(),
-                                                     verbatim = TRUE))) %>%
+                                                     verbatim = TRUE))) |>
         dplyr::group_by(dplyr::across(tidyselect::all_of(group_ids)))
     }
     # if varying over multiple parameters, join column strings for plotting
     if (length(vary_params) > 1) {
-      plt_df <- plt_df %>%
+      plt_df <- plt_df |>
         tidyr::unite(col = ".vary_params",
                      tidyselect::all_of(vary_params),
                      remove = FALSE)
@@ -270,9 +270,9 @@ plot_eval_constructor <- function(eval_results = NULL, eval_names = NULL,
       plot_by <- NULL
       plot_by_id <- plot_by
     }
-    plt_df <- plt_df %>% dplyr::group_by(dplyr::across({{plot_by}}))
+    plt_df <- plt_df |> dplyr::group_by(dplyr::across({{plot_by}}))
   } else {
-    plt_df <- plt_df %>% dplyr::group_by(dplyr::across({{plot_by}}))
+    plt_df <- plt_df |> dplyr::group_by(dplyr::across({{plot_by}}))
     if (identical(plot_by, ".vary_params")) {
       plot_by_id <- paste(vary_params, collapse = "_")
     } else {
@@ -364,7 +364,7 @@ plot_eval_constructor <- function(eval_results = NULL, eval_names = NULL,
         do.call(
           ggplot2::geom_violin,
           args = c(
-            list(data = plt_df %>%
+            list(data = plt_df |>
                    tidyr::unnest(tidyselect::all_of(y_boxplot_str)),
                  mapping = violin_aes),
             violin_args
@@ -386,7 +386,7 @@ plot_eval_constructor <- function(eval_results = NULL, eval_names = NULL,
         do.call(
           ggplot2::geom_boxplot,
           args = c(
-            list(data = plt_df %>%
+            list(data = plt_df |>
                    tidyr::unnest(tidyselect::all_of(y_boxplot_str)),
                  mapping = boxplot_aes),
             boxplot_args
@@ -536,8 +536,8 @@ plot_eval_constructor <- function(eval_results = NULL, eval_names = NULL,
 #'
 #' # function to plot scatter plot of y vs predictions
 #' plot_fun <- function(fit_results, vary_params = NULL) {
-#'   plt <- fit_results %>%
-#'     tidyr::unnest(c("y", "predictions")) %>%
+#'   plt <- fit_results |>
+#'     tidyr::unnest(c("y", "predictions")) |>
 #'     ggplot2::ggplot() +
 #'     ggplot2::aes(x = y, y = predictions) +
 #'     ggplot2::geom_point() +
@@ -554,13 +554,15 @@ plot_eval_constructor <- function(eval_results = NULL, eval_names = NULL,
 #' @export
 plot_fit_constructor <- function(fit_results, vary_params = NULL, reps = 1,
                                  plot_fun, interactive = FALSE, ...) {
-  .rep <- NULL  # to fix no visible binding for global variable error
+  # dummies to fix R CMD check note on no visible binding for global variable
+  .rep <- NULL
+
   dots_list <- rlang::list2(...)
   if (identical(dots_list, list())) {
     dots_list <- NULL
   }
-  plt_df <- fit_results %>%
-    dplyr::filter(.rep %in% reps) %>%
+  plt_df <- fit_results |>
+    dplyr::filter(.rep %in% reps) |>
     dplyr::rowwise()
   plt_ls <- dplyr::group_map(plt_df,
                              function(x, key) {
@@ -590,10 +592,10 @@ plot_fit_constructor <- function(fit_results, vary_params = NULL, reps = 1,
         }
         return(paste(param_name, " = ", plt_col))
       }
-    ) %>%
+    ) |>
       purrr::reduce(paste, sep = " // ")
   }
-  names(plt_ls) <- plt_names %>%
+  names(plt_ls) <- plt_names |>
     purrr::reduce(paste, sep = " // ")
 
   if (interactive) {
@@ -749,14 +751,14 @@ get_dot_args <- function(user_args, default_args) {
 #'                                     "abc",
 #'                                     123))
 #' # verbatim = TRUE pastes lists together verbatim
-#' plot_tib_chr_verbatim <- plot_tib %>%
+#' plot_tib_chr_verbatim <- plot_tib |>
 #'   dplyr::mutate(dplyr::across(tidyselect::everything(),
 #'                               ~list_col_to_chr(.x,
 #'                                                name = dplyr::cur_column(),
 #'                                                verbatim = TRUE)))
 #'
 #' # verbatim = FALSE maps items in list to unique ids (i.e., 1, 2, 3, ...)
-#' plot_tib_chr <- plot_tib %>%
+#' plot_tib_chr <- plot_tib |>
 #'   dplyr::mutate(dplyr::across(tidyselect::everything(),
 #'                               ~list_col_to_chr(.x,
 #'                                                name = dplyr::cur_column(),

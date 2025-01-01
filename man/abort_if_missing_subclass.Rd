@@ -17,6 +17,8 @@ abort_if_missing_subclass(
 \arguments{
 \item{obj}{The object to check for \code{subclass}.}
 
+\item{subclass}{The subclass that \code{obj} is expected to have.}
+
 \item{cause_string}{Why the action was invalid.}
 
 \item{hint_string}{An optional hint to fix the error.}
@@ -26,8 +28,6 @@ perspective. Default is \code{rlang::caller_env()}, which gives the environment
 attached to the function that called this signal function.}
 
 \item{...}{Passed to \code{simChef::abort()}.}
-
-\item{sublcass}{The subclass that \code{obj} is expected to have.}
 }
 \description{
 Check an object for a subclass and signal an error if the subclass is
