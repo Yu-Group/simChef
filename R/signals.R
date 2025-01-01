@@ -78,7 +78,7 @@ abort_on_invalid_user_action <- function(cause_string,
 #'
 #' @inheritParams abort_on_invalid_user_action
 #' @param obj The object to check for `subclass`.
-#' @param sublcass The subclass that `obj` is expected to have.
+#' @param subclass The subclass that `obj` is expected to have.
 #'
 #' @keywords internal
 abort_if_missing_subclass <- function(obj,

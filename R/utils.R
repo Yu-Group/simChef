@@ -98,7 +98,7 @@ list_to_tibble <- function(lst) {
 #' @description Simplify or unlist list columns in tibble if each element in
 #'   the list is a scalar value.
 #'
-#' @param tib `tibble::tibble` to simplify.
+#' @param tbl `tibble::tibble` to simplify.
 #' @param empty_as_na If TRUE (default), 0-length values will be treated as NA.
 #'
 #' @return A tibble that has been "simplified".
