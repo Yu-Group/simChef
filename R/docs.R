@@ -223,10 +223,6 @@ render_docs <- function(experiment, save_dir, write_rmd = FALSE,
 
   output_format_type <- rlang::call_name(rlang::enexpr(output_format))
   use_vmodern <- output_format_type == "vmodern"
-  if (use_vmodern) {
-    rlang::check_installed("htmltools",
-                           reason = "to run `render_docs(output_format = vthemes::vmodern(), ...)`")
-  }
 
   if (write_rmd) {
     rlang::check_installed("ymlthis",

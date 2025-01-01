@@ -498,3 +498,39 @@ check_results_names <- function(names, method_name) {
   }
   return(names)
 }
+
+
+#' Mark Characters as HTML
+#'
+#' @description Marks the given text as HTML, which means the tag functions will
+#'   know not to perform HTML escaping on it. Copy of \code{htmltools::HTML()}.
+#'
+#' @param text The text value to mark with HTML
+#' @param ... Any additional values to be converted to character and
+#'   concatenated together
+#' @param .noWS Character vector used to omit some of the whitespace that would
+#'   normally be written around this HTML. Valid options include `before`,
+#'   `after`, and `outside` (equivalent to `before` and `end`).
+#'
+#' @returns The input `text`, but marked as HTML.
+#' @keywords internal
+HTML <- function(text, ..., .noWS = NULL) {
+  htmlText <- c(text, as.character(rlang::dots_list(...)))
+
+  paste8 <- function (..., sep = " ", collapse = NULL) {
+    args <- c(
+      lapply(list(...), enc2utf8),
+      list(
+        sep = if (is.null(sep)) sep else enc2utf8(sep),
+        collapse = if (is.null(collapse)) collapse else enc2utf8(collapse)
+      )
+    )
+    return(do.call(paste, args))
+  }
+
+  htmlText <- paste8(htmlText, collapse = " ")
+  attr(htmlText, "html") <- TRUE
+  attr(htmlText, "noWS") <- .noWS
+  class(htmlText) <- c("html", "character")
+  return(htmlText)
+}

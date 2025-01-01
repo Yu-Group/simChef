@@ -682,7 +682,7 @@ if (params$write) {
   }
 } else {
   if (params$use_vmodern) {
-    htmltools::HTML('<script src="js/simchefNavClass.js"></script>\n\n<link rel="stylesheet" href="css/simchef.css">')
+    HTML('<script src="js/simchefNavClass.js"></script>\n\n<link rel="stylesheet" href="css/simchef.css">')
   }
 }
 ```

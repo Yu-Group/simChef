@@ -46,7 +46,6 @@ Suggests:
     ggplot2,
     glmnet,
     here,
-    htmltools,
     lobstr,
     MASS,
     plotly,
