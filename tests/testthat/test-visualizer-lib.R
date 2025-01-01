@@ -388,8 +388,8 @@ test_that("Functions in Visualizer utilities library work properly", {
   vdiffr::expect_doppelganger("plot_eval_constructor1", plt)
 
   ## plot_eval_constructor with vector vary_param and grouped variables
-  eval_results[["Prediction Errors"]] <- eval_results[["Prediction Errors"]] %>%
-    dplyr::mutate(vary_param = list(1:2)) %>%
+  eval_results[["Prediction Errors"]] <- eval_results[["Prediction Errors"]] |>
+    dplyr::mutate(vary_param = list(1:2)) |>
     dplyr::group_by(.dgp_name, vary_param)
   expect_error(
     plot_eval_constructor(plot_data = eval_results[["Prediction Errors"]],
@@ -402,8 +402,8 @@ test_that("Functions in Visualizer utilities library work properly", {
 
   ## plot_fit_constructor
   plot_fun <- function(fit_results, vary_params = NULL) {
-    plt <- fit_results %>%
-      tidyr::unnest(c("y", "predictions")) %>%
+    plt <- fit_results |>
+      tidyr::unnest(c("y", "predictions")) |>
       ggplot2::ggplot() +
       ggplot2::aes(x = y, y = predictions) +
       ggplot2::geom_point() +

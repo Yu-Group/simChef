@@ -34,7 +34,7 @@ test_that("Functions in Evaluator prediction library work properly", {
   expect_equal(unique(eval_results$.method_name), methods)
   expect_equal(unique(eval_results$.metric), metrics)
   expect_equal(
-    eval_results %>% dplyr::filter(.metric == "rsq"),
+    eval_results |> dplyr::filter(.metric == "rsq"),
     tibble::tibble(
       .rep = rep(reps, times = 2),
       .dgp_name = rep(dgps, each = 2),
@@ -55,7 +55,7 @@ test_that("Functions in Evaluator prediction library work properly", {
   expect_equal(unique(eval_results_summary$.method_name), methods)
   expect_equal(unique(eval_results_summary$.metric), metrics_sorted)
   expect_equal(
-    eval_results_summary %>% dplyr::group_keys(),
+    eval_results_summary |> dplyr::group_keys(),
     tibble::tibble(
       .dgp_name = rep(dgps, each = 3),
       .method_name = methods,
@@ -63,7 +63,7 @@ test_that("Functions in Evaluator prediction library work properly", {
     )
   )
   expect_equal(
-    eval_results_summary %>% dplyr::filter(.metric == "rsq") %>% dplyr::ungroup(),
+    eval_results_summary |> dplyr::filter(.metric == "rsq") |> dplyr::ungroup(),
     tibble::tibble(
       .dgp_name = dgps,
       .method_name = methods,
@@ -81,7 +81,7 @@ test_that("Functions in Evaluator prediction library work properly", {
   eval_results_na <- eval_pred_err(fit_results_reg,
                                    truth_col = "y",
                                    estimate_col = "predictions",
-                                   na_rm = TRUE) %>%
+                                   na_rm = TRUE) |>
     dplyr::filter(.metric == "num_na")
   expect_true(all(eval_results_na$.estimate == 0))
 
@@ -103,7 +103,7 @@ test_that("Functions in Evaluator prediction library work properly", {
   expect_equal(unique(eval_results$.metric), metrics)
   expect_equal(unique(eval_results$.group), groups)
   expect_equal(
-    eval_results %>% dplyr::filter(.metric == "rsq"),
+    eval_results |> dplyr::filter(.metric == "rsq"),
     tibble::tibble(
       .rep = rep(rep(reps, each = 2), times = 2),
       .dgp_name = rep(dgps, each = 4),
@@ -126,7 +126,7 @@ test_that("Functions in Evaluator prediction library work properly", {
   expect_equal(unique(eval_results_summary$.metric), metrics_sorted)
   expect_equal(unique(eval_results$.group), groups)
   expect_equal(
-    eval_results_summary %>% dplyr::group_keys(),
+    eval_results_summary |> dplyr::group_keys(),
     tibble::tibble(
       .dgp_name = rep(dgps, each = 6),
       .method_name = methods,
@@ -135,7 +135,7 @@ test_that("Functions in Evaluator prediction library work properly", {
     )
   )
   expect_equal(
-    eval_results_summary %>% dplyr::filter(.metric == "rsq") %>% dplyr::ungroup(),
+    eval_results_summary |> dplyr::filter(.metric == "rsq") |> dplyr::ungroup(),
     tibble::tibble(
       .dgp_name = rep(dgps, each = 2),
       .method_name = methods,
@@ -155,7 +155,7 @@ test_that("Functions in Evaluator prediction library work properly", {
                                    truth_col = "y",
                                    estimate_col = "predictions",
                                    group_cols = ".group",
-                                   na_rm = TRUE) %>%
+                                   na_rm = TRUE) |>
     dplyr::filter(.metric == "num_na")
   expect_true(all(eval_results_na$.estimate == 0))
   expect_equal(nrow(eval_results_na), max(table(eval_results$.metric)))
@@ -174,12 +174,12 @@ test_that("Functions in Evaluator prediction library work properly", {
 
   expect_equal(
     eval_results,
-    eval_results_orig %>% dplyr::filter(.metric %in% metrics)
+    eval_results_orig |> dplyr::filter(.metric %in% metrics)
   )
 
   expect_equal(
     eval_results_summary,
-    eval_results_summary_orig %>% dplyr::filter(.metric %in% metrics)
+    eval_results_summary_orig |> dplyr::filter(.metric %in% metrics)
   )
 
   # test summarize_pred_err with custom_summary_funs
@@ -194,7 +194,7 @@ test_that("Functions in Evaluator prediction library work properly", {
     dim(eval_results_summary),
     c(nrow(eval_results_summary_orig), ncol(eval_results_summary_orig) + 1)
   )
-  expect_equal(eval_results_summary %>% dplyr::select(-range_pred_err),
+  expect_equal(eval_results_summary |> dplyr::select(-range_pred_err),
                eval_results_summary_orig)
   expect_equal(round(eval_results_summary$range_pred_err, 2),
                rep(c(50.5, 58.17, 0), times = 2))
@@ -231,7 +231,7 @@ test_that("Functions in Evaluator prediction library work properly", {
   expect_equal(unique(eval_results$.method_name), methods)
   expect_equal(unique(eval_results$.metric), metrics)
   expect_equal(
-    eval_results %>% dplyr::filter(.metric == "roc_auc"),
+    eval_results |> dplyr::filter(.metric == "roc_auc"),
     tibble::tibble(
       .rep = rep(reps, times = 2),
       .dgp_name = rep(dgps, each = 2),
@@ -252,7 +252,7 @@ test_that("Functions in Evaluator prediction library work properly", {
   expect_equal(unique(eval_results_summary$.method_name), methods)
   expect_equal(unique(eval_results_summary$.metric), metrics_sorted)
   expect_equal(
-    eval_results_summary %>% dplyr::group_keys(),
+    eval_results_summary |> dplyr::group_keys(),
     tibble::tibble(
       .dgp_name = rep(dgps, each = 4),
       .method_name = methods,
@@ -260,7 +260,7 @@ test_that("Functions in Evaluator prediction library work properly", {
     )
   )
   expect_equal(
-    eval_results_summary %>% dplyr::filter(.metric == "roc_auc") %>% dplyr::ungroup(),
+    eval_results_summary |> dplyr::filter(.metric == "roc_auc") |> dplyr::ungroup(),
     tibble::tibble(
       .dgp_name = dgps,
       .method_name = methods,
@@ -283,12 +283,12 @@ test_that("Functions in Evaluator prediction library work properly", {
 
   expect_equal(
     eval_results,
-    eval_results_orig %>% dplyr::filter(.metric %in% c("accuracy", "kap"))
+    eval_results_orig |> dplyr::filter(.metric %in% c("accuracy", "kap"))
   )
 
   expect_equal(
     eval_results_summary,
-    eval_results_summary_orig %>% dplyr::filter(.metric %in% c("accuracy", "kap"))
+    eval_results_summary_orig |> dplyr::filter(.metric %in% c("accuracy", "kap"))
   )
 
   ## eval_pred_err / summarize_pred_err - multi-class classification
@@ -322,14 +322,14 @@ test_that("Functions in Evaluator prediction library work properly", {
 
   expect_true(tibble::is_tibble(eval_results))
   expect_equal(dim(eval_results), dim(eval_results_orig))
-  expect_equal(eval_results %>% dplyr::select(-.estimate),
-               eval_results_orig %>% dplyr::select(-.estimate))
-  true_auroc <- fit_results_class[1, ] %>%
-    tidyr::unnest(c(y, predictions, a, b, c)) %>%
-    yardstick::roc_auc(truth = y, a, b, c) %>%
+  expect_equal(eval_results |> dplyr::select(-.estimate),
+               eval_results_orig |> dplyr::select(-.estimate))
+  true_auroc <- fit_results_class[1, ] |>
+    tidyr::unnest(c(y, predictions, a, b, c)) |>
+    yardstick::roc_auc(truth = y, a, b, c) |>
     dplyr::pull(.estimate)
   expect_equal(
-    eval_results %>% dplyr::filter(.metric == "roc_auc"),
+    eval_results |> dplyr::filter(.metric == "roc_auc"),
     tibble::tibble(
       .rep = rep(reps, times = 2),
       .dgp_name = rep(dgps, each = 2),
@@ -346,17 +346,17 @@ test_that("Functions in Evaluator prediction library work properly", {
     colnames(eval_results_summary_orig)
   )
   expect_equal(
-    eval_results_summary %>% dplyr::select(.dgp_name, .method_name, .metric),
-    eval_results_summary_orig %>% dplyr::select(.dgp_name, .method_name, .metric)
+    eval_results_summary |> dplyr::select(.dgp_name, .method_name, .metric),
+    eval_results_summary_orig |> dplyr::select(.dgp_name, .method_name, .metric)
   )
 
   expect_equal(
-    eval_results_summary %>% dplyr::group_keys(),
-    eval_results_summary_orig %>% dplyr::group_keys()
+    eval_results_summary |> dplyr::group_keys(),
+    eval_results_summary_orig |> dplyr::group_keys()
   )
   expect_equal(
-    eval_results_summary %>%
-      dplyr::filter(.metric == "roc_auc") %>%
+    eval_results_summary |>
+      dplyr::filter(.metric == "roc_auc") |>
       dplyr::ungroup(),
     tibble::tibble(
       .dgp_name = dgps,
@@ -382,12 +382,12 @@ test_that("Functions in Evaluator prediction library work properly", {
                                              estimate_col = "predictions")
   expect_equal(
     eval_results,
-    eval_results_orig %>% dplyr::filter(.metric %in% c("accuracy", "kap"))
+    eval_results_orig |> dplyr::filter(.metric %in% c("accuracy", "kap"))
   )
 
   expect_equal(
     eval_results_summary,
-    eval_results_summary_orig %>% dplyr::filter(.metric %in% c("accuracy", "kap"))
+    eval_results_summary_orig |> dplyr::filter(.metric %in% c("accuracy", "kap"))
   )
 
   ## eval_pred_curve / summarize_pred_curve - binary classification
@@ -403,7 +403,7 @@ test_that("Functions in Evaluator prediction library work properly", {
   expect_true(tibble::is_tibble(roc_results))
   expect_equal(dim(roc_results), c(4, 4))
   expect_equal(
-    roc_results %>% dplyr::select(-curve_estimate),
+    roc_results |> dplyr::select(-curve_estimate),
     tibble::tibble(
       .rep = rep(reps, times = 2),
       .dgp_name = rep(dgps, each = 2),
@@ -417,8 +417,8 @@ test_that("Functions in Evaluator prediction library work properly", {
   expect_true(tibble::is_tibble(pr_results))
   expect_equal(dim(pr_results), c(4, 4))
   expect_equal(
-    pr_results %>% dplyr::select(-curve_estimate),
-    roc_results %>% dplyr::select(-curve_estimate)
+    pr_results |> dplyr::select(-curve_estimate),
+    roc_results |> dplyr::select(-curve_estimate)
   )
   expect_equal(dim(pr_results$curve_estimate[[1]]), c(101, 3))
   expect_equal(colnames(pr_results$curve_estimate[[1]]),
@@ -435,7 +435,7 @@ test_that("Functions in Evaluator prediction library work properly", {
   expect_equal(unique(roc_summary$.method_name), methods)
   expect_equal(unique(roc_summary$FPR), seq(0, 1, by = 0.01))
   expect_equal(
-    roc_summary %>% dplyr::group_keys(),
+    roc_summary |> dplyr::group_keys(),
     tibble::tibble(
       .dgp_name = rep(dgps, each = 101),
       .method_name = methods,
@@ -443,7 +443,7 @@ test_that("Functions in Evaluator prediction library work properly", {
     )
   )
   expect_equal(
-    roc_summary[1, ] %>% dplyr::ungroup(),
+    roc_summary[1, ] |> dplyr::ungroup(),
     tibble::tibble(
       .dgp_name = dgps[1],
       .method_name = methods,
@@ -468,7 +468,7 @@ test_that("Functions in Evaluator prediction library work properly", {
   expect_equal(unique(pr_summary$.method_name), methods)
   expect_equal(unique(pr_summary$recall), seq(0, 1, by = 0.01))
   expect_equal(
-    pr_summary %>% dplyr::group_keys(),
+    pr_summary |> dplyr::group_keys(),
     tibble::tibble(
       .dgp_name = rep(dgps, each = 101),
       .method_name = methods,
@@ -476,7 +476,7 @@ test_that("Functions in Evaluator prediction library work properly", {
     )
   )
   expect_equal(
-    pr_summary[1, ] %>% dplyr::ungroup(),
+    pr_summary[1, ] |> dplyr::ungroup(),
     tibble::tibble(
       .dgp_name = dgps[1],
       .method_name = methods,
@@ -511,8 +511,8 @@ test_that("Functions in Evaluator prediction library work properly", {
   expect_true(tibble::is_tibble(roc_results))
   expect_equal(dim(roc_results), dim(roc_results_orig))
   expect_equal(
-    roc_results %>% dplyr::select(-curve_estimate),
-    roc_results_orig %>% dplyr::select(-curve_estimate)
+    roc_results |> dplyr::select(-curve_estimate),
+    roc_results_orig |> dplyr::select(-curve_estimate)
   )
   expect_equal(dim(roc_results$curve_estimate[[1]]), c(19, 4))
   expect_equal(colnames(roc_results$curve_estimate[[1]]),
@@ -521,8 +521,8 @@ test_that("Functions in Evaluator prediction library work properly", {
   expect_true(tibble::is_tibble(pr_results))
   expect_equal(dim(pr_results), dim(pr_results_orig))
   expect_equal(
-    pr_results %>% dplyr::select(-curve_estimate),
-    roc_results %>% dplyr::select(-curve_estimate)
+    pr_results |> dplyr::select(-curve_estimate),
+    roc_results |> dplyr::select(-curve_estimate)
   )
   expect_equal(dim(pr_results$curve_estimate[[1]]), c(16, 4))
   expect_equal(colnames(pr_results$curve_estimate[[1]]),
@@ -532,24 +532,24 @@ test_that("Functions in Evaluator prediction library work properly", {
   expect_equal(dim(roc_summary), c(202, 9))
   expect_equal(colnames(roc_summary), colnames(roc_summary_orig))
   expect_equal(
-    roc_summary %>% dplyr::select(.dgp_name, .method_name, FPR),
-    roc_summary_orig %>% dplyr::select(.dgp_name, .method_name, FPR)
+    roc_summary |> dplyr::select(.dgp_name, .method_name, FPR),
+    roc_summary_orig |> dplyr::select(.dgp_name, .method_name, FPR)
   )
   expect_equal(
-    roc_summary %>% dplyr::group_keys(),
-    roc_summary_orig %>% dplyr::group_keys()
+    roc_summary |> dplyr::group_keys(),
+    roc_summary_orig |> dplyr::group_keys()
   )
 
   expect_true(tibble::is_tibble(pr_summary))
   expect_equal(dim(roc_summary), dim(pr_summary))
   expect_equal(colnames(pr_summary), colnames(pr_summary_orig))
   expect_equal(
-    pr_summary %>% dplyr::select(.dgp_name, .method_name, recall),
-    pr_summary_orig %>% dplyr::select(.dgp_name, .method_name, recall)
+    pr_summary |> dplyr::select(.dgp_name, .method_name, recall),
+    pr_summary_orig |> dplyr::select(.dgp_name, .method_name, recall)
   )
   expect_equal(
-    pr_summary %>% dplyr::group_keys(),
-    pr_summary_orig %>% dplyr::group_keys()
+    pr_summary |> dplyr::group_keys(),
+    pr_summary_orig |> dplyr::group_keys()
   )
 })
 
@@ -604,7 +604,7 @@ test_that("Functions in Evaluator feature selection library work properly", {
   expect_equal(unique(eval_results$.method_name), methods)
   expect_equal(unique(eval_results$.metric), metrics)
   expect_equal(
-    eval_results %>% dplyr::filter(.metric == "ppv"),
+    eval_results |> dplyr::filter(.metric == "ppv"),
     tibble::tibble(
       .rep = rep(reps, times = 2),
       .dgp_name = rep(dgps, each = 2),
@@ -625,7 +625,7 @@ test_that("Functions in Evaluator feature selection library work properly", {
   expect_equal(unique(eval_results_summary$.method_name), methods)
   expect_equal(unique(eval_results_summary$.metric), metrics_sorted)
   expect_equal(
-    eval_results_summary %>% dplyr::group_keys(),
+    eval_results_summary |> dplyr::group_keys(),
     tibble::tibble(
       .dgp_name = rep(dgps, each = length(metrics)),
       .method_name = methods,
@@ -633,7 +633,7 @@ test_that("Functions in Evaluator feature selection library work properly", {
     )
   )
   expect_equal(
-    eval_results_summary %>% dplyr::filter(.metric == "ppv") %>% dplyr::ungroup(),
+    eval_results_summary |> dplyr::filter(.metric == "ppv") |> dplyr::ungroup(),
     tibble::tibble(
       .dgp_name = dgps,
       .method_name = methods,
@@ -668,11 +668,11 @@ test_that("Functions in Evaluator feature selection library work properly", {
 
   expect_equal(
     eval_results,
-    eval_results_orig %>% dplyr::filter(.metric %in% metrics)
+    eval_results_orig |> dplyr::filter(.metric %in% metrics)
   )
   expect_equal(
     eval_results_summary,
-    eval_results_summary_orig %>% dplyr::filter(.metric %in% metrics)
+    eval_results_summary_orig |> dplyr::filter(.metric %in% metrics)
   )
 
   range_fun <- function(x) return(max(x) - min(x))
@@ -689,7 +689,7 @@ test_that("Functions in Evaluator feature selection library work properly", {
     dim(eval_results_summary),
     c(nrow(eval_results_summary_orig), ncol(eval_results_summary_orig) + 1)
   )
-  expect_equal(eval_results_summary %>% dplyr::select(-range_feature_selection),
+  expect_equal(eval_results_summary |> dplyr::select(-range_feature_selection),
                eval_results_summary_orig)
 
   # test with na_rm = TRUE and group argument
@@ -700,7 +700,7 @@ test_that("Functions in Evaluator feature selection library work properly", {
     estimate_col = "est_support",
     imp_col = "est_importance",
     na_rm = TRUE
-  ) %>%
+  ) |>
     dplyr::filter(.metric == "num_na")
   expect_true(all(eval_results_na$.estimate == 0))
 
@@ -738,7 +738,7 @@ test_that("Functions in Evaluator feature selection library work properly", {
   expect_true(tibble::is_tibble(roc_results))
   expect_equal(dim(roc_results), c(4, 4))
   expect_equal(
-    roc_results %>% dplyr::select(-curve_estimate),
+    roc_results |> dplyr::select(-curve_estimate),
     tibble::tibble(
       .rep = rep(reps, times = 2),
       .dgp_name = rep(dgps, each = 2),
@@ -758,8 +758,8 @@ test_that("Functions in Evaluator feature selection library work properly", {
   expect_true(tibble::is_tibble(pr_results))
   expect_equal(dim(pr_results), c(4, 4))
   expect_equal(
-    pr_results %>% dplyr::select(-curve_estimate),
-    roc_results %>% dplyr::select(-curve_estimate)
+    pr_results |> dplyr::select(-curve_estimate),
+    roc_results |> dplyr::select(-curve_estimate)
   )
   expect_equal(
     pr_results$curve_estimate[[1]],
@@ -782,7 +782,7 @@ test_that("Functions in Evaluator feature selection library work properly", {
   expect_equal(unique(roc_summary$.method_name), methods)
   expect_equal(unique(roc_summary$FPR), seq(0, 1, by = 0.01))
   expect_equal(
-    roc_summary %>% dplyr::group_keys(),
+    roc_summary |> dplyr::group_keys(),
     tibble::tibble(
       .dgp_name = rep(dgps, each = 101),
       .method_name = methods,
@@ -801,7 +801,7 @@ test_that("Functions in Evaluator feature selection library work properly", {
   expect_equal(unique(pr_summary$.method_name), methods)
   expect_equal(unique(pr_summary$recall), seq(0, 1, by = 0.01))
   expect_equal(
-    pr_summary %>% dplyr::group_keys(),
+    pr_summary |> dplyr::group_keys(),
     tibble::tibble(
       .dgp_name = rep(dgps, each = 101),
       .method_name = methods,
@@ -842,7 +842,7 @@ test_that("Functions in Evaluator feature selection library work properly", {
   )
 
   expect_equal(
-    eval_results_summary %>% dplyr::group_keys(),
+    eval_results_summary |> dplyr::group_keys(),
     tibble::tibble(
       .dgp_name = rep(dgps, each = 3),
       .method_name = methods,
@@ -850,7 +850,7 @@ test_that("Functions in Evaluator feature selection library work properly", {
     )
   )
   expect_equal(
-    eval_results_summary %>% dplyr::ungroup(),
+    eval_results_summary |> dplyr::ungroup(),
     tibble::tibble(
       .dgp_name = rep(dgps, each = 3),
       .method_name = methods,
@@ -921,7 +921,7 @@ test_that("Functions in Evaluator inference library work properly", {
   expect_equal(unique(eval_results$.alpha), 0.05)
   expect_equal(unique(eval_results$.metric), metrics)
   expect_equal(
-    eval_results %>% dplyr::filter(.metric == "ppv"),
+    eval_results |> dplyr::filter(.metric == "ppv"),
     tibble::tibble(
       .rep = rep(reps, times = 2),
       .dgp_name = rep(dgps, each = 2),
@@ -943,7 +943,7 @@ test_that("Functions in Evaluator inference library work properly", {
   expect_equal(unique(eval_results_summary$.method_name), methods)
   expect_equal(unique(eval_results_summary$.metric), metrics_sorted)
   expect_equal(
-    eval_results_summary %>% dplyr::group_keys(),
+    eval_results_summary |> dplyr::group_keys(),
     tibble::tibble(
       .dgp_name = rep(dgps, each = length(metrics)),
       .method_name = methods,
@@ -952,7 +952,7 @@ test_that("Functions in Evaluator inference library work properly", {
     )
   )
   expect_equal(
-    eval_results_summary %>% dplyr::filter(.metric == "ppv") %>% dplyr::ungroup(),
+    eval_results_summary |> dplyr::filter(.metric == "ppv") |> dplyr::ungroup(),
     tibble::tibble(
       .dgp_name = dgps,
       .method_name = methods,
@@ -986,11 +986,11 @@ test_that("Functions in Evaluator inference library work properly", {
 
   expect_equal(
     eval_results,
-    eval_results_orig %>% dplyr::filter(.metric %in% metrics)
+    eval_results_orig |> dplyr::filter(.metric %in% metrics)
   )
   expect_equal(
     eval_results_summary,
-    eval_results_summary_orig %>% dplyr::filter(.metric %in% metrics)
+    eval_results_summary_orig |> dplyr::filter(.metric %in% metrics)
   )
 
   eval_results <- eval_testing_err(
@@ -1011,14 +1011,14 @@ test_that("Functions in Evaluator inference library work properly", {
   expect_equal(unique(eval_results$.alpha), c(0.05, 0.1))
   expect_equal(nrow(eval_results), nrow(eval_results_orig) * 2)
   expect_equal(
-    eval_results %>% dplyr::filter(.alpha == 0.05),
+    eval_results |> dplyr::filter(.alpha == 0.05),
     eval_results_orig
   )
 
   expect_equal(unique(eval_results_summary$.alpha), c(0.05, 0.1))
   expect_equal(nrow(eval_results_summary), nrow(eval_results_summary_orig) * 2)
   expect_equal(
-    eval_results_summary %>% dplyr::filter(.alpha == 0.05),
+    eval_results_summary |> dplyr::filter(.alpha == 0.05),
     eval_results_summary_orig
   )
 
@@ -1035,7 +1035,7 @@ test_that("Functions in Evaluator inference library work properly", {
     dim(eval_results_summary),
     c(nrow(eval_results_summary_orig), ncol(eval_results_summary_orig) + 1)
   )
-  expect_equal(eval_results_summary %>% dplyr::select(-range_testing_err),
+  expect_equal(eval_results_summary |> dplyr::select(-range_testing_err),
                eval_results_summary_orig)
 
   # test with na_rm = TRUE and group argument
@@ -1045,7 +1045,7 @@ test_that("Functions in Evaluator inference library work properly", {
     truth_col = "true_support",
     pval_col = "pval",
     na_rm = TRUE
-  ) %>%
+  ) |>
     dplyr::filter(.metric == "num_na")
   expect_true(all(eval_results_na$.estimate == 0))
 
@@ -1082,7 +1082,7 @@ test_that("Functions in Evaluator inference library work properly", {
   expect_true(tibble::is_tibble(roc_results))
   expect_equal(dim(roc_results), c(4, 4))
   expect_equal(
-    roc_results %>% dplyr::select(-curve_estimate),
+    roc_results |> dplyr::select(-curve_estimate),
     tibble::tibble(
       .rep = rep(reps, times = 2),
       .dgp_name = rep(dgps, each = 2),
@@ -1102,8 +1102,8 @@ test_that("Functions in Evaluator inference library work properly", {
   expect_true(tibble::is_tibble(pr_results))
   expect_equal(dim(pr_results), c(4, 4))
   expect_equal(
-    pr_results %>% dplyr::select(-curve_estimate),
-    roc_results %>% dplyr::select(-curve_estimate)
+    pr_results |> dplyr::select(-curve_estimate),
+    roc_results |> dplyr::select(-curve_estimate)
   )
   expect_equal(
     pr_results$curve_estimate[[1]],
@@ -1126,7 +1126,7 @@ test_that("Functions in Evaluator inference library work properly", {
   expect_equal(unique(roc_summary$.method_name), methods)
   expect_equal(unique(roc_summary$FPR), seq(0, 1, by = 0.01))
   expect_equal(
-    roc_summary %>% dplyr::group_keys(),
+    roc_summary |> dplyr::group_keys(),
     tibble::tibble(
       .dgp_name = rep(dgps, each = 101),
       .method_name = methods,
@@ -1145,7 +1145,7 @@ test_that("Functions in Evaluator inference library work properly", {
   expect_equal(unique(pr_summary$.method_name), methods)
   expect_equal(unique(pr_summary$recall), seq(0, 1, by = 0.01))
   expect_equal(
-    pr_summary %>% dplyr::group_keys(),
+    pr_summary |> dplyr::group_keys(),
     tibble::tibble(
       .dgp_name = rep(dgps, each = 101),
       .method_name = methods,
@@ -1176,7 +1176,7 @@ test_that("Functions in Evaluator inference library work properly", {
   )
 
   expect_equal(
-    eval_results %>% dplyr::group_keys(),
+    eval_results |> dplyr::group_keys(),
     tibble::tibble(
       .dgp_name = rep(dgps, each = 3),
       .method_name = methods,
@@ -1184,7 +1184,7 @@ test_that("Functions in Evaluator inference library work properly", {
     )
   )
   expect_equal(
-    eval_results %>% dplyr::ungroup(),
+    eval_results |> dplyr::ungroup(),
     tibble::tibble(
       .dgp_name = rep(dgps, each = 6),
       .method_name = methods,
@@ -1204,7 +1204,7 @@ test_that("Functions in Evaluator utilities library work properly", {
   eval_data <- tibble::tibble(.rep = rep(reps, times = 2),
                               .dgp_name = rep(dgps, each = 2),
                               .method_name = methods,
-                              result = 1:4) %>%
+                              result = 1:4) |>
     dplyr::group_by(.dgp_name, .method_name)
 
   ## eval_summarizer
@@ -1215,7 +1215,7 @@ test_that("Functions in Evaluator utilities library work properly", {
                tibble::tibble(.dgp_name = c("DGP1", "DGP2"),
                               .method_name = "Method"))
   expect_equal(
-    results %>% dplyr::ungroup(),
+    results |> dplyr::ungroup(),
     tibble::tibble(
       .dgp_name = dgps,
       .method_name = methods,
@@ -1235,7 +1235,7 @@ test_that("Functions in Evaluator utilities library work properly", {
                tibble::tibble(.dgp_name = c("DGP1", "DGP2"),
                               .method_name = "Method"))
   expect_equal(
-    results %>% dplyr::ungroup(),
+    results |> dplyr::ungroup(),
     tibble::tibble(
       .dgp_name = dgps,
       .method_name = methods,
@@ -1251,8 +1251,8 @@ test_that("Functions in Evaluator utilities library work properly", {
                tibble::tibble(.dgp_name = c("DGP1", "DGP2"),
                               .method_name = "Method"))
   expect_equal(
-    results %>% dplyr::select(-range),
-    results_orig %>%
+    results |> dplyr::select(-range),
+    results_orig |>
       setNames(c(".dgp_name", ".method_name", "mean", "median", "min", "max", "sd", "raw"))
   )
   expect_equal(results$range, c(1, 1))

@@ -1,4 +1,4 @@
-# pasteMd works properly
+# paste_md works properly
 
     In the Linear Gaussian DGP, we simulate the feature/design matrix $\mathbf{X} \in \mathbb{R}^{n \times p}$ from a normal distribution and the response vector $\mathbf{y} \in \mathbb{R}^n$ from a linear model. Specifically,
     
