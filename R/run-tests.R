@@ -30,9 +30,8 @@ run_tests <- function() {
 
 #' Test simChef Ingredients
 #'
-#' @description `test_sim_dir()` wraps around
-#'   [testthat::test_dir()] to run all dgp-, method-, evaluator-,
-#'   and visualizer-related tests.
+#' @description `test_sim_dir()` wraps around `testthat()` from the `test_dir`
+#'   package to run all dgp-, method-, evaluator-, and visualizer-related tests.
 #'
 #' @details This function only works if the simulation study is set up as an R
 #'   project and if it is run when this R project is active. Additionally, tests
@@ -47,6 +46,11 @@ run_tests <- function() {
 #'
 #' @export
 test_sim_dir <- function() {
+  if (!rlang::is_installed("testthat")) {
+    stop(
+      "The testthat package is required to run tests. Please install it."
+    )
+  }
 
   # set up paths
   path_to_tests <- paste0(usethis::proj_get(), "/tests/testthat")

@@ -7,9 +7,8 @@
 test_sim_dir()
 }
 \description{
-\code{test_sim_dir()} wraps around
-\code{\link[testthat:test_dir]{testthat::test_dir()}} to run all dgp-, method-, evaluator-,
-and visualizer-related tests.
+\code{test_sim_dir()} wraps around \code{testthat()} from the \code{test_dir}
+package to run all dgp-, method-, evaluator-, and visualizer-related tests.
 }
 \details{
 This function only works if the simulation study is set up as an R
