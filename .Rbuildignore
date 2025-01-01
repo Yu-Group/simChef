@@ -10,3 +10,4 @@
 ^man-roxygen
 ^.*\.Rproj$
 ^\.Rproj\.user$
+^CONTRIBUTING\.md$
