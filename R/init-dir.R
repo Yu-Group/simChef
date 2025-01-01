@@ -2,15 +2,14 @@
 #'
 #' @description `create_sim()` initializes a directory for your simulation
 #'   study. It wraps around [usethis::create_project()], as well as
-#'   [usethis::use_git()] and
-#'   [renv::init()].
+#'   [usethis::use_git()] and \code{renv::init()}.
 #'
 #' @param path A `character` specifying the path for your simulation
 #'   directory.
 #' @param init_git A `logical` indicating whether to intialize your
 #'   simulation directory as a git repository.
 #' @param init_renv A `logical` stating whether to initialize `renv` with
-#'   [renv::init()]. Defaults to `FALSE`.
+#'   `init()` from the `renv` package. Defaults to `FALSE`.
 #' @param tests A `logical` indicating whether to generate sub-directories
 #'   for organizing unit tests. Defaults to `TRUE`.
 #' @param hpc A `logical` indicating whether to create sub-directories for
@@ -146,6 +145,11 @@ create_sim <- function(
     if (init_git) usethis::use_git()
 
     ## intialize renv if desired
-    if (init_renv) renv::init()
+    if (init_renv) {
+      if (!rlang::is_installed("renv")) {
+        stop("The renv package is required to initialize renv. Please install it.")
+      }
+      renv::init()
+    }
   }
 }
