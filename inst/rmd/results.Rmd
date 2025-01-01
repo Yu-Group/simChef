@@ -260,7 +260,7 @@ show_recipe <- function(field_name = c(
     recipe <- write(
       sprintf(obj_header, obj_name),
       sprintf(showtype_header, description_label),
-      pasteMd(description_fpath),
+      paste_md(description_fpath),
       old_text = recipe, write_flag = write_flag
     )
 
@@ -696,13 +696,13 @@ if (params$write) {
 if (params$use_vmodern) {
   objectives <- write(
     "\n\n<div class='panel panel-default padded-panel'>\n\n",
-    pasteMd(file.path(doc_dir, "objectives.md")),
+    paste_md(file.path(doc_dir, "objectives.md")),
     "\n\n</div>\n\n",
     write_flag = params$write
   )
 } else {
   objectives <- write(
-    pasteMd(file.path(doc_dir, "objectives.md")),
+    paste_md(file.path(doc_dir, "objectives.md")),
     write_flag = params$write
   )
 }

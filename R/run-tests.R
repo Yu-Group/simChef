@@ -123,7 +123,7 @@ test_sim_dir <- function() {
 #' Load All Simulation Functions in R/
 #'
 #' @description `load_all()` is simulation study counterpart to
-#'   [devtools::load_all()] it loads all of
+#'   \code{devtools::load_all()}. It loads all of
 #'   the functions in the `R/dgp`, `R/method`, `R/eval` and
 #'   `R/viz` directories of the current simulation study.
 #'

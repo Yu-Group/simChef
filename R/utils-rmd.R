@@ -6,7 +6,7 @@
 #'
 #' @references Adapted from <https://stackoverflow.com/questions/56328581/how-to-read-markdown-code-from-a-file-from-an-r-markdown-document>.
 #' @keywords internal
-pasteMd <- function(filename){
+paste_md <- function(filename){
 
   breakFun <- function(x){
     # function to replace empty lines with newline and 
