@@ -29,9 +29,10 @@ create_sim <- function(
   tests = TRUE,
   hpc = FALSE
 ) {
-  if (!rlang::is_installed("usethis")) {
-    stop("The usethis package is required to create a simulation project.")
-  }
+  rlang::check_installed(
+    "usethis",
+    reason = "to create a simulation project with `create_sim()`"
+  )
 
   ## ensure arguments are appropriate
   if (!is.character(path)) {
@@ -149,9 +150,10 @@ create_sim <- function(
 
     ## intialize renv if desired
     if (init_renv) {
-      if (!rlang::is_installed("renv")) {
-        stop("The renv package is required to initialize renv. Please install it.")
-      }
+      rlang::check_installed(
+        "renv",
+        reason = "to initialize renv with `create_sim()`"
+      )
       renv::init()
     }
   }

@@ -12,9 +12,10 @@
 #' @export
 run_tests <- function() {
 
-  if (!rlang::is_installed("usethis")) {
-    stop("The usethis package is required to run tests. Please install it.")
-  }
+  rlang::check_installed(
+    "usethis",
+    reason = "to run tests with `run_tests()`"
+  )
   # construct path to testthat.R
   sim_project_path <- usethis::proj_get()
   testthat_path <- paste(sim_project_path, "tests/testthat.R", sep = "/")
@@ -49,14 +50,10 @@ run_tests <- function() {
 #'
 #' @export
 test_sim_dir <- function() {
-  if (!rlang::is_installed("testthat")) {
-    stop(
-      "The testthat package is required to run tests. Please install it."
-    )
-  }
-  if (!rlang::is_installed("usethis")) {
-    stop("The usethis package is required to run tests. Please install it.")
-  }
+  rlang::check_installed(
+    c("testthat", "usethis"),
+    reason = "to run tests with `test_sim_dir()`"
+  )
 
   # set up paths
   path_to_tests <- paste0(usethis::proj_get(), "/tests/testthat")
