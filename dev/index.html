@@ -282,25 +282,6 @@ While creating our own simulations, we soon found that no existing R package cou
 </ul></details>
 </div>
 <div class="section level2">
-<h2 id="roadmap">Roadmap<a class="anchor" aria-label="anchor" href="#roadmap"></a>
-</h2>
-<ul class="task-list">
-<li><label><input type="checkbox" checked>Implement an abstract API to allow for a grammar of simulation experiments.</label></li>
-<li><label><input type="checkbox" checked>Run experimental replicates in parallel and agnostic to computational backend via the R package <code>future</code>.</label></li>
-<li><label><input type="checkbox" checked>Output an automated R Markdown report summarizing the results of an Experiment.</label></li>
-<li><label><input type="checkbox" checked>Allow for varying simulation experiments across arbitrary parameters of DGPs and Methods.</label></li>
-<li><label><input type="checkbox" checked>Cache results to avoid re-running already computed components of an Experiment.</label></li>
-<li><label><input type="checkbox" checked>Checkpoint simulations to avoid losing progress in the case of unexpected problems, e.g. node failure.</label></li>
-<li><label><input type="checkbox" checked>Gracefully handle errors from user-defined functions and return partial results error information for user to inspect upon completion.</label></li>
-<li><label><input type="checkbox" checked>Incorporate <code>progressr</code> for simulation progress updates.</label></li>
-<li><label><input type="checkbox" checked>Include a set of off-the-shelf DGPs (moved to <a href="https://yu-group.github.io/dgpoix/" class="external-link"><code>dgpoix</code></a>), Evaluators, and Visualizers to allow users to quickly run their methods in a number of common types of simulations.</label></li>
-<li><label><input type="checkbox" checked>Allow for user customization of the final R Markdown report (e.g. a customized R Markdown template/theme, order of Evaluator and Visualizer displays).</label></li>
-<li><label><input type="checkbox">Give user the ability to choose which tasks are distributed to parallel workers, i.e. simulation replicates, DGPs, Methods, or combinations of the three.</label></li>
-<li><label><input type="checkbox">Enable nested parallelization, e.g. one may paralellize across DGPs using multiple nodes on a cluster and parallelize across simulation replicates using the CPU cores within each node.</label></li>
-<li><label><input type="checkbox">Publish to CRAN.</label></li>
-</ul>
-</div>
-<div class="section level2">
 <h2 id="related-r-packages">Related R packages<a class="anchor" aria-label="anchor" href="#related-r-packages"></a>
 </h2>
 <p>Below, we examine the main functionality of a number of existing tools for running reproducible simulation experiments that are currently available on <a href="https://cran.r-project.org/" class="external-link">CRAN</a> and have been updated within the last couple of years.</p>
@@ -318,6 +299,21 @@ While creating our own simulations, we soon found that no existing R package cou
 <li>
 <a href="https://ellessenne.github.io/rsimsum/index.html" class="external-link"><code>rsimsum</code></a> is an R implementation of the Stata command <code>simsum</code> and provides helper functions for summarizing and visualizing the results of a simulation study.</li>
 </ul>
+</div>
+<div class="section level2">
+<h2 id="citing-simchef">Citing <code>simChef</code>
+<a class="anchor" aria-label="anchor" href="#citing-simchef"></a>
+</h2>
+<p>To cite <code>simChef</code> in publications, please use:</p>
+<pre><code>@software{duncan2024simchef,
+  title={simChef: High-quality data science simulations in R},
+  author={Duncan, James and Tang, Tiffany and Elliott, Corrine F and Boileau, Philippe and Yu, Bin},
+  journal={Journal of Open Source Software},
+  volume={9},
+  number={95},
+  pages={6156},
+  year={2024}
+}</code></pre>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="links">

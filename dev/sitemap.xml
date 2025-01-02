@@ -43,7 +43,6 @@
 <url><loc>https://yu-group.github.io/simChef/dev/reference/create_list_args_str.html</loc></url>
 <url><loc>https://yu-group.github.io/simChef/dev/reference/create_method.html</loc></url>
 <url><loc>https://yu-group.github.io/simChef/dev/reference/create_rmd.html</loc></url>
-<url><loc>https://yu-group.github.io/simChef/dev/reference/create_sim.html</loc></url>
 <url><loc>https://yu-group.github.io/simChef/dev/reference/create_visualizer.html</loc></url>
 <url><loc>https://yu-group.github.io/simChef/dev/reference/do_call_handler.html</loc></url>
 <url><loc>https://yu-group.github.io/simChef/dev/reference/eval_constructor.html</loc></url>
@@ -73,6 +72,7 @@
 <url><loc>https://yu-group.github.io/simChef/dev/reference/index.html</loc></url>
 <url><loc>https://yu-group.github.io/simChef/dev/reference/inform.html</loc></url>
 <url><loc>https://yu-group.github.io/simChef/dev/reference/init_docs.html</loc></url>
+<url><loc>https://yu-group.github.io/simChef/dev/reference/init_sim_project.html</loc></url>
 <url><loc>https://yu-group.github.io/simChef/dev/reference/library_templates.html</loc></url>
 <url><loc>https://yu-group.github.io/simChef/dev/reference/list_col_to_chr.html</loc></url>
 <url><loc>https://yu-group.github.io/simChef/dev/reference/list_to_tibble.html</loc></url>

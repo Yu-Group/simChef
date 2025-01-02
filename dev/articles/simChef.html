@@ -79,7 +79,7 @@ grammar</a>. The core features of <code>simChef</code> include:</p>
 <li>Flexible and seamless integration with distributed computation, caching, checkpointing, and debugging tools</li>
 <li>Automated generation of an R Markdown document to easily navigate, visualize, and interpret simulation results (see example <a href="../example_experiment.html">here</a>)</li>
 </ol>
-<p>To highlight the ease of running simulation studies using <code>simChef</code>, we will begin by showcasing a basic example usage in Section <a href="#example-usage">2</a>. Then, in Section <a href="#writing-your-own-simulation-experiment">3</a>, we will provide additional details on how to create your own simulation experiment using <code>simChef</code>.</p>
+<p>To highlight the ease of running simulation studies using <code>simChef</code>, we will begin by showcasing a basic example usage in Section <a href="#example-usage">2</a>. Then, in Section <a href="#writing-your-own-simulation-experiment">4</a>, we will provide additional details on how to create your own simulation experiment using <code>simChef</code>.</p>
 </div>
 <div class="section level2" number="2">
 <h2 id="example-usage">
@@ -245,18 +245,18 @@ grammar</a>. The core features of <code>simChef</code> include:</p>
 <span><span class="co">#&gt;   object 'type_sum.accel' not found</span></span>
 <span><span class="co">#&gt; Fitting Example Experiment...</span></span>
 <span><span class="co">#&gt; Saving fit results...</span></span>
-<span><span class="co">#&gt; Fit results saved | time taken: 0.104074 seconds</span></span>
-<span><span class="co">#&gt; 100 reps completed (totals: 100/100) | time taken: 3.462904 minutes</span></span>
+<span><span class="co">#&gt; Fit results saved | time taken: 0.104239 seconds</span></span>
+<span><span class="co">#&gt; 100 reps completed (totals: 100/100) | time taken: 3.281317 minutes</span></span>
 <span><span class="co">#&gt; ==============================</span></span>
 <span><span class="co">#&gt; Evaluating Example Experiment...</span></span>
-<span><span class="co">#&gt; Evaluation completed | time taken: 0.099457 minutes</span></span>
+<span><span class="co">#&gt; Evaluation completed | time taken: 0.099704 minutes</span></span>
 <span><span class="co">#&gt; Saving eval results...</span></span>
-<span><span class="co">#&gt; Eval results saved | time taken: 0.052876 seconds</span></span>
+<span><span class="co">#&gt; Eval results saved | time taken: 0.057545 seconds</span></span>
 <span><span class="co">#&gt; ==============================</span></span>
 <span><span class="co">#&gt; Visualizing Example Experiment...</span></span>
-<span><span class="co">#&gt; Visualization completed | time taken: 0.001335 minutes</span></span>
+<span><span class="co">#&gt; Visualization completed | time taken: 0.001406 minutes</span></span>
 <span><span class="co">#&gt; Saving viz results...</span></span>
-<span><span class="co">#&gt; Viz results saved | time taken: 0.479121 seconds</span></span>
+<span><span class="co">#&gt; Viz results saved | time taken: 0.473293 seconds</span></span>
 <span><span class="co">#&gt; ==============================</span></span></code></pre></div>
 </div>
 <div class="section level3">
@@ -266,12 +266,43 @@ grammar</a>. The core features of <code>simChef</code> include:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/render_docs.html">render_docs</a></span><span class="op">(</span><span class="va">experiment</span><span class="op">)</span></span></code></pre></div>
 <p>The rendered document corresponding to this simulation example can be found <a href="../example_experiment.html">here</a>, and voila! Simulation example complete!</p>
-<p>In the next section, we will provide additional details necessary for you to create your own simulation experiment.</p>
 </div>
 </div>
 <div class="section level2" number="3">
+<h2 id="simulation-project-workflow">
+<span class="header-section-number">3</span> Simulation project workflow<a class="anchor" aria-label="anchor" href="#simulation-project-workflow"></a>
+</h2>
+<p>For more complex simulation projects (e.g., those with multiple DGPs, methods, evaluators, visualizers, and experiment configurations), it can be helpful to split up your R code into multiple files and to thoughtfully organize your project directory. To facilitate this process, we recommend beginning and quick starting your simulation project with <code><a href="../reference/init_sim_project.html">init_sim_project()</a></code>, which initializes a ready-to-use directory for your <code>simChef</code> simulation project:</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/init_sim_project.html">init_sim_project</a></span><span class="op">(</span>path <span class="op">=</span> <span class="st">"path/to/your/project"</span><span class="op">)</span></span></code></pre></div>
+<p>This will create a project directory with the following structure:</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a>project<span class="sc">/</span></span>
+<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a>├── .git</span>
+<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a>├── .gitignore</span>
+<span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a>├── R           <span class="co"># folder containing general R functions</span></span>
+<span id="cb11-5"><a href="#cb11-5" tabindex="-1"></a>│   ├── dgp     <span class="do">## folder containing dgp functions</span></span>
+<span id="cb11-6"><a href="#cb11-6" tabindex="-1"></a>│   ├── eval    <span class="do">## folder containing evaluation functions</span></span>
+<span id="cb11-7"><a href="#cb11-7" tabindex="-1"></a>│   ├── method  <span class="do">## folder containing method functions</span></span>
+<span id="cb11-8"><a href="#cb11-8" tabindex="-1"></a>│   └── viz     <span class="do">## folder containing visualization functions</span></span>
+<span id="cb11-9"><a href="#cb11-9" tabindex="-1"></a>├── README.md</span>
+<span id="cb11-10"><a href="#cb11-10" tabindex="-1"></a>├── meals       <span class="co"># folder containing scripts to assemble/run simulation experiments</span></span>
+<span id="cb11-11"><a href="#cb11-11" tabindex="-1"></a>│   └── meal.R  <span class="do">## example script to assemble/run a simulation experiment</span></span>
+<span id="cb11-12"><a href="#cb11-12" tabindex="-1"></a>├── renv</span>
+<span id="cb11-13"><a href="#cb11-13" tabindex="-1"></a>├── results     <span class="co"># folder containing results from simulation experiments</span></span>
+<span id="cb11-14"><a href="#cb11-14" tabindex="-1"></a>└── tests       <span class="co"># folder containing test scripts</span></span>
+<span id="cb11-15"><a href="#cb11-15" tabindex="-1"></a>    ├── testthat</span>
+<span id="cb11-16"><a href="#cb11-16" tabindex="-1"></a>    │   ├── dgp<span class="sc">-</span>tests     <span class="do">## folder containing tests for dgp functions</span></span>
+<span id="cb11-17"><a href="#cb11-17" tabindex="-1"></a>    │   ├── eval<span class="sc">-</span>tests    <span class="do">## folder containing tests for evaluation functions</span></span>
+<span id="cb11-18"><a href="#cb11-18" tabindex="-1"></a>    │   ├── method<span class="sc">-</span>tests  <span class="do">## folder containing tests for method functions</span></span>
+<span id="cb11-19"><a href="#cb11-19" tabindex="-1"></a>    │   └── viz<span class="sc">-</span>tests     <span class="do">## folder containing tests for visualization functions</span></span>
+<span id="cb11-20"><a href="#cb11-20" tabindex="-1"></a>    └── testthat.R</span></code></pre></div>
+<p>Using this project directory structure, we recommend placing your DGP, method, evaluation, and visualization functions in the appropriate subdirectories within the <code>R</code> directory to stay modular and organized. Then, to assemble and run your simulation experiment, you can write an executable <em>meal</em> script and store it in the <code>meals</code> directory. To see what this project directory structure may look like in practice for our toy simulation, check out this <a href="https://github.com/tiffanymtang/simChef-project" class="external-link">GitHub repository</a>.</p>
+<p>Moreover, <code><a href="../reference/init_sim_project.html">init_sim_project()</a></code> automatically integrates your simulation project with several major reproducibility and replicability tools, including <code>git</code> (for version control), <code>renv</code> (for management of package dependencies), and <code>testthat</code> (for unit testing). For more information and other best practices to improve reproducibility and replicability of your simulation study, please see the vignette <a href="simulation-directory-setup.html">Setting up your simulation study</a>.</p>
+<p>In the next section, we will provide additional details necessary for you to create your own simulation experiment.</p>
+</div>
+<div class="section level2" number="4">
 <h2 id="writing-your-own-simulation-experiment">
-<span class="header-section-number">3</span> Writing your own simulation experiment<a class="anchor" aria-label="anchor" href="#writing-your-own-simulation-experiment"></a>
+<span class="header-section-number">4</span> Writing your own simulation experiment<a class="anchor" aria-label="anchor" href="#writing-your-own-simulation-experiment"></a>
 </h2>
 <p>When it comes to writing your own simulation experiment using <code>simChef</code>, the main task is writing the necessary DGP, method, evaluation, and visualization functions for the experiment (i.e,. step 1 above).
 Once these functions are appropriately written/specified, <code>simChef</code> takes care of the rest, with steps 2-6 requiring very little effort from the user.</p>
@@ -279,7 +310,7 @@ Once these functions are appropriately written/specified, <code>simChef</code> t
 <div class="section level3">
 <h3 id="overivew-of-running-an-experiment">Overivew of running an experiment<a class="anchor" aria-label="anchor" href="#overivew-of-running-an-experiment"></a>
 </h3>
-<p>At the highest level, running an experiment (via <code><a href="../reference/run_experiment.html">run_experiment()</a></code>) consists of three main steps (see Figure <a href="#fig:run-experiment-figure">3.1</a>):</p>
+<p>At the highest level, running an experiment (via <code><a href="../reference/run_experiment.html">run_experiment()</a></code>) consists of three main steps (see Figure <a href="#fig:run-experiment-figure">4.1</a>):</p>
 <ol style="list-style-type: decimal">
 <li>
 <strong>Fit</strong> each <code>Method</code> on each <code>DGP</code> (and for each of the varying parameter configurations specified in <code>vary_across</code>) via <code><a href="../reference/fit_experiment.html">fit_experiment()</a></code>.</li>
@@ -342,7 +373,7 @@ Once these functions are appropriately written/specified, <code>simChef</code> t
 </li>
 <li>A column corresponding to each named component in the list returned by the <code>Method</code> (e.g., <code>method_out1</code>, <code>method_out2</code>, …)</li>
 </ul>
-<p>We summarize these inputs and outputs in Figure <a href="#fig:fit-experiment-figure">3.2</a>.</p>
+<p>We summarize these inputs and outputs in Figure <a href="#fig:fit-experiment-figure">4.2</a>.</p>
 <div class="float">
 <img src="figures%2Ffit_experiment.png" style="width:100.0%" alt=" Overview of fitting a simChef Experiment. Inputs and outputs for user-defined functions are also provided."><div class="figcaption"> Overview of fitting a <code>simChef</code> <code>Experiment</code>. Inputs and outputs for user-defined functions are also provided.</div>
 </div>
@@ -350,9 +381,9 @@ Once these functions are appropriately written/specified, <code>simChef</code> t
 <div class="section level3">
 <h3 id="evaluating-an-experiment">Evaluating an experiment<a class="anchor" aria-label="anchor" href="#evaluating-an-experiment"></a>
 </h3>
-<p>Next, when evaluating an experiment, the output of <code><a href="../reference/fit_experiment.html">fit_experiment()</a></code> (i.e., <code>fit_results</code> from Figure <a href="#fig:fit-experiment-figure">3.2</a>) as well as a character vector of the <code>vary_across</code> parameter names (i.e., <code>vary_params</code>) are automatically passed to each <code>Evaluator</code> function.
+<p>Next, when evaluating an experiment, the output of <code><a href="../reference/fit_experiment.html">fit_experiment()</a></code> (i.e., <code>fit_results</code> from Figure <a href="#fig:fit-experiment-figure">4.2</a>) as well as a character vector of the <code>vary_across</code> parameter names (i.e., <code>vary_params</code>) are automatically passed to each <code>Evaluator</code> function.
 Typically, an <code>Evaluator</code> takes the <code>fit_results</code> tibble in as input, evaluates some metric(s) on each row or group of rows (e.g., summarizing across replicates), and returns the resulting <code>tibble</code> or <code>data.frame</code>.
-We summarize the relevant inputs and outputs below and in Figure <a href="#fig:eval-experiment-figure">3.3</a>.</p>
+We summarize the relevant inputs and outputs below and in Figure <a href="#fig:eval-experiment-figure">4.3</a>.</p>
 <ul>
 <li>
 <strong>Evaluator inputs</strong>:
@@ -383,7 +414,7 @@ We summarize the relevant inputs and outputs below and in Figure <a href="#fig:e
 </h3>
 <p>In the last step, when visualizing an experiment, the output of <code><a href="../reference/fit_experiment.html">fit_experiment()</a></code> and <code>evaluate_experiment</code> (<code>fit_results</code> and <code>eval_results</code>, respectively) as well as <code>vary_params</code> are automatically passed to each <code>Visualizer</code> function.
 Typically, a <code>Visualizer</code> takes in the <code>fit_results</code> and/or <code>eval_results</code> and constructs a plot to visualize the performance of various methods (perhaps, across the varying parameter specified by <code>vary_params</code>).
-We summarize the relevant inputs and outputs below and in Figure <a href="#fig:viz-experiment-figure">3.4</a>.</p>
+We summarize the relevant inputs and outputs below and in Figure <a href="#fig:viz-experiment-figure">4.4</a>.</p>
 <ul>
 <li>
 <strong>Visualizer inputs</strong>:
@@ -415,7 +446,7 @@ We summarize the relevant inputs and outputs below and in Figure <a href="#fig:v
 <h3 id="putting-it-all-together">Putting it all together<a class="anchor" aria-label="anchor" href="#putting-it-all-together"></a>
 </h3>
 <p>As alluded to previously, once the <code>DGP</code>, <code>Method</code>, <code>Evaluator</code>, and <code>Visualizer</code> functions have been defined, the hard work has been done. For convenience, we provide below a template that can be used to run an experiment, assuming that <code>dgp_fun</code>, <code>method_fun</code>, <code>evaluator_fun</code>, and <code>visualizer_fun</code> have been appropriately defined.</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## Step 2: Create DGP, Method, Evaluator, Visualizer class objects</span></span>
 <span><span class="va">dgp</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/create_dgp.html">create_dgp</a></span><span class="op">(</span></span>
 <span>  .dgp_fun <span class="op">=</span> <span class="va">dgp_fun</span>, .name <span class="op">=</span> <span class="st">"DGP Name"</span>,</span>
@@ -459,9 +490,9 @@ We summarize the relevant inputs and outputs below and in Figure <a href="#fig:v
 <span><span class="fu"><a href="../reference/render_docs.html">render_docs</a></span><span class="op">(</span><span class="va">experiment</span><span class="op">)</span></span></code></pre></div>
 </div>
 </div>
-<div class="section level2" number="4">
+<div class="section level2" number="5">
 <h2 id="additional-resources">
-<span class="header-section-number">4</span> Additional Resources<a class="anchor" aria-label="anchor" href="#additional-resources"></a>
+<span class="header-section-number">5</span> Additional Resources<a class="anchor" aria-label="anchor" href="#additional-resources"></a>
 </h2>
 <p>For more information on <code>simChef</code> and additional features, check out:</p>
 <ul>
