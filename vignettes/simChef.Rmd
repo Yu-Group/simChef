@@ -244,7 +244,7 @@ The rendered document corresponding to this simulation example can be found [her
 
 For more complex simulation projects (e.g., those with multiple DGPs, methods, evaluators, visualizers, and experiment configurations), it can be helpful to split up your R code into multiple files and to thoughtfully organize your project directory. To facilitate this process, we recommend beginning and quick starting your simulation project with `init_sim_project()`, which initializes a ready-to-use directory for your `simChef` simulation project:
 
-```{r init-sim-project}
+```{r init-sim-project, eval = FALSE}
 init_sim_project(path = "path/to/your/project")
 ```
 
