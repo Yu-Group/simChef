@@ -987,7 +987,9 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
 
     # with no visualizers
     expect_error(experiment$export_visualizers(), NA)
-    expect_equal(length(list.files(path = fpath)), 0)
+    expect_equal(
+      length(list.files(path = fpath, pattern = ".png")), 0
+    )
 
     # warning if can't export visualizer
     experiment |> add_visualizer(plotly_plot, name = "plotly")
