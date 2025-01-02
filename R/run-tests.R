@@ -138,5 +138,5 @@ load_all <- function() {
     c("R/dgp", "R/method", "R/eval", "R/viz"),
     pattern = "*.R$", full.names = TRUE, ignore.case = TRUE
   )
-  sapply(sim_functions_files, source)
+  invisible(sapply(sim_functions_files, source))
 }
