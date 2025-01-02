@@ -983,7 +983,7 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
       add_method(method, "Method")
     fit_results <- experiment$fit(verbose = 0)
     eval_results <- experiment$evaluate(fit_results, verbose = 0)
-    fpath <- file.path(experiment$get_save_dir(), "viz_results")
+    fpath <- file.path(experiment$get_save_dir())
 
     # with no visualizers
     expect_error(experiment$export_visualizers(), NA)
@@ -994,7 +994,7 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
     viz_results <- experiment$visualize(fit_results, eval_results,
                                         save = TRUE, verbose = 0)
     expect_warning(experiment |> export_visualizers())
-    expect_equal(length(list.files(path = fpath)), 0)
+    expect_equal(length(list.files(path = fpath, pattern = ".png")), 0)
 
     # with one working visualizer
     experiment |>
@@ -1003,7 +1003,7 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
     viz_results <- experiment$visualize(fit_results, eval_results,
                                         save = TRUE, verbose = 0)
     expect_warning(expect_warning(experiment$export_visualizers()))
-    expect_equal(list.files(path = fpath), "ggplot.pdf")
+    expect_equal(list.files(path = fpath, pattern = ".png"), "ggplot.png")
 
     # using vary across
     experiment |>
@@ -1012,9 +1012,10 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
     expect_warning(expect_warning(experiment$export_visualizers()))
     expect_equal(
       list.files(
-        path = file.path(experiment$get_save_dir(), "DGP", "Varying y", "viz_results")
+        path = file.path(experiment$get_save_dir(), "DGP", "Varying y"),
+        pattern = ".png"
       ),
-      "ggplot.pdf"
+      "ggplot.png"
     )
   })
 
