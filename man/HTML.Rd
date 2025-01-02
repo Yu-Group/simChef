@@ -23,4 +23,3 @@ The input \code{text}, but marked as HTML.
 Marks the given text as HTML, which means the tag functions will
 know not to perform HTML escaping on it. Copy of \code{htmltools::HTML()}.
 }
-\keyword{internal}

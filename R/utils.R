@@ -513,7 +513,7 @@ check_results_names <- function(names, method_name) {
 #'   `after`, and `outside` (equivalent to `before` and `end`).
 #'
 #' @returns The input `text`, but marked as HTML.
-#' @keywords internal
+#' @export
 HTML <- function(text, ..., .noWS = NULL) {
   htmlText <- c(text, as.character(rlang::dots_list(...)))
 

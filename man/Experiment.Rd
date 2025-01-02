@@ -1030,7 +1030,7 @@ Export all cached \code{Visualizer} results from an
 \code{Experiment}'s results directory (see \code{\link[=get_save_dir]{get_save_dir()}}).
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Experiment$export_visualizers(
-  device = "pdf",
+  device = "png",
   width = "auto",
   height = "auto",
   ...

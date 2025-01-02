@@ -2005,7 +2005,7 @@ Experiment <- R6::R6Class(
     #' @param ... Additional arguments to pass to [ggplot2::ggsave()].
     #'
     #' @return The `Experiment` object, invisibly.
-    export_visualizers = function(device = "pdf", width = "auto", height = "auto",
+    export_visualizers = function(device = "png", width = "auto", height = "auto",
                                   ...) {
       rlang::check_installed("ggplot2",
         reason = "to export visualizers to image.")
@@ -2020,7 +2020,6 @@ Experiment <- R6::R6Class(
       } else {
         save_dir <- private$.get_vary_across_dir()
       }
-      save_dir <- file.path(save_dir, "viz_results")
       if (!dir.exists(save_dir)) {
         dir.create(save_dir, recursive = TRUE)
       }
