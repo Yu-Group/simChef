@@ -89,6 +89,8 @@ directory. This root directory is determined via
 <span>  show_viz <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  eval_order <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  viz_order <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  eval_cache <span class="op">=</span> <span class="st">".rds"</span>,</span>
+<span>  viz_cache <span class="op">=</span> <span class="st">".rds"</span>,</span>
 <span>  use_icons <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  quiet <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  verbose <span class="op">=</span> <span class="fl">2</span>,</span>
@@ -172,6 +174,23 @@ in the order that they were computed.</p></dd>
 <dd><p>Vector of <code>Visualizer</code> names in their desired order for
 display. By default, the report will display the <code>Visualizer</code> results
 in the order that they were computed.</p></dd>
+
+
+<dt id="arg-eval-cache">eval_cache<a class="anchor" aria-label="anchor" href="#arg-eval-cache"></a></dt>
+<dd><p>File extension of the cached evaluator results to read in.
+Typically <code>".rds"</code> or <code>"none"</code>, but can be any file extension where
+evaluator results are stored as <code>eval_results.ext</code> and can be read in
+using <code>data.table::fread(eval_results.ext)</code>. If <code>"none"</code>, evaluator results
+are computed using the experiment via <code><a href="evaluate_experiment.html">evaluate_experiment()</a></code>.</p></dd>
+
+
+<dt id="arg-viz-cache">viz_cache<a class="anchor" aria-label="anchor" href="#arg-viz-cache"></a></dt>
+<dd><p>File extension of the cached visualizer results to read in.
+Typically <code>".rds"</code> or <code>"none"</code>, but can be any (image) file extension
+(e.g., <code>"png"</code>, <code>"jpg"</code>) where the visualizer results have been previously
+stored as separate <code>{visualizer_name}.ext</code> images (typically using
+<code><a href="export_visualizers.html">export_visualizers()</a></code>). If <code>"none"</code>, visualizer results are computed using
+the experiment via <code><a href="visualize_experiment.html">visualize_experiment()</a></code>.</p></dd>
 
 
 <dt id="arg-use-icons">use_icons<a class="anchor" aria-label="anchor" href="#arg-use-icons"></a></dt>
