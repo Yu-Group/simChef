@@ -240,6 +240,43 @@ file.copy(from = file.path(experiment$get_save_dir(),
 
 The rendered document corresponding to this simulation example can be found [here](../example_experiment.html), and voila! Simulation example complete!
 
+# Simulation project workflow
+
+For more complex simulation projects (e.g., those with multiple DGPs, methods, evaluators, visualizers, and experiment configurations), it can be helpful to split up your R code into multiple files and to thoughtfully organize your project directory. To facilitate this process, we recommend beginning and quick starting your simulation project with `init_sim_project()`, which initializes a ready-to-use directory for your `simChef` simulation project:
+
+```{r init-sim-project}
+init_sim_project(path = "path/to/your/project")
+```
+
+This will create a project directory with the following structure:
+
+```{r eval = FALSE}
+project/
+├── .git
+├── .gitignore
+├── R           # folder containing general R functions
+│   ├── dgp     ## folder containing dgp functions
+│   ├── eval    ## folder containing evaluation functions
+│   ├── method  ## folder containing method functions
+│   └── viz     ## folder containing visualization functions
+├── README.md
+├── meals       # folder containing scripts to assemble/run simulation experiments
+│   └── meal.R  ## example script to assemble/run a simulation experiment
+├── renv
+├── results     # folder containing results from simulation experiments
+└── tests       # folder containing test scripts
+    ├── testthat
+    │   ├── dgp-tests     ## folder containing tests for dgp functions
+    │   ├── eval-tests    ## folder containing tests for evaluation functions
+    │   ├── method-tests  ## folder containing tests for method functions
+    │   └── viz-tests     ## folder containing tests for visualization functions
+    └── testthat.R
+```
+
+Using this project directory structure, we recommend placing your DGP, method, evaluation, and visualization functions in the appropriate subdirectories within the `R` directory to stay modular and organized. Then, to assemble and run your simulation experiment, you can write an executable *meal* script and store it in the `meals` directory. To see what this project directory structure may look like in practice for our toy simulation, check out this [GitHub repository](https://github.com/tiffanymtang/simChef-project).
+
+Moreover, `init_sim_project()` automatically integrates your simulation project with several major reproducibility and replicability tools, including `git` (for version control), `renv` (for management of package dependencies), and `testthat` (for unit testing). For more information and other best practices to improve reproducibility and replicability of your simulation study, please see the vignette [Setting up your simulation study](simulation-directory-setup.html).
+
 In the next section, we will provide additional details necessary for you to create your own simulation experiment.
 
 # Writing your own simulation experiment
