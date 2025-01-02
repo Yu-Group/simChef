@@ -151,7 +151,7 @@ init_sim_project <- function(
 
   ## activate the project
   if (rlang::is_interactive()) {
-    usethis::proj_activate(path = path)
+    usethis::proj_set(path = path)
 
     ## initialize a git repository if asked
     if (init_git) usethis::use_git()
@@ -162,7 +162,9 @@ init_sim_project <- function(
         "renv",
         reason = "to initialize renv with `init_sim_project()`"
       )
-      renv::init()
+      renv::init(path, bare = TRUE)
     }
+
+    usethis::proj_activate(path = path)
   }
 }
