@@ -29,6 +29,7 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
       add_evaluator(evaluator, "Evaluator") |>
       add_visualizer(visualizer, "Plot")
     results <- base_experiment$run(save = TRUE, verbose = 0)
+    export_visualizers(base_experiment)
 
     child1 <- create_experiment(
       name = "child1",
@@ -36,12 +37,14 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
       save_dir = file.path(base_experiment$get_save_dir(), "child1")
     )
     results <- child1$run(save = TRUE, verbose = 0)
+    export_visualizers(child1)
     child2 <- create_experiment(
       name = "child2",
       clone_from = base_experiment,
       save_dir = file.path(base_experiment$get_save_dir(), "child2")
     )
     results <- child2$run(save = TRUE, verbose = 0)
+    export_visualizers(child2)
 
     grandchild1a <- create_experiment(
       name = "grandchild1a",
@@ -49,6 +52,7 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
       save_dir = file.path(child1$get_save_dir(), "grandchild1a")
     )
     results <- grandchild1a$run(save = TRUE, verbose = 0)
+    export_visualizers(grandchild1a)
 
     grandchild1b <- create_experiment(
       name = "grandchild1b",
@@ -56,6 +60,7 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
       save_dir = file.path(child1$get_save_dir(), "grandchild1b")
     )
     results <- grandchild1b$run(save = TRUE, verbose = 0)
+    export_visualizers(grandchild1b)
 
     grandchild2 <- create_experiment(
       name = "grandchild2",
@@ -63,6 +68,7 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
       save_dir = file.path(child2$get_save_dir(), "grandchild2")
     )
     results <- grandchild2$run(save = TRUE, verbose = 0)
+    export_visualizers(grandchild2)
 
     greatgrandchild2 <- create_experiment(
       name = "greatgrandchild2",
@@ -70,6 +76,7 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
       save_dir = file.path(grandchild2$get_save_dir(), "greatgrandchild2")
     )
     results <- greatgrandchild2$run(save = TRUE, verbose = 0)
+    export_visualizers(greatgrandchild2)
 
     expect_error(render_docs(base_experiment, verbose = 0), NA)
     expect_error(
@@ -82,6 +89,36 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
       render_docs(
         base_experiment, verbose = 0,
         output_format = rmarkdown::html_document()
+      ),
+      NA
+    )
+
+    # check different cache modes for evaluators and visualizers
+    expect_error(
+      render_docs(
+        base_experiment, verbose = 0,
+        eval_cache = ".rds", viz_cache = "none"
+      ),
+      NA
+    )
+    expect_error(
+      render_docs(
+        base_experiment, verbose = 0,
+        eval_cache = "none", viz_cache = ".rds"
+      ),
+      NA
+    )
+    expect_error(
+      render_docs(
+        base_experiment, verbose = 0,
+        eval_cache = "none", viz_cache = "none"
+      ),
+      NA
+    )
+    expect_error(
+      render_docs(
+        base_experiment, verbose = 0,
+        eval_cache = "none", viz_cache = ".png"
       ),
       NA
     )
@@ -162,6 +199,30 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
     #   ),
     #   NA
     # )
+    expect_error(
+      render_docs(
+        base_experiment, write_rmd = TRUE, verbose = 0,
+        output_file = file.path(base_experiment$get_save_dir(), "test3"),
+        eval_cache = "none", viz_cache = "none"
+      ),
+      NA
+    )
+    expect_error(
+      rmarkdown::render(file.path(base_experiment$get_save_dir(), "test3.Rmd")),
+      NA
+    )
+    expect_error(
+      render_docs(
+        base_experiment, write_rmd = TRUE, verbose = 0,
+        output_file = file.path(base_experiment$get_save_dir(), "test4"),
+        eval_cache = "none", viz_cache = ".png"
+      ),
+      NA
+    )
+    expect_error(
+      rmarkdown::render(file.path(base_experiment$get_save_dir(), "test4.Rmd")),
+      NA
+    )
 
     # check defuse requirement
     output_format <- quote(rmarkdown::html_document())

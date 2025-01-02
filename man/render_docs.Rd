@@ -18,6 +18,8 @@ render_docs(
   show_viz = TRUE,
   eval_order = NULL,
   viz_order = NULL,
+  eval_cache = ".rds",
+  viz_cache = ".rds",
   use_icons = TRUE,
   quiet = TRUE,
   verbose = 2,
@@ -74,6 +76,19 @@ in the order that they were computed.}
 \item{viz_order}{Vector of \code{Visualizer} names in their desired order for
 display. By default, the report will display the \code{Visualizer} results
 in the order that they were computed.}
+
+\item{eval_cache}{File extension of the cached evaluator results to read in.
+Typically \code{".rds"} or \code{"none"}, but can be any file extension where
+evaluator results are stored as \code{eval_results.ext} and can be read in
+using \code{data.table::fread(eval_results.ext)}. If \code{"none"}, evaluator results
+are computed using the experiment via \code{\link[=evaluate_experiment]{evaluate_experiment()}}.}
+
+\item{viz_cache}{File extension of the cached visualizer results to read in.
+Typically \code{".rds"} or \code{"none"}, but can be any (image) file extension
+(e.g., \code{"png"}, \code{"jpg"}) where the visualizer results have been previously
+stored as separate \verb{\{visualizer_name\}.ext} images (typically using
+\code{\link[=export_visualizers]{export_visualizers()}}). If \code{"none"}, visualizer results are computed using
+the experiment via \code{\link[=visualize_experiment]{visualize_experiment()}}.}
 
 \item{use_icons}{Logical indicating whether or not to use fontawesome icons.}
 

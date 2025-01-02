@@ -31,6 +31,12 @@ params:
   viz_order:
     label: "Order of Visualizers:"
     value: NULL
+  eval_cache:
+    label: "Evaluators Cache Type:"
+    value: ".rds"
+  viz_cache:
+    label: "Visualizers Cache Type:"
+    value: ".rds"
   use_icons:
     label: "Use Icons:"
     value: TRUE
@@ -338,15 +344,116 @@ show_recipe <- function(field_name = c(
 }
 
 #' Reads in file if it exists and returns NULL if the file does not exist
+#' 
+#' @description If filetype is ".rds", the file is read in using readRDS(). 
+#'   Otherwise, the file is read in using data.table::fread().
 #'
-#' @param filename name of .rds file to try reading in
-#' @return output of filename.rds if the file exists and NULL otherwise
-get_results <- function(filename) {
+#' @param filename name of file (with file extension) to try reading in
+#' @return output of filename if the file exists and NULL otherwise
+get_results <- function(filename, filetype = ".rds") {
   if (file.exists(filename)) {
-    results <- readRDS(filename)
+    if (filetype == ".rds") {
+      results <- readRDS(filename)
+    } else {
+      results <- data.table::fread(results)
+    }
   } else {
     results <- NULL
   }
+  return(results)
+}
+
+#' Reads in list of image result files
+#' 
+#' @param filenames vector of filenames (without file extension) to read in
+#' @param filetype file extension
+#' @return list of image results, wrapped as knitr::include_graphics() objects
+get_image_results <- function(filenames, filetype) {
+  purrr::map(
+    filenames,
+    function(f) {
+      if (file.exists(sprintf("%s%s", f, filetype))) {
+        return(knitr::include_graphics(sprintf("%s%s", f, filetype)))
+      } else {
+        return(NULL)
+      }
+    }
+  ) |> 
+    setNames(basename(filenames)) |> 
+    purrr::compact()
+}
+
+#' Get results from experiment
+#' 
+#' @param dir_name name of directory
+#' @param show_eval logical; whether or not to show evaluators
+#' @param show_viz logical; whether or not to show visualizers
+#' @param eval_cache file extension for cached evaluator results to read in.
+#'   Typically ".rds" or "none", but can be any file extension where
+#'   evaluator results are stored as `eval_results.ext` and can be read in
+#'   using `data.table::fread(eval_results.ext)`. If "none", evaluator results
+#'   are computed using the experiment via `evaluate_experiment()`.
+#' @param viz_cache file extension for cached visualizer results to read in.
+#'   Typically ".rds" or "none", but can be any (image) file extension 
+#'   (e.g., "png", "jpg") where the visualizer results have been previously 
+#'   stored as separate `{visualizer_name}.ext` images (e.g., using
+#'   `export_visualizers()`). If "none", visualizer results are computed using
+#'   the experiment via `visualize_experiment()`.
+get_exp_results <- function(dir_name, 
+                            show_eval = TRUE, show_viz = TRUE,
+                            eval_cache = ".rds", viz_cache = ".rds") {
+  
+  exp_fname <- file.path(dir_name, "experiment.rds")
+  fit_fname <- file.path(dir_name, "fit_results.rds")
+  eval_fname <- file.path(dir_name, sprintf("eval_results%s", eval_cache))
+  viz_fname <- file.path(dir_name, sprintf("viz_results%s", viz_cache))
+
+  exp <- get_results(exp_fname)
+  fit_results <- NULL
+  eval_results <- NULL
+  viz_results <- NULL
+  if ((eval_cache != "none") && (viz_cache == ".rds")) {
+    if (show_eval) {
+      eval_results <- get_results(eval_fname, eval_cache)
+    }
+    if (show_viz) {
+      viz_results <- get_results(viz_fname, viz_cache)
+    }
+  } else {
+    if (show_eval) {
+      if (eval_cache == "none") {
+        fit_results <- get_results(fit_fname)
+        eval_results <- evaluate_experiment(exp, fit_results)
+      } else {
+        eval_results <- get_results(eval_fname, eval_cache)
+      }
+    }
+    if (show_viz) {
+      if (viz_cache == ".rds") {
+        viz_results <- get_results(viz_fname, viz_cache)
+      } else if (viz_cache == "none") {
+        if (is.null(fit_results)) {
+          fit_results <- get_results(fit_fname)
+        }
+        if (is.null(eval_results)) {
+          eval_results <- get_results(eval_fname)
+          if (is.null(eval_results)) {
+            eval_results <- evaluate_experiment(exp, fit_results)
+          }
+        }
+        viz_results <- visualize_experiment(exp, fit_results, eval_results)
+      } else {
+        viz_results <- get_image_results(
+          file.path(dir_name, names(exp$get_visualizers())), viz_cache
+        )
+      }
+    }
+  }
+  results <- list(
+    exp = exp,
+    eval_results = eval_results,
+    viz_results = viz_results
+  )
   return(results)
 }
 
@@ -428,14 +535,26 @@ show_results <- function(dir_name, depth, base = FALSE, show_header = TRUE,
     code_label <- "Varying Parameters"
   }
 
-  exp_fname <- file.path(dir_name, "experiment.rds")
-  eval_fname <- file.path(dir_name, "eval_results.rds")
-  viz_fname <- file.path(dir_name, "viz_results.rds")
+  exp_results <- get_exp_results(
+    dir_name, 
+    show_eval = params$show_eval, show_viz = params$show_viz,
+    eval_cache = params$eval_cache, viz_cache = params$viz_cache
+  )
+  exp <- exp_results$exp
+  eval_results <- exp_results$eval_results
+  viz_results <- exp_results$viz_results
 
-  exp <- get_results(exp_fname)
-  eval_results <- get_results(eval_fname)
-  viz_results <- get_results(viz_fname)
-
+  if (write_flag && (params$show_eval || params$show_viz)) {
+    results <- sprintf(
+      "results <- get_exp_results(\n  '%s', show_eval = %s, show_viz = %s, eval_cache = '%s', viz_cache = '%s'\n)",
+      dir_name, 
+      params$show_eval, params$show_viz,
+      params$eval_cache, params$viz_cache
+    ) |>
+      write_code_chunk(chunk_args = "results = 'asis'") |>
+      write(old_text = results, write_flag = write_flag)
+  }
+  
   if (!is.null(eval_results) && params$show_eval) {
     results <- write(
       sprintf(showtype_template, evaluator_label),
@@ -471,7 +590,7 @@ show_results <- function(dir_name, depth, base = FALSE, show_header = TRUE,
         }
         if (write_flag) {
           results <- sprintf(
-            "show_results('%s', '%s', 'evaluator')", dir_name, eval_name
+            "show_results(results, '%s', 'evaluator')", eval_name
           ) |>
             write_code_chunk(chunk_args = "results = 'asis'") |>
             write(old_text = results, write_flag = write_flag)
@@ -522,7 +641,8 @@ show_results <- function(dir_name, depth, base = FALSE, show_header = TRUE,
           plt <- plts[[plt_name]]
           is_plot <- inherits(plt, "plotly") || 
             inherits(plt, "gg") || 
-            inherits(plt, "ggplot")
+            inherits(plt, "ggplot") ||
+            inherits(plt, "knit_image_paths")
           
           if (params$use_vmodern && is_plot) {
             chunk_args <- "fig.height = %s, fig.width = %s, out.width = '100%%', add.panel = TRUE"
@@ -534,7 +654,7 @@ show_results <- function(dir_name, depth, base = FALSE, show_header = TRUE,
           
           if (write_flag) {
             results <- sprintf(
-              "show_results('%s', '%s', 'visualizer')", dir_name, viz_name
+              "show_results(results, '%s', 'visualizer')", viz_name
             ) |>
               write_code_chunk(
                 chunk_args = sprintf(
@@ -567,9 +687,7 @@ show_results <- function(dir_name, depth, base = FALSE, show_header = TRUE,
         old_text = results, write_flag = write_flag
       )
       if (write_flag) {
-        results <- sprintf(
-          "show_results('%s', NULL, 'vary_params')", dir_name
-        ) |>
+        results <- c("show_results(results, NULL, 'vary_params')") |>
           write_code_chunk(chunk_args = "max.height='200px'") |>
           write(old_text = results, write_flag = write_flag)
       } else {

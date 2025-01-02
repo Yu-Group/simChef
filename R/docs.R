@@ -167,6 +167,17 @@ create_doc_template <- function(experiment, save_dir) {
 #' @param viz_order Vector of `Visualizer` names in their desired order for
 #'   display. By default, the report will display the `Visualizer` results
 #'   in the order that they were computed.
+#' @param eval_cache File extension of the cached evaluator results to read in.
+#'   Typically `".rds"` or `"none"`, but can be any file extension where
+#'   evaluator results are stored as `eval_results.ext` and can be read in
+#'   using `data.table::fread(eval_results.ext)`. If `"none"`, evaluator results
+#'   are computed using the experiment via [evaluate_experiment()].
+#' @param viz_cache File extension of the cached visualizer results to read in.
+#'   Typically `".rds"` or `"none"`, but can be any (image) file extension
+#'   (e.g., `"png"`, `"jpg"`) where the visualizer results have been previously
+#'   stored as separate `{visualizer_name}.ext` images (typically using
+#'   [export_visualizers()]). If `"none"`, visualizer results are computed using
+#'   the experiment via [visualize_experiment()].
 #' @param use_icons Logical indicating whether or not to use fontawesome icons.
 #' @param verbose Level of verboseness (0, 1, 2) when knitting R Markdown.
 #'   Default is 2.
@@ -189,7 +200,9 @@ render_docs <- function(experiment, save_dir, write_rmd = FALSE,
                         output_file = NULL, output_format = vthemes::vmodern(),
                         title = NULL, author = "",
                         show_code = TRUE, show_eval = TRUE, show_viz = TRUE,
-                        eval_order = NULL, viz_order = NULL, use_icons = TRUE,
+                        eval_order = NULL, viz_order = NULL,
+                        eval_cache = ".rds", viz_cache = ".rds",
+                        use_icons = TRUE,
                         quiet = TRUE, verbose = 2, ...) {
 
   if (missing(experiment) && missing(save_dir)) {
@@ -269,7 +282,9 @@ render_docs <- function(experiment, save_dir, write_rmd = FALSE,
     sim_name = title, sim_path = save_dir, author = author,
     write_filename = sprintf("%s.Rmd", output_file),
     show_code = show_code, show_eval = show_eval, show_viz = show_viz,
-    eval_order = eval_order, viz_order = viz_order, use_icons = use_icons,
+    eval_order = eval_order, viz_order = viz_order,
+    eval_cache = eval_cache, viz_cache = viz_cache,
+    use_icons = use_icons,
     use_vmodern = use_vmodern, write = write_rmd, verbose = verbose
   )
 
