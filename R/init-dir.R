@@ -1,37 +1,36 @@
 #' @title Create a simulation project
 #'
-#' @description `create_sim()` initializes a directory for your simulation
+#' @description `init_sim_project()` initializes a directory for your simulation
 #'   study. It wraps around \code{usethis::create_project()}, as well as
 #'   \code{usethis::use_git()} and \code{renv::init()}.
 #'
-#' @param path A `character` specifying the path for your simulation
+#' @param path Character string, specifying the path for your simulation
 #'   directory.
-#' @param init_git A `logical` indicating whether to intialize your
-#'   simulation directory as a git repository.
-#' @param init_renv A `logical` stating whether to initialize `renv` with
-#'   `init()` from the `renv` package. Defaults to `FALSE`.
-#' @param tests A `logical` indicating whether to generate sub-directories
+#' @param init_git Logical, indicating whether to intialize your
+#'   simulation directory as a git repository. Defaults to `TRUE`.
+#' @param init_renv Logical, stating whether to initialize `renv` with
+#'   `init()` from the `renv` package. Defaults to `TRUE`.
+#' @param init_tests Logical, indicating whether to generate sub-directories
 #'   for organizing unit tests. Defaults to `TRUE`.
-#' @param hpc A `logical` indicating whether to create sub-directories for
-#'   organizing files related to high-power computing environments. Defaults to
-#'   `FALSE`.
+#' @param init_dirs Character vector, specifying additional directories to
+#'   create in the simulation project. Defaults to `NULL`.
 #'
 #' @examples
 #' \dontrun{
 #' # create template directory for simulation project
-#' create_sim("path/to/sim")}
+#' init_sim_project("path/to/sim")}
 #'
 #' @export
-create_sim <- function(
+init_sim_project <- function(
   path,
   init_git = TRUE,
-  init_renv = FALSE,
-  tests = TRUE,
-  hpc = FALSE
+  init_renv = TRUE,
+  init_tests = TRUE,
+  init_dirs = NULL
 ) {
   rlang::check_installed(
     "usethis",
-    reason = "to create a simulation project with `create_sim()`"
+    reason = "to create a simulation project with `init_sim_project()`"
   )
 
   ## ensure arguments are appropriate
@@ -44,11 +43,8 @@ create_sim <- function(
   if (!is.logical(init_renv)) {
     stop("init_renv must be a logical.")
   }
-  if (!is.logical(tests)) {
-    stop("tests must be a logical.")
-  }
-  if (!is.logical(hpc)) {
-    stop("hpc must be a logical.")
+  if (!is.logical(init_tests)) {
+    stop("init_tests must be a logical.")
   }
 
   ## don't overwrite existing project
@@ -64,40 +60,52 @@ create_sim <- function(
 
   ## state the necessary directories
   dirs <- c(
-    "R", "R/dgp", "R/method", "R/eval", "R/viz", "results"
+    "R",
+    file.path("R", "dgp"),
+    file.path("R", "method"),
+    file.path("R", "eval"),
+    file.path("R", "viz"),
+    "meals",
+    "results"
   )
 
   ## add the optional directories
-  if (tests) {
+  if (init_tests) {
     dirs <- c(
-      dirs, "tests", "tests/testthat", "tests/testthat/dgp-tests",
-      "tests/testthat/method-tests", "tests/testthat/eval-tests",
-      "tests/testthat/viz-tests"
+      dirs,
+      "tests",
+      file.path("tests", "testthat"),
+      file.path("tests", "testthat", "dgp-tests"),
+      file.path("tests", "testthat", "method-tests"),
+      file.path("tests", "testthat", "eval-tests"),
+      file.path("tests", "testthat", "viz-tests")
     )
   }
-  if (hpc) {
-    dirs <- c(dirs, "scripts", "logs")
+
+  # add additional directories
+  if (!is.null(init_dirs)) {
+    dirs <- c(dirs, init_dirs)
   }
 
   ## create the specified directories
   sapply(
     dirs,
     function(dir) {
-      dir.create(path = paste(path, dir, sep = "/"), showWarnings = FALSE)
+      dir.create(path = file.path(path, dir), showWarnings = FALSE)
     }
   )
 
   ## state the necessary files
-  files <- c("README.md", "R/meal.R")
-  if (tests) {
-    files <- c(files, "tests/testthat.R")
+  files <- c("README.md", file.path("meals", "meal.R"))
+  if (init_tests) {
+    files <- c(files, file.path("tests", "testthat.R"))
   }
 
   ## create the specified files
-  file.create(paste(path, files, sep = "/"))
+  file.create(file.path(path, files))
 
   ## write the header of R/meal.R
-  meal_file <- file(paste(path, "R/meal.R", sep = "/"))
+  meal_file <- file(file.path(path, "meals", "meal.R"))
   writeLines(
     c(
       "# load required libraries",
@@ -111,7 +119,7 @@ create_sim <- function(
   close(meal_file)
 
   ## write minimal template for README.md
-  readme_file <- file(paste(path, "README.md", sep = "/"))
+  readme_file <- file(file.path(path, "README.md"))
   writeLines(
     c(
       "# Simulation Study Title",
@@ -125,8 +133,8 @@ create_sim <- function(
   close(readme_file)
 
   ## write tests/testthat.R if necessary
-  if (tests) {
-    testthat_file <- file(paste(path, "tests/testthat.R", sep = "/"))
+  if (init_tests) {
+    testthat_file <- file(file.path(path, "tests", "testthat.R"))
     writeLines(
       c(
         "library(simChef)",
@@ -143,7 +151,7 @@ create_sim <- function(
 
   ## activate the project
   if (rlang::is_interactive()) {
-    usethis::proj_activate(path = path)
+    usethis::proj_set(path = path)
 
     ## initialize a git repository if asked
     if (init_git) usethis::use_git()
@@ -152,9 +160,11 @@ create_sim <- function(
     if (init_renv) {
       rlang::check_installed(
         "renv",
-        reason = "to initialize renv with `create_sim()`"
+        reason = "to initialize renv with `init_sim_project()`"
       )
-      renv::init()
+      renv::init(path, bare = TRUE)
     }
+
+    usethis::proj_activate(path = path)
   }
 }

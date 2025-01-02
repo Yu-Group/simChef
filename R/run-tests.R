@@ -41,7 +41,7 @@ run_tests <- function() {
 #'   project and if it is run when this R project is active. Additionally, tests
 #'   must be stored in sub-directories whose names match those suggesting in the
 #'   "Setting Up Your Simulation" vignette. These details are conveniently taken
-#'   care of when a simulation study is set up using [create_sim()].
+#'   care of when a simulation study is set up using [init_sim_project()].
 #'
 #' @examples
 #' \dontrun{
@@ -138,5 +138,5 @@ load_all <- function() {
     c("R/dgp", "R/method", "R/eval", "R/viz"),
     pattern = "*.R$", full.names = TRUE, ignore.case = TRUE
   )
-  sapply(sim_functions_files, source)
+  invisible(sapply(sim_functions_files, source))
 }

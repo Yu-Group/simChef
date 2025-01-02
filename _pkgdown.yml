@@ -30,7 +30,7 @@ reference:
     desc: >
       Functions for automatically setting up a simulation experiment directory.
     contents:
-      - create_sim
+      - init_sim_project
   - title: "R Markdown Report"
     desc: >
       Functions for summarizing and visualizing results from a simulation
