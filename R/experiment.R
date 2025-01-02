@@ -45,6 +45,7 @@ Experiment <- R6::R6Class(
     .fit_params = tibble::tibble(),
     .future.globals = TRUE,
     .future.packages = NULL,
+    .save_in_bulk = c(fit = TRUE, eval = TRUE, viz = TRUE),
 
     # private methods
     .add_obj = function(field_name, obj, obj_name, ...) {
@@ -752,6 +753,14 @@ Experiment <- R6::R6Class(
     #'   in a directory called "results" with a sub-directory named after
     #'   `Experiment$name` when using [run_experiment()] or [fit_experiment()]
     #'   with `save=TRUE`.
+    #' @param save_in_bulk A logical, indicating whether or not to save the
+    #'   fit, evaluator, and visualizer outputs, each as a single bulk .rds file
+    #'   (i.e., as `fit_results.rds`, `eval_results.rds`, `viz_results.rds`).
+    #'   Default is `TRUE`. If `FALSE`, each fit replicate is saved as a
+    #'   separate .rds file while each evaluator/visualizer is saved as a
+    #'   separate .rds file. One can alternatively specify a character vector
+    #'   with some subset of "fit", "eval", and/or "viz", indicating the
+    #'   elements to save in bulk to disk. Ignored if `save = FALSE`.
     #' @param ... Not used.
     #'
     #' @return A new instance of `Experiment`.
@@ -759,7 +768,8 @@ Experiment <- R6::R6Class(
                           dgp_list = list(), method_list = list(),
                           evaluator_list = list(), visualizer_list = list(),
                           future.globals = TRUE, future.packages = NULL,
-                          clone_from = NULL, save_dir = NULL, ...) {
+                          clone_from = NULL, save_dir = NULL,
+                          save_in_bulk = TRUE, ...) {
       if (!is.null(clone_from)) {
         private$.check_obj(clone_from, "Experiment")
         clone <- clone_from$clone(deep = TRUE)
@@ -782,6 +792,16 @@ Experiment <- R6::R6Class(
         save_dir <- file.path("results", name)
       }
       private$.save_dir <- R.utils::getAbsolutePath(save_dir)
+      if (!is.logical(save_in_bulk)) {
+        save_in_bulk <- c("fit", "eval", "viz") %in% save_in_bulk
+      } else {
+        if (length(save_in_bulk) > 1) {
+          warn("The input save_in_bulk is a logical vector of length > 1. Only the first element of save is used.")
+        }
+        save_in_bulk <- rep(save_in_bulk[1], 3)
+      }
+      private$.save_in_bulk <- save_in_bulk
+      names(private$.save_in_bulk) <- c("fit", "eval", "viz")
     },
 
     #' @description Run the full `Experiment` pipeline (fitting, evaluating,
@@ -811,7 +831,15 @@ Experiment <- R6::R6Class(
     #'   `Experiment`. Note that even if `return_all_cached_reps = TRUE`,
     #'   only the `n_reps` replicates are used when evaluating and visualizing
     #'   the `Experiment`.
-    #' @param save If `TRUE`, save outputs to disk.
+    #' @param save A logical, indicating whether or not to save the fit,
+    #'   evaluator, and visualizer outputs to disk. Alternatively, one can
+    #'   specify a character vector with some subset of "fit", "eval", and/or
+    #'   "viz", indicating the elements to save to disk.
+    #' @param record_time A logical, indicating whether or not to record the
+    #'   time taken to run each `Method`, `Evaluator`, and `Visualizer` in the
+    #'   `Experiment`. Alternatively, one can specify a character vector with
+    #'   some subset of "fit", "eval", and/or "viz", indicating the elements for
+    #'   which to record the time taken.
     #' @param checkpoint_n_reps The number of experiment replicates to compute
     #'   before saving results to disk. If 0 (the default), no checkpoints are
     #'   saved.
@@ -827,7 +855,7 @@ Experiment <- R6::R6Class(
     #' \describe{
     #' \item{fit_results}{A tibble containing results from the `fit`
     #'   method. In addition to results columns, has columns named '.rep', '.dgp_name',
-    #'   '.method_name', and the `vary_across` parameter names if applicable.}
+    #'   '.method_name', '.time_taken', and the `vary_across` parameter names if applicable.}
     #' \item{eval_results}{A list of tibbles containing results from the
     #'   `evaluate` method, which evaluates each `Evaluator` in
     #'   the `Experiment`. Length of list is equivalent to the number of
@@ -841,6 +869,7 @@ Experiment <- R6::R6Class(
                    future.globals = NULL, future.packages = NULL,
                    future.seed = TRUE, use_cached = FALSE,
                    return_all_cached_reps = FALSE, save = FALSE,
+                   record_time = FALSE,
                    checkpoint_n_reps = 0, verbose = 1, ...) {
 
       if (!is.logical(save)) {
@@ -851,6 +880,14 @@ Experiment <- R6::R6Class(
         }
         save <- rep(save[1], 3)
       }
+      if (!is.logical(record_time)) {
+        record_time <- c("fit", "eval", "viz") %in% record_time
+      } else {
+        if (length(record_time) > 1) {
+          warn("The input record_time is a logical vector of length > 1. Only the first element of save_time is used.")
+        }
+        record_time <- rep(record_time[1], 3)
+      }
 
       fit_results <- self$fit(n_reps, parallel_strategy = parallel_strategy,
                               future.globals = future.globals,
@@ -859,18 +896,21 @@ Experiment <- R6::R6Class(
                               use_cached = use_cached,
                               return_all_cached_reps = return_all_cached_reps,
                               save = save[1],
+                              record_time = record_time[1],
                               checkpoint_n_reps = checkpoint_n_reps,
                               verbose = verbose, ...)
 
       eval_results <- self$evaluate(fit_results = fit_results |>
                                       dplyr::filter(as.numeric(.rep) <= !!n_reps),
                                     use_cached = use_cached, save = save[2],
+                                    record_time = record_time[2],
                                     verbose = verbose, ...)
 
       viz_results <- self$visualize(fit_results = fit_results |>
                                       dplyr::filter(as.numeric(.rep) <= !!n_reps),
                                     eval_results = eval_results,
                                     use_cached = use_cached, save = save[3],
+                                    record_time = record_time[3],
                                     verbose = verbose, ...)
 
       return(list(fit_results = fit_results,
@@ -955,7 +995,9 @@ Experiment <- R6::R6Class(
     #'   returns fit results for the requested `n_reps` plus any additional
     #'   cached replicates from the (`DGP`, `Method`) combinations in the
     #'   `Experiment`.
-    #' @param save If `TRUE`, save outputs to disk.
+    #' @param save Logical. If `TRUE`, save outputs to disk.
+    #' @param record_time Logical. If `TRUE`, record the amount of time taken to
+    #'   fit each `Method` per replicate.
     #' @param checkpoint_n_reps The number of experiment replicates to compute
     #'   before saving results to disk. If 0 (the default), no checkpoints are
     #'   saved.
@@ -970,12 +1012,14 @@ Experiment <- R6::R6Class(
     #'
     #' @return A tibble containing the results from fitting all `Methods`
     #'   across all `DGPs` for `n_reps` repetitions. In addition to
-    #'   results columns, has columns named '.rep', '.dgp_name', '.method_name', and the
+    #'   results columns, has columns named '.rep', '.dgp_name', '.method_name',
+    #'   '.time_taken' (if `record_time = TRUE`), and the
     #'   `vary_across` parameter names if applicable.
     fit = function(n_reps = 1, parallel_strategy = "reps",
                    future.globals = NULL, future.packages = NULL,
                    future.seed = TRUE, use_cached = FALSE,
                    return_all_cached_reps = FALSE, save = FALSE,
+                   record_time = FALSE,
                    checkpoint_n_reps = 0, verbose = 1, ...) {
 
       parallel_strategy <- unique(parallel_strategy)
@@ -1150,6 +1194,7 @@ Experiment <- R6::R6Class(
               dgp_params_list = dgp_params_list,
               method_params_list = method_params_list,
               duplicate_param_names = duplicate_param_names,
+              record_time = record_time,
               do_call_wrapper = function(name,
                                          fun,
                                          params,
@@ -1308,7 +1353,9 @@ Experiment <- R6::R6Class(
     #' @param use_cached Logical. If `TRUE`, find and return previously saved
     #'   results. If cached results cannot be found, continue as if `use_cached` was
     #'   `FALSE`.
-    #' @param save If `TRUE`, save outputs to disk.
+    #' @param save Logical. If `TRUE`, save outputs to disk.
+    #' @param record_time Logical. If `TRUE`, record the amount of time taken to
+    #'   evaluate each `Evaluator`.
     #' @param verbose Level of verbosity. Default is 1, which prints out messages
     #'   after major checkpoints in the experiment. If 2, prints additional
     #'   debugging information for warnings and messages from user-defined functions
@@ -1319,7 +1366,7 @@ Experiment <- R6::R6Class(
     #' @return A list of evaluation result tibbles, one for each
     #'   `Evaluator`.
     evaluate = function(fit_results, use_cached = FALSE, save = FALSE,
-                        verbose = 1, ...) {
+                        record_time = FALSE, verbose = 1, ...) {
       evaluator_list <- private$.get_obj_list("evaluator")
       evaluator_names <- names(evaluator_list)
       if (length(evaluator_list) == 0) {
@@ -1363,12 +1410,18 @@ Experiment <- R6::R6Class(
       eval_results <- purrr::map2(
         names(evaluator_list), evaluator_list,
         function(name, evaluator) {
-          do_call_handler(
+          eval_start_time <- Sys.time()
+          eval_result <- do_call_handler(
             name, evaluator$evaluate,
             list(fit_results = fit_results,
                  vary_params = private$.get_vary_params()),
             verbose
           )
+          eval_time <- difftime(Sys.time(), eval_start_time, units = "mins")
+          if (record_time) {
+            attr(eval_result, ".time_taken") <- eval_time
+          }
+          return(eval_result)
         }
       )
       names(eval_results) <- names(evaluator_list)
@@ -1404,7 +1457,9 @@ Experiment <- R6::R6Class(
     #' @param use_cached Logical. If `TRUE`, find and return previously saved
     #'   results. If cached results cannot be found, continue as if `use_cached` was
     #'   `FALSE`.
-    #' @param save If `TRUE`, save outputs to disk.
+    #' @param save Logical. If `TRUE`, save outputs to disk.
+    #' @param record_time Logical. If `TRUE`, record the amount of time taken to
+    #'   visualize each `Visualizer`.
     #' @param verbose Level of verbosity. Default is 1, which prints out messages
     #'   after major checkpoints in the experiment. If 2, prints additional
     #'   debugging information for warnings and messages from user-defined functions
@@ -1414,7 +1469,9 @@ Experiment <- R6::R6Class(
     #'
     #' @return A list of visualizations, one for each `Visualizer`.
     visualize = function(fit_results, eval_results = NULL,
-                         use_cached = FALSE, save = FALSE, verbose = 1, ...) {
+                         use_cached = FALSE, save = FALSE,
+                         record_time = FALSE,
+                         verbose = 1, ...) {
 
       visualizer_list <- private$.get_obj_list("visualizer")
       visualizer_names <- names(visualizer_list)
@@ -1459,13 +1516,19 @@ Experiment <- R6::R6Class(
       viz_results <- purrr::map2(
         names(visualizer_list), visualizer_list,
         function(name, visualizer) {
-          do_call_handler(
+          viz_start_time <- Sys.time()
+          viz_result <- do_call_handler(
             name, visualizer$visualize,
             list(fit_results = fit_results,
                  eval_results = eval_results,
                  vary_params = private$.get_vary_params()),
             verbose
           )
+          viz_time <- difftime(Sys.time(), viz_start_time, units = "mins")
+          if (record_time) {
+            attr(viz_result, ".time_taken") <- viz_time
+          }
+          return(viz_result)
         }
       )
       names(viz_results) <- names(visualizer_list)

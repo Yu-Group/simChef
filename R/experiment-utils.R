@@ -248,6 +248,7 @@ compute_rep <- function(n_reps,
             method_params$data_list <- data_list
             method_params$.simplify <- FALSE
 
+            fit_start_time <- Sys.time()
             result <- do_call_wrapper(
               method_name,
               method_list[[method_name]]$fit,
@@ -256,6 +257,10 @@ compute_rep <- function(n_reps,
               # hard-coded method fun call for error messages
               call = rlang::call2(paste0(method_name, "$method_fun(...)"))
             )
+            fit_time <- difftime(Sys.time(), fit_start_time, units = "mins")
+            if (record_time) {
+              result$.time_taken <- fit_time
+            }
 
             if ("error" %in% class(result)) {
 
