@@ -301,36 +301,6 @@ components of a high-quality meal:
   templates.**
 </details>
 
-## Roadmap
-
-- [x] Implement an abstract API to allow for a grammar of simulation
-      experiments.
-- [x] Run experimental replicates in parallel and agnostic to computational
-      backend via the R package `future`.
-- [x] Output an automated R Markdown report summarizing the results of an Experiment.
-- [x] Allow for varying simulation experiments across arbitrary parameters of
-      DGPs and Methods.
-- [x] Cache results to avoid re-running already computed components of an
-      Experiment.
-- [x] Checkpoint simulations to avoid losing progress in the case of unexpected
-      problems, e.g. node failure.
-- [x] Gracefully handle errors from user-defined functions and return partial
-      results error information for user to inspect upon completion.
-- [x] Incorporate `progressr` for simulation progress updates.
-- [x] Include a set of off-the-shelf DGPs (moved to
-      [`dgpoix`](https://yu-group.github.io/dgpoix/)), Evaluators, and
-      Visualizers to allow users to quickly run their methods in a number of
-      common types of simulations.
-- [x] Allow for user customization of the final R Markdown report (e.g. a customized
-      R Markdown template/theme, order of Evaluator and Visualizer displays).
-- [ ] Give user the ability to choose which tasks are distributed to parallel
-      workers, i.e. simulation replicates, DGPs, Methods, or combinations of the
-      three.
-- [ ] Enable nested parallelization, e.g. one may paralellize across DGPs using
-      multiple nodes on a cluster and parallelize across simulation replicates
-      using the CPU cores within each node.
-- [ ] Publish to CRAN.
-
 ## Related R packages
 
 Below, we examine the main functionality of a number of existing tools for
@@ -373,3 +343,19 @@ of years.
 - [`rsimsum`](https://ellessenne.github.io/rsimsum/index.html) is an R
   implementation of the Stata command `simsum` and provides helper functions for
   summarizing and visualizing the results of a simulation study.
+
+## Citing `simChef`
+
+To cite `simChef` in publications, please use:
+
+```
+@software{duncan2024simchef,
+  title={simChef: High-quality data science simulations in R},
+  author={Duncan, James and Tang, Tiffany and Elliott, Corrine F and Boileau, Philippe and Yu, Bin},
+  journal={Journal of Open Source Software},
+  volume={9},
+  number={95},
+  pages={6156},
+  year={2024}
+}
+```
