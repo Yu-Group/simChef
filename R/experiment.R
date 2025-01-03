@@ -366,7 +366,7 @@ Experiment <- R6::R6Class(
         }
       }
 
-      if (simplify) {
+      if (simplify && (nrow(out_params) > 0)) {
         duplicate_param_names <- private$.get_duplicate_param_names()
         for (param_name in private$.get_vary_params("dgp")) {
           # fix naming if also in method vary across
@@ -537,8 +537,12 @@ Experiment <- R6::R6Class(
       } else {
         save_dir <- private$.get_vary_across_dir()
       }
-      if (private$.save_in_bulk[[results_type]] ||
-          !(results_type %in% c("fit", "eval", "viz"))) {
+      if (results_type %in% c("fit", "eval", "viz")) {
+        save_in_bulk <- private$.save_in_bulk[[results_type]]
+      } else {
+        save_in_bulk <- TRUE
+      }
+      if (save_in_bulk || !(results_type %in% c("fit", "eval", "viz"))) {
         if (results_type %in% c("fit", "eval", "viz")) {
           save_file <- file.path(save_dir, paste0(results_type, "_results.rds"))
           if (results_type == "fit") {
@@ -570,7 +574,7 @@ Experiment <- R6::R6Class(
       } else {
         save_files <- list.files(
           file.path(save_dir, sprintf("%s_results", results_type)),
-          pattern = ".rds"
+          pattern = ".rds", full.names = TRUE
         )
         if (length(save_files) > 0) {
           if (results_type == "fit") {
@@ -733,6 +737,7 @@ Experiment <- R6::R6Class(
       } else {
         save_dir <- private$.get_vary_across_dir()
       }
+      # save non-bulk result
       save_file <- file.path(
         save_dir,
         sprintf("%s_results", results_type),
@@ -805,7 +810,7 @@ Experiment <- R6::R6Class(
     #'   separate .rds file while each evaluator/visualizer is saved as a
     #'   separate .rds file. One can alternatively specify a character vector
     #'   with some subset of "fit", "eval", and/or "viz", indicating the
-    #'   elements to save in bulk to disk. Ignored if `save = FALSE`.
+    #'   elements to save in bulk to disk.
     #' @param ... Not used.
     #'
     #' @return A new instance of `Experiment`.
@@ -1111,6 +1116,17 @@ Experiment <- R6::R6Class(
         )
       }
 
+      save_in_bulk <- private$.save_in_bulk[["fit"]]
+      save_per_rep <- save && !save_in_bulk
+      if (!private$.has_vary_across()) {
+        save_dir <- private$.save_dir
+      } else {
+        save_dir <- private$.get_vary_across_dir()
+      }
+      if (!dir.exists(file.path(save_dir, "fit_results"))) {
+        dir.create(file.path(save_dir, "fit_results"), recursive = TRUE)
+      }
+
       dgp_list <- private$.get_obj_list("dgp")
       method_list <- private$.get_obj_list("method")
 
@@ -1124,7 +1140,7 @@ Experiment <- R6::R6Class(
 
       private$.update_fit_params()
 
-      if (!is.numeric(checkpoint_n_reps)) {
+      if (!is.numeric(checkpoint_n_reps) || !save_in_bulk) {
         checkpoint <- FALSE
       } else {
         checkpoint <- isTRUE(checkpoint_n_reps > 0)
@@ -1151,7 +1167,7 @@ Experiment <- R6::R6Class(
             dplyr::select(.rep, tidyselect::everything()) |>
             dplyr::arrange(as.numeric(.rep), .dgp_name, .method_name)
 
-          if (save) {
+          if (save && save_in_bulk) {
             n_reps_cached <- min(n_reps_total, n_reps_cached)
             private$.save_results(fit_results, "fit", n_reps_cached, verbose)
           }
@@ -1162,11 +1178,34 @@ Experiment <- R6::R6Class(
             }
 
             if (use_cached && return_all_cached_reps) {
-              return(fit_results)
+              return(
+                simplify_tibble(fit_results)
+              )
             } else {
-              return(fit_results |>
-                       dplyr::filter(as.numeric(.rep) <= !!n_reps_total))
+              return(
+                fit_results |>
+                  dplyr::filter(as.numeric(.rep) <= !!n_reps_total) |>
+                  simplify_tibble()
+              )
             }
+          }
+
+          if (!save_in_bulk) {
+            purrr::walk(
+              unique(fit_results$.rep),
+              function(rep) {
+                rep_results <- fit_results |>
+                  dplyr::filter(as.numeric(.rep) == rep)
+                private$.save_result(
+                  rep_results, "fit", sprintf("fit_result%s", rep)
+                )
+              }
+            )
+            cached_params_tmp <- private$.update_cache(results_type = "fit",
+                                                       n_reps = n_reps_cached)
+            saveRDS(cached_params_tmp,
+                    file.path(save_dir, "experiment_cached_params.rds"))
+            saveRDS(self, file.path(save_dir, "experiment.rds"))
           }
         }
       }
@@ -1191,6 +1230,7 @@ Experiment <- R6::R6Class(
       # combos of (dgp_params_list, method_params_list) need to be rerun so need
       # to check cache ids when fitting
       new_fit_params <- NULL
+      cached_fit_params <- tibble::tibble()
 
       if (use_cached) {
 
@@ -1200,6 +1240,12 @@ Experiment <- R6::R6Class(
 
         n_params <- nrow(new_fit_params)
         new_fit <- n_params == nrow(private$.get_fit_params())
+
+        if (!save_in_bulk) {
+          cached_fit_params <- private$.get_fit_params(
+            cached_params, "cached", 0, simplify = TRUE
+          )
+        }
 
         if (!new_fit) {
 
@@ -1236,10 +1282,15 @@ Experiment <- R6::R6Class(
               dgp_list = dgp_list,
               method_list = method_list,
               new_fit_params = new_fit_params,
+              cached_fit_params = cached_fit_params,
               dgp_params_list = dgp_params_list,
               method_params_list = method_params_list,
               duplicate_param_names = duplicate_param_names,
               record_time = record_time,
+              save_in_bulk = save_in_bulk,
+              save_per_rep = save_per_rep,
+              use_cached = use_cached && (nrow(cached_fit_params) > 0),
+              save_dir = save_dir,
               do_call_wrapper = function(name,
                                          fun,
                                          params,
@@ -1271,7 +1322,7 @@ Experiment <- R6::R6Class(
           environment(compute_fun) <- workenv
 
           # compute the experiment
-          compute_fun(n_reps,
+          compute_fun((1:n_reps) + n_reps_cached,
                       future.globals,
                       future.packages,
                       future.seed)
@@ -1279,11 +1330,10 @@ Experiment <- R6::R6Class(
 
         gc()
 
-        new_fit_results <- new_fit_results |>
-          dplyr::mutate(
-            .rep = as.character(as.numeric(.rep) + n_reps_cached)
-          ) |>
-          simplify_tibble()
+        if (save_in_bulk) {
+          new_fit_results <- new_fit_results |>
+            simplify_tibble()
+        }
 
         if (".err" %in% colnames(new_fit_results)) {
 
@@ -1345,30 +1395,40 @@ Experiment <- R6::R6Class(
           dplyr::bind_rows(fit_results) |>
           dplyr::arrange(as.numeric(.rep), .dgp_name, .method_name)
 
-        if (use_cached && !new_fit) {
-          fit_params_cached <- private$.get_fit_params(cached_params, "cached",
-                                                       n_reps_total, TRUE)
-          fit_results_cached <- private$.get_cached_results(
-            "fit", verbose = verbose
-          )
-          fit_results_cached <- get_matching_rows(
-            id = fit_params_cached, x = fit_results_cached
-          )
-          if (verbose >= 1) {
-            inform("Appending cached results to the new fit results...")
+        if (save_in_bulk) {
+          if (use_cached && !new_fit) {
+            fit_params_cached <- private$.get_fit_params(cached_params, "cached",
+                                                         n_reps_total, TRUE)
+            fit_results_cached <- private$.get_cached_results(
+              "fit", verbose = verbose
+            )
+            fit_results_cached <- get_matching_rows(
+              id = fit_params_cached, x = fit_results_cached
+            )
+            if (verbose >= 1) {
+              inform("Appending cached results to the new fit results...")
+            }
+            fit_params <- private$.get_fit_params(simplify = TRUE)
+            fit_results <- dplyr::bind_rows(fit_results, fit_results_cached)
+            fit_results <- get_matching_rows(id = fit_params, x = fit_results) |>
+              dplyr::arrange(as.numeric(.rep), .dgp_name, .method_name) |>
+              dplyr::select(.rep, tidyselect::everything())
           }
-          fit_params <- private$.get_fit_params(simplify = TRUE)
-          fit_results <- dplyr::bind_rows(fit_results, fit_results_cached)
-          fit_results <- get_matching_rows(id = fit_params, x = fit_results) |>
-            dplyr::arrange(as.numeric(.rep), .dgp_name, .method_name) |>
-            dplyr::select(.rep, tidyselect::everything())
-        }
 
-        if (save || checkpoint) {
-          private$.save_results(
-            fit_results, "fit", n_reps_cached, verbose,
-            checkpoint && n_reps_cached < n_reps_total
-          )
+          if (save || checkpoint) {
+            private$.save_results(
+              fit_results, "fit", n_reps_cached, verbose,
+              checkpoint && n_reps_cached < n_reps_total
+            )
+          }
+        } else {
+          if (save) {
+            cached_params_tmp <- private$.update_cache(results_type = "fit",
+                                                       n_reps = n_reps_cached)
+            saveRDS(cached_params_tmp,
+                    file.path(save_dir, "experiment_cached_params.rds"))
+            saveRDS(self, file.path(save_dir, "experiment.rds"))
+          }
         }
 
         if (verbose >= 1) {
@@ -1383,10 +1443,22 @@ Experiment <- R6::R6Class(
         inform("==============================")
       }
 
+      if (save && !save_in_bulk) {
+        fit_results <- private$.get_cached_results("fit", verbose = 0) |>
+          dplyr::select(.rep, .dgp_name, .method_name,
+                        private$.get_vary_params(),
+                        tidyselect::everything()) |>
+          dplyr::arrange(as.numeric(.rep), .dgp_name, .method_name)
+      }
+
       if (use_cached && return_all_cached_reps) {
-        return(fit_results)
+        return(simplify_tibble(fit_results))
       } else {
-        return(fit_results |> dplyr::filter(as.numeric(.rep) <= !!n_reps_total))
+        return(
+          fit_results |>
+            dplyr::filter(as.numeric(.rep) <= !!n_reps_total) |>
+            simplify_tibble()
+        )
       }
 
     },
@@ -1461,8 +1533,8 @@ Experiment <- R6::R6Class(
         }
       }
 
+      cached_eval_names <- setdiff(evaluator_names, names(evaluator_list))
       if (save && !save_in_bulk) {
-        cached_eval_names <- setdiff(evaluator_names, names(evaluator_list))
         for (fname in list.files(file.path(save_dir, "eval_results"), pattern = ".rds")) {
           if (!(basename(fname) %in% paste0(cached_eval_names, ".rds"))) {
             file.remove(file.path(save_dir, "eval_results", fname))
@@ -1496,6 +1568,16 @@ Experiment <- R6::R6Class(
           }
         }
       )
+      if (verbose >= 1) {
+        if (length(cached_eval_names) > 0) {
+          inform(
+            sprintf(
+              "Using cached eval results for: %s",
+              paste0(cached_eval_names, collapse = ", ")
+            )
+          )
+        }
+      }
       if (save && !save_in_bulk) {
         eval_results <- private$.get_cached_results("eval", verbose = 0)[
           evaluator_names
@@ -1604,8 +1686,8 @@ Experiment <- R6::R6Class(
         }
       }
 
+      cached_viz_names <- setdiff(visualizer_names, names(visualizer_list))
       if (save && !save_in_bulk) {
-        cached_viz_names <- setdiff(visualizer_names, names(visualizer_list))
         for (fname in list.files(file.path(save_dir, "viz_results"), pattern = ".rds")) {
           if (!(basename(fname) %in% paste0(cached_viz_names, ".rds"))) {
             file.remove(file.path(save_dir, "viz_results", fname))
@@ -1640,6 +1722,16 @@ Experiment <- R6::R6Class(
           }
         }
       )
+      if (verbose >= 1) {
+        if (length(cached_viz_names) > 0) {
+          inform(
+            sprintf(
+              "Using cached eval results for: %s",
+              paste0(cached_viz_names, collapse = ", ")
+            )
+          )
+        }
+      }
       if (save && !save_in_bulk) {
         viz_results <- private$.get_cached_results("viz", verbose = 0)[
           visualizer_names
