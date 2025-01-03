@@ -537,33 +537,58 @@ Experiment <- R6::R6Class(
       } else {
         save_dir <- private$.get_vary_across_dir()
       }
-      if (results_type %in% c("fit", "eval", "viz")) {
-        save_file <- file.path(save_dir, paste0(results_type, "_results.rds"))
-        if (results_type == "fit") {
-          save_file2 <- file.path(save_dir,
-                                  paste0(results_type,
-                                         "_results_extra_cached_reps.rds"))
-        }
-      } else {
-        save_file <- file.path(save_dir, paste0(results_type, ".rds"))
-      }
-      if (file.exists(save_file)) {
-        res <- readRDS(save_file)
-        if (results_type == "fit") {
-          if (file.exists(save_file2)) {
-            res <- dplyr::bind_rows(res, readRDS(save_file2))
+      if (private$.save_in_bulk[[results_type]] ||
+          !(results_type %in% c("fit", "eval", "viz"))) {
+        if (results_type %in% c("fit", "eval", "viz")) {
+          save_file <- file.path(save_dir, paste0(results_type, "_results.rds"))
+          if (results_type == "fit") {
+            save_file2 <- file.path(save_dir,
+                                    paste0(results_type,
+                                           "_results_extra_cached_reps.rds"))
           }
+        } else {
+          save_file <- file.path(save_dir, paste0(results_type, ".rds"))
         }
-        return(res)
+        if (file.exists(save_file)) {
+          res <- readRDS(save_file)
+          if (results_type == "fit") {
+            if (file.exists(save_file2)) {
+              res <- dplyr::bind_rows(res, readRDS(save_file2))
+            }
+          }
+          return(res)
+        } else {
+          if (verbose >= 1) {
+            if (results_type %in% c("fit", "eval", "viz")) {
+              inform(sprintf("Cannot find cached %s results.", results_type))
+            } else {
+              inform("Cannot find cache.")
+            }
+          }
+          return(NULL)
+        }
       } else {
-        if (verbose >= 1) {
-          if (results_type %in% c("fit", "eval", "viz")) {
-            inform(sprintf("Cannot find cached %s results.", results_type))
+        save_files <- list.files(
+          file.path(save_dir, sprintf("%s_results", results_type)),
+          pattern = ".rds"
+        )
+        if (length(save_files) > 0) {
+          if (results_type == "fit") {
+            res <- purrr::map(save_files, ~ readRDS(.x)) |>
+              dplyr::bind_rows()
           } else {
-            inform("Cannot find cache.")
+            res <- purrr::map(save_files, ~ readRDS(.x)) |>
+              setNames(
+                stringr::str_remove(basename(save_files), "\\.rds$")
+              )
           }
+          return(res)
+        } else {
+          if (verbose >= 1) {
+            inform(sprintf("Cannot find cached %s results.", results_type))
+          }
+          return(NULL)
         }
-        return(NULL)
       }
     },
 
@@ -697,6 +722,26 @@ Experiment <- R6::R6Class(
                        R.utils::capitalize(results_type),
                        difftime(Sys.time(), start_time, units = "secs")))
       }
+    },
+
+    .save_result = function(result,
+                            results_type = c("fit", "eval", "viz"),
+                            fname) {
+      results_type <- match.arg(results_type)
+      if (!private$.has_vary_across()) {
+        save_dir <- private$.save_dir
+      } else {
+        save_dir <- private$.get_vary_across_dir()
+      }
+      save_file <- file.path(
+        save_dir,
+        sprintf("%s_results", results_type),
+        sprintf("%s.rds", fname)
+      )
+      if (!dir.exists(dirname(save_file))) {
+        dir.create(dirname(save_file), recursive = TRUE)
+      }
+      saveRDS(result, save_file)
     },
 
     .get_vary_across_dir = function() {
@@ -1377,6 +1422,13 @@ Experiment <- R6::R6Class(
         return(NULL)
       }
 
+      save_in_bulk <- private$.save_in_bulk[["eval"]]
+      if (!private$.has_vary_across()) {
+        save_dir <- private$.save_dir
+      } else {
+        save_dir <- private$.get_vary_across_dir()
+      }
+
       n_reps <- max(as.numeric(fit_results$.rep))
       private$.update_fit_params()
       if (use_cached) {
@@ -1384,11 +1436,17 @@ Experiment <- R6::R6Class(
         is_cached <- private$.is_fully_cached(cached_params, "eval", n_reps)
         if (isTRUE(is_cached)) {
           results <- private$.get_cached_results("eval", verbose = verbose)
-          results <- results[names(private$.get_obj_list("evaluator"))]
-          if (save) {
-            if (!setequal(names(private$.get_obj_list("evaluator")),
-                          names(results))) {
+          cached_eval_names <- names(results)
+          results <- results[evaluator_names]
+          if (save && save_in_bulk) {
+            if (!setequal(evaluator_names, cached_eval_names)) {
               private$.save_results(results, "eval", n_reps, verbose)
+            }
+          } else if (save && !save_in_bulk) {
+            for (fname in list.files(file.path(save_dir, "eval_results"), pattern = ".rds")) {
+              if (!(basename(fname) %in% paste0(cached_eval_names, ".rds"))) {
+                file.remove(file.path(save_dir, "eval_results", fname))
+              }
             }
           }
           if (verbose >= 1) {
@@ -1400,6 +1458,15 @@ Experiment <- R6::R6Class(
         } else {
           evaluator_list <- private$.get_new_obj_list(cached_params,
                                                       "evaluator")
+        }
+      }
+
+      if (save && !save_in_bulk) {
+        cached_eval_names <- setdiff(evaluator_names, names(evaluator_list))
+        for (fname in list.files(file.path(save_dir, "eval_results"), pattern = ".rds")) {
+          if (!(basename(fname) %in% paste0(cached_eval_names, ".rds"))) {
+            file.remove(file.path(save_dir, "eval_results", fname))
+          }
         }
       }
 
@@ -1421,23 +1488,38 @@ Experiment <- R6::R6Class(
           if (record_time) {
             attr(eval_result, ".time_taken") <- eval_time
           }
-          return(eval_result)
+          if (save && !save_in_bulk) {
+            private$.save_result(eval_result, "eval", name)
+            return(NULL)
+          } else {
+            return(eval_result)
+          }
         }
       )
-      names(eval_results) <- names(evaluator_list)
-      if (use_cached && !setequal(names(evaluator_list), evaluator_names)) {
-        eval_results_cached <- private$.get_cached_results("eval",
-                                                           verbose = verbose)
-        if (verbose >= 1) {
-          inform("Appending cached results to the new evaluation results...")
+      if (save && !save_in_bulk) {
+        eval_results <- private$.get_cached_results("eval", verbose = 0)[
+          evaluator_names
+        ]
+        cached_params <- private$.update_cache("eval", n_reps = n_reps)
+        saveRDS(cached_params,
+                file.path(save_dir, "experiment_cached_params.rds"))
+        saveRDS(self, file.path(save_dir, "experiment.rds"))
+      } else {
+        names(eval_results) <- names(evaluator_list)
+        if (use_cached && !setequal(names(evaluator_list), evaluator_names)) {
+          eval_results_cached <- private$.get_cached_results("eval",
+                                                             verbose = verbose)
+          if (verbose >= 1) {
+            inform("Appending cached results to the new evaluation results...")
+          }
+          eval_results <- c(eval_results, eval_results_cached)[evaluator_names]
         }
-        eval_results <- c(eval_results, eval_results_cached)[evaluator_names]
       }
       if (verbose >= 1) {
         inform(sprintf("Evaluation completed | time taken: %f minutes",
                        difftime(Sys.time(), start_time, units = "mins")))
       }
-      if (save) {
+      if (save && save_in_bulk) {
         private$.save_results(eval_results, "eval", n_reps, verbose)
       }
       if (verbose >= 1) {
@@ -1483,6 +1565,13 @@ Experiment <- R6::R6Class(
         return(NULL)
       }
 
+      save_in_bulk <- private$.save_in_bulk[["viz"]]
+      if (!private$.has_vary_across()) {
+        save_dir <- private$.save_dir
+      } else {
+        save_dir <- private$.get_vary_across_dir()
+      }
+
       n_reps <- max(as.numeric(fit_results$.rep))
       private$.update_fit_params()
       if (use_cached) {
@@ -1490,11 +1579,17 @@ Experiment <- R6::R6Class(
         is_cached <- private$.is_fully_cached(cached_params, "viz", n_reps)
         if (isTRUE(is_cached)) {
           results <- private$.get_cached_results("viz", verbose = verbose)
-          results <- results[names(private$.get_obj_list("visualizer"))]
-          if (save) {
-            if (!setequal(names(private$.get_obj_list("visualizer")),
-                          names(results))) {
+          cached_viz_names <- names(results)
+          results <- results[visualizer_names]
+          if (save && save_in_bulk) {
+            if (!setequal(visualizer_names, cached_viz_names)) {
               private$.save_results(results, "viz", n_reps, verbose)
+            }
+          } else if (save && !save_in_bulk) {
+            for (fname in list.files(file.path(save_dir, "viz_results"), pattern = ".rds")) {
+              if (!(basename(fname) %in% paste0(cached_viz_names, ".rds"))) {
+                file.remove(file.path(save_dir, "eval_results", fname))
+              }
             }
           }
           if (verbose >= 1) {
@@ -1506,6 +1601,15 @@ Experiment <- R6::R6Class(
         } else {
           visualizer_list <- private$.get_new_obj_list(cached_params,
                                                        "visualizer")
+        }
+      }
+
+      if (save && !save_in_bulk) {
+        cached_viz_names <- setdiff(visualizer_names, names(visualizer_list))
+        for (fname in list.files(file.path(save_dir, "viz_results"), pattern = ".rds")) {
+          if (!(basename(fname) %in% paste0(cached_viz_names, ".rds"))) {
+            file.remove(file.path(save_dir, "viz_results", fname))
+          }
         }
       }
 
@@ -1528,24 +1632,38 @@ Experiment <- R6::R6Class(
           if (record_time) {
             attr(viz_result, ".time_taken") <- viz_time
           }
-          return(viz_result)
+          if (save && !save_in_bulk) {
+            private$.save_result(viz_result, "viz", name)
+            return(NULL)
+          } else {
+            return(viz_result)
+          }
         }
       )
-      names(viz_results) <- names(visualizer_list)
-      if (use_cached && !setequal(names(visualizer_list), visualizer_names)) {
-        viz_results_cached <- private$.get_cached_results("viz",
-                                                          verbose = verbose)
-        if (verbose >= 1) {
-          inform("Appending cached results to the new visualization results...")
+      if (save && !save_in_bulk) {
+        viz_results <- private$.get_cached_results("viz", verbose = 0)[
+          visualizer_names
+        ]
+        cached_params <- private$.update_cache("viz", n_reps = n_reps)
+        saveRDS(cached_params,
+                file.path(save_dir, "experiment_cached_params.rds"))
+        saveRDS(self, file.path(save_dir, "experiment.rds"))
+      } else {
+        names(viz_results) <- names(visualizer_list)
+        if (use_cached && !setequal(names(visualizer_list), visualizer_names)) {
+          viz_results_cached <- private$.get_cached_results("viz",
+                                                            verbose = verbose)
+          if (verbose >= 1) {
+            inform("Appending cached results to the new visualization results...")
+          }
+          viz_results <- c(viz_results, viz_results_cached)[visualizer_names]
         }
-        viz_results <- c(viz_results,
-                         viz_results_cached)[visualizer_names]
       }
       if (verbose >= 1) {
         inform(sprintf("Visualization completed | time taken: %f minutes",
                        difftime(Sys.time(), start_time, units = "mins")))
       }
-      if (save) {
+      if (save && save_in_bulk) {
         private$.save_results(viz_results, "viz", n_reps, verbose)
       }
       if (verbose >= 1) {
