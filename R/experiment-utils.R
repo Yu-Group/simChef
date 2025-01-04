@@ -224,6 +224,7 @@ compute_rep <- function(reps,
                  .method_output = NULL,
                  .err = data_list) |>
               list_to_tibble_row() |>
+              simplify_tibble(c(".rep", ".dgp_name", ".method_name")) |>
               maybe_add_debug_data(TRUE)
           )
         }
@@ -322,6 +323,7 @@ compute_rep <- function(reps,
                      .method_output = NULL,
                      .err = result) |>
                   list_to_tibble_row() |>
+                  simplify_tibble(c(".rep", ".dgp_name", ".method_name")) |>
                   maybe_add_debug_data(TRUE)
               )
             }
@@ -357,6 +359,7 @@ compute_rep <- function(reps,
                      .method_output = result,
                      .err = names_check) |>
                   list_to_tibble_row() |>
+                  simplify_tibble(c(".rep", ".dgp_name", ".method_name")) |>
                   maybe_add_debug_data(TRUE)
               )
             }
@@ -371,7 +374,9 @@ compute_rep <- function(reps,
 
             p("of total reps")
 
-            return(result |> maybe_add_debug_data(debug))
+            return(result |>
+                     simplify_tibble(c(".rep", ".dgp_name", ".method_name")) |>
+                     maybe_add_debug_data(debug))
 
           }
         )) # method_res <- purrr::list_rbind(purrr::map(
