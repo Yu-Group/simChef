@@ -4,7 +4,7 @@
 \alias{compute_rep}
 \title{Distribute simulation computation by replicates.}
 \usage{
-compute_rep(n_reps, future.globals, future.packages, future.seed, ...)
+compute_rep(reps, future.globals, future.packages, future.seed, ...)
 }
 \description{
 Distribute simulation computation by replicates.

@@ -136,7 +136,7 @@ Default is \code{TRUE}. If \code{FALSE}, each fit replicate is saved as a
 separate .rds file while each evaluator/visualizer is saved as a
 separate .rds file. One can alternatively specify a character vector
 with some subset of "fit", "eval", and/or "viz", indicating the
-elements to save in bulk to disk. Ignored if \code{save = FALSE}.}
+elements to save in bulk to disk.}
 
 \item{\code{...}}{Not used.}
 }

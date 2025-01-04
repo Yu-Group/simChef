@@ -4,7 +4,7 @@
 \alias{compute_dgp}
 \title{Distribute simulation computation by DGPs.}
 \usage{
-compute_dgp(n_reps, future.globals, future.packages, future.seed, ...)
+compute_dgp(reps, future.globals, future.packages, future.seed, ...)
 }
 \description{
 Distribute simulation computation by DGPs.

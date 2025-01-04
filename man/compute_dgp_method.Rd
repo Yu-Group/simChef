@@ -4,7 +4,7 @@
 \alias{compute_dgp_method}
 \title{Doubly nested distributed simulation computation nested by DGPs and Methods.}
 \usage{
-compute_dgp_method(n_reps, future.globals, future.packages, future.seed, ...)
+compute_dgp_method(reps, future.globals, future.packages, future.seed, ...)
 }
 \description{
 Doubly nested distributed simulation computation nested by DGPs and Methods.

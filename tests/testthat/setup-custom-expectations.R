@@ -198,7 +198,8 @@ expect_partial_results_and_errors <- function(err) {
     c(".rep", ".dgp_name", ".method_name") %in% names(err$partial_results)
   ))
 
-  expect_named(err$errors, c(".dgp",
+  expect_named(err$errors, c(".rep",
+                             ".dgp",
                              ".dgp_name",
                              ".dgp_params",
                              ".method",

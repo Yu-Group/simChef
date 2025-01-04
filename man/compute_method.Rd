@@ -4,7 +4,7 @@
 \alias{compute_method}
 \title{Distribute simulation computation by Methods.}
 \usage{
-compute_method(n_reps, future.globals, future.packages, future.seed, ...)
+compute_method(reps, future.globals, future.packages, future.seed, ...)
 }
 \description{
 Distribute simulation computation by Methods.
