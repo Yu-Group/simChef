@@ -124,7 +124,7 @@ compute_rep <- function(reps,
     purrr::reduce(c) |>
     unique()
 
-  results <- future.apply::future_lapply(as.character(reps), function(rep) {
+  results <- future.apply::future_lapply(as.character(reps), function(i) {
 
     # make a local binding to error_state
     error_state <- error_state
@@ -151,7 +151,7 @@ compute_rep <- function(reps,
     })
 
     save_file <- file.path(
-      save_dir, "fit_results", sprintf("fit_result%s.rds", rep)
+      save_dir, "fit_results", sprintf("fit_result%s.rds", i)
     )
     if (use_cached && file.exists(save_file) && !save_in_bulk) {
       cached_results <- readRDS(save_file)
@@ -214,7 +214,7 @@ compute_rep <- function(reps,
           }
 
           return(
-            list(.rep = rep,
+            list(.rep = i,
                  .dgp = dgp_list[[dgp_name]],
                  .dgp_name = dgp_name,
                  .dgp_params = dgp_params,
@@ -224,7 +224,7 @@ compute_rep <- function(reps,
                  .method_output = NULL,
                  .err = data_list) |>
               list_to_tibble_row() |>
-              simplify_tibble(c(".rep", ".dgp_name", ".method_name")) |>
+              simplify_tibble(cols = c(".rep", ".dgp_name", ".method_name")) |>
               maybe_add_debug_data(TRUE)
           )
         }
@@ -258,7 +258,8 @@ compute_rep <- function(reps,
               method_params = method_params,
               duplicate_param_names = duplicate_param_names
             ) |>
-              list_to_tibble_row()
+              list_to_tibble_row() |>
+              simplify_tibble(cols = c(".rep", ".dgp_name", ".method_name"))
 
             # param_df$.seed <- seed
 
@@ -268,21 +269,20 @@ compute_rep <- function(reps,
 
             if (use_cached && file.exists(save_file) && !save_in_bulk) {
               is_cached <- compare_tibble_rows(
-                simplify_tibble(param_df),
+                param_df,
                 cached_results |>
-                  dplyr::select(tidyselect::all_of(colnames(param_df))) |>
-                  simplify_tibble(),
+                  dplyr::select(tidyselect::all_of(colnames(param_df))),
                 op = "contained_in"
               ) &&
                 compare_tibble_rows(
-                  simplify_tibble(param_df),
+                  param_df,
                   cached_fit_params |>
                     dplyr::select(tidyselect::all_of(colnames(param_df))),
                   op = "contained_in"
                 )
               if (is_cached) {
                 # if (verbose >= 1) {
-                #   inform(sprintf("Found cached results for rep=%s for", rep))
+                #   inform(sprintf("Found cached results for rep=%s for", i))
                 #   inform(str(simplify_tibble(param_df)))
                 # }
                 return(NULL)
@@ -313,7 +313,7 @@ compute_rep <- function(reps,
               method_params$data_list <- NULL
 
               return(
-                list(.rep = rep,
+                list(.rep = i,
                      .dgp = dgp_list[[dgp_name]],
                      .dgp_name = dgp_name,
                      .dgp_params = dgp_params,
@@ -323,7 +323,7 @@ compute_rep <- function(reps,
                      .method_output = NULL,
                      .err = result) |>
                   list_to_tibble_row() |>
-                  simplify_tibble(c(".rep", ".dgp_name", ".method_name")) |>
+                  simplify_tibble(cols = c(".rep", ".dgp_name", ".method_name")) |>
                   maybe_add_debug_data(TRUE)
               )
             }
@@ -349,7 +349,7 @@ compute_rep <- function(reps,
               method_params$data_list <- NULL
 
               return(
-                list(.rep = rep,
+                list(.rep = i,
                      .dgp = dgp_list[[dgp_name]],
                      .dgp_name = dgp_name,
                      .dgp_params = dgp_params,
@@ -359,14 +359,14 @@ compute_rep <- function(reps,
                      .method_output = result,
                      .err = names_check) |>
                   list_to_tibble_row() |>
-                  simplify_tibble(c(".rep", ".dgp_name", ".method_name")) |>
+                  simplify_tibble(cols = c(".rep", ".dgp_name", ".method_name")) |>
                   maybe_add_debug_data(TRUE)
               )
             }
 
             result <- result |>
               tibble::add_column(param_df, .before = 1) |>
-              tibble::add_column(.rep = rep, .before = 1)
+              tibble::add_column(.rep = i, .before = 1)
 
             if (record_time) {
               result$.time_taken <- fit_time
@@ -374,9 +374,7 @@ compute_rep <- function(reps,
 
             p("of total reps")
 
-            return(result |>
-                     simplify_tibble(c(".rep", ".dgp_name", ".method_name")) |>
-                     maybe_add_debug_data(debug))
+            return(result |> maybe_add_debug_data(debug))
 
           }
         )) # method_res <- purrr::list_rbind(purrr::map(
@@ -385,9 +383,6 @@ compute_rep <- function(reps,
 
       }
     )) # dgp_res <- purrr::list_rbind(purrr::map(
-
-    dgp_res <- dgp_res |>
-      simplify_tibble(c(vary_param_names, duplicate_param_names))
 
     if (use_cached && file.exists(save_file) && !save_in_bulk) {
       dgp_res <- get_matching_rows(
@@ -407,10 +402,11 @@ compute_rep <- function(reps,
       }
       dgp_res <- dgp_res |>
         dplyr::select(tidyselect::any_of(unique(c(
-          ".rep", vary_param_names, duplicate_param_names,
-          ".dgp", ".dgp_name", ".dgp_params",
+          ".rep", ".dgp", ".dgp_name", ".dgp_params",
           ".method", ".method_name", ".method_params",
-          ".method_output", ".err", ".pid", ".gc"
+          ".method_output",
+          vary_param_names, duplicate_param_names,
+          ".err", ".pid", ".gc"
         ))))
     }
 

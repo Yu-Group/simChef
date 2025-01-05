@@ -337,7 +337,7 @@ Experiment <- R6::R6Class(
 
     .get_fit_params = function(cached_params = NULL,
                                type = c("all", "cached", "new"),
-                               n_reps = NULL, simplify = FALSE) {
+                               n_reps = NULL, wide_params = FALSE) {
       # get all/new/cached (dgp, method) fit parameter combinations
       type <- match.arg(type)
       fit_params <- private$.fit_params
@@ -366,7 +366,7 @@ Experiment <- R6::R6Class(
         }
       }
 
-      if (simplify && (nrow(out_params) > 0)) {
+      if (wide_params && (nrow(out_params) > 0)) {
         duplicate_param_names <- private$.get_duplicate_param_names()
         for (param_name in private$.get_vary_params("dgp")) {
           # fix naming if also in method vary across
@@ -386,9 +386,12 @@ Experiment <- R6::R6Class(
         }
         out_params <- out_params |>
           dplyr::select(-.dgp, -.dgp_fun, -.dgp_params,
-                        -.method, -.method_fun, -.method_params) |>
-          simplify_tibble()
+                        -.method, -.method_fun, -.method_params)
       }
+
+      out_params <- simplify_tibble(
+        out_params, cols = c(".rep", ".dgp_name", ".method_name")
+      )
       return(out_params)
     },
 
@@ -1156,10 +1159,13 @@ Experiment <- R6::R6Class(
         if (n_reps_cached > 0) {
 
           results <- private$.get_cached_results("fit", verbose = verbose)
-          fit_params <- private$.get_fit_params(simplify = TRUE)
+          fit_params <- private$.get_fit_params(wide_params = TRUE)
 
           fit_results <- get_matching_rows(id = fit_params, x = results) |>
-            dplyr::select(.rep, tidyselect::everything()) |>
+            dplyr::select(
+              .rep, .dgp_name, .method_name, private$.get_vary_params(),
+              tidyselect::everything()
+            ) |>
             dplyr::arrange(as.numeric(.rep), .dgp_name, .method_name)
 
           if (save && save_in_bulk) {
@@ -1171,28 +1177,24 @@ Experiment <- R6::R6Class(
             if (verbose >= 1) {
               inform("==============================")
             }
-
             if (use_cached && return_all_cached_reps) {
-              return(
-                simplify_tibble(fit_results)
-              )
+              return(simplify_tibble(fit_results))
             } else {
-              return(
-                fit_results |>
-                  dplyr::filter(as.numeric(.rep) <= !!n_reps_total) |>
-                  simplify_tibble()
-              )
+              fit_results <- fit_results |>
+                dplyr::filter(as.numeric(.rep) <= !!n_reps_total)
+              return(simplify_tibble(fit_results))
             }
           }
 
           if (!save_in_bulk) {
+            # TOFIX
             purrr::walk(
               unique(fit_results$.rep),
-              function(rep) {
+              function(i) {
                 rep_results <- fit_results |>
-                  dplyr::filter(as.numeric(.rep) == rep)
+                  dplyr::filter(as.numeric(.rep) == !!i)
                 private$.save_result(
-                  rep_results, "fit", sprintf("fit_result%s", rep)
+                  rep_results, "fit", sprintf("fit_result%s", i)
                 )
               }
             )
@@ -1238,7 +1240,7 @@ Experiment <- R6::R6Class(
 
         if (!save_in_bulk) {
           cached_fit_params <- private$.get_fit_params(
-            cached_params, "cached", 0, simplify = TRUE
+            cached_params, "cached", 0, wide_params = TRUE
           )
         }
 
@@ -1286,6 +1288,7 @@ Experiment <- R6::R6Class(
               save_per_rep = save_per_rep,
               use_cached = use_cached && (nrow(cached_fit_params) > 0),
               save_dir = save_dir,
+              simplify_tibble = simplify_tibble,
               do_call_wrapper = function(name,
                                          fun,
                                          params,
@@ -1325,10 +1328,8 @@ Experiment <- R6::R6Class(
 
         gc()
 
-        if (save_in_bulk) {
-          new_fit_results <- new_fit_results |>
-            simplify_tibble()
-        }
+        new_fit_results <- new_fit_results |>
+          simplify_tibble(cols = c(".rep", ".dgp_name", ".method_name"))
 
         if (".err" %in% colnames(new_fit_results)) {
 
@@ -1338,10 +1339,10 @@ Experiment <- R6::R6Class(
                 .err, ~!is.null(.x)
               )
             ) |>
-            dplyr::select(.dgp, .dgp_name, .dgp_params,
+            dplyr::select(.rep, .dgp, .dgp_name, .dgp_params,
                           .method, .method_name, .method_params,
                           .method_output, .err, .pid, .gc) |>
-            dplyr::arrange(.dgp_name, .method_name)
+            dplyr::arrange(.rep, .dgp_name, .method_name)
 
           # filter out errors
           new_fit_results <- new_fit_results |>
@@ -1367,8 +1368,8 @@ Experiment <- R6::R6Class(
               "along with the params,\n  `DGP`, `Method`, and ",
               "inputs/outputs before the error occurred."
             ),
-            partial_results = new_fit_results,
-            errors = errors
+            partial_results = simplify_tibble(new_fit_results),
+            errors = simplify_tibble(errors)
           )
 
         }
@@ -1383,12 +1384,7 @@ Experiment <- R6::R6Class(
           new_fit_results[[col]] <- NA
         }
 
-        fit_results <- new_fit_results |>
-          dplyr::select(.rep, .dgp_name, .method_name,
-                        private$.get_vary_params(),
-                        tidyselect::everything()) |>
-          dplyr::bind_rows(fit_results) |>
-          dplyr::arrange(as.numeric(.rep), .dgp_name, .method_name)
+        fit_results <- dplyr::bind_rows(new_fit_results, fit_results)
 
         if (save_in_bulk) {
           if (use_cached && !new_fit) {
@@ -1403,11 +1399,14 @@ Experiment <- R6::R6Class(
             if (verbose >= 1) {
               inform("Appending cached results to the new fit results...")
             }
-            fit_params <- private$.get_fit_params(simplify = TRUE)
+            fit_params <- private$.get_fit_params(wide_params = TRUE)
             fit_results <- dplyr::bind_rows(fit_results, fit_results_cached)
             fit_results <- get_matching_rows(id = fit_params, x = fit_results) |>
-              dplyr::arrange(as.numeric(.rep), .dgp_name, .method_name) |>
-              dplyr::select(.rep, tidyselect::everything())
+              dplyr::select(
+                .rep, .dgp_name, .method_name, private$.get_vary_params(),
+                tidyselect::everything()
+              ) |>
+              dplyr::arrange(as.numeric(.rep), .dgp_name, .method_name)
           }
 
           if (save || checkpoint) {
@@ -1439,21 +1438,21 @@ Experiment <- R6::R6Class(
       }
 
       if (save && !save_in_bulk) {
-        fit_results <- private$.get_cached_results("fit", verbose = 0) |>
-          dplyr::select(.rep, .dgp_name, .method_name,
-                        private$.get_vary_params(),
-                        tidyselect::everything()) |>
-          dplyr::arrange(as.numeric(.rep), .dgp_name, .method_name)
+        fit_results <- private$.get_cached_results("fit", verbose = 0)
       }
 
+      fit_results <- fit_results |>
+        dplyr::select(
+          .rep, .dgp_name, .method_name, private$.get_vary_params(),
+          tidyselect::everything()
+        ) |>
+        dplyr::arrange(as.numeric(.rep), .dgp_name, .method_name)
       if (use_cached && return_all_cached_reps) {
         return(simplify_tibble(fit_results))
       } else {
-        return(
-          fit_results |>
-            dplyr::filter(as.numeric(.rep) <= !!n_reps_total) |>
-            simplify_tibble()
-        )
+        fit_results <- fit_results |>
+          dplyr::filter(as.numeric(.rep) <= !!n_reps_total)
+        return(simplify_tibble(fit_results))
       }
 
     },
@@ -2171,8 +2170,18 @@ Experiment <- R6::R6Class(
     #'   `results_type = "viz"`, and the experiment parameters used in
     #'   the cache if `results_type = "experiment_cached_params"`.
     get_cached_results = function(results_type, verbose = 0) {
-      return(private$.get_cached_results(results_type = results_type,
-                                         verbose = verbose))
+      cached_results <- private$.get_cached_results(
+        results_type = results_type, verbose = verbose
+      )
+      if (results_type == "fit") {
+        cached_results <- simplify_tibble(cached_results) |>
+          dplyr::select(
+            .rep, .dgp_name, .method_name, private$.get_vary_params(),
+            tidyselect::everything()
+          ) |>
+          dplyr::arrange(as.numeric(.rep), .dgp_name, .method_name)
+      }
+      return(cached_results)
     },
 
     #' @description Set R Markdown options for `Evaluator` or `Visualizer`
