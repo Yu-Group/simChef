@@ -581,7 +581,7 @@ remove_source <- function(x, cols = NULL) {
         function(params_ls) {
           purrr::map(
             params_ls,
-            function(.x) if (is.function(.x)) removeSource(.x) else .x
+            function(.x) if (is.function(.x)) utils::removeSource(.x) else .x
           )
         }
       )
@@ -594,7 +594,7 @@ remove_source <- function(x, cols = NULL) {
         if (is.list(x[[func_col]])) {
           x[[func_col]] <- purrr::map(
             x[[func_col]],
-            function(.x) if (is.function(.x)) removeSource(.x) else .x
+            function(.x) if (is.function(.x)) utils::removeSource(.x) else .x
           )
         }
       }

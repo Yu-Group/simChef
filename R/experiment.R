@@ -318,17 +318,17 @@ Experiment <- R6::R6Class(
         dplyr::mutate(
           .dgp_name = purrr::map_chr(.dgp, ~.x$.dgp_name),
           .dgp_fun = purrr::map(
-            .dgp, ~removeSource(dgp_list[[.x$.dgp_name]]$dgp_fun)
+            .dgp, ~ utils::removeSource(dgp_list[[.x$.dgp_name]]$dgp_fun)
           ),
           .dgp_params = purrr::map(
-            .dgp, ~dgp_list[[.x$.dgp_name]]$dgp_params
+            .dgp, ~ dgp_list[[.x$.dgp_name]]$dgp_params
           ),
           .method_name = purrr::map_chr(.method, ~.x$.method_name),
           .method_fun = purrr::map(
-            .method, ~removeSource(method_list[[.x$.method_name]]$method_fun)
+            .method, ~ utils::removeSource(method_list[[.x$.method_name]]$method_fun)
           ),
           .method_params = purrr::map(
-            .method, ~method_list[[.x$.method_name]]$method_params
+            .method, ~ method_list[[.x$.method_name]]$method_params
           )
         )
 
@@ -405,7 +405,7 @@ Experiment <- R6::R6Class(
       obj_params <- tibble::tibble(
         name = names(obj_list),
         fun = purrr::map(
-          obj_list, ~removeSource(.x[[sprintf("%s_fun", field_name)]])
+          obj_list, ~ utils::removeSource(.x[[sprintf("%s_fun", field_name)]])
         ),
         params = purrr::map(
           obj_list, sprintf("%s_params", field_name)
