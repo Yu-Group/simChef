@@ -1187,7 +1187,6 @@ Experiment <- R6::R6Class(
           }
 
           if (!save_in_bulk) {
-            # TOFIX
             purrr::walk(
               unique(fit_results$.rep),
               function(i) {
@@ -1342,7 +1341,7 @@ Experiment <- R6::R6Class(
             dplyr::select(.rep, .dgp, .dgp_name, .dgp_params,
                           .method, .method_name, .method_params,
                           .method_output, .err, .pid, .gc) |>
-            dplyr::arrange(.rep, .dgp_name, .method_name)
+            dplyr::arrange(as.numeric(.rep), .dgp_name, .method_name)
 
           # filter out errors
           new_fit_results <- new_fit_results |>
