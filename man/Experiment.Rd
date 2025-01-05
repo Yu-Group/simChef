@@ -90,6 +90,7 @@ Initialize a new \code{Experiment} object.
   future.packages = NULL,
   clone_from = NULL,
   save_dir = NULL,
+  save_in_bulk = TRUE,
   ...
 )}\if{html}{\out{</div>}}
 }
@@ -128,6 +129,15 @@ in a directory called "results" with a sub-directory named after
 \code{Experiment$name} when using \code{\link[=run_experiment]{run_experiment()}} or \code{\link[=fit_experiment]{fit_experiment()}}
 with \code{save=TRUE}.}
 
+\item{\code{save_in_bulk}}{A logical, indicating whether or not to save the
+fit, evaluator, and visualizer outputs, each as a single bulk .rds file
+(i.e., as \code{fit_results.rds}, \code{eval_results.rds}, \code{viz_results.rds}).
+Default is \code{TRUE}. If \code{FALSE}, each fit replicate is saved as a
+separate .rds file while each evaluator/visualizer is saved as a
+separate .rds file. One can alternatively specify a character vector
+with some subset of "fit", "eval", and/or "viz", indicating the
+elements to save in bulk to disk.}
+
 \item{\code{...}}{Not used.}
 }
 \if{html}{\out{</div>}}
@@ -152,6 +162,7 @@ and visualizing).
   use_cached = FALSE,
   return_all_cached_reps = FALSE,
   save = FALSE,
+  record_time = FALSE,
   checkpoint_n_reps = 0,
   verbose = 1,
   ...
@@ -192,7 +203,16 @@ cached replicates from the (\code{DGP}, \code{Method}) combinations in the
 only the \code{n_reps} replicates are used when evaluating and visualizing
 the \code{Experiment}.}
 
-\item{\code{save}}{If \code{TRUE}, save outputs to disk.}
+\item{\code{save}}{A logical, indicating whether or not to save the fit,
+evaluator, and visualizer outputs to disk. Alternatively, one can
+specify a character vector with some subset of "fit", "eval", and/or
+"viz", indicating the elements to save to disk.}
+
+\item{\code{record_time}}{A logical, indicating whether or not to record the
+time taken to run each \code{Method}, \code{Evaluator}, and \code{Visualizer} in the
+\code{Experiment}. Alternatively, one can specify a character vector with
+some subset of "fit", "eval", and/or "viz", indicating the elements for
+which to record the time taken.}
 
 \item{\code{checkpoint_n_reps}}{The number of experiment replicates to compute
 before saving results to disk. If 0 (the default), no checkpoints are
@@ -214,7 +234,7 @@ following entries:
 \describe{
 \item{fit_results}{A tibble containing results from the \code{fit}
 method. In addition to results columns, has columns named '.rep', '.dgp_name',
-'.method_name', and the \code{vary_across} parameter names if applicable.}
+'.method_name', '.time_taken', and the \code{vary_across} parameter names if applicable.}
 \item{eval_results}{A list of tibbles containing results from the
 \code{evaluate} method, which evaluates each \code{Evaluator} in
 the \code{Experiment}. Length of list is equivalent to the number of
@@ -275,6 +295,7 @@ Fit \code{Methods} in the \code{Experiment} across all
   use_cached = FALSE,
   return_all_cached_reps = FALSE,
   save = FALSE,
+  record_time = FALSE,
   checkpoint_n_reps = 0,
   verbose = 1,
   ...
@@ -313,7 +334,10 @@ returns fit results for the requested \code{n_reps} plus any additional
 cached replicates from the (\code{DGP}, \code{Method}) combinations in the
 \code{Experiment}.}
 
-\item{\code{save}}{If \code{TRUE}, save outputs to disk.}
+\item{\code{save}}{Logical. If \code{TRUE}, save outputs to disk.}
+
+\item{\code{record_time}}{Logical. If \code{TRUE}, record the amount of time taken to
+fit each \code{Method} per replicate.}
 
 \item{\code{checkpoint_n_reps}}{The number of experiment replicates to compute
 before saving results to disk. If 0 (the default), no checkpoints are
@@ -334,7 +358,8 @@ functions. See \code{\link[future.apply:future_lapply]{future.apply::future_lapp
 \subsection{Returns}{
 A tibble containing the results from fitting all \code{Methods}
 across all \code{DGPs} for \code{n_reps} repetitions. In addition to
-results columns, has columns named '.rep', '.dgp_name', '.method_name', and the
+results columns, has columns named '.rep', '.dgp_name', '.method_name',
+'.time_taken' (if \code{record_time = TRUE}), and the
 \code{vary_across} parameter names if applicable.
 }
 }
@@ -349,6 +374,7 @@ Evaluate the performance of method(s) across all
   fit_results,
   use_cached = FALSE,
   save = FALSE,
+  record_time = FALSE,
   verbose = 1,
   ...
 )}\if{html}{\out{</div>}}
@@ -363,7 +389,10 @@ Evaluate the performance of method(s) across all
 results. If cached results cannot be found, continue as if \code{use_cached} was
 \code{FALSE}.}
 
-\item{\code{save}}{If \code{TRUE}, save outputs to disk.}
+\item{\code{save}}{Logical. If \code{TRUE}, save outputs to disk.}
+
+\item{\code{record_time}}{Logical. If \code{TRUE}, record the amount of time taken to
+evaluate each \code{Evaluator}.}
 
 \item{\code{verbose}}{Level of verbosity. Default is 1, which prints out messages
 after major checkpoints in the experiment. If 2, prints additional
@@ -393,6 +422,7 @@ visualization results.
   eval_results = NULL,
   use_cached = FALSE,
   save = FALSE,
+  record_time = FALSE,
   verbose = 1,
   ...
 )}\if{html}{\out{</div>}}
@@ -410,7 +440,10 @@ visualization results.
 results. If cached results cannot be found, continue as if \code{use_cached} was
 \code{FALSE}.}
 
-\item{\code{save}}{If \code{TRUE}, save outputs to disk.}
+\item{\code{save}}{Logical. If \code{TRUE}, save outputs to disk.}
+
+\item{\code{record_time}}{Logical. If \code{TRUE}, record the amount of time taken to
+visualize each \code{Visualizer}.}
 
 \item{\code{verbose}}{Level of verbosity. Default is 1, which prints out messages
 after major checkpoints in the experiment. If 2, prints additional

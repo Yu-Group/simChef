@@ -6,7 +6,7 @@
 reps.}
 \usage{
 compute_dgp_method_reps(
-  n_reps,
+  reps,
   future.globals,
   future.packages,
   future.seed,

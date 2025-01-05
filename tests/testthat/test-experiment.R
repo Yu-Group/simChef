@@ -282,6 +282,16 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
     expect_equal(results$fit_results,
                  experiment$fit(n_reps = 3, verbose = 0))
     expect_equal(results, run_experiment(experiment, n_reps = 3, verbose = 0))
+
+    # check that record_time works
+    results <- experiment$run(n_reps = 2, record_time = TRUE, verbose = 0)
+    expect_true(".time_taken" %in% colnames(results$fit_results))
+    expect_false(is.null(attr(results$eval_results[[1]], ".time_taken")))
+    expect_false(is.null(attr(results$viz_results[[1]], ".time_taken")))
+    results <- experiment$run(n_reps = 2, record_time = FALSE, verbose = 0)
+    expect_false(".time_taken" %in% colnames(results$fit_results))
+    expect_true(is.null(attr(results$eval_results[[1]], ".time_taken")))
+    expect_true(is.null(attr(results$viz_results[[1]], ".time_taken")))
   })
 
   test_that("Generate data from Experiment works properly", {
@@ -394,6 +404,11 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
     expect_equal(nrow(fit_results), 12)
     expect_snapshot_output(fit_results)
 
+    # check that record_time works
+    results <- experiment$fit(n_reps = 2, record_time = FALSE, verbose = 0)
+    expect_false(".time_taken" %in% colnames(results))
+    results <- experiment$fit(n_reps = 2, record_time = TRUE, verbose = 0)
+    expect_true(".time_taken" %in% colnames(results))
   })
 
   test_that("Evaluating experiment works properly", {
@@ -453,6 +468,12 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
                                           .method_name = "Method", result1 = 2),
            `Vary Params` = tibble::tibble())
     )
+
+    # check that record_time works
+    results <- experiment$evaluate(fit_results, record_time = FALSE, verbose = 0)
+    expect_true(is.null(attr(results[[1]], ".time_taken")))
+    results <- experiment$evaluate(fit_results, record_time = TRUE, verbose = 0)
+    expect_false(is.null(attr(results[[1]], ".time_taken")))
   })
 
   test_that("Plotting experiment works properly", {
@@ -510,6 +531,12 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
       viz_results,
       list(`Fit Results` = fit_results, `Vary Params` = eval_results)
     )
+
+    # check that record_time works
+    results <- experiment$visualize(fit_results, eval_results, record_time = FALSE, verbose = 0)
+    expect_true(is.null(attr(results[[1]], ".time_taken")))
+    results <- experiment$visualize(fit_results, eval_results, record_time = TRUE, verbose = 0)
+    expect_false(is.null(attr(results[[1]], ".time_taken")))
   })
 
   test_that("Add/update/remove vary across works properly", {
@@ -676,6 +703,23 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
       eval_results,
       list(`Fit Results` = fit_results,
            `Vary Params` = tibble::tibble(value = "x"))
+    )
+
+    x <- list(1, 3:5)
+    exp <- create_experiment(
+      name = "test-vary-across-dgp-save-per-rep",
+      save_in_bulk = FALSE
+    ) |>
+      add_dgp(dgp, name = "DGP") |>
+      add_method(method, name = "Method") |>
+      add_evaluator(fit_results_eval, name = "Fit Results") |>
+      add_evaluator(vary_params_eval, name = "Vary Params") |>
+      add_vary_across(.dgp = "DGP", x = x)
+    fit_results <- fit_experiment(exp, save = FALSE, verbose = 0)
+    expect_equal(
+      fit_results,
+      tibble::tibble(.rep = "1", .dgp_name = "DGP", .method_name = "Method",
+                     x = x, x_idx = purrr::map_dbl(x, ~.x[1]))
     )
 
     # test list-type method vary across case

@@ -4,7 +4,7 @@
 \alias{compute_method_rep}
 \title{Doubly nested distributed simulation computation nested by Methods and reps.}
 \usage{
-compute_method_rep(n_reps, future.globals, future.packages, future.seed, ...)
+compute_method_rep(reps, future.globals, future.packages, future.seed, ...)
 }
 \description{
 Doubly nested distributed simulation computation nested by Methods and reps.

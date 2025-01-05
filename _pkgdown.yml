@@ -137,3 +137,4 @@ reference:
       - list_col_to_chr
       - load_all
       - add_na_counts
+      - simplify_tibble

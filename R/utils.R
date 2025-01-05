@@ -99,17 +99,22 @@ list_to_tibble <- function(lst) {
 #'   the list is a scalar value.
 #'
 #' @param tbl `tibble::tibble` to simplify.
+#' @param cols Character vector of column names to simplify. If NULL (default),
+#'   all columns are eligible to be simplified.
 #' @param empty_as_na If TRUE (default), 0-length values will be treated as NA.
 #'
 #' @return A tibble that has been "simplified".
-#' @keywords internal
-simplify_tibble <- function(tbl, empty_as_na = TRUE) {
+#' @export
+simplify_tibble <- function(tbl, cols = NULL, empty_as_na = TRUE) {
 
+  if (is.null(cols)) {
+    cols <- colnames(tbl)
+  }
   tbl_list <- purrr::imap(
     tbl,
     function(col, col_name) {
 
-      if (!is.list(col)) {
+      if (!is.list(col) || !(col_name %in% cols)) {
         # only list cols need simplification
         tbl_col <- tibble::tibble(col)
         colnames(tbl_col) <- col_name
@@ -330,7 +335,7 @@ compare_tibble_rows <- function(x, y, op = c("equal", "contained_in")) {
       return(FALSE)
     }
   }
-  duplicated_rows <- dplyr::bind_rows(x, y) |>
+  duplicated_rows <- rbind(x, y) |>
     duplicated(fromLast = TRUE)
   return(all(duplicated_rows[1:nrow(x)]))
 }
@@ -356,6 +361,9 @@ compare_tibble_rows <- function(x, y, op = c("equal", "contained_in")) {
 get_matching_rows <- function(id, x) {
   if ((!tibble::is_tibble(id)) || (!tibble::is_tibble(x))) {
     abort("id and x must be tibbles.")
+  }
+  if (nrow(id) == 0) {
+    return(tibble::tibble())
   }
   id_cols <- colnames(id)
   id_coltypes <- purrr::map_chr(id, class)

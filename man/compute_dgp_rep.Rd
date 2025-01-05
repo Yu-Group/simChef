@@ -4,7 +4,7 @@
 \alias{compute_dgp_rep}
 \title{Doubly nested distributed simulation computation nested by DGPs and reps.}
 \usage{
-compute_dgp_rep(n_reps, future.globals, future.packages, future.seed, ...)
+compute_dgp_rep(reps, future.globals, future.packages, future.seed, ...)
 }
 \description{
 Doubly nested distributed simulation computation nested by DGPs and reps.

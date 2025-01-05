@@ -4,10 +4,13 @@
 \alias{simplify_tibble}
 \title{Simplify tibble.}
 \usage{
-simplify_tibble(tbl, empty_as_na = TRUE)
+simplify_tibble(tbl, cols = NULL, empty_as_na = TRUE)
 }
 \arguments{
 \item{tbl}{\code{tibble::tibble} to simplify.}
+
+\item{cols}{Character vector of column names to simplify. If NULL (default),
+all columns are eligible to be simplified.}
 
 \item{empty_as_na}{If TRUE (default), 0-length values will be treated as NA.}
 }
@@ -18,4 +21,3 @@ A tibble that has been "simplified".
 Simplify or unlist list columns in tibble if each element in
 the list is a scalar value.
 }
-\keyword{internal}
