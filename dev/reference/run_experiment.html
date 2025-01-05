@@ -242,13 +242,13 @@ the <code>Experiment</code>. Length of list is equivalent to the number of
 <span class="r-in"><span><span class="co"># run experiment with 2 replicates</span></span></span>
 <span class="r-in"><span><span class="va">results</span> <span class="op">&lt;-</span> <span class="fu">run_experiment</span><span class="op">(</span><span class="va">experiment</span>, n_reps <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Fitting Experiment Name...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 2 reps completed (totals: 2/2) | time taken: 0.045367 minutes</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 2 reps completed (totals: 2/2) | time taken: 0.047278 minutes</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ==============================</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Evaluating Experiment Name...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Evaluation completed | time taken: 0.000090 minutes</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Evaluation completed | time taken: 0.000091 minutes</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ==============================</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Visualizing Experiment Name...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Visualization completed | time taken: 0.000043 minutes</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Visualization completed | time taken: 0.000045 minutes</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ==============================</span>
 <span class="r-in"><span><span class="co"># uncomment below to view results</span></span></span>
 <span class="r-in"><span><span class="co"># results</span></span></span>
@@ -261,13 +261,13 @@ the <code>Experiment</code>. Length of list is equivalent to the number of
 <span class="r-in"><span><span class="co"># run vary-across experiment with 2 replicates</span></span></span>
 <span class="r-in"><span><span class="va">results</span> <span class="op">&lt;-</span> <span class="fu">run_experiment</span><span class="op">(</span><span class="va">experiment</span>, n_reps <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Fitting Experiment Name...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 2 reps completed (totals: 2/2) | time taken: 0.075151 minutes</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 2 reps completed (totals: 2/2) | time taken: 0.077769 minutes</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ==============================</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Evaluating Experiment Name...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Evaluation completed | time taken: 0.000102 minutes</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Evaluation completed | time taken: 0.000103 minutes</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ==============================</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Visualizing Experiment Name...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Visualization completed | time taken: 0.000069 minutes</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Visualization completed | time taken: 0.000070 minutes</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ==============================</span>
 <span class="r-in"><span><span class="co"># uncomment below to view results</span></span></span>
 <span class="r-in"><span><span class="co"># results</span></span></span>
@@ -275,7 +275,7 @@ the <code>Experiment</code>. Length of list is equivalent to the number of
 <span class="r-in"><span><span class="co"># `run_experiment()` above is equivalent to the following sequence of calls</span></span></span>
 <span class="r-in"><span><span class="va">fit_results</span> <span class="op">&lt;-</span> <span class="fu"><a href="fit_experiment.html">fit_experiment</a></span><span class="op">(</span><span class="va">experiment</span>, n_reps <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Fitting Experiment Name...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 2 reps completed (totals: 2/2) | time taken: 0.075674 minutes</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 2 reps completed (totals: 2/2) | time taken: 0.076749 minutes</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ==============================</span>
 <span class="r-in"><span><span class="va">eval_results</span> <span class="op">&lt;-</span> <span class="fu"><a href="evaluate_experiment.html">evaluate_experiment</a></span><span class="op">(</span><span class="va">experiment</span>, <span class="va">fit_results</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Evaluating Experiment Name...</span>
@@ -283,7 +283,7 @@ the <code>Experiment</code>. Length of list is equivalent to the number of
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ==============================</span>
 <span class="r-in"><span><span class="va">viz_results</span> <span class="op">&lt;-</span> <span class="fu"><a href="visualize_experiment.html">visualize_experiment</a></span><span class="op">(</span><span class="va">experiment</span>, <span class="va">fit_results</span>, <span class="va">eval_results</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Visualizing Experiment Name...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Visualization completed | time taken: 0.000069 minutes</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Visualization completed | time taken: 0.000070 minutes</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ==============================</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># generate data from all DGPs (and vary across components) in experiment</span></span></span>
