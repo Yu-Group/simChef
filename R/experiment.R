@@ -546,9 +546,10 @@ Experiment <- R6::R6Class(
         if (results_type %in% c("fit", "eval", "viz")) {
           save_file <- file.path(save_dir, paste0(results_type, "_results.rds"))
           if (results_type == "fit") {
-            save_file2 <- file.path(save_dir,
-                                    paste0(results_type,
-                                           "_results_extra_cached_reps.rds"))
+            save_file2 <- file.path(
+              save_dir,
+              paste0(results_type,"_results_extra_cached_reps.rds")
+            )
           }
         } else {
           save_file <- file.path(save_dir, paste0(results_type, ".rds"))
@@ -561,15 +562,6 @@ Experiment <- R6::R6Class(
             }
           }
           return(res)
-        } else {
-          if (verbose >= 1) {
-            if (results_type %in% c("fit", "eval", "viz")) {
-              inform(sprintf("Cannot find cached %s results.", results_type))
-            } else {
-              inform("Cannot find cache.")
-            }
-          }
-          return(NULL)
         }
       } else {
         save_files <- list.files(
@@ -587,13 +579,16 @@ Experiment <- R6::R6Class(
               )
           }
           return(res)
-        } else {
-          if (verbose >= 1) {
-            inform(sprintf("Cannot find cached %s results.", results_type))
-          }
-          return(NULL)
         }
       }
+      if (verbose >= 1) {
+        if (results_type %in% c("fit", "eval", "viz")) {
+          inform(sprintf("Cannot find cached %s results.", results_type))
+        } else {
+          inform("Cannot find cache.")
+        }
+      }
+      return(NULL)
     },
 
     .clear_cache = function() {
