@@ -21,4 +21,3 @@ A tibble that has been "simplified".
 Simplify or unlist list columns in tibble if each element in
 the list is a scalar value.
 }
-\keyword{internal}

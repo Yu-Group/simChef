@@ -104,7 +104,7 @@ list_to_tibble <- function(lst) {
 #' @param empty_as_na If TRUE (default), 0-length values will be treated as NA.
 #'
 #' @return A tibble that has been "simplified".
-#' @keywords internal
+#' @export
 simplify_tibble <- function(tbl, cols = NULL, empty_as_na = TRUE) {
 
   if (is.null(cols)) {
