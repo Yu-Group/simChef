@@ -4,12 +4,15 @@
 \alias{get_matching_rows}
 \title{Get matching rows from x based on id}
 \usage{
-get_matching_rows(id, x)
+get_matching_rows(id, x, vary_param_names = NULL)
 }
 \arguments{
 \item{id}{A tibble with distinct rows.}
 
 \item{x}{A tibble.}
+
+\item{vary_param_names}{Character vector of parameter names that are varied
+across in the Experiment.}
 }
 \value{
 A tibble, containing the subset of rows from \code{x} that match

@@ -1161,7 +1161,10 @@ Experiment <- R6::R6Class(
           results <- private$.get_cached_results("fit", verbose = verbose)
           fit_params <- private$.get_fit_params(wide_params = TRUE)
 
-          fit_results <- get_matching_rows(id = fit_params, x = results) |>
+          fit_results <- get_matching_rows(
+            id = fit_params, x = results,
+            vary_param_names = private$.get_vary_params()
+          ) |>
             dplyr::select(
               .rep, .dgp_name, .method_name, private$.get_vary_params(),
               tidyselect::everything()
@@ -1393,14 +1396,18 @@ Experiment <- R6::R6Class(
               "fit", verbose = verbose
             )
             fit_results_cached <- get_matching_rows(
-              id = fit_params_cached, x = fit_results_cached
+              id = fit_params_cached, x = fit_results_cached,
+              vary_param_names = private$.get_vary_params()
             )
             if (verbose >= 1) {
               inform("Appending cached results to the new fit results...")
             }
             fit_params <- private$.get_fit_params(wide_params = TRUE)
             fit_results <- dplyr::bind_rows(fit_results, fit_results_cached)
-            fit_results <- get_matching_rows(id = fit_params, x = fit_results) |>
+            fit_results <- get_matching_rows(
+              id = fit_params, x = fit_results,
+              vary_param_names = private$.get_vary_params()
+            ) |>
               dplyr::select(
                 .rep, .dgp_name, .method_name, private$.get_vary_params(),
                 tidyselect::everything()
