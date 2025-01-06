@@ -120,6 +120,7 @@ first argument: <code><a href="create_experiment.html">create_experiment()</a></
 <li><p><a href="#method-Experiment-get_save_dir"><code>Experiment$get_save_dir()</code></a></p></li>
 <li><p><a href="#method-Experiment-set_save_dir"><code>Experiment$set_save_dir()</code></a></p></li>
 <li><p><a href="#method-Experiment-save"><code>Experiment$save()</code></a></p></li>
+<li><p><a href="#method-Experiment-get_save_in_bulk"><code>Experiment$get_save_in_bulk()</code></a></p></li>
 <li><p><a href="#method-Experiment-export_visualizers"><code>Experiment$export_visualizers()</code></a></p></li>
 <li><p><a href="#method-Experiment-print"><code>Experiment$print()</code></a></p></li>
 <li><p><a href="#method-Experiment-clone"><code>Experiment$clone()</code></a></p></li>
@@ -1254,12 +1255,24 @@ will be saved.</p></dd>
 <p>The <code>Experiment</code> object, invisibly.</p>
 </div>
 
+</div><p></p><hr><a id="method-Experiment-get_save_in_bulk"></a><div class="section">
+<h3 id="method-get-save-in-bulk-">Method <code>get_save_in_bulk()</code><a class="anchor" aria-label="anchor" href="#method-get-save-in-bulk-"></a></h3>
+<p>Get the <code>save_in_bulk</code> parameter for the <code>Experiment</code>.</p><div class="section">
+<h4 id="usage-32">Usage<a class="anchor" aria-label="anchor" href="#usage-32"></a></h4>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">Experiment</span><span class="op">$</span><span class="fu">get_save_in_bulk</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
+</div>
+
+<div class="section">
+<h4 id="returns-32">Returns<a class="anchor" aria-label="anchor" href="#returns-32"></a></h4>
+<p>Logical, indicating whether the results are saved in bulk or not.</p>
+</div>
+
 </div><p></p><hr><a id="method-Experiment-export_visualizers"></a><div class="section">
 <h3 id="method-export-visualizers-">Method <code><a href="export_visualizers.html">export_visualizers()</a></code><a class="anchor" aria-label="anchor" href="#method-export-visualizers-"></a></h3>
 <p>Export all cached <code>Visualizer</code> results from an
 <code>Experiment</code> to images in the <code>viz_results/</code> directory under the
 <code>Experiment</code>'s results directory (see <code><a href="get_save_dir.html">get_save_dir()</a></code>).</p><div class="section">
-<h4 id="usage-32">Usage<a class="anchor" aria-label="anchor" href="#usage-32"></a></h4>
+<h4 id="usage-33">Usage<a class="anchor" aria-label="anchor" href="#usage-33"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">Experiment</span><span class="op">$</span><span class="fu">export_visualizers</span><span class="op">(</span></span>
 <span>  device <span class="op">=</span> <span class="st">"png"</span>,</span>
 <span>  width <span class="op">=</span> <span class="st">"auto"</span>,</span>
@@ -1289,7 +1302,7 @@ will be saved.</p></dd>
 </dl><p></p></div>
 </div>
 <div class="section">
-<h4 id="returns-32">Returns<a class="anchor" aria-label="anchor" href="#returns-32"></a></h4>
+<h4 id="returns-33">Returns<a class="anchor" aria-label="anchor" href="#returns-33"></a></h4>
 <p>The <code>Experiment</code> object, invisibly.</p>
 </div>
 
@@ -1298,19 +1311,19 @@ will be saved.</p></dd>
 <p>Print the <code>Experiment</code> in a nice format, showing the
 <code>DGP</code>, <code>Method</code>, <code>Evaluator</code>, <code>Visualizers</code>, and varied parameters
 involved in the <code>Experiment</code>.</p><div class="section">
-<h4 id="usage-33">Usage<a class="anchor" aria-label="anchor" href="#usage-33"></a></h4>
+<h4 id="usage-34">Usage<a class="anchor" aria-label="anchor" href="#usage-34"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">Experiment</span><span class="op">$</span><span class="fu">print</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
-<h4 id="returns-33">Returns<a class="anchor" aria-label="anchor" href="#returns-33"></a></h4>
+<h4 id="returns-34">Returns<a class="anchor" aria-label="anchor" href="#returns-34"></a></h4>
 <p>The original <code>Experiment</code> object, invisibly.</p>
 </div>
 
 </div><p></p><hr><a id="method-Experiment-clone"></a><div class="section">
 <h3 id="method-clone-">Method <code>clone()</code><a class="anchor" aria-label="anchor" href="#method-clone-"></a></h3>
 <p>The objects of this class are cloneable with this method.</p><div class="section">
-<h4 id="usage-34">Usage<a class="anchor" aria-label="anchor" href="#usage-34"></a></h4>
+<h4 id="usage-35">Usage<a class="anchor" aria-label="anchor" href="#usage-35"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">Experiment</span><span class="op">$</span><span class="fu">clone</span><span class="op">(</span>deep <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
