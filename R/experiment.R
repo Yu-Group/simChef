@@ -1274,6 +1274,19 @@ Experiment <- R6::R6Class(
 
         new_fit_results <- local({
 
+          do_call_wrapper <- function(name,
+                                      fun,
+                                      params,
+                                      verbose,
+                                      call) {
+            tryCatch(
+              do_call_handler(
+                name, fun, params, verbose, call
+              ),
+              error = identity
+            )
+          }
+
           # create an env with objs/funcs that the future workers need
           workenv <- rlang::new_environment(
             data = list(
@@ -1291,18 +1304,7 @@ Experiment <- R6::R6Class(
               use_cached = use_cached && (nrow(cached_fit_params) > 0),
               save_dir = save_dir,
               simplify_tibble = simplify_tibble,
-              do_call_wrapper = function(name,
-                                         fun,
-                                         params,
-                                         verbose,
-                                         call) {
-                tryCatch(
-                  do_call_handler(
-                    name, fun, params, verbose, call
-                  ),
-                  error = identity
-                )
-              }
+              do_call_wrapper = utils::removeSource(do_call_wrapper)
             ),
             parent = rlang::ns_env()
           )
