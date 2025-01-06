@@ -69,6 +69,7 @@ first argument: \code{\link[=create_experiment]{create_experiment()}}, \code{\li
 \item \href{#method-Experiment-get_save_dir}{\code{Experiment$get_save_dir()}}
 \item \href{#method-Experiment-set_save_dir}{\code{Experiment$set_save_dir()}}
 \item \href{#method-Experiment-save}{\code{Experiment$save()}}
+\item \href{#method-Experiment-get_save_in_bulk}{\code{Experiment$get_save_in_bulk()}}
 \item \href{#method-Experiment-export_visualizers}{\code{Experiment$export_visualizers()}}
 \item \href{#method-Experiment-print}{\code{Experiment$print()}}
 \item \href{#method-Experiment-clone}{\code{Experiment$clone()}}
@@ -1052,6 +1053,19 @@ Save the \code{Experiment} object to a .rds file under the
 
 \subsection{Returns}{
 The \code{Experiment} object, invisibly.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Experiment-get_save_in_bulk"></a>}}
+\if{latex}{\out{\hypertarget{method-Experiment-get_save_in_bulk}{}}}
+\subsection{Method \code{get_save_in_bulk()}}{
+Get the \code{save_in_bulk} parameter for the \code{Experiment}.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Experiment$get_save_in_bulk()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+Logical, indicating whether the results are saved in bulk or not.
 }
 }
 \if{html}{\out{<hr>}}
