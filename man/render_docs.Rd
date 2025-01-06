@@ -20,6 +20,7 @@ render_docs(
   viz_order = NULL,
   eval_cache = ".rds",
   viz_cache = ".rds",
+  viz_interactive = FALSE,
   use_icons = TRUE,
   quiet = TRUE,
   verbose = 2,
@@ -89,6 +90,13 @@ Typically \code{".rds"} or \code{"none"}, but can be any (image) file extension
 stored as separate \verb{\{visualizer_name\}.ext} images (typically using
 \code{\link[=export_visualizers]{export_visualizers()}}). If \code{"none"}, visualizer results are computed using
 the experiment via \code{\link[=visualize_experiment]{visualize_experiment()}}.}
+
+\item{viz_interactive}{Logical, indicating whether or not to display
+plot visualizers interactively in the R Markdown document using
+\code{\link[plotly:ggplotly]{plotly::ggplotly()}}. Default is \code{FALSE}. Can also specify a character
+vector of \code{Visualizer} names to display interactively. Note that only
+the visualizers that can be coerced into an interactive plot using
+\code{\link[plotly:ggplotly]{plotly::ggplotly()}} will be displayed interactively.}
 
 \item{use_icons}{Logical indicating whether or not to use fontawesome icons.}
 

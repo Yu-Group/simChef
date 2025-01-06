@@ -37,6 +37,9 @@ params:
   viz_cache:
     label: "Visualizers Cache Type:"
     value: ".rds"
+  viz_interactive:
+    label: "Interactive Visualizations:"
+    value: FALSE
   use_icons:
     label: "Use Icons:"
     value: TRUE
@@ -917,21 +920,39 @@ show_results <- function(dir_name, depth, base = FALSE, show_header = TRUE,
           plt <- plts[[plt_name]]
           is_plot <- inherits(plt, "plotly") || 
             inherits(plt, "gg") || 
-            inherits(plt, "ggplot") ||
-            inherits(plt, "knit_image_paths")
+            inherits(plt, "ggplot")
           
-          if (params$use_vmodern && is_plot) {
+          if (params$use_vmodern && (is_plot || inherits(plt, "knit_image_paths"))) {
             chunk_args <- "fig.height = %s, fig.width = %s, out.width = '100%%', add.panel = TRUE"
             add_class <- "panel panel-default padded-panel"
           } else {
             chunk_args <- "fig.height = %s, fig.width = %s, out.width = '100%%'"
             add_class <- NULL
           }
+          is_interactive <- FALSE
+          if (is_plot) {
+            if (isTRUE(params$viz_interactive) || 
+                (viz_name %in% params$viz_interactive)) {
+              is_interactive <- tryCatch(
+                {plotly::ggplotly(plt); TRUE},
+                error = function(e) FALSE
+              )
+            }
+          }
           
           if (write_flag) {
-            results <- sprintf(
-              "show_results(results, '%s', 'visualizer')", viz_name
-            ) |>
+            if (is_interactive) {
+              results_code <- sprintf(
+                "plotly::ggplotly(show_results(results, '%s', 'visualizer'))",
+                viz_name
+              )
+            } else {
+              results_code <- sprintf(
+                "show_results(results, '%s', 'visualizer')",
+                viz_name
+              )
+            }
+            results <- results_code |>
               write_code_chunk(
                 chunk_args = sprintf(
                   chunk_args,
@@ -940,6 +961,9 @@ show_results <- function(dir_name, depth, base = FALSE, show_header = TRUE,
               ) |>
               write(old_text = results, write_flag = write_flag)
           } else {
+            if (is_interactive) {
+              plt <- plotly::ggplotly(plt)
+            }
             vthemes::subchunkify(plt,
               i = chunk_idx,
               fig_height = visualizer$doc_options$height,
