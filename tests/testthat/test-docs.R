@@ -73,7 +73,8 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
     greatgrandchild2 <- create_experiment(
       name = "greatgrandchild2",
       clone_from = grandchild2,
-      save_dir = file.path(grandchild2$get_save_dir(), "greatgrandchild2")
+      save_dir = file.path(grandchild2$get_save_dir(), "greatgrandchild2"),
+      save_in_bulk = FALSE
     )
     results <- greatgrandchild2$run(save = TRUE, verbose = 0)
     export_visualizers(greatgrandchild2)

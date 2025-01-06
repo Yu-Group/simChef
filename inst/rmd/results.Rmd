@@ -541,17 +541,63 @@ show_recipe <- function(field_name = c(
 #'   Otherwise, the file is read in using data.table::fread().
 #'
 #' @param filename name of file (with file extension) to try reading in
-#' @return output of filename if the file exists and NULL otherwise
-get_results <- function(filename, filetype = ".rds") {
-  if (file.exists(filename)) {
-    if (filetype == ".rds") {
-      results <- readRDS(filename)
-    } else {
-      results <- data.table::fread(results)
+#' @param filetype file extension
+#' @param experiment experiment object
+#' @param experiment_save_dir directory where experiment results are saved
+#' @param field_name one of "evaluator" or "visualizer"
+#' @return output of experiment results if the file exists and NULL otherwise
+get_results <- function(filename, filetype = ".rds",
+                        experiment, experiment_save_dir = NULL,
+                        field_name = c("evaluator", "visualizer")) {
+  field_name <- match.arg(field_name)
+  if (field_name == "evaluator") {
+    save_in_bulk <- experiment$get_save_in_bulk()[["eval"]]
+  } else if (field_name == "visualizer") {
+    save_in_bulk <- experiment$get_save_in_bulk()[["viz"]]
+  }
+  results <- NULL
+  if (save_in_bulk) {
+    if (file.exists(filename)) {
+      if (filetype == ".rds") {
+        results <- readRDS(filename)
+      } else {
+        results <- data.table::fread(results)
+      }
     }
   } else {
-    results <- NULL
+    if (is.null(experiment_save_dir)) {
+      stop("experiment_save_dir must be provided if save_in_bulk is FALSE")
+    }
+    if (field_name == "evaluator") {
+      obj_names <- names(experiment$get_evaluators())
+      obj_dirname <- file.path(experiment_save_dir, "eval_results")
+    } else if (field_name == "visualizer") {
+      obj_names <- names(experiment$get_visualizers())
+      obj_dirname <- file.path(experiment_save_dir, "viz_results")
+    }
+    if (length(obj_names) == 0) {
+      return(NULL)
+    }
+    names(obj_names) <- obj_names
+    results <- purrr::map(
+      obj_names, 
+      function(obj_name) {
+        obj_fname <- file.path(obj_dirname, sprintf("%s%s", obj_name, filetype))
+        if (file.exists(obj_fname)) {
+          if (filetype == ".rds") {
+            results <- readRDS(obj_fname)
+          } else {
+            results <- data.table::fread(obj_fname)
+          }
+        } else {
+          results <- NULL
+        }
+        return(results)
+      } 
+    ) |> 
+      purrr::compact()
   }
+  
   return(results)
 }
 
@@ -596,39 +642,68 @@ get_exp_results <- function(dir_name,
                             eval_cache = ".rds", viz_cache = ".rds") {
   
   exp_fname <- file.path(dir_name, "experiment.rds")
-  fit_fname <- file.path(dir_name, "fit_results.rds")
   eval_fname <- file.path(dir_name, sprintf("eval_results%s", eval_cache))
   viz_fname <- file.path(dir_name, sprintf("viz_results%s", viz_cache))
 
-  exp <- get_results(exp_fname)
+  exp <- readRDS(exp_fname)
   fit_results <- NULL
   eval_results <- NULL
   viz_results <- NULL
   if ((eval_cache != "none") && (viz_cache == ".rds")) {
     if (show_eval) {
-      eval_results <- get_results(eval_fname, eval_cache)
+      eval_results <- get_results(
+        filename = eval_fname, 
+        filetype = eval_cache, 
+        experiment = exp, 
+        experiment_save_dir = dir_name,
+        field_name = "evaluator"
+      )
     }
     if (show_viz) {
-      viz_results <- get_results(viz_fname, viz_cache)
+      viz_results <- get_results(
+        filename = viz_fname, 
+        filetype = viz_cache, 
+        experiment = exp, 
+        experiment_save_dir = dir_name,
+        field_name = "visualizer"
+      )
     }
   } else {
     if (show_eval) {
       if (eval_cache == "none") {
-        fit_results <- get_results(fit_fname)
+        fit_results <- suppressMessages(get_cached_results(exp, "fit"))
+        if (is.null(fit_results)) {
+          stop("Cannot set eval_cache = 'none' since no cached fit results found. Perhaps try setting eval_cache = '.rds' instead.")
+        }
         eval_results <- evaluate_experiment(exp, fit_results)
       } else {
-        eval_results <- get_results(eval_fname, eval_cache)
+        eval_results <- get_results(
+          filename = eval_fname, 
+          filetype = eval_cache, 
+          experiment = exp, 
+          experiment_save_dir = dir_name,
+          field_name = "evaluator"
+        )
       }
     }
     if (show_viz) {
       if (viz_cache == ".rds") {
-        viz_results <- get_results(viz_fname, viz_cache)
+        viz_results <- get_results(
+          filename = viz_fname, 
+          filetype = viz_cache, 
+          experiment = exp, 
+          experiment_save_dir = dir_name,
+          field_name = "visualizer"
+        )
       } else if (viz_cache == "none") {
         if (is.null(fit_results)) {
-          fit_results <- get_results(fit_fname)
+          fit_results <- suppressMessages(get_cached_results(exp, "fit"))
+          if (is.null(fit_results)) {
+            stop("Cannot set viz_cache = 'none' since no cached fit results found. Perhaps try setting viz_cache = '.rds' instead.")
+          }
         }
         if (is.null(eval_results)) {
-          eval_results <- get_results(eval_fname)
+          eval_results <- suppressMessages(get_cached_results(exp, "eval"))
           if (is.null(eval_results)) {
             eval_results <- evaluate_experiment(exp, fit_results)
           }
