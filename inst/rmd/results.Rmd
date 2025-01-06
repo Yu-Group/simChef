@@ -197,6 +197,75 @@ experiment_exists <- function(dir_name, recursive = FALSE) {
   return(any(res))
 }
 
+#' Print renv lockfile info
+#' 
+#' @param renv_lockfile renv lockfile object from [renv::lockfile_read()]
+#' @param what part of renv lockfile to print; must be one of "R" or "packages"
+#' @param print_table logical; whether to print as a nice table (TRUE) or 
+#'   simply using the `print` method.
+#' @return renv lockfile info
+print_renv <- function(renv_lockfile, 
+                       what = c("R", "Packages"),
+                       print_table = FALSE) {
+  what <- match.arg(what)
+  if (what == "R") {
+    if (print_table) {
+      tab <- tibble::tibble(
+        `R Version` = renv_lockfile$R$Version, 
+        Repositories = paste(
+          names(renv_lockfile$R$Repositories), 
+          " (", renv_lockfile$R$Repositories, ")", 
+          sep = "", collapse = "<br>"
+        )
+      ) |> 
+        vthemes::pretty_DT(
+          rownames = FALSE, options = list(dom = "t", ordering = FALSE)
+        )
+      return(tab)
+    } else {
+      return(renv_lockfile$R)
+    }
+  } else {
+    if (print_table) {
+      tab <- tibble::tibble(
+        `Package Name` = purrr::map_chr(
+          renv_lockfile$Packages, 
+          function(.x) if (!is.null(.x$Package)) .x$Package else "N/A"
+        ),
+        `Version` = purrr::map_chr(
+          renv_lockfile$Packages,
+          function(.x) if (!is.null(.x$Version)) .x$Version else "N/A"
+        ),
+        `Source` = purrr::map_chr(
+          renv_lockfile$Packages,
+          function(.x) if (!is.null(.x$Source)) .x$Source else "N/A"
+        ),
+        `Repository` = purrr::map_chr(
+          renv_lockfile$Packages,
+          function(.x) {
+            if (!is.null(.x$Repository)) {
+              .x$Repository
+            } else if (!is.null(.x$RemoteUrl)) {
+              .x$RemoteUrl
+            } else if (.x$Source == "GitHub") {
+              sprintf("https://github.com/%s/%s", .x$RemoteUsername, .x$RemoteRepo)
+            } else {
+              "N/A"
+            }
+          }
+        ),
+        `Requirements` = purrr::map_chr(
+          renv_lockfile$Packages, ~ paste(.x$Requirements, collapse = ", ")
+        )
+      ) |> 
+        vthemes::pretty_DT(rownames = FALSE)
+      return(tab)
+    } else {
+      return(renv_lockfile$Packages)
+    }
+  }
+}
+
 #' Displays content for specified part of recipe
 #'
 #' @param field_name part of recipe to show; must be one of "dgp", "method",
@@ -205,7 +274,7 @@ experiment_exists <- function(dir_name, recursive = FALSE) {
 #'   (write_flag = TRUE) or to console (write_flag = FALSE)
 #' @return content for recipe
 show_recipe <- function(field_name = c(
-                          "dgp", "method", "evaluator", "visualizer"
+                          "dgp", "method", "evaluator", "visualizer", "renv"
                         ),
                         write_flag = FALSE) {
   field_name <- match.arg(field_name)
@@ -214,129 +283,252 @@ show_recipe <- function(field_name = c(
     field_name == "visualizer" ~ "viz",
     TRUE ~ field_name
   )
-  descendants <- get_descendants(dir_name = params$sim_path)
-  objs <- purrr::map(descendants, ~ .x[[paste0("get_", field_name, "s")]]())
-  obj_names <- unique(purrr::reduce(sapply(objs, names), c))
-
-  if (field_name %in% c("method", "evaluator")) {
-    obj_header <- "\n\n#### %s {.tabset .tabset-pills .tabset-circle .tabset-recipe}\n\n"
-    showtype_header <- "\n\n##### %s {.tabset .tabset-pills}\n\n"
-    exp_header <- "\n\n###### %s \n\n"
-  } else {
-    obj_header <- "\n\n### %s {.tabset .tabset-pills .tabset-circle .tabset-recipe}\n\n"
-    showtype_header <- "\n\n#### %s {.tabset .tabset-pills}\n\n"
-    exp_header <- "\n\n##### %s \n\n"
-  }
-
-  if (params$use_icons) {
-    if (params$use_vmodern) {
-      description_label <- "`r fontawesome::fa('readme', fill = 'white')`"
-      code_label <- "`r fontawesome::fa('code', fill = 'white')`"
-    } else {
-      description_label <- "`r fontawesome::fa('readme')`"
-      code_label <- "`r fontawesome::fa('code')`"
-    }
-  } else {
-    description_label <- "Description"
-    code_label <- "Code"
-  }
-
-  if (all(sapply(objs, length) == 0)) {
-    if (write_flag) {
-      return("N/A")
-    } else {
-      return(cat("N/A"))
-    }
-  }
-
   recipe <- c()
-  for (idx in 1:length(obj_names)) {
-    obj_name <- obj_names[idx]
-    description_fpath <- file.path(
-      doc_dir, paste0(field_name, "s"), paste0(obj_name, ".md")
-    )
-    
-    if (params$use_vmodern) {
-      recipe <- write(
-        "\n\n<div class='panel panel-default padded-panel'>\n\n",
-        old_text = recipe, write_flag = write_flag
-      )
+  if (field_name == "renv") {
+    if (!rlang::is_installed("renv")) {
+      return(NULL)
     }
-
+    renv_lockfile <- tryCatch(
+      renv::lockfile_read(),
+      error = function(e) NULL
+    )
+    if (is.null(renv_lockfile)) {
+      return(NULL)
+    }
+    
+    sec_header <- "\n\n## %s {.tabset .tabset-pills .tabset-square}\n\n"
+    subsec_header <- "\n\n### %s\n\n"
+    subsubsec_header <- "\n\n#### %s {.tabset .tabset-pills .tabset-circle .tabset-recipe}\n\n"
+    showtype_header <- "\n\n##### %s\n\n"
+    if (params$use_icons) {
+      if (params$use_vmodern) {
+        table_label <- "`r fontawesome::fa('table', fill = 'white')`"
+        print_label <- "`r fontawesome::fa('code', fill = 'white')`"
+      } else {
+        table_label <- "`r fontawesome::fa('table')`"
+        print_label <- "`r fontawesome::fa('code')`"
+      }
+    } else {
+      table_label <- "Abridged Table"
+      print_label <- "Full Output"
+    }
+    
     recipe <- write(
-      sprintf(obj_header, obj_name),
-      sprintf(showtype_header, description_label),
-      paste_md(description_fpath),
+      sprintf(sec_header, "R Environment"),
+      sprintf(subsec_header, "R/Packages"),
       old_text = recipe, write_flag = write_flag
     )
-
-    if (params$show_code) {
+    
+    for (what in c("R", "Packages")) {
       recipe <- write(
-        sprintf(showtype_header, code_label),
+        sprintf(subsubsec_header, what),
         old_text = recipe, write_flag = write_flag
       )
-
-      keep_objs <- purrr::compact(purrr::map(objs, obj_name))
-      is_identical <- all(
-        purrr::map_lgl(keep_objs, ~ isTRUE(check_equal(.x, keep_objs[[1]])))
-      )
-      for (exp in names(keep_objs)) {
-        obj <- keep_objs[[exp]]
-        if (!is_identical) {
+      
+      if (params$use_vmodern) {
           recipe <- write(
-            sprintf(exp_header, exp),
+            "\n\n<div class='panel panel-default padded-panel'>\n\n",
             old_text = recipe, write_flag = write_flag
           )
-        }
-
-        recipe <- write(
-          "\n\n**Function**\n\n",
-          old_text = recipe, write_flag = write_flag
+      }
+      
+      # table
+      recipe <- write(
+        sprintf(showtype_header, table_label),
+        old_text = recipe, write_flag = write_flag
+      )
+      if (write_flag) {
+        recipe <- write_code_chunk(
+          sprintf(
+            "print_renv(renv::lockfile_read(), '%s', print_table = TRUE)", what
+          ),
+          chunk_args = "results = 'asis'"
+        ) |>
+          write(old_text = recipe, write_flag = write_flag)
+      } else {
+        vthemes::subchunkify(
+          print_renv(renv_lockfile, what, print_table = TRUE), chunk_idx
         )
-        if (write_flag) {
-          recipe <- sprintf(
-            "show_recipe(%s_objs, '%s', '%s', what = 'function')",
-            func_name, obj_name, exp
-          ) |>
-            write_code_chunk(chunk_args = "max.height='200px'") |>
-            write(old_text = recipe, write_flag = write_flag)
-        } else {
-          vthemes::subchunkify(
-            obj[[paste0(func_name, "_fun")]], chunk_idx,
-            other_args = "max.height='200px'"
-          )
-          chunk_idx <<- chunk_idx + 1
-        }
-
-        recipe <- write(
-          "\n\n**Input Parameters**\n\n",
-          old_text = recipe, write_flag = write_flag
+        chunk_idx <<- chunk_idx + 1
+      }
+      
+      # print output
+      recipe <- write(
+        sprintf(showtype_header, print_label),
+        old_text = recipe, write_flag = write_flag
+      )
+      if (write_flag) {
+        recipe <- write_code_chunk(
+          sprintf(
+            "print_renv(renv::lockfile_read(), '%s', print_table = FALSE)", what
+          ),
+          chunk_args = "max.height='700px'"
+        ) |>
+          write(old_text = recipe, write_flag = write_flag)
+      } else {
+        vthemes::subchunkify(
+          print_renv(renv_lockfile, what, print_table = FALSE), chunk_idx,
+          other_args = "max.height='700px'"
         )
-        if (write_flag) {
-          recipe <- sprintf(
-            "show_recipe(%s_objs, '%s', '%s', what = 'parameters')",
-            func_name, obj_name, exp
-          ) |>
-            write_code_chunk(chunk_args = "max.height='200px'") |>
-            write(old_text = recipe, write_flag = write_flag)
-        } else {
-          vthemes::subchunkify(
-            obj[[paste0(func_name, "_params")]], chunk_idx,
-            other_args = "max.height='200px'"
-          )
-          chunk_idx <<- chunk_idx + 1
-        }
-
-        if (is_identical) {
-          break
-        }
+        chunk_idx <<- chunk_idx + 1
+      }
+      
+      if (params$use_vmodern) {
+        recipe <- write(
+          "\n\n</div>\n\n", old_text = recipe, write_flag = write_flag
+        )
       }
     }
-
+    
+    # renv diagnostics
+    recipe <- write(
+      sprintf(subsec_header, "Full renv Diagnostics"),
+      old_text = recipe, write_flag = write_flag
+    )
+      
+    if (params$use_vmodern) {
+        recipe <- write(
+          "\n\n<div class='panel panel-default padded-panel'>\n\n",
+          old_text = recipe, write_flag = write_flag
+        )
+    }
+    
+    if (write_flag) {
+      recipe <- write_code_chunk(
+        code = "renv::diagnostics()",
+        chunk_args = "max.height='700px'"
+      ) |>
+        write(old_text = recipe, write_flag = write_flag)
+    } else {
+      vthemes::subchunkify(
+        renv::diagnostics(), chunk_idx,
+        other_args = "max.height='700px'"
+      )
+      chunk_idx <<- chunk_idx + 1
+    }
+    
     if (params$use_vmodern) {
       recipe <- write(
         "\n\n</div>\n\n", old_text = recipe, write_flag = write_flag
       )
+    }
+  } else {
+    descendants <- get_descendants(dir_name = params$sim_path)
+    objs <- purrr::map(descendants, ~ .x[[paste0("get_", field_name, "s")]]())
+    obj_names <- unique(purrr::reduce(sapply(objs, names), c))
+    obj_header <- "\n\n### %s {.tabset .tabset-pills .tabset-circle .tabset-recipe}\n\n"
+    showtype_header <- "\n\n#### %s {.tabset .tabset-pills}\n\n"
+    exp_header <- "\n\n##### %s \n\n"
+  
+    if (params$use_icons) {
+      if (params$use_vmodern) {
+        description_label <- "`r fontawesome::fa('readme', fill = 'white')`"
+        code_label <- "`r fontawesome::fa('code', fill = 'white')`"
+      } else {
+        description_label <- "`r fontawesome::fa('readme')`"
+        code_label <- "`r fontawesome::fa('code')`"
+      }
+    } else {
+      description_label <- "Description"
+      code_label <- "Code"
+    }
+  
+    if (all(sapply(objs, length) == 0)) {
+      if (write_flag) {
+        return("N/A")
+      } else {
+        return(cat("N/A"))
+      }
+    }
+  
+    for (idx in 1:length(obj_names)) {
+      obj_name <- obj_names[idx]
+      description_fpath <- file.path(
+        doc_dir, paste0(field_name, "s"), paste0(obj_name, ".md")
+      )
+      
+      if (params$use_vmodern) {
+        recipe <- write(
+          "\n\n<div class='panel panel-default padded-panel'>\n\n",
+          old_text = recipe, write_flag = write_flag
+        )
+      }
+  
+      recipe <- write(
+        sprintf(obj_header, obj_name),
+        sprintf(showtype_header, description_label),
+        paste_md(description_fpath),
+        old_text = recipe, write_flag = write_flag
+      )
+  
+      if (params$show_code) {
+        recipe <- write(
+          sprintf(showtype_header, code_label),
+          old_text = recipe, write_flag = write_flag
+        )
+  
+        keep_objs <- purrr::compact(purrr::map(objs, obj_name))
+        is_identical <- all(
+          purrr::map_lgl(keep_objs, ~ isTRUE(check_equal(.x, keep_objs[[1]])))
+        )
+        for (exp in names(keep_objs)) {
+          obj <- keep_objs[[exp]]
+          if (!is_identical) {
+            recipe <- write(
+              sprintf(exp_header, exp),
+              old_text = recipe, write_flag = write_flag
+            )
+          }
+  
+          recipe <- write(
+            "\n\n**Function**\n\n",
+            old_text = recipe, write_flag = write_flag
+          )
+          if (write_flag) {
+            recipe <- sprintf(
+              "show_recipe(%s_objs, '%s', '%s', what = 'function')",
+              func_name, obj_name, exp
+            ) |>
+              write_code_chunk(chunk_args = "max.height='200px'") |>
+              write(old_text = recipe, write_flag = write_flag)
+          } else {
+            vthemes::subchunkify(
+              obj[[paste0(func_name, "_fun")]], chunk_idx,
+              other_args = "max.height='200px'"
+            )
+            chunk_idx <<- chunk_idx + 1
+          }
+  
+          recipe <- write(
+            "\n\n**Input Parameters**\n\n",
+            old_text = recipe, write_flag = write_flag
+          )
+          if (write_flag) {
+            recipe <- sprintf(
+              "show_recipe(%s_objs, '%s', '%s', what = 'parameters')",
+              func_name, obj_name, exp
+            ) |>
+              write_code_chunk(chunk_args = "max.height='200px'") |>
+              write(old_text = recipe, write_flag = write_flag)
+          } else {
+            vthemes::subchunkify(
+              obj[[paste0(func_name, "_params")]], chunk_idx,
+              other_args = "max.height='200px'"
+            )
+            chunk_idx <<- chunk_idx + 1
+          }
+  
+          if (is_identical) {
+            break
+          }
+        }
+      }
+  
+      if (params$use_vmodern) {
+        recipe <- write(
+          "\n\n</div>\n\n", old_text = recipe, write_flag = write_flag
+        )
+      }
     }
   }
 
@@ -838,22 +1030,16 @@ if (params$write) {
 }
 ```
 
-## Methods and Evaluation
-
-### Methods
+## Methods
 
 ```{r methods, results = "asis"}
 method_recipe <- show_recipe(field_name = "method", write_flag = params$write)
 if (params$write) {
-  write_to_file(
-    path = write_filename,
-    "\n\n## Methods and Evaluation\n\n", "\n\n### Methods\n\n",
-    method_recipe
-  )
+  write_to_file(path = write_filename, "\n\n## Methods \n\n", method_recipe)
 }
 ```
 
-### Evaluation
+## Evaluation
 
 ```{r evaluators, results = "asis"}
 eval_recipe <- show_recipe(field_name = "evaluator", write_flag = params$write)
@@ -871,7 +1057,12 @@ if (params$write) {
 }
 ```
 
-
+```{r renv, results = "asis"}
+renv_recipe <- show_recipe(field_name = "renv", write_flag = params$write)
+if (params$write) {
+  write_to_file(path = write_filename, renv_recipe)
+}
+```
 
 ```{r res, results = "asis"}
 if (params$verbose > 0) {
