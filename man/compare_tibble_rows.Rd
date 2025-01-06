@@ -4,7 +4,12 @@
 \alias{compare_tibble_rows}
 \title{Compare two tibbles.}
 \usage{
-compare_tibble_rows(x, y, op = c("equal", "contained_in"))
+compare_tibble_rows(
+  x,
+  y,
+  op = c("equal", "contained_in"),
+  vary_param_names = NULL
+)
 }
 \arguments{
 \item{x}{A tibble with unique rows.}
@@ -12,6 +17,9 @@ compare_tibble_rows(x, y, op = c("equal", "contained_in"))
 \item{y}{A tibble with unique rows.}
 
 \item{op}{Name of opertaion.}
+
+\item{vary_param_names}{Character vector of parameter names that are varied
+across in the Experiment.}
 }
 \value{
 If \code{op == "equal"}, returns a boolean indicating if \code{x} and

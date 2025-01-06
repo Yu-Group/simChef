@@ -6,7 +6,12 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
 
   test_that("Caching in Experiment runs properly", {
 
-    withr::local_options(list(simChef.debug = FALSE))
+    withr::local_options(
+      list(
+        simChef.debug = FALSE,
+        future.globals.maxSize = 850 * 1024^2
+      )
+    )
 
     # create experiment
     dgp_fun1 <- function(x, y = NULL) rnorm(1, mean = x)
@@ -673,6 +678,65 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
     expect_equal(results6$fit_results |>
                    dplyr::filter(as.numeric(.rep) <= 10, .dgp_name == "DGP1"),
                  results2$fit_results)
+
+    # caching works with function arguments
+    n <- 50
+    p <- 3
+    dgp_fun <- function(n, p, func_arg) {
+      X <- matrix(rnorm(n * p), nrow = n, ncol = p)
+      y <- rnorm(n)
+      return(list(X = X, y = y))
+    }
+    method_fun <- function(X, y) {
+      lm_df <- cbind(data.frame(X), .y = y)
+      lm_fit <- lm(.y ~ ., dat = lm_df)
+      return(coef(lm_fit))
+    }
+    method <- create_method(method_fun, .name = "Method")
+
+    helper_fun <- function(x) sum(x)
+    working_func_arg <- function() {
+      z <- apply(X, 1, FUN = helper_fun)
+    }
+    working_dgp <- create_dgp(dgp_fun, .name = "Working DGP", n = n, p = p, func_arg = working_func_arg)
+    experiment <- create_experiment(
+      name = "test-cache-function-args1"
+    ) |>
+      add_dgp(working_dgp) |>
+      add_method(method)
+    fit_results <- experiment$fit(save = TRUE, use_cached = FALSE)
+    fit_results2 <- experiment$fit(save = TRUE, use_cached = TRUE)
+    expect_equal(fit_results, fit_results2)
+
+    buggy_func_arg1 <- function() {
+      z <- apply(X, 1, FUN = function(x) sum(x))
+    }
+    buggy_dgp1 <- create_dgp(dgp_fun, .name = "Buggy DGP1", n = n, p = p, func_arg = buggy_func_arg1)
+    buggy_func_arg2 <- function() {
+      function(x) sum(x)
+      return("hi")
+    }
+    buggy_dgp2 <- create_dgp(dgp_fun, .name = "Buggy DGP2", n = n, p = p, func_arg = buggy_func_arg2)
+    experiment <- create_experiment(
+      name = "test-cache-function-args2"
+    ) |>
+      add_dgp(buggy_dgp1) |>
+      add_dgp(buggy_dgp2) |>
+      add_method(method)
+    fit_results <- experiment$fit(save = TRUE, use_cached = FALSE)
+    fit_results2 <- experiment$fit(save = TRUE, use_cached = TRUE)
+    expect_equal(fit_results, fit_results2)
+
+    exp <- create_experiment(
+      name = "test-cache-function-args3",
+      save_in_bulk = FALSE
+    ) |>
+      add_dgp(buggy_dgp1) |>
+      add_dgp(buggy_dgp2) |>
+      add_method(method)
+    fit_results <- experiment$fit(save = TRUE, use_cached = FALSE)
+    fit_results2 <- experiment$fit(save = TRUE, use_cached = TRUE)
+    expect_equal(fit_results, fit_results2)
   })
 
 })

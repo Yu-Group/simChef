@@ -312,13 +312,16 @@ fix_duplicate_param_names <- function(dgp_params, method_params,
 #' @param x A tibble with unique rows.
 #' @param y A tibble with unique rows.
 #' @param op Name of opertaion.
+#' @param vary_param_names Character vector of parameter names that are varied
+#'   across in the Experiment.
 #'
 #' @return If `op == "equal"`, returns a boolean indicating if `x` and
 #'   `y` have the same rows, ignoring the row order. If
 #'   `op == "contained_in"`, returns a boolean indicating if all rows in
 #'   `x` are contained in the rows of `y`.
 #' @keywords internal
-compare_tibble_rows <- function(x, y, op = c("equal", "contained_in")) {
+compare_tibble_rows <- function(x, y, op = c("equal", "contained_in"),
+                                vary_param_names = NULL) {
   op <- match.arg(op)
   if ((!tibble::is_tibble(x)) || (!tibble::is_tibble(y))) {
     abort("x and y must be tibbles.")
@@ -335,7 +338,11 @@ compare_tibble_rows <- function(x, y, op = c("equal", "contained_in")) {
       return(FALSE)
     }
   }
-  duplicated_rows <- rbind(x, y) |>
+  # manually remove source code from functions
+  duplicated_rows <- rbind(
+    remove_source(x, cols = vary_param_names),
+    remove_source(y, cols = vary_param_names)
+  ) |>
     duplicated(fromLast = TRUE)
   return(all(duplicated_rows[1:nrow(x)]))
 }
@@ -352,13 +359,14 @@ compare_tibble_rows <- function(x, y, op = c("equal", "contained_in")) {
 #'   distinct rows while `dplyr::inner_join` does not. This function
 #'   enables caching when functions are used as parameters in DGPs and Methods.
 #'
+#' @inheritParams compare_tibble_rows
 #' @param id A tibble with distinct rows.
 #' @param x A tibble.
 #'
 #' @return A tibble, containing the subset of rows from `x` that match
 #'   id rows from `id`.
 #' @keywords internal
-get_matching_rows <- function(id, x) {
+get_matching_rows <- function(id, x, vary_param_names = NULL) {
   if ((!tibble::is_tibble(id)) || (!tibble::is_tibble(x))) {
     abort("id and x must be tibbles.")
   }
@@ -371,13 +379,17 @@ get_matching_rows <- function(id, x) {
     stop("id must be a tibble with unique rows.")
   }
   x_ids <- x |>
-    dplyr::select(tidyselect::all_of(id_cols))
+    dplyr::select(tidyselect::all_of(id_cols)) |>
+    remove_source(cols = vary_param_names)
   if (!any(id_coltypes == "list")) {
-    # easy case: no functions in id tibble -> use inner_join
+    # easy case: definitely no functions in id tibble -> use inner_join
     out <- dplyr::inner_join(id, x, by = id_cols)
   } else if (!anyDuplicated(x_ids)) {
     # no duplicate id rows in x -> use duplicated
-    df <- dplyr::bind_rows(id, x)
+    df <- dplyr::bind_rows(
+      remove_source(id, cols = vary_param_names),
+      remove_source(x, cols = vary_param_names)
+    )
     keep_row_idx <- df |>
       dplyr::select(tidyselect::all_of(id_cols)) |>
       duplicated()
@@ -388,7 +400,10 @@ get_matching_rows <- function(id, x) {
     keep_row_idx <- purrr::map_lgl(
       1:nrow(x),
       function(i) {
-        dplyr::bind_rows(id, x_ids[i, ]) |>
+        dplyr::bind_rows(
+          remove_source(id, cols = vary_param_names),
+          remove_source(x_ids[i, ], cols = vary_param_names)
+        ) |>
           duplicated() |>
           dplyr::last()
       }
@@ -541,4 +556,49 @@ HTML <- function(text, ..., .noWS = NULL) {
   attr(htmlText, "noWS") <- .noWS
   class(htmlText) <- c("html", "character")
   return(htmlText)
+}
+
+
+#' Remove source code from functions.
+#'
+#' @description Remove the source code from functions so that caching works as
+#'   expected. This function is used internally to remove the source code from
+#'   functions in the `.dgp_params`, `.method_params`, and `vary_across`
+#'   components.
+#'
+#' @param x A tibble.
+#' @param cols Character vector of column names to potentially remove source
+#'   code from.
+#'
+#' @returns A tibble with the source code removed from functions in the
+#'   specified columns.
+#' @keywords internal
+remove_source <- function(x, cols = NULL) {
+  for (func_col in c(".dgp_params", ".method_params", ".eval_params", ".viz_params")) {
+    if (func_col %in% names(x)) {
+      x[[func_col]] <- purrr::map(
+        x[[func_col]],
+        function(params_ls) {
+          purrr::map(
+            params_ls,
+            function(.x) if (is.function(.x)) utils::removeSource(.x) else .x
+          )
+        }
+      )
+    }
+  }
+
+  if (!is.null(cols)) {
+    for (func_col in cols) {
+      if (func_col %in% names(x)) {
+        if (is.list(x[[func_col]])) {
+          x[[func_col]] <- purrr::map(
+            x[[func_col]],
+            function(.x) if (is.function(.x)) utils::removeSource(.x) else .x
+          )
+        }
+      }
+    }
+  }
+  return(x)
 }

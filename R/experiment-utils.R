@@ -272,13 +272,15 @@ compute_rep <- function(reps,
                 param_df,
                 cached_results |>
                   dplyr::select(tidyselect::all_of(colnames(param_df))),
-                op = "contained_in"
+                op = "contained_in",
+                vary_param_names = c(vary_param_names, duplicate_param_names)
               ) &&
                 compare_tibble_rows(
                   param_df,
                   cached_fit_params |>
                     dplyr::select(tidyselect::all_of(colnames(param_df))),
-                  op = "contained_in"
+                  op = "contained_in",
+                  vary_param_names = c(vary_param_names, duplicate_param_names)
                 )
               if (is_cached) {
                 # if (verbose >= 1) {
@@ -386,7 +388,8 @@ compute_rep <- function(reps,
 
     if (use_cached && file.exists(save_file) && !save_in_bulk) {
       dgp_res <- get_matching_rows(
-        id = cached_fit_params, x = cached_results
+        id = cached_fit_params, x = cached_results,
+        vary_param_names = c(vary_param_names, duplicate_param_names)
       ) |>
         dplyr::bind_rows(dgp_res)
     }

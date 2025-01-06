@@ -318,17 +318,17 @@ Experiment <- R6::R6Class(
         dplyr::mutate(
           .dgp_name = purrr::map_chr(.dgp, ~.x$.dgp_name),
           .dgp_fun = purrr::map(
-            .dgp, ~removeSource(dgp_list[[.x$.dgp_name]]$dgp_fun)
+            .dgp, ~ utils::removeSource(dgp_list[[.x$.dgp_name]]$dgp_fun)
           ),
           .dgp_params = purrr::map(
-            .dgp, ~dgp_list[[.x$.dgp_name]]$dgp_params
+            .dgp, ~ dgp_list[[.x$.dgp_name]]$dgp_params
           ),
           .method_name = purrr::map_chr(.method, ~.x$.method_name),
           .method_fun = purrr::map(
-            .method, ~removeSource(method_list[[.x$.method_name]]$method_fun)
+            .method, ~ utils::removeSource(method_list[[.x$.method_name]]$method_fun)
           ),
           .method_params = purrr::map(
-            .method, ~method_list[[.x$.method_name]]$method_params
+            .method, ~ method_list[[.x$.method_name]]$method_params
           )
         )
 
@@ -405,7 +405,7 @@ Experiment <- R6::R6Class(
       obj_params <- tibble::tibble(
         name = names(obj_list),
         fun = purrr::map(
-          obj_list, ~removeSource(.x[[sprintf("%s_fun", field_name)]])
+          obj_list, ~ utils::removeSource(.x[[sprintf("%s_fun", field_name)]])
         ),
         params = purrr::map(
           obj_list, sprintf("%s_params", field_name)
@@ -1163,7 +1163,10 @@ Experiment <- R6::R6Class(
           results <- private$.get_cached_results("fit", verbose = verbose)
           fit_params <- private$.get_fit_params(wide_params = TRUE)
 
-          fit_results <- get_matching_rows(id = fit_params, x = results) |>
+          fit_results <- get_matching_rows(
+            id = fit_params, x = results,
+            vary_param_names = private$.get_vary_params()
+          ) |>
             dplyr::select(
               .rep, .dgp_name, .method_name, private$.get_vary_params(),
               tidyselect::everything()
@@ -1273,6 +1276,19 @@ Experiment <- R6::R6Class(
 
         new_fit_results <- local({
 
+          do_call_wrapper <- function(name,
+                                      fun,
+                                      params,
+                                      verbose,
+                                      call) {
+            tryCatch(
+              do_call_handler(
+                name, fun, params, verbose, call
+              ),
+              error = identity
+            )
+          }
+
           # create an env with objs/funcs that the future workers need
           workenv <- rlang::new_environment(
             data = list(
@@ -1289,19 +1305,7 @@ Experiment <- R6::R6Class(
               save_per_rep = save_per_rep,
               use_cached = use_cached && (nrow(cached_fit_params) > 0),
               save_dir = save_dir,
-              simplify_tibble = simplify_tibble,
-              do_call_wrapper = function(name,
-                                         fun,
-                                         params,
-                                         verbose,
-                                         call) {
-                tryCatch(
-                  do_call_handler(
-                    name, fun, params, verbose, call
-                  ),
-                  error = identity
-                )
-              }
+              do_call_wrapper = do_call_wrapper
             ),
             parent = rlang::ns_env()
           )
@@ -1395,14 +1399,18 @@ Experiment <- R6::R6Class(
               "fit", verbose = verbose
             )
             fit_results_cached <- get_matching_rows(
-              id = fit_params_cached, x = fit_results_cached
+              id = fit_params_cached, x = fit_results_cached,
+              vary_param_names = private$.get_vary_params()
             )
             if (verbose >= 1) {
               inform("Appending cached results to the new fit results...")
             }
             fit_params <- private$.get_fit_params(wide_params = TRUE)
             fit_results <- dplyr::bind_rows(fit_results, fit_results_cached)
-            fit_results <- get_matching_rows(id = fit_params, x = fit_results) |>
+            fit_results <- get_matching_rows(
+              id = fit_params, x = fit_results,
+              vary_param_names = private$.get_vary_params()
+            ) |>
               dplyr::select(
                 .rep, .dgp_name, .method_name, private$.get_vary_params(),
                 tidyselect::everything()

@@ -8,7 +8,12 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
 
     # setup temporary state
     local_plan(future::sequential, split = TRUE)
-    withr::local_options(list(simChef.debug = FALSE))
+    withr::local_options(
+      list(
+        simChef.debug = FALSE,
+        future.globals.maxSize = 850 * 1024^2
+      )
+    )
 
     dgp_fun <- function(n=100, rho=0.5, noise_level=1) {
       X <- data.frame(.n = n, .rho = rho, .noise_level = noise_level)

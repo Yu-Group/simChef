@@ -4,7 +4,12 @@ fit_experiment_fixture <- function(parallel_plan) {
 
   # set this to TRUE to debug memory usage (this will cause the tests to fail
   # because a bunch of plan-specific info gets added to output results)
-  withr::local_options(list(simChef.debug = FALSE))
+  withr::local_options(
+    list(
+      simChef.debug = FALSE,
+      future.globals.maxSize = 850 * 1024^2
+    )
+  )
 
   dgp_fun <- function(n, p, error_prob = 0) {
 
