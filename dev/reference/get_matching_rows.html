@@ -67,7 +67,7 @@ enables caching when functions are used as parameters in DGPs and Methods.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">get_matching_rows</span><span class="op">(</span><span class="va">id</span>, <span class="va">x</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">get_matching_rows</span><span class="op">(</span><span class="va">id</span>, <span class="va">x</span>, vary_param_names <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -80,6 +80,11 @@ enables caching when functions are used as parameters in DGPs and Methods.</p>
 
 <dt id="arg-x">x<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
 <dd><p>A tibble.</p></dd>
+
+
+<dt id="arg-vary-param-names">vary_param_names<a class="anchor" aria-label="anchor" href="#arg-vary-param-names"></a></dt>
+<dd><p>Character vector of parameter names that are varied
+across in the Experiment.</p></dd>
 
 </dl></div>
     <div class="section level2">
