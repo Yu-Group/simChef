@@ -2271,6 +2271,13 @@ Experiment <- R6::R6Class(
       invisible(self)
     },
 
+    #' @description Get the `save_in_bulk` parameter for the `Experiment`.
+    #'
+    #' @return Logical, indicating whether the results are saved in bulk or not.
+    get_save_in_bulk = function() {
+      private$.save_in_bulk
+    },
+
     #' @description Export all cached `Visualizer` results from an
     #'   `Experiment` to images in the `viz_results/` directory under the
     #'   `Experiment`'s results directory (see [get_save_dir()]).
