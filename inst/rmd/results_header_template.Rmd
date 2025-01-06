@@ -185,6 +185,75 @@ get_exp_results <- function(dir_name,
   return(results)
 }
 
+#' Print renv lockfile info
+#' 
+#' @param renv_lockfile renv lockfile object from [renv::lockfile_read()]
+#' @param what part of renv lockfile to print; must be one of "R" or "packages"
+#' @param print_table logical; whether to print as a nice table (TRUE) or 
+#'   simply using the `print` method.
+#' @return renv lockfile info
+print_renv <- function(renv_lockfile, 
+                       what = c("R", "Packages"),
+                       print_table = FALSE) {
+  what <- match.arg(what)
+  if (what == "R") {
+    if (print_table) {
+      tab <- tibble::tibble(
+        `R Version` = renv_lockfile$R$Version, 
+        Repositories = paste(
+          names(renv_lockfile$R$Repositories), 
+          " (", renv_lockfile$R$Repositories, ")", 
+          sep = "", collapse = "<br>"
+        )
+      ) |> 
+        vthemes::pretty_DT(
+          rownames = FALSE, options = list(dom = "t", ordering = FALSE)
+        )
+      return(tab)
+    } else {
+      return(renv_lockfile$R)
+    }
+  } else {
+    if (print_table) {
+      tab <- tibble::tibble(
+        `Package Name` = purrr::map_chr(
+          renv_lockfile$Packages, 
+          function(.x) if (!is.null(.x$Package)) .x$Package else "N/A"
+        ),
+        `Version` = purrr::map_chr(
+          renv_lockfile$Packages,
+          function(.x) if (!is.null(.x$Version)) .x$Version else "N/A"
+        ),
+        `Source` = purrr::map_chr(
+          renv_lockfile$Packages,
+          function(.x) if (!is.null(.x$Source)) .x$Source else "N/A"
+        ),
+        `Repository` = purrr::map_chr(
+          renv_lockfile$Packages,
+          function(.x) {
+            if (!is.null(.x$Repository)) {
+              .x$Repository
+            } else if (!is.null(.x$RemoteUrl)) {
+              .x$RemoteUrl
+            } else if (.x$Source == "GitHub") {
+              sprintf("https://github.com/%s/%s", .x$RemoteUsername, .x$RemoteRepo)
+            } else {
+              "N/A"
+            }
+          }
+        ),
+        `Requirements` = purrr::map_chr(
+          renv_lockfile$Packages, ~ paste(.x$Requirements, collapse = ", ")
+        )
+      ) |> 
+        vthemes::pretty_DT(rownames = FALSE)
+      return(tab)
+    } else {
+      return(renv_lockfile$Packages)
+    }
+  }
+}
+
 #' Show recipe content.
 #' 
 #' @param objs List of DGP/Method/Evaluator/Visualizer objects. Should be one of
