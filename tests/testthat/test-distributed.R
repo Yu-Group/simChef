@@ -35,7 +35,7 @@ fit_experiment_fixture <- function(parallel_plan) {
 
   }
 
-  dgp <- create_dgp(dgp_fun, n = 50, p = 3)
+  dgp <- create_dgp(dgp_fun, n = 100, p = 3)
 
   method_fun <- function(X, y, ...) {
 
@@ -62,7 +62,7 @@ fit_experiment_fixture <- function(parallel_plan) {
       # sequential plan results are expected
       future::sequential,
       fit_experiment(experiment,
-                     n_reps = 6,
+                     n_reps = 10,
                      verbose = 0),
       split = TRUE
     )
@@ -85,12 +85,12 @@ fit_experiment_fixture <- function(parallel_plan) {
       # use the same starting seed as before
       withr::local_seed(seed)
       fit_experiment(experiment,
-                     n_reps = 6,
+                     n_reps = 10,
                      verbose = 0)
     }, simplify = FALSE)
   )
 
-  bad_dgp <- create_dgp(dgp_fun, n = 50, p = 3, error_prob = 0.1)
+  bad_dgp <- create_dgp(dgp_fun, n = 100, p = 3, error_prob = 0.1)
 
   experiment |>
     remove_dgp("dgp1") |>
@@ -104,7 +104,7 @@ fit_experiment_fixture <- function(parallel_plan) {
       withr::local_seed(seed)
       tryCatch(
         fit_experiment(experiment,
-                       n_reps = 20,
+                       n_reps = 50,
                        verbose = 0),
         simChef_error = identity
       )
