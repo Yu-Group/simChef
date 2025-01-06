@@ -645,7 +645,16 @@ get_exp_results <- function(dir_name,
   eval_fname <- file.path(dir_name, sprintf("eval_results%s", eval_cache))
   viz_fname <- file.path(dir_name, sprintf("viz_results%s", viz_cache))
 
-  exp <- readRDS(exp_fname)
+  if (file.exists(exp_fname)) {
+    exp <- readRDS(exp_fname)
+  } else {
+    results <- list(
+      exp = NULL,
+      eval_results = NULL,
+      viz_results = NULL
+    )
+    return(results)
+  }
   fit_results <- NULL
   eval_results <- NULL
   viz_results <- NULL
@@ -1119,7 +1128,7 @@ if (params$write) {
 ```{r evaluators, results = "asis"}
 eval_recipe <- show_recipe(field_name = "evaluator", write_flag = params$write)
 if (params$write) {
-  write_to_file(path = write_filename, "\n\n### Evaluation\n\n", eval_recipe)
+  write_to_file(path = write_filename, "\n\n## Evaluation\n\n", eval_recipe)
 }
 ```
 

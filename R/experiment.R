@@ -1121,8 +1121,10 @@ Experiment <- R6::R6Class(
       } else {
         save_dir <- private$.get_vary_across_dir()
       }
-      if (!dir.exists(file.path(save_dir, "fit_results"))) {
-        dir.create(file.path(save_dir, "fit_results"), recursive = TRUE)
+      if (!save_in_bulk) {
+        if (!dir.exists(file.path(save_dir, "fit_results"))) {
+          dir.create(file.path(save_dir, "fit_results"), recursive = TRUE)
+        }
       }
 
       dgp_list <- private$.get_obj_list("dgp")
