@@ -91,6 +91,7 @@ directory. This root directory is determined via
 <span>  viz_order <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  eval_cache <span class="op">=</span> <span class="st">".rds"</span>,</span>
 <span>  viz_cache <span class="op">=</span> <span class="st">".rds"</span>,</span>
+<span>  viz_interactive <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  use_icons <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  quiet <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  verbose <span class="op">=</span> <span class="fl">2</span>,</span>
@@ -191,6 +192,15 @@ Typically <code>".rds"</code> or <code>"none"</code>, but can be any (image) fil
 stored as separate <code>{visualizer_name}.ext</code> images (typically using
 <code><a href="export_visualizers.html">export_visualizers()</a></code>). If <code>"none"</code>, visualizer results are computed using
 the experiment via <code><a href="visualize_experiment.html">visualize_experiment()</a></code>.</p></dd>
+
+
+<dt id="arg-viz-interactive">viz_interactive<a class="anchor" aria-label="anchor" href="#arg-viz-interactive"></a></dt>
+<dd><p>Logical, indicating whether or not to display
+plot visualizers interactively in the R Markdown document using
+<code><a href="https://rdrr.io/pkg/plotly/man/ggplotly.html" class="external-link">plotly::ggplotly()</a></code>. Default is <code>FALSE</code>. Can also specify a character
+vector of <code>Visualizer</code> names to display interactively. Note that only
+the visualizers that can be coerced into an interactive plot using
+<code><a href="https://rdrr.io/pkg/plotly/man/ggplotly.html" class="external-link">plotly::ggplotly()</a></code> will be displayed interactively.</p></dd>
 
 
 <dt id="arg-use-icons">use_icons<a class="anchor" aria-label="anchor" href="#arg-use-icons"></a></dt>
