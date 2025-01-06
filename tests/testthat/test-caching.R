@@ -6,7 +6,12 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
 
   test_that("Caching in Experiment runs properly", {
 
-    withr::local_options(list(simChef.debug = FALSE))
+    withr::local_options(
+      list(
+        simChef.debug = FALSE,
+        future.globals.maxSize = 850 * 1024^2
+      )
+    )
 
     # create experiment
     dgp_fun1 <- function(x, y = NULL) rnorm(1, mean = x)
