@@ -225,6 +225,24 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
       NA
     )
 
+    # test viz_interactive = TRUE
+    expect_error(
+      render_docs(base_experiment, viz_interactive = TRUE, verbose = 0),
+      NA
+    )
+    expect_error(
+      render_docs(
+        base_experiment, write_rmd = TRUE, viz_interactive = TRUE, verbose = 0
+      ),
+      NA
+    )
+    expect_error(
+      render_docs(
+        base_experiment, viz_interactive = TRUE, viz_cache = ".png", verbose = 0
+      ),
+      NA
+    ) # > static viz images
+
     # check defuse requirement
     output_format <- quote(rmarkdown::html_document())
     expect_error(

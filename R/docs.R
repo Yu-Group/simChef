@@ -178,6 +178,12 @@ create_doc_template <- function(experiment, save_dir) {
 #'   stored as separate `{visualizer_name}.ext` images (typically using
 #'   [export_visualizers()]). If `"none"`, visualizer results are computed using
 #'   the experiment via [visualize_experiment()].
+#' @param viz_interactive Logical, indicating whether or not to display
+#'   plot visualizers interactively in the R Markdown document using
+#'   [plotly::ggplotly()]. Default is `FALSE`. Can also specify a character
+#'   vector of `Visualizer` names to display interactively. Note that only
+#'   the visualizers that can be coerced into an interactive plot using
+#'   [plotly::ggplotly()] will be displayed interactively.
 #' @param use_icons Logical indicating whether or not to use fontawesome icons.
 #' @param verbose Level of verboseness (0, 1, 2) when knitting R Markdown.
 #'   Default is 2.
@@ -202,6 +208,7 @@ render_docs <- function(experiment, save_dir, write_rmd = FALSE,
                         show_code = TRUE, show_eval = TRUE, show_viz = TRUE,
                         eval_order = NULL, viz_order = NULL,
                         eval_cache = ".rds", viz_cache = ".rds",
+                        viz_interactive = FALSE,
                         use_icons = TRUE,
                         quiet = TRUE, verbose = 2, ...) {
 
@@ -223,6 +230,9 @@ render_docs <- function(experiment, save_dir, write_rmd = FALSE,
     if (is.null(title)) {
       title <- "Results"
     }
+  }
+  if (viz_interactive) {
+    rlang::check_installed("plotly", reason = "to use viz_interactive = TRUE")
   }
 
   init_docs(save_dir = save_dir)
@@ -284,7 +294,7 @@ render_docs <- function(experiment, save_dir, write_rmd = FALSE,
     show_code = show_code, show_eval = show_eval, show_viz = show_viz,
     eval_order = eval_order, viz_order = viz_order,
     eval_cache = eval_cache, viz_cache = viz_cache,
-    use_icons = use_icons,
+    viz_interactive = viz_interactive, use_icons = use_icons,
     use_vmodern = use_vmodern, write = write_rmd, verbose = verbose
   )
 
