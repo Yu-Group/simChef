@@ -1303,8 +1303,7 @@ Experiment <- R6::R6Class(
               save_per_rep = save_per_rep,
               use_cached = use_cached && (nrow(cached_fit_params) > 0),
               save_dir = save_dir,
-              simplify_tibble = simplify_tibble,
-              do_call_wrapper = utils::removeSource(do_call_wrapper)
+              do_call_wrapper = do_call_wrapper
             ),
             parent = rlang::ns_env()
           )
