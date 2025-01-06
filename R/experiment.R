@@ -2275,7 +2275,12 @@ Experiment <- R6::R6Class(
     #'
     #' @return Logical, indicating whether the results are saved in bulk or not.
     get_save_in_bulk = function() {
-      private$.save_in_bulk
+      save_in_bulk <- private$.save_in_bulk
+      if (is.null(save_in_bulk)) {
+        # for experiments created before save_in_bulk was introduced
+        save_in_bulk <- c(fit = TRUE, eval = TRUE, viz = TRUE)
+      }
+      return(save_in_bulk)
     },
 
     #' @description Export all cached `Visualizer` results from an
