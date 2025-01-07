@@ -23,9 +23,10 @@ first argument: \code{\link[=create_experiment]{create_experiment()}}, \code{\li
 \code{\link[=fit_experiment]{fit_experiment()}}, \code{\link[=evaluate_experiment]{evaluate_experiment()}}, \code{\link[=visualize_experiment]{visualize_experiment()}},
 \code{\link[=run_experiment]{run_experiment()}}, \code{\link[=clear_cache]{clear_cache()}}, \code{\link[=get_cached_results]{get_cached_results()}},
 \code{\link[=get_save_dir]{get_save_dir()}}, \code{\link[=set_save_dir]{set_save_dir()}}, \code{\link[=save_experiment]{save_experiment()}},
-\code{\link[=export_visualizers]{export_visualizers()}}, \href{add_funs.html}{\verb{add_*()}},
-\href{update_funs.html}{\verb{update_*()}}, \href{remove_funs.html}{\verb{remove_*()}},
-\href{get_funs.html}{\verb{get_*()}}, and \href{vary_across.html}{\verb{*_vary_across()}}.
+\code{\link[=set_export_viz_options]{set_export_viz_options()}}, \code{\link[=export_visualizers]{export_visualizers()}}, \code{\link[=set_doc_options]{set_doc_options()}},
+\href{add_funs.html}{\verb{add_*()}}, \href{update_funs.html}{\verb{update_*()}},
+\href{remove_funs.html}{\verb{remove_*()}}, \href{get_funs.html}{\verb{get_*()}}, and
+\href{vary_across.html}{\verb{*_vary_across()}}.
 }
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
@@ -66,6 +67,7 @@ first argument: \code{\link[=create_experiment]{create_experiment()}}, \code{\li
 \item \href{#method-Experiment-clear_cache}{\code{Experiment$clear_cache()}}
 \item \href{#method-Experiment-get_cached_results}{\code{Experiment$get_cached_results()}}
 \item \href{#method-Experiment-set_doc_options}{\code{Experiment$set_doc_options()}}
+\item \href{#method-Experiment-set_export_viz_options}{\code{Experiment$set_export_viz_options()}}
 \item \href{#method-Experiment-get_save_dir}{\code{Experiment$get_save_dir()}}
 \item \href{#method-Experiment-set_save_dir}{\code{Experiment$set_save_dir()}}
 \item \href{#method-Experiment-save}{\code{Experiment$save()}}
@@ -1005,6 +1007,30 @@ The \code{Experiment} object, invisibly.
 }
 }
 \if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Experiment-set_export_viz_options"></a>}}
+\if{latex}{\out{\hypertarget{method-Experiment-set_export_viz_options}{}}}
+\subsection{Method \code{set_export_viz_options()}}{
+Set options to use in \code{\link[ggplot2:ggsave]{ggplot2::ggsave()}} when exporting
+the \code{Visualizer}'s visualization with \code{\link[=export_visualizers]{export_visualizers()}}.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Experiment$set_export_viz_options(name, ...)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{name}}{Name of \code{Visualizer} to set \code{\link[ggplot2:ggsave]{ggplot2::ggsave()}} options.}
+
+\item{\code{...}}{Named options to set. See arguments of \code{\link[ggplot2:ggsave]{ggplot2::ggsave()}} for
+possible options.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+The \code{Experiment} object, invisibly.
+}
+}
+\if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Experiment-get_save_dir"></a>}}
 \if{latex}{\out{\hypertarget{method-Experiment-get_save_dir}{}}}
 \subsection{Method \code{get_save_dir()}}{
@@ -1076,12 +1102,7 @@ Export all cached \code{Visualizer} results from an
 \code{Experiment} to images in the \verb{viz_results/} directory under the
 \code{Experiment}'s results directory (see \code{\link[=get_save_dir]{get_save_dir()}}).
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Experiment$export_visualizers(
-  device = "png",
-  width = "auto",
-  height = "auto",
-  ...
-)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Experiment$export_visualizers(device = "png", ...)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -1089,11 +1110,9 @@ Export all cached \code{Visualizer} results from an
 \describe{
 \item{\code{device}}{See \code{device} argument of \code{\link[ggplot2:ggsave]{ggplot2::ggsave()}}.}
 
-\item{\code{width}}{See \code{width} argument of \code{\link[ggplot2:ggsave]{ggplot2::ggsave()}}.}
-
-\item{\code{height}}{See \code{height} argument of \code{\link[ggplot2:ggsave]{ggplot2::ggsave()}}.}
-
-\item{\code{...}}{Additional arguments to pass to \code{\link[ggplot2:ggsave]{ggplot2::ggsave()}}.}
+\item{\code{...}}{Additional arguments to pass to \code{\link[ggplot2:ggsave]{ggplot2::ggsave()}} to be used
+for all visualizations. If not provided, the \code{export_options} from
+each \code{Visualizer} will be used.}
 }
 \if{html}{\out{</div>}}
 }

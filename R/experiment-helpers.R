@@ -1287,6 +1287,90 @@ save_experiment <- function(experiment) {
   experiment$save()
 }
 
+#' Set `ggplot2::ggsave` export options for a `Visualizer`.
+#'
+#' @name set_export_viz_options
+#' @description Set options to use in [ggplot2::ggsave()] when exporting
+#'   the `Visualizer`'s visualization with [export_visualizers()].
+#'
+#' @inheritParams shared_experiment_helpers_args
+#' @param name Name of `Visualizer` to set [ggplot2::ggsave()] options.
+#' @param ... Named options to set. See arguments of [ggplot2::ggsave()] for
+#'   possible options.
+#'
+#' @return The `Experiment` object with modified export options for the
+#'   specified `Visualizer`, invisibly.
+#'
+#' @examples
+#' ## create toy DGPs, Methods, Evaluators, and Visualizers
+#'
+#' # generate data from normal distribution with n samples
+#' normal_dgp <- create_dgp(
+#'   .dgp_fun = function(n) rnorm(n), .name = "Normal DGP", n = 100
+#' )
+#' # generate data from binomial distribution with n samples
+#' bernoulli_dgp <- create_dgp(
+#'   .dgp_fun = function(n) rbinom(n, 1, 0.5), .name = "Bernoulli DGP", n = 100
+#' )
+#'
+#' # compute mean of data
+#' mean_method <- create_method(
+#'   .method_fun = function(x) list(mean = mean(x)), .name = "Mean(x)"
+#' )
+#'
+#' # evaluate SD of mean(x) across simulation replicates
+#' sd_mean_eval <- create_evaluator(
+#'   .eval_fun = function(fit_results, vary_params = NULL) {
+#'     group_vars <- c(".dgp_name", ".method_name", vary_params)
+#'     fit_results |>
+#'       dplyr::group_by(dplyr::across(tidyselect::all_of(group_vars))) |>
+#'       dplyr::summarise(sd = sd(mean), .groups = "keep")
+#'   },
+#'   .name = "SD of Mean(x)"
+#' )
+#' # plot SD of mean(x) across simulation replicates
+#' sd_mean_plot <- create_visualizer(
+#'   .viz_fun = function(fit_results, eval_results, vary_params = NULL,
+#'                       eval_name = "SD of Mean(x)") {
+#'     if (!is.null(vary_params)) {
+#'       add_aes <- ggplot2::aes(
+#'         x = .data[[unique(vary_params)]], y = sd, color = .dgp_name
+#'       )
+#'     } else {
+#'       add_aes <- ggplot2::aes(x = .dgp_name, y = sd)
+#'     }
+#'     plt <- ggplot2::ggplot(eval_results[[eval_name]]) +
+#'       add_aes +
+#'       ggplot2::geom_point()
+#'     if (!is.null(vary_params)) {
+#'       plt <- plt + ggplot2::geom_line()
+#'     }
+#'     return(plt)
+#'   },
+#'   .name = "SD of Mean(x) Plot"
+#' )
+#'
+#' # initialize experiment with toy DGPs, Methods, Evaluators, and Visualizers
+#' # using piping |> and add_* functions
+#' experiment <- create_experiment(name = "Experiment Name") |>
+#'   add_dgp(normal_dgp) |>
+#'   add_dgp(bernoulli_dgp) |>
+#'   add_method(mean_method) |>
+#'   add_evaluator(sd_mean_eval) |>
+#'   add_visualizer(sd_mean_plot)
+#'
+#' # set export options for Visualizer
+#' experiment <- experiment |>
+#'   set_export_viz_options(
+#'     name = "SD of Mean(x) Plot",
+#'     height = 10, width = 8
+#'   )
+#'
+#' @export
+set_export_viz_options = function(experiment, name, ...) {
+  experiment$set_export_viz_options(name = name, ...)
+}
+
 #' Export cached `Visualizer` results to image.
 #'
 #' @name export_visualizers
@@ -1295,7 +1379,10 @@ save_experiment <- function(experiment) {
 #'   directory (see [get_save_dir()]).
 #'
 #' @inheritParams shared_experiment_helpers_args
-#' @param ... Additional arguments to pass to [ggplot2::ggsave()]
+#' @param device See `device` argument of [ggplot2::ggsave()].
+#' @param ... Additional arguments to pass to [ggplot2::ggsave()] to be used
+#'   for all visualizations. If not provided, the `export_options` from
+#'   each `Visualizer` will be used.
 #'
 #' @return The original `Experiment` object passed to
 #'   `export_visualizers`.
@@ -1305,6 +1392,6 @@ save_experiment <- function(experiment) {
 #' export_visualizers(experiment)}
 #'
 #' @export
-export_visualizers <- function(experiment, ...) {
-  experiment$export_visualizers(...)
+export_visualizers <- function(experiment, device = "png", ...) {
+  experiment$export_visualizers(device = device, ...)
 }

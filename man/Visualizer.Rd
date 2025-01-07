@@ -166,6 +166,10 @@ reject_prob_plot$visualize(
 \item{\code{viz_params}}{A (named) list of default parameters to input into
 the visualization function.}
 
+\item{\code{export_options}}{List of options to use in \code{\link[ggplot2:ggsave]{ggplot2::ggsave()}} when
+exporting the \code{Visualizer}'s visualization to file with
+\code{export_visualizers()}.}
+
 \item{\code{doc_options}}{List of options to control the aesthetics of
 the \code{Visualizer}'s visualization in the knitted R Markdown report.}
 
@@ -192,6 +196,7 @@ Initialize a new \code{Visualizer} object.
 \if{html}{\out{<div class="r">}}\preformatted{Visualizer$new(
   .viz_fun,
   .name = NULL,
+  .export_options = list(),
   .doc_options = list(),
   .doc_show = TRUE,
   ...
@@ -204,6 +209,12 @@ Initialize a new \code{Visualizer} object.
 \item{\code{.viz_fun}}{The user-defined visualization function.}
 
 \item{\code{.name}}{(Optional) The name of the \code{Visualizer}.}
+
+\item{\code{.export_options}}{(Optional) List of options to use in \code{\link[ggplot2:ggsave]{ggplot2::ggsave()}}
+when exporting the \code{Visualizer}'s visualization to file with
+\code{export_visualizers()}. See arguments of \code{\link[ggplot2:ggsave]{ggplot2::ggsave()}} for possible
+options. By default, the "height" and "width" from \code{.doc_options} are used
+alongside all other default options of \code{\link[ggplot2:ggsave]{ggplot2::ggsave()}}.}
 
 \item{\code{.doc_options}}{(Optional) List of options to control the aesthetics of
 the \code{Visualizer}'s visualization in the knitted R Markdown report.

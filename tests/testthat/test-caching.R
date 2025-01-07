@@ -723,8 +723,8 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
       add_dgp(buggy_dgp1) |>
       add_dgp(buggy_dgp2) |>
       add_method(method)
-    fit_results <- experiment$fit(save = TRUE, use_cached = FALSE)
-    fit_results2 <- experiment$fit(save = TRUE, use_cached = TRUE)
+    fit_results <- experiment$fit(save = TRUE, use_cached = FALSE, verbose = verbose)
+    fit_results2 <- experiment$fit(save = TRUE, use_cached = TRUE, verbose = verbose)
     expect_equal(fit_results, fit_results2)
 
     exp <- create_experiment(
@@ -734,8 +734,8 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
       add_dgp(buggy_dgp1) |>
       add_dgp(buggy_dgp2) |>
       add_method(method)
-    fit_results <- experiment$fit(save = TRUE, use_cached = FALSE)
-    fit_results2 <- experiment$fit(save = TRUE, use_cached = TRUE)
+    fit_results <- experiment$fit(save = TRUE, use_cached = FALSE, verbose = verbose)
+    fit_results2 <- experiment$fit(save = TRUE, use_cached = TRUE, verbose = verbose)
     expect_equal(fit_results, fit_results2)
   })
 

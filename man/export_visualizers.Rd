@@ -4,12 +4,16 @@
 \alias{export_visualizers}
 \title{Export cached \code{Visualizer} results to image.}
 \usage{
-export_visualizers(experiment, ...)
+export_visualizers(experiment, device = "png", ...)
 }
 \arguments{
 \item{experiment}{An \code{Experiment} object.}
 
-\item{...}{Additional arguments to pass to \code{\link[ggplot2:ggsave]{ggplot2::ggsave()}}}
+\item{device}{See \code{device} argument of \code{\link[ggplot2:ggsave]{ggplot2::ggsave()}}.}
+
+\item{...}{Additional arguments to pass to \code{\link[ggplot2:ggsave]{ggplot2::ggsave()}} to be used
+for all visualizations. If not provided, the \code{export_options} from
+each \code{Visualizer} will be used.}
 }
 \value{
 The original \code{Experiment} object passed to

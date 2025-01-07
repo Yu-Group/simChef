@@ -5,6 +5,7 @@
 ^pkgdown$
 ^LICENSE\.md$
 ^\.github$
+^results/*
 ^vignettes/results/*
 ^vignettes/example-docs/*
 ^man-roxygen
