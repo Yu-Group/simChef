@@ -23,9 +23,10 @@ NULL
 #'   [fit_experiment()], [evaluate_experiment()], [visualize_experiment()],
 #'   [run_experiment()], [clear_cache()], [get_cached_results()],
 #'   [get_save_dir()], [set_save_dir()], [save_experiment()],
-#'   [export_visualizers()], [`add_*()`](add_funs.html),
-#'   [`update_*()`](update_funs.html), [`remove_*()`](remove_funs.html),
-#'   [`get_*()`](get_funs.html), and [`*_vary_across()`](vary_across.html).
+#'   [set_export_viz_options()], [export_visualizers()], [set_doc_options()],
+#'   [`add_*()`](add_funs.html), [`update_*()`](update_funs.html),
+#'   [`remove_*()`](remove_funs.html), [`get_*()`](get_funs.html), and
+#'   [`*_vary_across()`](vary_across.html).
 #'
 #' @export
 Experiment <- R6::R6Class(
@@ -2243,6 +2244,35 @@ Experiment <- R6::R6Class(
       invisible(self)
     },
 
+    #' @description Set options to use in [ggplot2::ggsave()] when exporting
+    #'   the `Visualizer`'s visualization with [export_visualizers()].
+    #'
+    #' @param name Name of `Visualizer` to set [ggplot2::ggsave()] options.
+    #' @param ... Named options to set. See arguments of [ggplot2::ggsave()] for
+    #'   possible options.
+    #'
+    #' @return The `Experiment` object, invisibly.
+    set_export_viz_options = function(name, ...) {
+      obj_list <- private$.get_obj_list("visualizer")
+      if (!name %in% names(obj_list)) {
+        abort(
+          sprintf(
+            paste("The name '%s' isn't in the visualizer list.",
+                  "Use add_visualizer first."),
+            name
+          )
+        )
+      }
+      export_options <- rlang::list2(...)
+      if (length(export_options) > 0) {
+        for (i in 1:length(export_options)) {
+          private$.visualizer_list[[name]]$export_options[[names(export_options)[i]]] <-
+            export_options[[i]]
+        }
+      }
+      invisible(self)
+    },
+
     #' @description Get the directory in which the `Experiment`'s results and
     #'   visualizations are saved.
     #'
@@ -2298,15 +2328,13 @@ Experiment <- R6::R6Class(
     #'   `Experiment`'s results directory (see [get_save_dir()]).
     #'
     #' @param device See `device` argument of [ggplot2::ggsave()].
-    #' @param width See `width` argument of [ggplot2::ggsave()].
-    #' @param height See `height` argument of [ggplot2::ggsave()].
-    #' @param ... Additional arguments to pass to [ggplot2::ggsave()].
+    #' @param ... Additional arguments to pass to [ggplot2::ggsave()] to be used
+    #'   for all visualizations. If not provided, the `export_options` from
+    #'   each `Visualizer` will be used.
     #'
     #' @return The `Experiment` object, invisibly.
-    export_visualizers = function(device = "png", width = "auto", height = "auto",
-                                  ...) {
-      rlang::check_installed("ggplot2",
-        reason = "to export visualizers to image.")
+    export_visualizers = function(device = "png", ...) {
+      rlang::check_installed("ggplot2", reason = "to export visualizers to image.")
       viz_list <- self$get_visualizers()
       if (length(viz_list) == 0) {
         return(invisible(self))
@@ -2322,14 +2350,19 @@ Experiment <- R6::R6Class(
         dir.create(save_dir, recursive = TRUE)
       }
 
-      ggsave_args <- list(device = device, ...)
+      dots_ls <- rlang::list2(...)
       for (viz_name in names(viz_results)) {
         viz <- viz_list[[viz_name]]
-        if (identical(height, "auto")) {
-          ggsave_args[["height"]] <- viz$doc_options$height
+        ggsave_args <- viz$export_options
+        ggsave_args$device <- device
+        if (is.null(ggsave_args$height)) {
+          ggsave_args$height <- viz$doc_options$height
         }
-        if (identical(width, "auto")) {
-          ggsave_args[["width"]] <- viz$doc_options$width
+        if (is.null(ggsave_args$width)) {
+          ggsave_args$width <- viz$doc_options$width
+        }
+        for (arg_name in names(dots_ls)) {
+          ggsave_args[[arg_name]] <- dots_ls[[arg_name]]
         }
         fname <- file.path(save_dir, sprintf("%s.%s", viz_name, device))
         tryCatch({
@@ -2339,7 +2372,7 @@ Experiment <- R6::R6Class(
               ggsave_args))
         }, error = function(err) {
           rlang::warn(sprintf(
-            "Could not save %s as image using ggplot2::ggsave.", viz_name
+            "Could not save %s as image using ggplot2::ggsave. Skipping export.", viz_name
           ))
           if (file.exists(fname)) {
             file.remove(fname)

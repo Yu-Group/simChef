@@ -1006,7 +1006,7 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
     expect_false(file.exists(file.path(old_path, "experiment.rds")))
   })
 
-  test_that("Exporting visualizers in Experiment works properly", {
+  test_that("Setting export options and exporting visualizers in Experiment works properly", {
 
     dgp_fun <- function(x, y = NULL) x + 1
     dgp <- DGP$new(dgp_fun, x = 1)
@@ -1030,6 +1030,7 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
     fpath <- file.path(experiment$get_save_dir())
 
     # with no visualizers
+    expect_error(experiment$set_export_viz_options(name = "Visualizer1"))
     expect_error(experiment$export_visualizers(), NA)
     expect_equal(
       length(list.files(path = fpath, pattern = ".png")), 0
@@ -1051,6 +1052,19 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
     expect_warning(expect_warning(experiment$export_visualizers()))
     expect_equal(list.files(path = fpath, pattern = ".png"), "ggplot.png")
 
+    # setting export options
+    experiment |>
+      set_export_viz_options(name = "ggplot", height = 4, width = 8) |>
+      set_export_viz_options(name = "plotly", scale = 2)
+    expect_equal(
+      experiment$get_visualizers()[["ggplot"]]$export_options,
+      list(height = 4, width = 8)
+    )
+    expect_equal(
+      experiment$get_visualizers()[["plotly"]]$export_options,
+      list(scale = 2)
+    )
+
     # using vary across
     experiment |>
       add_vary_across(.dgp = "DGP", y = 1:3)
@@ -1063,6 +1077,33 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
       ),
       "ggplot.png"
     )
+
+    # exporting visualizers with different export options
+    ggplot_plot1 <- create_visualizer(
+      .viz_fun = function() ggplot2::ggplot(),
+      .name = "ggplot (height = 3)",
+      .export_options = list(height = 3)
+    )
+    ggplot_plot2 <- create_visualizer(
+      .viz_fun = function() ggplot2::ggplot(),
+      .name = "ggplot (height = 6)",
+      .export_options = list(height = 6)
+    )
+    experiment <- create_experiment(name = "test-evaluate") |>
+      add_dgp(dgp, "DGP") |>
+      add_method(method, "Method") |>
+      add_visualizer(ggplot_plot1) |>
+      add_visualizer(ggplot_plot2)
+    results <- experiment$run(save = TRUE, verbose = 0)
+    expect_equal(
+      experiment$get_visualizers()[["ggplot (height = 3)"]]$export_options,
+      list(height = 3)
+    )
+    expect_equal(
+      experiment$get_visualizers()[["ggplot (height = 6)"]]$export_options,
+      list(height = 6)
+    )
+    export_visualizers(experiment)
   })
 
   test_that("Printing Experiment works properly", {

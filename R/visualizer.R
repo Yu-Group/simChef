@@ -13,6 +13,11 @@
 #'
 #' @param .viz_fun The user-defined visualization function.
 #' @param .name (Optional) The name of the `Visualizer`.
+#' @param .export_options (Optional) List of options to use in [ggplot2::ggsave()]
+#'   when exporting the `Visualizer`'s visualization to file with
+#'   `export_visualizers()`. See arguments of [ggplot2::ggsave()] for possible
+#'   options. By default, the "height" and "width" from `.doc_options` are used
+#'   alongside all other default options of [ggplot2::ggsave()].
 #' @param .doc_options (Optional) List of options to control the aesthetics of
 #'   the `Visualizer`'s visualization in the knitted R Markdown report.
 #'   Currently, possible options are "height" and "width" (in inches). The
@@ -142,9 +147,10 @@
 #' )
 #'
 #' @export
-create_visualizer <- function(.viz_fun, .name = NULL, .doc_options = list(),
-                              .doc_show = TRUE, ...) {
-  Visualizer$new(.viz_fun, .name, .doc_options, .doc_show, ...)
+create_visualizer <- function(.viz_fun, .name = NULL, .export_options = list(),
+                              .doc_options = list(), .doc_show = TRUE,
+                              ...) {
+  Visualizer$new(.viz_fun, .name, .export_options, .doc_options, .doc_show, ...)
 }
 
 #' `R6` class representing a visualizer
@@ -315,6 +321,11 @@ Visualizer <- R6::R6Class(
     #'   the visualization function.
     viz_params = NULL,
 
+    #' @field export_options List of options to use in [ggplot2::ggsave()] when
+    #'   exporting the `Visualizer`'s visualization to file with
+    #'   `export_visualizers()`.
+    export_options = list(),
+
     #' @field doc_options List of options to control the aesthetics of
     #'   the `Visualizer`'s visualization in the knitted R Markdown report.
     doc_options = list(height = 6, width = 10),
@@ -331,6 +342,11 @@ Visualizer <- R6::R6Class(
     #'
     #' @param .viz_fun The user-defined visualization function.
     #' @param .name (Optional) The name of the `Visualizer`.
+    #' @param .export_options (Optional) List of options to use in [ggplot2::ggsave()]
+    #'   when exporting the `Visualizer`'s visualization to file with
+    #'   `export_visualizers()`. See arguments of [ggplot2::ggsave()] for possible
+    #'   options. By default, the "height" and "width" from `.doc_options` are used
+    #'   alongside all other default options of [ggplot2::ggsave()].
     #' @param .doc_options (Optional) List of options to control the aesthetics of
     #'   the `Visualizer`'s visualization in the knitted R Markdown report.
     #'   Currently, possible options are "height" and "width" (in inches). The
@@ -341,10 +357,13 @@ Visualizer <- R6::R6Class(
     #' @param ... User-defined default arguments to pass into `.viz_fun()`.
     #'
     #' @return A new instance of `Visualizer`.
-    initialize = function(.viz_fun, .name = NULL, .doc_options = list(),
-                          .doc_show = TRUE, ...) {
+    initialize = function(.viz_fun, .name = NULL, .export_options = list(),
+                          .doc_options = list(), .doc_show = TRUE, ...) {
       self$viz_fun <- .viz_fun
       self$name <- .name
+      for (opt in names(.export_options)) {
+        self$export_options[[opt]] <- .export_options[[opt]]
+      }
       for (opt in names(.doc_options)) {
         self$doc_options[[opt]] <- .doc_options[[opt]]
       }
@@ -396,6 +415,9 @@ Visualizer <- R6::R6Class(
       cat("   Parameters: ")
       cat(str(self$viz_params,
         indent.str = "     ", no.list = F))
+      cat("   Export Options: ")
+      cat(str(self$export_options,
+              indent.str = "     ", no.list = F))
       cat("   R Markdown Options: ")
       cat(str(self$doc_options,
         indent.str = "     ", no.list = F))

@@ -144,6 +144,18 @@ bars/ribbons. This function accepts either (1) the name(s) of the
 \code{Evaluator(s)} to plot (\code{eval_names}) or (2) a tibble containing
 the summarized evaluation results to plot (\code{plot_data}).
 }
+\details{
+Note that the character string \code{".vary_params"} can be used as input
+to \code{x_str}, \code{y_str}, \code{y_boxplot_str}, \code{err_sd_str}, \code{color_str},
+\code{linetype_str}, \code{plot_by}, and \code{facet_formula} to indicate that the plot
+should use the \code{vary_params} column(s) for the respective aesthetic. When
+multiple parameters are being varied, \code{".vary_params"} refers to the
+joined column strings of the varying parameters. To plot one of these
+varying parameters in the aesthetic, use \code{".vary_params{idx}"} where
+\code{{idx}} is the index of the varying parameter in the \code{vary_params} list.
+For example, use \code{".vary_params1"} to refer to the first parameter that
+is being varied in the \code{Experiment}.
+}
 \examples{
 # generate example fit results data
 fit_results <- tibble::tibble(

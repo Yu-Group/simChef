@@ -25,6 +25,7 @@ reference:
       - get_save_dir
       - set_save_dir
       - save_experiment
+      - set_export_viz_options
       - export_visualizers
   - title: "Simulation Experiment Directory Setup"
     desc: >

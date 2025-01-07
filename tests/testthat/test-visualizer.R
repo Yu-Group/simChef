@@ -18,10 +18,11 @@ test_that("Visualizer initialization works properly", {
   visualizer1i <- Visualizer$new(n = 100, func = func, viz_fun1)
   visualizer1j <- Visualizer$new(n = 100, viz_fun1, "Visualizer")
   visualizer1k <- Visualizer$new(viz_fun1, "Visualizer",
-                                 list(width = 8), doc_o = TRUE, n = 100)
+                                 .doc_options = list(width = 8),
+                                 doc_o = TRUE, n = 100)
   visualizer1l <- Visualizer$new(viz_fun1, "Visualizer", n = 100, doc_o = TRUE)
   visualizer1m <- Visualizer$new(viz_fun1, a = 5, "Visualizer",
-                                 list(width = 8), doc_o = TRUE)
+                                 .doc_options = list(width = 8), doc_o = TRUE)
 
   # print statements
   expect_snapshot_output(visualizer1)
@@ -110,10 +111,10 @@ test_that("Visualizer initialization works properly", {
   visualizer2i <- create_visualizer(n = 100, func = func, viz_fun1)
   visualizer2j <- create_visualizer(n = 100, viz_fun1, "Visualizer")
   visualizer2k <- create_visualizer(viz_fun1, "Visualizer",
-                                    list(width = 8), doc_o = TRUE, n = 100)
+                                    .doc_options = list(width = 8), doc_o = TRUE, n = 100)
   visualizer2l <- create_visualizer(viz_fun1, "Visualizer", n = 100, doc_o = TRUE)
   visualizer2m <- create_visualizer(viz_fun1, a = 5, "Visualizer",
-                                    list(width = 8), doc_o = TRUE)
+                                    .doc_options = list(width = 8), doc_o = TRUE)
 
   expect_error(create_visualizer())
   expect_error(create_visualizer(.name = "Visualizer"))
