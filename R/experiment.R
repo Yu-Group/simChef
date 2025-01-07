@@ -200,7 +200,13 @@ Experiment <- R6::R6Class(
 
       # rename results directory if needed
       if (!identical(old_save_dir, save_dir)) {
-        invisible(file.rename(old_save_dir, save_dir))
+        if (file.exists(old_save_dir)) {
+          if (private$.has_vary_across()) {
+            invisible(file.rename(dirname(old_save_dir), dirname(save_dir)))
+          } else {
+            invisible(file.rename(old_save_dir, save_dir))
+          }
+        }
       }
 
       ## experiment
@@ -277,9 +283,9 @@ Experiment <- R6::R6Class(
         eval_results <- private$.get_cached_results("eval", verbose = 0)
         if (!is.null(eval_results)) {
           if (field_verb == "fit") {
-            eval_results <- purrr::map2(
-              names(eval_results), eval_results,
-              function(eval_name, eval_result) {
+            eval_results <- purrr::imap(
+              eval_results,
+              function(eval_result, eval_name) {
                 if (field_col %in% colnames(eval_result)) {
                   eval_result[[field_col]] <- replace_values(
                     eval_result[[field_col]], obj_names, new_obj_names
@@ -348,8 +354,8 @@ Experiment <- R6::R6Class(
           viz_cached_params <- cached_params$visualize
           viz_cached_params$visualize <- NULL
           if (identical(eval_cached_params, viz_cached_params)) {
-            fit_results <- private$.get_cached_results("fit", verbose = 0)
-            eval_results <- private$.get_cached_results("eval", verbose = 0)
+            fit_results <- self$get_cached_results("fit", verbose = 0)
+            eval_results <- self$get_cached_results("eval", verbose = 0)
             viz_results <- tryCatch(
               self$visualize(
                 fit_results, eval_results,
@@ -1402,7 +1408,7 @@ Experiment <- R6::R6Class(
       } else {
         save_dir <- private$.get_vary_across_dir()
       }
-      if (!save_in_bulk) {
+      if (save && !save_in_bulk) {
         if (!dir.exists(file.path(save_dir, "fit_results"))) {
           dir.create(file.path(save_dir, "fit_results"), recursive = TRUE)
         }

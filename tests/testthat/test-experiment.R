@@ -235,7 +235,7 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
     old_experiment_cached_params <- get_cached_results(experiment, "experiment_cached_params")
     old_res <- run_experiment(exp, n_reps = 2, save = TRUE)
     old_exp <- get_cached_results(exp, "experiment")
-    old_cached_exp_params <- get_cached_results(exp, "experiment_cached_params")
+    old_exp_cached_params <- get_cached_results(exp, "experiment_cached_params")
 
     # remove cache
     experiment$clear_cache()
@@ -285,6 +285,31 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
       "experiment.rds"
     )
 
+    exp |> rename_dgps("New DGP1" = "DGP1", "New DGP2" = "DGP2")
+    expect_equal(
+      purrr::map_chr(exp$get_dgps(), ~ .x$name),
+      c("New DGP1" = "New DGP1", "New DGP2" = "New DGP2")
+    )
+    exp |> rename_methods("New Method1" = "Method1")
+    expect_equal(
+      purrr::map_chr(exp$get_methods(), ~ .x$name),
+      c("New Method1" = "New Method1")
+    )
+    exp |> rename_evaluators("New Evaluator1" = "Evaluator1")
+    expect_equal(
+      purrr::map_chr(exp$get_evaluators(), ~ .x$name),
+      c("New Evaluator1" = "New Evaluator1")
+    )
+    exp |> rename_visualizers("New Visualizer1" = "Visualizer1")
+    expect_equal(
+      purrr::map_chr(exp$get_visualizers(), ~ .x$name),
+      c("New Visualizer1" = "New Visualizer1")
+    )
+    expect_equal(
+      list.files(exp$get_save_dir(), pattern = ".rds", recursive = TRUE),
+      "experiment.rds"
+    )
+
     # check renaming with save/cached results
     init_docs(experiment)
     results <- run_experiment(experiment, n_reps = 2, save = TRUE)
@@ -320,9 +345,195 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
     viz_results <- get_cached_results(experiment, "viz")
     expect_equal(viz_results, old_results$viz_results)
     expect_equal(old_experiment_cached_params, experiment_cached_params)
-    #TODO: with vary across
-    #TODO: with save_in_bulk = FALSE
-    #TODO: with save_in_bulk = FALSE and vary across
+
+    expect_error(
+      exp |> rename_dgps("DGP1" = "New DGP1", "DGP2" = "New DGP2"),
+      NA
+    )
+    expect_error(
+      exp |> rename_methods("Method1" = "New Method1"),
+      NA
+    )
+    exp_cached_params <- get_cached_results(exp, "experiment_cached_params")
+    fit_res <- get_cached_results(exp, "fit")
+    expect_equal(fit_res, old_res$fit_results)
+    expect_equal(exp_cached_params$fit, old_exp_cached_params$fit)
+    expect_error(
+      exp |> rename_evaluators("Evaluator1" = "New Evaluator1"),
+      NA
+    )
+    exp_cached_params <- get_cached_results(exp, "experiment_cached_params")
+    eval_res <- get_cached_results(exp, "eval")
+    expect_equal(eval_res, old_res$eval_results)
+    expect_equal(exp_cached_params$evaluate, old_exp_cached_params$evaluate)
+    expect_error(
+      exp |> rename_visualizers("Visualizer1" = "New Visualizer1"),
+      NA
+    )
+    exp_cached_params <- get_cached_results(exp, "experiment_cached_params")
+    viz_res <- get_cached_results(exp, "viz")
+    expect_equal(viz_res, old_res$viz_results)
+    expect_equal(old_exp_cached_params, exp_cached_params)
+
+    # check docs
+    expect_false(any(stringr::str_detect(
+      list.files(
+        file.path(experiment$get_save_dir(), "docs"),
+        pattern = ".md", recursive = TRUE
+      ),
+      "New"
+    )))
+    expect_false(any(stringr::str_detect(
+      list.files(
+        file.path(exp$get_save_dir(), "docs"),
+        pattern = ".md", recursive = TRUE
+      ),
+      "New"
+    )))
+
+    # with vary across
+    experiment |> add_vary_across(.dgp = "DGP1", x = c(1, 2))
+    exp |> add_vary_across(.dgp = "DGP1", x = c(1, 2))
+
+    # rename DGP
+    expect_error(experiment |> rename_dgps("DGP3" = "DGP1"), NA)
+    expect_equal(
+      experiment$get_vary_across()["dgp"],
+      list(dgp = list(DGP3 = list(x = 1:2)))
+    )
+    expect_error(exp |> rename_dgps("DGP3" = "DGP1"), NA)
+    expect_equal(
+      exp$get_vary_across()["dgp"],
+      list(dgp = list(DGP3 = list(x = 1:2)))
+    )
+
+    # get original results
+    old_results <- run_experiment(experiment, n_reps = 2, save = TRUE)
+    old_experiment <- get_cached_results(experiment, "experiment")
+    old_experiment_cached_params <- get_cached_results(experiment, "experiment_cached_params")
+    old_res <- run_experiment(exp, n_reps = 2, save = TRUE)
+    old_exp <- get_cached_results(exp, "experiment")
+    old_exp_cached_params <- get_cached_results(exp, "experiment_cached_params")
+    unlink(file.path(experiment$get_save_dir(), "DGP3"), recursive = TRUE)
+    unlink(file.path(exp$get_save_dir(), "DGP3"), recursive = TRUE)
+
+    # run experiment without saving
+    results <- run_experiment(experiment, n_reps = 2, save = FALSE)
+    res <- run_experiment(exp, n_reps = 2, save = FALSE)
+
+    # check renaming without save/cached results
+    experiment |> rename_dgps("New DGP3" = "DGP3", "New DGP2" = "DGP2")
+    expect_equal(
+      purrr::map_chr(experiment$get_dgps(), ~ .x$name),
+      c("New DGP3" = "New DGP3", "New DGP2" = "New DGP2")
+    )
+    expect_equal(
+      experiment$get_vary_across()["dgp"],
+      list(dgp = list(`New DGP3` = list(x = 1:2)))
+    )
+    experiment |> rename_methods("New Method1" = "Method1")
+    expect_equal(
+      purrr::map_chr(experiment$get_methods(), ~ .x$name),
+      c("New Method1" = "New Method1")
+    )
+    experiment |> rename_evaluators("New Evaluator1" = "Evaluator1")
+    expect_equal(
+      purrr::map_chr(experiment$get_evaluators(), ~ .x$name),
+      c("New Evaluator1" = "New Evaluator1")
+    )
+    experiment |> rename_visualizers("New Visualizer1" = "Visualizer1")
+    expect_equal(
+      purrr::map_chr(experiment$get_visualizers(), ~ .x$name),
+      c("New Visualizer1" = "New Visualizer1")
+    )
+
+    exp |> rename_dgps("New DGP3" = "DGP3", "New DGP2" = "DGP2")
+    expect_equal(
+      purrr::map_chr(exp$get_dgps(), ~ .x$name),
+      c("New DGP3" = "New DGP3", "New DGP2" = "New DGP2")
+    )
+    expect_equal(
+      exp$get_vary_across()["dgp"],
+      list(dgp = list(`New DGP3` = list(x = 1:2)))
+    )
+    exp |> rename_methods("New Method1" = "Method1")
+    expect_equal(
+      purrr::map_chr(exp$get_methods(), ~ .x$name),
+      c("New Method1" = "New Method1")
+    )
+    exp |> rename_evaluators("New Evaluator1" = "Evaluator1")
+    expect_equal(
+      purrr::map_chr(exp$get_evaluators(), ~ .x$name),
+      c("New Evaluator1" = "New Evaluator1")
+    )
+    exp |> rename_visualizers("New Visualizer1" = "Visualizer1")
+    expect_equal(
+      purrr::map_chr(exp$get_visualizers(), ~ .x$name),
+      c("New Visualizer1" = "New Visualizer1")
+    )
+
+    # check renaming with save/cached results
+    results <- run_experiment(experiment, n_reps = 2, save = TRUE)
+    res <- run_experiment(exp, n_reps = 2, save = TRUE)
+
+    # rename DGPs
+    expect_error(
+      experiment |> rename_dgps("DGP3" = "New DGP3", "DGP2" = "New DGP2"),
+      NA
+    )
+    expect_error(
+      experiment |> rename_methods("Method1" = "New Method1"),
+      NA
+    )
+    experiment_cached_params <- get_cached_results(experiment, "experiment_cached_params")
+    fit_results <- get_cached_results(experiment, "fit")
+    expect_equal(fit_results, old_results$fit_results)
+    expect_equal(experiment_cached_params$fit, old_experiment_cached_params$fit)
+    expect_error(
+      experiment |> rename_evaluators("Evaluator1" = "New Evaluator1"),
+      NA
+    )
+    experiment_cached_params <- get_cached_results(experiment, "experiment_cached_params")
+    eval_results <- get_cached_results(experiment, "eval")
+    expect_equal(eval_results, old_results$eval_results)
+    expect_equal(experiment_cached_params$evaluate, old_experiment_cached_params$evaluate)
+    expect_error(
+      experiment |> rename_visualizers("Visualizer1" = "New Visualizer1"),
+      NA
+    )
+    experiment_cached_params <- get_cached_results(experiment, "experiment_cached_params")
+    viz_results <- get_cached_results(experiment, "viz")
+    expect_equal(viz_results, old_results$viz_results)
+    expect_equal(old_experiment_cached_params, experiment_cached_params)
+
+    expect_error(
+      exp |> rename_dgps("DGP3" = "New DGP3", "DGP2" = "New DGP2"),
+      NA
+    )
+    expect_error(
+      exp |> rename_methods("Method1" = "New Method1"),
+      NA
+    )
+    exp_cached_params <- get_cached_results(exp, "experiment_cached_params")
+    fit_res <- get_cached_results(exp, "fit")
+    expect_equal(fit_res, old_res$fit_results)
+    expect_equal(exp_cached_params$fit, old_exp_cached_params$fit)
+    expect_error(
+      exp |> rename_evaluators("Evaluator1" = "New Evaluator1"),
+      NA
+    )
+    exp_cached_params <- get_cached_results(exp, "experiment_cached_params")
+    eval_res <- get_cached_results(exp, "eval")
+    expect_equal(eval_res, old_res$eval_results)
+    expect_equal(exp_cached_params$evaluate, old_exp_cached_params$evaluate)
+    expect_error(
+      exp |> rename_visualizers("Visualizer1" = "New Visualizer1"),
+      NA
+    )
+    exp_cached_params <- get_cached_results(exp, "experiment_cached_params")
+    viz_res <- get_cached_results(exp, "viz")
+    expect_equal(viz_res, old_res$viz_results)
+    expect_equal(old_exp_cached_params, exp_cached_params)
   })
 
   test_that("Running experiment works properly", {
