@@ -191,6 +191,98 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
     expect_equal(experiment1_copy, experiment2_copy)
   })
 
+  test_that("Renaming DGPs/Methods/Evaluators/Visualizers works properly", {
+    # generate data from normal distribution with n samples
+    dgp_fun1 <- function(x = 10) x + 1
+    dgp_fun2 <- function(x = 10) x + 2
+    dgp1 <- DGP$new(dgp_fun1, .name = "DGP1")
+    dgp2 <- DGP$new(dgp_fun2, .name = "DGP2")
+    method_fun1 <- function(x) x
+    method1 <- Method$new(method_fun1, .name = "Method1")
+    eval_fun1 <- function() tibble::tibble(a = 1:3)
+    eval1 <- Evaluator$new(eval_fun1, .name = "Evaluator1")
+    viz_fun1 <- function() ggplot2::ggplot()
+    viz1 <- Visualizer$new(viz_fun1, .name = "Visualizer1")
+
+    experiment <- create_experiment(name = "test-rename") |>
+      add_dgp(dgp1) |>
+      add_dgp(dgp2) |>
+      add_method(method1) |>
+      add_evaluator(eval1) |>
+      add_visualizer(viz1)
+    exp <- create_experiment(
+      name = "test-rename-save-per-rep", save_in_bulk = FALSE
+    ) |>
+      add_dgp(dgp1) |>
+      add_dgp(dgp2) |>
+      add_method(method1) |>
+      add_evaluator(eval1) |>
+      add_visualizer(viz1)
+
+    # remove cache
+    if (dir.exists(file.path("results", "test-rename"))) {
+      for (fname in list.files(file.path("results", "test-rename"),
+                               recursive = TRUE, full.names = TRUE)) {
+        file.remove(fname)
+      }
+    }
+    if (dir.exists(file.path("results", "test-rename-save-per-rep"))) {
+      for (fname in list.files(file.path("results", "test-rename-save-per-rep"),
+                               recursive = TRUE, full.names = TRUE)) {
+        file.remove(fname)
+      }
+    }
+
+    results <- run_experiment(experiment, n_reps = 2, save = TRUE)
+    init_docs(experiment)
+    res <- run_experiment(exp, n_reps = 2, save = TRUE)
+    init_docs(exp)
+
+    # error checking
+    expect_error(
+      experiment |>
+        rename_dgps("New DGP1" = "Non-existent DGP")
+    )
+    expect_error(
+      experiment |>
+        rename_dgps("DGP2" = "DGP1")
+    )
+
+    # TODO: write better tests for renaming
+    expect_error(
+      experiment |>
+        rename_dgps(
+          "New DGP1" = "DGP1",
+          "New DGP2" = "DGP2"
+        ),
+      NA
+    )
+    expect_error(
+      experiment |>
+        rename_methods(
+          "New Method1" = "Method1"
+        ),
+      NA
+    )
+    expect_error(
+      experiment |>
+        rename_evaluators(
+          "New Evaluator1" = "Evaluator1"
+        ),
+      NA
+    )
+    expect_error(
+      experiment |>
+        rename_visualizers(
+          "New Visualizer1" = "Visualizer1"
+        ),
+      NA
+    )
+    #TODO: with vary across
+    #TODO: with save_in_bulk = FALSE
+    #TODO: with save_in_bulk = FALSE and vary across
+  })
+
   test_that("Running experiment works properly", {
 
     dgp_fun1 <- function(x, y = NULL) x + 1
