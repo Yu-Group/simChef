@@ -400,6 +400,40 @@ test_that("Functions in Visualizer utilities library work properly", {
     NA
   )
 
+  ## plot_eval_constructor with .vary_params keyword
+  eval_results[["Prediction Errors"]] <- eval_results[["Prediction Errors"]] |>
+    dplyr::ungroup() |>
+    dplyr::mutate(
+      vary_param1 = rep(1:2, length.out = nrow(eval_results[["Prediction Errors"]])),
+      vary_param2 = rep(1:2, length.out = nrow(eval_results[["Prediction Errors"]]))
+    ) |>
+    dplyr::group_by(.dgp_name, vary_param)
+  plt <- plot_eval_constructor(plot_data = eval_results[["Prediction Errors"]],
+                               vary_params = "vary_param",
+                               eval_id = "pred_err",
+                               show = c("point", "errorbar"),
+                               facet_formula = ~ .vary_params)
+  vdiffr::expect_doppelganger("plot_eval_constructor3", plt)
+  plt <- plot_eval_constructor(plot_data = eval_results[["Prediction Errors"]],
+                               vary_params = "vary_param",
+                               eval_id = "pred_err",
+                               show = c("point", "errorbar"),
+                               x_str = ".vary_params")
+  vdiffr::expect_doppelganger("plot_eval_constructor4", plt)
+  plt <- plot_eval_constructor(plot_data = eval_results[["Prediction Errors"]],
+                               vary_params = c("vary_param1", "vary_param2"),
+                               eval_id = "pred_err",
+                               show = c("point", "errorbar"),
+                               facet_formula = .vary_params1 ~ .vary_params2)
+  vdiffr::expect_doppelganger("plot_eval_constructor5", plt)
+  plt <- plot_eval_constructor(plot_data = eval_results[["Prediction Errors"]],
+                               vary_params = c("vary_param1", "vary_param2"),
+                               eval_id = "pred_err",
+                               show = c("point", "errorbar"),
+                               x_str = ".vary_params1",
+                               facet_formula = ~ .vary_params2)
+  vdiffr::expect_doppelganger("plot_eval_constructor6", plt)
+
   ## plot_fit_constructor
   plot_fun <- function(fit_results, vary_params = NULL) {
     plt <- fit_results |>

@@ -98,6 +98,17 @@ NULL
 #'   a `ggplot` object if `plot_by` is `NULL` and a list of
 #'   `ggplot` objects if `plot_by` is not `NULL`.
 #'
+#' @details Note that the character string `".vary_params"` can be used as input
+#'   to `x_str`, `y_str`, `y_boxplot_str`, `err_sd_str`, `color_str`,
+#'   `linetype_str`, `plot_by`, and `facet_formula` to indicate that the plot
+#'   should use the `vary_params` column(s) for the respective aesthetic. When
+#'   multiple parameters are being varied, `".vary_params"` refers to the
+#'   joined column strings of the varying parameters. To plot one of these
+#'   varying parameters in the aesthetic, use `".vary_params{idx}"` where
+#'   `{idx}` is the index of the varying parameter in the `vary_params` list.
+#'   For example, use `".vary_params1"` to refer to the first parameter that
+#'   is being varied in the `Experiment`.
+#'
 #' @examples
 #' # generate example fit results data
 #' fit_results <- tibble::tibble(
@@ -259,25 +270,64 @@ plot_eval_constructor <- function(eval_results = NULL, eval_names = NULL,
                   as.character(facet_formula))
     if ((n_dgps > 1) && !(".dgp_name" %in% plt_args)) {
       plot_by <- ".dgp_name"
-      plot_by_id <- plot_by
-    } else if ((length(vary_params) == 1) && !(vary_params %in% plt_args)) {
+    } else if ((length(vary_params) == 1) &&
+               !(vary_params %in% plt_args) &&
+               !(any(stringr::str_detect(all.vars(facet_formula), "^\\.vary\\_params\\d*$")))) {
       plot_by <- vary_params
-      plot_by_id <- plot_by
-    } else if ((length(vary_params) > 1) && !(".vary_params" %in% plt_args)) {
+    } else if ((length(vary_params) > 1) &&
+               !(".vary_params" %in% plt_args) &&
+               !(any(stringr::str_detect(all.vars(facet_formula), "^\\.vary\\_params\\d*$")))) {
       plot_by <- ".vary_params"
-      plot_by_id <- paste(vary_params, collapse = "_")
     } else {
       plot_by <- NULL
-      plot_by_id <- plot_by
     }
-    plt_df <- plt_df |> dplyr::group_by(dplyr::across({{plot_by}}))
+  }
+  plt_df <- plt_df |> dplyr::group_by(dplyr::across({{plot_by}}))
+
+  # convert .vary_params keyword to actual column name
+  x_str <- maybe_get_vary_params_col(x_str, vary_params)
+  y_str <- maybe_get_vary_params_col(y_str, vary_params)
+  y_boxplot_str <- maybe_get_vary_params_col(y_boxplot_str, vary_params)
+  err_sd_str <- maybe_get_vary_params_col(err_sd_str, vary_params)
+  color_str <- maybe_get_vary_params_col(color_str, vary_params)
+  linetype_str <- maybe_get_vary_params_col(linetype_str, vary_params)
+  plot_by <- maybe_get_vary_params_col(plot_by, vary_params)
+  if (identical(plot_by, ".vary_params")) {
+    plot_by_id <- paste(vary_params, collapse = "_")
   } else {
-    plt_df <- plt_df |> dplyr::group_by(dplyr::across({{plot_by}}))
-    if (identical(plot_by, ".vary_params")) {
-      plot_by_id <- paste(vary_params, collapse = "_")
-    } else {
-      plot_by_id <- plot_by
+    plot_by_id <- plot_by
+  }
+  if (any(stringr::str_detect(all.vars(facet_formula), "^\\.vary\\_params\\d*$"))) {
+    lhs_facet_formula <- rlang::f_lhs(facet_formula)
+    lhs_facet_vars <- all.vars(lhs_facet_formula)
+    if (!is.null(lhs_facet_formula)) {
+      vary_params_idx <- stringr::str_detect(
+        lhs_facet_vars, "^\\.vary\\_params\\d*$"
+      ) |>
+        which()
+      for (idx in vary_params_idx) {
+        lhs_facet_vars[[idx]] <- maybe_get_vary_params_col(
+          lhs_facet_vars[[idx]], vary_params
+        )
+      }
     }
+    lhs_facet_str <- paste(lhs_facet_vars, collapse = " + ")
+    rhs_facet_formula <- rlang::f_rhs(facet_formula)
+    rhs_facet_vars <- all.vars(rhs_facet_formula)
+    if (!is.null(rhs_facet_formula)) {
+      vary_params_idx <- stringr::str_detect(
+        rhs_facet_vars, "^\\.vary\\_params\\d*$"
+      ) |>
+        which()
+      for (idx in vary_params_idx) {
+        rhs_facet_vars[[idx]] <- maybe_get_vary_params_col(
+          rhs_facet_vars[[idx]], vary_params
+        )
+      }
+    }
+    rhs_facet_str <- paste(rhs_facet_vars, collapse = " + ")
+    facet_formula <- paste(lhs_facet_str, rhs_facet_str, sep = " ~ ") |>
+      as.formula()
   }
 
   if (!is.null(x_str)) {
@@ -780,4 +830,37 @@ list_col_to_chr <- function(list_col, name = NULL, verbatim = FALSE) {
     str_col <- paste0(name, str_col)
   }
   return(str_col)
+}
+
+#' Convert `.vary_params` keyword to plotting variable in data
+#'
+#' @param var_str String to check for `.vary_params` keyword.
+#' @param vary_params Vector of parameter names being varied.
+#'
+#' @keywords internal
+maybe_get_vary_params_col <- function(var_str, vary_params) {
+  if (is.null(var_str)) {
+    return(var_str)
+  }
+  if (stringr::str_detect(var_str, "^\\.vary\\_params\\d*$")) {
+    if (length(vary_params) == 1) {
+      var_str <- vary_params
+    } else {
+      param_id <- as.numeric(stringr::str_extract(var_str, "\\d+"))
+      if (is.na(param_id)) {
+        var_str <- ".vary_params"
+      } else {
+        if (param_id > length(vary_params)) {
+          stop(
+            sprintf(
+              "Attempting to plot element %s of vary_params, but there are only %s parameters that are being varied.",
+              param_id, length(vary_params)
+            )
+          )
+        }
+        var_str <- vary_params[param_id]
+      }
+    }
+  }
+  return(var_str)
 }
