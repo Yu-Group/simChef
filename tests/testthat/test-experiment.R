@@ -193,16 +193,16 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
 
   test_that("Renaming DGPs/Methods/Evaluators/Visualizers works properly", {
     # generate data from normal distribution with n samples
-    dgp_fun1 <- function(x = 10) x + 1
-    dgp_fun2 <- function(x = 10) x + 2
-    dgp1 <- DGP$new(dgp_fun1, .name = "DGP1")
-    dgp2 <- DGP$new(dgp_fun2, .name = "DGP2")
-    method_fun1 <- function(x) x
+    dgp_fun1 <- function(x = 10, y = 1) x + 1
+    dgp_fun2 <- function(x = 10, y = 0) x + 2
+    dgp1 <- DGP$new(dgp_fun1, .name = "DGP1", y = 2)
+    dgp2 <- DGP$new(dgp_fun2, .name = "DGP2", y = 3)
+    method_fun1 <- function(x, y = NULL) x
     method1 <- Method$new(method_fun1, .name = "Method1")
-    eval_fun1 <- function() tibble::tibble(a = 1:3)
-    eval1 <- Evaluator$new(eval_fun1, .name = "Evaluator1")
-    viz_fun1 <- function() ggplot2::ggplot()
-    viz1 <- Visualizer$new(viz_fun1, .name = "Visualizer1")
+    eval_fun1 <- function(y = "eval") tibble::tibble(a = 1:3)
+    eval1 <- Evaluator$new(eval_fun1, .name = "Evaluator1", y = "viz")
+    viz_fun1 <- function(fit_results, y = "viz") fit_results
+    viz1 <- Visualizer$new(viz_fun1, .name = "Visualizer1", y = "eval")
 
     experiment <- create_experiment(name = "test-rename") |>
       add_dgp(dgp1) |>
@@ -219,25 +219,6 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
       add_evaluator(eval1) |>
       add_visualizer(viz1)
 
-    # remove cache
-    if (dir.exists(file.path("results", "test-rename"))) {
-      for (fname in list.files(file.path("results", "test-rename"),
-                               recursive = TRUE, full.names = TRUE)) {
-        file.remove(fname)
-      }
-    }
-    if (dir.exists(file.path("results", "test-rename-save-per-rep"))) {
-      for (fname in list.files(file.path("results", "test-rename-save-per-rep"),
-                               recursive = TRUE, full.names = TRUE)) {
-        file.remove(fname)
-      }
-    }
-
-    results <- run_experiment(experiment, n_reps = 2, save = TRUE)
-    init_docs(experiment)
-    res <- run_experiment(exp, n_reps = 2, save = TRUE)
-    init_docs(exp)
-
     # error checking
     expect_error(
       experiment |>
@@ -248,36 +229,97 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
         rename_dgps("DGP2" = "DGP1")
     )
 
-    # TODO: write better tests for renaming
+    # get original results
+    old_results <- run_experiment(experiment, n_reps = 2, save = TRUE)
+    old_experiment <- get_cached_results(experiment, "experiment")
+    old_experiment_cached_params <- get_cached_results(experiment, "experiment_cached_params")
+    old_res <- run_experiment(exp, n_reps = 2, save = TRUE)
+    old_exp <- get_cached_results(exp, "experiment")
+    old_cached_exp_params <- get_cached_results(exp, "experiment_cached_params")
+
+    # remove cache
+    experiment$clear_cache()
+    if (dir.exists(file.path("results", "test-rename"))) {
+      for (fname in list.files(file.path("results", "test-rename"),
+                               recursive = TRUE, full.names = TRUE)) {
+        file.remove(fname)
+      }
+    }
+    exp$clear_cache()
+    if (dir.exists(file.path("results", "test-rename-save-per-rep"))) {
+      for (fname in list.files(file.path("results", "test-rename-save-per-rep"),
+                               recursive = TRUE, full.names = TRUE)) {
+        file.remove(fname)
+      }
+    }
+
+    # run experiment without saving
+    init_docs(experiment)
+    results <- run_experiment(experiment, n_reps = 2, save = FALSE)
+    init_docs(exp)
+    res <- run_experiment(exp, n_reps = 2, save = FALSE)
+
+    # check renaming without save/cached results
+    experiment |> rename_dgps("New DGP1" = "DGP1", "New DGP2" = "DGP2")
+    expect_equal(
+      purrr::map_chr(experiment$get_dgps(), ~ .x$name),
+      c("New DGP1" = "New DGP1", "New DGP2" = "New DGP2")
+    )
+    experiment |> rename_methods("New Method1" = "Method1")
+    expect_equal(
+      purrr::map_chr(experiment$get_methods(), ~ .x$name),
+      c("New Method1" = "New Method1")
+    )
+    experiment |> rename_evaluators("New Evaluator1" = "Evaluator1")
+    expect_equal(
+      purrr::map_chr(experiment$get_evaluators(), ~ .x$name),
+      c("New Evaluator1" = "New Evaluator1")
+    )
+    experiment |> rename_visualizers("New Visualizer1" = "Visualizer1")
+    expect_equal(
+      purrr::map_chr(experiment$get_visualizers(), ~ .x$name),
+      c("New Visualizer1" = "New Visualizer1")
+    )
+    expect_equal(
+      list.files(experiment$get_save_dir(), pattern = ".rds", recursive = TRUE),
+      "experiment.rds"
+    )
+
+    # check renaming with save/cached results
+    init_docs(experiment)
+    results <- run_experiment(experiment, n_reps = 2, save = TRUE)
+    init_docs(exp)
+    res <- run_experiment(exp, n_reps = 2, save = TRUE)
+
+    # rename DGPs
     expect_error(
-      experiment |>
-        rename_dgps(
-          "New DGP1" = "DGP1",
-          "New DGP2" = "DGP2"
-        ),
+      experiment |> rename_dgps("DGP1" = "New DGP1", "DGP2" = "New DGP2"),
       NA
     )
     expect_error(
-      experiment |>
-        rename_methods(
-          "New Method1" = "Method1"
-        ),
+      experiment |> rename_methods("Method1" = "New Method1"),
       NA
     )
+    experiment_cached_params <- get_cached_results(experiment, "experiment_cached_params")
+    fit_results <- get_cached_results(experiment, "fit")
+    expect_equal(fit_results, old_results$fit_results)
+    expect_equal(experiment_cached_params$fit, old_experiment_cached_params$fit)
     expect_error(
-      experiment |>
-        rename_evaluators(
-          "New Evaluator1" = "Evaluator1"
-        ),
+      experiment |> rename_evaluators("Evaluator1" = "New Evaluator1"),
       NA
     )
+    experiment_cached_params <- get_cached_results(experiment, "experiment_cached_params")
+    eval_results <- get_cached_results(experiment, "eval")
+    expect_equal(eval_results, old_results$eval_results)
+    expect_equal(experiment_cached_params$evaluate, old_experiment_cached_params$evaluate)
     expect_error(
-      experiment |>
-        rename_visualizers(
-          "New Visualizer1" = "Visualizer1"
-        ),
+      experiment |> rename_visualizers("Visualizer1" = "New Visualizer1"),
       NA
     )
+    experiment_cached_params <- get_cached_results(experiment, "experiment_cached_params")
+    viz_results <- get_cached_results(experiment, "viz")
+    expect_equal(viz_results, old_results$viz_results)
+    expect_equal(old_experiment_cached_params, experiment_cached_params)
     #TODO: with vary across
     #TODO: with save_in_bulk = FALSE
     #TODO: with save_in_bulk = FALSE and vary across

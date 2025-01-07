@@ -128,18 +128,6 @@ Experiment <- R6::R6Class(
         field_name == "evaluator" ~ ".eval_name",
         field_name == "visualizer" ~ ".viz_name"
       )
-      field_params <- dplyr::case_when(
-        field_name == "dgp" ~ ".dgp_params",
-        field_name == "method" ~ ".method_params",
-        field_name == "evaluator" ~ ".eval_params",
-        field_name == "visualizer" ~ ".viz_params"
-      )
-      field_fun <- dplyr::case_when(
-        field_name == "dgp" ~ ".dgp_fun",
-        field_name == "method" ~ ".method_fun",
-        field_name == "evaluator" ~ ".eval_fun",
-        field_name == "visualizer" ~ ".viz_fun"
-      )
       list_name <- paste0(".", field_name, "_list")
 
       missing_obj_names <- setdiff(obj_names, all_obj_names)
@@ -173,30 +161,31 @@ Experiment <- R6::R6Class(
       }
 
       # rename object
+      private[[list_name]] <- replace_names(
+        private[[list_name]], obj_names, new_obj_names
+      )
       for (i in 1:n_names) {
-        obj_name <- obj_names[i]
-        new_obj_name <- new_obj_names[i]
-        names(private[[list_name]])[all_obj_names == obj_name] <- new_obj_name
+        private[[list_name]][[new_obj_names[i]]]$name <- new_obj_names[i]
       }
 
       if (field_verb == "fit") {
         # rename object in vary_across_list
-        for (i in 1:n_names) {
-          obj_name <- obj_names[i]
-          new_obj_name <- new_obj_names[i]
-          idx <- which(names(private$.vary_across_list[[field_name]]) == obj_name)
-          if (length(idx) > 0) {
-            names(private$.vary_across_list[[field_name]])[idx] <- new_obj_name
-          }
-        }
+        private$.vary_across_list[[field_name]] <- replace_names(
+          private$.vary_across_list[[field_name]], obj_names, new_obj_names
+        )
         # rename .fit_params
         if (nrow(private$.fit_params) > 0) {
+          private$.fit_params[[field_col]] <- replace_values(
+            private$.fit_params[[field_col]], obj_names, new_obj_names
+          )
           for (i in 1:n_names) {
-            obj_name <- obj_names[i]
-            new_obj_name <- new_obj_names[i]
-            private$.fit_params[[field_col]] <- dplyr::case_when(
-              private$.fit_params[[field_col]] == obj_name ~ new_obj_name,
-              TRUE ~ private$.fit_params[[field_col]]
+            private$.fit_params[[paste0(".", field_name)]] <- purrr::map2(
+              private$.fit_params[[paste0(".", field_name)]],
+              private$.fit_params[[field_col]],
+              function(params_list, new_cached_name) {
+                params_list[[field_col]] <- new_cached_name
+                return(params_list)
+              }
             )
           }
         }
@@ -215,62 +204,57 @@ Experiment <- R6::R6Class(
       }
 
       ## experiment
-      saveRDS(self, file.path(save_dir, "experiment.rds"))
+      if (file.exists(file.path(save_dir, "experiment.rds"))) {
+        saveRDS(self, file.path(save_dir, "experiment.rds"))
+      }
       ## experiment_cached_params
-      cached_params <- readRDS(
-        file.path(save_dir, "experiment_cached_params.rds")
-      )
-      for (type in c("fit", "evaluate", "visualize")) {
-        if (!is.null(cached_params[[type]][[field_verb]])) {
-          if (nrow(cached_params[[type]][[field_verb]]) > 0) {
-            for (i in 1:n_names) {
-              obj_name <- obj_names[i]
-              new_obj_name <- new_obj_names[i]
-              cached_params[[type]][[field_verb]][[field_col]] <- dplyr::case_when(
-                cached_params[[type]][[field_verb]][[field_col]] == obj_name ~ new_obj_name,
-                TRUE ~ cached_params[[type]][[field_verb]][[field_col]]
-              )
-            }
-            if (field_verb == "fit") {
-              cached_params[[type]][[field_verb]][[paste0(".", field_name)]] <- purrr::map2(
-                cached_params[[type]][[field_verb]][[paste0(".", field_name)]],
+      if (file.exists(file.path(save_dir, "experiment_cached_params.rds"))) {
+        cached_params <- readRDS(
+          file.path(save_dir, "experiment_cached_params.rds")
+        )
+        for (type in c("fit", "evaluate", "visualize")) {
+          if (!is.null(cached_params[[type]][[field_verb]])) {
+            if (nrow(cached_params[[type]][[field_verb]]) > 0) {
+              cached_params[[type]][[field_verb]][[field_col]] <- replace_values(
                 cached_params[[type]][[field_verb]][[field_col]],
-                function(params_list, new_cached_name) {
-                  params_list[[field_col]] <- new_cached_name
-                  return(params_list)
-                }
+                obj_names, new_obj_names
               )
-            } else {
-              names(cached_params[[type]][[field_verb]][[field_params]]) <-
-                cached_params[[type]][[field_verb]][[field_col]]
-              names(cached_params[[type]][[field_verb]][[field_fun]]) <-
-                cached_params[[type]][[field_verb]][[field_col]]
-              # cached_names <- names(cached_params[[type]][[field_verb]][[field_params]])
-              # names(cached_params[[type]][[field_verb]][[field_params]])[
-              #   cached_name == obj_name
-              # ] <- new_obj_name
-              # cached_names <- names(cached_params[[type]][[field_verb]][[field_fun]])
-              # names(cached_params[[type]][[field_verb]][[field_fun]])[
-              #   cached_name == obj_name
-              # ] <- new_obj_name
+              if (field_verb == "fit") {
+                cached_params[[type]][[field_verb]][[paste0(".", field_name)]] <- purrr::map2(
+                  cached_params[[type]][[field_verb]][[paste0(".", field_name)]],
+                  cached_params[[type]][[field_verb]][[field_col]],
+                  function(params_list, new_cached_name) {
+                    params_list[[field_col]] <- new_cached_name
+                    return(params_list)
+                  }
+                )
+              } else {
+                field_params <- dplyr::case_when(
+                  field_verb == "evaluate" ~ ".eval_params",
+                  field_verb == "visualize" ~ ".viz_params"
+                )
+                field_fun <- dplyr::case_when(
+                  field_verb == "evaluate" ~ ".eval_fun",
+                  field_verb == "visualize" ~ ".viz_fun"
+                )
+                names(cached_params[[type]][[field_verb]][[field_params]]) <-
+                  cached_params[[type]][[field_verb]][[field_col]]
+                names(cached_params[[type]][[field_verb]][[field_fun]]) <-
+                  cached_params[[type]][[field_verb]][[field_col]]
+              }
             }
           }
         }
+        saveRDS(cached_params, file.path(save_dir, "experiment_cached_params.rds"))
       }
-      saveRDS(cached_params, file.path(save_dir, "experiment_cached_params.rds"))
       ## fit_results
       fit_results <- NULL
       if (field_verb == "fit") {
         fit_results <- private$.get_cached_results("fit", verbose = 0)
         if (!is.null(fit_results)) {
-          for (i in 1:n_names) {
-            obj_name <- obj_names[i]
-            new_obj_name <- new_obj_names[i]
-            fit_results[[field_col]] <- dplyr::case_when(
-              fit_results[[field_col]] == obj_name ~ new_obj_name,
-              TRUE ~ fit_results[[field_col]]
-            )
-          }
+          fit_results[[field_col]] <- replace_values(
+            fit_results[[field_col]], obj_names, new_obj_names
+          )
           if (private$.save_in_bulk[["fit"]]) {
             saveRDS(fit_results, file.path(save_dir, "fit_results.rds"))
           } else {
@@ -297,14 +281,9 @@ Experiment <- R6::R6Class(
               names(eval_results), eval_results,
               function(eval_name, eval_result) {
                 if (field_col %in% colnames(eval_result)) {
-                  for (i in 1:n_names) {
-                    obj_name <- obj_names[i]
-                    new_obj_name <- new_obj_names[i]
-                    eval_result[[field_col]] <- dplyr::case_when(
-                      eval_result[[field_col]] == obj_name ~ new_obj_name,
-                      TRUE ~ eval_result[[field_col]]
-                    )
-                  }
+                  eval_result[[field_col]] <- replace_values(
+                    eval_result[[field_col]], obj_names, new_obj_names
+                  )
                 }
                 if (!private$.save_in_bulk[["eval"]]) {
                   private$.save_result(eval_result, "eval", eval_name)
@@ -317,11 +296,9 @@ Experiment <- R6::R6Class(
             }
           } else {
             if (private$.save_in_bulk[["eval"]]) {
-              for (i in 1:n_names) {
-                obj_name <- obj_names[i]
-                new_obj_name <- new_obj_names[i]
-                names(eval_results)[names(eval_results) == obj_name] <- new_obj_name
-              }
+              eval_results <- replace_names(
+                eval_results, obj_names, new_obj_names
+              )
               saveRDS(eval_results, file.path(save_dir, "eval_results.rds"))
             } else {
               for (i in 1:n_names) {
@@ -346,11 +323,9 @@ Experiment <- R6::R6Class(
       if (!is.null(viz_results)) {
         if (field_name == "visualizer") {
           if (private$.save_in_bulk[["viz"]]) {
-            for (i in 1:n_names) {
-              obj_name <- obj_names[i]
-              new_obj_name <- new_obj_names[i]
-              names(viz_results)[names(viz_results) == obj_name] <- new_obj_name
-            }
+            viz_results <- replace_names(
+              viz_results, obj_names, new_obj_names
+            )
             saveRDS(viz_results, file.path(save_dir, "viz_results.rds"))
           } else {
             for (i in 1:n_names) {
@@ -373,6 +348,8 @@ Experiment <- R6::R6Class(
           viz_cached_params <- cached_params$visualize
           viz_cached_params$visualize <- NULL
           if (identical(eval_cached_params, viz_cached_params)) {
+            fit_results <- private$.get_cached_results("fit", verbose = 0)
+            eval_results <- private$.get_cached_results("eval", verbose = 0)
             viz_results <- tryCatch(
               self$visualize(
                 fit_results, eval_results,
@@ -563,7 +540,7 @@ Experiment <- R6::R6Class(
       field_name <- match.arg(field_name, several.ok = TRUE)
       param_names_ls <- purrr::map(private$.vary_across_list[field_name],
                                    function(x) {
-                                     if (identical(x, list())) {
+                                     if (identical(unname(x), list())) {
                                        return(NULL)
                                      } else {
                                        return(purrr::map(x, names) |>
