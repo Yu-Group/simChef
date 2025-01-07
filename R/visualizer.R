@@ -415,6 +415,9 @@ Visualizer <- R6::R6Class(
       cat("   Parameters: ")
       cat(str(self$viz_params,
         indent.str = "     ", no.list = F))
+      cat("   Export Options: ")
+      cat(str(self$export_options,
+              indent.str = "     ", no.list = F))
       cat("   R Markdown Options: ")
       cat(str(self$doc_options,
         indent.str = "     ", no.list = F))
