@@ -52,7 +52,7 @@ directory (see <code><a href="get_save_dir.html">get_save_dir()</a></code>).</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">export_visualizers</span><span class="op">(</span><span class="va">experiment</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">export_visualizers</span><span class="op">(</span><span class="va">experiment</span>, device <span class="op">=</span> <span class="st">"png"</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -63,8 +63,14 @@ directory (see <code><a href="get_save_dir.html">get_save_dir()</a></code>).</p>
 <dd><p>An <code>Experiment</code> object.</p></dd>
 
 
+<dt id="arg-device">device<a class="anchor" aria-label="anchor" href="#arg-device"></a></dt>
+<dd><p>See <code>device</code> argument of <code><a href="https://ggplot2.tidyverse.org/reference/ggsave.html" class="external-link">ggplot2::ggsave()</a></code>.</p></dd>
+
+
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p>Additional arguments to pass to <code><a href="https://ggplot2.tidyverse.org/reference/ggsave.html" class="external-link">ggplot2::ggsave()</a></code></p></dd>
+<dd><p>Additional arguments to pass to <code><a href="https://ggplot2.tidyverse.org/reference/ggsave.html" class="external-link">ggplot2::ggsave()</a></code> to be used
+for all visualizations. If not provided, the <code>export_options</code> from
+each <code>Visualizer</code> will be used.</p></dd>
 
 </dl></div>
     <div class="section level2">

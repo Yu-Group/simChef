@@ -52,6 +52,7 @@ evaluation metrics from <a href="Experiment.html">Experiment</a> runs.</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">create_visualizer</span><span class="op">(</span></span>
 <span>  <span class="va">.viz_fun</span>,</span>
 <span>  .name <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  .export_options <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  .doc_options <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  .doc_show <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  <span class="va">...</span></span>
@@ -68,6 +69,14 @@ evaluation metrics from <a href="Experiment.html">Experiment</a> runs.</p>
 
 <dt id="arg--name">.name<a class="anchor" aria-label="anchor" href="#arg--name"></a></dt>
 <dd><p>(Optional) The name of the <code>Visualizer</code>.</p></dd>
+
+
+<dt id="arg--export-options">.export_options<a class="anchor" aria-label="anchor" href="#arg--export-options"></a></dt>
+<dd><p>(Optional) List of options to use in <code><a href="https://ggplot2.tidyverse.org/reference/ggsave.html" class="external-link">ggplot2::ggsave()</a></code>
+when exporting the <code>Visualizer</code>'s visualization to file with
+<code><a href="export_visualizers.html">export_visualizers()</a></code>. See arguments of <code><a href="https://ggplot2.tidyverse.org/reference/ggsave.html" class="external-link">ggplot2::ggsave()</a></code> for possible
+options. By default, the "height" and "width" from <code>.doc_options</code> are used
+alongside all other default options of <code><a href="https://ggplot2.tidyverse.org/reference/ggsave.html" class="external-link">ggplot2::ggsave()</a></code>.</p></dd>
 
 
 <dt id="arg--doc-options">.doc_options<a class="anchor" aria-label="anchor" href="#arg--doc-options"></a></dt>
@@ -161,13 +170,13 @@ stand in for the name of this varying parameter(s).</p>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">fit_results</span> <span class="op">&lt;-</span> <span class="fu"><a href="fit_experiment.html">fit_experiment</a></span><span class="op">(</span><span class="va">experiment</span>, n_reps<span class="op">=</span><span class="fl">4</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Fitting experiment...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 4 reps completed (totals: 4/4) | time taken: 0.150407 minutes</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 4 reps completed (totals: 4/4) | time taken: 0.163039 minutes</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ==============================</span>
 <span class="r-in"><span><span class="va">eval_results</span> <span class="op">&lt;-</span> <span class="fu"><a href="evaluate_experiment.html">evaluate_experiment</a></span><span class="op">(</span><span class="va">experiment</span>, <span class="va">fit_results</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Evaluating experiment...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> `summarise()` has grouped output by '.dgp_name', '.method_name'. You can</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> override using the `.groups` argument.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Evaluation completed | time taken: 0.000191 minutes</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Evaluation completed | time taken: 0.000225 minutes</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ==============================</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># create an example Visualizer function which takes fit_results as input</span></span></span>

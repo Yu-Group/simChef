@@ -70,9 +70,10 @@ first argument: <code><a href="create_experiment.html">create_experiment()</a></
 <code><a href="fit_experiment.html">fit_experiment()</a></code>, <code><a href="evaluate_experiment.html">evaluate_experiment()</a></code>, <code><a href="visualize_experiment.html">visualize_experiment()</a></code>,
 <code><a href="run_experiment.html">run_experiment()</a></code>, <code><a href="clear_cache.html">clear_cache()</a></code>, <code><a href="get_cached_results.html">get_cached_results()</a></code>,
 <code><a href="get_save_dir.html">get_save_dir()</a></code>, <code><a href="set_save_dir.html">set_save_dir()</a></code>, <code><a href="save_experiment.html">save_experiment()</a></code>,
-<code><a href="export_visualizers.html">export_visualizers()</a></code>, <a href="add_funs.html"><code>add_*()</code></a>,
-<a href="update_funs.html"><code>update_*()</code></a>, <a href="remove_funs.html"><code>remove_*()</code></a>,
-<a href="get_funs.html"><code>get_*()</code></a>, and <a href="vary_across.html"><code>*_vary_across()</code></a>.</p></div>
+<code><a href="set_export_viz_options.html">set_export_viz_options()</a></code>, <code><a href="export_visualizers.html">export_visualizers()</a></code>, <code><a href="set_doc_options.html">set_doc_options()</a></code>,
+<a href="add_funs.html"><code>add_*()</code></a>, <a href="update_funs.html"><code>update_*()</code></a>,
+<a href="remove_funs.html"><code>remove_*()</code></a>, <a href="get_funs.html"><code>get_*()</code></a>, and
+<a href="vary_across.html"><code>*_vary_across()</code></a>.</p></div>
     </div>
     <div class="section level2">
     <h2 id="public-fields">Public fields<a class="anchor" aria-label="anchor" href="#public-fields"></a></h2>
@@ -117,6 +118,7 @@ first argument: <code><a href="create_experiment.html">create_experiment()</a></
 <li><p><a href="#method-Experiment-clear_cache"><code>Experiment$clear_cache()</code></a></p></li>
 <li><p><a href="#method-Experiment-get_cached_results"><code>Experiment$get_cached_results()</code></a></p></li>
 <li><p><a href="#method-Experiment-set_doc_options"><code>Experiment$set_doc_options()</code></a></p></li>
+<li><p><a href="#method-Experiment-set_export_viz_options"><code>Experiment$set_export_viz_options()</code></a></p></li>
 <li><p><a href="#method-Experiment-get_save_dir"><code>Experiment$get_save_dir()</code></a></p></li>
 <li><p><a href="#method-Experiment-set_save_dir"><code>Experiment$set_save_dir()</code></a></p></li>
 <li><p><a href="#method-Experiment-save"><code>Experiment$save()</code></a></p></li>
@@ -1206,16 +1208,42 @@ see options for <code><a href="https://rdrr.io/pkg/vthemes/man/pretty_DT.html" c
 <p>The <code>Experiment</code> object, invisibly.</p>
 </div>
 
+</div><p></p><hr><a id="method-Experiment-set_export_viz_options"></a><div class="section">
+<h3 id="method-set-export-viz-options-">Method <code><a href="set_export_viz_options.html">set_export_viz_options()</a></code><a class="anchor" aria-label="anchor" href="#method-set-export-viz-options-"></a></h3>
+<p>Set options to use in <code><a href="https://ggplot2.tidyverse.org/reference/ggsave.html" class="external-link">ggplot2::ggsave()</a></code> when exporting
+the <code>Visualizer</code>'s visualization with <code><a href="export_visualizers.html">export_visualizers()</a></code>.</p><div class="section">
+<h4 id="usage-29">Usage<a class="anchor" aria-label="anchor" href="#usage-29"></a></h4>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">Experiment</span><span class="op">$</span><span class="fu">set_export_viz_options</span><span class="op">(</span><span class="va">name</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div><p></p></div>
+</div>
+
+<div class="section">
+<h4 id="arguments-23">Arguments<a class="anchor" aria-label="anchor" href="#arguments-23"></a></h4>
+<p></p><div class="arguments"><dl><dt><code>name</code></dt>
+<dd><p>Name of <code>Visualizer</code> to set <code><a href="https://ggplot2.tidyverse.org/reference/ggsave.html" class="external-link">ggplot2::ggsave()</a></code> options.</p></dd>
+
+
+<dt><code>...</code></dt>
+<dd><p>Named options to set. See arguments of <code><a href="https://ggplot2.tidyverse.org/reference/ggsave.html" class="external-link">ggplot2::ggsave()</a></code> for
+possible options.</p></dd>
+
+
+</dl><p></p></div>
+</div>
+<div class="section">
+<h4 id="returns-29">Returns<a class="anchor" aria-label="anchor" href="#returns-29"></a></h4>
+<p>The <code>Experiment</code> object, invisibly.</p>
+</div>
+
 </div><p></p><hr><a id="method-Experiment-get_save_dir"></a><div class="section">
 <h3 id="method-get-save-dir-">Method <code><a href="get_save_dir.html">get_save_dir()</a></code><a class="anchor" aria-label="anchor" href="#method-get-save-dir-"></a></h3>
 <p>Get the directory in which the <code>Experiment</code>'s results and
 visualizations are saved.</p><div class="section">
-<h4 id="usage-29">Usage<a class="anchor" aria-label="anchor" href="#usage-29"></a></h4>
+<h4 id="usage-30">Usage<a class="anchor" aria-label="anchor" href="#usage-30"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">Experiment</span><span class="op">$</span><span class="fu">get_save_dir</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
-<h4 id="returns-29">Returns<a class="anchor" aria-label="anchor" href="#returns-29"></a></h4>
+<h4 id="returns-30">Returns<a class="anchor" aria-label="anchor" href="#returns-30"></a></h4>
 <p>The relative path to where the <code>Experiment</code>'s results and
 visualizations are saved.</p>
 </div>
@@ -1224,12 +1252,12 @@ visualizations are saved.</p>
 <h3 id="method-set-save-dir-">Method <code><a href="set_save_dir.html">set_save_dir()</a></code><a class="anchor" aria-label="anchor" href="#method-set-save-dir-"></a></h3>
 <p>Set the directory in which the <code>Experiment</code>'s results and
 visualizations are saved.</p><div class="section">
-<h4 id="usage-30">Usage<a class="anchor" aria-label="anchor" href="#usage-30"></a></h4>
+<h4 id="usage-31">Usage<a class="anchor" aria-label="anchor" href="#usage-31"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">Experiment</span><span class="op">$</span><span class="fu">set_save_dir</span><span class="op">(</span><span class="va">save_dir</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
-<h4 id="arguments-23">Arguments<a class="anchor" aria-label="anchor" href="#arguments-23"></a></h4>
+<h4 id="arguments-24">Arguments<a class="anchor" aria-label="anchor" href="#arguments-24"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>save_dir</code></dt>
 <dd><p>The directory in which the <code>Experiment</code>'s results
 will be saved.</p></dd>
@@ -1238,7 +1266,7 @@ will be saved.</p></dd>
 </dl><p></p></div>
 </div>
 <div class="section">
-<h4 id="returns-30">Returns<a class="anchor" aria-label="anchor" href="#returns-30"></a></h4>
+<h4 id="returns-31">Returns<a class="anchor" aria-label="anchor" href="#returns-31"></a></h4>
 <p>The <code>Experiment</code> object, invisibly.</p>
 </div>
 
@@ -1246,24 +1274,24 @@ will be saved.</p></dd>
 <h3 id="method-save-">Method <code><a href="https://rdrr.io/r/base/save.html" class="external-link">save()</a></code><a class="anchor" aria-label="anchor" href="#method-save-"></a></h3>
 <p>Save the <code>Experiment</code> object to a .rds file under the
 <code>Experiment</code>'s results directory (see <code><a href="get_save_dir.html">get_save_dir()</a></code>).</p><div class="section">
-<h4 id="usage-31">Usage<a class="anchor" aria-label="anchor" href="#usage-31"></a></h4>
+<h4 id="usage-32">Usage<a class="anchor" aria-label="anchor" href="#usage-32"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">Experiment</span><span class="op">$</span><span class="fu">save</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
-<h4 id="returns-31">Returns<a class="anchor" aria-label="anchor" href="#returns-31"></a></h4>
+<h4 id="returns-32">Returns<a class="anchor" aria-label="anchor" href="#returns-32"></a></h4>
 <p>The <code>Experiment</code> object, invisibly.</p>
 </div>
 
 </div><p></p><hr><a id="method-Experiment-get_save_in_bulk"></a><div class="section">
 <h3 id="method-get-save-in-bulk-">Method <code>get_save_in_bulk()</code><a class="anchor" aria-label="anchor" href="#method-get-save-in-bulk-"></a></h3>
 <p>Get the <code>save_in_bulk</code> parameter for the <code>Experiment</code>.</p><div class="section">
-<h4 id="usage-32">Usage<a class="anchor" aria-label="anchor" href="#usage-32"></a></h4>
+<h4 id="usage-33">Usage<a class="anchor" aria-label="anchor" href="#usage-33"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">Experiment</span><span class="op">$</span><span class="fu">get_save_in_bulk</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
-<h4 id="returns-32">Returns<a class="anchor" aria-label="anchor" href="#returns-32"></a></h4>
+<h4 id="returns-33">Returns<a class="anchor" aria-label="anchor" href="#returns-33"></a></h4>
 <p>Logical, indicating whether the results are saved in bulk or not.</p>
 </div>
 
@@ -1272,37 +1300,26 @@ will be saved.</p></dd>
 <p>Export all cached <code>Visualizer</code> results from an
 <code>Experiment</code> to images in the <code>viz_results/</code> directory under the
 <code>Experiment</code>'s results directory (see <code><a href="get_save_dir.html">get_save_dir()</a></code>).</p><div class="section">
-<h4 id="usage-33">Usage<a class="anchor" aria-label="anchor" href="#usage-33"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">Experiment</span><span class="op">$</span><span class="fu">export_visualizers</span><span class="op">(</span></span>
-<span>  device <span class="op">=</span> <span class="st">"png"</span>,</span>
-<span>  width <span class="op">=</span> <span class="st">"auto"</span>,</span>
-<span>  height <span class="op">=</span> <span class="st">"auto"</span>,</span>
-<span>  <span class="va">...</span></span>
-<span><span class="op">)</span></span></code></pre></div><p></p></div>
+<h4 id="usage-34">Usage<a class="anchor" aria-label="anchor" href="#usage-34"></a></h4>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">Experiment</span><span class="op">$</span><span class="fu">export_visualizers</span><span class="op">(</span>device <span class="op">=</span> <span class="st">"png"</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
-<h4 id="arguments-24">Arguments<a class="anchor" aria-label="anchor" href="#arguments-24"></a></h4>
+<h4 id="arguments-25">Arguments<a class="anchor" aria-label="anchor" href="#arguments-25"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>device</code></dt>
 <dd><p>See <code>device</code> argument of <code><a href="https://ggplot2.tidyverse.org/reference/ggsave.html" class="external-link">ggplot2::ggsave()</a></code>.</p></dd>
 
 
-<dt><code>width</code></dt>
-<dd><p>See <code>width</code> argument of <code><a href="https://ggplot2.tidyverse.org/reference/ggsave.html" class="external-link">ggplot2::ggsave()</a></code>.</p></dd>
-
-
-<dt><code>height</code></dt>
-<dd><p>See <code>height</code> argument of <code><a href="https://ggplot2.tidyverse.org/reference/ggsave.html" class="external-link">ggplot2::ggsave()</a></code>.</p></dd>
-
-
 <dt><code>...</code></dt>
-<dd><p>Additional arguments to pass to <code><a href="https://ggplot2.tidyverse.org/reference/ggsave.html" class="external-link">ggplot2::ggsave()</a></code>.</p></dd>
+<dd><p>Additional arguments to pass to <code><a href="https://ggplot2.tidyverse.org/reference/ggsave.html" class="external-link">ggplot2::ggsave()</a></code> to be used
+for all visualizations. If not provided, the <code>export_options</code> from
+each <code>Visualizer</code> will be used.</p></dd>
 
 
 </dl><p></p></div>
 </div>
 <div class="section">
-<h4 id="returns-33">Returns<a class="anchor" aria-label="anchor" href="#returns-33"></a></h4>
+<h4 id="returns-34">Returns<a class="anchor" aria-label="anchor" href="#returns-34"></a></h4>
 <p>The <code>Experiment</code> object, invisibly.</p>
 </div>
 
@@ -1311,24 +1328,24 @@ will be saved.</p></dd>
 <p>Print the <code>Experiment</code> in a nice format, showing the
 <code>DGP</code>, <code>Method</code>, <code>Evaluator</code>, <code>Visualizers</code>, and varied parameters
 involved in the <code>Experiment</code>.</p><div class="section">
-<h4 id="usage-34">Usage<a class="anchor" aria-label="anchor" href="#usage-34"></a></h4>
+<h4 id="usage-35">Usage<a class="anchor" aria-label="anchor" href="#usage-35"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">Experiment</span><span class="op">$</span><span class="fu">print</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
-<h4 id="returns-34">Returns<a class="anchor" aria-label="anchor" href="#returns-34"></a></h4>
+<h4 id="returns-35">Returns<a class="anchor" aria-label="anchor" href="#returns-35"></a></h4>
 <p>The original <code>Experiment</code> object, invisibly.</p>
 </div>
 
 </div><p></p><hr><a id="method-Experiment-clone"></a><div class="section">
 <h3 id="method-clone-">Method <code>clone()</code><a class="anchor" aria-label="anchor" href="#method-clone-"></a></h3>
 <p>The objects of this class are cloneable with this method.</p><div class="section">
-<h4 id="usage-35">Usage<a class="anchor" aria-label="anchor" href="#usage-35"></a></h4>
+<h4 id="usage-36">Usage<a class="anchor" aria-label="anchor" href="#usage-36"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">Experiment</span><span class="op">$</span><span class="fu">clone</span><span class="op">(</span>deep <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
-<h4 id="arguments-25">Arguments<a class="anchor" aria-label="anchor" href="#arguments-25"></a></h4>
+<h4 id="arguments-26">Arguments<a class="anchor" aria-label="anchor" href="#arguments-26"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>deep</code></dt>
 <dd><p>Whether to make a deep clone.</p></dd>
 

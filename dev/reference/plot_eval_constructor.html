@@ -250,6 +250,19 @@ plots. If <code>FALSE</code>, returns static <code>ggplot</code> plots.</p></dd>
 a <code>ggplot</code> object if <code>plot_by</code> is <code>NULL</code> and a list of
 <code>ggplot</code> objects if <code>plot_by</code> is not <code>NULL</code>.</p>
     </div>
+    <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>Note that the character string <code>".vary_params"</code> can be used as input
+to <code>x_str</code>, <code>y_str</code>, <code>y_boxplot_str</code>, <code>err_sd_str</code>, <code>color_str</code>,
+<code>linetype_str</code>, <code>plot_by</code>, and <code>facet_formula</code> to indicate that the plot
+should use the <code>vary_params</code> column(s) for the respective aesthetic. When
+multiple parameters are being varied, <code>".vary_params"</code> refers to the
+joined column strings of the varying parameters. To plot one of these
+varying parameters in the aesthetic, use <code>".vary_params{idx}"</code> where
+<code>{idx}</code> is the index of the varying parameter in the <code>vary_params</code> list.
+For example, use <code>".vary_params1"</code> to refer to the first parameter that
+is being varied in the <code>Experiment</code>.</p>
+    </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
