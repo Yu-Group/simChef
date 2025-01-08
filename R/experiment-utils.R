@@ -26,6 +26,28 @@ get_new_method_params <- function(dgp_params, new_fit_params) {
 }
 
 
+#' @keywords internal
+replace_names <- function(obj, old_names, new_names) {
+  for (i in 1:length(old_names)) {
+    old_name <- old_names[i]
+    new_name <- new_names[i]
+    names(obj)[names(obj) == old_name] <- new_name
+  }
+  return(obj)
+}
+
+
+#' @keywords internal
+replace_values <- function(obj, old_values, new_values) {
+  for (i in 1:length(old_values)) {
+    old_value <- old_values[i]
+    new_value <- new_values[i]
+    obj[obj == old_value] <- new_value
+  }
+  return(obj)
+}
+
+
 #' Get the size of an object, including environments.
 #'
 #' @param obj The object to measure. Default is the calling environment.
