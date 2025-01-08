@@ -47,6 +47,7 @@ Experiment <- R6::R6Class(
     .future.globals = TRUE,
     .future.packages = NULL,
     .save_in_bulk = c(fit = TRUE, eval = TRUE, viz = TRUE),
+    .record_time = c(fit = FALSE, eval = FALSE, viz = FALSE),
 
     # private methods
     .add_obj = function(field_name, obj, obj_name, ...) {
