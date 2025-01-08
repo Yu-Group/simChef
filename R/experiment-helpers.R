@@ -69,6 +69,19 @@ NULL
 #'   results. If `NULL`, results are saved in the current working directory
 #'   in a directory called "results" with a sub-directory named after
 #'   `Experiment$name`.
+#' @param save_in_bulk A logical, indicating whether or not to save the
+#'   fit, evaluator, and visualizer outputs, each as a single bulk .rds file
+#'   (i.e., as `fit_results.rds`, `eval_results.rds`, `viz_results.rds`).
+#'   Default is `TRUE`. If `FALSE`, each fit replicate is saved as a
+#'   separate .rds file while each evaluator/visualizer is saved as a
+#'   separate .rds file. One can alternatively specify a character vector
+#'   with some subset of "fit", "eval", and/or "viz", indicating the
+#'   elements to save in bulk to disk.
+#' @param record_time A logical, indicating whether or not to record the
+#'   time taken to run each `Method`, `Evaluator`, and `Visualizer` in the
+#'   `Experiment`. Alternatively, one can specify a character vector with
+#'   some subset of "fit", "eval", and/or "viz", indicating the elements for
+#'   which to record the time taken. Default is `FALSE`.
 #'
 #' @return A new `Experiment` object.
 #'
@@ -178,11 +191,14 @@ create_experiment <- function(name = "experiment",
                               dgp_list = list(), method_list = list(),
                               evaluator_list = list(), visualizer_list = list(),
                               future.globals = TRUE, future.packages = NULL,
-                              clone_from = NULL, save_dir = NULL, ...) {
+                              clone_from = NULL, save_dir = NULL,
+                              save_in_bulk = TRUE, record_time = FALSE,
+                              ...) {
   Experiment$new(name = name, dgp_list = dgp_list, method_list = method_list,
                  evaluator_list = evaluator_list, visualizer_list = visualizer_list,
                  future.globals = future.globals, future.packages = future.packages,
-                 clone_from = clone_from, save_dir = save_dir, ...)
+                 clone_from = clone_from, save_dir = save_dir,
+                 save_in_bulk = save_in_bulk, record_time = record_time, ...)
 }
 
 #' Run the full `Experiment` pipeline (fitting, evaluating, and visualizing).
@@ -197,6 +213,13 @@ create_experiment <- function(name = "experiment",
 #'   `Experiment`. Note that even if `return_all_cached_reps = TRUE`,
 #'   only the `n_reps` replicates are used when evaluating and visualizing
 #'   the `Experiment`.
+#' @param record_time A logical, indicating whether or not to record the
+#'   time taken to run each `Method`, `Evaluator`, and `Visualizer` in the
+#'   `Experiment`. Alternatively, one can specify a character vector with
+#'   some subset of "fit", "eval", and/or "viz", indicating the elements for
+#'   which to record the time taken. By default (`NULL`), the `record_time`
+#'   value set during initialization of the `Experiment`
+#'   (i.e., with [create_experiment()]) is used.
 #'
 #' @return A named list of results from the simulation experiment with the
 #'   following entries:
@@ -220,14 +243,15 @@ run_experiment <- function(experiment, n_reps = 1,
                            parallel_strategy = c("reps"), future.globals = NULL,
                            future.packages = NULL, future.seed = TRUE,
                            use_cached = FALSE, return_all_cached_reps = FALSE,
-                           save = FALSE, checkpoint_n_reps = 0, verbose = 1,
-                           ...) {
+                           save = FALSE, record_time = NULL,
+                           checkpoint_n_reps = 0, verbose = 1, ...) {
   return(experiment$run(n_reps = n_reps,
                         parallel_strategy = parallel_strategy,
                         future.globals = future.globals,
                         future.packages = future.packages,
                         future.seed = future.seed, use_cached = use_cached,
-                        save = save, checkpoint_n_reps = checkpoint_n_reps,
+                        save = save, record_time = record_time,
+                        checkpoint_n_reps = checkpoint_n_reps,
                         verbose = verbose, ...))
 }
 
@@ -288,6 +312,10 @@ generate_data <- function(experiment, n_reps=1, ...) {
 #'   returns fit results for the requested `n_reps` plus any additional
 #'   cached replicates from the (`DGP`, `Method`) combinations in the
 #'   `Experiment`.
+#' @param record_time Logical. If `TRUE`, record the amount of time taken to
+#'   fit each `Method` per replicate. By default (`NULL`), the `record_time`
+#'   value set during initialization of the `Experiment`
+#'   (i.e., with [create_experiment()]) is used.
 #' @param ... Additional `future.*` arguments to pass to [future.apply]
 #'   functions. See [future.apply::future_lapply()] and
 #'   [future.apply::future_mapply()].
@@ -303,13 +331,15 @@ fit_experiment <- function(experiment, n_reps=1, parallel_strategy = c("reps"),
                            future.globals = NULL, future.packages = NULL,
                            future.seed = TRUE, use_cached = FALSE,
                            return_all_cached_reps = FALSE, save = FALSE,
-                           checkpoint_n_reps = 0, verbose = 1, ...) {
+                           record_time = NULL, checkpoint_n_reps = 0,
+                           verbose = 1, ...) {
   return(experiment$fit(n_reps = n_reps,
                         parallel_strategy = parallel_strategy,
                         future.globals = future.globals,
                         future.packages = future.packages,
                         future.seed = future.seed, use_cached = use_cached,
-                        save = save, checkpoint_n_reps = checkpoint_n_reps,
+                        save = save, record_time = record_time,
+                        checkpoint_n_reps = checkpoint_n_reps,
                         verbose = verbose, ...))
 }
 
@@ -320,6 +350,10 @@ fit_experiment <- function(experiment, n_reps=1, parallel_strategy = c("reps"),
 #'   `Evaluators` in the `Experiment` and return results.
 #'
 #' @inheritParams shared_experiment_helpers_args
+#' @param record_time Logical. If `TRUE`, record the amount of time taken to
+#'   evaluate each `Evaluator`. By default (`NULL`), the `record_time`
+#'   value set during initialization of the `Experiment`
+#'   (i.e., with [create_experiment()]) is used.
 #'
 #' @return A list of evaluation result tibbles, one for each
 #'   `Evaluator`.
@@ -327,9 +361,11 @@ fit_experiment <- function(experiment, n_reps=1, parallel_strategy = c("reps"),
 #' @inherit create_experiment examples
 #' @export
 evaluate_experiment <- function(experiment, fit_results, use_cached = FALSE,
-                                save = FALSE, verbose = 1, ...) {
+                                save = FALSE, record_time = NULL, verbose = 1,
+                                ...) {
   return(experiment$evaluate(fit_results = fit_results, use_cached = use_cached,
-                             save = save, verbose = verbose, ...))
+                             save = save, record_time = record_time,
+                             verbose = verbose, ...))
 }
 
 #' Visualize results of an `Experiment`.
@@ -339,17 +375,23 @@ evaluate_experiment <- function(experiment, fit_results, use_cached = FALSE,
 #'   using all `Visualizers` in the `Experiment` and return visualization results.
 #'
 #' @inheritParams shared_experiment_helpers_args
+#' @param record_time Logical. If `TRUE`, record the amount of time taken to
+#'   visualize each `Visualizer`. By default (`NULL`), the `record_time`
+#'   value set during initialization of the `Experiment`
+#'   (i.e., with [create_experiment()]) is used.
 #'
 #' @return A list of visualizations, one for each `Visualizer`.
 #'
 #' @inherit create_experiment examples
 #' @export
 visualize_experiment <- function(experiment, fit_results, eval_results = NULL,
-                                 use_cached = FALSE, save = FALSE, verbose = 1,
+                                 use_cached = FALSE, save = FALSE,
+                                 record_time = NULL, verbose = 1,
                                  ...) {
   return(experiment$visualize(fit_results = fit_results,
                               eval_results = eval_results,
                               use_cached = use_cached, save = save,
+                              record_time = record_time,
                               verbose = verbose, ...))
 }
 

@@ -810,6 +810,11 @@ Experiment <- R6::R6Class(
     #'   separate .rds file. One can alternatively specify a character vector
     #'   with some subset of "fit", "eval", and/or "viz", indicating the
     #'   elements to save in bulk to disk.
+    #' @param record_time A logical, indicating whether or not to record the
+    #'   time taken to run each `Method`, `Evaluator`, and `Visualizer` in the
+    #'   `Experiment`. Alternatively, one can specify a character vector with
+    #'   some subset of "fit", "eval", and/or "viz", indicating the elements for
+    #'   which to record the time taken.
     #' @param ... Not used.
     #'
     #' @return A new instance of `Experiment`.
@@ -818,7 +823,7 @@ Experiment <- R6::R6Class(
                           evaluator_list = list(), visualizer_list = list(),
                           future.globals = TRUE, future.packages = NULL,
                           clone_from = NULL, save_dir = NULL,
-                          save_in_bulk = TRUE, ...) {
+                          save_in_bulk = TRUE, record_time = FALSE, ...) {
       if (!is.null(clone_from)) {
         private$.check_obj(clone_from, "Experiment")
         clone <- clone_from$clone(deep = TRUE)
@@ -851,6 +856,16 @@ Experiment <- R6::R6Class(
       }
       private$.save_in_bulk <- save_in_bulk
       names(private$.save_in_bulk) <- c("fit", "eval", "viz")
+      if (!is.logical(record_time)) {
+        record_time <- c("fit", "eval", "viz") %in% record_time
+      } else {
+        if (length(record_time) > 1) {
+          warn("The input record_time is a logical vector of length > 1. Only the first element of save_time is used.")
+        }
+        record_time <- rep(record_time[1], 3)
+      }
+      private$.record_time <- record_time
+      names(private$.record_time) <- c("fit", "eval", "viz")
     },
 
     #' @description Run the full `Experiment` pipeline (fitting, evaluating,
@@ -888,7 +903,8 @@ Experiment <- R6::R6Class(
     #'   time taken to run each `Method`, `Evaluator`, and `Visualizer` in the
     #'   `Experiment`. Alternatively, one can specify a character vector with
     #'   some subset of "fit", "eval", and/or "viz", indicating the elements for
-    #'   which to record the time taken.
+    #'   which to record the time taken. By default (`NULL`), the `record_time`
+    #'   value set during initialization of the `Experiment` is used.
     #' @param checkpoint_n_reps The number of experiment replicates to compute
     #'   before saving results to disk. If 0 (the default), no checkpoints are
     #'   saved.
@@ -918,7 +934,7 @@ Experiment <- R6::R6Class(
                    future.globals = NULL, future.packages = NULL,
                    future.seed = TRUE, use_cached = FALSE,
                    return_all_cached_reps = FALSE, save = FALSE,
-                   record_time = FALSE,
+                   record_time = NULL,
                    checkpoint_n_reps = 0, verbose = 1, ...) {
 
       if (!is.logical(save)) {
@@ -929,13 +945,17 @@ Experiment <- R6::R6Class(
         }
         save <- rep(save[1], 3)
       }
-      if (!is.logical(record_time)) {
-        record_time <- c("fit", "eval", "viz") %in% record_time
+      if (is.null(record_time)) {
+        record_time <- private$.record_time
       } else {
-        if (length(record_time) > 1) {
-          warn("The input record_time is a logical vector of length > 1. Only the first element of save_time is used.")
+        if (!is.logical(record_time)) {
+          record_time <- c("fit", "eval", "viz") %in% record_time
+        } else {
+          if (length(record_time) > 1) {
+            warn("The input record_time is a logical vector of length > 1. Only the first element of save_time is used.")
+          }
+          record_time <- rep(record_time[1], 3)
         }
-        record_time <- rep(record_time[1], 3)
       }
 
       fit_results <- self$fit(n_reps, parallel_strategy = parallel_strategy,
@@ -1046,7 +1066,8 @@ Experiment <- R6::R6Class(
     #'   `Experiment`.
     #' @param save Logical. If `TRUE`, save outputs to disk.
     #' @param record_time Logical. If `TRUE`, record the amount of time taken to
-    #'   fit each `Method` per replicate.
+    #'   fit each `Method` per replicate. By default (`NULL`), the `record_time`
+    #'   value set during initialization of the `Experiment` is used.
     #' @param checkpoint_n_reps The number of experiment replicates to compute
     #'   before saving results to disk. If 0 (the default), no checkpoints are
     #'   saved.
@@ -1068,7 +1089,7 @@ Experiment <- R6::R6Class(
                    future.globals = NULL, future.packages = NULL,
                    future.seed = TRUE, use_cached = FALSE,
                    return_all_cached_reps = FALSE, save = FALSE,
-                   record_time = FALSE,
+                   record_time = NULL,
                    checkpoint_n_reps = 0, verbose = 1, ...) {
 
       parallel_strategy <- unique(parallel_strategy)
@@ -1079,6 +1100,10 @@ Experiment <- R6::R6Class(
         #, "dgps", "methods", "dgps+reps", "methods+reps",
         # "dgps+methods", "dgps+methods+reps"
       )
+
+      if (is.null(record_time)) {
+        record_time <- private$.record_time[["fit"]]
+      }
 
       if (length(parallel_strategy) == 0) {
         parallel_strategy <- "reps"
@@ -1476,7 +1501,8 @@ Experiment <- R6::R6Class(
     #'   `FALSE`.
     #' @param save Logical. If `TRUE`, save outputs to disk.
     #' @param record_time Logical. If `TRUE`, record the amount of time taken to
-    #'   evaluate each `Evaluator`.
+    #'   evaluate each `Evaluator`. By default (`NULL`), the `record_time`
+    #'   value set during initialization of the `Experiment` is used.
     #' @param verbose Level of verbosity. Default is 1, which prints out messages
     #'   after major checkpoints in the experiment. If 2, prints additional
     #'   debugging information for warnings and messages from user-defined functions
@@ -1487,7 +1513,10 @@ Experiment <- R6::R6Class(
     #' @return A list of evaluation result tibbles, one for each
     #'   `Evaluator`.
     evaluate = function(fit_results, use_cached = FALSE, save = FALSE,
-                        record_time = FALSE, verbose = 1, ...) {
+                        record_time = NULL, verbose = 1, ...) {
+      if (is.null(record_time)) {
+        record_time <- private$.record_time[["eval"]]
+      }
       evaluator_list <- private$.get_obj_list("evaluator")
       evaluator_names <- names(evaluator_list)
       if (length(evaluator_list) == 0) {
@@ -1627,7 +1656,8 @@ Experiment <- R6::R6Class(
     #'   `FALSE`.
     #' @param save Logical. If `TRUE`, save outputs to disk.
     #' @param record_time Logical. If `TRUE`, record the amount of time taken to
-    #'   visualize each `Visualizer`.
+    #'   visualize each `Visualizer`. By default (`NULL`), the `record_time`
+    #'   value set during initialization of the `Experiment` is used.
     #' @param verbose Level of verbosity. Default is 1, which prints out messages
     #'   after major checkpoints in the experiment. If 2, prints additional
     #'   debugging information for warnings and messages from user-defined functions
@@ -1638,9 +1668,11 @@ Experiment <- R6::R6Class(
     #' @return A list of visualizations, one for each `Visualizer`.
     visualize = function(fit_results, eval_results = NULL,
                          use_cached = FALSE, save = FALSE,
-                         record_time = FALSE,
+                         record_time = NULL,
                          verbose = 1, ...) {
-
+      if (is.null(record_time)) {
+        record_time <- private$.record_time[["viz"]]
+      }
       visualizer_list <- private$.get_obj_list("visualizer")
       visualizer_names <- names(visualizer_list)
       if (length(visualizer_list) == 0) {
