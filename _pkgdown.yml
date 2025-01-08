@@ -18,6 +18,7 @@ reference:
       - add_dgp
       - update_dgp
       - remove_dgp
+      - rename_dgps
       - get_dgps
       - remove_vary_across
       - clear_cache
