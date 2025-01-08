@@ -67,6 +67,7 @@ Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 Collate: 
+    'data.R'
     'dgp.R'
     'docs.R'
     'evaluator-lib-feature-selection.R'
@@ -92,3 +93,6 @@ Collate:
     'visualizer-lib-utils.R'
     'visualizer.R'
     'zzz.R'
+Depends: 
+    R (>= 2.10)
+LazyData: true
