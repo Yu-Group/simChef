@@ -25,8 +25,8 @@ NULL
 #'   [get_save_dir()], [set_save_dir()], [save_experiment()],
 #'   [set_export_viz_options()], [export_visualizers()], [set_doc_options()],
 #'   [`add_*()`](add_funs.html), [`update_*()`](update_funs.html),
-#'   [`remove_*()`](remove_funs.html), [`get_*()`](get_funs.html), and
-#'   [`*_vary_across()`](vary_across.html).
+#'   [`remove_*()`](remove_funs.html), [`rename_*()`](rename_funs.html)
+#'   [`get_*()`](get_funs.html), and [`*_vary_across()`](vary_across.html).
 #'
 #' @export
 Experiment <- R6::R6Class(
