@@ -94,6 +94,7 @@ Initialize a new \code{Experiment} object.
   clone_from = NULL,
   save_dir = NULL,
   save_in_bulk = TRUE,
+  record_time = FALSE,
   ...
 )}\if{html}{\out{</div>}}
 }
@@ -141,6 +142,12 @@ separate .rds file. One can alternatively specify a character vector
 with some subset of "fit", "eval", and/or "viz", indicating the
 elements to save in bulk to disk.}
 
+\item{\code{record_time}}{A logical, indicating whether or not to record the
+time taken to run each \code{Method}, \code{Evaluator}, and \code{Visualizer} in the
+\code{Experiment}. Alternatively, one can specify a character vector with
+some subset of "fit", "eval", and/or "viz", indicating the elements for
+which to record the time taken.}
+
 \item{\code{...}}{Not used.}
 }
 \if{html}{\out{</div>}}
@@ -165,7 +172,7 @@ and visualizing).
   use_cached = FALSE,
   return_all_cached_reps = FALSE,
   save = FALSE,
-  record_time = FALSE,
+  record_time = NULL,
   checkpoint_n_reps = 0,
   verbose = 1,
   ...
@@ -215,7 +222,8 @@ specify a character vector with some subset of "fit", "eval", and/or
 time taken to run each \code{Method}, \code{Evaluator}, and \code{Visualizer} in the
 \code{Experiment}. Alternatively, one can specify a character vector with
 some subset of "fit", "eval", and/or "viz", indicating the elements for
-which to record the time taken.}
+which to record the time taken. By default (\code{NULL}), the \code{record_time}
+value set during initialization of the \code{Experiment} is used.}
 
 \item{\code{checkpoint_n_reps}}{The number of experiment replicates to compute
 before saving results to disk. If 0 (the default), no checkpoints are
@@ -298,7 +306,7 @@ Fit \code{Methods} in the \code{Experiment} across all
   use_cached = FALSE,
   return_all_cached_reps = FALSE,
   save = FALSE,
-  record_time = FALSE,
+  record_time = NULL,
   checkpoint_n_reps = 0,
   verbose = 1,
   ...
@@ -340,7 +348,8 @@ cached replicates from the (\code{DGP}, \code{Method}) combinations in the
 \item{\code{save}}{Logical. If \code{TRUE}, save outputs to disk.}
 
 \item{\code{record_time}}{Logical. If \code{TRUE}, record the amount of time taken to
-fit each \code{Method} per replicate.}
+fit each \code{Method} per replicate. By default (\code{NULL}), the \code{record_time}
+value set during initialization of the \code{Experiment} is used.}
 
 \item{\code{checkpoint_n_reps}}{The number of experiment replicates to compute
 before saving results to disk. If 0 (the default), no checkpoints are
@@ -377,7 +386,7 @@ Evaluate the performance of method(s) across all
   fit_results,
   use_cached = FALSE,
   save = FALSE,
-  record_time = FALSE,
+  record_time = NULL,
   verbose = 1,
   ...
 )}\if{html}{\out{</div>}}
@@ -395,7 +404,8 @@ results. If cached results cannot be found, continue as if \code{use_cached} was
 \item{\code{save}}{Logical. If \code{TRUE}, save outputs to disk.}
 
 \item{\code{record_time}}{Logical. If \code{TRUE}, record the amount of time taken to
-evaluate each \code{Evaluator}.}
+evaluate each \code{Evaluator}. By default (\code{NULL}), the \code{record_time}
+value set during initialization of the \code{Experiment} is used.}
 
 \item{\code{verbose}}{Level of verbosity. Default is 1, which prints out messages
 after major checkpoints in the experiment. If 2, prints additional
@@ -425,7 +435,7 @@ visualization results.
   eval_results = NULL,
   use_cached = FALSE,
   save = FALSE,
-  record_time = FALSE,
+  record_time = NULL,
   verbose = 1,
   ...
 )}\if{html}{\out{</div>}}
@@ -446,7 +456,8 @@ results. If cached results cannot be found, continue as if \code{use_cached} was
 \item{\code{save}}{Logical. If \code{TRUE}, save outputs to disk.}
 
 \item{\code{record_time}}{Logical. If \code{TRUE}, record the amount of time taken to
-visualize each \code{Visualizer}.}
+visualize each \code{Visualizer}. By default (\code{NULL}), the \code{record_time}
+value set during initialization of the \code{Experiment} is used.}
 
 \item{\code{verbose}}{Level of verbosity. Default is 1, which prints out messages
 after major checkpoints in the experiment. If 2, prints additional

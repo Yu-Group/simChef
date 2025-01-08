@@ -14,6 +14,7 @@ run_experiment(
   use_cached = FALSE,
   return_all_cached_reps = FALSE,
   save = FALSE,
+  record_time = NULL,
   checkpoint_n_reps = 0,
   verbose = 1,
   ...
@@ -54,6 +55,14 @@ only the \code{n_reps} replicates are used when evaluating and visualizing
 the \code{Experiment}.}
 
 \item{save}{If \code{TRUE}, save outputs to disk.}
+
+\item{record_time}{A logical, indicating whether or not to record the
+time taken to run each \code{Method}, \code{Evaluator}, and \code{Visualizer} in the
+\code{Experiment}. Alternatively, one can specify a character vector with
+some subset of "fit", "eval", and/or "viz", indicating the elements for
+which to record the time taken. By default (\code{NULL}), the \code{record_time}
+value set during initialization of the \code{Experiment}
+(i.e., with \code{\link[=create_experiment]{create_experiment()}}) is used.}
 
 \item{checkpoint_n_reps}{The number of experiment replicates to compute
 before saving results to disk. If 0 (the default), no checkpoints are

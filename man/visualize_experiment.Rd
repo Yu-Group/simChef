@@ -10,6 +10,7 @@ visualize_experiment(
   eval_results = NULL,
   use_cached = FALSE,
   save = FALSE,
+  record_time = NULL,
   verbose = 1,
   ...
 )
@@ -27,6 +28,11 @@ results. If cached results cannot be found, continue as if \code{use_cached} was
 \code{FALSE}.}
 
 \item{save}{If \code{TRUE}, save outputs to disk.}
+
+\item{record_time}{Logical. If \code{TRUE}, record the amount of time taken to
+visualize each \code{Visualizer}. By default (\code{NULL}), the \code{record_time}
+value set during initialization of the \code{Experiment}
+(i.e., with \code{\link[=create_experiment]{create_experiment()}}) is used.}
 
 \item{verbose}{Level of verbosity. Default is 1, which prints out messages
 after major checkpoints in the experiment. If 2, prints additional

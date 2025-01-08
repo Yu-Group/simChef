@@ -14,6 +14,7 @@ fit_experiment(
   use_cached = FALSE,
   return_all_cached_reps = FALSE,
   save = FALSE,
+  record_time = NULL,
   checkpoint_n_reps = 0,
   verbose = 1,
   ...
@@ -52,6 +53,11 @@ cached replicates from the (\code{DGP}, \code{Method}) combinations in the
 \code{Experiment}.}
 
 \item{save}{If \code{TRUE}, save outputs to disk.}
+
+\item{record_time}{Logical. If \code{TRUE}, record the amount of time taken to
+fit each \code{Method} per replicate. By default (\code{NULL}), the \code{record_time}
+value set during initialization of the \code{Experiment}
+(i.e., with \code{\link[=create_experiment]{create_experiment()}}) is used.}
 
 \item{checkpoint_n_reps}{The number of experiment replicates to compute
 before saving results to disk. If 0 (the default), no checkpoints are

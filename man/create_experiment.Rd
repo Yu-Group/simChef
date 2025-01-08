@@ -14,6 +14,8 @@ create_experiment(
   future.packages = NULL,
   clone_from = NULL,
   save_dir = NULL,
+  save_in_bulk = TRUE,
+  record_time = FALSE,
   ...
 )
 }
@@ -47,6 +49,21 @@ this one.}
 results. If \code{NULL}, results are saved in the current working directory
 in a directory called "results" with a sub-directory named after
 \code{Experiment$name}.}
+
+\item{save_in_bulk}{A logical, indicating whether or not to save the
+fit, evaluator, and visualizer outputs, each as a single bulk .rds file
+(i.e., as \code{fit_results.rds}, \code{eval_results.rds}, \code{viz_results.rds}).
+Default is \code{TRUE}. If \code{FALSE}, each fit replicate is saved as a
+separate .rds file while each evaluator/visualizer is saved as a
+separate .rds file. One can alternatively specify a character vector
+with some subset of "fit", "eval", and/or "viz", indicating the
+elements to save in bulk to disk.}
+
+\item{record_time}{A logical, indicating whether or not to record the
+time taken to run each \code{Method}, \code{Evaluator}, and \code{Visualizer} in the
+\code{Experiment}. Alternatively, one can specify a character vector with
+some subset of "fit", "eval", and/or "viz", indicating the elements for
+which to record the time taken. Default is \code{FALSE}.}
 
 \item{...}{Not used.}
 }
