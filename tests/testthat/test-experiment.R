@@ -434,7 +434,6 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
       ),
       "New"
     )))
-  })
 
     # with vary across
     experiment |> add_vary_across(.dgp = "DGP1", x = c(1, 2))
