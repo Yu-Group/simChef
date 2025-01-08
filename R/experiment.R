@@ -352,8 +352,21 @@ Experiment <- R6::R6Class(
           record_time <- !is.null(attr(viz_results[[1]], ".time_taken"))
           eval_cached_params <- cached_params$evaluate
           viz_cached_params <- cached_params$visualize
-          viz_cached_params$visualize <- NULL
-          if (identical(eval_cached_params, viz_cached_params)) {
+          is_fit_cache_equal <- compare_tibble_rows(
+            eval_cached_params$fit |>
+              dplyr::arrange(.dgp_name, .method_name),
+            viz_cached_params$fit |>
+              dplyr::arrange(.dgp_name, .method_name),
+            op = "equal"
+          )
+          is_eval_cache_equal <- compare_tibble_rows(
+            eval_cached_params$evaluate |>
+              dplyr::arrange(.eval_name),
+            viz_cached_params$evaluate |>
+              dplyr::arrange(.eval_name),
+            op = "equal"
+          )
+          if (is_fit_cache_equal && is_eval_cache_equal) {
             fit_results <- self$get_cached_results("fit", verbose = 0)
             eval_results <- self$get_cached_results("eval", verbose = 0)
             viz_results <- tryCatch(
