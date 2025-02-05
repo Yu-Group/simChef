@@ -63,7 +63,7 @@
       <img src="../logo.png" class="logo" alt=""><h1>Computing experimental replicates in parallel</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/Yu-Group/simChef/blob/v0.2.0/vignettes/parallel.Rmd" class="external-link"><code>vignettes/parallel.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/Yu-Group/simChef/blob/main/vignettes/parallel.Rmd" class="external-link"><code>vignettes/parallel.Rmd</code></a></small>
       <div class="d-none name"><code>parallel.Rmd</code></div>
     </div>
 
@@ -183,8 +183,6 @@ total rows in the results <code>tibble</code>.</p>
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://yu-group.github.io/simChef">simChef</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://future.futureverse.org" class="external-link">future</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
-<span><span class="co">#&gt; Error in get(paste0(generic, ".", class), envir = get_method_env()) : </span></span>
-<span><span class="co">#&gt;   object 'type_sum.accel' not found</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Attaching package: 'dplyr'</span></span>
 <span><span class="co">#&gt; The following objects are masked from 'package:stats':</span></span>
@@ -263,7 +261,7 @@ total rows in the results <code>tibble</code>.</p>
 <span></span>
 <span><span class="va">results</span> <span class="op">&lt;-</span> <span class="va">experiment</span><span class="op">$</span><span class="fu">fit</span><span class="op">(</span>n_reps <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Fitting exper...</span></span>
-<span><span class="co">#&gt; 2 reps completed (totals: 2/2) | time taken: 0.431475 minutes</span></span>
+<span><span class="co">#&gt; 2 reps completed (totals: 2/2) | time taken: 0.423305 minutes</span></span>
 <span><span class="co">#&gt; ==============================</span></span>
 <span><span class="va">results</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 136 × 16</span></span></span>
