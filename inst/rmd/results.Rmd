@@ -343,7 +343,7 @@ show_recipe <- function(field_name = c(
       if (write_flag) {
         recipe <- write_code_chunk(
           sprintf(
-            "print_renv(renv::lockfile_read(), '%s', print_table = TRUE)", what
+            "print_renv(renv::lockfile_read(project = here::here()), '%s', print_table = TRUE)", what
           ),
           chunk_args = "results = 'asis'"
         ) |>
@@ -363,7 +363,7 @@ show_recipe <- function(field_name = c(
       if (write_flag) {
         recipe <- write_code_chunk(
           sprintf(
-            "print_renv(renv::lockfile_read(), '%s', print_table = FALSE)", what
+            "print_renv(renv::lockfile_read(project = here::here()), '%s', print_table = FALSE)", what
           ),
           chunk_args = "max.height='700px'"
         ) |>
