@@ -168,8 +168,8 @@ For a more detailed walkthrough of this example usage, please see `vignette("sim
 **For examples of real-world case study using `simChef` to develop novel statistical 
 methodology, please check out:**
 
-- **Boileau et al. (2022).** [A Flexible Approach for Predictive Biomarker Discovery](https://academic.oup.com/biostatistics/article/24/4/1085/6647929). ([GitHub]((https://github.com/PhilBoileau/simChef-case-study)), [**simChef docs**](https://philboileau.github.io/simChef-case-study/results/empirical-fdr-comparison/empirical-fdr-comparison.html))
-- **Huang et al. (2025).** [Distilling heterogeneous treatment effects: Stable subgroup estimation in causal inference](https://arxiv.org/abs/2502.07275). ([GitHub]((https://github.com/tiffanymtang/causalDT)), [**simChef docs**](https://tiffanymtang.github.io/causalDT/simulation_results.html))
+- **Boileau et al. (2022).** [A Flexible Approach for Predictive Biomarker Discovery](https://academic.oup.com/biostatistics/article/24/4/1085/6647929). ([GitHub](https://github.com/PhilBoileau/simChef-case-study), [**simChef docs**](https://philboileau.github.io/simChef-case-study/results/empirical-fdr-comparison/empirical-fdr-comparison.html))
+- **Huang et al. (2025).** [Distilling heterogeneous treatment effects: Stable subgroup estimation in causal inference](https://arxiv.org/abs/2502.07275). ([GitHub](https://github.com/tiffanymtang/causalDT), [**simChef docs**](https://tiffanymtang.github.io/causalDT/simulation_results.html))
 
 More examples of the rendered documentation for different simulation experiments:
 
