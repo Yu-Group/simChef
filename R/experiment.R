@@ -25,8 +25,8 @@ NULL
 #'   [get_save_dir()], [set_save_dir()], [save_experiment()],
 #'   [set_export_viz_options()], [export_visualizers()], [set_doc_options()],
 #'   [`add_*()`](add_funs.html), [`update_*()`](update_funs.html),
-#'   [`remove_*()`](remove_funs.html), [`get_*()`](get_funs.html), and
-#'   [`*_vary_across()`](vary_across.html).
+#'   [`remove_*()`](remove_funs.html), [`rename_*()`](rename_funs.html)
+#'   [`get_*()`](get_funs.html), and [`*_vary_across()`](vary_across.html).
 #'
 #' @export
 Experiment <- R6::R6Class(
@@ -107,6 +107,305 @@ Experiment <- R6::R6Class(
         )
       } else {
         private[[list_name]][[obj_name]] <- NULL
+      }
+    },
+
+    .rename_objs = function(field_name, ...) {
+      obj_list <- private$.get_obj_list(field_name)
+      rename_obj_list <- rlang::list2(...)
+      obj_names <- unname(rename_obj_list)
+      new_obj_names <- names(rename_obj_list)
+      all_obj_names <- names(obj_list)
+      n_names <- length(obj_names)
+      field_verb <- dplyr::case_when(
+        field_name %in% c("dgp", "method") ~ "fit",
+        field_name == "evaluator" ~ "evaluate",
+        field_name == "visualizer" ~ "visualize"
+      )
+      field_col <- dplyr::case_when(
+        field_name == "dgp" ~ ".dgp_name",
+        field_name == "method" ~ ".method_name",
+        field_name == "evaluator" ~ ".eval_name",
+        field_name == "visualizer" ~ ".viz_name"
+      )
+      list_name <- paste0(".", field_name, "_list")
+
+      missing_obj_names <- setdiff(obj_names, all_obj_names)
+      if (length(missing_obj_names) > 0) {
+        abort(
+          sprintf(
+            paste("The name(s) '%s' do(es) not exist in the %s list.",
+                  "Use `add_%s` instead."),
+            paste(missing_obj_names, collapse=", "), field_name, field_name
+          ),
+          call = rlang::caller_env()
+        )
+      }
+      existing_obj_names <- intersect(new_obj_names, all_obj_names)
+      if (length(existing_obj_names) > 0) {
+        abort(
+          sprintf(
+            paste("The name(s) '%s' already exist(s) in the %s list.",
+                  "Rename to something different."),
+            paste(existing_obj_names, collapse=", "), field_name
+          ),
+          call = rlang::caller_env()
+        )
+      }
+
+      # old results directory
+      if (private$.has_vary_across()) {
+        old_save_dir <- private$.get_vary_across_dir()
+      } else {
+        old_save_dir <- private$.save_dir
+      }
+
+      # rename object
+      private[[list_name]] <- replace_names(
+        private[[list_name]], obj_names, new_obj_names
+      )
+      for (i in 1:n_names) {
+        private[[list_name]][[new_obj_names[i]]]$name <- new_obj_names[i]
+      }
+
+      if (field_verb == "fit") {
+        # rename object in vary_across_list
+        private$.vary_across_list[[field_name]] <- replace_names(
+          private$.vary_across_list[[field_name]], obj_names, new_obj_names
+        )
+        # rename .fit_params
+        if (nrow(private$.fit_params) > 0) {
+          private$.fit_params[[field_col]] <- replace_values(
+            private$.fit_params[[field_col]], obj_names, new_obj_names
+          )
+          for (i in 1:n_names) {
+            private$.fit_params[[paste0(".", field_name)]] <- purrr::map2(
+              private$.fit_params[[paste0(".", field_name)]],
+              private$.fit_params[[field_col]],
+              function(params_list, new_cached_name) {
+                params_list[[field_col]] <- new_cached_name
+                return(params_list)
+              }
+            )
+          }
+        }
+      }
+
+      # new results directory
+      if (private$.has_vary_across()) {
+        save_dir <- private$.get_vary_across_dir()
+      } else {
+        save_dir <- private$.save_dir
+      }
+
+      # rename results directory if needed
+      if (!identical(old_save_dir, save_dir)) {
+        if (file.exists(old_save_dir)) {
+          if (private$.has_vary_across()) {
+            invisible(file.rename(dirname(old_save_dir), dirname(save_dir)))
+          } else {
+            invisible(file.rename(old_save_dir, save_dir))
+          }
+        }
+      }
+
+      ## experiment
+      if (file.exists(file.path(save_dir, "experiment.rds"))) {
+        saveRDS(self, file.path(save_dir, "experiment.rds"))
+      }
+      ## experiment_cached_params
+      if (file.exists(file.path(save_dir, "experiment_cached_params.rds"))) {
+        cached_params <- readRDS(
+          file.path(save_dir, "experiment_cached_params.rds")
+        )
+        for (type in c("fit", "evaluate", "visualize")) {
+          if (!is.null(cached_params[[type]][[field_verb]])) {
+            if (nrow(cached_params[[type]][[field_verb]]) > 0) {
+              cached_params[[type]][[field_verb]][[field_col]] <- replace_values(
+                cached_params[[type]][[field_verb]][[field_col]],
+                obj_names, new_obj_names
+              )
+              if (field_verb == "fit") {
+                cached_params[[type]][[field_verb]][[paste0(".", field_name)]] <- purrr::map2(
+                  cached_params[[type]][[field_verb]][[paste0(".", field_name)]],
+                  cached_params[[type]][[field_verb]][[field_col]],
+                  function(params_list, new_cached_name) {
+                    params_list[[field_col]] <- new_cached_name
+                    return(params_list)
+                  }
+                )
+              } else {
+                field_params <- dplyr::case_when(
+                  field_verb == "evaluate" ~ ".eval_params",
+                  field_verb == "visualize" ~ ".viz_params"
+                )
+                field_fun <- dplyr::case_when(
+                  field_verb == "evaluate" ~ ".eval_fun",
+                  field_verb == "visualize" ~ ".viz_fun"
+                )
+                names(cached_params[[type]][[field_verb]][[field_params]]) <-
+                  cached_params[[type]][[field_verb]][[field_col]]
+                names(cached_params[[type]][[field_verb]][[field_fun]]) <-
+                  cached_params[[type]][[field_verb]][[field_col]]
+              }
+            }
+          }
+        }
+        saveRDS(cached_params, file.path(save_dir, "experiment_cached_params.rds"))
+      }
+      ## fit_results
+      fit_results <- NULL
+      if (field_verb == "fit") {
+        fit_results <- private$.get_cached_results("fit", verbose = 0)
+        if (!is.null(fit_results)) {
+          fit_results[[field_col]] <- replace_values(
+            fit_results[[field_col]], obj_names, new_obj_names
+          )
+          if (private$.save_in_bulk[["fit"]]) {
+            saveRDS(fit_results, file.path(save_dir, "fit_results.rds"))
+          } else {
+            purrr::walk(
+              unique(fit_results$.rep),
+              function(i) {
+                rep_results <- fit_results |>
+                  dplyr::filter(as.numeric(.rep) == !!i)
+                private$.save_result(
+                  rep_results, "fit", sprintf("fit_result%s", i)
+                )
+              }
+            )
+          }
+        }
+      }
+      ## eval_results
+      eval_results <- NULL
+      if (field_verb %in% c("fit", "evaluate")) {
+        eval_results <- private$.get_cached_results("eval", verbose = 0)
+        if (!is.null(eval_results)) {
+          if (field_verb == "fit") {
+            eval_results <- purrr::imap(
+              eval_results,
+              function(eval_result, eval_name) {
+                if (field_col %in% colnames(eval_result)) {
+                  eval_result[[field_col]] <- replace_values(
+                    eval_result[[field_col]], obj_names, new_obj_names
+                  )
+                }
+                if (!private$.save_in_bulk[["eval"]]) {
+                  private$.save_result(eval_result, "eval", eval_name)
+                }
+                return(eval_result)
+              }
+            )
+            if (private$.save_in_bulk[["eval"]]) {
+              saveRDS(eval_results, file.path(save_dir, "eval_results.rds"))
+            }
+          } else {
+            if (private$.save_in_bulk[["eval"]]) {
+              eval_results <- replace_names(
+                eval_results, obj_names, new_obj_names
+              )
+              saveRDS(eval_results, file.path(save_dir, "eval_results.rds"))
+            } else {
+              for (i in 1:n_names) {
+                obj_name <- obj_names[i]
+                new_obj_name <- new_obj_names[i]
+                old_eval_fname <- file.path(
+                  save_dir, "eval_results", sprintf("%s.rds", obj_name)
+                )
+                new_eval_fname <- file.path(
+                  save_dir, "eval_results", sprintf("%s.rds", new_obj_name)
+                )
+                if (file.exists(old_eval_fname)) {
+                  invisible(file.rename(old_eval_fname, new_eval_fname))
+                }
+              }
+            }
+          }
+        }
+      }
+      ## viz_results
+      viz_results <- private$.get_cached_results("viz", verbose = 0)
+      if (!is.null(viz_results)) {
+        if (field_name == "visualizer") {
+          if (private$.save_in_bulk[["viz"]]) {
+            viz_results <- replace_names(
+              viz_results, obj_names, new_obj_names
+            )
+            saveRDS(viz_results, file.path(save_dir, "viz_results.rds"))
+          } else {
+            for (i in 1:n_names) {
+              obj_name <- obj_names[i]
+              new_obj_name <- new_obj_names[i]
+              old_viz_fname <- file.path(
+                save_dir, "viz_results", sprintf("%s.rds", obj_name)
+              )
+              new_viz_fname <- file.path(
+                save_dir, "viz_results", sprintf("%s.rds", new_obj_name)
+              )
+              if (file.exists(old_viz_fname)) {
+                invisible(file.rename(old_viz_fname, new_viz_fname))
+              }
+            }
+          }
+        } else {
+          record_time <- !is.null(attr(viz_results[[1]], ".time_taken"))
+          eval_cached_params <- cached_params$evaluate
+          viz_cached_params <- cached_params$visualize
+          is_fit_cache_equal <- compare_tibble_rows(
+            eval_cached_params$fit |>
+              dplyr::arrange(.dgp_name, .method_name),
+            viz_cached_params$fit |>
+              dplyr::arrange(.dgp_name, .method_name),
+            op = "equal"
+          )
+          is_eval_cache_equal <- compare_tibble_rows(
+            eval_cached_params$evaluate |>
+              dplyr::arrange(.eval_name),
+            viz_cached_params$evaluate |>
+              dplyr::arrange(.eval_name),
+            op = "equal"
+          )
+          if (is_fit_cache_equal && is_eval_cache_equal) {
+            fit_results <- self$get_cached_results("fit", verbose = 0)
+            eval_results <- self$get_cached_results("eval", verbose = 0)
+            viz_results <- tryCatch(
+              self$visualize(
+                fit_results, eval_results,
+                save = TRUE, record_time = record_time, verbose = 0
+              ),
+              error = function(e) {
+                warn(
+                  "Could not automatically rename objects in cached viz_results. To update the viz_results cache, please re-run the experiment using `run_experiment()`, while setting the argument `use_cached = TRUE` in the function call."
+                )
+                return(NULL)
+              }
+            )
+          } else {
+            warn(
+              "Could not automatically rename objects in cached viz_results. To update the viz_results cache, please re-run the experiment using `run_experiment()`, while setting the argument `use_cached = TRUE` in the function call."
+            )
+            viz_results <- NULL
+          }
+        }
+      }
+
+      # rename object docs if needed
+      docs_dir <- file.path(save_dir, "docs")
+      if (file.exists(docs_dir)) {
+        for (i in 1:n_names) {
+          obj_name <- obj_names[i]
+          new_obj_name <- new_obj_names[i]
+          old_doc_fname <- file.path(
+            docs_dir, sprintf("%ss", field_name), sprintf("%s.md", obj_name)
+          )
+          new_doc_fname <- file.path(
+            docs_dir, sprintf("%ss", field_name), sprintf("%s.md", new_obj_name)
+          )
+          if (file.exists(old_doc_fname)) {
+            invisible(file.rename(old_doc_fname, new_doc_fname))
+          }
+        }
       }
     },
 
@@ -260,7 +559,7 @@ Experiment <- R6::R6Class(
       field_name <- match.arg(field_name, several.ok = TRUE)
       param_names_ls <- purrr::map(private$.vary_across_list[field_name],
                                    function(x) {
-                                     if (identical(x, list())) {
+                                     if (identical(unname(x), list())) {
                                        return(NULL)
                                      } else {
                                        return(purrr::map(x, names) |>
@@ -1122,7 +1421,7 @@ Experiment <- R6::R6Class(
       } else {
         save_dir <- private$.get_vary_across_dir()
       }
-      if (!save_in_bulk) {
+      if (save && !save_in_bulk) {
         if (!dir.exists(file.path(save_dir, "fit_results"))) {
           dir.create(file.path(save_dir, "fit_results"), recursive = TRUE)
         }
@@ -1814,6 +2113,18 @@ Experiment <- R6::R6Class(
       invisible(self)
     },
 
+    #' @description Rename [DGP] objects in the `Experiment` and in the cached
+    #'   documentation and results.
+    #'
+    #' @param ... Named character vector of names to rename. Use
+    #'   `"new_name" = "old_name"` format.
+    #'
+    #' @return The `Experiment` object, invisibly.
+    rename_dgps = function(...) {
+      private$.rename_objs("dgp", ...)
+      invisible(self)
+    },
+
     #' @description Retrieve the [DGP] objects associated with the `Experiment`.
     #'
     #' @return A named list of the `DGP` objects in the `Experiment`.
@@ -1866,6 +2177,18 @@ Experiment <- R6::R6Class(
       invisible(self)
     },
 
+    #' @description Rename [Method] objects in the `Experiment` and in the
+    #'   cached documentation and results.
+    #'
+    #' @param ... Named character vector of names to rename. Use
+    #'   `"new_name" = "old_name"` format.
+    #'
+    #' @return The `Experiment` object, invisibly.
+    rename_methods = function(...) {
+      private$.rename_objs("method", ...)
+      invisible(self)
+    },
+
     #' @description Retrieve the [Method] objects associated with the `Experiment`.
     #'
     #' @return A named list of the `Method` objects in the `Experiment`.
@@ -1910,6 +2233,18 @@ Experiment <- R6::R6Class(
       invisible(self)
     },
 
+    #' @description Rename [Evaluator] objects in the `Experiment` and in the
+    #'   cached documentation and results.
+    #'
+    #' @param ... Named character vector of names to rename. Use
+    #'   `"new_name" = "old_name"` format.
+    #'
+    #' @return The `Experiment` object, invisibly.
+    rename_evaluators = function(...) {
+      private$.rename_objs("evaluator", ...)
+      invisible(self)
+    },
+
     #' @description Retrieve the [Evaluator] objects associated with the `Experiment`.
     #'
     #' @return A named list of the `Evaluator` objects in the `Experiment`.
@@ -1951,6 +2286,18 @@ Experiment <- R6::R6Class(
     #' @return The `Experiment` object, invisibly.
     remove_visualizer = function(name = NULL, ...) {
       private$.remove_obj("visualizer", name)
+      invisible(self)
+    },
+
+    #' @description Rename [Visualizer] objects in the `Experiment` and in the
+    #'   cached documentation and results.
+    #'
+    #' @param ... Named character vector of names to rename. Use
+    #'   `"new_name" = "old_name"` format.
+    #'
+    #' @return The `Experiment` object, invisibly.
+    rename_visualizers = function(...) {
+      private$.rename_objs("visualizer", ...)
       invisible(self)
     },
 

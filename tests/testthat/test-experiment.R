@@ -191,6 +191,439 @@ withr::with_tempdir(pattern = "simChef-test-checkpointing-temp", code = {
     expect_equal(experiment1_copy, experiment2_copy)
   })
 
+  test_that("Renaming DGPs/Methods/Evaluators/Visualizers works properly", {
+    # generate data from normal distribution with n samples
+    dgp_fun1 <- function(x = 10, y = 1) x + 1
+    dgp_fun2 <- function(x = 10, y = 0) x + 2
+    dgp1 <- DGP$new(dgp_fun1, .name = "DGP1", y = 2)
+    dgp2 <- DGP$new(dgp_fun2, .name = "DGP2", y = 3)
+    method_fun1 <- function(x, y = NULL) x
+    method1 <- Method$new(method_fun1, .name = "Method1")
+    eval_fun1 <- function(y = "eval") tibble::tibble(a = 1:3)
+    eval1 <- Evaluator$new(eval_fun1, .name = "Evaluator1", y = "viz")
+    viz_fun1 <- function(fit_results, y = "viz") fit_results
+    viz1 <- Visualizer$new(viz_fun1, .name = "Visualizer1", y = "eval")
+
+    experiment <- create_experiment(name = "test-rename") |>
+      add_dgp(dgp1) |>
+      add_dgp(dgp2) |>
+      add_method(method1) |>
+      add_evaluator(eval1) |>
+      add_visualizer(viz1)
+    exp <- create_experiment(
+      name = "test-rename-save-per-rep", save_in_bulk = FALSE
+    ) |>
+      add_dgp(dgp1) |>
+      add_dgp(dgp2) |>
+      add_method(method1) |>
+      add_evaluator(eval1) |>
+      add_visualizer(viz1)
+
+    # error checking
+    expect_error(
+      experiment |>
+        rename_dgps("New DGP1" = "Non-existent DGP")
+    )
+    expect_error(
+      experiment |>
+        rename_dgps("DGP2" = "DGP1")
+    )
+
+    # get original results
+    old_results <- run_experiment(experiment, n_reps = 2, save = TRUE, verbose = 0)
+    old_experiment <- get_cached_results(experiment, "experiment")
+    old_experiment_cached_params <- get_cached_results(experiment, "experiment_cached_params")
+    old_res <- run_experiment(exp, n_reps = 2, save = TRUE, verbose = 0)
+    old_exp <- get_cached_results(exp, "experiment")
+    old_exp_cached_params <- get_cached_results(exp, "experiment_cached_params")
+
+    # remove cache
+    experiment$clear_cache()
+    if (dir.exists(file.path("results", "test-rename"))) {
+      for (fname in list.files(file.path("results", "test-rename"),
+                               recursive = TRUE, full.names = TRUE)) {
+        file.remove(fname)
+      }
+    }
+    exp$clear_cache()
+    if (dir.exists(file.path("results", "test-rename-save-per-rep"))) {
+      for (fname in list.files(file.path("results", "test-rename-save-per-rep"),
+                               recursive = TRUE, full.names = TRUE)) {
+        file.remove(fname)
+      }
+    }
+
+    # run experiment without saving
+    init_docs(experiment)
+    results <- run_experiment(experiment, n_reps = 2, save = FALSE, verbose = 0)
+    init_docs(exp)
+    res <- run_experiment(exp, n_reps = 2, save = FALSE, verbose = 0)
+
+    # check renaming without save/cached results
+    experiment |> rename_dgps("New DGP1" = "DGP1", "New DGP2" = "DGP2")
+    expect_equal(
+      purrr::map_chr(experiment$get_dgps(), ~ .x$name),
+      c("New DGP1" = "New DGP1", "New DGP2" = "New DGP2")
+    )
+    experiment |> rename_methods("New Method1" = "Method1")
+    expect_equal(
+      purrr::map_chr(experiment$get_methods(), ~ .x$name),
+      c("New Method1" = "New Method1")
+    )
+    experiment |> rename_evaluators("New Evaluator1" = "Evaluator1")
+    expect_equal(
+      purrr::map_chr(experiment$get_evaluators(), ~ .x$name),
+      c("New Evaluator1" = "New Evaluator1")
+    )
+    experiment |> rename_visualizers("New Visualizer1" = "Visualizer1")
+    expect_equal(
+      purrr::map_chr(experiment$get_visualizers(), ~ .x$name),
+      c("New Visualizer1" = "New Visualizer1")
+    )
+    expect_equal(
+      list.files(experiment$get_save_dir(), pattern = ".rds", recursive = TRUE),
+      "experiment.rds"
+    )
+
+    exp |> rename_dgps("New DGP1" = "DGP1", "New DGP2" = "DGP2")
+    expect_equal(
+      purrr::map_chr(exp$get_dgps(), ~ .x$name),
+      c("New DGP1" = "New DGP1", "New DGP2" = "New DGP2")
+    )
+    exp |> rename_methods("New Method1" = "Method1")
+    expect_equal(
+      purrr::map_chr(exp$get_methods(), ~ .x$name),
+      c("New Method1" = "New Method1")
+    )
+    exp |> rename_evaluators("New Evaluator1" = "Evaluator1")
+    expect_equal(
+      purrr::map_chr(exp$get_evaluators(), ~ .x$name),
+      c("New Evaluator1" = "New Evaluator1")
+    )
+    exp |> rename_visualizers("New Visualizer1" = "Visualizer1")
+    expect_equal(
+      purrr::map_chr(exp$get_visualizers(), ~ .x$name),
+      c("New Visualizer1" = "New Visualizer1")
+    )
+    expect_equal(
+      list.files(exp$get_save_dir(), pattern = ".rds", recursive = TRUE),
+      "experiment.rds"
+    )
+
+    # check renaming with save/cached results
+    init_docs(experiment)
+    results <- run_experiment(experiment, n_reps = 2, save = TRUE, verbose = 0)
+    init_docs(exp)
+    res <- run_experiment(exp, n_reps = 2, save = TRUE, verbose = 0)
+
+    # rename DGPs
+    experiment |>
+      rename_dgps("DGP1" = "New DGP1", "DGP2" = "New DGP2") |>
+      rename_methods("Method1" = "New Method1")
+    experiment_cached_params <- get_cached_results(experiment, "experiment_cached_params")
+    fit_results <- get_cached_results(experiment, "fit")
+    expect_equal(fit_results, old_results$fit_results)
+    expect_equal(
+      experiment_cached_params$fit$fit |>
+        dplyr::select(-tidyselect::contains("_fun")),
+      old_experiment_cached_params$fit$fit |>
+        dplyr::select(-tidyselect::contains("_fun"))
+    )
+    experiment |> rename_evaluators("Evaluator1" = "New Evaluator1")
+    experiment_cached_params <- get_cached_results(experiment, "experiment_cached_params")
+    eval_results <- get_cached_results(experiment, "eval")
+    expect_equal(eval_results, old_results$eval_results)
+    expect_equal(
+      experiment_cached_params$evaluate$fit |>
+        dplyr::select(-tidyselect::contains("_fun")),
+      old_experiment_cached_params$evaluate$fit |>
+        dplyr::select(-tidyselect::contains("_fun"))
+    )
+    expect_equal(
+      experiment_cached_params$evaluate$evaluate |>
+        dplyr::select(-tidyselect::contains("_fun")),
+      old_experiment_cached_params$evaluate$evaluate |>
+        dplyr::select(-tidyselect::contains("_fun"))
+    )
+    experiment |> rename_visualizers("Visualizer1" = "New Visualizer1")
+    experiment_cached_params <- get_cached_results(experiment, "experiment_cached_params")
+    viz_results <- get_cached_results(experiment, "viz")
+    expect_equal(viz_results, old_results$viz_results)
+    expect_equal(
+      experiment_cached_params$visualize$fit |>
+        dplyr::select(-tidyselect::contains("_fun")),
+      old_experiment_cached_params$visualize$fit |>
+        dplyr::select(-tidyselect::contains("_fun"))
+    )
+    expect_equal(
+      experiment_cached_params$visualize$evaluate |>
+        dplyr::select(-tidyselect::contains("_fun")),
+      old_experiment_cached_params$visualize$evaluate |>
+        dplyr::select(-tidyselect::contains("_fun"))
+    )
+    expect_equal(
+      experiment_cached_params$visualize$visualize |>
+        dplyr::select(-tidyselect::contains("_fun")),
+      old_experiment_cached_params$visualize$visualize |>
+        dplyr::select(-tidyselect::contains("_fun"))
+    )
+
+    exp |>
+      rename_dgps("DGP1" = "New DGP1", "DGP2" = "New DGP2") |>
+      rename_methods("Method1" = "New Method1")
+    exp_cached_params <- get_cached_results(exp, "experiment_cached_params")
+    fit_res <- get_cached_results(exp, "fit")
+    expect_equal(fit_res, old_res$fit_results)
+    expect_equal(
+      exp_cached_params$fit$fit |>
+        dplyr::select(-tidyselect::contains("_fun")),
+      old_exp_cached_params$fit$fit |>
+        dplyr::select(-tidyselect::contains("_fun"))
+    )
+    exp |> rename_evaluators("Evaluator1" = "New Evaluator1")
+    exp_cached_params <- get_cached_results(exp, "experiment_cached_params")
+    eval_res <- get_cached_results(exp, "eval")
+    expect_equal(eval_res, old_res$eval_results)
+    expect_equal(
+      exp_cached_params$evaluate$fit |>
+        dplyr::select(-tidyselect::contains("_fun")),
+      old_exp_cached_params$evaluate$fit |>
+        dplyr::select(-tidyselect::contains("_fun"))
+    )
+    expect_equal(
+      exp_cached_params$evaluate$evaluate |>
+        dplyr::select(-tidyselect::contains("_fun")),
+      old_exp_cached_params$evaluate$evaluate |>
+        dplyr::select(-tidyselect::contains("_fun"))
+    )
+    exp |> rename_visualizers("Visualizer1" = "New Visualizer1")
+    exp_cached_params <- get_cached_results(exp, "experiment_cached_params")
+    viz_res <- get_cached_results(exp, "viz")
+    expect_equal(viz_res, old_res$viz_results)
+    expect_equal(
+      exp_cached_params$visualize$fit |>
+        dplyr::select(-tidyselect::contains("_fun")),
+      old_exp_cached_params$visualize$fit |>
+        dplyr::select(-tidyselect::contains("_fun"))
+    )
+    expect_equal(
+      exp_cached_params$visualize$evaluate |>
+        dplyr::select(-tidyselect::contains("_fun")),
+      old_exp_cached_params$visualize$evaluate |>
+        dplyr::select(-tidyselect::contains("_fun"))
+    )
+    expect_equal(
+      exp_cached_params$visualize$visualize |>
+        dplyr::select(-tidyselect::contains("_fun")),
+      old_exp_cached_params$visualize$visualize |>
+        dplyr::select(-tidyselect::contains("_fun"))
+    )
+
+    # check docs
+    expect_false(any(stringr::str_detect(
+      list.files(
+        file.path(experiment$get_save_dir(), "docs"),
+        pattern = ".md", recursive = TRUE
+      ),
+      "New"
+    )))
+    expect_false(any(stringr::str_detect(
+      list.files(
+        file.path(exp$get_save_dir(), "docs"),
+        pattern = ".md", recursive = TRUE
+      ),
+      "New"
+    )))
+
+    # with vary across
+    experiment |> add_vary_across(.dgp = "DGP1", x = c(1, 2))
+    exp |> add_vary_across(.dgp = "DGP1", x = c(1, 2))
+
+    # rename DGP
+    expect_error(experiment |> rename_dgps("DGP3" = "DGP1"), NA)
+    expect_equal(
+      experiment$get_vary_across()["dgp"],
+      list(dgp = list(DGP3 = list(x = 1:2)))
+    )
+    expect_error(exp |> rename_dgps("DGP3" = "DGP1"), NA)
+    expect_equal(
+      exp$get_vary_across()["dgp"],
+      list(dgp = list(DGP3 = list(x = 1:2)))
+    )
+
+    # get original results
+    old_results <- run_experiment(experiment, n_reps = 2, save = TRUE, verbose = 0)
+    old_experiment <- get_cached_results(experiment, "experiment")
+    old_experiment_cached_params <- get_cached_results(experiment, "experiment_cached_params")
+    old_res <- run_experiment(exp, n_reps = 2, save = TRUE, verbose = 0)
+    old_exp <- get_cached_results(exp, "experiment")
+    old_exp_cached_params <- get_cached_results(exp, "experiment_cached_params")
+    unlink(file.path(experiment$get_save_dir(), "DGP3"), recursive = TRUE)
+    unlink(file.path(exp$get_save_dir(), "DGP3"), recursive = TRUE)
+
+    # run experiment without saving
+    results <- run_experiment(experiment, n_reps = 2, save = FALSE, verbose = 0)
+    res <- run_experiment(exp, n_reps = 2, save = FALSE, verbose = 0)
+
+    # check renaming without save/cached results
+    experiment |> rename_dgps("New DGP3" = "DGP3", "New DGP2" = "DGP2")
+    expect_equal(
+      purrr::map_chr(experiment$get_dgps(), ~ .x$name),
+      c("New DGP3" = "New DGP3", "New DGP2" = "New DGP2")
+    )
+    expect_equal(
+      experiment$get_vary_across()["dgp"],
+      list(dgp = list(`New DGP3` = list(x = 1:2)))
+    )
+    experiment |> rename_methods("New Method1" = "Method1")
+    expect_equal(
+      purrr::map_chr(experiment$get_methods(), ~ .x$name),
+      c("New Method1" = "New Method1")
+    )
+    experiment |> rename_evaluators("New Evaluator1" = "Evaluator1")
+    expect_equal(
+      purrr::map_chr(experiment$get_evaluators(), ~ .x$name),
+      c("New Evaluator1" = "New Evaluator1")
+    )
+    experiment |> rename_visualizers("New Visualizer1" = "Visualizer1")
+    expect_equal(
+      purrr::map_chr(experiment$get_visualizers(), ~ .x$name),
+      c("New Visualizer1" = "New Visualizer1")
+    )
+
+    exp |> rename_dgps("New DGP3" = "DGP3", "New DGP2" = "DGP2")
+    expect_equal(
+      purrr::map_chr(exp$get_dgps(), ~ .x$name),
+      c("New DGP3" = "New DGP3", "New DGP2" = "New DGP2")
+    )
+    expect_equal(
+      exp$get_vary_across()["dgp"],
+      list(dgp = list(`New DGP3` = list(x = 1:2)))
+    )
+    exp |> rename_methods("New Method1" = "Method1")
+    expect_equal(
+      purrr::map_chr(exp$get_methods(), ~ .x$name),
+      c("New Method1" = "New Method1")
+    )
+    exp |> rename_evaluators("New Evaluator1" = "Evaluator1")
+    expect_equal(
+      purrr::map_chr(exp$get_evaluators(), ~ .x$name),
+      c("New Evaluator1" = "New Evaluator1")
+    )
+    exp |> rename_visualizers("New Visualizer1" = "Visualizer1")
+    expect_equal(
+      purrr::map_chr(exp$get_visualizers(), ~ .x$name),
+      c("New Visualizer1" = "New Visualizer1")
+    )
+
+    # check renaming with save/cached results
+    results <- run_experiment(experiment, n_reps = 2, save = TRUE, verbose = 0)
+    res <- run_experiment(exp, n_reps = 2, save = TRUE, verbose = 0)
+
+    # rename DGPs
+    experiment |>
+      rename_dgps("DGP3" = "New DGP3", "DGP2" = "New DGP2") |>
+      rename_methods("Method1" = "New Method1")
+    experiment_cached_params <- get_cached_results(experiment, "experiment_cached_params")
+    fit_results <- get_cached_results(experiment, "fit")
+    expect_equal(fit_results, old_results$fit_results)
+    expect_equal(
+      experiment_cached_params$fit$fit |>
+        dplyr::select(-tidyselect::contains("_fun")),
+      old_experiment_cached_params$fit$fit |>
+        dplyr::select(-tidyselect::contains("_fun"))
+    )
+    experiment |> rename_evaluators("Evaluator1" = "New Evaluator1")
+    experiment_cached_params <- get_cached_results(experiment, "experiment_cached_params")
+    eval_results <- get_cached_results(experiment, "eval")
+    expect_equal(eval_results, old_results$eval_results)
+    expect_equal(
+      experiment_cached_params$evaluate$evaluate |>
+        dplyr::select(-tidyselect::contains("_fun")),
+      old_experiment_cached_params$evaluate$evaluate |>
+        dplyr::select(-tidyselect::contains("_fun"))
+    )
+    expect_equal(
+      experiment_cached_params$evaluate$visualize |>
+        dplyr::select(-tidyselect::contains("_fun")),
+      old_experiment_cached_params$evaluate$visualize |>
+        dplyr::select(-tidyselect::contains("_fun"))
+    )
+    experiment |> rename_visualizers("Visualizer1" = "New Visualizer1")
+    experiment_cached_params <- get_cached_results(experiment, "experiment_cached_params")
+    viz_results <- get_cached_results(experiment, "viz")
+    expect_equal(viz_results, old_results$viz_results)
+    expect_equal(
+      experiment_cached_params$visualize$fit |>
+        dplyr::select(-tidyselect::contains("_fun")),
+      old_experiment_cached_params$visualize$fit |>
+        dplyr::select(-tidyselect::contains("_fun"))
+    )
+    expect_equal(
+      experiment_cached_params$visualize$evaluate |>
+        dplyr::select(-tidyselect::contains("_fun")),
+      old_experiment_cached_params$visualize$evaluate |>
+        dplyr::select(-tidyselect::contains("_fun"))
+    )
+    expect_equal(
+      experiment_cached_params$visualize$visualize |>
+        dplyr::select(-tidyselect::contains("_fun")),
+      old_experiment_cached_params$visualize$visualize |>
+        dplyr::select(-tidyselect::contains("_fun"))
+    )
+
+    exp |>
+      rename_dgps("DGP3" = "New DGP3", "DGP2" = "New DGP2") |>
+      rename_methods("Method1" = "New Method1")
+    exp_cached_params <- get_cached_results(exp, "experiment_cached_params")
+    fit_res <- get_cached_results(exp, "fit")
+    expect_equal(fit_res, old_res$fit_results)
+    expect_equal(
+      exp_cached_params$fit$fit |>
+        dplyr::select(-tidyselect::contains("_fun")),
+      old_exp_cached_params$fit$fit |>
+        dplyr::select(-tidyselect::contains("_fun"))
+    )
+    exp |> rename_evaluators("Evaluator1" = "New Evaluator1")
+    exp_cached_params <- get_cached_results(exp, "experiment_cached_params")
+    eval_res <- get_cached_results(exp, "eval")
+    expect_equal(eval_res, old_res$eval_results)
+    expect_equal(
+      exp_cached_params$evaluate$fit |>
+        dplyr::select(-tidyselect::contains("_fun")),
+      old_exp_cached_params$evaluate$fit |>
+        dplyr::select(-tidyselect::contains("_fun"))
+    )
+    expect_equal(
+      exp_cached_params$evaluate$evaluate |>
+        dplyr::select(-tidyselect::contains("_fun")),
+      old_exp_cached_params$evaluate$evaluate |>
+        dplyr::select(-tidyselect::contains("_fun"))
+    )
+    exp |> rename_visualizers("Visualizer1" = "New Visualizer1")
+    exp_cached_params <- get_cached_results(exp, "experiment_cached_params")
+    viz_res <- get_cached_results(exp, "viz")
+    expect_equal(viz_res, old_res$viz_results)
+    expect_equal(
+      exp_cached_params$visualize$fit |>
+        dplyr::select(-tidyselect::contains("_fun")),
+      old_exp_cached_params$visualize$fit |>
+        dplyr::select(-tidyselect::contains("_fun"))
+    )
+    expect_equal(
+      exp_cached_params$visualize$evaluate |>
+        dplyr::select(-tidyselect::contains("_fun")),
+      old_exp_cached_params$visualize$evaluate |>
+        dplyr::select(-tidyselect::contains("_fun"))
+    )
+    expect_equal(
+      exp_cached_params$visualize$visualize |>
+        dplyr::select(-tidyselect::contains("_fun")),
+      old_exp_cached_params$visualize$visualize |>
+        dplyr::select(-tidyselect::contains("_fun"))
+    )
+  })
+
   test_that("Running experiment works properly", {
 
     dgp_fun1 <- function(x, y = NULL) x + 1

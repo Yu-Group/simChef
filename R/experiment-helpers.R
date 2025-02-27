@@ -738,6 +738,64 @@ remove_visualizer <- function(experiment, name = NULL, ...) {
   experiment$remove_visualizer(name, ...)
 }
 
+#' Helper functions for renaming components in an `Experiment`.
+#'
+#' @description Helper functions for renaming `DGPs`,
+#'   `Methods`, `Evaluators`, and `Visualizers` from an
+#'   `Experiment`. These functions will also rename these objects in the
+#'   cached documentation and results files.
+#'
+#' @inheritParams shared_experiment_helpers_args
+#' @param ... Named character vector of names to rename. Use
+#'   `"new_name" = "old_name"` format.
+#'
+#' @return The original `Experiment` object passed to `remove_*`.
+#'
+#' @name rename_funs
+#' @rdname rename_funs
+#'
+#' @examples
+#' \dontrun{
+#' rename_dgps(experiment, "New DGP1" = "DGP1", "New DGP2" = "DGP2")
+#' rename_methods(experiment, "New Method1" = "Method1")
+#' rename_evaluators(experiment, "New Evaluator1" = "Evaluator1")
+#' rename_visualizers(experiment, "New Visualizer1" = "Visualizer1")
+#' }
+#'
+NULL
+
+#' @rdname rename_funs
+#'
+#' @inherit rename_funs examples
+#' @export
+rename_dgps <- function(experiment, ...) {
+  experiment$rename_dgps(...)
+}
+
+#' @rdname rename_funs
+#'
+#' @inherit rename_funs examples
+#' @export
+rename_methods <- function(experiment, ...) {
+  experiment$rename_methods(...)
+}
+
+#' @rdname rename_funs
+#'
+#' @inherit rename_funs examples
+#' @export
+rename_evaluators <- function(experiment, ...) {
+  experiment$rename_evaluators(...)
+}
+
+#' @rdname rename_funs
+#'
+#' @inherit rename_funs examples
+#' @export
+rename_visualizers <- function(experiment, ...) {
+  experiment$rename_visualizers(...)
+}
+
 # TODO: add @details
 #' Helper functions for getting components in an `Experiment`.
 #'

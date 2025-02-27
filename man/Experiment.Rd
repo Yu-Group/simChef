@@ -47,18 +47,22 @@ first argument: \code{\link[=create_experiment]{create_experiment()}}, \code{\li
 \item \href{#method-Experiment-add_dgp}{\code{Experiment$add_dgp()}}
 \item \href{#method-Experiment-update_dgp}{\code{Experiment$update_dgp()}}
 \item \href{#method-Experiment-remove_dgp}{\code{Experiment$remove_dgp()}}
+\item \href{#method-Experiment-rename_dgps}{\code{Experiment$rename_dgps()}}
 \item \href{#method-Experiment-get_dgps}{\code{Experiment$get_dgps()}}
 \item \href{#method-Experiment-add_method}{\code{Experiment$add_method()}}
 \item \href{#method-Experiment-update_method}{\code{Experiment$update_method()}}
 \item \href{#method-Experiment-remove_method}{\code{Experiment$remove_method()}}
+\item \href{#method-Experiment-rename_methods}{\code{Experiment$rename_methods()}}
 \item \href{#method-Experiment-get_methods}{\code{Experiment$get_methods()}}
 \item \href{#method-Experiment-add_evaluator}{\code{Experiment$add_evaluator()}}
 \item \href{#method-Experiment-update_evaluator}{\code{Experiment$update_evaluator()}}
 \item \href{#method-Experiment-remove_evaluator}{\code{Experiment$remove_evaluator()}}
+\item \href{#method-Experiment-rename_evaluators}{\code{Experiment$rename_evaluators()}}
 \item \href{#method-Experiment-get_evaluators}{\code{Experiment$get_evaluators()}}
 \item \href{#method-Experiment-add_visualizer}{\code{Experiment$add_visualizer()}}
 \item \href{#method-Experiment-update_visualizer}{\code{Experiment$update_visualizer()}}
 \item \href{#method-Experiment-remove_visualizer}{\code{Experiment$remove_visualizer()}}
+\item \href{#method-Experiment-rename_visualizers}{\code{Experiment$rename_visualizers()}}
 \item \href{#method-Experiment-get_visualizers}{\code{Experiment$get_visualizers()}}
 \item \href{#method-Experiment-add_vary_across}{\code{Experiment$add_vary_across()}}
 \item \href{#method-Experiment-update_vary_across}{\code{Experiment$update_vary_across()}}
@@ -533,6 +537,28 @@ The \code{Experiment} object, invisibly.
 }
 }
 \if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Experiment-rename_dgps"></a>}}
+\if{latex}{\out{\hypertarget{method-Experiment-rename_dgps}{}}}
+\subsection{Method \code{rename_dgps()}}{
+Rename \link{DGP} objects in the \code{Experiment} and in the cached
+documentation and results.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Experiment$rename_dgps(...)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{...}}{Named character vector of names to rename. Use
+\code{"new_name" = "old_name"} format.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+The \code{Experiment} object, invisibly.
+}
+}
+\if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Experiment-get_dgps"></a>}}
 \if{latex}{\out{\hypertarget{method-Experiment-get_dgps}{}}}
 \subsection{Method \code{get_dgps()}}{
@@ -608,6 +634,28 @@ Remove a \link{Method} object from the \code{Experiment}.
 \item{\code{name}}{An existing name identifying the \code{Method} to be removed.}
 
 \item{\code{...}}{Not used}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+The \code{Experiment} object, invisibly.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Experiment-rename_methods"></a>}}
+\if{latex}{\out{\hypertarget{method-Experiment-rename_methods}{}}}
+\subsection{Method \code{rename_methods()}}{
+Rename \link{Method} objects in the \code{Experiment} and in the
+cached documentation and results.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Experiment$rename_methods(...)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{...}}{Named character vector of names to rename. Use
+\code{"new_name" = "old_name"} format.}
 }
 \if{html}{\out{</div>}}
 }
@@ -699,6 +747,28 @@ The \code{Experiment} object, invisibly.
 }
 }
 \if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Experiment-rename_evaluators"></a>}}
+\if{latex}{\out{\hypertarget{method-Experiment-rename_evaluators}{}}}
+\subsection{Method \code{rename_evaluators()}}{
+Rename \link{Evaluator} objects in the \code{Experiment} and in the
+cached documentation and results.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Experiment$rename_evaluators(...)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{...}}{Named character vector of names to rename. Use
+\code{"new_name" = "old_name"} format.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+The \code{Experiment} object, invisibly.
+}
+}
+\if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Experiment-get_evaluators"></a>}}
 \if{latex}{\out{\hypertarget{method-Experiment-get_evaluators}{}}}
 \subsection{Method \code{get_evaluators()}}{
@@ -774,6 +844,28 @@ Remove a \link{Visualizer} object from the \code{Experiment}.
 \item{\code{name}}{An existing name identifying the \code{Visualizer} to be removed.}
 
 \item{\code{...}}{Not used}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+The \code{Experiment} object, invisibly.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Experiment-rename_visualizers"></a>}}
+\if{latex}{\out{\hypertarget{method-Experiment-rename_visualizers}{}}}
+\subsection{Method \code{rename_visualizers()}}{
+Rename \link{Visualizer} objects in the \code{Experiment} and in the
+cached documentation and results.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Experiment$rename_visualizers(...)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{...}}{Named character vector of names to rename. Use
+\code{"new_name" = "old_name"} format.}
 }
 \if{html}{\out{</div>}}
 }
